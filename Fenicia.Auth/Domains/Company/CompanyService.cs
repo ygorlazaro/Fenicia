@@ -1,7 +1,8 @@
-using Fenicia.Auth.Domains.Company.Responses;
+using Fenicia.Auth.Domains.Company.DTOs.Responses;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
@@ -34,8 +35,8 @@ public class CompanyService(DefaultContext db)
 
     public async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken ct)
     {
-        var company = await db.AuthCompanies.AnyActiveAsync(companyId, ct) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
-        var isAdmin = await db.AuthUserRoles.HasRoleAsync(userId, companyId, "Admin", ct);
+        var company = await AnyActiveAsync(companyId, ct) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
+        var isAdmin = await db.AuthUserRoles.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == "Admin", ct);
 
         if (!isAdmin)
         {
@@ -49,6 +50,16 @@ public class CompanyService(DefaultContext db)
 
     public async Task<bool> CheckExistsAsync(string cnpj, bool onlyActive, CancellationToken ct)
     {
-        return await db.AuthCompanies.AnyCnpjAsync(cnpj, ct, onlyActive);
+        return await db.AuthCompanies.AnyAsync(c => c.Cnpj == cnpj && (!onlyActive || c.IsActive), ct);
+    }
+
+    public async Task<CompanyModel?> AnyActiveAsync(Guid companyId, CancellationToken ct)
+    {
+        return await db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId && c.IsActive, ct);
+    }
+
+    public async Task<bool> AnyAsync(Guid companyId, CancellationToken ct)
+    {
+        return await db.AuthCompanies.AnyAsync(c => c.Id == companyId, ct);
     }
 }

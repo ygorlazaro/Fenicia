@@ -1,17 +1,15 @@
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Security.Command;
-using Fenicia.Auth.Domains.Security.Handler;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Tests.Domains.Security;
 
 public class HashStringHandlerTests
 {
-    private readonly HashStringHandler handler = new();
-
     [Fact]
     public async Task Handle_WhenPasswordIsValid_ReturnsHashedPassword()
     {
-        var result = await handler.Handle(new HashStringCommand("MyPassword123"), CancellationToken.None);
+        var result = SecurityService.Hash("MyPassword123");
         Assert.NotNull(result);
         Assert.NotEqual("MyPassword123", result);
     }
@@ -19,12 +17,12 @@ public class HashStringHandlerTests
     [Fact]
     public async Task Handle_WhenPasswordIsNull_ThrowsInvalidRequestException()
     {
-        await Assert.ThrowsAsync<InvalidRequestException>(() => handler.Handle(new HashStringCommand(null!), CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(() => Task.FromResult(SecurityService.Hash(null!)));
     }
 
     [Fact]
     public async Task Handle_WhenPasswordIsEmpty_ThrowsInvalidRequestException()
     {
-        await Assert.ThrowsAsync<InvalidRequestException>(() => handler.Handle(new HashStringCommand(string.Empty), CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(() => Task.FromResult(SecurityService.Hash(string.Empty)));
     }
 }

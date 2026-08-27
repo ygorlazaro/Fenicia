@@ -2,8 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Token.Handlers;
-using Fenicia.Auth.Domains.Token.Responses;
+using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.Token.DTOs.Responses;
 
 using Microsoft.Extensions.Configuration;
 
@@ -13,7 +13,7 @@ public class GenerateTokenStringHandlerTests
 {
     private readonly Faker faker;
 
-    private readonly GenerateTokenStringHandler handler;
+    private readonly TokenService handler;
 
     public GenerateTokenStringHandlerTests()
     {
@@ -21,7 +21,7 @@ public class GenerateTokenStringHandlerTests
 
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
-        handler = new GenerateTokenStringHandler(configuration);
+        handler = new TokenService(null!, configuration, null!);
         faker = new Faker();
     }
 
@@ -31,7 +31,7 @@ public class GenerateTokenStringHandlerTests
 
         var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
 
-        var token = handler.Handle(user);
+        var token = handler.GenerateString(user);
 
         Assert.NotNull(token);
         Assert.NotEmpty(token);
@@ -44,7 +44,7 @@ public class GenerateTokenStringHandlerTests
         var userId = Guid.NewGuid();
         var user = new GenerateTokenResponse(userId, faker.Person.FullName, faker.Internet.Email());
 
-        var token = handler.Handle(user);
+        var token = handler.GenerateString(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -60,7 +60,7 @@ public class GenerateTokenStringHandlerTests
         var name = faker.Person.FullName;
         var user = new GenerateTokenResponse(userId, name, email);
 
-        var token = handler.Handle(user);
+        var token = handler.GenerateString(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -77,7 +77,7 @@ public class GenerateTokenStringHandlerTests
 
         var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), Guid.NewGuid());
 
-        var token = handler.Handle(userWithCompany);
+        var token = handler.GenerateString(userWithCompany);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -92,7 +92,7 @@ public class GenerateTokenStringHandlerTests
 
         var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["Admin", "User", "Manager"]);
 
-        var token = handler.Handle(userWithRoles);
+        var token = handler.GenerateString(userWithRoles);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -110,7 +110,7 @@ public class GenerateTokenStringHandlerTests
 
         var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["basic", "social"]);
 
-        var token = handler.Handle(userWithModules);
+        var token = handler.GenerateString(userWithModules);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -127,7 +127,7 @@ public class GenerateTokenStringHandlerTests
 
         var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
 
-        var token = handler.Handle(user);
+        var token = handler.GenerateString(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -141,10 +141,10 @@ public class GenerateTokenStringHandlerTests
 
         var badConfig = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
 
-        var badHandler = new GenerateTokenStringHandler(badConfig);
+        var badHandler = new TokenService(null!, badConfig, null!);
         var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
 
-        Assert.Throws<InvalidOperationException>(() => badHandler.Handle(user));
+        Assert.Throws<InvalidOperationException>(() => badHandler.GenerateString(user));
     }
 
     [Fact]
@@ -153,7 +153,7 @@ public class GenerateTokenStringHandlerTests
 
         var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["Admin", "", null!, "User"]);
 
-        var token = handler.Handle(userWithEmptyRoles);
+        var token = handler.GenerateString(userWithEmptyRoles);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -168,7 +168,7 @@ public class GenerateTokenStringHandlerTests
 
         var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["", null!, "basic"]);
 
-        var token = handler.Handle(userWithEmptyModules);
+        var token = handler.GenerateString(userWithEmptyModules);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);

@@ -1,5 +1,5 @@
 using Fenicia.Auth.Domains.Configuration;
-using Fenicia.Auth.Domains.Configuration.Queries;
+using Fenicia.Auth.Domains.Configuration.DTOs.Queries;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;

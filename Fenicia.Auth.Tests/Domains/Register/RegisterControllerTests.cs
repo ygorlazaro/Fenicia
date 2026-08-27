@@ -1,14 +1,11 @@
 using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.Register.Command;
-using Fenicia.Auth.Domains.Register.Handler;
 using Fenicia.Auth.Domains.Register.Response;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.DTOs.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,13 +28,10 @@ public class RegisterControllerTests : IDisposable
 
         db = new DefaultContext(options, new TestCompanyContext());
         var userService = new UserService(db);
-        var registerHandler = new RegisterHandler(userService);
-        var mockSender = new Mock<ISender>();
-        mockSender.Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
-            .Returns((RegisterCommand command, CancellationToken token) => registerHandler.Handle(command, token));
+        var registerService = new RegisterService(userService);
 
         var mockHttpContext = new Mock<HttpContext>();
-        controller = new RegisterController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new RegisterController(registerService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         adminRoleId = Guid.NewGuid();
         SeedAdminRole();
@@ -46,6 +40,7 @@ public class RegisterControllerTests : IDisposable
     public void Dispose()
     {
         db.Dispose();
+
         GC.SuppressFinalize(this);
     }
 

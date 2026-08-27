@@ -1,14 +1,15 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.RefreshToken.Commands;
-using Fenicia.Auth.Domains.RefreshToken.Queries;
-using Fenicia.Auth.Domains.Token.Queries;
-using Fenicia.Auth.Domains.Token.Responses;
-using Fenicia.Auth.Domains.User.Queries;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.DTOs.Commands;
+using Fenicia.Auth.Domains.RefreshToken.DTOs.Queries;
+using Fenicia.Auth.Domains.Token.DTOs.Queries;
+using Fenicia.Auth.Domains.Token.DTOs.Responses;
+using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.DTOs.Queries;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace Fenicia.Auth.Domains.Token;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(ISender sender) : ControllerBase
+public class TokenController(TokenService tokenService, RefreshTokenService refreshTokenService, UserService userService) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
@@ -32,7 +33,7 @@ public class TokenController(ISender sender) : ControllerBase
         {
             wide.UserId = request.Email;
 
-            var userResponse = await sender.Send(request, ct);
+            var userResponse = await tokenService.GenerateAsync(request, ct);
 
             return await PopulateTokenAsync(userResponse, ct);
         }
@@ -65,16 +66,16 @@ public class TokenController(ISender sender) : ControllerBase
         {
             wide.UserId = request.UserId.ToString();
 
-            var isValidToken = await sender.Send(request, ct);
+            var isValidToken = await refreshTokenService.ValidateAsync(request.UserId, request.RefreshToken, ct);
 
             if (!isValidToken)
             {
                 return BadRequest("Invalid client request");
             }
 
-            await sender.Send(new InvalidateRefreshTokenCommand(request.RefreshToken), ct);
+            await refreshTokenService.InvalidateAsync(request.RefreshToken, ct);
 
-            var userResponse = await sender.Send(new GetUserForRefreshQuery(request.UserId), ct);
+            var userResponse = await userService.GetForRefreshAsync(request.UserId, ct);
 
             return await PopulateTokenAsync(new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email), ct);
         }
@@ -90,8 +91,8 @@ public class TokenController(ISender sender) : ControllerBase
 
     private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(GenerateTokenResponse user, CancellationToken ct)
     {
-        var token = await sender.Send(new GenerateTokenStringQuery(user), ct);
-        var refreshToken = await sender.Send(new GenerateRefreshTokenCommand(user.Id), ct);
+        var token = tokenService.GenerateString(user);
+        var refreshToken = refreshTokenService.Generate(user.Id);
         var userResponse = new UserResponse(user.Id, user.Name, user.Email);
         var response = new TokenResponse(token, refreshToken, userResponse);
 

@@ -1,21 +1,22 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.Handlers;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.LoginAttempt.DTOs.Commands;
 
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-public class ResetLoginAttemptsHandlerTests : IDisposable
+public class ResetAttemptsServiceTests : IDisposable
 {
     private readonly MemoryCache cache;
     private readonly Faker faker;
-    private readonly ResetLoginAttemptsHandler handler;
+    private readonly LoginAttemptService service;
 
-    public ResetLoginAttemptsHandlerTests()
+    public ResetAttemptsServiceTests()
     {
         cache = new MemoryCache(new MemoryCacheOptions());
-        handler = new ResetLoginAttemptsHandler(cache);
+        service = new LoginAttemptService(cache);
         faker = new Faker();
     }
 
@@ -25,20 +26,20 @@ public class ResetLoginAttemptsHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAttemptsExist_RemovesAttempts()
+    public async Task ResetAsync_WhenAttemptsExist_RemovesAttempts()
     {
         var email = faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
         cache.Set(key, 5);
 
-        await handler.ResetAsync(email);
+        await service.ResetAsync(email);
 
         Assert.False(cache.TryGetValue(key, out _));
     }
 
     [Fact]
-    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    public async Task ResetAsync_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.ResetAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.ResetAsync(null!));
     }
 }

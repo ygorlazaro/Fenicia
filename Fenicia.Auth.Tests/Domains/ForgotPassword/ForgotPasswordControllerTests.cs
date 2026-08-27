@@ -1,7 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword;
-using Fenicia.Auth.Domains.ForgotPassword.Commands;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.ForgotPassword.DTOs.Commands;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -29,8 +30,8 @@ public class ForgotPasswordControllerTests : IDisposable
         db = new DefaultContext(options, new TestCompanyContext());
 
         var mockHttpContext = new Mock<HttpContext>();
-
-        var forgotPasswordService = new ForgotPasswordService(db);
+        var userService = new UserService(db);
+        var forgotPasswordService = new ForgotPasswordService(db, userService);
         controller = new ForgotPasswordController(forgotPasswordService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         faker = new Faker();

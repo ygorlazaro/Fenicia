@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.ForgotPassword.Commands;
+using Fenicia.Auth.Domains.ForgotPassword.DTOs.Commands;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordService(DefaultContext db)
+public class ForgotPasswordService(DefaultContext db, UserService userService)
 {
     public async Task AddAsync(AddForgotPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
+        var user = await userService.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
         var forgotPasswordModel = new ForgotPasswordModel
@@ -32,10 +32,10 @@ public class ForgotPasswordService(DefaultContext db)
 
     public async Task ResetAsync(ResetPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
+        var user = await userService.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var currentCode = await GetFromUserIdAndCodeAsync(user.Id, command.Code, ct) ?? throw new InvalidDataException(ExceptionMessages.InvalidForgotPasswordCode);
 
-        user.Password = command.Password.Hash();
+        user.Password = SecurityService.Hash(command.Password);
 
         await InvalidateCodeAsync(currentCode.Id, ct);
 

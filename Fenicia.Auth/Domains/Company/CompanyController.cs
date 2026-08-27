@@ -1,6 +1,6 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Company.Responses;
+using Fenicia.Auth.Domains.Company.DTOs.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;

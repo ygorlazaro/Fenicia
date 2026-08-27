@@ -5,8 +5,6 @@ using Fenicia.Auth.Domains.Register.Response;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +14,7 @@ namespace Fenicia.Auth.Domains.Register;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class RegisterController(ISender sender) : ControllerBase
+public class RegisterController(RegisterService registerService) : ControllerBase
 {
 
     [HttpPost]
@@ -29,7 +27,7 @@ public class RegisterController(ISender sender) : ControllerBase
         {
             wide.UserId = request.Email;
 
-            var userResponse = await sender.Send(request, ct);
+            var userResponse = await registerService.CreateAsync(request, ct);
 
             return Created(string.Empty, userResponse);
         }

@@ -1,6 +1,6 @@
-using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Responses;
-using Fenicia.Auth.Domains.UserRole.Responses;
+using Fenicia.Auth.Domains.User.DTOs.Commands;
+using Fenicia.Auth.Domains.User.DTOs.Responses;
+using Fenicia.Auth.Domains.UserRole.DTOs.Responses;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Role;
@@ -45,12 +45,29 @@ public class UserService(DefaultContext db)
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct)
     {
-        return await db.AuthUsers.AnyEmailAsync(email, ct);
+        return await db.AuthUsers.AnyAsync(u => u.Email == email, ct);
     }
 
-    public async Task<GetUserForRefreshResponse> GetForRefreshAsync(Guid userId, CancellationToken ct)
+    public async Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(userId, ct);
+        return await db.AuthUsers.FirstOrDefaultAsync(u => u.Id == userId, ct) ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);
+    }
+
+    public async Task<UserModel?> FirstByEmailOrDefaultAsync(string email, CancellationToken ct)
+    {
+        return await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email, ct);
+    }
+
+    public async Task<UserModel> UpdatePasswordAsync(Guid userId, string plainPassword, CancellationToken ct)
+    {
+        var user = await FirstByIdAsync(userId, ct);
+        user.Password = SecurityService.Hash(plainPassword);
+        return user;
+    }
+
+    public virtual async Task<GetUserForRefreshResponse> GetForRefreshAsync(Guid userId, CancellationToken ct)
+    {
+        var user = await FirstByIdAsync(userId, ct);
 
         return new GetUserForRefreshResponse(user.Id, user.Email, user.Name);
     }
@@ -68,14 +85,14 @@ public class UserService(DefaultContext db)
 
     public async Task<CreateUserResponse> CreateAsync(CreateUserCommand command, CancellationToken ct)
     {
-        var userExists = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
+        var userExists = await db.AuthUsers.AnyAsync(u => u.Email == command.Email, ct);
 
         if (userExists)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var hashedPassword = command.Password.Hash();
+        var hashedPassword = SecurityService.Hash(command.Password);
 
         var user = new UserModel
         {
@@ -103,7 +120,7 @@ public class UserService(DefaultContext db)
 
     public async Task<UpdateUserResponse> UpdateAsync(UpdateUserCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
+        var user = await FirstByIdAsync(command.UserId, ct);
 
         await ValidateFields(user, command, ct);
 
@@ -118,7 +135,7 @@ public class UserService(DefaultContext db)
 
     public async Task DeleteAsync(Guid userId, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(userId, ct);
+        var user = await FirstByIdAsync(userId, ct);
 
         user.Deleted = DateTime.UtcNow;
 
@@ -127,8 +144,8 @@ public class UserService(DefaultContext db)
 
     public async Task<UpdateUserPasswordResponse> UpdatePasswordAsync(UpdateUserPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
-        var hashedPassword = command.Password.Hash();
+        var user = await FirstByIdAsync(command.UserId, ct);
+        var hashedPassword = SecurityService.Hash(command.Password);
 
         user.Password = hashedPassword;
 
@@ -139,7 +156,7 @@ public class UserService(DefaultContext db)
 
     public async Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(UpdatePasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.UpdatePasswordAsync(command.UserId, command.Password, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
+        var user = await UpdatePasswordAsync(command.UserId, command.Password, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
         db.Entry(user).State = EntityState.Modified;
 
         await db.SaveChangesAsync(ct);
@@ -189,21 +206,21 @@ public class UserService(DefaultContext db)
 
     private async Task<(UserModel user, CompanyModel company)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
     {
-        var existingUser = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
+        var existingUser = await db.AuthUsers.AnyAsync(u => u.Email == command.Email, ct);
 
         if (existingUser)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var existingCompany = await db.AuthCompanies.AnyCnpjAsync(command.Company.Cnpj, ct);
+        var existingCompany = await db.AuthCompanies.AnyAsync(c => c.Cnpj == command.Company.Cnpj, ct);
 
         if (existingCompany)
         {
             throw new InvalidRequestException(ExceptionMessages.CompanyExists);
         }
 
-        var hashedPassword = command.Password.Hash();
+        var hashedPassword = SecurityService.Hash(command.Password);
         var user = new UserModel
         {
             Email = command.Email,
@@ -221,7 +238,7 @@ public class UserService(DefaultContext db)
 
         db.AuthCompanies.Add(company);
 
-        var adminRole = await db.AuthRoles.GetRoleAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
+        var adminRole = await db.AuthRoles.FirstOrDefaultAsync(r => r.Name == "Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
         var userRole = new UserRoleModel
         {
             UserId = user.Id,
@@ -237,8 +254,8 @@ public class UserService(DefaultContext db)
 
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)
     {
-        var isExistingUser = await db.AuthUsers.AnyEmailAsync(request.Email, ct);
-        var isExistingCompany = await db.AuthCompanies.AnyCnpjAsync(request.Company.Cnpj, ct);
+        var isExistingUser = await db.AuthUsers.AnyAsync(u => u.Email == request.Email, ct);
+        var isExistingCompany = await db.AuthCompanies.AnyAsync(c => c.Cnpj == request.Company.Cnpj, ct);
 
         if (isExistingUser)
         {

@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Security.Services;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.DTOs.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -134,8 +134,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
-        var verifyHandler = new VerifyPasswordService();
-        var isValid = verifyHandler.Handle(newPassword, updatedUser.Password);
+        var isValid = SecurityService.Verify(newPassword, updatedUser.Password);
         Assert.True(isValid);
     }
 

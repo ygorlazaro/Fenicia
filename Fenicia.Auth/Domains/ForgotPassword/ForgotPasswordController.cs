@@ -1,6 +1,6 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.ForgotPassword.Commands;
+using Fenicia.Auth.Domains.ForgotPassword.DTOs.Commands;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
