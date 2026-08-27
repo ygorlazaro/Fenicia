@@ -4,10 +4,6 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Company.Commands;
-using Fenicia.Auth.Domains.Company.Handlers;
-
-using MediatR;
 using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
@@ -43,22 +39,22 @@ public class CompanyControllerTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton(db);
         services.AddLogging();
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<UpdateCompanyHandler>());
+        services.AddSingleton(new CompanyService(db));
 
         var provider = services.BuildServiceProvider();
-        var sender = provider.GetRequiredService<ISender>();
+        var service = provider.GetRequiredService<CompanyService>();
 
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new CompanyController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new CompanyController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();
     }
-
     public void Dispose()
     {
         db.Dispose();
+
         GC.SuppressFinalize(this);
     }
 
@@ -217,7 +213,7 @@ public class CompanyControllerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
 
         var result = await controller.PatchAsync(companyId, request, wide, ct);
 
@@ -242,7 +238,7 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
 
         var result = await controller.PatchAsync(companyId, request, wide, ct);
 
@@ -295,7 +291,7 @@ public class CompanyControllerTests : IDisposable
         db.AuthUserRoles.Add(userRoleMapping);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
 
         var result = await controller.PatchAsync(companyId, request, wide, ct);
 
@@ -348,7 +344,7 @@ public class CompanyControllerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
 
         await controller.PatchAsync(companyId, request, wide, ct);
 

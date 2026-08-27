@@ -1,14 +1,9 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Company.Commands;
-
-using Fenicia.Auth.Domains.Company.Queries;
 using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +15,8 @@ namespace Fenicia.Auth.Domains.Company;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController(ISender sender) : ControllerBase
+public class CompanyController(CompanyService service) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,8 +29,7 @@ public class CompanyController(ISender sender) : ControllerBase
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var getCompaniesByUserQuery = new GetCompaniesByUserQuery(userId, query.Page, query.PerPage);
-            var result = await sender.Send(getCompaniesByUserQuery, ct);
+            var result = await service.GetCompaniesByUserAsync(userId, query.Page, query.PerPage, ct);
 
             return Ok(result);
         }
@@ -58,16 +51,14 @@ public class CompanyController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyCommand request, WideEventContext wide, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyRequest request, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var company = request with { CompanyId = id };
-
-            await sender.Send(company, ct);
+            await service.UpdateAsync(id, userId, request.Name, ct);
 
             return NoContent();
         }
@@ -85,3 +76,5 @@ public class CompanyController(ISender sender) : ControllerBase
         }
     }
 }
+
+public record UpdateCompanyRequest(string Name);
