@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.OrderDetail.Queries;
-using Fenicia.Module.Basic.Domains.OrderDetail.Responses;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Responses;
 
 using MediatR;
 

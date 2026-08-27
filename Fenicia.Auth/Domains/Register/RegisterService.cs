@@ -1,5 +1,5 @@
-using Fenicia.Auth.Domains.Register.Command;
-using Fenicia.Auth.Domains.Register.Response;
+using Fenicia.Auth.Domains.Register.DTOs.Commands;
+using Fenicia.Auth.Domains.Register.DTOs.Responses;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs.Commands;
 

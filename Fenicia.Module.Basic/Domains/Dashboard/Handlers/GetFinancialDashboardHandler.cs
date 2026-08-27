@@ -2,8 +2,8 @@ using System.Globalization;
 
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Module.Basic.Domains.Dashboard.Queries;
-using Fenicia.Module.Basic.Domains.Dashboard.Responses;
+using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Responses;
 
 using MediatR;
 

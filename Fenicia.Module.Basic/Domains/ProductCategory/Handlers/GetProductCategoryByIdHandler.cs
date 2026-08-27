@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
-using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Responses;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;

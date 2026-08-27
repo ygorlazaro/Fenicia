@@ -3,11 +3,11 @@ using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Product.Queries;
-using Fenicia.Module.Basic.Domains.Product.Responses;
-using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
-using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
-using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

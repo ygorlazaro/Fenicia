@@ -1,7 +1,7 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Order.Command;
-using Fenicia.Auth.Domains.Order.Response;
+using Fenicia.Auth.Domains.Order.DTOs.Commands;
+using Fenicia.Auth.Domains.Order.DTOs.Responses;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;

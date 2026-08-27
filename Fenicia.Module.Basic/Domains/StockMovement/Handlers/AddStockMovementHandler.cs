@@ -2,8 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
-using Fenicia.Module.Basic.Domains.StockMovement.Commands;
-using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Responses;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;

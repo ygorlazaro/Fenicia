@@ -1,8 +1,8 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.Order.Commands;
-using Fenicia.Module.Basic.Domains.Order.Responses;
+using Fenicia.Module.Basic.Domains.Order.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Order.DTOs.Responses;
 
 using MediatR;
 

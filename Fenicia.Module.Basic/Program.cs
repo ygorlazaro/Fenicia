@@ -11,8 +11,6 @@ public class Program
     {
         var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
         {
             builder.Services.AddSingleton<ICompanyContext, CompanyContext>();

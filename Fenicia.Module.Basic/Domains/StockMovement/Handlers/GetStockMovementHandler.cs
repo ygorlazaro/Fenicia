@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.StockMovement.Queries;
-using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Responses;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;

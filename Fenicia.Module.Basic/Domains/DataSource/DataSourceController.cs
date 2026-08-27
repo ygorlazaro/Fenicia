@@ -1,8 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.DataSource.Queries;
-using Fenicia.Module.Basic.Domains.DataSource.Responses;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs.Responses;
 
 using MediatR;
 

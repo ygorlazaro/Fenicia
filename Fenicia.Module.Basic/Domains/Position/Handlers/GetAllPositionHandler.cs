@@ -1,7 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Position.Queries;
-using Fenicia.Module.Basic.Domains.Position.Responses;
+using Fenicia.Module.Basic.Domains.Position.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Position.DTOs.Responses;
 
 using MediatR;
 

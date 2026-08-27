@@ -1,8 +1,8 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer.Commands;
-using Fenicia.Module.Basic.Domains.Customer.Responses;
+using Fenicia.Module.Basic.Domains.Customer.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Customer.DTOs.Responses;
 
 using MediatR;
 

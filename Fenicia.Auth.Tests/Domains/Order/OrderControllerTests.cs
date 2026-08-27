@@ -5,8 +5,8 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Auth.Domains.Order.Command;
-using Fenicia.Auth.Domains.Order.Response;
+using Fenicia.Auth.Domains.Order.DTOs.Commands;
+using Fenicia.Auth.Domains.Order.DTOs.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
