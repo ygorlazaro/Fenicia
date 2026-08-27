@@ -1,6 +1,6 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Module.Queries;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Queries;
@@ -20,7 +20,7 @@ namespace Fenicia.Auth.Domains.User;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class UserController(ISender sender) : ControllerBase
+public class UserController(ISender sender, ModuleService moduleService) : ControllerBase
 {
 
     [HttpGet("module")]
@@ -34,8 +34,7 @@ public class UserController(ISender sender) : ControllerBase
             wide.UserId = userId.ToString();
 
             var companyId = headers.CompanyId;
-            var query = new GetUserModulesQuery(companyId, userId);
-            var response = await sender.Send(query, ct);
+            var response = await moduleService.GetUserModulesAsync(companyId, userId, ct);
 
             return Ok(response);
         }

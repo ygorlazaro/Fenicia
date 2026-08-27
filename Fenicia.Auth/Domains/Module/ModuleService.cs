@@ -1,25 +1,35 @@
-using Fenicia.Auth.Domains.Module.Queries;
 using Fenicia.Auth.Domains.Module.Responses;
+using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 
-using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Module.Handlers;
+namespace Fenicia.Auth.Domains.Module;
 
-public class GetUserModuleHandler(DefaultContext db) : IRequestHandler<GetUserModulesQuery, List<GetUserModulesResponse>>
+public class ModuleService(DefaultContext db)
 {
-
-    public async Task<List<GetUserModulesResponse>> Handle(GetUserModulesQuery query, CancellationToken ct)
+    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken ct)
     {
-        var request = ValidModuleBySubscriptionQuery(query.UserId, query.CompanyId);
+        var request = db.AuthModules.Where(m => m.Type != ModuleType.Auth && m.IsActive)
+            .OrderBy(m => m.SortOrder)
+            .Select(m => new GetModuleResponse(m.Id,
+                m.Name,
+                m.Type,
+                m.Description,
+                m.Icon,
+                m.IsActive,
+                m.SortOrder,
+                m.Price));
 
-        return await request.Distinct().ToListAsync(ct);
+        var modules = await request.Skip((page - 1) * perPage).Take(perPage).ToListAsync(ct);
+
+        var total = await request.CountAsync(ct);
+
+        return new Pagination<List<GetModuleResponse>>(modules, total, page, perPage);
     }
 
-    private IQueryable<GetUserModulesResponse> ValidModuleBySubscriptionQuery(Guid userId, Guid companyId)
+    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken ct)
     {
         var now = DateTime.Now;
 
@@ -39,6 +49,6 @@ public class GetUserModuleHandler(DefaultContext db) : IRequestHandler<GetUserMo
                         m.Name,
                         m.Type);
 
-        return query;
+        return await query.Distinct().ToListAsync(ct);
     }
 }
