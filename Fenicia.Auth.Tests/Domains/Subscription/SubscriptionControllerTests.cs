@@ -40,6 +40,7 @@ public class SubscriptionControllerTests : IDisposable
 
         var services = new ServiceCollection();
         services.AddSingleton(db);
+        services.AddLogging();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetUserProfileHandler>());
 
         var provider = services.BuildServiceProvider();

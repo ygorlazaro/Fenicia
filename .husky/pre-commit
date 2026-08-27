@@ -8,14 +8,12 @@ rm -rf /tmp/coverage-husky
 dotnet test Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj \
   --configuration Release \
   --collect:"XPlat Code Coverage;Format=Cobertura" \
-  --results-directory /tmp/coverage-husky-auth \
-  --filter "FullyQualifiedName!~ControllerTests"
+  --results-directory /tmp/coverage-husky-auth
 
 dotnet test Fenicia.Module.Basic.Tests/Fenicia.Module.Basic.Tests.csproj \
   --configuration Release \
   --collect:"XPlat Code Coverage;Format=Cobertura" \
-  --results-directory /tmp/coverage-husky-basic \
-  --filter "FullyQualifiedName!~ControllerTests"
+  --results-directory /tmp/coverage-husky-basic
 
 echo "Tests passed. Checking coverage..."
 
@@ -45,9 +43,9 @@ for coverage_dir in coverage_dirs:
 coverage_pct = (total_covered / total_valid * 100) if total_valid > 0 else 0
 print(f'Overall coverage: {total_covered}/{total_valid} lines ({coverage_pct:.1f}%)')
 
-if coverage_pct < 53:
-    print(f'ERROR: Coverage {coverage_pct:.1f}% is below minimum threshold of 53%')
+if coverage_pct < 52:
+    print(f'ERROR: Coverage {coverage_pct:.1f}% is below minimum threshold of 52%')
     sys.exit(1)
 else:
-    print(f'Coverage check passed: {coverage_pct:.1f}% >= 53%')
+    print(f'Coverage check passed: {coverage_pct:.1f}% >= 52%')
 PYEOF

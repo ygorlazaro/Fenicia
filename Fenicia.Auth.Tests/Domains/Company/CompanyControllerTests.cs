@@ -46,6 +46,7 @@ public class CompanyControllerTests : IDisposable
         testUserId = Guid.NewGuid();
         var services = new ServiceCollection();
         services.AddSingleton(db);
+        services.AddLogging();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<UpdateCompanyHandler>());
 
         var provider = services.BuildServiceProvider();
