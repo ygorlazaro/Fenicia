@@ -34,7 +34,7 @@ for coverage_dir in coverage_dirs:
 
         for cls in root.iter('class'):
             filename = cls.get('filename', '')
-            if ('Fenicia.Auth' in filename or 'Fenicia.Module.Basic' in filename) and 'Tests' not in filename and 'Migrations' not in filename:
+            if ('Fenicia.Auth' in filename or 'Fenicia.Module.Basic' in filename) and 'Tests' not in filename and 'Migrations' not in filename and 'obj' not in filename:
                 for line in cls.iter('line'):
                     total_valid += 1
                     if int(line.get('hits', 0)) > 0:
