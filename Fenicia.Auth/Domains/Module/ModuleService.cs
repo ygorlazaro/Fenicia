@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Module.Responses;
+using Fenicia.Auth.Domains.Module.DTOs.Responses;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;

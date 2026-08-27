@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Module.Responses;
+using Fenicia.Auth.Domains.Module.DTOs.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;

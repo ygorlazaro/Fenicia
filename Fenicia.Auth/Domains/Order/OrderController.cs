@@ -2,9 +2,9 @@ using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Order.Command;
 using Fenicia.Auth.Domains.Order.Response;
+using Fenicia.Auth.Domains.Order;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,7 @@ namespace Fenicia.Auth.Domains.Order;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(ISender sender) : ControllerBase
+public class OrderController(OrderService orderService) : ControllerBase
 {
 
     [HttpPost]
@@ -36,7 +36,7 @@ public class OrderController(ISender sender) : ControllerBase
             var userId = ClaimReader.UserId(User);
             var companyId = headers.CompanyId;
             var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
-            var order = await sender.Send(command, ct);
+            var order = await orderService.CreateAsync(command, ct);
 
             return order switch
             {

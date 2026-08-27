@@ -1,0 +1,5 @@
+using Fenicia.Auth.Domains.Notification.DTOs.Responses;
+
+namespace Fenicia.Auth.Domains.Notification.DTOs.Queries;
+
+public record GetNotificationByIdQuery(Guid Id);

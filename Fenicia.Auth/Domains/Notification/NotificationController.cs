@@ -1,12 +1,9 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Notification.Commands;
-using Fenicia.Auth.Domains.Notification.Queries;
-using Fenicia.Auth.Domains.Notification.Responses;
+using Fenicia.Auth.Domains.Notification.DTOs.Commands;
+using Fenicia.Auth.Domains.Notification.DTOs.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +15,7 @@ namespace Fenicia.Auth.Domains.Notification;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class NotificationController(ISender sender) : ControllerBase
+public class NotificationController(NotificationService notificationService) : ControllerBase
 {
 
     [HttpGet]
@@ -30,7 +27,7 @@ public class NotificationController(ISender sender) : ControllerBase
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notifications = await sender.Send(new GetAllNotificationsQuery(page, perPage), ct);
+            var notifications = await notificationService.GetAllAsync(page, perPage, ct);
             return Ok(notifications);
         }
         catch (UnauthorizedAccessException ex)
@@ -49,7 +46,7 @@ public class NotificationController(ISender sender) : ControllerBase
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await sender.Send(new GetNotificationByIdQuery(id), ct);
+            var notification = await notificationService.GetByIdAsync(id, ct);
             return notification is null ? NotFound() : Ok(notification);
         }
         catch (UnauthorizedAccessException ex)
@@ -68,7 +65,7 @@ public class NotificationController(ISender sender) : ControllerBase
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await sender.Send(command, ct);
+            var notification = await notificationService.AddAsync(command, ct);
             return new CreatedResult(string.Empty, notification);
         }
         catch (UnauthorizedAccessException ex)
@@ -88,7 +85,7 @@ public class NotificationController(ISender sender) : ControllerBase
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await sender.Send(command with { Id = id }, ct);
+            var notification = await notificationService.UpdateAsync(command with { Id = id }, ct);
             return notification switch
             {
                 null => NotFound(),
@@ -109,7 +106,7 @@ public class NotificationController(ISender sender) : ControllerBase
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            await sender.Send(new DeleteNotificationCommand(id), ct);
+            await notificationService.DeleteAsync(id, ct);
             return NoContent();
         }
         catch (UnauthorizedAccessException ex)
@@ -127,7 +124,7 @@ public class NotificationController(ISender sender) : ControllerBase
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var result = await sender.Send(new MarkAsReadCommand(id), ct);
+            var result = await notificationService.MarkAsReadAsync(id, ct);
             return result ? NoContent() : NotFound();
         }
         catch (UnauthorizedAccessException ex)

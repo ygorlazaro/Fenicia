@@ -4,10 +4,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.Subscription.Handlers;
-using Fenicia.Auth.Domains.Subscription.Responses;
-
-using MediatR;
+using Fenicia.Auth.Domains.Subscription.DTOs.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -17,8 +14,6 @@ using Fenicia.Common.Tests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -38,17 +33,10 @@ public class SubscriptionControllerTests : IDisposable
 
         db = new DefaultContext(options, new TestCompanyContext());
 
-        var services = new ServiceCollection();
-        services.AddSingleton(db);
-        services.AddLogging();
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetUserProfileHandler>());
-
-        var provider = services.BuildServiceProvider();
-        var sender = provider.GetRequiredService<ISender>();
-
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new SubscriptionController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        var subscriptionService = new SubscriptionService(db);
+        controller = new SubscriptionController(subscriptionService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();
@@ -57,6 +45,7 @@ public class SubscriptionControllerTests : IDisposable
     public void Dispose()
     {
         db.Dispose();
+
         GC.SuppressFinalize(this);
     }
 

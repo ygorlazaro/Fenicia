@@ -1,22 +1,23 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.Handlers;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.LoginAttempt.DTOs.Commands;
 
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-public class GetLoginAttemptsHandlerTests : IDisposable
+public class LoginAttemptServiceTests : IDisposable
 {
     private readonly MemoryCache cache;
     private readonly Faker faker;
-    private readonly GetLoginAttemptsHandler handler;
+    private readonly LoginAttemptService service;
 
-    public GetLoginAttemptsHandlerTests()
+    public LoginAttemptServiceTests()
     {
         cache = new MemoryCache(new MemoryCacheOptions());
         faker = new Faker();
-        handler = new GetLoginAttemptsHandler(cache);
+        service = new LoginAttemptService(cache);
     }
 
     public void Dispose()
@@ -25,38 +26,38 @@ public class GetLoginAttemptsHandlerTests : IDisposable
     }
 
     [Fact]
-    public void Handle_WhenNoAttemptsExist_ReturnsZero()
+    public void GetAttempts_WhenNoAttemptsExist_ReturnsZero()
     {
-        var result = handler.GetAttempts(faker.Internet.Email());
+        var result = service.GetAttempts(faker.Internet.Email());
 
         Assert.Equal(0, result);
     }
 
     [Fact]
-    public void Handle_WhenAttemptsExist_ReturnsAttemptCount()
+    public void GetAttempts_WhenAttemptsExist_ReturnsAttemptCount()
     {
         var email = faker.Internet.Email();
         cache.Set($"login-attempt:{email.ToLower()}", 3);
 
-        var result = handler.GetAttempts(email);
+        var result = service.GetAttempts(email);
 
         Assert.Equal(3, result);
     }
 
     [Fact]
-    public void Handle_WhenEmailHasDifferentCase_ReturnsCorrectCount()
+    public void GetAttempts_WhenEmailHasDifferentCase_ReturnsCorrectCount()
     {
         var email = faker.Internet.Email();
         cache.Set($"login-attempt:{email.ToLower()}", 5);
 
-        var result = handler.GetAttempts(email.ToUpper());
+        var result = service.GetAttempts(email.ToUpper());
 
         Assert.Equal(5, result);
     }
 
     [Fact]
-    public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    public void GetAttempts_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => handler.GetAttempts(null!));
+        Assert.Throws<ArgumentNullException>(() => service.GetAttempts(null!));
     }
 }

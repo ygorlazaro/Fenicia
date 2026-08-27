@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.User.Responses;
+using Fenicia.Auth.Domains.User.DTOs.Responses;
 
 namespace Fenicia.Auth.Domains.Register.Response;
 

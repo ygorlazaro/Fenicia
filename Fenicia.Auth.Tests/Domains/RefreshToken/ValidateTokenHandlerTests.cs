@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using Fenicia.Auth.Domains.RefreshToken.Handlers;
-using Fenicia.Auth.Domains.RefreshToken.Queries;
-using Fenicia.Auth.Domains.RefreshToken.Responses;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.DTOs.Queries;
+using Fenicia.Auth.Domains.RefreshToken.DTOs.Responses;
 using Fenicia.Common.Exceptions;
 
 using Moq;
@@ -11,45 +11,42 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
 
-public class ValidateTokenHandlerTests
+public class ValidateTokenServiceTests
 {
-    private readonly ValidateTokenHandler handler;
+    private readonly Mock<IConnectionMultiplexer> redisMock;
     private readonly Mock<IDatabase> redisDbMock;
 
-    public ValidateTokenHandlerTests()
+    public ValidateTokenServiceTests()
     {
-        var redisMock = new Mock<IConnectionMultiplexer>();
+        redisMock = new Mock<IConnectionMultiplexer>();
         redisDbMock = new Mock<IDatabase>();
 
         redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(redisDbMock.Object);
-
-        handler = new ValidateTokenHandler(redisMock.Object);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenIsValidAndActive_ReturnsTrue()
+    public async Task ValidateAsync_WhenTokenIsValidAndActive_ReturnsTrue()
     {
 
         var userId = Guid.NewGuid();
         const string refreshToken = "valid_refresh_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        var tokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(5), userId, true);
+        var tokenResponse = new RefreshTokenModel(refreshToken, DateTime.UtcNow.AddDays(5), userId, true);
 
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.True(result);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenDoesNotExistInRedis_ReturnsFalse()
+    public async Task ValidateAsync_WhenTokenDoesNotExistInRedis_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
@@ -58,59 +55,56 @@ public class ValidateTokenHandlerTests
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenIsInactive_ReturnsFalse()
+    public async Task ValidateAsync_WhenTokenIsInactive_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
         const string refreshToken = "inactive_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        var tokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(5), userId, false);
+        var tokenResponse = new RefreshTokenModel(refreshToken, DateTime.UtcNow.AddDays(5), userId, false);
 
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenIsExpired_ReturnsFalse()
+    public async Task ValidateAsync_WhenTokenIsExpired_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
         const string refreshToken = "expired_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        var tokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(-1), userId, true);
+        var tokenResponse = new RefreshTokenModel(refreshToken, DateTime.UtcNow.AddDays(-1), userId, true);
 
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenBelongsToDifferentUser_ReturnsFalse()
+    public async Task ValidateAsync_WhenTokenBelongsToDifferentUser_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
@@ -118,76 +112,74 @@ public class ValidateTokenHandlerTests
         const string refreshToken = "wrong_user_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        var tokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(5), differentUserId, true);
+        var tokenResponse = new RefreshTokenModel(refreshToken, DateTime.UtcNow.AddDays(5), differentUserId, true);
 
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenRefreshTokenIsNull_ThrowsArgumentException()
+    public async Task ValidateAsync_WhenRefreshTokenIsNull_ThrowsArgumentException()
     {
 
         var userId = Guid.NewGuid();
         var query = new ValidateTokenQuery(userId, null!);
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query));
+        var service = new RefreshTokenService(redisMock.Object);
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.ValidateAsync(query.UserId, query.RefreshToken));
     }
 
     [Fact]
-    public async Task Handle_WhenTokenIsExpiringSoon_ReturnsTrue()
+    public async Task ValidateAsync_WhenTokenIsExpiringSoon_ReturnsTrue()
     {
 
         var userId = Guid.NewGuid();
         const string refreshToken = "expiring_soon_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        var tokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddHours(1), userId, true);
+        var tokenResponse = new RefreshTokenModel(refreshToken, DateTime.UtcNow.AddHours(1), userId, true);
 
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.True(result);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenHasExactlyCurrentExpirationTime_ReturnsFalse()
+    public async Task ValidateAsync_WhenTokenHasExactlyCurrentExpirationTime_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
         const string refreshToken = "exact_expiration_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        var tokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow, userId, true);
+        var tokenResponse = new RefreshTokenModel(refreshToken, DateTime.UtcNow, userId, true);
 
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenMalformedJsonInRedis_ReturnsFalse()
+    public async Task ValidateAsync_WhenMalformedJsonInRedis_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
@@ -198,25 +190,25 @@ public class ValidateTokenHandlerTests
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenRefreshTokenIsWhitespace_ThrowsArgumentException()
+    public async Task ValidateAsync_WhenRefreshTokenIsWhitespace_ThrowsArgumentException()
     {
 
         var userId = Guid.NewGuid();
         var query = new ValidateTokenQuery(userId, "   ");
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query));
+        var service = new RefreshTokenService(redisMock.Object);
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.ValidateAsync(query.UserId, query.RefreshToken));
     }
 
     [Fact]
-    public async Task Handle_WhenRedisThrowsException_ReturnsFalse()
+    public async Task ValidateAsync_WhenRedisThrowsException_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
@@ -225,15 +217,14 @@ public class ValidateTokenHandlerTests
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task Handle_WhenTokenIsNullAfterDeserialization_ReturnsFalse()
+    public async Task ValidateAsync_WhenTokenIsNullAfterDeserialization_ReturnsFalse()
     {
 
         var userId = Guid.NewGuid();
@@ -244,9 +235,8 @@ public class ValidateTokenHandlerTests
 
         redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
-        var query = new ValidateTokenQuery(userId, refreshToken);
-
-        var result = await handler.Handle(query);
+        var service = new RefreshTokenService(redisMock.Object);
+        var result = await service.ValidateAsync(userId, refreshToken);
 
         Assert.False(result);
     }

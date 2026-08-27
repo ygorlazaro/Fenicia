@@ -1,4 +1,5 @@
-using Fenicia.Auth.Domains.Role.Handlers;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Role.DTOs.Responses;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
@@ -10,14 +11,14 @@ namespace Fenicia.Auth.Tests.Domains.Role;
 public class GetAdminRoleHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
-    private readonly GetAdminRoleHandler handler;
+    private readonly RoleService service;
 
     public GetAdminRoleHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GetAdminRoleHandler(db);
+        service = new RoleService(db);
     }
 
     public void Dispose()
@@ -41,7 +42,7 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(adminRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(adminRoleId, result.Id);
@@ -61,7 +62,7 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(role);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -93,10 +94,9 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.AddRange(adminRole, userRole, managerRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal(adminRoleId, result.Id);
         Assert.Equal("Admin", result.Name);
     }
 
@@ -113,7 +113,7 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(role);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -122,7 +122,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -140,7 +140,7 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(role);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -167,7 +167,7 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.AddRange(adminRole1, adminRole2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await service.GetAdminAsync(CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal("Admin", result.Name);

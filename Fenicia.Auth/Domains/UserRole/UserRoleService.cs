@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.UserRole.Responses;
+using Fenicia.Auth.Domains.UserRole.DTOs.Responses;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
@@ -34,5 +34,15 @@ public class UserRoleService(DefaultContext db)
                         c.Cnpj);
 
         return await query.ToListAsync(ct);
+    }
+
+    public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct)
+    {
+        return await db.AuthUserRoles.AnyAsync(ur => ur.CompanyId == companyId && ur.UserId == userId, ct);
+    }
+
+    public async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
+    {
+        return await db.AuthUserRoles.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == role, ct);
     }
 }

@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.DTOs.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -70,7 +70,7 @@ public class CreateUserHandlerTests : IDisposable
         var existingUser = new UserModel
         {
             Email = email,
-            Password = password.Hash(),
+            Password = SecurityService.Hash(password),
             Name = name
         };
 

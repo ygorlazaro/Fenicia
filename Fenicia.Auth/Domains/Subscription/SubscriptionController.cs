@@ -1,10 +1,7 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Subscription.Queries;
-using Fenicia.Auth.Domains.Subscription.Responses;
+using Fenicia.Auth.Domains.Subscription.DTOs.Responses;
 using Fenicia.Common.API;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +13,7 @@ namespace Fenicia.Auth.Domains.Subscription;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SubscriptionController(ISender sender) : ControllerBase
+public class SubscriptionController(SubscriptionService subscriptionService) : ControllerBase
 {
 
     [HttpGet("profile")]
@@ -30,7 +27,7 @@ public class SubscriptionController(ISender sender) : ControllerBase
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var profile = await sender.Send(new GetUserProfileQuery(userId), ct);
+            var profile = await subscriptionService.GetUserProfileAsync(userId, ct);
 
             return profile switch
             {

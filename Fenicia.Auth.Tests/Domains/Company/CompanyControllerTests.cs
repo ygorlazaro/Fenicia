@@ -4,7 +4,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Company.Responses;
+using Fenicia.Auth.Domains.Company.DTOs.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;

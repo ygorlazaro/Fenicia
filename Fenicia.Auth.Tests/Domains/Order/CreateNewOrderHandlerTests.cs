@@ -2,7 +2,8 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order.Command;
-using Fenicia.Auth.Domains.Order.Handler;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -17,14 +18,15 @@ public class CreateNewOrderHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly CreateNewOrderHandler handler;
+    private readonly OrderService service;
 
     public CreateNewOrderHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new CreateNewOrderHandler(db);
+        var userRoleService = new UserRoleService(db);
+        service = new OrderService(db, userRoleService);
         faker = new Faker();
     }
 
@@ -101,7 +103,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await service.CreateAsync(command, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -125,7 +127,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("User does not exists at the company", ex.Message);
     }
 
@@ -169,7 +171,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("Modules not found", ex.Message);
     }
 
@@ -212,7 +214,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.CreateAsync(command, CancellationToken.None));
 
         Assert.Equal("Modules not found", ex.Message);
     }
@@ -266,7 +268,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await service.CreateAsync(command, CancellationToken.None);
 
         var order = await db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
@@ -331,7 +333,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await service.CreateAsync(command, CancellationToken.None);
 
         var order = await db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
@@ -387,7 +389,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.CreateAsync(command, CancellationToken.None));
 
         Assert.Equal("Modules not found", ex.Message);
     }
@@ -449,7 +451,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await service.CreateAsync(command, CancellationToken.None);
 
         var order = await db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);

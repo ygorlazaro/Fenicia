@@ -1,8 +1,8 @@
 using System.Security.Claims;
 
 using Fenicia.Auth.Domains.Configuration;
-using Fenicia.Auth.Domains.Configuration.Commands;
-using Fenicia.Auth.Domains.Configuration.Responses;
+using Fenicia.Auth.Domains.Configuration.DTOs.Commands;
+using Fenicia.Auth.Domains.Configuration.DTOs.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

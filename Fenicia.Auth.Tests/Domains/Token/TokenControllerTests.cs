@@ -1,20 +1,22 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.RefreshToken.Queries;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.DTOs.Queries;
 using Fenicia.Auth.Domains.Token;
-using Fenicia.Auth.Domains.Token.Queries;
-using Fenicia.Auth.Domains.Token.Responses;
-using Fenicia.Auth.Domains.User.Queries;
-using Fenicia.Auth.Domains.User.Responses;
+using Fenicia.Auth.Domains.Token.DTOs.Queries;
+using Fenicia.Auth.Domains.Token.DTOs.Responses;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.DTOs.Queries;
+using Fenicia.Auth.Domains.User.DTOs.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+
+using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
@@ -22,11 +24,20 @@ public class TokenControllerTests
 {
     private readonly TokenController controller;
     private readonly Faker faker = new();
-    private readonly Mock<ISender> sender = new();
+    private readonly Mock<TokenService> tokenServiceMock;
+    private readonly Mock<RefreshTokenService> refreshTokenServiceMock;
+    private readonly Mock<UserService> userServiceMock;
 
     public TokenControllerTests()
     {
-        controller = new TokenController(sender.Object);
+        var redisMock = new Mock<IConnectionMultiplexer>();
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(new Mock<IDatabase>().Object);
+
+        tokenServiceMock = new Mock<TokenService>(null!, null!, null!) { CallBase = true };
+        refreshTokenServiceMock = new Mock<RefreshTokenService>(redisMock.Object) { CallBase = true };
+        userServiceMock = new Mock<UserService>(null!) { CallBase = true };
+
+        controller = new TokenController(tokenServiceMock.Object, refreshTokenServiceMock.Object, userServiceMock.Object);
     }
 
     [Fact]
@@ -35,7 +46,7 @@ public class TokenControllerTests
         var request = new GenerateTokenQuery(faker.Internet.Email(), faker.Internet.Password());
         var wide = new WideEventContext();
 
-        sender.Setup(s => s.Send(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
+        tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new PermissionDeniedException("Invalid username or password."));
 
         var result = await controller.PostAsync(request, wide, CancellationToken.None);
@@ -50,9 +61,9 @@ public class TokenControllerTests
         var wide = new WideEventContext();
         var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, request.Email);
 
-        sender.Setup(s => s.Send(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
-        sender.Setup(s => s.Send(It.IsAny<GenerateTokenStringQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync("jwt");
-        sender.Setup(s => s.Send(It.IsAny<Auth.Domains.RefreshToken.Commands.GenerateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh");
+        tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        tokenServiceMock.Setup(s => s.GenerateString(It.IsAny<GenerateTokenResponse>())).Returns("jwt");
+        refreshTokenServiceMock.Setup(s => s.Generate(It.IsAny<Guid>())).Returns("refresh");
 
         var result = await controller.PostAsync(request, wide, CancellationToken.None);
 
@@ -66,7 +77,7 @@ public class TokenControllerTests
         var request = new ValidateTokenQuery(Guid.NewGuid(), "invalid");
         var wide = new WideEventContext();
 
-        sender.Setup(s => s.Send(It.IsAny<ValidateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        refreshTokenServiceMock.Setup(s => s.ValidateAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var result = await controller.Refresh(request, wide, CancellationToken.None);
 
@@ -81,11 +92,11 @@ public class TokenControllerTests
         var wide = new WideEventContext();
         var user = new GetUserForRefreshResponse(userId, faker.Internet.Email(), faker.Person.FullName);
 
-        sender.Setup(s => s.Send(It.IsAny<ValidateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        sender.Setup(s => s.Send(It.IsAny<Auth.Domains.RefreshToken.Commands.InvalidateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        sender.Setup(s => s.Send(It.IsAny<GetUserForRefreshQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
-        sender.Setup(s => s.Send(It.IsAny<GenerateTokenStringQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync("jwt");
-        sender.Setup(s => s.Send(It.IsAny<Auth.Domains.RefreshToken.Commands.GenerateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh2");
+        refreshTokenServiceMock.Setup(s => s.ValidateAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        refreshTokenServiceMock.Setup(s => s.InvalidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        userServiceMock.Setup(s => s.GetForRefreshAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        tokenServiceMock.Setup(s => s.GenerateString(It.IsAny<GenerateTokenResponse>())).Returns("jwt");
+        refreshTokenServiceMock.Setup(s => s.Generate(It.IsAny<Guid>())).Returns("refresh2");
 
         var result = await controller.Refresh(request, wide, CancellationToken.None);
 

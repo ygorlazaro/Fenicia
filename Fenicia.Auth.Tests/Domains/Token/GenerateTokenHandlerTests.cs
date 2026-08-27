@@ -1,9 +1,9 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.Handlers;
-using Fenicia.Auth.Domains.Security.Services;
-using Fenicia.Auth.Domains.Token.Handlers;
-using Fenicia.Auth.Domains.Token.Queries;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.Token.DTOs.Queries;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -11,6 +11,7 @@ using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
@@ -19,20 +20,24 @@ public class GenerateTokenHandlerTests : IDisposable
     private readonly MemoryCache cache;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly GenerateTokenHandler handler;
+    private readonly TokenService service;
 
     public GenerateTokenHandlerTests()
     {
         cache = new MemoryCache(new MemoryCacheOptions());
-        var getLoginAttemptsHandler = new GetLoginAttemptsHandler(cache);
-        var incrementLoginAttemptsHandler = new IncrementLoginAttemptsHandler(cache);
-        var resetLoginAttemptsHandler = new ResetLoginAttemptsHandler(cache);
-        var verifyPasswordService = new VerifyPasswordService();
+        var loginAttemptService = new LoginAttemptService(cache);
+
+        var inMemorySettings = new Dictionary<string, string?>
+        {
+            { "Jwt:Secret", "ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes" }
+        };
+
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GenerateTokenHandler(db, getLoginAttemptsHandler, incrementLoginAttemptsHandler, resetLoginAttemptsHandler, verifyPasswordService);
+        service = new TokenService(db, configuration, loginAttemptService);
         faker = new Faker();
     }
 
@@ -52,7 +57,7 @@ public class GenerateTokenHandlerTests : IDisposable
         var query = new GenerateTokenQuery(email, faker.Internet.Password());
         SetupCacheAttempts(email, 5);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Too many login attempts. Please try again later.", ex.Message);
     }
 
@@ -64,7 +69,7 @@ public class GenerateTokenHandlerTests : IDisposable
         var query = new GenerateTokenQuery(email, faker.Internet.Password());
         SetupCacheAttempts(email, 2);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
     }
 
@@ -88,7 +93,7 @@ public class GenerateTokenHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GenerateAsync(query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(user.Id, result.Id);
@@ -116,7 +121,7 @@ public class GenerateTokenHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
     }
 
@@ -140,7 +145,7 @@ public class GenerateTokenHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        await Record.ExceptionAsync(async () => await handler.Handle(query, CancellationToken.None));
+        await Record.ExceptionAsync(async () => await service.GenerateAsync(query, CancellationToken.None));
     }
 
     [Fact]
@@ -163,7 +168,7 @@ public class GenerateTokenHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        _ = await Record.ExceptionAsync(async () => await handler.Handle(query, CancellationToken.None));
+        _ = await Record.ExceptionAsync(async () => await service.GenerateAsync(query, CancellationToken.None));
 
         var key = $"login-attempt:{query.Email.ToLower()}";
         Assert.True(cache.TryGetValue(key, out int count));
@@ -178,7 +183,7 @@ public class GenerateTokenHandlerTests : IDisposable
         var query = new GenerateTokenQuery(string.Empty, faker.Internet.Password());
         SetupCacheAttempts(email, 0);
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.GenerateAsync(query, CancellationToken.None));
     }
 
     [Fact]
@@ -201,7 +206,7 @@ public class GenerateTokenHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.GenerateAsync(query, CancellationToken.None));
         Assert.Contains("Password", ex.Message);
     }
 

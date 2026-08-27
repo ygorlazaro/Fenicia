@@ -1,8 +1,7 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Notification.Commands;
-using Fenicia.Auth.Domains.Notification.Handlers;
-using Fenicia.Auth.Domains.Notification.Queries;
+using Fenicia.Auth.Domains.Notification;
+using Fenicia.Auth.Domains.Notification.DTOs.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
@@ -15,12 +14,14 @@ public class NotificationHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private readonly NotificationService service;
 
     public NotificationHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         db = new DefaultContext(options, new TestCompanyContext());
         faker = new Faker();
+        service = new NotificationService(db);
     }
 
     public void Dispose()
@@ -30,12 +31,11 @@ public class NotificationHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task AddNotificationHandler_ShouldCreateNotification()
+    public async Task AddAsync_ShouldCreateNotification()
     {
-        var handler = new AddNotificationHandler(db);
         var command = new AddNotificationCommand("Test", "Desc", DateTime.UtcNow, "img.png");
 
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await service.AddAsync(command, CancellationToken.None);
 
         Assert.NotNull(result);
         var notification = await db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == result.Id);
@@ -44,70 +44,67 @@ public class NotificationHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAllNotificationsHandler_ShouldReturnPaginatedNotifications()
+    public async Task GetAllAsync_ShouldReturnPaginatedNotifications()
     {
-        var handler = new GetAllNotificationsHandler(db);
         for (var i = 0; i < 5; i++)
         {
             db.AuthNotifications.Add(new NotificationModel { Title = $"N{i}", Description = "D", Date = DateTime.UtcNow });
         }
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(new GetAllNotificationsQuery(1, 10), CancellationToken.None);
+        var result = await service.GetAllAsync(1, 10, CancellationToken.None);
 
         Assert.Equal(5, result.Total);
         Assert.Equal(5, result.Data.Count);
     }
 
     [Fact]
-    public async Task GetNotificationByIdHandler_ShouldReturnNotification_WhenExists()
+    public async Task GetByIdAsync_ShouldReturnNotification_WhenExists()
     {
-        var handler = new GetNotificationByIdHandler(db);
         var id = Guid.NewGuid();
         db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow });
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(new GetNotificationByIdQuery(id), CancellationToken.None);
+        var result = await service.GetByIdAsync(id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
     }
 
     [Fact]
-    public async Task GetNotificationByIdHandler_ShouldReturnNull_WhenNotExists()
+    public async Task GetByIdAsync_ShouldReturnNull_WhenNotExists()
     {
-        var handler = new GetNotificationByIdHandler(db);
-        var result = await handler.Handle(new GetNotificationByIdQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task DeleteNotificationHandler_ShouldCompleteWithoutError()
+    public async Task DeleteAsync_ShouldCompleteWithoutError()
     {
-        var handler = new DeleteNotificationHandler(db);
         var id = Guid.NewGuid();
         db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow });
         await db.SaveChangesAsync(CancellationToken.None);
 
-        await handler.Handle(new DeleteNotificationCommand(id), CancellationToken.None);
+        var result = await service.DeleteAsync(id, CancellationToken.None);
+
+        Assert.True(result);
     }
 
     [Fact]
-    public async Task DeleteNotificationHandler_ShouldNotThrow_WhenNotificationNotExists()
+    public async Task DeleteAsync_ShouldReturnFalse_WhenNotificationNotExists()
     {
-        var handler = new DeleteNotificationHandler(db);
-        await handler.Handle(new DeleteNotificationCommand(Guid.NewGuid()), CancellationToken.None);
+        var result = await service.DeleteAsync(Guid.NewGuid(), CancellationToken.None);
+        Assert.False(result);
     }
 
     [Fact]
-    public async Task UpdateNotificationHandler_ShouldUpdateNotification_WhenExists()
+    public async Task UpdateAsync_ShouldUpdateNotification_WhenExists()
     {
-        var handler = new UpdateNotificationHandler(db);
         var id = Guid.NewGuid();
         db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "Old", Description = "D", Date = DateTime.UtcNow, Read = false });
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(new UpdateNotificationCommand(id, "New", "D2", null, "img2.png", true), CancellationToken.None);
+        var result = await service.UpdateAsync(new UpdateNotificationCommand(id, "New", "D2", null, "img2.png", true), CancellationToken.None);
 
         Assert.NotNull(result);
         var notification = await db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == id);
@@ -116,22 +113,20 @@ public class NotificationHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task UpdateNotificationHandler_ShouldReturnNull_WhenNotExists()
+    public async Task UpdateAsync_ShouldReturnNull_WhenNotExists()
     {
-        var handler = new UpdateNotificationHandler(db);
-        var result = await handler.Handle(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), CancellationToken.None);
+        var result = await service.UpdateAsync(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), CancellationToken.None);
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task MarkAsReadHandler_ShouldMarkNotificationAsRead_WhenExists()
+    public async Task MarkAsReadAsync_ShouldMarkNotificationAsRead_WhenExists()
     {
-        var handler = new MarkAsReadHandler(db);
         var id = Guid.NewGuid();
         db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false });
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(new MarkAsReadCommand(id), CancellationToken.None);
+        var result = await service.MarkAsReadAsync(id, CancellationToken.None);
 
         Assert.True(result);
         var notification = await db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == id);
@@ -139,10 +134,9 @@ public class NotificationHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task MarkAsReadHandler_ShouldReturnFalse_WhenNotExists()
+    public async Task MarkAsReadAsync_ShouldReturnFalse_WhenNotExists()
     {
-        var handler = new MarkAsReadHandler(db);
-        var result = await handler.Handle(new MarkAsReadCommand(Guid.NewGuid()), CancellationToken.None);
+        var result = await service.MarkAsReadAsync(Guid.NewGuid(), CancellationToken.None);
         Assert.False(result);
     }
 }

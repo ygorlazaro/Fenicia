@@ -1,21 +1,22 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.Handlers;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.LoginAttempt.DTOs.Commands;
 
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-public class IncrementLoginAttemptsHandlerTests : IDisposable
+public class IncrementAttemptsServiceTests : IDisposable
 {
     private readonly MemoryCache cache;
     private readonly Faker faker;
-    private readonly IncrementLoginAttemptsHandler handler;
+    private readonly LoginAttemptService service;
 
-    public IncrementLoginAttemptsHandlerTests()
+    public IncrementAttemptsServiceTests()
     {
         cache = new MemoryCache(new MemoryCacheOptions());
-        handler = new IncrementLoginAttemptsHandler(cache);
+        service = new LoginAttemptService(cache);
         faker = new Faker();
     }
 
@@ -25,33 +26,33 @@ public class IncrementLoginAttemptsHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenNoPreviousAttempts_SetsCountToOne()
+    public async Task IncrementAsync_WhenNoPreviousAttempts_SetsCountToOne()
     {
         var email = faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
 
-        await handler.IncrementAsync(email);
+        await service.IncrementAsync(email);
 
         Assert.True(cache.TryGetValue(key, out int count));
         Assert.Equal(1, count);
     }
 
     [Fact]
-    public async Task Handle_WhenPreviousAttemptsExist_IncrementsCount()
+    public async Task IncrementAsync_WhenPreviousAttemptsExist_IncrementsCount()
     {
         var email = faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
         cache.Set(key, 3);
 
-        await handler.IncrementAsync(email);
+        await service.IncrementAsync(email);
 
         Assert.True(cache.TryGetValue(key, out int count));
         Assert.Equal(4, count);
     }
 
     [Fact]
-    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    public async Task IncrementAsync_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.IncrementAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.IncrementAsync(null!));
     }
 }

@@ -1,7 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword;
-using Fenicia.Auth.Domains.ForgotPassword.Commands;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.ForgotPassword.DTOs.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -22,7 +23,8 @@ public class ResetPasswordServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        service = new ForgotPasswordService(db);
+        var userService = new UserService(db);
+        service = new ForgotPasswordService(db, userService);
         faker = new Faker();
     }
 
