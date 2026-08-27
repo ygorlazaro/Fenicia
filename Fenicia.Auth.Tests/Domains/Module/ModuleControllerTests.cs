@@ -47,6 +47,7 @@ public class ModuleControllerTests : IDisposable
         db = new DefaultContext(options, new TestCompanyContext());
         var services = new ServiceCollection();
         services.AddSingleton(db);
+        services.AddLogging();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetModulesHandler>());
 
         var provider = services.BuildServiceProvider();

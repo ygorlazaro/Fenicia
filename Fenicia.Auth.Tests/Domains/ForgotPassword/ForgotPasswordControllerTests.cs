@@ -37,6 +37,7 @@ public class ForgotPasswordControllerTests : IDisposable
         db = new DefaultContext(options, new TestCompanyContext());
         var services = new ServiceCollection();
         services.AddSingleton(db);
+        services.AddLogging();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<ResetPasswordHandler>());
 
         var provider = services.BuildServiceProvider();
