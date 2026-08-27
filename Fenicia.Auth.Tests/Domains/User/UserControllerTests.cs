@@ -3,8 +3,7 @@ using System.Security.Claims;
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Auth.Domains.Module.Handlers;
-using Fenicia.Auth.Domains.Module.Queries;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
@@ -50,7 +49,7 @@ public class UserControllerTests
 
         sender = new Mock<ISender>();
 
-        var getUserModuleModel = new GetUserModuleHandler(db);
+        var moduleService = new ModuleService(db);
         var getUserCompaniesHandler = new GetUserCompaniesHandler(db);
         var listUserHandler = new GetUserHandler(db);
         var createUserHandler = new CreateUserHandler(db);
@@ -58,9 +57,6 @@ public class UserControllerTests
         var getUserByIdHandler = new GetUserByIdHandler(db);
         var updateUserPasswordHandler = new UpdateUserPasswordHandler(db);
         var deleteUserHandler = new DeleteUserHandler(db);
-
-        sender.Setup(x => x.Send(It.IsAny<GetUserModulesQuery>(), It.IsAny<CancellationToken>()))
-            .Returns((GetUserModulesQuery query, CancellationToken ct) => getUserModuleModel.Handle(query, ct));
 
         sender.Setup(x => x.Send(It.IsAny<GetUserCompaniesQuery>(), It.IsAny<CancellationToken>()))
             .Returns((GetUserCompaniesQuery query, CancellationToken ct) => getUserCompaniesHandler.Handle(query, ct));
@@ -87,7 +83,7 @@ public class UserControllerTests
                 return Unit.Value;
             });
 
-        controller = new UserController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new UserController(sender.Object, moduleService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();

@@ -1,5 +1,6 @@
-using Fenicia.Auth.Domains.Module.Handlers;
-using Fenicia.Auth.Domains.Module.Queries;
+using Bogus;
+
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -7,19 +8,21 @@ using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Tests.Domains.User;
+namespace Fenicia.Auth.Tests.Domains.Module;
 
-public class GetUserModuleHandlerTests : IDisposable
+public class ModuleServiceTests : IDisposable
 {
     private readonly DefaultContext db;
-    private readonly GetUserModuleHandler handler;
+    private readonly Faker faker;
+    private readonly ModuleService service;
 
-    public GetUserModuleHandlerTests()
+    public ModuleServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GetUserModuleHandler(db);
+        service = new ModuleService(db);
+        faker = new Faker();
     }
 
     public void Dispose()
@@ -30,9 +33,282 @@ public class GetUserModuleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handler_WhenUserHasActiveSubscription_ReturnsModules()
+    public async Task GetAllModulesAsync_WhenModulesExist_ReturnsPaginatedModules()
     {
+        var module1 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
 
+        var module2 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m,
+            IsActive = true,
+            SortOrder = 2
+        };
+
+        db.AuthModules.AddRange(module1, module2);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(2, result.Total);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PerPage);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_ExcludesErpAndAuthTypes()
+    {
+        var authModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Auth,
+            Price = 50.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        var basicModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 2
+        };
+
+        db.AuthModules.AddRange(authModule, basicModule);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Single(result.Data);
+        Assert.Equal(basicModule.Name, result.Data[0].Name);
+        Assert.Equal(1, result.Total);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_ExcludesInactiveModules()
+    {
+        var activeModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Active Module",
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        var inactiveModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Inactive Module",
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m,
+            IsActive = false,
+            SortOrder = 2
+        };
+
+        db.AuthModules.AddRange(activeModule, inactiveModule);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Single(result.Data);
+        Assert.Equal(activeModule.Name, result.Data[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_WhenPaginationIsApplied_ReturnsCorrectPage()
+    {
+        var modules = new List<ModuleModel>();
+        for (var i = 0; i < 25; i++)
+        {
+            modules.Add(new ModuleModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Module {faker.Commerce.ProductName()} {i}",
+                Type = (ModuleType)(i % 10 + 1),
+                Price = 10.0m,
+                IsActive = true,
+                SortOrder = i
+            });
+        }
+
+        db.AuthModules.AddRange(modules);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(2, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
+        Assert.Equal(2, result.Page);
+        Assert.Equal(10, result.PerPage);
+        Assert.Equal(3, result.Pages);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsEmptyPagination()
+    {
+        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
+        Assert.Equal(0, result.Total);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_WhenPageExceedsTotalPages_ReturnsEmptyData()
+    {
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Basic Module",
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        db.AuthModules.Add(module);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(10, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
+        Assert.Equal(1, result.Total);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_ResultsAreOrderedBySortOrder()
+    {
+        var module1 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Social Network Module",
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m,
+            IsActive = true,
+            SortOrder = 3
+        };
+
+        var module2 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Basic Module",
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        var module3 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "HR Module",
+            Type = ModuleType.Hr,
+            Price = 30.0m,
+            IsActive = true,
+            SortOrder = 2
+        };
+
+        db.AuthModules.AddRange(module1, module2, module3);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Data.Count);
+        Assert.Equal("Basic Module", result.Data[0].Name);
+        Assert.Equal(1, result.Data[0].SortOrder);
+        Assert.Equal("HR Module", result.Data[1].Name);
+        Assert.Equal(2, result.Data[1].SortOrder);
+        Assert.Equal("Social Network Module", result.Data[2].Name);
+        Assert.Equal(3, result.Data[2].SortOrder);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_WithDefaultRequest_ReturnsFirstPage()
+    {
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        db.AuthModules.Add(module);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(1, 20, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(20, result.PerPage);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_VerifiesResponseContainsAllFields()
+    {
+        var moduleId = Guid.NewGuid();
+        var description = "Test module description";
+        var icon = "icon-test";
+        var sortOrder = 5;
+
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            Description = description,
+            Icon = icon,
+            IsActive = true,
+            SortOrder = sortOrder
+        };
+
+        db.AuthModules.Add(module);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Data);
+        var moduleResponse = result.Data[0];
+
+        Assert.Equal(moduleId, moduleResponse.Id);
+        Assert.Equal(module.Name, moduleResponse.Name);
+        Assert.Equal(ModuleType.Basic, moduleResponse.Type);
+        Assert.Equal(description, moduleResponse.Description);
+        Assert.Equal(icon, moduleResponse.Icon);
+        Assert.True(moduleResponse.IsActive);
+        Assert.Equal(sortOrder, moduleResponse.SortOrder);
+    }
+
+    [Fact]
+    public async Task GetUserModulesAsync_WhenUserHasActiveSubscription_ReturnsModules()
+    {
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -85,37 +361,30 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);
-
         Assert.Equal(moduleId, result[0].Id);
         Assert.Equal("Test Module", result[0].Name);
         Assert.Equal(ModuleType.Accounting, result[0].Type);
     }
 
     [Fact]
-    public async Task Handler_WhenUserHasNoSubscription_ReturnsEmptyList()
+    public async Task GetUserModulesAsync_WhenUserHasNoSubscription_ReturnsEmptyList()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public async Task Handler_WhenSubscriptionIsInactive_ReturnsEmptyList()
+    public async Task GetUserModulesAsync_WhenSubscriptionIsInactive_ReturnsEmptyList()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -168,18 +437,15 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public async Task Handler_WhenSubscriptionCreditIsInactive_ReturnsEmptyList()
+    public async Task GetUserModulesAsync_WhenSubscriptionCreditIsInactive_ReturnsEmptyList()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -232,18 +498,15 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public async Task Handler_WhenSubscriptionIsExpired_ReturnsEmptyList()
+    public async Task GetUserModulesAsync_WhenSubscriptionIsExpired_ReturnsEmptyList()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -296,18 +559,15 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public async Task Handler_WhenUserHasMultipleModules_ReturnsAllModules()
+    public async Task GetUserModulesAsync_WhenUserHasMultipleModules_ReturnsAllModules()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var module1Id = Guid.NewGuid();
@@ -377,18 +637,15 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
 
     [Fact]
-    public async Task Handler_WhenUserIsNotInCompany_ReturnsEmptyList()
+    public async Task GetUserModulesAsync_WhenUserIsNotInCompany_ReturnsEmptyList()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var differentCompanyId = Guid.NewGuid();
@@ -418,6 +675,7 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var subscriptionCredit = new SubscriptionCreditModel
         {
+            Id = Guid.NewGuid(),
             ModuleId = moduleId,
             SubscriptionId = subscriptionId,
             IsActive = true,
@@ -440,18 +698,15 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public async Task Handler_RemovesDuplicateModules()
+    public async Task GetUserModulesAsync_RemovesDuplicateModules()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -512,9 +767,7 @@ public class GetUserModuleHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
-
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);

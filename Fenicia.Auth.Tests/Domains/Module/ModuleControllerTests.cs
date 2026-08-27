@@ -1,10 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Module.Handlers;
 using Fenicia.Auth.Domains.Module.Responses;
-
-using MediatR;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -36,15 +33,15 @@ public class ModuleControllerTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton(db);
         services.AddLogging();
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetModulesHandler>());
+        services.AddSingleton(new ModuleService(db));
 
         var provider = services.BuildServiceProvider();
-        var sender = provider.GetRequiredService<ISender>();
+        var service = provider.GetRequiredService<ModuleService>();
 
         var mockHttpContext = new Mock<HttpContext>();
         faker = new Faker();
 
-        controller = new ModuleController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ModuleController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     public void Dispose()

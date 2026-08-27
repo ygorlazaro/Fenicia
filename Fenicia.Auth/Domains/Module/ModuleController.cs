@@ -1,11 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Module.Queries;
 using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +14,7 @@ namespace Fenicia.Auth.Domains.Module;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ModuleController(ISender sender) : ControllerBase
+public class ModuleController(ModuleService service) : ControllerBase
 {
 
     [HttpGet]
@@ -28,8 +25,7 @@ public class ModuleController(ISender sender) : ControllerBase
     {
         wide.UserId = "Guest";
 
-        var modulesQuery = new GetModulesQuery(query.Page, query.PerPage);
-        var modules = await sender.Send(modulesQuery, ct);
+        var modules = await service.GetAllModulesAsync(query.Page, query.PerPage, ct);
 
         return Ok(modules);
     }
