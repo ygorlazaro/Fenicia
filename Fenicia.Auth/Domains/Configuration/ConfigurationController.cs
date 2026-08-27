@@ -1,12 +1,10 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Configuration.Commands;
-
-using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Auth.Domains.Configuration.Responses;
+using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Common.API;
-
-using MediatR;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +16,7 @@ namespace Fenicia.Auth.Domains.Configuration;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ConfigurationController(ISender sender) : ControllerBase
+public class ConfigurationController(ConfigurationService configurationService) : ControllerBase
 {
 
     [HttpGet]
@@ -31,8 +29,7 @@ public class ConfigurationController(ISender sender) : ControllerBase
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var query = new GetConfigurationQuery(userId, companyId);
-            var result = await sender.Send(query, ct);
+            var result = await configurationService.GetAllAsync(userId, companyId, ct);
 
             return Ok(result);
         }
@@ -55,7 +52,7 @@ public class ConfigurationController(ISender sender) : ControllerBase
             wide.UserId = userId.ToString();
 
             var command = request with { UserId = userId, Id = id };
-            await sender.Send(command, ct);
+            await configurationService.UpsertAsync(command, ct);
 
             return NoContent();
         }

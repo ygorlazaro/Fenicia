@@ -1,11 +1,9 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
-
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +15,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ForgotPasswordController(ISender sender) : ControllerBase
+public class ForgotPasswordController(ForgotPasswordService forgotPasswordService) : ControllerBase
 {
 
     [HttpPost]
@@ -34,7 +32,7 @@ public class ForgotPasswordController(ISender sender) : ControllerBase
 
             var command = new AddForgotPasswordCommand(reset.Email, ipAddress, userAgent);
 
-            await sender.Send(command, ct);
+            await forgotPasswordService.AddAsync(command, ct);
 
             return Created();
         }
@@ -53,7 +51,7 @@ public class ForgotPasswordController(ISender sender) : ControllerBase
         {
             wide.UserId = request.Email;
 
-            await sender.Send(request, ct);
+            await forgotPasswordService.ResetAsync(request, ct);
 
             return Created();
         }

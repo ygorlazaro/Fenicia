@@ -1,17 +1,28 @@
+using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Auth.Domains.Configuration.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 
-using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Configuration.Handlers;
+namespace Fenicia.Auth.Domains.Configuration;
 
-public class UpsertConfigurationHandler(DefaultContext db) : IRequestHandler<UpsertConfigurationCommand>
+public class ConfigurationService(DefaultContext db)
 {
+    public async Task<List<GetConfigurationResponse>> GetAllAsync(Guid userId, Guid companyId, CancellationToken ct)
+    {
+        var request = db.AuthConfigurations.Where(c => c.UserId == userId && companyId == c.CompanyId)
+            .OrderBy(c => c.ConfigType)
+            .Select(c => new GetConfigurationResponse(c.Id,
+                c.UserId,
+                c.CompanyId,
+                c.ConfigType,
+                c.Value));
 
-    public async Task Handle(UpsertConfigurationCommand command, CancellationToken ct)
+        return await request.ToListAsync(ct);
+    }
+
+    public async Task UpsertAsync(UpsertConfigurationCommand command, CancellationToken ct)
     {
         var configuration = await GetCurrentConfigurationAsync(command, ct);
 

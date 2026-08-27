@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
@@ -13,14 +13,14 @@ public class GetByEmailHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly GetByEmailHandler handler;
+    private readonly UserService userService;
 
     public GetByEmailHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GetByEmailHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
     }
 
@@ -51,7 +51,7 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -67,7 +67,7 @@ public class GetByEmailHandlerTests : IDisposable
 
         var email = faker.Internet.Email();
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -93,7 +93,7 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(upperCaseEmail, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(upperCaseEmail, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -130,7 +130,7 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.AddRange(user1, user2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(email1, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(email1, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -144,7 +144,7 @@ public class GetByEmailHandlerTests : IDisposable
 
         var email = faker.Internet.Email();
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -170,7 +170,7 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(emailWithSpaces, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(emailWithSpaces, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -195,7 +195,7 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.NotNull(result);
 

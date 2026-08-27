@@ -1,7 +1,7 @@
 using Bogus;
 
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
-using Fenicia.Auth.Domains.ForgotPassword.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -11,24 +11,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
-public class AddForgotPasswordHandlerTests : IDisposable
+public class AddForgotPasswordServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly AddForgotPasswordHandler handler;
+    private readonly ForgotPasswordService service;
 
-    public AddForgotPasswordHandlerTests()
+    public AddForgotPasswordServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new AddForgotPasswordHandler(db);
+        service = new ForgotPasswordService(db);
         faker = new Faker();
     }
 
     public void Dispose()
     {
         db.Dispose();
+
         GC.SuppressFinalize(this);
     }
 
@@ -52,7 +53,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(email);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.AddAsync(command, CancellationToken.None);
 
         var forgotPassword = await db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
         Assert.NotNull(forgotPassword);
@@ -71,7 +72,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var email = faker.Internet.Email();
         var command = new AddForgotPasswordCommand(email);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.AddAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -96,7 +97,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(upperCaseEmail);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.AddAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -130,7 +131,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(email1);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.AddAsync(command, CancellationToken.None);
 
         var forgotPassword = await db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
         Assert.NotNull(forgotPassword);
@@ -161,8 +162,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(email);
 
-        await handler.Handle(command, CancellationToken.None);
-        await handler.Handle(command, CancellationToken.None);
+        await service.AddAsync(command, CancellationToken.None);
+        await service.AddAsync(command, CancellationToken.None);
 
         var codes = await db.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
         Assert.Equal(2, codes.Count);
@@ -177,7 +178,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var email = faker.Internet.Email();
         var command = new AddForgotPasswordCommand(email);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.AddAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -212,8 +213,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var command1 = new AddForgotPasswordCommand(email1);
         var command2 = new AddForgotPasswordCommand(email2);
 
-        await handler.Handle(command1, CancellationToken.None);
-        await handler.Handle(command2, CancellationToken.None);
+        await service.AddAsync(command1, CancellationToken.None);
+        await service.AddAsync(command2, CancellationToken.None);
 
         var codes = await db.AuthForgottenPasswords.ToListAsync();
         var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
@@ -242,7 +243,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(email, ipAddress, userAgent);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.AddAsync(command, CancellationToken.None);
 
         var forgotPassword = await db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
         Assert.NotNull(forgotPassword);

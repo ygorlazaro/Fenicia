@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
@@ -13,14 +13,14 @@ public class CheckUserExistsHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly CheckUserExistsHandler handler;
+    private readonly UserService userService;
 
     public CheckUserExistsHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new CheckUserExistsHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
     }
 
@@ -48,7 +48,7 @@ public class CheckUserExistsHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.ExistsByEmailAsync(email, CancellationToken.None);
 
         Assert.True(result, "Should return true when email exists");
     }
@@ -59,7 +59,7 @@ public class CheckUserExistsHandlerTests : IDisposable
 
         var email = faker.Internet.Email();
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.ExistsByEmailAsync(email, CancellationToken.None);
 
         Assert.False(result, "Should return false when email doesn't exist");
     }
@@ -82,7 +82,7 @@ public class CheckUserExistsHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(upperCaseEmail, CancellationToken.None);
+        var result = await userService.ExistsByEmailAsync(upperCaseEmail, CancellationToken.None);
 
         Assert.False(result, "Email comparison is case-sensitive");
     }
@@ -113,9 +113,9 @@ public class CheckUserExistsHandlerTests : IDisposable
         db.AuthUsers.AddRange(user1, user2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result1 = await handler.Handle(email1, CancellationToken.None);
-        var result2 = await handler.Handle(email2, CancellationToken.None);
-        var result3 = await handler.Handle("other@example.com", CancellationToken.None);
+        var result1 = await userService.ExistsByEmailAsync(email1, CancellationToken.None);
+        var result2 = await userService.ExistsByEmailAsync(email2, CancellationToken.None);
+        var result3 = await userService.ExistsByEmailAsync("other@example.com", CancellationToken.None);
 
         Assert.True(result1, "Should find user1");
         Assert.True(result2, "Should find user2");
@@ -128,7 +128,7 @@ public class CheckUserExistsHandlerTests : IDisposable
 
         var email = faker.Internet.Email();
 
-        var result = await handler.Handle(email, CancellationToken.None);
+        var result = await userService.ExistsByEmailAsync(email, CancellationToken.None);
 
         Assert.False(result, "Should return false with empty database");
     }
@@ -151,7 +151,7 @@ public class CheckUserExistsHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(emailWithSpaces, CancellationToken.None);
+        var result = await userService.ExistsByEmailAsync(emailWithSpaces, CancellationToken.None);
 
         Assert.False(result, "Should not match email with extra spaces");
     }
@@ -174,7 +174,7 @@ public class CheckUserExistsHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(emailWithExtra, CancellationToken.None);
+        var result = await userService.ExistsByEmailAsync(emailWithExtra, CancellationToken.None);
 
         Assert.False(result, "Should not match email with extra characters");
     }

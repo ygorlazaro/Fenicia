@@ -1,8 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -17,7 +17,7 @@ public class UpdateUserHandlerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
 
-    private readonly UpdateUserHandler handler;
+    private readonly UserService userService;
     private readonly UserModel testUser;
 
     public UpdateUserHandlerTests()
@@ -25,7 +25,7 @@ public class UpdateUserHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new UpdateUserHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
 
         testUser = new UserModel
@@ -53,7 +53,7 @@ public class UpdateUserHandlerTests : IDisposable
         var newName = faker.Person.FullName;
         var request = new UpdateUserCommand(testUser.Id, newName);
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.UpdateAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(newName, result.Name);
@@ -70,7 +70,7 @@ public class UpdateUserHandlerTests : IDisposable
         var newEmail = faker.Internet.Email();
         var request = new UpdateUserCommand(testUser.Id, Email: newEmail);
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.UpdateAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(newEmail, result.Email);
@@ -87,7 +87,7 @@ public class UpdateUserHandlerTests : IDisposable
         var nonExistentUserId = Guid.NewGuid();
         var request = new UpdateUserCommand(nonExistentUserId, "Test");
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateAsync(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }
@@ -111,7 +111,7 @@ public class UpdateUserHandlerTests : IDisposable
 
         var request = new UpdateUserCommand(testUser.Id, Email: existingEmail);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateAsync(request, CancellationToken.None));
 
         Assert.Equal("This email already exists", exception.Message);
     }
@@ -131,7 +131,7 @@ public class UpdateUserHandlerTests : IDisposable
 
         var request = new UpdateUserCommand(testUser.Id, CompaniesRoles: companiesRoles);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateAsync(request, CancellationToken.None));
 
         Assert.Contains("not found", exception.Message);
     }
@@ -155,7 +155,7 @@ public class UpdateUserHandlerTests : IDisposable
 
         var request = new UpdateUserCommand(testUser.Id, CompaniesRoles: companiesRoles);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateAsync(request, CancellationToken.None));
 
         Assert.Contains("not found", exception.Message);
     }

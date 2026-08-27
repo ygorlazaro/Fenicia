@@ -1,8 +1,8 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -18,14 +18,14 @@ public class CreateNewUserHandlerTests : IDisposable
 
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly CreateNewUserHandler handler;
+    private readonly UserService userService;
 
     public CreateNewUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new CreateNewUserHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
 
         adminRoleId = Guid.NewGuid();
@@ -62,7 +62,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.CreateNewAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -99,7 +99,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.CreateNewAsync(request, CancellationToken.None));
         Assert.Equal("This email already exists", ex.Message);
     }
 
@@ -123,7 +123,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.CreateNewAsync(request, CancellationToken.None));
         Assert.Equal("Company with this CNPJ already exists.", ex.Message);
     }
 
@@ -143,7 +143,7 @@ public class CreateNewUserHandlerTests : IDisposable
         db.AuthRoles.Remove(adminRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.CreateNewAsync(request, CancellationToken.None));
 
         Assert.Equal("Admin role not found. Please ensure that the admin role exists in the database.", ex.Message);
     }
@@ -160,7 +160,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.CreateNewAsync(request, CancellationToken.None);
 
         var userRole = await db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.NotNull(userRole);
@@ -180,7 +180,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.CreateNewAsync(request, CancellationToken.None);
 
         Assert.NotEqual(Guid.Empty, result.Id);
         Assert.Equal(name, result.Name);
@@ -202,7 +202,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        await handler.Handle(request, CancellationToken.None);
+        await userService.CreateNewAsync(request, CancellationToken.None);
 
         var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
@@ -221,7 +221,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        await handler.Handle(request, CancellationToken.None);
+        await userService.CreateNewAsync(request, CancellationToken.None);
 
         var company = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);

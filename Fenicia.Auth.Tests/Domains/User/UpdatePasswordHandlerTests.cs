@@ -1,8 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.Services;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -16,14 +16,14 @@ public class UpdatePasswordHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly UpdatePasswordHandler handler;
+    private readonly UserService userService;
 
     public UpdatePasswordHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new UpdatePasswordHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
     }
 
@@ -55,7 +55,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await userService.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -76,7 +76,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         var newPassword = faker.Internet.Password();
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateHashedPasswordAsync(query, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -100,7 +100,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        await handler.Handle(query, CancellationToken.None);
+        await userService.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
@@ -129,7 +129,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        await handler.Handle(query, CancellationToken.None);
+        await userService.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
@@ -170,7 +170,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId1, newPassword);
 
-        await handler.Handle(query, CancellationToken.None);
+        await userService.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
         var updatedUser1 = await db.AuthUsers.FindAsync(userId1);
         var updatedUser2 = await db.AuthUsers.FindAsync(userId2);
@@ -201,7 +201,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        await handler.Handle(query, CancellationToken.None);
+        await userService.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
@@ -219,7 +219,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         var newPassword = faker.Internet.Password();
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateHashedPasswordAsync(query, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -243,7 +243,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdateHashedPasswordAsync(query, CancellationToken.None));
         Assert.Equal("Password cannot be null or empty", ex.Message);
     }
 
@@ -269,7 +269,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await userService.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
         Assert.Equal(userId, result.Id);
         Assert.Equal(name, result.Name);

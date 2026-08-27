@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -14,14 +14,14 @@ public class GetUserForRefreshHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly GetUserForRefreshHandler handler;
+    private readonly UserService userService;
 
     public GetUserForRefreshHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GetUserForRefreshHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
     }
 
@@ -51,7 +51,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(userId, CancellationToken.None);
+        var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -66,7 +66,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
 
         var userId = Guid.NewGuid();
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(userId, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.GetForRefreshAsync(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -100,7 +100,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.AddRange(user1, user2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(userId1, CancellationToken.None);
+        var result = await userService.GetForRefreshAsync(userId1, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -114,7 +114,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
 
         var userId = Guid.NewGuid();
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(userId, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.GetForRefreshAsync(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -138,7 +138,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(userId, CancellationToken.None);
+        var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(result.Email);
@@ -163,7 +163,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await handler.Handle(userId, CancellationToken.None);
+        var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
 

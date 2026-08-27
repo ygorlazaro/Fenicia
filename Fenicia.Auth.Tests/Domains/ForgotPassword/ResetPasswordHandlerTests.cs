@@ -1,7 +1,7 @@
 using Bogus;
 
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
-using Fenicia.Auth.Domains.ForgotPassword.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -11,24 +11,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
-public class ResetPasswordHandlerTests : IDisposable
+public class ResetPasswordServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly ResetPasswordHandler handler;
+    private readonly ForgotPasswordService service;
 
-    public ResetPasswordHandlerTests()
+    public ResetPasswordServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new ResetPasswordHandler(db);
+        service = new ForgotPasswordService(db);
         faker = new Faker();
     }
 
     public void Dispose()
     {
         db.Dispose();
+
         GC.SuppressFinalize(this);
     }
 
@@ -64,7 +65,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.ResetAsync(command, CancellationToken.None);
 
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
@@ -85,7 +86,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -122,7 +123,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -158,7 +159,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -194,7 +195,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -240,7 +241,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -276,9 +277,9 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.ResetAsync(command, CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -315,7 +316,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.ResetAsync(command, CancellationToken.None);
 
         db.ChangeTracker.Clear();
         var updatedUser = await db.AuthUsers.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, CancellationToken.None);
@@ -335,7 +336,7 @@ public class ResetPasswordHandlerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 }
