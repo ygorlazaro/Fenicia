@@ -20,6 +20,7 @@ public static class Program
         }
 
         configuration.AddJsonFile(commonApiSettingsPath, false, true);
+        configuration.AddEnvironmentVariables();
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);

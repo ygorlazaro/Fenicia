@@ -26,6 +26,7 @@ public static class FeniciaModuleLoader
         }
 
         configuration.AddJsonFile(commonApiSettingsPath, false, true);
+        configuration.AddEnvironmentVariables();
 
         builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);

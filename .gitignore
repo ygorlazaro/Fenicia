@@ -16,3 +16,4 @@ Fenicia.Auth.Tests/TestResults/*
 fenicia-web/.env
 fenicia-web/.env.local
 fenicia-web/.env.production
+Docker/.env
