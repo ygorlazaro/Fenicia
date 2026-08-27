@@ -4,8 +4,6 @@ using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.State.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.State.DTOs.Responses;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.State;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StateController(ISender sender) : ControllerBase
+public class StateController(StateService stateService) : ControllerBase
 {
 
     [HttpGet]
@@ -28,7 +26,7 @@ public class StateController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var states = await sender.Send(new GetAllStateQuery(), ct);
+            var states = await stateService.GetAllAsync(ct);
 
             return Ok(states);
         }

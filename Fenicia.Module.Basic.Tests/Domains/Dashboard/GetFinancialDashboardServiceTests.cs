@@ -1,0 +1,43 @@
+using Bogus;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.Dashboard;
+using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Queries;
+using Microsoft.EntityFrameworkCore;
+
+namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;
+
+public class GetFinancialDashboardServiceTests : IDisposable
+{
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly DashboardService service;
+
+    public GetFinancialDashboardServiceTests()
+    {
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        service = new DashboardService(db);
+        faker = new Faker();
+    }
+
+    public void Dispose()
+    {
+        db.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    [Fact]
+    public async Task GetFinancialDashboardAsync_ReturnsFinancialDashboardResponse()
+    {
+        var result = await service.GetFinancialDashboardAsync(new GetFinancialDashboardQuery(90), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.Kpi);
+        Assert.NotNull(result.RevenueVsCost);
+        Assert.NotNull(result.ProfitMarginTrend);
+        Assert.NotNull(result.AccountsReceivable);
+        Assert.NotNull(result.DailySales);
+    }
+}

@@ -11,7 +11,7 @@ public class BasicProgramIntegrationTests
         var args = new[] { "--tenant=test-tenant" };
         var tenantId = Fenicia.Common.API.FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+        
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
         {

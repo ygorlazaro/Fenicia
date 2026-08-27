@@ -6,8 +6,6 @@ using Fenicia.Module.Basic.Domains.Customer.DTOs.Commands;
 using Fenicia.Module.Basic.Domains.Customer.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Customer.DTOs.Responses;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CustomerController(ISender sender) : ControllerBase
+public class CustomerController(CustomerService customerService) : ControllerBase
 {
 
     [HttpGet]
@@ -31,7 +29,7 @@ public class CustomerController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customers = await sender.Send(new GetAllCustomerQuery(page, perPage), ct);
+            var customers = await customerService.GetAllAsync(new GetAllCustomerQuery(page, perPage), ct);
 
             return Ok(customers);
         }
@@ -52,7 +50,7 @@ public class CustomerController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await sender.Send(new GetCustomerByIdQuery(id), ct);
+            var customer = await customerService.GetByIdAsync(new GetCustomerByIdQuery(id), ct);
 
             return customer is null ? NotFound() : Ok(customer);
         }
@@ -73,7 +71,7 @@ public class CustomerController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await sender.Send(command, ct);
+            var customer = await customerService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, customer);
         }
@@ -95,7 +93,7 @@ public class CustomerController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await sender.Send(command with { Id = id }, ct);
+            var customer = await customerService.UpdateAsync(command with { Id = id }, ct);
 
             return customer switch
             {
@@ -118,7 +116,7 @@ public class CustomerController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeleteCustomerCommand(id), ct);
+            await customerService.DeleteAsync(new DeleteCustomerCommand(id), ct);
 
             return NoContent();
         }
@@ -137,7 +135,7 @@ public class CustomerController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var insights = await sender.Send(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), ct);
+            var insights = await customerService.GetInsightsAsync(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), ct);
 
             return Ok(insights);
         }
