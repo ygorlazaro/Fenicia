@@ -4,8 +4,6 @@ using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs.Responses;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class InventoryController(ISender sender) : ControllerBase
+public class InventoryController(InventoryService inventoryService) : ControllerBase
 {
 
     [HttpGet("product/{productId:guid}")]
@@ -28,7 +26,7 @@ public class InventoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await sender.Send(new GetInventoryByProductQuery(productId), ct);
+            var inventory = await inventoryService.GetByProductAsync(new GetInventoryByProductQuery(productId), ct);
 
             return Ok(inventory);
         }
@@ -47,7 +45,7 @@ public class InventoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await sender.Send(new GetInventoryByCategoryQuery(categoryId), ct);
+            var inventory = await inventoryService.GetByCategoryAsync(new GetInventoryByCategoryQuery(categoryId), ct);
 
             return Ok(inventory);
         }
@@ -66,7 +64,7 @@ public class InventoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await sender.Send(new GetInventoryQuery(page, perPage), ct);
+            var inventory = await inventoryService.GetAsync(new GetInventoryQuery(page, perPage), ct);
 
             return Ok(inventory);
         }
@@ -85,7 +83,7 @@ public class InventoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await sender.Send(new GetInventoryDashboardQuery(), ct);
+            var dashboard = await inventoryService.GetDashboardAsync(new GetInventoryDashboardQuery(), ct);
 
             return Ok(dashboard);
         }
@@ -104,7 +102,7 @@ public class InventoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var health = await sender.Send(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
+            var health = await inventoryService.GetHealthAsync(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
 
             return Ok(health);
         }

@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using MediatR;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Commands;
@@ -16,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StockMovementController(ISender sender) : ControllerBase
+public class StockMovementController(StockMovementService stockMovementService) : ControllerBase
 {
 
     [HttpGet]
@@ -28,7 +27,7 @@ public class StockMovementController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await sender.Send(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
+            var stockMovement = await stockMovementService.GetAsync(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
 
             return Ok(stockMovement);
         }
@@ -49,7 +48,7 @@ public class StockMovementController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await sender.Send(command, ct);
+            var stockMovement = await stockMovementService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, stockMovement);
         }
@@ -73,7 +72,7 @@ public class StockMovementController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await sender.Send(command with { Id = id }, ct);
+            var stockMovement = await stockMovementService.UpdateAsync(command with { Id = id }, ct);
 
             return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
         }
@@ -92,7 +91,7 @@ public class StockMovementController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await sender.Send(new GetStockMovementDashboardQuery(days, topLimit), ct);
+            var dashboard = await stockMovementService.GetDashboardAsync(new GetStockMovementDashboardQuery(days, topLimit), ct);
 
             return Ok(dashboard);
         }

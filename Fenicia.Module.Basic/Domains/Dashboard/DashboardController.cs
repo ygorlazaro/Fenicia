@@ -4,8 +4,6 @@ using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Responses;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DashboardController(ISender sender) : ControllerBase
+public class DashboardController(DashboardService dashboardService) : ControllerBase
 {
 
     [HttpGet("financial")]
@@ -28,7 +26,7 @@ public class DashboardController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await sender.Send(new GetFinancialDashboardQuery(days), ct);
+            var dashboard = await dashboardService.GetFinancialDashboardAsync(new GetFinancialDashboardQuery(days), ct);
 
             return Ok(dashboard);
         }

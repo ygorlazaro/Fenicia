@@ -5,10 +5,9 @@ using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Order.DTOs.Commands;
 using Fenicia.Module.Basic.Domains.Order.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Order.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Responses;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,7 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(ISender sender) : ControllerBase
+public class OrderController(OrderService orderService, OrderDetailService orderDetailService) : ControllerBase
 {
 
     [HttpGet]
@@ -32,7 +31,7 @@ public class OrderController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var orders = await sender.Send(new GetAllOrderQuery(page, perPage), ct);
+            var orders = await orderService.GetAllAsync(new GetAllOrderQuery(page, perPage), ct);
 
             return Ok(orders);
         }
@@ -52,7 +51,7 @@ public class OrderController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var order = await sender.Send(new GetOrderByIdQuery(id), ct);
+            var order = await orderService.GetByIdAsync(new GetOrderByIdQuery(id), ct);
 
             return order is null ? NotFound() : Ok(order);
         }
@@ -74,7 +73,7 @@ public class OrderController(ISender sender) : ControllerBase
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
-            var order = await sender.Send(command with { UserId = userId }, ct);
+            var order = await orderService.CreateAsync(command with { UserId = userId }, ct);
 
             return new CreatedResult(string.Empty, order);
         }
@@ -95,7 +94,7 @@ public class OrderController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeleteOrderCommand(id), ct);
+            await orderService.DeleteAsync(new DeleteOrderCommand(id), ct);
 
             return NoContent();
         }
@@ -114,7 +113,7 @@ public class OrderController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var details = await sender.Send(new GetOrderDetailsByOrderIdQuery(id), ct);
+            var details = await orderDetailService.GetByOrderIdAsync(new GetOrderDetailsByOrderIdQuery(id), ct);
 
             return Ok(details);
         }
@@ -133,7 +132,7 @@ public class OrderController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var analytics = await sender.Send(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
+            var analytics = await orderService.GetAnalyticsAsync(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
 
             return Ok(analytics);
         }

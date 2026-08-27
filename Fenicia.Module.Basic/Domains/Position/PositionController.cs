@@ -2,13 +2,12 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Employee.DTOs.Responses;
 using Fenicia.Module.Basic.Domains.Position.DTOs.Commands;
 using Fenicia.Module.Basic.Domains.Position.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Position.DTOs.Responses;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class PositionController(ISender sender) : ControllerBase
+public class PositionController(PositionService positionService, EmployeeService employeeService) : ControllerBase
 {
 
     [HttpGet]
@@ -32,7 +31,7 @@ public class PositionController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await sender.Send(new GetAllPositionQuery(page, perPage), ct);
+            var positions = await positionService.GetAllAsync(new GetAllPositionQuery(page, perPage), ct);
 
             return Ok(positions);
         }
@@ -52,7 +51,7 @@ public class PositionController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await sender.Send(new GetPositionByIdQuery(id), ct);
+            var position = await positionService.GetByIdAsync(new GetPositionByIdQuery(id), ct);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -71,7 +70,7 @@ public class PositionController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await sender.Send(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
+            var employees = await employeeService.GetByPositionIdAsync(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
 
             return Ok(employees);
         }
@@ -92,7 +91,7 @@ public class PositionController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await sender.Send(command, ct);
+            var position = await positionService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, position);
         }
@@ -114,7 +113,7 @@ public class PositionController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await sender.Send(command with { Id = id }, ct);
+            var position = await positionService.UpdateAsync(command with { Id = id }, ct);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -133,7 +132,7 @@ public class PositionController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeletePositionCommand(id), ct);
+            await positionService.DeleteAsync(new DeletePositionCommand(id), ct);
 
             return NoContent();
         }

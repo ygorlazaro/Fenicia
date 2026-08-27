@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
@@ -17,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SupplierController(ISender sender) : ControllerBase
+public class SupplierController(SupplierService supplierService) : ControllerBase
 {
 
     [HttpGet]
@@ -29,7 +28,7 @@ public class SupplierController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await sender.Send(new GetAllSupplierQuery(page, perPage), ct);
+            var suppliers = await supplierService.GetAllAsync(new GetAllSupplierQuery(page, perPage), ct);
 
             return Ok(suppliers);
         }
@@ -49,7 +48,7 @@ public class SupplierController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await sender.Send(new GetSupplierByIdQuery(id), ct);
+            var supplier = await supplierService.GetByIdAsync(new GetSupplierByIdQuery(id), ct);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }
@@ -70,7 +69,7 @@ public class SupplierController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await sender.Send(command, ct);
+            var supplier = await supplierService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, supplier);
         }
@@ -92,7 +91,7 @@ public class SupplierController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await sender.Send(command with { Id = id }, ct);
+            var supplier = await supplierService.UpdateAsync(command with { Id = id }, ct);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }
@@ -111,7 +110,7 @@ public class SupplierController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeleteSupplierCommand(id), ct);
+            await supplierService.DeleteAsync(new DeleteSupplierCommand(id), ct);
 
             return NoContent();
         }
@@ -130,7 +129,7 @@ public class SupplierController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await sender.Send(new GetSupplierPerformanceQuery(days, topLimit), ct);
+            var performance = await supplierService.GetPerformanceAsync(new GetSupplierPerformanceQuery(days, topLimit), ct);
 
             return Ok(performance);
         }

@@ -4,8 +4,6 @@ using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs.Responses;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DataSourceController(ISender sender) : ControllerBase
+public class DataSourceController(DataSourceService dataSourceService) : ControllerBase
 {
 
     [HttpGet("position")]
@@ -28,7 +26,7 @@ public class DataSourceController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await sender.Send(new GetAllPositionForDataSourceQuery(), ct);
+            var positions = await dataSourceService.GetPositionsAsync(ct);
 
             return Ok(positions);
         }
@@ -47,7 +45,7 @@ public class DataSourceController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var categories = await sender.Send(new GetAllProductCategoryForDataSourceQuery(), ct);
+            var categories = await dataSourceService.GetProductCategoriesAsync(ct);
 
             return Ok(categories);
         }
@@ -66,7 +64,7 @@ public class DataSourceController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await sender.Send(new GetAllSupplierForDataSourceQuery(), ct);
+            var suppliers = await dataSourceService.GetSuppliersAsync(ct);
 
             return Ok(suppliers);
         }
@@ -85,7 +83,7 @@ public class DataSourceController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customers = await sender.Send(new GetAllCustomerForDataSourceQuery(), ct);
+            var customers = await dataSourceService.GetCustomersAsync(ct);
 
             return Ok(customers);
         }
@@ -104,7 +102,7 @@ public class DataSourceController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await sender.Send(new GetAllProductForDataSourceQuery(), ct);
+            var products = await dataSourceService.GetProductsAsync(ct);
 
             return Ok(products);
         }
@@ -123,7 +121,7 @@ public class DataSourceController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await sender.Send(new GetAllEmployeeForDataSourceQuery(), ct);
+            var employees = await dataSourceService.GetEmployeesAsync(ct);
 
             return Ok(employees);
         }

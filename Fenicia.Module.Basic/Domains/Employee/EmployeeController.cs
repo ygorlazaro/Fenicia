@@ -6,8 +6,6 @@ using Fenicia.Module.Basic.Domains.Employee.DTOs.Commands;
 using Fenicia.Module.Basic.Domains.Employee.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Employee.DTOs.Responses;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class EmployeeController(ISender sender) : ControllerBase
+public class EmployeeController(EmployeeService employeeService) : ControllerBase
 {
 
     [HttpGet]
@@ -30,7 +28,7 @@ public class EmployeeController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await sender.Send(new GetAllEmployeeQuery(page, perPage), ct);
+            var employees = await employeeService.GetAllAsync(new GetAllEmployeeQuery(page, perPage), ct);
 
             return Ok(employees);
         }
@@ -50,7 +48,7 @@ public class EmployeeController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await sender.Send(new GetEmployeeByIdQuery(id), ct);
+            var employee = await employeeService.GetByIdAsync(new GetEmployeeByIdQuery(id), ct);
 
             return employee is null ? NotFound() : Ok(employee);
         }
@@ -71,7 +69,7 @@ public class EmployeeController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await sender.Send(command, ct);
+            var employee = await employeeService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, employee);
         }
@@ -93,7 +91,7 @@ public class EmployeeController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await sender.Send(command with { Id = id }, ct);
+            var employee = await employeeService.UpdateAsync(command with { Id = id }, ct);
 
             return employee is null ? NotFound() : Ok(employee);
         }
@@ -112,7 +110,7 @@ public class EmployeeController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeleteEmployeeCommand(id), ct);
+            await employeeService.DeleteAsync(new DeleteEmployeeCommand(id), ct);
 
             return NoContent();
         }
@@ -131,7 +129,7 @@ public class EmployeeController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await sender.Send(new GetEmployeePerformanceQuery(days, topLimit), ct);
+            var performance = await employeeService.GetPerformanceAsync(new GetEmployeePerformanceQuery(days, topLimit), ct);
 
             return Ok(performance);
         }

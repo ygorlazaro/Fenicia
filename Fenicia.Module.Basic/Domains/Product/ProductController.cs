@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
@@ -17,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductController(ISender sender) : ControllerBase
+public class ProductController(ProductService productService) : ControllerBase
 {
 
     [HttpGet]
@@ -29,7 +28,7 @@ public class ProductController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await sender.Send(new GetAllProductQuery(page, perPage), ct);
+            var products = await productService.GetAllAsync(new GetAllProductQuery(page, perPage), ct);
 
             return Ok(products);
         }
@@ -49,7 +48,7 @@ public class ProductController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await sender.Send(new GetProductByIdQuery(id), ct);
+            var product = await productService.GetByIdAsync(new GetProductByIdQuery(id), ct);
 
             return product is null ? NotFound() : Ok(product);
         }
@@ -70,7 +69,7 @@ public class ProductController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await sender.Send(command, ct);
+            var product = await productService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, product);
         }
@@ -92,7 +91,7 @@ public class ProductController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await sender.Send(command with { Id = id }, ct);
+            var product = await productService.UpdateAsync(command with { Id = id }, ct);
 
             return product is null ? NotFound() : Ok(product);
         }
@@ -111,7 +110,7 @@ public class ProductController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeleteProductCommand(id), ct);
+            await productService.DeleteAsync(new DeleteProductCommand(id), ct);
 
             return NoContent();
         }
@@ -130,7 +129,7 @@ public class ProductController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await sender.Send(new GetProductPerformanceQuery(days, topLimit), ct);
+            var performance = await productService.GetPerformanceAsync(new GetProductPerformanceQuery(days, topLimit), ct);
 
             return Ok(performance);
         }

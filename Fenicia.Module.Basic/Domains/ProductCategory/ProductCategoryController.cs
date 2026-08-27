@@ -1,8 +1,8 @@
 using System.Net.Mime;
-using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.DTOs.Queries;
 using Fenicia.Module.Basic.Domains.Product.DTOs.Responses;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Commands;
@@ -19,7 +19,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductCategoryController(ISender sender) : ControllerBase
+public class ProductCategoryController(ProductCategoryService productCategoryService, ProductService productService) : ControllerBase
 {
 
     [HttpGet]
@@ -31,7 +31,7 @@ public class ProductCategoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await sender.Send(new GetAllProductCategoryQuery(page, perPage), ct);
+            var productCategory = await productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(page, perPage), ct);
 
             return Ok(productCategory);
         }
@@ -51,7 +51,7 @@ public class ProductCategoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await sender.Send(new GetProductCategoryByIdQuery(id), ct);
+            var productCategory = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(id), ct);
 
             return productCategory is null ? NotFound() : Ok(productCategory);
         }
@@ -72,7 +72,7 @@ public class ProductCategoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await sender.Send(command, ct);
+            var productCategory = await productCategoryService.AddAsync(command, ct);
 
             return new CreatedResult(string.Empty, productCategory);
         }
@@ -94,7 +94,7 @@ public class ProductCategoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await sender.Send(command with { Id = id }, ct);
+            var productCategory = await productCategoryService.UpdateAsync(command with { Id = id }, ct);
 
             return productCategory is null ? NotFound() : Ok(productCategory);
         }
@@ -113,7 +113,7 @@ public class ProductCategoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await sender.Send(new DeleteProductCategoryCommand(id), ct);
+            await productCategoryService.DeleteAsync(new DeleteProductCategoryCommand(id), ct);
 
             return NoContent();
         }
@@ -132,7 +132,7 @@ public class ProductCategoryController(ISender sender) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await sender.Send(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
+            var products = await productService.GetByCategoryIdAsync(new GetProductsByCategoryIdQuery(categoryId), query.Page, query.PerPage, ct);
 
             return Ok(products);
         }
