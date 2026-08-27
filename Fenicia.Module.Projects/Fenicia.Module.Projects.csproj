@@ -21,4 +21,11 @@
         <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\Fenicia.Common.Api\appsettings.json">
+            <Link>appsettings.Common.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
 </Project>

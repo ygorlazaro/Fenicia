@@ -26,7 +26,7 @@ public class Program
         }
 
         var configBuilder = new ConfigurationManager();
-        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Common.json");
 
         if (!File.Exists(commonApiSettingsPath))
         {

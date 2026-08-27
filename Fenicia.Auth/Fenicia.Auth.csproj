@@ -29,6 +29,11 @@
         <Content Include="..\.dockerignore">
             <Link>.dockerignore</Link>
         </Content>
+        <Content Include="..\Fenicia.Common.Api\appsettings.json">
+            <Link>appsettings.Common.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />

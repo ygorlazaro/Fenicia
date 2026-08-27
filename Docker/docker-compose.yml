@@ -73,7 +73,7 @@ services:
   
   fenicia-web:
     build:
-      context: ./fenicia-web
+      context: ../fenicia-web
       dockerfile: Dockerfile
     container_name: fenicia-web
     restart: unless-stopped
@@ -96,7 +96,7 @@ services:
   
   fenicia-auth:
     build:
-      context: ./Fenicia.Auth
+      context: ..
       dockerfile: Dockerfile
       target: final
       args:
@@ -132,7 +132,7 @@ services:
   
   fenicia-module-basic:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.Basic/Dockerfile
       target: final
       args:
@@ -157,7 +157,7 @@ services:
 
   fenicia-module-projects:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.Projects/Dockerfile
       target: final
       args:
@@ -182,7 +182,7 @@ services:
 
   fenicia-module-accounting:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.Accounting/Dockerfile
       target: final
       args:
@@ -205,7 +205,7 @@ services:
 
   fenicia-module-contracts:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.Contracts/Dockerfile
       target: final
       args:
@@ -228,7 +228,7 @@ services:
 
   fenicia-module-customersupport:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.CustomerSupport/Dockerfile
       target: final
       args:
@@ -251,7 +251,7 @@ services:
 
   fenicia-module-ecommerce:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.Ecommerce/Dockerfile
       target: final
       args:
@@ -274,7 +274,7 @@ services:
 
   fenicia-module-hr:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.HR/Dockerfile
       target: final
       args:
@@ -297,7 +297,7 @@ services:
 
   fenicia-module-performanceevaluation:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.PerformanceEvaluation/Dockerfile
       target: final
       args:
@@ -320,7 +320,7 @@ services:
 
   fenicia-module-pos:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.POS/Dockerfile
       target: final
       args:
@@ -343,7 +343,7 @@ services:
 
   fenicia-module-plus:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.Plus/Dockerfile
       target: final
       args:
@@ -366,7 +366,7 @@ services:
 
   fenicia-module-socialnetwork:
     build:
-      context: .
+      context: ..
       dockerfile: Fenicia.Module.SocialNetwork/Dockerfile
       target: final
       args:

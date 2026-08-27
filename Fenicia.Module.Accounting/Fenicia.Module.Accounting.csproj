@@ -35,4 +35,11 @@
             <HintPath>..\..\..\.nuget\packages\microsoft.identitymodel.tokens\8.0.1\lib\net9.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\Fenicia.Common.Api\appsettings.json">
+            <Link>appsettings.Common.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
 </Project>
