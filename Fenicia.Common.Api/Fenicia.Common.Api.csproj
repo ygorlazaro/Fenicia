@@ -35,38 +35,6 @@
 
     </ItemGroup>
     <ItemGroup>
-        <Reference Include="Fenicia.Common.Data">
-            <HintPath>..\Fenicia.Module.Basic.Tests\bin\Debug\net10.0\Fenicia.Common.Data.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.AspNetCore.Authentication.JwtBearer">
-            <HintPath>..\..\..\.nuget\packages\microsoft.aspnetcore.authentication.jwtbearer\10.0.3\lib\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
-            <HintPath>..\..\..\..\..\run\host\usr\lib\dotnet\shared\Microsoft.AspNetCore.App\9.0.5\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.AspNetCore.Mvc.Core">
-            <HintPath>..\..\..\..\..\run\host\usr\lib\dotnet\shared\Microsoft.AspNetCore.App\9.0.5\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.EntityFrameworkCore">
-            <HintPath>..\..\..\.nuget\packages\microsoft.entityframeworkcore\10.0.3\lib\net10.0\Microsoft.EntityFrameworkCore.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.Extensions.Logging.Abstractions">
-            <HintPath>..\..\..\.nuget\packages\microsoft.extensions.logging.abstractions\9.0.5\lib\net9.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.IdentityModel.Tokens">
-            <HintPath>..\..\..\.nuget\packages\microsoft.identitymodel.tokens\8.16.0\lib\net10.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
-        </Reference>
-        <Reference Include="Scalar.AspNetCore">
-            <HintPath>..\..\..\.nuget\packages\scalar.aspnetcore\2.12.46\lib\net10.0\Scalar.AspNetCore.dll</HintPath>
-        </Reference>
-        <Reference Include="Serilog">
-            <HintPath>..\..\..\.nuget\packages\serilog\4.3.0\lib\net9.0\Serilog.dll</HintPath>
-        </Reference>
-        <Reference Include="StackExchange.Redis">
-            <HintPath>..\..\..\.nuget\packages\stackexchange.redis\2.11.3\lib\net8.0\StackExchange.Redis.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-    <ItemGroup>
         <Content Update="appsettings.json">
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

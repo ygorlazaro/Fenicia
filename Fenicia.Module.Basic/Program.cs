@@ -19,7 +19,7 @@ public abstract class Program
         {
             builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
             builder.Services.AddHttpContextAccessor();
-        }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth", tenantId);
+        }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         builder.Start("/basic", "basic");
 
