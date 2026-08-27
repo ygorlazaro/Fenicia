@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Commands;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;

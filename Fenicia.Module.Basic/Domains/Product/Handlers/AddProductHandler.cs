@@ -1,7 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Product.Commands;
-using Fenicia.Module.Basic.Domains.Product.Responses;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Responses;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;

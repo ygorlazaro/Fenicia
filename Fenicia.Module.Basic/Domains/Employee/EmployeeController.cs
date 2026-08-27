@@ -2,9 +2,9 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Employee.Commands;
-using Fenicia.Module.Basic.Domains.Employee.Queries;
-using Fenicia.Module.Basic.Domains.Employee.Responses;
+using Fenicia.Module.Basic.Domains.Employee.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Employee.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Employee.DTOs.Responses;
 
 using MediatR;
 

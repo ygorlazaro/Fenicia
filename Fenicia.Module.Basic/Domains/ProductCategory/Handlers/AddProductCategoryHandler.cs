@@ -1,7 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
-using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Responses;
 using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;

@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Employee.Commands;
+using Fenicia.Module.Basic.Domains.Employee.DTOs.Commands;
 
 using MediatR;
 

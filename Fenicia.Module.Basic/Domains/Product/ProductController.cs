@@ -3,9 +3,9 @@ using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Product.Commands;
-using Fenicia.Module.Basic.Domains.Product.Queries;
-using Fenicia.Module.Basic.Domains.Product.Responses;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Product.DTOs.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

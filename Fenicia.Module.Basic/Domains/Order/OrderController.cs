@@ -2,11 +2,11 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Order.Commands;
-using Fenicia.Module.Basic.Domains.Order.Queries;
-using Fenicia.Module.Basic.Domains.Order.Responses;
-using Fenicia.Module.Basic.Domains.OrderDetail.Queries;
-using Fenicia.Module.Basic.Domains.OrderDetail.Responses;
+using Fenicia.Module.Basic.Domains.Order.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Order.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Order.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Responses;
 
 using MediatR;
 
