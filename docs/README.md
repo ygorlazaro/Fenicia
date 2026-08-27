@@ -15,9 +15,9 @@ Welcome to the Fenicia documentation! Here you'll find guides, architecture diag
 
 Fenicia is a modular, multi-tenant SaaS platform designed for administrative ERP, client management, subscriptions, payments, billing, and permissions. It features:
 
-- **Central Auth Service**: Manages login, JWT, permissions, tenantId, and active modules.
-- **Independent Modules**: Each module is a REST microservice with its own database per tenant (`tenant_{id}_{module}`), communicating via RabbitMQ events and authorized by JWT.
-- **ERP Admin Portal**: Centralizes SaaS management (clients, billing, permissions, etc.).
+- **Central Auth Service**: Manages login, JWT, permissions, `companyId`, and active modules.
+- **Independent Modules**: Each module is a REST microservice sharing a single PostgreSQL database per environment, with row-level tenant isolation via `CompanyId` and authorized by JWT.
+- **Frontend**: Vue.js + TypeScript
 
 ![Macro Architecture](architecture-diagram.svg)
 
