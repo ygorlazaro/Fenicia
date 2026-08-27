@@ -2,13 +2,11 @@ using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Responses;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Queries;
 using Fenicia.Auth.Domains.UserRole.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +18,7 @@ namespace Fenicia.Auth.Domains.User;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class UserController(ISender sender, ModuleService moduleService) : ControllerBase
+public class UserController(UserService userService, ModuleService moduleService) : ControllerBase
 {
 
     [HttpGet("module")]
@@ -54,7 +52,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var response = await sender.Send(new GetUserCompaniesQuery(userId), ct);
+            var response = await userService.GetCompaniesAsync(userId, ct);
 
             return Ok(response);
         }
@@ -69,8 +67,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAsync(CancellationToken ct, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var query = new GetUsersQuery(page, pageSize);
-        var result = await sender.Send(query, ct);
+        var result = await userService.GetAllAsync(page, pageSize, ct);
 
         return Ok(result);
     }
@@ -81,7 +78,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(Guid userId, CancellationToken ct)
     {
-        var user = await sender.Send(new GetUserByIdQuery(userId), ct);
+        var user = await userService.GetByIdAsync(userId, ct);
 
         return user switch
         {
@@ -99,7 +96,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
     {
         try
         {
-            var result = await sender.Send(request, ct);
+            var result = await userService.CreateAsync(request, ct);
 
             return Created(string.Empty, result);
         }
@@ -121,7 +118,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
         try
         {
             var updateRequest = request with { UserId = userId };
-            var result = await sender.Send(updateRequest, ct);
+            var result = await userService.UpdateAsync(updateRequest, ct);
 
             return Ok(result);
         }
@@ -139,7 +136,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
     {
         try
         {
-            await sender.Send(new DeleteUserCommand(userId), ct);
+            await userService.DeleteAsync(userId, ct);
             return NoContent();
         }
         catch (InvalidRequestException)
@@ -159,7 +156,7 @@ public class UserController(ISender sender, ModuleService moduleService) : Contr
         try
         {
             var updateRequest = request with { UserId = userId };
-            var result = await sender.Send(updateRequest, ct);
+            var result = await userService.UpdatePasswordAsync(updateRequest, ct);
 
             return Ok(result);
         }

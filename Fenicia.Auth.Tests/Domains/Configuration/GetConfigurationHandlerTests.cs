@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Configuration.Handlers;
+using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -12,7 +12,7 @@ namespace Fenicia.Auth.Tests.Domains.Configuration;
 public class GetConfigurationHandlerTests
 {
     private readonly DefaultContext db;
-    private readonly GetConfigurationHandler handler;
+    private readonly ConfigurationService service;
     private readonly Guid testUserId;
 
     public GetConfigurationHandlerTests()
@@ -20,7 +20,7 @@ public class GetConfigurationHandlerTests
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GetConfigurationHandler(db);
+        service = new ConfigurationService(db);
         testUserId = Guid.NewGuid();
     }
 
@@ -31,7 +31,7 @@ public class GetConfigurationHandlerTests
         var companyId = db.CurrentCompanyId ?? Guid.Empty;
         var query = new GetConfigurationQuery(testUserId, companyId);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -65,7 +65,7 @@ public class GetConfigurationHandlerTests
 
         var query = new GetConfigurationQuery(testUserId, companyId);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
@@ -104,7 +104,7 @@ public class GetConfigurationHandlerTests
 
         var query = new GetConfigurationQuery(testUserId, companyId);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);
@@ -131,7 +131,7 @@ public class GetConfigurationHandlerTests
 
         var query = new GetConfigurationQuery(Guid.NewGuid(), companyId);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -174,7 +174,7 @@ public class GetConfigurationHandlerTests
 
         var query = new GetConfigurationQuery(testUserId, companyId);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(3, result.Count);
@@ -204,7 +204,7 @@ public class GetConfigurationHandlerTests
 
         var query = new GetConfigurationQuery(testUserId, companyId);
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        var result = await service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);

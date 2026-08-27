@@ -1,8 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -15,7 +14,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class DeleteUserHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
-    private readonly DeleteUserHandler handler;
+    private readonly UserService userService;
     private readonly UserModel testUser;
 
     public DeleteUserHandlerTests()
@@ -23,7 +22,7 @@ public class DeleteUserHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new DeleteUserHandler(db);
+        userService = new UserService(db);
         var faker = new Faker();
 
         testUser = new UserModel
@@ -49,9 +48,7 @@ public class DeleteUserHandlerTests : IDisposable
     public async Task Handle_WhenValidRequest_SoftDeletesUserSuccessfully()
     {
 
-        var request = new DeleteUserCommand(testUser.Id);
-
-        await handler.Handle(request, CancellationToken.None);
+        await userService.DeleteAsync(testUser.Id, CancellationToken.None);
 
         var deletedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(deletedUser);
@@ -64,9 +61,8 @@ public class DeleteUserHandlerTests : IDisposable
     {
 
         var nonExistentUserId = Guid.NewGuid();
-        var request = new DeleteUserCommand(nonExistentUserId);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.DeleteAsync(nonExistentUserId, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }
@@ -78,9 +74,7 @@ public class DeleteUserHandlerTests : IDisposable
         testUser.Deleted = DateTime.UtcNow;
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new DeleteUserCommand(testUser.Id);
-
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.DeleteAsync(testUser.Id, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }
@@ -89,9 +83,7 @@ public class DeleteUserHandlerTests : IDisposable
     public async Task Handle_SoftDelete_UserStillExistsInDatabase()
     {
 
-        var request = new DeleteUserCommand(testUser.Id);
-
-        await handler.Handle(request, CancellationToken.None);
+        await userService.DeleteAsync(testUser.Id, CancellationToken.None);
 
         var user = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(user);

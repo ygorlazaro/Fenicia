@@ -7,16 +7,12 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
-using Fenicia.Auth.Domains.User.Queries;
 using Fenicia.Auth.Domains.UserRole.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Tests;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +29,6 @@ public class UserControllerTests
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Mock<ISender> sender;
     private readonly Guid testUserId;
 
     public UserControllerTests()
@@ -47,43 +42,10 @@ public class UserControllerTests
         var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);
 
-        sender = new Mock<ISender>();
-
+        var userService = new UserService(db);
         var moduleService = new ModuleService(db);
-        var getUserCompaniesHandler = new GetUserCompaniesHandler(db);
-        var listUserHandler = new GetUserHandler(db);
-        var createUserHandler = new CreateUserHandler(db);
-        var updateUserHandler = new UpdateUserHandler(db);
-        var getUserByIdHandler = new GetUserByIdHandler(db);
-        var updateUserPasswordHandler = new UpdateUserPasswordHandler(db);
-        var deleteUserHandler = new DeleteUserHandler(db);
 
-        sender.Setup(x => x.Send(It.IsAny<GetUserCompaniesQuery>(), It.IsAny<CancellationToken>()))
-            .Returns((GetUserCompaniesQuery query, CancellationToken ct) => getUserCompaniesHandler.Handle(query, ct));
-
-        sender.Setup(x => x.Send(It.IsAny<GetUsersQuery>(), It.IsAny<CancellationToken>()))
-            .Returns((GetUsersQuery query, CancellationToken ct) => listUserHandler.Handle(query, ct));
-
-        sender.Setup(x => x.Send(It.IsAny<GetUserByIdQuery>(), It.IsAny<CancellationToken>()))
-            .Returns((GetUserByIdQuery query, CancellationToken ct) => getUserByIdHandler.Handle(query, ct));
-
-        sender.Setup(x => x.Send(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>()))
-            .Returns((CreateUserCommand command, CancellationToken ct) => createUserHandler.Handle(command, ct));
-
-        sender.Setup(x => x.Send(It.IsAny<UpdateUserCommand>(), It.IsAny<CancellationToken>()))
-            .Returns((UpdateUserCommand command, CancellationToken ct) => updateUserHandler.Handle(command, ct));
-
-        sender.Setup(x => x.Send(It.IsAny<UpdateUserPasswordCommand>(), It.IsAny<CancellationToken>()))
-            .Returns((UpdateUserPasswordCommand command, CancellationToken ct) => updateUserPasswordHandler.Handle(command, ct));
-
-        sender.Setup(x => x.Send(It.IsAny<DeleteUserCommand>(), It.IsAny<CancellationToken>()))
-            .Returns(async (DeleteUserCommand command, CancellationToken ct) =>
-            {
-                await deleteUserHandler.Handle(command, ct);
-                return Unit.Value;
-            });
-
-        controller = new UserController(sender.Object, moduleService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new UserController(userService, moduleService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();

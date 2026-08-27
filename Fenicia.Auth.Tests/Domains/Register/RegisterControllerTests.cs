@@ -2,8 +2,8 @@ using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.Register.Command;
 using Fenicia.Auth.Domains.Register.Handler;
 using Fenicia.Auth.Domains.Register.Response;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
@@ -30,8 +30,8 @@ public class RegisterControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        var createNewUserHandler = new CreateNewUserHandler(db);
-        var registerHandler = new RegisterHandler(createNewUserHandler);
+        var userService = new UserService(db);
+        var registerHandler = new RegisterHandler(userService);
         var mockSender = new Mock<ISender>();
         mockSender.Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .Returns((RegisterCommand command, CancellationToken token) => registerHandler.Handle(command, token));

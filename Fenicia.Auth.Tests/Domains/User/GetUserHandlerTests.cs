@@ -1,8 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.User.Handlers;
-using Fenicia.Auth.Domains.User.Queries;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
@@ -14,14 +13,14 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class GetUserHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
-    private readonly GetUserHandler handler;
+    private readonly UserService userService;
 
     public GetUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GetUserHandler(db);
+        userService = new UserService(db);
 
         var faker = new Faker();
 
@@ -50,9 +49,7 @@ public class GetUserHandlerTests : IDisposable
     public async Task Handle_WhenNoParameters_ReturnsFirstPageWithDefaultPerPage()
     {
 
-        var request = new GetUsersQuery();
-
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.GetAllAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -67,9 +64,7 @@ public class GetUserHandlerTests : IDisposable
     public async Task Handle_WhenPageSpecified_ReturnsCorrectPage()
     {
 
-        var request = new GetUsersQuery(2, 5);
-
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.GetAllAsync(2, 5, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -82,9 +77,7 @@ public class GetUserHandlerTests : IDisposable
     public async Task Handle_UsersAreOrderedAlphabeticallyByName()
     {
 
-        var request = new GetUsersQuery(1, 15);
-
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.GetAllAsync(1, 15, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(result.Data.Select(u => u.Name).OrderBy(n => n), result.Data.Select(u => u.Name));
@@ -94,9 +87,7 @@ public class GetUserHandlerTests : IDisposable
     public async Task Handle_WhenLastPage_HasNextIsFalse()
     {
 
-        var request = new GetUsersQuery(2, 10);
-
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.GetAllAsync(2, 10, CancellationToken.None);
 
         Assert.NotNull(result);
 

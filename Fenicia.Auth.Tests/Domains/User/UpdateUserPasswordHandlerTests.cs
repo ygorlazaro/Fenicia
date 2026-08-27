@@ -1,8 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -16,7 +16,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly UpdateUserPasswordHandler handler;
+    private readonly UserService userService;
     private readonly UserModel testUser;
 
     public UpdateUserPasswordHandlerTests()
@@ -25,7 +25,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
 
         db = new DefaultContext(options, new TestCompanyContext());
 
-        handler = new UpdateUserPasswordHandler(db);
+        userService = new UserService(db);
         faker = new Faker();
 
         testUser = new UserModel
@@ -54,7 +54,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
         var originalPasswordHash = testUser.Password;
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await userService.UpdatePasswordAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -74,7 +74,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         var newPassword = faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
 
-        await handler.Handle(request, CancellationToken.None);
+        await userService.UpdatePasswordAsync(request, CancellationToken.None);
 
         var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(updatedUser);
@@ -92,7 +92,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         var newPassword = faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(nonExistentUserId, newPassword);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdatePasswordAsync(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }

@@ -1,7 +1,7 @@
 using Bogus;
 
+using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Auth.Domains.Configuration.Commands;
-using Fenicia.Auth.Domains.Configuration.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -11,19 +11,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
-public class UpsertConfigurationHandlerTests : IDisposable
+public class UpsertConfigurationServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly UpsertConfigurationHandler handler;
+    private readonly ConfigurationService service;
     private readonly Guid testUserId;
 
-    public UpsertConfigurationHandlerTests()
+    public UpsertConfigurationServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new UpsertConfigurationHandler(db);
+        service = new ConfigurationService(db);
         faker = new Faker();
         testUserId = Guid.NewGuid();
     }
@@ -34,7 +34,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", db.CurrentCompanyId ?? Guid.Empty);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.UpsertAsync(command, CancellationToken.None);
 
         var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language);
 
@@ -54,8 +54,8 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         var config2 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Timezone, "dark", db.CurrentCompanyId ?? Guid.NewGuid());
 
-        await handler.Handle(config1, CancellationToken.None);
-        await handler.Handle(config2, CancellationToken.None);
+        await service.UpsertAsync(config1, CancellationToken.None);
+        await service.UpsertAsync(config2, CancellationToken.None);
 
         var configurations = await db.AuthConfigurations.Where(c => c.UserId == testUserId).ToListAsync(CancellationToken.None);
 
@@ -82,7 +82,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "en", companyId);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.UpsertAsync(command, CancellationToken.None);
 
         var updatedConfig = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.Id == originalId);
 
@@ -96,7 +96,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
     public async Task Handle_MultipleUpdates_OnlyLastValuePersists()
     {
 
-        var companyId = db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = db.CurrentCompanyId ?? Guid.Empty;
 
         var command1 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", companyId);
 
@@ -104,9 +104,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         var command3 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "es", companyId);
 
-        await handler.Handle(command1, CancellationToken.None);
-        await handler.Handle(command2, CancellationToken.None);
-        await handler.Handle(command3, CancellationToken.None);
+        await service.UpsertAsync(command1, CancellationToken.None);
+        await service.UpsertAsync(command2, CancellationToken.None);
+        await service.UpsertAsync(command3, CancellationToken.None);
 
         var configurations = await db.AuthConfigurations.Where(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId).ToListAsync(CancellationToken.None);
 
@@ -120,7 +120,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "", db.CurrentCompanyId ?? Guid.Empty);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.UpsertAsync(command, CancellationToken.None);
 
         var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language);
 
@@ -135,7 +135,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
         var longValue = faker.Lorem.Paragraphs(10);
         var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, longValue, db.CurrentCompanyId ?? Guid.Empty);
 
-        await handler.Handle(command, CancellationToken.None);
+        await service.UpsertAsync(command, CancellationToken.None);
 
         var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language);
 
