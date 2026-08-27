@@ -1,0 +1,15 @@
+{
+  "name": "fenicia",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "dotnet test Fenicia.sln --configuration Release --no-build",
+    "test:auth": "dotnet test Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj --configuration Release --no-build --collect:\"XPlat Code Coverage;Format=Cobertura\" --results-directory /tmp/coverage-auth",
+    "test:basic": "dotnet test Fenicia.Module.Basic.Tests/Fenicia.Module.Basic.Tests.csproj --configuration Release --no-build --collect:\"XPlat Code Coverage;Format=Cobertura\" --results-directory /tmp/coverage-basic",
+    "coverage": "dotnet test Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj Fenicia.Module.Basic.Tests/Fenicia.Module.Basic.Tests.csproj --configuration Release --collect:\"XPlat Code Coverage;Format=Cobertura\" --results-directory /tmp/coverage",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^9.1.6"
+  }
+}

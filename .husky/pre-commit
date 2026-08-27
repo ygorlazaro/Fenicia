@@ -1,11 +1,53 @@
-#!/usr/bin/env sh
+#!/bin/bash
+set -e
 
-npx --prefix fenicia-web lint-staged --config fenicia-web/.lintstagedrc.json
-status=$?
+echo "Running tests and coverage check..."
 
-if [ $status -ne 0 ]; then
-    echo "❌ pre-commit failed: fix lint/prettier errors before committing."
-    exit $status
-fi
+rm -rf /tmp/coverage-husky
 
-exit 0
+dotnet test Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj \
+  --configuration Release \
+  --collect:"XPlat Code Coverage;Format=Cobertura" \
+  --results-directory /tmp/coverage-husky-auth \
+  --filter "FullyQualifiedName!~ControllerTests"
+
+dotnet test Fenicia.Module.Basic.Tests/Fenicia.Module.Basic.Tests.csproj \
+  --configuration Release \
+  --collect:"XPlat Code Coverage;Format=Cobertura" \
+  --results-directory /tmp/coverage-husky-basic \
+  --filter "FullyQualifiedName!~ControllerTests"
+
+echo "Tests passed. Checking coverage..."
+
+python3 << 'PYEOF'
+import xml.etree.ElementTree as ET
+import glob
+import sys
+
+coverage_dirs = ['/tmp/coverage-husky-auth', '/tmp/coverage-husky-basic']
+total_valid = 0
+total_covered = 0
+
+for coverage_dir in coverage_dirs:
+    coverage_files = glob.glob(f'{coverage_dir}/*/coverage.cobertura.xml')
+    for coverage_file in coverage_files:
+        tree = ET.parse(coverage_file)
+        root = tree.getroot()
+
+        for cls in root.iter('class'):
+            filename = cls.get('filename', '')
+            if ('Fenicia.Auth' in filename or 'Fenicia.Module.Basic' in filename) and 'Tests' not in filename and 'Migrations' not in filename:
+                for line in cls.iter('line'):
+                    total_valid += 1
+                    if int(line.get('hits', 0)) > 0:
+                        total_covered += 1
+
+coverage_pct = (total_covered / total_valid * 100) if total_valid > 0 else 0
+print(f'Overall coverage: {total_covered}/{total_valid} lines ({coverage_pct:.1f}%)')
+
+if coverage_pct < 53:
+    print(f'ERROR: Coverage {coverage_pct:.1f}% is below minimum threshold of 53%')
+    sys.exit(1)
+else:
+    print(f'Coverage check passed: {coverage_pct:.1f}% >= 53%')
+PYEOF

@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Fenicia.Auth;
 
-public static class Program
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -34,10 +34,12 @@ public static class Program
             builder.Services.AddHttpContextAccessor();
         }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
-
-        builder.Start();
-
         var app = builder.Build();
         app.UseFeniciaLocalization();
+
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") != "true")
+        {
+            app.Run();
+        }
     }
 }
