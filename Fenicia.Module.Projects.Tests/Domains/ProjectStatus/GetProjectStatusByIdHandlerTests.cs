@@ -35,7 +35,7 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectStatusExists_ReturnsProjectStatusResponse()
     {
-        // Arrange
+
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var status = new ProjectStatusModel
@@ -53,10 +53,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
 
         var query = new GetProjectStatusByIdQuery(statusId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(statusId, result.Id);
         Assert.Equal(status.Name, result.Name);
@@ -65,33 +63,29 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectStatusDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectStatusByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectStatusByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProjectStatuses_ReturnsOnlyRequestedStatus()
     {
-        // Arrange
+
         var status1Id = Guid.NewGuid();
         var status2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
@@ -121,10 +115,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
 
         var query = new GetProjectStatusByIdQuery(status1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(status1Id, result.Id);
         Assert.Equal(status1.Name, result.Name);
@@ -133,7 +125,7 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithIsFinalTrue_ReturnsCorrectResponse()
     {
-        // Arrange
+
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var status = new ProjectStatusModel
@@ -151,10 +143,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
 
         var query = new GetProjectStatusByIdQuery(statusId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(statusId, result.Id);
         Assert.True(result.IsFinal);

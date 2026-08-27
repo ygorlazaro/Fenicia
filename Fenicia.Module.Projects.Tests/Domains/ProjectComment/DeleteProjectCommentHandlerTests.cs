@@ -35,7 +35,7 @@ public class DeleteProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectCommentExists_SetsDeletedDate()
     {
-        // Arrange
+
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -53,10 +53,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         var command = new DeleteProjectCommentCommand(commentId);
         var beforeDelete = DateTime.UtcNow;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedComment = await db.ProjectComments.FindAsync([commentId], CancellationToken.None);
         Assert.NotNull(deletedComment);
         Assert.NotNull(deletedComment.Deleted);
@@ -66,13 +64,11 @@ public class DeleteProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectCommentDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectCommentCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var comments = await db.ProjectComments.ToListAsync();
         Assert.Empty(comments);
     }
@@ -80,13 +76,11 @@ public class DeleteProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectCommentCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var comments = await db.ProjectComments.ToListAsync();
         Assert.Empty(comments);
     }
@@ -94,7 +88,7 @@ public class DeleteProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectComments_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var comment1Id = Guid.NewGuid();
         var comment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -121,10 +115,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
 
         var command = new DeleteProjectCommentCommand(comment1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedComment = await db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
         var notDeletedComment = await db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
@@ -137,7 +129,7 @@ public class DeleteProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectComments_DeletesCorrectProjectComment()
     {
-        // Arrange
+
         var comment1Id = Guid.NewGuid();
         var comment2Id = Guid.NewGuid();
         var comment3Id = Guid.NewGuid();
@@ -173,10 +165,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
 
         var command = new DeleteProjectCommentCommand(comment2Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var comment1InDb = await db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
         var deletedComment = await db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
         var comment3InDb = await db.ProjectComments.FindAsync([comment3Id], CancellationToken.None);

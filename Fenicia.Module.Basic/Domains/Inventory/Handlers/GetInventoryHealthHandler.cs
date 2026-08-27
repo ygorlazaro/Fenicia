@@ -9,18 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 
-/// <summary>
-///     Handler responsible for generating inventory health analysis.
-///     Identifies overstock products, zero-movement products, and provides health metrics.
-/// </summary>
 public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetInventoryHealthQuery, InventoryHealthResponse>
 {
-    /// <summary>
-    ///     Generates inventory health analysis with alerts and metrics.
-    /// </summary>
-    /// <param name="query">The query containing health analysis parameters.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Inventory health response with overstock and zero-movement alerts.</returns>
+
     public async Task<InventoryHealthResponse> Handle(GetInventoryHealthQuery query, CancellationToken ct)
     {
         var stockMovements = db.BasicStockMovements.Where(m => m.Date >= DateTime.UtcNow.AddDays(-query.ZeroMovementDays));
@@ -47,11 +38,9 @@ public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetI
         var totalZeroMovementProducts = zeroMovementProducts.Count();
         var overstockCount = overstockProducts.Count;
 
-        // Client-side safe calculations
         var overstockPercentage = totalProducts > 0 ? (decimal)overstockCount / totalProducts * 100 : 0;
         var zeroMovementPercentage = totalProducts > 0 ? (decimal)totalZeroMovementProducts / totalProducts * 100 : 0;
 
-        // Healthy: stocked + active - overstock (approximate, but safe)
         var stockedActiveIds = activeProductIds.Where(id => !overstockProducts.Any(op => op.ProductId == id)).ToHashSet();
         var healthyProducts = await db.BasicProducts.CountAsync(p => p.Quantity > 0 && stockedActiveIds.Contains(p.Id), ct);
 
@@ -70,13 +59,12 @@ public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetI
 
     private async Task<(List<StockValueByCategoryResponse>, decimal totalStockValue)> GetStockValueByCategoryAsync(CancellationToken ct)
     {
-        // Fetch products with category info
+
         var productsByCategory = await (from p in db.BasicProducts
                                         where p.Quantity > 0
                                         select new { p.CategoryId, CategoryName = p.Category.Name, p.Quantity, p.CostPrice })
                                         .ToListAsync(ct);
 
-        // Client-side group, aggregate, order
         var grouped = productsByCategory
             .GroupBy(p => new { p.CategoryId, p.CategoryName })
             .Select(g =>
@@ -94,12 +82,11 @@ public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetI
 
     private async Task<(IEnumerable<Guid> activeProductIds, List<ZeroMovementProductResponse> zeroMovementProducts)> GetActiveProductIdsAsync(IQueryable<StockMovementModel> stockMovements, IQueryable<OrderDetailModel> orderDetails, CancellationToken ct)
     {
-        // Get active product IDs from movements and orders
+
         var movementProductIds = await stockMovements.Select(m => m.ProductId).Distinct().ToListAsync(ct);
         var orderProductIds = await orderDetails.Select(d => d.ProductId).Distinct().ToListAsync(ct);
         var activeProductIds = movementProductIds.Union(orderProductIds).ToHashSet();
 
-        // Get candidate products: stock > 0, not active
         var candidateProducts = await (from p in db.BasicProducts
                                        where p.Quantity > 0 && !activeProductIds.Contains(p.Id)
                                        select new
@@ -113,7 +100,6 @@ public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetI
                                            p.SupplierId
                                        }).ToListAsync(ct);
 
-        // Pre-fetch last movement dates for candidates only (efficient dict)
         var candidateIds = candidateProducts.Select(p => p.Id).ToList();
         var lastMovements = await stockMovements
             .Where(m => candidateIds.Contains(m.ProductId))
@@ -122,9 +108,8 @@ public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetI
             .ToDictionaryAsync(k => k.ProductId, v => v.LastDate, ct);
 
         var now = DateTime.UtcNow;
-        var ancient = now.AddYears(-100); // fallback for no movement
+        var ancient = now.AddYears(-100);
 
-        // Project to responses, sort, take top 20
         var zeroMovementProducts = candidateProducts
             .Select(p =>
             {
@@ -154,7 +139,6 @@ public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetI
         var productSalesRaw = await orderDetails.GroupBy(d => d.ProductId).Select(g => new { ProductId = g.Key, TotalSales = g.Sum(d => d.Quantity) }).ToListAsync(ct);
 
         var productSales = productSalesRaw.ToDictionary(x => x.ProductId, x => x.TotalSales / (query.ZeroMovementDays / 30.0));
-
 
         var allProductsWithStock = await (from p in db.BasicProducts
                                           where p.Quantity > 0

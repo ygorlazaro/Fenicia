@@ -2,10 +2,6 @@ using System.Resources;
 
 namespace Fenicia.Common.Localization;
 
-/// <summary>
-///     Helper class for retrieving localized exception messages.
-///     Uses CultureInfo.CurrentCulture to determine the language.
-/// </summary>
 public static class ExceptionMessages
 {
     private readonly static ResourceManager ResourceMapper = new("Fenicia.Common.Resources.ExceptionMessages", typeof(ExceptionMessages).Assembly);

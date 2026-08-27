@@ -6,9 +6,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-/// <summary>
-///     Unit tests for the GetLoginAttemptsHandler.
-/// </summary>
 public class GetLoginAttemptsHandlerTests : IDisposable
 {
     private readonly MemoryCache cache;

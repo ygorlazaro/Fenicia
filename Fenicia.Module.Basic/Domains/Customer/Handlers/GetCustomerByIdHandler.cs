@@ -8,18 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 
-/// <summary>
-///     Handler responsible for retrieving a specific customer by their unique identifier.
-///     Returns customer details including associated person information.
-/// </summary>
 public class GetCustomerByIdHandler(DefaultContext db) : IRequestHandler<GetCustomerByIdQuery, GetCustomerByIdResponse?>
 {
-    /// <summary>
-    ///     Retrieves a customer by their unique identifier.
-    /// </summary>
-    /// <param name="query">The query containing the customer ID to retrieve.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The customer details if found, null otherwise.</returns>
+
     public async Task<GetCustomerByIdResponse?> Handle(GetCustomerByIdQuery query, CancellationToken ct)
     {
         var customer = await db.BasicCustomers

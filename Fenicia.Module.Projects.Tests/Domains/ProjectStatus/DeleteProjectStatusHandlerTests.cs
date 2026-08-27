@@ -35,7 +35,7 @@ public class DeleteProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectStatusExists_SetsDeletedDate()
     {
-        // Arrange
+
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var status = new ProjectStatusModel
@@ -54,10 +54,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
         var command = new DeleteProjectStatusCommand(statusId);
         var beforeDelete = DateTime.UtcNow;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedStatus = await db.ProjectStatuses.FindAsync([statusId], CancellationToken.None);
         Assert.NotNull(deletedStatus);
         Assert.NotNull(deletedStatus.Deleted);
@@ -67,13 +65,11 @@ public class DeleteProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectStatusDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectStatusCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var statuses = await db.ProjectStatuses.ToListAsync();
         Assert.Empty(statuses);
     }
@@ -81,13 +77,11 @@ public class DeleteProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectStatusCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var statuses = await db.ProjectStatuses.ToListAsync();
         Assert.Empty(statuses);
     }
@@ -95,7 +89,7 @@ public class DeleteProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectStatuses_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var status1Id = Guid.NewGuid();
         var status2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
@@ -125,10 +119,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
 
         var command = new DeleteProjectStatusCommand(status1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedStatus = await db.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
         var notDeletedStatus = await db.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
 
@@ -141,7 +133,7 @@ public class DeleteProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectStatuses_DeletesCorrectProjectStatus()
     {
-        // Arrange
+
         var status1Id = Guid.NewGuid();
         var status2Id = Guid.NewGuid();
         var status3Id = Guid.NewGuid();
@@ -182,10 +174,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
 
         var command = new DeleteProjectStatusCommand(status2Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var status1InDb = await db.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
         var deletedStatus = await db.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
         var status3InDb = await db.ProjectStatuses.FindAsync([status3Id], CancellationToken.None);

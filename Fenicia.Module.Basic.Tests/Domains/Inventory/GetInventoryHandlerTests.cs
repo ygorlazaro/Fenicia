@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
-/// <summary>
-///     Unit tests for the GetInventoryHandler.
-///     Tests inventory retrieval with pagination logic.
-/// </summary>
 public class GetInventoryHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -38,13 +34,11 @@ public class GetInventoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyInventory()
     {
-        // Arrange
+
         var query = new GetInventoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Items);
         Assert.Equal(0, result.TotalCostPrice);
@@ -55,7 +49,7 @@ public class GetInventoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProducts_ReturnsInventoryWithTotals()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -88,10 +82,8 @@ public class GetInventoryHandlerTests : IDisposable
 
         var query = new GetInventoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Items.Count);
         Assert.Equal(25.00m, result.TotalCostPrice);
@@ -102,7 +94,7 @@ public class GetInventoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -128,10 +120,8 @@ public class GetInventoryHandlerTests : IDisposable
 
         var query = new GetInventoryQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Items.Count);
     }
@@ -139,7 +129,7 @@ public class GetInventoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProductsOrderedByQuantity_ReturnsInAscendingOrder()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -182,10 +172,8 @@ public class GetInventoryHandlerTests : IDisposable
 
         var query = new GetInventoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.True(result.Items[0].Quantity <= result.Items[1].Quantity);
         Assert.True(result.Items[1].Quantity <= result.Items[2].Quantity);
@@ -194,7 +182,7 @@ public class GetInventoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesCategoryNameIsIncluded()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -217,10 +205,8 @@ public class GetInventoryHandlerTests : IDisposable
 
         var query = new GetInventoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.Items);
         Assert.Equal("Electronics", result.Items[0].CategoryName);

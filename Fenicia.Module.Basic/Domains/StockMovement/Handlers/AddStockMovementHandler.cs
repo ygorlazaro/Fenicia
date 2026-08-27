@@ -10,18 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 
-/// <summary>
-///     Handler responsible for creating a new stock movement.
-///     Also updates the product quantity based on the movement type (In/Out).
-/// </summary>
 public class AddStockMovementHandler(DefaultContext db) : IRequestHandler<AddStockMovementCommand, AddStockMovementResponse>
 {
-    /// <summary>
-    ///     Creates a new stock movement and updates product quantity.
-    /// </summary>
-    /// <param name="command">The command containing stock movement details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created stock movement with its details.</returns>
+
     public async Task<AddStockMovementResponse> Handle(AddStockMovementCommand command, CancellationToken ct)
     {
         var stockMovement = new StockMovementModel

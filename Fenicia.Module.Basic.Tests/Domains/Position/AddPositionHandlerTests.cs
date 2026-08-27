@@ -35,13 +35,11 @@ public class AddPositionHandlerTests : IDisposable
     [InlineData("Director")]
     public async Task Handle_WithValidCommand_AddsPositionAndReturnsResponse(string positionName)
     {
-        // Arrange
+
         var command = new AddPositionCommand(Guid.NewGuid(), positionName);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(positionName, result.Name);
@@ -53,13 +51,11 @@ public class AddPositionHandlerTests : IDisposable
     [InlineData("Coordinator")]
     public async Task Handle_VerifiesPositionWasSavedToDatabase(string positionName)
     {
-        // Arrange
+
         var command = new AddPositionCommand(Guid.NewGuid(), positionName);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var position = await db.BasicPositions.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(position);
         Assert.Equal(positionName, position.Name);
@@ -68,15 +64,13 @@ public class AddPositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllPositions()
     {
-        // Arrange
+
         var command1 = new AddPositionCommand(Guid.NewGuid(), "Developer");
         var command2 = new AddPositionCommand(Guid.NewGuid(), "Designer");
 
-        // Act
         await handler.Handle(command1, CancellationToken.None);
         await handler.Handle(command2, CancellationToken.None);
 
-        // Assert
         var positions = await db.BasicPositions.ToListAsync();
         Assert.Equal(2, positions.Count);
     }

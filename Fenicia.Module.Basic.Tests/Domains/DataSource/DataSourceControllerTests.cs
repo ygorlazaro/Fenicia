@@ -22,10 +22,6 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
 
-/// <summary>
-///     Unit tests for the DataSourceController.
-///     Tests HTTP endpoints for retrieving datasource lists (positions, categories, suppliers, customers, products, employees).
-/// </summary>
 public class DataSourceControllerTests : IDisposable
 {
     private readonly DataSourceController controller;
@@ -85,20 +81,15 @@ public class DataSourceControllerTests : IDisposable
         controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    /// <summary>
-    ///     Tests that when no positions exist, the endpoint returns an empty list.
-    /// </summary>
     [Fact]
     public async Task GetPositionsAsync_WhenNoPositionsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetPositionsAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -110,13 +101,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedPositions);
     }
 
-    /// <summary>
-    ///     Tests that when positions exist, the endpoint returns them.
-    /// </summary>
     [Fact]
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
-        // Arrange
+
         var position1 = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -134,11 +122,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetPositionsAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -150,13 +136,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Equal(2, returnedPositions.Count);
     }
 
-    /// <summary>
-    ///     Tests that positions are returned ordered alphabetically by name.
-    /// </summary>
     [Fact]
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsPositionsOrderedByName()
     {
-        // Arrange
+
         var position1 = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -180,11 +163,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetPositionsAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -199,71 +180,51 @@ public class DataSourceControllerTests : IDisposable
         Assert.Equal("Zebra", returnedPositions[2].Name);
     }
 
-    /// <summary>
-    ///     Tests that the DataSourceController has the AuthorizeAttribute applied.
-    /// </summary>
     [Fact]
     public void DataSourceController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(DataSourceController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
-    /// <summary>
-    ///     Tests that the DataSourceController has the RouteAttribute with correct template.
-    /// </summary>
     [Fact]
     public void DataSourceController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(DataSourceController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    /// <summary>
-    ///     Tests that the DataSourceController has the ApiControllerAttribute applied.
-    /// </summary>
     [Fact]
     public void DataSourceController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(DataSourceController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 
     #region Product Categories Tests
 
-    /// <summary>
-    ///     Tests that when no product categories exist, the endpoint returns an empty list.
-    /// </summary>
     [Fact]
     public async Task GetProductCategoriesAsync_WhenNoCategoriesExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetProductCategoriesAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -275,13 +236,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedCategories);
     }
 
-    /// <summary>
-    ///     Tests that when product categories exist, the endpoint returns them.
-    /// </summary>
     [Fact]
     public async Task GetProductCategoriesAsync_WhenCategoriesExist_ReturnsOkWithCategories()
     {
-        // Arrange
+
         var category1 = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -299,11 +257,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetProductCategoriesAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -319,20 +275,15 @@ public class DataSourceControllerTests : IDisposable
 
     #region Suppliers Tests
 
-    /// <summary>
-    ///     Tests that when no suppliers exist, the endpoint returns an empty list.
-    /// </summary>
     [Fact]
     public async Task GetSuppliersAsync_WhenNoSuppliersExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetSuppliersAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -344,13 +295,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedSuppliers);
     }
 
-    /// <summary>
-    ///     Tests that when suppliers exist, the endpoint returns them.
-    /// </summary>
     [Fact]
     public async Task GetSuppliersAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
-        // Arrange
+
         var person1 = new PersonModel
         {
             Id = Guid.NewGuid(),
@@ -383,11 +331,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetSuppliersAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -403,20 +349,15 @@ public class DataSourceControllerTests : IDisposable
 
     #region Customers Tests
 
-    /// <summary>
-    ///     Tests that when no customers exist, the endpoint returns an empty list.
-    /// </summary>
     [Fact]
     public async Task GetCustomersAsync_WhenNoCustomersExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetCustomersAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -428,13 +369,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedCustomers);
     }
 
-    /// <summary>
-    ///     Tests that when customers exist, the endpoint returns them.
-    /// </summary>
     [Fact]
     public async Task GetCustomersAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
-        // Arrange
+
         var person1 = new PersonModel
         {
             Id = Guid.NewGuid(),
@@ -467,11 +405,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetCustomersAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -487,20 +423,15 @@ public class DataSourceControllerTests : IDisposable
 
     #region Products Tests
 
-    /// <summary>
-    ///     Tests that when no products exist, the endpoint returns an empty list.
-    /// </summary>
     [Fact]
     public async Task GetProductsAsync_WhenNoProductsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetProductsAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -512,13 +443,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedProducts);
     }
 
-    /// <summary>
-    ///     Tests that when products exist, the endpoint returns them.
-    /// </summary>
     [Fact]
     public async Task GetProductsAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -547,11 +475,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetProductsAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -567,20 +493,15 @@ public class DataSourceControllerTests : IDisposable
 
     #region Employees Tests
 
-    /// <summary>
-    ///     Tests that when no employees exist, the endpoint returns an empty list.
-    /// </summary>
     [Fact]
     public async Task GetEmployeesAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetEmployeesAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -592,13 +513,10 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedEmployees);
     }
 
-    /// <summary>
-    ///     Tests that when employees exist, the endpoint returns them.
-    /// </summary>
     [Fact]
     public async Task GetEmployeesAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -640,11 +558,9 @@ public class DataSourceControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetEmployeesAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 

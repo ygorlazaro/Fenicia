@@ -32,7 +32,7 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_UpdatesProjectTaskAssigneeAndReturnsResponse()
     {
-        // Arrange
+
         var assigneeId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -51,10 +51,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         var newUserId = Guid.NewGuid();
         var command = new UpdateProjectTaskAssigneeCommand(assigneeId, taskId, newUserId, "Owner", DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(assigneeId, result.Id);
         Assert.Equal("Owner", result.Role);
@@ -63,33 +61,29 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectTaskAssignee()
     {
-        // Arrange
+
         var assignee1Id = Guid.NewGuid();
         var assignee2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -120,10 +114,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         var newUserId = Guid.NewGuid();
         var command = new UpdateProjectTaskAssigneeCommand(assignee1Id, taskId, newUserId, "Contributor", DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(assignee1Id, result.Id);
         Assert.Equal("Contributor", result.Role);
@@ -140,7 +132,7 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithRoleChange_UpdatesProjectTaskAssigneeSuccessfully()
     {
-        // Arrange
+
         var assigneeId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -158,10 +150,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
 
         var command = new UpdateProjectTaskAssigneeCommand(assigneeId, taskId, userId, "Owner", DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(assigneeId, result.Id);
         Assert.Equal("Owner", result.Role);

@@ -35,13 +35,11 @@ public class GetAllPositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllPositionQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -49,7 +47,7 @@ public class GetAllPositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPositions_ReturnsAllPositions()
     {
-        // Arrange
+
         var position1 = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -66,10 +64,8 @@ public class GetAllPositionHandlerTests : IDisposable
 
         var query = new GetAllPositionQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
         Assert.Contains(result.Data, p => p.Id == position1.Id);
@@ -79,7 +75,7 @@ public class GetAllPositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         for (var i = 0; i < 25; i++)
         {
             var position = new PositionModel
@@ -94,10 +90,8 @@ public class GetAllPositionHandlerTests : IDisposable
 
         var query = new GetAllPositionQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }
@@ -105,7 +99,7 @@ public class GetAllPositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         for (var i = 0; i < 5; i++)
         {
             var position = new PositionModel
@@ -120,10 +114,8 @@ public class GetAllPositionHandlerTests : IDisposable
 
         var query = new GetAllPositionQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -131,7 +123,7 @@ public class GetAllPositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         for (var i = 0; i < 25; i++)
         {
             var position = new PositionModel
@@ -146,10 +138,8 @@ public class GetAllPositionHandlerTests : IDisposable
 
         var query = new GetAllPositionQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }

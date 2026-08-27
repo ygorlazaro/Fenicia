@@ -30,7 +30,7 @@ public class GetProductByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProductExists_ReturnsProductResponse()
     {
-        // Arrange
+
         var productId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -64,10 +64,8 @@ public class GetProductByIdHandlerTests : IDisposable
 
         var query = new GetProductByIdQuery(productId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(productId, result.Id);
         Assert.Equal("Product", result.Name);
@@ -83,33 +81,29 @@ public class GetProductByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProductDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProductByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProductByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProducts_ReturnsOnlyRequestedProduct()
     {
-        // Arrange
+
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
         var category = new ProductCategoryModel
@@ -148,10 +142,8 @@ public class GetProductByIdHandlerTests : IDisposable
 
         var query = new GetProductByIdQuery(product1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(product1Id, result.Id);
         Assert.Equal("Product 1", result.Name);

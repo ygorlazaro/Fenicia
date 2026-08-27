@@ -12,10 +12,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-/// <summary>
-///     Unit tests for the GetCompaniesByUserHandler.
-///     Tests company retrieval logic including pagination, filtering, sorting, and authorization.
-/// </summary>
 public class GetCompaniesByUserHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -37,20 +33,15 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     Tests that a user with no associated companies returns empty pagination.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasNoCompanies_ReturnsEmptyPagination()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
@@ -60,13 +51,10 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         Assert.Equal(0, result.Pages);
     }
 
-    /// <summary>
-    ///     Tests that a user with one active company returns it in the pagination.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasOneActiveCompany_ReturnsCompanyInPagination()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -109,23 +97,18 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.Data);
         Assert.Equal(1, result.Total);
         Assert.Equal(1, result.Pages);
     }
 
-    /// <summary>
-    ///     Tests that requesting a page beyond available pages returns empty list.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenPageBeyondAvailablePages_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
@@ -167,23 +150,18 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var query = new GetCompaniesByUserQuery(userId, 5, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Empty(result.Data);
         Assert.Equal(1, result.Total);
         Assert.Equal(5, result.Page);
         Assert.Equal(1, result.Pages);
     }
 
-    /// <summary>
-    ///     Tests that when a user has multiple roles in the same company, the company appears once per role.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasMultipleRolesInSameCompany_ReturnsCompanyOncePerRole()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId1 = Guid.NewGuid();
@@ -240,10 +218,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Equal(2, result.Data.Count());
         Assert.Equal(2, result.Total);
 
@@ -252,13 +228,10 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         Assert.Contains(items, i => i.Role == "User");
     }
 
-    /// <summary>
-    ///     Tests that results are scoped to the specific user (other users' companies are not returned).
-    /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsOnlyRequestedUserCompanies()
     {
-        // Arrange
+
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -325,22 +298,17 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var query = new GetCompaniesByUserQuery(userId1, 1, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Single(result.Data);
         Assert.Equal(1, result.Total);
         Assert.Equal(company1.Name, result.Data.First().Name);
     }
 
-    /// <summary>
-    ///     Tests that when a user has both active and inactive company associations, only active are returned.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenMixedActiveAndInactiveCompanies_ReturnsOnlyActive()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
@@ -397,22 +365,17 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Single(result.Data);
         Assert.Equal(1, result.Total);
         Assert.Equal(activeCompany.Name, result.Data.First().Name);
     }
 
-    /// <summary>
-    ///     Tests that zero perPage throws InvalidRequestException.
-    /// </summary>
     [Fact]
     public async Task Handle_WithZeroPerPage_ReturnsEmptyData()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -455,7 +418,6 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var query = new GetCompaniesByUserQuery(userId, 1, 0);
 
-        // Act
         await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
     }
 }

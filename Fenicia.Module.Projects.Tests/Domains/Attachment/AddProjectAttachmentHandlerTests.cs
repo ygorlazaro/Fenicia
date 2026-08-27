@@ -34,13 +34,11 @@ public class AddProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithValidCommand_AddsProjectAttachmentAndReturnsResponse()
     {
-        // Arrange
+
         var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.pdf", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid(), "application/json");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(command.FileName, result.FileName);
@@ -49,16 +47,14 @@ public class AddProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesProjectAttachmentWasSaved()
     {
-        // Arrange
+
         var fileName = $"{faker.System.FileName()}.pdf";
         var fileUrl = faker.Internet.Url();
         var fileSize = faker.Random.Long(1000, 1000000);
         var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), fileName, fileUrl, fileSize, Guid.NewGuid(), "application/json");
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var attachment = await db.ProjectAttachments.FirstOrDefaultAsync(a => a.Id == command.Id);
 
         Assert.NotNull(attachment);
@@ -69,17 +65,15 @@ public class AddProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectAttachments()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var command1 = new AddProjectAttachmentCommand(Guid.NewGuid(), taskId, $"{faker.System.FileName()}.pdf", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid(), "application/json");
 
         var command2 = new AddProjectAttachmentCommand(Guid.NewGuid(), taskId, $"{faker.System.FileName()}.docx", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid(), "application/json");
 
-        // Act
         await handler.Handle(command1, CancellationToken.None);
         await handler.Handle(command2, CancellationToken.None);
 
-        // Assert
         var attachments = await db.ProjectAttachments.ToListAsync();
         Assert.Equal(2, attachments.Count);
     }
@@ -87,14 +81,12 @@ public class AddProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithLargeFileSize_AddsProjectAttachmentSuccessfully()
     {
-        // Arrange
-        var largeFileSize = 1073741824L; // 1 GB
+
+        var largeFileSize = 1073741824L;
         var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.zip", faker.Internet.Url(), largeFileSize, Guid.NewGuid(), "application/json");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(largeFileSize, result.FileSize);
@@ -103,14 +95,12 @@ public class AddProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithSmallFileSize_AddsProjectAttachmentSuccessfully()
     {
-        // Arrange
+
         var smallFileSize = 100L;
         var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.txt", faker.Internet.Url(), smallFileSize, Guid.NewGuid(), "application/json");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(smallFileSize, result.FileSize);

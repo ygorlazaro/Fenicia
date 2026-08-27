@@ -27,10 +27,6 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
-/// <summary>
-///     Unit tests for the OrderController.
-///     Tests HTTP endpoints for order management including CRUD operations and analytics.
-/// </summary>
 public class OrderControllerTests : IDisposable
 {
     private readonly OrderController controller;
@@ -87,7 +83,7 @@ public class OrderControllerTests : IDisposable
     [Fact]
     public async Task CreateOrderAsync_WithValidCommand_ReturnsCreatedWithOrder()
     {
-        // Arrange
+
         var customer = new CustomerModel
         {
             Id = testCustomerId,
@@ -119,11 +115,9 @@ public class OrderControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -141,7 +135,7 @@ public class OrderControllerTests : IDisposable
     [Fact]
     public async Task GetDetailsAsync_WhenOrderExists_ReturnsOkWithOrderDetails()
     {
-        // Arrange
+
         var order = new OrderModel
         {
             Id = testOrderId,
@@ -183,11 +177,9 @@ public class OrderControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetDetailsAsync(testOrderId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -202,15 +194,13 @@ public class OrderControllerTests : IDisposable
     [Fact]
     public async Task GetDetailsAsync_WhenOrderDoesNotExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetDetailsAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -225,7 +215,7 @@ public class OrderControllerTests : IDisposable
     [Fact]
     public async Task CreateOrderAsync_SetsUserIdFromClaims()
     {
-        // Arrange
+
         var customer = new CustomerModel
         {
             Id = testCustomerId,
@@ -253,16 +243,14 @@ public class OrderControllerTests : IDisposable
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateOrderCommand(Guid.Empty, // Will be overridden by claims
+        var command = new CreateOrderCommand(Guid.Empty,
             testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2)], PaymentMethod.CreditCard);
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -277,26 +265,22 @@ public class OrderControllerTests : IDisposable
     [Fact]
     public void OrderController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(OrderController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void OrderController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(OrderController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -304,13 +288,11 @@ public class OrderControllerTests : IDisposable
     [Fact]
     public void OrderController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(OrderController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

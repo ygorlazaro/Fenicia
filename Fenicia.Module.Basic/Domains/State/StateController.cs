@@ -11,13 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-/// <summary>
-///     Controller responsible for handling state-related HTTP endpoints.
-///     Provides endpoint to retrieve all Brazilian states.
-/// </summary>
-/// <remarks>
-///     All endpoints require authentication. States are used for address localization.
-/// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -25,15 +18,7 @@ namespace Fenicia.Module.Basic.Domains.State;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class StateController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves a list of all Brazilian states.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>A list of all states.</returns>
-    /// <response code="200">Returns the list of states successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllStateResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

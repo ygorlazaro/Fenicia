@@ -31,14 +31,12 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNoDetailsForOrder_ReturnsEmptyList()
     {
-        // Arrange
+
         var orderId = Guid.NewGuid();
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -46,7 +44,7 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDetailsForOrder_ReturnsFilteredList()
     {
-        // Arrange
+
         var order1Id = Guid.NewGuid();
         var order2Id = Guid.NewGuid();
 
@@ -88,10 +86,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
 
         var query = new GetOrderDetailsByOrderIdQuery(order1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.All(result, d => Assert.Equal(order1Id, d.OrderId));
@@ -100,7 +96,7 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesDetailDataIsCorrect()
     {
-        // Arrange
+
         var orderId = Guid.NewGuid();
         var discountAmount = 10.00m;
         var quantity = 10;
@@ -122,10 +118,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
 
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
         Assert.Equal(15.00m, result[0].Price);
@@ -137,13 +131,11 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetOrderDetailsByOrderIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }

@@ -10,18 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
-/// <summary>
-///     Handler responsible for creating new orders.
-///     Creates order with details and manages inventory through stock movements.
-/// </summary>
-/// <remarks>
-///     This handler:
-///     1. Creates order with all details
-///     2. Creates stock movement records for each item (type: Out)
-///     3. Decreases product quantities in inventory
-///     Related documentation:
-///     - See <see cref="Fenicia.Module.Basic.Domains.Stock.StockMovementHandler" /> for stock management
-/// </remarks>
 public class CreateOrderHandler(DefaultContext db) : IRequestHandler<CreateOrderCommand, CreateOrderResponse>
 {
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)

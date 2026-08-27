@@ -33,14 +33,12 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNoMovements_ReturnsEmptyDashboard()
     {
-        // Arrange
+
         var query = new GetStockMovementDashboardQuery();
         var ct = CancellationToken.None;
 
-        // Act
         var result = await handler.Handle(query, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.History);
         Assert.Empty(result.MonthlyInOut);
@@ -51,7 +49,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMovements_ReturnsStockMovementHistory()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -87,10 +85,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
         Assert.Equal("Test Product", result.History[0].ProductName);
@@ -101,7 +97,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithInAndOutMovements_ReturnsMonthlyInOut()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -148,10 +144,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.MonthlyInOut);
 
@@ -165,7 +159,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleMovements_ReturnsTopMovedProducts()
     {
-        // Arrange
+
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -198,7 +192,6 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Name = "Category 2"
         };
 
-        // More movements for product1
         for (var i = 0; i < 5; i++)
         {
             db.BasicStockMovements.Add(new StockMovementModel
@@ -213,7 +206,6 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             });
         }
 
-        // Fewer movements for product2
         for (var i = 0; i < 2; i++)
         {
             db.BasicStockMovements.Add(new StockMovementModel
@@ -234,10 +226,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.TopMovedProducts.Count);
         Assert.Equal("Product 1", result.TopMovedProducts[0].ProductName);
@@ -249,7 +239,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProducts_ReturnsTurnoverRates()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -286,10 +276,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.TurnoverRates);
 
@@ -304,7 +292,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithLowTurnover_ReturnsLowClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -338,10 +326,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.TurnoverRates);
 
@@ -353,7 +339,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDateRangeFilter_OnlyIncludesMovementsInRange()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -401,10 +387,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
         Assert.Equal(movementInRange.Id, result.History[0].Id);
@@ -415,7 +399,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithTopLimitLimit_ReturnsLimitedResults()
     {
-        // Arrange
+
         var products = new List<ProductModel>();
         var categories = new List<ProductCategoryModel>();
 
@@ -457,10 +441,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery(TopLimit: 3);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(3, result.TopMovedProducts.Count);
         Assert.Equal(3, result.TurnoverRates.Count);
@@ -476,7 +458,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithCustomDaysFilter_OnlyIncludesMovementsInCustomRange()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -539,10 +521,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery(7);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
         Assert.Equal(movementWithin7Days.Id, result.History[0].Id);
@@ -555,7 +535,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleMovements_ReturnsHistoryOrderedByDateDescending()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -614,10 +594,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(3, result.History.Count);
         Assert.Equal(movement3.Id, result.History[0].Id);
@@ -632,7 +610,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMovementsAcrossMultipleMonths_GroupsMonthlyInOutCorrectly()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -702,10 +680,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery(400);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.MonthlyInOut.Count);
 
@@ -725,7 +701,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_Exactly2_ReturnsHighClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -759,10 +735,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(2.0, turnover.TurnoverRate);
@@ -772,7 +746,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_GreaterThan2_ReturnsHighClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -806,10 +780,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(5.0, turnover.TurnoverRate);
@@ -819,7 +791,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_Exactly1_ReturnsMediumClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -853,10 +825,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(1.0, turnover.TurnoverRate);
@@ -866,7 +836,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_Between1And2_ReturnsMediumClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -900,10 +870,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(1.5, turnover.TurnoverRate);
@@ -913,7 +881,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_Exactly05_ReturnsLowClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -947,10 +915,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(0.5, turnover.TurnoverRate);
@@ -960,7 +926,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_Between05And1_ReturnsLowClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -994,10 +960,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(0.75, turnover.TurnoverRate);
@@ -1007,7 +971,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_LessThan05_ReturnsVeryLowClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -1041,10 +1005,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(0.25, turnover.TurnoverRate);
@@ -1054,7 +1016,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_TurnoverRate_Zero_ReturnsVeryLowClassification()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -1088,10 +1050,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
         Assert.Equal(0, turnover.TurnoverRate);
@@ -1101,7 +1061,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_ProductWithZeroStock_IsExcludedFromTurnover()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -1124,10 +1084,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Empty(result.TurnoverRates);
     }
 
@@ -1138,7 +1096,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithCustomerMovement_ReturnsCustomerNameInHistory()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -1191,10 +1149,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
         Assert.Equal("John Doe", result.History[0].CustomerName);
@@ -1204,7 +1160,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithSupplierMovement_ReturnsSupplierNameInHistory()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -1257,10 +1213,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var query = new GetStockMovementDashboardQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
         Assert.Equal("ABC Supplier Ltd", result.History[0].SupplierName);

@@ -82,16 +82,14 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenNoSuppliersExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         const int page = 1;
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -107,7 +105,7 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         var supplier1 = new SupplierModel
@@ -151,11 +149,9 @@ public class SupplierControllerTests : IDisposable
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -175,7 +171,7 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         var supplier = new SupplierModel
@@ -200,11 +196,9 @@ public class SupplierControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testSupplierId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -222,15 +216,13 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -238,7 +230,7 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithSupplier()
     {
-        // Arrange
+
         var command = new AddSupplierCommand(
             Guid.NewGuid(),
             faker.Company.CompanyName(),
@@ -250,11 +242,9 @@ public class SupplierControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -270,7 +260,7 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenSupplierExists_ReturnsOkWithUpdatedSupplier()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         var supplier = new SupplierModel
@@ -304,11 +294,9 @@ public class SupplierControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testSupplierId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -322,7 +310,7 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var command = new UpdateSupplierCommand(
             nonExistentId,
@@ -335,11 +323,9 @@ public class SupplierControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -347,7 +333,7 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         var supplier = new SupplierModel
@@ -371,14 +357,11 @@ public class SupplierControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testSupplierId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify supplier was deleted
         var deletedSupplier = await db.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == testSupplierId && x.Deleted == null, ct);
         Assert.Null(deletedSupplier);
     }
@@ -386,41 +369,35 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenSupplierDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public void SupplierController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(SupplierController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void SupplierController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(SupplierController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -428,13 +405,11 @@ public class SupplierControllerTests : IDisposable
     [Fact]
     public void SupplierController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(SupplierController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

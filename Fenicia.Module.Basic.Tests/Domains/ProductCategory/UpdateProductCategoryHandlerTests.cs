@@ -30,7 +30,7 @@ public class UpdateProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCategoryExists_UpdatesCategoryAndReturnsResponse()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -43,10 +43,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(categoryId, result.Id);
         Assert.Equal("New Category", result.Name);
@@ -55,33 +53,29 @@ public class UpdateProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCategoryDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "New Category");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "New Category");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesCategoryWasUpdatedInDatabase()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -94,10 +88,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCategory = await db.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
         Assert.NotNull(updatedCategory);
         Assert.Equal("New Category", updatedCategory.Name);
@@ -106,7 +98,7 @@ public class UpdateProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCategories_OnlyUpdatesSpecified()
     {
-        // Arrange
+
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
@@ -126,10 +118,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
 
         var command = new UpdateProductCategoryCommand(category1Id, "Home Appliances");
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCategory1 = await db.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
         var notUpdatedCategory2 = await db.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 

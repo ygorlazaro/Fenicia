@@ -26,7 +26,6 @@ public class DeleteUserHandlerTests : IDisposable
         handler = new DeleteUserHandler(db);
         var faker = new Faker();
 
-        // Create test user
         testUser = new UserModel
         {
             Email = faker.Internet.Email(),
@@ -49,14 +48,11 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_SoftDeletesUserSuccessfully()
     {
-        // Arrange
+
         var request = new DeleteUserCommand(testUser.Id);
 
-        // Act
         await handler.Handle(request, CancellationToken.None);
 
-        // Assert
-        // Verify user was soft deleted (not removed)
         var deletedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(deletedUser);
         Assert.NotNull(deletedUser.Deleted);
@@ -66,11 +62,10 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
-        // Arrange
+
         var nonExistentUserId = Guid.NewGuid();
         var request = new DeleteUserCommand(nonExistentUserId);
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
@@ -79,13 +74,12 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserAlreadyDeleted_ThrowsArgumentException()
     {
-        // Arrange
+
         testUser.Deleted = DateTime.UtcNow;
         await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new DeleteUserCommand(testUser.Id);
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
@@ -94,19 +88,15 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_SoftDelete_UserStillExistsInDatabase()
     {
-        // Arrange
+
         var request = new DeleteUserCommand(testUser.Id);
 
-        // Act
         await handler.Handle(request, CancellationToken.None);
 
-        // Assert - User should still exist but be marked as deleted
         var user = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(user);
         Assert.NotNull(user.Deleted);
 
-        // Verify user count hasn't changed (soft delete, not hard delete)
-        // Note: Need IgnoreQueryFilters() to bypass the global soft-delete filter
         var totalCount = await db.AuthUsers.IgnoreQueryFilters().CountAsync();
         Assert.Equal(1, totalCount);
     }

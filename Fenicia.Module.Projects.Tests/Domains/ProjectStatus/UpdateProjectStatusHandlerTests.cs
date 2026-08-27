@@ -35,7 +35,7 @@ public class UpdateProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectStatusExists_UpdatesProjectStatusAndReturnsResponse()
     {
-        // Arrange
+
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var status = new ProjectStatusModel
@@ -53,10 +53,8 @@ public class UpdateProjectStatusHandlerTests : IDisposable
 
         var command = new UpdateProjectStatusCommand(statusId, projectId, "New Status", "#000000", 5, true);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(statusId, result.Id);
         Assert.Equal("New Status", result.Name);
@@ -65,33 +63,29 @@ public class UpdateProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectStatusDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "New Status", "#000000", 5, true);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "New Status", "#000000", 5, true);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectStatus()
     {
-        // Arrange
+
         var status1Id = Guid.NewGuid();
         var status2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
@@ -121,10 +115,8 @@ public class UpdateProjectStatusHandlerTests : IDisposable
 
         var command = new UpdateProjectStatusCommand(status1Id, projectId, "Updated Status 1", "#0000FF", 10, true);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(status1Id, result.Id);
         Assert.Equal("Updated Status 1", result.Name);
@@ -141,7 +133,7 @@ public class UpdateProjectStatusHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithIsFinalChange_UpdatesProjectStatusSuccessfully()
     {
-        // Arrange
+
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var status = new ProjectStatusModel
@@ -159,10 +151,8 @@ public class UpdateProjectStatusHandlerTests : IDisposable
 
         var command = new UpdateProjectStatusCommand(statusId, projectId, "Updated Status", "#123456", 3, true);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(statusId, result.Id);
         Assert.True(result.IsFinal);

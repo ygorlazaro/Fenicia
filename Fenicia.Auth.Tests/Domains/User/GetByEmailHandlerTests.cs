@@ -34,7 +34,7 @@ public class GetByEmailHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -51,10 +51,8 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(email, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(userId, result.Id);
@@ -66,20 +64,18 @@ public class GetByEmailHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
 
-        // Act
         var result = await handler.Handle(email, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsNull()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
@@ -97,17 +93,15 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(upperCaseEmail, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
-        // Arrange
+
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         var email1 = "user1@example.com";
@@ -136,10 +130,8 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.AddRange(user1, user2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(email1, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(userId1, result.Id);
@@ -149,20 +141,18 @@ public class GetByEmailHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
 
-        // Act
         var result = await handler.Handle(email, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsNull()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = "test@example.com";
         var emailWithSpaces = " test@example.com ";
@@ -180,17 +170,15 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(emailWithSpaces, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -207,10 +195,8 @@ public class GetByEmailHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(email, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.NotEqual(Guid.Empty, result.Id);

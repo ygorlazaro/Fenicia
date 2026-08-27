@@ -1,8 +1,5 @@
 namespace Fenicia.Module.Basic.Domains.Order.Responses;
 
-/// <summary>
-///     Response containing average order value statistics.
-/// </summary>
 public record AverageOrderValueResponse
 {
     public decimal AverageValue { get; set; }

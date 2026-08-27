@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
-/// <summary>
-///     Unit tests for the GetInventoryByCategoryHandler.
-///     Tests inventory retrieval filtered by category.
-/// </summary>
 public class GetInventoryByCategoryHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -38,14 +34,12 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNoProductsForCategory_ReturnsEmptyInventory()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var query = new GetInventoryByCategoryQuery(categoryId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Items);
         Assert.Equal(0, result.TotalCostPrice);
@@ -56,7 +50,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProductsForCategory_ReturnsFilteredInventory()
     {
-        // Arrange
+
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
@@ -107,10 +101,8 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
 
         var query = new GetInventoryByCategoryQuery(category1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Items.Count);
         Assert.True(result.Items.All(i => i.CategoryName == "Electronics"));
@@ -119,7 +111,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProductsForCategory_CalculatesCorrectTotals()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -153,10 +145,8 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
 
         var query = new GetInventoryByCategoryQuery(categoryId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(25.00m, result.TotalCostPrice);
         Assert.Equal(45.00m, result.TotalSalesPrice);
@@ -166,7 +156,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -193,10 +183,8 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
 
         var query = new GetInventoryByCategoryQuery(categoryId, 2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Items.Count);
     }

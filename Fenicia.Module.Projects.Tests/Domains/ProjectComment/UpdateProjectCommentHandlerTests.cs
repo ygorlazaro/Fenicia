@@ -35,7 +35,7 @@ public class UpdateProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectCommentExists_UpdatesProjectCommentAndReturnsResponse()
     {
-        // Arrange
+
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -52,10 +52,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
 
         var command = new UpdateProjectCommentCommand(commentId, "New comment content");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(commentId, result.Id);
         Assert.Equal("New comment content", result.Content);
@@ -64,33 +62,29 @@ public class UpdateProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectCommentDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "New comment content");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "New comment content");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectComment()
     {
-        // Arrange
+
         var comment1Id = Guid.NewGuid();
         var comment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -117,10 +111,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
 
         var command = new UpdateProjectCommentCommand(comment1Id, "Updated Comment 1 content");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(comment1Id, result.Id);
         Assert.Equal("Updated Comment 1 content", result.Content);
@@ -137,7 +129,7 @@ public class UpdateProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithLongContent_UpdatesProjectCommentSuccessfully()
     {
-        // Arrange
+
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -155,10 +147,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var longContent = faker.Lorem.Paragraphs(5);
         var command = new UpdateProjectCommentCommand(commentId, longContent);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(commentId, result.Id);
         Assert.Equal(longContent, result.Content);

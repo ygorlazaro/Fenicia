@@ -30,7 +30,7 @@ public class DeleteProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCategoryExists_SetsDeletedDate()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -44,10 +44,8 @@ public class DeleteProductCategoryHandlerTests : IDisposable
         var command = new DeleteProductCategoryCommand(categoryId);
         var beforeDelete = DateTime.Now;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedCategory = await db.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
         Assert.NotNull(deletedCategory);
         Assert.NotNull(deletedCategory.Deleted);
@@ -58,13 +56,11 @@ public class DeleteProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCategoryDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProductCategoryCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var categories = await db.BasicProductCategories.ToListAsync();
         Assert.Empty(categories);
     }
@@ -72,7 +68,7 @@ public class DeleteProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCategories_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
@@ -92,10 +88,8 @@ public class DeleteProductCategoryHandlerTests : IDisposable
 
         var command = new DeleteProductCategoryCommand(category1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedCategory = await db.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
         var notDeletedCategory = await db.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 
@@ -108,13 +102,11 @@ public class DeleteProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProductCategoryCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var categories = await db.BasicProductCategories.ToListAsync();
         Assert.Empty(categories);
     }

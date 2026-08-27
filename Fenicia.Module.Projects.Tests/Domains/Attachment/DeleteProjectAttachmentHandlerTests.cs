@@ -35,7 +35,7 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectAttachmentExists_SetsDeletedDate()
     {
-        // Arrange
+
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var attachment = new AttachmentModel
@@ -55,10 +55,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         var command = new DeleteProjectAttachmentCommand(attachmentId);
         var beforeDelete = DateTime.UtcNow;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedAttachment = await db.ProjectAttachments.FindAsync([attachmentId], CancellationToken.None);
         Assert.NotNull(deletedAttachment);
         Assert.NotNull(deletedAttachment.Deleted);
@@ -68,13 +66,11 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectAttachmentDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectAttachmentCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var attachments = await db.ProjectAttachments.ToListAsync();
         Assert.Empty(attachments);
     }
@@ -82,13 +78,11 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectAttachmentCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var attachments = await db.ProjectAttachments.ToListAsync();
         Assert.Empty(attachments);
     }
@@ -96,7 +90,7 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectAttachments_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var attachment1Id = Guid.NewGuid();
         var attachment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -128,10 +122,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
 
         var command = new DeleteProjectAttachmentCommand(attachment1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedAttachment = await db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
         var notDeletedAttachment = await db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
 
@@ -144,7 +136,7 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectAttachments_DeletesCorrectProjectAttachment()
     {
-        // Arrange
+
         var attachment1Id = Guid.NewGuid();
         var attachment2Id = Guid.NewGuid();
         var attachment3Id = Guid.NewGuid();
@@ -188,10 +180,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
 
         var command = new DeleteProjectAttachmentCommand(attachment2Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var attachment1InDb = await db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
         var deletedAttachment = await db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
         var attachment3InDb = await db.ProjectAttachments.FindAsync([attachment3Id], CancellationToken.None);

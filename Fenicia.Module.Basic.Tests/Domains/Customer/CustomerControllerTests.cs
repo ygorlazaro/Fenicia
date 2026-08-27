@@ -24,10 +24,6 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-/// <summary>
-///     Unit tests for the CustomerController.
-///     Tests HTTP endpoints behavior including CRUD operations, pagination, and request/response handling.
-/// </summary>
 public class CustomerControllerTests : IDisposable
 {
     private readonly CustomerController controller;

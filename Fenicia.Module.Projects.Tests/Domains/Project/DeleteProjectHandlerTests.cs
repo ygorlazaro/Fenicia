@@ -36,7 +36,7 @@ public class DeleteProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectExists_SetsDeletedDate()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var project = new ProjectModel
         {
@@ -55,10 +55,8 @@ public class DeleteProjectHandlerTests : IDisposable
         var command = new DeleteProjectCommand(projectId);
         var beforeDelete = DateTime.UtcNow;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedProject = await db.Projects.FindAsync([projectId], CancellationToken.None);
         Assert.NotNull(deletedProject);
         Assert.NotNull(deletedProject.Deleted);
@@ -68,13 +66,11 @@ public class DeleteProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var projects = await db.Projects.ToListAsync();
         Assert.Empty(projects);
     }
@@ -82,13 +78,11 @@ public class DeleteProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var projects = await db.Projects.ToListAsync();
         Assert.Empty(projects);
     }
@@ -96,7 +90,7 @@ public class DeleteProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjects_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
 
@@ -127,10 +121,8 @@ public class DeleteProjectHandlerTests : IDisposable
 
         var command = new DeleteProjectCommand(project1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedProject = await db.Projects.FindAsync([project1Id], CancellationToken.None);
         var notDeletedProject = await db.Projects.FindAsync([project2Id], CancellationToken.None);
 
@@ -143,7 +135,7 @@ public class DeleteProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjects_DeletesCorrectProject()
     {
-        // Arrange
+
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
         var project3Id = Guid.NewGuid();
@@ -186,10 +178,8 @@ public class DeleteProjectHandlerTests : IDisposable
 
         var command = new DeleteProjectCommand(project2Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var project1InDb = await db.Projects.FindAsync([project1Id], CancellationToken.None);
         var deletedProject = await db.Projects.FindAsync([project2Id], CancellationToken.None);
         var project3InDb = await db.Projects.FindAsync([project3Id], CancellationToken.None);

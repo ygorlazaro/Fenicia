@@ -24,10 +24,6 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the EmployeeController.
-///     Tests HTTP endpoints behavior including CRUD operations, pagination, and request/response handling.
-/// </summary>
 public class EmployeeControllerTests : IDisposable
 {
     private readonly EmployeeController controller;
@@ -95,22 +91,17 @@ public class EmployeeControllerTests : IDisposable
         controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    /// <summary>
-    ///     Tests that when no employees exist, the endpoint returns an empty paginated response.
-    /// </summary>
     [Fact]
     public async Task GetAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         const int page = 1;
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -123,13 +114,10 @@ public class EmployeeControllerTests : IDisposable
         Assert.Equal(0, returnedEmployees.Total);
     }
 
-    /// <summary>
-    ///     Tests that when employees exist, the endpoint returns them in a paginated response.
-    /// </summary>
     [Fact]
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -174,11 +162,9 @@ public class EmployeeControllerTests : IDisposable
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -191,13 +177,10 @@ public class EmployeeControllerTests : IDisposable
         Assert.Equal(2, returnedEmployees.Total);
     }
 
-    /// <summary>
-    ///     Tests that when an employee exists, the endpoint returns the employee details.
-    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -225,11 +208,9 @@ public class EmployeeControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testEmployeeId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -242,32 +223,24 @@ public class EmployeeControllerTests : IDisposable
         Assert.Equal(employee.Person.Id, returnedEmployee.PersonId);
     }
 
-    /// <summary>
-    ///     Tests that when an employee does not exist, the endpoint returns NotFound.
-    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that creating an employee with valid data returns Created result with employee data.
-    /// </summary>
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -288,11 +261,9 @@ public class EmployeeControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -304,13 +275,10 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(returnedEmployee);
     }
 
-    /// <summary>
-    ///     Tests that updating an existing employee returns Ok with the updated employee.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -347,11 +315,9 @@ public class EmployeeControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testEmployeeId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -362,13 +328,10 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(returnedEmployee);
     }
 
-    /// <summary>
-    ///     Tests that updating a non-existent employee returns NotFound.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -390,22 +353,17 @@ public class EmployeeControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that deleting an existing employee returns NoContent.
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
-        // Arrange
+
         var employee = new EmployeeModel
         {
             Id = testEmployeeId,
@@ -425,82 +383,59 @@ public class EmployeeControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testEmployeeId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify employee was deleted
         var deletedEmployee = await db.BasicEmployees.FirstOrDefaultAsync(x => x.Id == testEmployeeId && x.Deleted == null, ct);
         Assert.Null(deletedEmployee);
     }
 
-    /// <summary>
-    ///     Tests that deleting a non-existent employee returns NoContent.
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenEmployeeDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
-    /// <summary>
-    ///     Tests that the EmployeeController has the AuthorizeAttribute applied.
-    /// </summary>
     [Fact]
     public void EmployeeController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(EmployeeController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
-    /// <summary>
-    ///     Tests that the EmployeeController has the RouteAttribute with correct template.
-    /// </summary>
     [Fact]
     public void EmployeeController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(EmployeeController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    /// <summary>
-    ///     Tests that the EmployeeController has the ApiControllerAttribute applied.
-    /// </summary>
     [Fact]
     public void EmployeeController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(EmployeeController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

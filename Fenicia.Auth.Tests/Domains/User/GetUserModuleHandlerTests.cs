@@ -32,7 +32,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenUserHasActiveSubscription_ReturnsModules()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -87,10 +87,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
 
@@ -102,16 +100,14 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenUserHasNoSubscription_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -119,7 +115,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenSubscriptionIsInactive_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -174,10 +170,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -185,7 +179,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenSubscriptionCreditIsInactive_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -240,10 +234,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -251,7 +243,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenSubscriptionIsExpired_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -306,10 +298,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -317,7 +307,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenUserHasMultipleModules_ReturnsAllModules()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var module1Id = Guid.NewGuid();
@@ -389,10 +379,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
@@ -400,7 +388,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_WhenUserIsNotInCompany_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var differentCompanyId = Guid.NewGuid();
@@ -454,10 +442,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -465,7 +451,7 @@ public class GetUserModuleHandlerTests : IDisposable
     [Fact]
     public async Task Handler_RemovesDuplicateModules()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
@@ -528,10 +514,8 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var query = new GetUserModulesQuery(companyId, userId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
     }

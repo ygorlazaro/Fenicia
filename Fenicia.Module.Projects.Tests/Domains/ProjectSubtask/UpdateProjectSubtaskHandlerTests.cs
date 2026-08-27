@@ -35,7 +35,7 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectSubtaskExists_UpdatesProjectSubtaskAndReturnsResponse()
     {
-        // Arrange
+
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var subtask = new ProjectSubtaskModel
@@ -53,10 +53,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
 
         var command = new UpdateProjectSubtaskCommand(subtaskId, taskId, "New Subtask Title", true, 5, DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(subtaskId, result.Id);
         Assert.Equal("New Subtask Title", result.Title);
@@ -65,33 +63,29 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectSubtaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "New Subtask Title", true, 5, DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "New Subtask Title", true, 5, DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectSubtask()
     {
-        // Arrange
+
         var subtask1Id = Guid.NewGuid();
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -121,10 +115,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
 
         var command = new UpdateProjectSubtaskCommand(subtask1Id, taskId, "Updated Subtask 1 Title", true, 10, DateTime.UtcNow);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(subtask1Id, result.Id);
         Assert.Equal("Updated Subtask 1 Title", result.Title);
@@ -141,7 +133,7 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithIsCompletedChange_UpdatesProjectSubtaskSuccessfully()
     {
-        // Arrange
+
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var subtask = new ProjectSubtaskModel
@@ -160,10 +152,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
         var completedAt = DateTime.UtcNow;
         var command = new UpdateProjectSubtaskCommand(subtaskId, taskId, "Updated Title", true, 3, completedAt);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(subtaskId, result.Id);
         Assert.True(result.IsCompleted);

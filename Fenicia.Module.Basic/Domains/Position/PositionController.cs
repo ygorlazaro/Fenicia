@@ -15,9 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-/// <summary>
-///     Controller for managing employee positions within a company.
-/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -25,17 +22,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class PositionController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves all positions with pagination.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="page">Page number (default: 1).</param>
-    /// <param name="perPage">Items per page (default: 10).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Paginated list of positions.</returns>
-    /// <response code="200">Positions retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllPositionResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -55,17 +42,6 @@ public class PositionController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves a position by its unique identifier.
-    /// </summary>
-    /// <param name="id">Position's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Position details or 404 if not found.</returns>
-    /// <response code="200">Position found.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <response code="404">Position not found.</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetPositionByIdResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -86,17 +62,6 @@ public class PositionController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves all employees belonging to a specific position.
-    /// </summary>
-    /// <param name="id">Position's unique identifier.</param>
-    /// <param name="query">Pagination query parameters.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>List of employees in the position.</returns>
-    /// <response code="200">Employees retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}/employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetEmployeesByPositionIdResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -116,16 +81,6 @@ public class PositionController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Creates a new position.
-    /// </summary>
-    /// <param name="command">Position creation command.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Created position.</returns>
-    /// <response code="201">Position created successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddPositionResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -147,19 +102,6 @@ public class PositionController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Updates an existing position.
-    /// </summary>
-    /// <param name="command">Position update command.</param>
-    /// <param name="id">Position's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Updated position or 404 if not found.</returns>
-    /// <response code="200">Position updated successfully.</response>
-    /// <response code="400">Invalid request.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <response code="404">Position not found.</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdatePositionResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -182,16 +124,6 @@ public class PositionController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Deletes a position (soft delete).
-    /// </summary>
-    /// <param name="id">Position's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>No content on success.</returns>
-    /// <response code="204">Position deleted successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

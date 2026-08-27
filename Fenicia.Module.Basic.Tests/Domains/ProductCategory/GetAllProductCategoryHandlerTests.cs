@@ -30,13 +30,11 @@ public class GetAllProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllProductCategoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
         Assert.Equal(0, result.Total);
@@ -45,7 +43,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithCategories_ReturnsAllCategories()
     {
-        // Arrange
+
         var category1 = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -62,10 +60,8 @@ public class GetAllProductCategoryHandlerTests : IDisposable
 
         var query = new GetAllProductCategoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(2, result.Total);
@@ -76,7 +72,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         for (var i = 0; i < 25; i++)
         {
             var category = new ProductCategoryModel
@@ -91,10 +87,8 @@ public class GetAllProductCategoryHandlerTests : IDisposable
 
         var query = new GetAllProductCategoryQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
         Assert.Equal(25, result.Total);
@@ -103,7 +97,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         for (var i = 0; i < 5; i++)
         {
             var category = new ProductCategoryModel
@@ -118,10 +112,8 @@ public class GetAllProductCategoryHandlerTests : IDisposable
 
         var query = new GetAllProductCategoryQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
         Assert.Equal(5, result.Total);
@@ -130,7 +122,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         for (var i = 0; i < 25; i++)
         {
             var category = new ProductCategoryModel
@@ -145,10 +137,8 @@ public class GetAllProductCategoryHandlerTests : IDisposable
 
         var query = new GetAllProductCategoryQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
         Assert.Equal(25, result.Total);

@@ -6,9 +6,6 @@ using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.Order.Commands;
 
-/// <summary>
-///     Command to create a new product order.
-/// </summary>
 public record CreateOrderCommand(
     Guid UserId,
     Guid CustomerId,

@@ -30,13 +30,11 @@ public class GetAllProductHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllProductQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -44,7 +42,7 @@ public class GetAllProductHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProducts_ReturnsAllProducts()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -85,10 +83,8 @@ public class GetAllProductHandlerTests : IDisposable
 
         var query = new GetAllProductQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
         Assert.Contains(result.Data, p => p.Id == product1.Id);
@@ -98,7 +94,7 @@ public class GetAllProductHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -126,10 +122,8 @@ public class GetAllProductHandlerTests : IDisposable
 
         var query = new GetAllProductQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }
@@ -137,7 +131,7 @@ public class GetAllProductHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -165,10 +159,8 @@ public class GetAllProductHandlerTests : IDisposable
 
         var query = new GetAllProductQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -176,7 +168,7 @@ public class GetAllProductHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesCategoryDataIsIncluded()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -209,10 +201,8 @@ public class GetAllProductHandlerTests : IDisposable
 
         var query = new GetAllProductQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.Data);
         Assert.Equal("Electronics", result.Data[0].CategoryName);

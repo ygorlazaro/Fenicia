@@ -32,7 +32,7 @@ public class UpdateStockMovementHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenStockMovementExists_UpdatesStockMovementAndReturnsResponse()
     {
-        // Arrange
+
         var movementId = Guid.NewGuid();
         var product = new ProductModel
         {
@@ -59,10 +59,8 @@ public class UpdateStockMovementHandlerTests : IDisposable
 
         var command = new UpdateStockMovementCommand(movementId, 20, DateTime.Now.AddDays(1), 25.00m, StockMovementType.Out, product.Id, null, null, null, null, null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(20, result.Quantity);
         Assert.Equal(StockMovementType.Out, result.Type);
@@ -72,33 +70,29 @@ public class UpdateStockMovementHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenStockMovementDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, Guid.NewGuid(), null, null, null, null, null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, Guid.NewGuid(), null, null, null, null, null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesStockMovementWasUpdatedInDatabase()
     {
-        // Arrange
+
         var movementId = Guid.NewGuid();
         var product = new ProductModel
         {
@@ -125,10 +119,8 @@ public class UpdateStockMovementHandlerTests : IDisposable
 
         var command = new UpdateStockMovementCommand(movementId, 20, DateTime.Now.AddDays(1), 25.00m, StockMovementType.Out, product.Id, null, null, null, null, null);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedMovement = await db.BasicStockMovements.FindAsync([movementId], CancellationToken.None);
         Assert.NotNull(updatedMovement);
         Assert.Equal(20, updatedMovement.Quantity);

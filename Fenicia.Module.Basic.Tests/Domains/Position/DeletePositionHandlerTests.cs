@@ -34,7 +34,7 @@ public class DeletePositionHandlerTests : IDisposable
     [InlineData("Manager")]
     public async Task Handle_WhenPositionExists_SetsDeletedDate(string positionName)
     {
-        // Arrange
+
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -48,10 +48,8 @@ public class DeletePositionHandlerTests : IDisposable
         var command = new DeletePositionCommand(positionId);
         var beforeDelete = DateTime.Now;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedPosition = await db.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
@@ -61,13 +59,11 @@ public class DeletePositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenPositionDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeletePositionCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var positions = await db.BasicPositions.ToListAsync();
         Assert.Empty(positions);
     }
@@ -75,7 +71,7 @@ public class DeletePositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultiplePositions_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
@@ -95,10 +91,8 @@ public class DeletePositionHandlerTests : IDisposable
 
         var command = new DeletePositionCommand(position1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedPosition = await db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
         var notDeletedPosition = await db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
@@ -111,13 +105,11 @@ public class DeletePositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeletePositionCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var positions = await db.BasicPositions.ToListAsync();
         Assert.Empty(positions);
     }

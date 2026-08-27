@@ -1,14 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.AspNetCore.Builder;
 using Fenicia.Common.API.Startup;
-using Fenicia.Common.Data;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Externals.Email;
-using MediatR;
-using Xunit;
 
 namespace Fenicia.Auth.Tests.Integration;
 
@@ -32,14 +25,14 @@ public class AuthProgramIntegrationTests
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
 
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Fenicia.Auth.Program).Assembly));
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
         {
-            builder.Services.AddTransient<Fenicia.Externals.Email.IBrevoProvider, TestBrevoProvider>();
-            builder.Services.AddSingleton<Fenicia.Common.Data.ICompanyContext, Fenicia.Common.Data.CompanyContext>();
+            builder.Services.AddTransient<Externals.Email.IBrevoProvider, TestBrevoProvider>();
+            builder.Services.AddSingleton<Common.Data.ICompanyContext, Common.Data.CompanyContext>();
             builder.Services.AddHttpContextAccessor();
-        }).AddFeniciaDbContext<Fenicia.Common.Data.Contexts.DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        }).AddFeniciaDbContext<Common.Data.Contexts.DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();
@@ -47,9 +40,9 @@ public class AuthProgramIntegrationTests
         Assert.NotNull(app);
     }
 
-    private class TestBrevoProvider : Fenicia.Externals.Email.IBrevoProvider
+    private class TestBrevoProvider : Externals.Email.IBrevoProvider
     {
-        public void Send(Fenicia.Common.Enums.External.EmailTemplate template, string email, string name, Dictionary<string, object>? parameters)
+        public void Send(Common.Enums.External.EmailTemplate template, string email, string name, Dictionary<string, object>? parameters)
         {
         }
     }

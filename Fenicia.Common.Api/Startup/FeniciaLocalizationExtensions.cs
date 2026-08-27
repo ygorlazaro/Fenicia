@@ -21,7 +21,6 @@ public static class FeniciaLocalizationExtensions
             options.SupportedCultures = supportedCultures;
             options.SupportedUICultures = supportedCultures;
 
-            // Add custom header provider for Accept-Language
             options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
         });
 

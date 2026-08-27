@@ -35,13 +35,11 @@ public class GetAllProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllProjectCommentQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -49,7 +47,7 @@ public class GetAllProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProjectComments_ReturnsAllProjectComments()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var comment1 = new ProjectCommentModel
@@ -73,10 +71,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
 
         var query = new GetAllProjectCommentQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.Equal(comment1.Id, result[0].Id);
@@ -86,7 +82,7 @@ public class GetAllProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
@@ -105,10 +101,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
 
         var query = new GetAllProjectCommentQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }
@@ -116,7 +110,7 @@ public class GetAllProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
@@ -135,10 +129,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
 
         var query = new GetAllProjectCommentQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -146,7 +138,7 @@ public class GetAllProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
@@ -165,10 +157,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
 
         var query = new GetAllProjectCommentQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }

@@ -36,13 +36,11 @@ public class GetAllProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllProjectTaskQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -50,7 +48,7 @@ public class GetAllProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProjectTasks_ReturnsAllProjectTasks()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
         var task1 = new ProjectTaskModel
@@ -88,10 +86,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
 
         var query = new GetAllProjectTaskQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.Equal(task1.Id, result[0].Id);
@@ -101,7 +97,7 @@ public class GetAllProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
@@ -127,10 +123,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
 
         var query = new GetAllProjectTaskQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }
@@ -138,7 +132,7 @@ public class GetAllProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
@@ -164,10 +158,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
 
         var query = new GetAllProjectTaskQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -175,7 +167,7 @@ public class GetAllProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
@@ -201,10 +193,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
 
         var query = new GetAllProjectTaskQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }

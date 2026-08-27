@@ -3,7 +3,6 @@ using Bogus;
 using Fenicia.Auth.Domains.Notification.Commands;
 using Fenicia.Auth.Domains.Notification.Handlers;
 using Fenicia.Auth.Domains.Notification.Queries;
-using Fenicia.Auth.Domains.Notification.Responses;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;

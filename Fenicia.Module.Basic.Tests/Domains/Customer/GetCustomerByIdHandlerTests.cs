@@ -11,10 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-/// <summary>
-///     Unit tests for the GetCustomerByIdHandler.
-///     Tests customer retrieval by ID logic.
-/// </summary>
 public class GetCustomerByIdHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -37,13 +33,10 @@ public class GetCustomerByIdHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     Tests that retrieving a customer by ID returns the customer details when found.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_ReturnsCustomerResponse()
     {
-        // Arrange
+
         var customerId = Guid.NewGuid();
 
         var customer = new CustomerModel
@@ -65,10 +58,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
 
         var query = new GetCustomerByIdQuery(customerId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(customerId, result.Id);
         Assert.Equal(customer.Person.Id, result.PersonId);
@@ -78,45 +69,32 @@ public class GetCustomerByIdHandlerTests : IDisposable
         Assert.Equal(customer.Person.Document, result.Document);
     }
 
-    /// <summary>
-    ///     Tests that retrieving a non-existent customer returns null.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
-    /// <summary>
-    ///     Tests that retrieving from an empty database returns null.
-    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
-    /// <summary>
-    ///     Tests that when multiple customers exist, only the requested customer is returned.
-    /// </summary>
     [Fact]
     public async Task Handle_WithMultipleCustomers_ReturnsOnlyRequestedCustomer()
     {
-        // Arrange
+
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
 
@@ -153,23 +131,18 @@ public class GetCustomerByIdHandlerTests : IDisposable
 
         var query = new GetCustomerByIdQuery(customer1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(customer1Id, result.Id);
         Assert.Equal(customer1.Person.Id, result.PersonId);
         Assert.Equal(customer1.Person.Name, result.Name);
     }
 
-    /// <summary>
-    ///     Tests that customers with an address return the full address details correctly.
-    /// </summary>
     [Fact]
     public async Task Handle_WithAddress_ReturnsFullAddressDetails()
     {
-        // Arrange
+
         var customerId = Guid.NewGuid();
         var addressId = Guid.NewGuid();
         var personId = Guid.NewGuid();
@@ -221,10 +194,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
 
         var query = new GetCustomerByIdQuery(customerId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Address);
         Assert.Equal(addressId, result.Address.Id);

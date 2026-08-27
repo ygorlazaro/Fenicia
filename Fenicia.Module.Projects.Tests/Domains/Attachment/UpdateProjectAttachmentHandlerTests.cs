@@ -35,7 +35,7 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectAttachmentExists_UpdatesProjectAttachmentAndReturnsResponse()
     {
-        // Arrange
+
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var attachment = new AttachmentModel
@@ -57,10 +57,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
         var newFileSize = faker.Random.Long(50000, 100000);
         var command = new UpdateProjectAttachmentCommand(attachmentId, taskId, newFileName, newFileUrl, newFileSize, Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(attachmentId, result.Id);
         Assert.Equal(newFileName, result.FileName);
@@ -69,33 +67,29 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectAttachmentDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.pdf", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.pdf", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectAttachment()
     {
-        // Arrange
+
         var attachment1Id = Guid.NewGuid();
         var attachment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -128,10 +122,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
         var newFileName = $"{faker.System.FileName()}_updated.pdf";
         var command = new UpdateProjectAttachmentCommand(attachment1Id, taskId, newFileName, faker.Internet.Url(), 50000, Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(attachment1Id, result.Id);
         Assert.Equal(newFileName, result.FileName);
@@ -148,7 +140,7 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDifferentFileSize_UpdatesProjectAttachmentSuccessfully()
     {
-        // Arrange
+
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var attachment = new AttachmentModel
@@ -168,10 +160,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
         const long newFileSize = 500000L;
         var command = new UpdateProjectAttachmentCommand(attachmentId, taskId, "updated_file.pdf", faker.Internet.Url(), newFileSize, Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(attachmentId, result.Id);
         Assert.Equal(newFileSize, result.FileSize);

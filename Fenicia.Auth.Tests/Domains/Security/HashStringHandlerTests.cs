@@ -2,8 +2,6 @@ using Fenicia.Auth.Domains.Security.Command;
 using Fenicia.Auth.Domains.Security.Handler;
 using Fenicia.Common.Exceptions;
 
-using Xunit;
-
 namespace Fenicia.Auth.Tests.Domains.Security;
 
 public class HashStringHandlerTests

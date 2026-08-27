@@ -35,7 +35,7 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectAttachmentExists_ReturnsProjectAttachmentResponse()
     {
-        // Arrange
+
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var fileName = $"{faker.System.FileName()}.pdf";
@@ -58,10 +58,8 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
 
         var query = new GetProjectAttachmentByIdQuery(attachmentId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(attachmentId, result.Id);
         Assert.Equal(fileName, result.FileName);
@@ -70,33 +68,29 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectAttachmentDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectAttachmentByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectAttachmentByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProjectAttachments_ReturnsOnlyRequestedAttachment()
     {
-        // Arrange
+
         var attachment1Id = Guid.NewGuid();
         var attachment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -128,10 +122,8 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
 
         var query = new GetProjectAttachmentByIdQuery(attachment1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(attachment1Id, result.Id);
         Assert.Equal(attachment1.FileName, result.FileName);
@@ -140,10 +132,10 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithLargeFileSize_ReturnsCorrectResponse()
     {
-        // Arrange
+
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var largeFileSize = 1073741824L; // 1 GB
+        var largeFileSize = 1073741824L;
         var attachment = new AttachmentModel
         {
             Id = attachmentId,
@@ -160,10 +152,8 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
 
         var query = new GetProjectAttachmentByIdQuery(attachmentId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(attachmentId, result.Id);
         Assert.Equal(largeFileSize, result.FileSize);

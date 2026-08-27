@@ -12,30 +12,9 @@ using MediatR;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-/// <summary>
-///     Handler responsible for creating new users with company registration.
-/// </summary>
-/// <remarks>
-///     This handler processes user registration requests:
-///     1. Validates email doesn't already exist
-///     2. Validates company CNPJ doesn't already exist
-///     3. Creates user with hashed password
-///     4. Creates new company
-///     5. Assigns Admin role to user for the company
-///     The registering user becomes the company Admin, allowing them to:
-///     - Invite other users
-///     - Assign roles
-///     - Configure company settings
-/// </remarks>
 public class CreateNewUserHandler(DefaultContext db) : IRequestHandler<CreateNewUserCommand, CreateNewUserResponse>
 {
-    /// <summary>
-    ///     Creates a new user with company registration.
-    /// </summary>
-    /// <param name="command">The create user command with user and company details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Created user response with company information.</returns>
-    /// <exception cref="InvalidRequestException">Thrown when email or CNPJ already exists.</exception>
+
     public async Task<CreateNewUserResponse> Handle(CreateNewUserCommand command, CancellationToken ct)
     {
         await ValidateAsync(command, ct);
@@ -46,9 +25,6 @@ public class CreateNewUserHandler(DefaultContext db) : IRequestHandler<CreateNew
         return new CreateNewUserResponse(user.Id, user.Name, user.Email, companyResponse);
     }
 
-    /// <summary>
-    ///     Persists the user, company, and role assignment to the database.
-    /// </summary>
     private async Task<(UserModel userRequest, CompanyModel companyRequest)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
     {
         var existingUser = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
@@ -97,10 +73,6 @@ public class CreateNewUserHandler(DefaultContext db) : IRequestHandler<CreateNew
         return (userRequest, companyRequest);
     }
 
-    /// <summary>
-    ///     Validates that email and company CNPJ don't already exist.
-    /// </summary>
-    /// <exception cref="InvalidRequestException">Thrown when email or CNPJ already exists.</exception>
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)
     {
         var isExistingUser = await db.AuthUsers.AnyEmailAsync(request.Email, ct);

@@ -36,7 +36,7 @@ public class UpdateSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenSupplierExists_UpdatesSupplierAndReturnsResponse()
     {
-        // Arrange
+
         var supplierId = Guid.NewGuid();
         var supplier = new SupplierModel
         {
@@ -55,18 +55,16 @@ public class UpdateSupplierHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
-            supplierId, 
-            "New Name", 
-            "new@email.com", 
-            "987.654.321-00", 
-            "11988887777", 
-            "98.765.432/0001-10", 
+            supplierId,
+            "New Name",
+            "new@email.com",
+            "987.654.321-00",
+            "11988887777",
+            "98.765.432/0001-10",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal("98.765.432/0001-10", result.Cnpj);
     }
@@ -74,47 +72,43 @@ public class UpdateSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenSupplierDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateSupplierCommand(
-            Guid.NewGuid(), 
-            "New Name", 
-            "new@email.com", 
-            null, 
-            null, 
-            null, 
+            Guid.NewGuid(),
+            "New Name",
+            "new@email.com",
+            null,
+            null,
+            null,
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateSupplierCommand(
-            Guid.NewGuid(), 
-            "New Name", 
-            "new@email.com", 
-            null, 
-            null, 
-            null, 
+            Guid.NewGuid(),
+            "New Name",
+            "new@email.com",
+            null,
+            null,
+            null,
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesSupplierWasUpdatedInDatabase()
     {
-        // Arrange
+
         var supplierId = Guid.NewGuid();
         var supplier = new SupplierModel
         {
@@ -133,18 +127,16 @@ public class UpdateSupplierHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
-            supplierId, 
-            "New Name", 
-            "new@email.com", 
-            null, 
-            null, 
-            "98.765.432/0001-10", 
+            supplierId,
+            "New Name",
+            "new@email.com",
+            null,
+            null,
+            "98.765.432/0001-10",
             null);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedSupplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == supplierId);
 
         Assert.NotNull(updatedSupplier);
@@ -155,7 +147,7 @@ public class UpdateSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithAddress_CreatesOrUpdatesAddress()
     {
-        // Arrange
+
         var stateId = Guid.NewGuid();
         var state = new StateModel
         {
@@ -195,18 +187,16 @@ public class UpdateSupplierHandlerTests : IDisposable
         );
 
         var command = new UpdateSupplierCommand(
-            supplierId, 
-            "New Name", 
-            "new@email.com", 
-            "987.654.321-00", 
-            "11988887777", 
-            "98.765.432/0001-10", 
+            supplierId,
+            "New Name",
+            "new@email.com",
+            "987.654.321-00",
+            "11988887777",
+            "98.765.432/0001-10",
             addressDto);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var address = await db.AuthAddresses.FirstOrDefaultAsync(a => a.Street == addressDto.Street);
         var personAddress = await db.BasicPersonAddresses.FirstOrDefaultAsync(pa => pa.AddressId == address!.Id);
 

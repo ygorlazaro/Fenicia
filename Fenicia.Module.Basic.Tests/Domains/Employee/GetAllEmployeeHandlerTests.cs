@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the GetAllEmployeeHandler.
-///     Tests employee list retrieval with pagination logic.
-/// </summary>
 public class GetAllEmployeeHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -40,13 +36,11 @@ public class GetAllEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllEmployeeQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -54,7 +48,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmployees_ReturnsAllEmployees()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -97,10 +91,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
 
         var query = new GetAllEmployeeQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(employee1.Person.Id, result.Data[0].PersonId);
@@ -115,7 +107,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -146,10 +138,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
 
         var query = new GetAllEmployeeQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }
@@ -157,7 +147,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -188,10 +178,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
 
         var query = new GetAllEmployeeQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -199,7 +187,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -230,10 +218,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
 
         var query = new GetAllEmployeeQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }
@@ -241,7 +227,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -269,10 +255,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
 
         var query = new GetAllEmployeeQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.Data);
         Assert.Equal(employee.Person.Id, result.Data[0].PersonId);

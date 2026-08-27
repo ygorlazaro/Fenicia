@@ -9,18 +9,9 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
-/// <summary>
-///     Handler responsible for retrieving product performance metrics.
-///     Provides analysis including best-selling, worst-selling, never sold products, and profit margins.
-/// </summary>
 public class GetProductPerformanceHandler(DefaultContext db) : IRequestHandler<GetProductPerformanceQuery, ProductPerformanceResponse>
 {
-    /// <summary>
-    ///     Retrieves product performance metrics for a given time period.
-    /// </summary>
-    /// <param name="query">The query containing days to analyze and top limit.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Performance metrics including best-selling, worst-selling, never sold products, and profit margins.</returns>
+
     public async Task<ProductPerformanceResponse> Handle(GetProductPerformanceQuery query, CancellationToken ct)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
@@ -81,7 +72,7 @@ public class GetProductPerformanceHandler(DefaultContext db) : IRequestHandler<G
 
     private async Task<List<WorstSellingProductResponse>> GetWorstSellingProductAsync(GetProductPerformanceQuery query, IQueryable<OrderDetailModel> orderDetails, IIncludableQueryable<ProductModel, PersonModel?> products, CancellationToken ct)
     {
-        // Split safe query
+
         var salesStats = await orderDetails.GroupBy(d => d.ProductId).Select(g => new { ProductId = g.Key, QuantitySold = g.Sum(d => d.Quantity), Revenue = g.Sum(d => d.Price * (decimal)d.Quantity), OrderCount = g.Select(d => d.OrderId).Distinct().Count() }).ToListAsync(ct);
 
         var productDetails = await products.Where(p => p.Quantity > 0).Select(p => new
@@ -105,7 +96,7 @@ public class GetProductPerformanceHandler(DefaultContext db) : IRequestHandler<G
 
     private async Task<List<BestSellingProductResponse>> GetBestSellingProductAsync(GetProductPerformanceQuery query, IQueryable<OrderDetailModel> orderDetails, CancellationToken ct)
     {
-        // Split safe query - EF always translates
+
         var salesStats = await orderDetails.GroupBy(d => d.ProductId).Select(g => new
         {
             ProductId = g.Key,

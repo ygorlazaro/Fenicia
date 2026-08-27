@@ -7,18 +7,9 @@ using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
-/// <summary>
-///     Handler responsible for creating a new supplier.
-///     Creates a new supplier along with their contact and address information.
-/// </summary>
 public class AddSupplierHandler(DefaultContext db) : IRequestHandler<AddSupplierCommand, AddSupplierResponse>
 {
-    /// <summary>
-    ///     Creates a new supplier.
-    /// </summary>
-    /// <param name="command">The command containing supplier details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created supplier with its details.</returns>
+
     public async Task<AddSupplierResponse> Handle(AddSupplierCommand command, CancellationToken ct)
     {
         var person = new PersonModel

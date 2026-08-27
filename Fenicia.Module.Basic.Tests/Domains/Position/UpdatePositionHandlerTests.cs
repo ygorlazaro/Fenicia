@@ -35,7 +35,7 @@ public class UpdatePositionHandlerTests : IDisposable
     [InlineData("Analyst", "Coordinator")]
     public async Task Handle_WhenPositionExists_UpdatesPositionAndReturnsResponse(string oldName, string newName)
     {
-        // Arrange
+
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -48,10 +48,8 @@ public class UpdatePositionHandlerTests : IDisposable
 
         var command = new UpdatePositionCommand(positionId, newName);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(positionId, result.Id);
         Assert.Equal(newName, result.Name);
@@ -60,33 +58,29 @@ public class UpdatePositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenPositionDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdatePositionCommand(Guid.NewGuid(), "New Position");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdatePositionCommand(Guid.NewGuid(), "New Position");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesPositionWasUpdatedInDatabase()
     {
-        // Arrange
+
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -99,10 +93,8 @@ public class UpdatePositionHandlerTests : IDisposable
 
         var command = new UpdatePositionCommand(positionId, "New Position");
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedPosition = await db.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.NotNull(updatedPosition);
         Assert.Equal("New Position", updatedPosition.Name);
@@ -111,7 +103,7 @@ public class UpdatePositionHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultiplePositions_OnlyUpdatesSpecified()
     {
-        // Arrange
+
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
@@ -131,10 +123,8 @@ public class UpdatePositionHandlerTests : IDisposable
 
         var command = new UpdatePositionCommand(position1Id, "Senior Developer");
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedPosition1 = await db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
         var notUpdatedPosition2 = await db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 

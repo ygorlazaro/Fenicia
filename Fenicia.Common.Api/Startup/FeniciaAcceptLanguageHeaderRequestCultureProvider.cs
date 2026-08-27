@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Localization;
 
 namespace Fenicia.Common.API.Startup;
 
-/// <summary>
-///     Custom request culture provider that reads the Accept-Language header.
-/// </summary>
 public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
 {
     public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext)
@@ -24,7 +21,6 @@ public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
             return Task.FromResult<ProviderCultureResult?>(null);
         }
 
-        // Parse Accept-Language header (e.g., "pt-BR,pt;q=0.9,en;q=0.8")
         var languages = acceptLanguage.Split(',');
         var requestedCultures = new List<CultureInfo>();
 
@@ -39,7 +35,7 @@ public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
                 }
                 catch (CultureNotFoundException)
                 {
-                    // Ignore unsupported cultures
+
                 }
             }
         }

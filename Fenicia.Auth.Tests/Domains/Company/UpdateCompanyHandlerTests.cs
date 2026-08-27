@@ -12,10 +12,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-/// <summary>
-///     Unit tests for the UpdateCompanyHandler.
-///     Tests business logic for updating company information including authorization, validation, and data integrity.
-/// </summary>
 public class UpdateCompanyHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -38,13 +34,10 @@ public class UpdateCompanyHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     Tests that an Admin user can successfully update a company's name.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserIsAdmin_CompanyIsUpdatedSuccessfully()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -87,23 +80,18 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(command.Name, updatedCompany.Name);
         Assert.True(updatedCompany.IsActive);
     }
 
-    /// <summary>
-    ///     Tests that updating a non-existent company throws ItemNotExistsException.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var nonExistentCompanyId = Guid.NewGuid();
@@ -121,18 +109,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(nonExistentCompanyId, userId, "Updated Name");
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that updating an inactive company throws ItemNotExistsException.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyIsInactive_ThrowsItemNotExistsException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -174,18 +158,14 @@ public class UpdateCompanyHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that a non-Admin user cannot update a company.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserIsNotAdmin_ThrowsPermissionDeniedException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -228,18 +208,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that a user without any role in the company cannot update it.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasNoRoleInCompany_ThrowsPermissionDeniedException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
@@ -283,18 +259,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that a user with Admin role in one company cannot update a different company.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasAdminRoleInDifferentCompany_ThrowsPermissionDeniedException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId1 = Guid.NewGuid();
         var companyId2 = Guid.NewGuid();
@@ -346,18 +318,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId2, userId, faker.Company.CompanyName());
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that a user with multiple roles including Admin can update the company.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasMultipleRolesIncludingAdmin_CompanyIsUpdated()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
@@ -414,22 +382,17 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(command.Name, updatedCompany.Name);
     }
 
-    /// <summary>
-    ///     Tests that any Admin user can update a company when multiple Admins exist.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleAdminsExist_AnyAdminCanUpdate()
     {
-        // Arrange
+
         var admin1Id = Guid.NewGuid();
         var admin2Id = Guid.NewGuid();
         var companyId = Guid.NewGuid();
@@ -488,22 +451,17 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, admin2Id, faker.Company.CompanyName());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(command.Name, updatedCompany.Name);
     }
 
-    /// <summary>
-    ///     Tests that a user without any role in the company cannot update it.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyExistsButUserHasNoRoles_ThrowsPermissionDeniedException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
@@ -529,18 +487,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, "Updated Name");
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that the handler requires exact "Admin" role name for authorization.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenRoleNameIsNotExactlyAdmin_ThrowsPermissionDeniedException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -583,18 +537,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, "Updated Name");
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that role name matching is case-sensitive (admin != Admin).
-    /// </summary>
     [Fact]
     public async Task Handle_WhenRoleNameIsAdminWithDifferentCase_ThrowsPermissionDeniedException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -637,18 +587,14 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, "Updated Name");
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    /// <summary>
-    ///     Tests that updating a company preserves the IsActive flag and CNPJ.
-    /// </summary>
     [Fact]
     public async Task Handle_VerifiesCompanyIsActiveFlagIsPreserved()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -691,29 +637,23 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.True(updatedCompany.IsActive);
         Assert.Equal(company.Cnpj, updatedCompany.Cnpj);
     }
 
-    /// <summary>
-    ///     Tests that updating a company when no companies exist throws ItemNotExistsException.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenDatabaseIsEmpty_ThrowsItemNotExistsException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
         var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }

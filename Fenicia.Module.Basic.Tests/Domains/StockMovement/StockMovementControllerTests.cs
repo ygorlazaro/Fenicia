@@ -83,7 +83,7 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenNoMovementsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var query = new StockMovementController.StockMovementQuery(1, 10)
         {
             StartDate = DateTime.Now.AddDays(-30),
@@ -91,11 +91,9 @@ public class StockMovementControllerTests : IDisposable
         };
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(query, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -110,7 +108,7 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenMovementsExist_ReturnsOkWithMovements()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = testProductId,
@@ -152,11 +150,9 @@ public class StockMovementControllerTests : IDisposable
         };
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(query, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -171,7 +167,7 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithMovement()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = testProductId,
@@ -189,11 +185,9 @@ public class StockMovementControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -212,7 +206,7 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenMovementExists_ReturnsCreatedWithUpdatedMovement()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = testProductId,
@@ -243,11 +237,9 @@ public class StockMovementControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(testMovementId, command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -264,7 +256,7 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenMovementDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         SetupAdminUserClaims();
 
@@ -272,11 +264,9 @@ public class StockMovementControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(nonExistentId, command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -284,26 +274,22 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public void StockMovementController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StockMovementController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void StockMovementController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StockMovementController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -311,27 +297,23 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public void StockMovementController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StockMovementController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 
     [Fact]
     public void PatchAsync_HasAuthorizeRolesAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StockMovementController);
         var methodInfo = controllerType.GetMethod(nameof(StockMovementController.PatchAsync));
 
-        // Act
         var authorizeAttribute = methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }
@@ -339,14 +321,12 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task GetDashboardAsync_WithNoMovements_ReturnsEmptyDashboard()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetDashboardAsync(wide, 30, 10, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -364,7 +344,7 @@ public class StockMovementControllerTests : IDisposable
     [Fact]
     public async Task GetDashboardAsync_WithMovements_ReturnsDashboardData()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = testProductId,
@@ -399,11 +379,9 @@ public class StockMovementControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetDashboardAsync(wide, 30, 10, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 

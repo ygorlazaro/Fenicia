@@ -6,18 +6,9 @@ using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 
-/// <summary>
-///     Handler responsible for creating a new product category.
-///     Adds a new category to the database.
-/// </summary>
 public class AddProductCategoryHandler(DefaultContext db) : IRequestHandler<AddProductCategoryCommand, AddProductCategoryResponse>
 {
-    /// <summary>
-    ///     Creates a new product category.
-    /// </summary>
-    /// <param name="command">The command containing category details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created category with its details.</returns>
+
     public async Task<AddProductCategoryResponse> Handle(AddProductCategoryCommand command, CancellationToken ct)
     {
         var category = new ProductCategoryModel

@@ -3,8 +3,6 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Externals.Email;
 
-using MediatR;
-
 namespace Fenicia.Auth;
 
 public class Program

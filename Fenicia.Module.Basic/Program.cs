@@ -3,8 +3,6 @@ using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
-using MediatR;
-
 namespace Fenicia.Module.Basic;
 
 public class Program
