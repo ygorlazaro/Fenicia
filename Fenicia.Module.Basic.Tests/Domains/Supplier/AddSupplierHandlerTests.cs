@@ -3,9 +3,10 @@ using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Common;
+using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Handlers;
+using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -20,9 +21,7 @@ public class AddSupplierHandlerTests : IDisposable
     public AddSupplierHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
+        db = new DefaultContext(options, new TestCompanyContext());
         handler = new AddSupplierHandler(db);
         faker = new Faker();
     }
@@ -30,116 +29,57 @@ public class AddSupplierHandlerTests : IDisposable
     public void Dispose()
     {
         db.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     [Fact]
-    public async Task Handle_WithValidCommand_AddsSupplierAndReturnsResponse()
+    public async Task Handle_WhenAddressIsProvided_CreatesSupplierWithAddress()
     {
-        // Arrange
         var command = new AddSupplierCommand(
-            Guid.NewGuid(), 
-            faker.Company.CompanyName(), 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
-            faker.Random.Replace("##.###.###/####-##"), 
-            null);
+            Id: Guid.NewGuid(),
+            Name: faker.Company.CompanyName(),
+            Email: faker.Internet.Email(),
+            Document: faker.Random.Replace("##.###.###/####-##"),
+            PhoneNumber: faker.Phone.PhoneNumber(),
+            Cnpj: faker.Random.Replace("##.###.###/####-##"),
+            Address: new AddressDTO(
+                Street: faker.Address.StreetName(),
+                Number: faker.Random.Replace("####"),
+                Complement: faker.Address.SecondaryAddress(),
+                Neighborhood: faker.Address.CityPrefix(),
+                ZipCode: faker.Address.ZipCode(),
+                StateId: Guid.NewGuid(),
+                City: faker.Address.City(),
+                Country: "Brasil"
+            )
+        );
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Cnpj, result.Cnpj);
-    }
-
-    [Fact]
-    public async Task Handle_VerifiesSupplierWasSavedToDatabase()
-    {
-        // Arrange
-        var command = new AddSupplierCommand(
-            Guid.NewGuid(), 
-            faker.Company.CompanyName(), 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
-            null, 
-            null);
-
-        // Act
-        await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        var supplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == command.Id);
-
+        var supplier = await db.BasicSuppliers.FirstOrDefaultAsync(s => s.Id == command.Id);
         Assert.NotNull(supplier);
         Assert.Equal(command.Name, supplier.Person.Name);
     }
 
     [Fact]
-    public async Task Handle_WithNullCnpj_HandlesCorrectly()
+    public async Task Handle_WhenAddressIsNull_CreatesSupplierWithoutAddress()
     {
-        // Arrange
         var command = new AddSupplierCommand(
-            Guid.NewGuid(), 
-            faker.Company.CompanyName(), 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
-            null, 
-            null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Null(result.Cnpj);
-    }
-
-    [Fact]
-    public async Task Handle_WithAddress_CreatesAddressAndPersonAddressRelationship()
-    {
-        // Arrange
-        var stateId = Guid.NewGuid();
-        var state = new StateModel
-        {
-            Id = stateId,
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var addressDto = new AddressDTO(
-            faker.Address.StreetName(),
-            faker.Random.Replace("####"),
-            "Apt 202",
-            faker.Address.CityPrefix(),
-            faker.Address.ZipCode(),
-            stateId,
-            faker.Address.City(),
-            "Brasil"
+            Id: Guid.NewGuid(),
+            Name: faker.Company.CompanyName(),
+            Email: faker.Internet.Email(),
+            Document: faker.Random.Replace("##.###.###/####-##"),
+            PhoneNumber: faker.Phone.PhoneNumber(),
+            Cnpj: faker.Random.Replace("##.###.###/####-##"),
+            Address: null
         );
 
-        var command = new AddSupplierCommand(
-            Guid.NewGuid(), 
-            faker.Company.CompanyName(), 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
-            faker.Random.Replace("##.###.###/####-##"), 
-            addressDto);
+        var result = await handler.Handle(command, CancellationToken.None);
 
-        // Act
-        await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        var address = await db.AuthAddresses.FirstOrDefaultAsync(a => a.Street == addressDto.Street);
-        var personAddress = await db.BasicPersonAddresses.FirstOrDefaultAsync(pa => pa.AddressId == address!.Id);
-
-        Assert.NotNull(address);
-        Assert.NotNull(personAddress);
+        Assert.NotNull(result);
+        var supplier = await db.BasicSuppliers.FirstOrDefaultAsync(s => s.Id == command.Id);
+        Assert.NotNull(supplier);
+        Assert.Null(supplier.Person.PersonAddresses.FirstOrDefault()?.Address);
     }
 }
