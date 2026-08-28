@@ -59,22 +59,6 @@ public class UserControllerTests
         faker = new Faker();
     }
 
-    private void SetupUserClaims(Guid userId, string? role = null)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-
-        if (!string.IsNullOrWhiteSpace(role))
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
-    }
-
     [Fact]
     public async Task GetUserModulesAsync_WhenUserHasNoModules_ReturnsOkWithEmptyList()
     {
@@ -565,4 +549,20 @@ public class UserControllerTests
     }
 
     #endregion
+    private void SetupUserClaims(Guid userId, string? role = null)
+    {
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+    }
+
 }
