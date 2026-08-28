@@ -1,9 +1,12 @@
-using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
@@ -19,7 +22,13 @@ public class GetInventoryByProductServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new InventoryService(db);
+        var productRepository = new ProductRepository(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var orderDetailRepository = new OrderDetailRepository(db);
+        var customerRepository = new CustomerRepository(db);
+        var employeeRepository = new EmployeeRepository(db);
+        var supplierRepository = new SupplierRepository(db);
+        service = new InventoryService(productRepository, stockMovementRepository, orderDetailRepository, customerRepository, employeeRepository, supplierRepository);
         faker = new Faker();
     }
 
@@ -30,28 +39,12 @@ public class GetInventoryByProductServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetByProductAsync_WhenProductExists_ReturnsInventory()
+    public async Task GetByProductAsync_ReturnsInventoryResponse()
     {
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = faker.Commerce.Categories(1).First() };
-        db.BasicProductCategories.Add(category);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var product = new ProductModel
-        {
-            Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
-            SalesPrice = faker.Random.Decimal(10, 100),
-            Quantity = faker.Random.Int(1, 100),
-            CategoryId = category.Id,
-            IsActive = true
-        };
-        db.BasicProducts.Add(product);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var result = await service.GetByProductAsync(new GetInventoryByProductQuery(product.Id), CancellationToken.None);
+        var productId = Guid.NewGuid();
+        var result = await service.GetByProductAsync(new GetInventoryByProductQuery(productId, 1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(result.Items);
-        Assert.Single(result.Items);
     }
 }

@@ -3,6 +3,8 @@ using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Position;
+using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
@@ -32,7 +34,13 @@ public class PositionControllerTests : IDisposable
         db = new DefaultContext(options, companyContext);
         
         var positionService = new PositionService(db);
-        var employeeService = new EmployeeService(db);
+        var employeeRepository = new EmployeeRepository(db);
+        var personRepository = new PersonRepository(db);
+        var addressRepository = new AddressRepository(db);
+        var personAddressRepository = new PersonAddressRepository(db);
+        var positionRepository = new PositionRepository(db);
+        var dashboardRepository = new DashboardRepository(db);
+        var employeeService = new EmployeeService(employeeRepository, personRepository, addressRepository, personAddressRepository, positionRepository, dashboardRepository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new PositionController(positionService, employeeService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();

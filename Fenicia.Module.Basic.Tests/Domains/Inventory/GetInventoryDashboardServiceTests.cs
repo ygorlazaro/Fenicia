@@ -1,9 +1,11 @@
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
@@ -19,7 +21,13 @@ public class GetInventoryDashboardServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new InventoryService(db);
+        var productRepository = new ProductRepository(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var orderDetailRepository = new OrderDetailRepository(db);
+        var customerRepository = new CustomerRepository(db);
+        var employeeRepository = new EmployeeRepository(db);
+        var supplierRepository = new SupplierRepository(db);
+        service = new InventoryService(productRepository, stockMovementRepository, orderDetailRepository, customerRepository, employeeRepository, supplierRepository);
         faker = new Faker();
     }
 
@@ -30,7 +38,7 @@ public class GetInventoryDashboardServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetDashboardAsync_ReturnsDashboardResponse()
+    public async Task GetDashboardAsync_ReturnsInventoryDashboardResponse()
     {
         var result = await service.GetDashboardAsync(new GetInventoryDashboardQuery(), CancellationToken.None);
 

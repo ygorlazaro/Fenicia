@@ -67,7 +67,7 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await employeeService.AddAsync(command, ct);
+            var employee = await employeeService.AddAsync(command, ClaimReader.UserId(User), ct);
 
             return new CreatedResult(string.Empty, employee);
         }
@@ -89,7 +89,7 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await employeeService.UpdateAsync(command with { Id = id }, ct);
+            var employee = await employeeService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
             return employee is null ? NotFound() : Ok(employee);
         }

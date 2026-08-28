@@ -3,6 +3,9 @@ using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee;
+using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Dashboard;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,17 +25,24 @@ public class EmployeeControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public EmployeeControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        
-        var service = new EmployeeService(db);
+        var employeeRepository = new EmployeeRepository(db);
+        var personRepository = new PersonRepository(db);
+        var addressRepository = new AddressRepository(db);
+        var personAddressRepository = new PersonAddressRepository(db);
+        var positionRepository = new PositionRepository(db);
+        var dashboardRepository = new DashboardRepository(db);
+        var service = new EmployeeService(employeeRepository, personRepository, addressRepository, personAddressRepository, positionRepository, dashboardRepository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new EmployeeController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }
