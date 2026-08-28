@@ -26,13 +26,7 @@
     "useDefineForClassFields": true
   },
   "exclude": [
-    "src/template/base/**/*",
-    "src/template/buttons/**/*",
-    "src/template/forms/**/*",
-    "src/template/icons/**/*",
-    "src/template/notifications/**/*",
-    "src/template/widgets/**/*",
-    "src/template/charts/**/*",
+    "src/template/examples/**/*",
     "src/views/dashboard/**/*",
     "node_modules"
   ],
