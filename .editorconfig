@@ -69,6 +69,12 @@ dotnet_diagnostic.SA1200.severity = none
 # SA1600 (exigir XML doc em tudo) — desligado, muito verboso pra esse estágio
 dotnet_diagnostic.SA1600.severity = none
 
+# SA0001 (XML comment analysis disabled) — desligado, não queremos documentação XML obrigatória
+dotnet_diagnostic.SA0001.severity = none
+
+# IDE0005 (usings desnecessários) — desligado, depende de GenerateDocumentationFile
+dotnet_diagnostic.IDE0005.severity = none
+
 # ============================================================
 # 6. CONSISTÊNCIA COM SEU ESTILO JÁ EM USO (novo, baseado no código atual)
 # ============================================================
@@ -162,3 +168,5 @@ dotnet_naming_rule.private_fields_underscore.severity = none
 dotnet_naming_rule.async_methods_end_in_async.severity = none
 dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA0001.severity = none
+dotnet_diagnostic.IDE0005.severity = none
