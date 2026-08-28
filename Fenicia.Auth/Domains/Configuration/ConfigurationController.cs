@@ -1,7 +1,5 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.Configuration.DTOs.Commands;
-using Fenicia.Auth.Domains.Configuration.DTOs.Responses;
+using Fenicia.Auth.Domains.Configuration.DTOs;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +14,6 @@ namespace Fenicia.Auth.Domains.Configuration;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ConfigurationController(ConfigurationService configurationService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

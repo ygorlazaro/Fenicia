@@ -30,7 +30,7 @@ public class ModuleRequirementMiddleware(RequestDelegate next, string requiredMo
                 return;
             }
         }
-        catch
+        catch (JsonException)
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsync("Invalid 'module' claim format.");

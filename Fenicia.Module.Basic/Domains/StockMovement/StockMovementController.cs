@@ -15,7 +15,6 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class StockMovementController(StockMovementService stockMovementService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetStockMovementResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -77,14 +77,14 @@ public static class ExceptionMessages
         return string.Format(GetString("RoleNotFound"), roleId);
     }
 
-    private static string GetString(string name)
-    {
-        return ResourceMapper.GetString(name) ?? name;
-    }
-
     public static string GetStringWithFormat(string key, params object[] args)
     {
         var format = GetString(key);
         return string.Format(format, args);
+    }
+
+    private static string GetString(string name)
+    {
+        return ResourceMapper.GetString(name) ?? name;
     }
 }

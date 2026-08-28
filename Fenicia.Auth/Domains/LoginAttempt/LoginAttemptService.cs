@@ -4,8 +4,8 @@ namespace Fenicia.Auth.Domains.LoginAttempt;
 
 public class LoginAttemptService(IMemoryCache cache)
 {
-    private const int ExpirationMinutes = 15;
-    private const string KeyPrefix = "login-attempt:";
+    private const int _expirationMinutes = 15;
+    private const string _keyPrefix = "login-attempt:";
 
     public int GetAttempts(string email)
     {
@@ -19,7 +19,7 @@ public class LoginAttemptService(IMemoryCache cache)
 
         var options = new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_expirationMinutes)
         };
 
         cache.Set(key, current, options);
@@ -37,6 +37,6 @@ public class LoginAttemptService(IMemoryCache cache)
     {
         ArgumentNullException.ThrowIfNull(email);
 
-        return $"{KeyPrefix}{email.ToLowerInvariant()}";
+        return $"{_keyPrefix}{email.ToLowerInvariant()}";
     }
 }

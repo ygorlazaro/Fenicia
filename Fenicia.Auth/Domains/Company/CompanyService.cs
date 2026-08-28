@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Company.DTOs.Responses;
+using Fenicia.Auth.Domains.Company.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -23,7 +23,8 @@ public class CompanyService(DefaultContext db)
         var items = await request.OrderBy(ur => ur.Company.Name)
             .Skip((page - 1) * perPage)
             .Take(perPage)
-            .Select(ur => new GetCompaniesByUserResponse(ur.Company.Id,
+            .Select(ur => new GetCompaniesByUserResponse(
+                ur.Company.Id,
                 ur.Company.Name,
                 ur.Company.Cnpj,
                 ur.Role.Name))

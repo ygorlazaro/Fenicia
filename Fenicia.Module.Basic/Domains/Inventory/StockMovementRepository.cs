@@ -1,4 +1,3 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
@@ -11,7 +10,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
     {
         return await DbSet
-            .Where(m => m.Date >= startDate && m.Deleted == null)
+                .Where(m => m.Date >= startDate && m.Deleted == null)
             .ToListAsync(ct);
     }
 

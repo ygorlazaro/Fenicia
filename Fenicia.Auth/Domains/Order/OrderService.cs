@@ -1,5 +1,4 @@
-using Fenicia.Auth.Domains.Order.DTOs.Commands;
-using Fenicia.Auth.Domains.Order.DTOs.Responses;
+using Fenicia.Auth.Domains.Order.DTOs;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -31,6 +30,11 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
         await db.SaveChangesAsync(ct);
 
         return new CreateNewOrderResponse(order.Id);
+    }
+
+    private static string GenerateOrderNumber()
+    {
+        return $"AO-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
     }
 
     private OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
@@ -89,10 +93,12 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
                 _ => [basicModule, .. modules]
             };
         }
+#pragma warning disable CA1031
         catch
         {
             return [];
         }
+#pragma warning restore CA1031
     }
 
     private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
@@ -128,10 +134,5 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
         };
 
         db.AuthSubscriptions.Add(subscription);
-    }
-
-    private static string GenerateOrderNumber()
-    {
-        return $"AO-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
     }
 }

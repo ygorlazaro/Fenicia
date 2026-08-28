@@ -1,7 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Builder;
 using Fenicia.Common.API.Startup;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fenicia.Auth.Tests.Integration;
 
@@ -26,10 +26,10 @@ public class AuthProgramIntegrationTests
         builder.Configuration.AddConfiguration(configuration);
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
-        {
-            builder.Services.AddTransient<Externals.Email.IBrevoProvider, TestBrevoProvider>();
-            builder.Services.AddSingleton<Common.Data.ICompanyContext, Common.Data.CompanyContext>();
-            builder.Services.AddHttpContextAccessor();
+    {
+        builder.Services.AddTransient<Externals.Email.IBrevoProvider, TestBrevoProvider>();
+        builder.Services.AddSingleton<Common.Data.ICompanyContext, Common.Data.CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
         }).AddFeniciaDbContext<Common.Data.Contexts.DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
@@ -38,10 +38,9 @@ public class AuthProgramIntegrationTests
         Assert.NotNull(app);
     }
 
-    private class TestBrevoProvider : Externals.Email.IBrevoProvider
+    private sealed class TestBrevoProvider : Externals.Email.IBrevoProvider
     {
         public void Send(Common.Enums.External.EmailTemplate template, string email, string name, Dictionary<string, object>? parameters)
-        {
-        }
+        { }
     }
 }

@@ -5,8 +5,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectComment;
-using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectStatus;
+using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectTask;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
@@ -19,10 +19,10 @@ public abstract class Program
         var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaDependencyInjection(() =>
-        {
-            builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-            builder.Services.AddHttpContextAccessor();
-            builder.Services.AddScoped<ProjectRepository>();
+    {
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<ProjectRepository>();
             builder.Services.AddScoped<ProjectAttachmentRepository>();
             builder.Services.AddScoped<ProjectCommentRepository>();
             builder.Services.AddScoped<ProjectSubtaskRepository>();

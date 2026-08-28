@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Employee.DTOs;
 
 public record EmployeePerformanceSummaryResponse
 {
-
     public int TotalEmployees { get; set; }
 
     public int ActiveEmployees { get; set; }

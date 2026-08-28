@@ -1,9 +1,9 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Module.DTOs.Responses;
-using Fenicia.Auth.Domains.User.DTOs.Commands;
-using Fenicia.Auth.Domains.UserRole.DTOs.Responses;
+using Fenicia.Auth.Domains.Module.DTOs;
+using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -19,7 +19,6 @@ namespace Fenicia.Auth.Domains.User;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class UserController(UserService userService, ModuleService moduleService) : ControllerBase
 {
-
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

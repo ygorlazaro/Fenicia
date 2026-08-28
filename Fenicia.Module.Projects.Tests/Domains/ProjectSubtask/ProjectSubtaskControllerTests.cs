@@ -1,13 +1,9 @@
 using System.Security.Claims;
 using Bogus;
-using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +45,7 @@ public class ProjectSubtaskControllerTests : IDisposable
     public async Task GetAsync_WhenSubtasksExist_ReturnsOk()
     {
         var wide = new WideEventContext();
-        
+
         var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
         
         Assert.IsType<OkObjectResult>(result.Result);

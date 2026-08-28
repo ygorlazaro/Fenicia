@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 public record KpiSummaryResponse
 {
-
     public decimal TotalRevenue { get; set; }
 
     public decimal TotalCost { get; set; }

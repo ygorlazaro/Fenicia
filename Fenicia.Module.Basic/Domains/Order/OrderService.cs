@@ -2,11 +2,10 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.Order.DTOs;
-using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Inventory;
-using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
+using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Microsoft.EntityFrameworkCore;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
@@ -152,6 +151,7 @@ public class OrderService(
             {
                 continue;
             }
+
             product.Quantity -= detail.Quantity;
             await productRepository.UpdateAsync(product.Id, product, ct);
         }
@@ -208,7 +208,7 @@ public class OrderService(
     private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
         var cancelled = orders
-            .Where(o => o.Status == OrderStatus.Cancelled)
+                .Where(o => o.Status == OrderStatus.Cancelled)
             .Select(o => new { o.Id, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.SaleDate })
             .ToList();
 
@@ -246,7 +246,7 @@ public class OrderService(
     private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IEnumerable<OrderModel> orders, CancellationToken ct)
     {
         var raw = orders
-            .Select(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.Id })
+                .Select(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.Id })
             .ToList();
 
         var orderIds = raw.Select(o => o.Id).ToList();
@@ -271,7 +271,7 @@ public class OrderService(
     private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
         var orderData = orders
-            .Select(o => new { Date = o.SaleDate.Date, o.TotalAmount, o.Id })
+                .Select(o => new { Date = o.SaleDate.Date, o.TotalAmount, o.Id })
             .ToList();
 
         var orderIds = orderData.Select(o => o.Id).ToList();
@@ -295,7 +295,7 @@ public class OrderService(
     private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
         var groups = orders
-            .GroupBy(o => o.Status)
+                .GroupBy(o => o.Status)
             .Select(g => new { Status = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
             .ToList();
 

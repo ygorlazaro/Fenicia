@@ -1,14 +1,11 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
-using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.Supplier;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
-using Fenicia.Module.Basic.Domains.Inventory;
-using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
 using Microsoft.EntityFrameworkCore;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
+using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
@@ -333,9 +330,9 @@ public class ProductService(
         }).ToDictionary(p => p.Id, p => p);
 
         var worstSellingProducts = productDetails.Values.Select(p =>
-        {
-            var sale = salesStats.FirstOrDefault(s => s.ProductId == p.Id);
-            return new WorstSellingProductResponse(p.Id, p.Name, p.CategoryName, sale != null ? sale.QuantitySold : 0, sale != null ? sale.Revenue : 0m, sale != null ? sale.OrderCount : 0, p.Quantity, p.StockValue);
+    {
+        var sale = salesStats.FirstOrDefault(s => s.ProductId == p.Id);
+        return new WorstSellingProductResponse(p.Id, p.Name, p.CategoryName, sale != null ? sale.QuantitySold : 0, sale != null ? sale.Revenue : 0m, sale != null ? sale.OrderCount : 0, p.Quantity, p.StockValue);
         }).OrderBy(p => p.TotalQuantitySold).ThenByDescending(p => p.CurrentStock).Take(query.TopLimit).ToList();
 
         return worstSellingProducts;
@@ -362,9 +359,9 @@ public class ProductService(
             .ToDictionaryAsync(p => p.Id, p => p, ct);
 
         var bestSellingProducts = salesStats.Where(s => products.ContainsKey(s.ProductId)).Select(s =>
-        {
-            var details = products[s.ProductId];
-            return new BestSellingProductResponse(s.ProductId, details.ProductName, details.CategoryName, s.TotalQuantitySold, s.TotalRevenue, s.OrderCount, s.AveragePrice);
+    {
+        var details = products[s.ProductId];
+        return new BestSellingProductResponse(s.ProductId, details.ProductName, details.CategoryName, s.TotalQuantitySold, s.TotalRevenue, s.OrderCount, s.AveragePrice);
         }).ToList();
 
         return bestSellingProducts;

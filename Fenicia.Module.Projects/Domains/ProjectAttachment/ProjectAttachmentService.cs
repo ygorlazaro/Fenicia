@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectAttachment;
 
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 

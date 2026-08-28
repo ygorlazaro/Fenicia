@@ -18,7 +18,6 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class PositionController(PositionService positionService, EmployeeService employeeService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllPositionResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

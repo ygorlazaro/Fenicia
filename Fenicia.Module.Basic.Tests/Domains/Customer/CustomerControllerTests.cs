@@ -1,114 +1,81 @@
-using Fenicia.Common.Data.Models.Basic;
-using Bogus;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Customer;
-using Fenicia.Module.Basic.Domains.Customer.DTOs;
-using Fenicia.Module.Basic.Domains.Dashboard;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
-using Fenicia.Common;
 using System.Security.Claims;
+using Bogus;
 using Fenicia.Common.API;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
+using Fenicia.Common;
+using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Dashboard;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace Fenicia.Module.Basic.Tests.Domains.Customer;
-
-public class CustomerControllerTests : IDisposable
+        {
+        };
+    {
+    }
 {
+}
+        Assert.Empty(pagination.Data);
+        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.NotNull(authorizeAttribute);
+        Assert.NotNull(pagination);
+        Assert.Single(pagination.Data);
+        await db.SaveChangesAsync(CancellationToken.None);
+        companyId = companyContext.CompanyId;
+            CompanyId = companyId
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        controller = new CustomerController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        db.BasicCustomers.Add(customer);
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+            Document = faker.Random.Replace("###.###.###-##"),
+            Email = faker.Internet.Email(),
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+            Id = Guid.NewGuid(),
+        mockHttpContext = new Mock<HttpContext>();
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+            Name = faker.Person.FullName,
+namespace Fenicia.Module.Basic.Tests.Domains.Customer;
+            PersonId = person.Id,
+            Person = person,
+            PhoneNumber = faker.Random.Replace("(##) #####-####"),
     private readonly CustomerController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
     private readonly Guid companyId;
-
-    public CustomerControllerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var customerRepository = new CustomerRepository(db);
-        var personRepository = new PersonRepository(db);
-        var addressRepository = new AddressRepository(db);
-        var personAddressRepository = new PersonAddressRepository(db);
-        var dashboardRepository = new DashboardRepository(db);
-        var service = new CustomerService(customerRepository, personRepository, addressRepository, personAddressRepository, dashboardRepository);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new CustomerController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        companyId = companyContext.CompanyId;
-        SetupUserClaims(testUserId);
-        faker = new Faker();
-    }
-
+    private readonly Guid testUserId;
+    private readonly Mock<HttpContext> mockHttpContext;
     private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
-    }
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task GetAsync_WhenNoCustomers_ReturnsOkWithEmptyPagination()
-    {
-        var wide = new WideEventContext();
-        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
-
-        Assert.IsType<OkObjectResult>(result.Result);
-        var okResult = result.Result as OkObjectResult;
-        var pagination = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
-        Assert.NotNull(pagination);
-        Assert.Empty(pagination.Data);
-    }
-
-    [Fact]
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
-    {
-        var person = new PersonModel
-        {
-            Id = Guid.NewGuid(),
-            Name = faker.Person.FullName,
-            Email = faker.Internet.Email(),
-            Document = faker.Random.Replace("###.###.###-##"),
-            PhoneNumber = faker.Random.Replace("(##) #####-####"),
-            CompanyId = companyId
-        };
-
-        var customer = new CustomerModel
-        {
-            Id = Guid.NewGuid(),
-            Person = person,
-            PersonId = person.Id,
-            CompanyId = companyId
-        };
-
-        db.BasicCustomers.Add(customer);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var wide = new WideEventContext();
-        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
-
-        Assert.IsType<OkObjectResult>(result.Result);
-        var okResult = result.Result as OkObjectResult;
-        var pagination = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
-        Assert.NotNull(pagination);
-        Assert.Single(pagination.Data);
-    }
-
-    [Fact]
+    public async Task GetAsync_WhenNoCustomers_ReturnsOkWithEmptyPagination()
+public class CustomerControllerTests : IDisposable
+    public CustomerControllerTests()
     public void CustomerController_HasAuthorizeAttribute()
-    {
+    public void Dispose()
+        SetupUserClaims(testUserId);
+        testUserId = Guid.NewGuid();
+        var addressRepository = new AddressRepository(db);
         var authorizeAttribute = typeof(CustomerController).GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
-        Assert.NotNull(authorizeAttribute);
-    }
-}
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var companyContext = new TestCompanyContext();
+        var customer = new CustomerModel
+        var customerRepository = new CustomerRepository(db);
+        var dashboardRepository = new DashboardRepository(db);
+        var okResult = result.Result as OkObjectResult;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var pagination = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
+        var personAddressRepository = new PersonAddressRepository(db);
+        var person = new PersonModel
+        var personRepository = new PersonRepository(db);
+        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
+        var service = new CustomerService(customerRepository, personRepository, addressRepository, personAddressRepository, dashboardRepository);
+        var wide = new WideEventContext();

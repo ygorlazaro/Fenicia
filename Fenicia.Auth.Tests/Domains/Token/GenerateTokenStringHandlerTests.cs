@@ -3,17 +3,16 @@ using System.IdentityModel.Tokens.Jwt;
 using Bogus;
 
 using Fenicia.Auth.Domains.Token;
-using Fenicia.Auth.Domains.Token.DTOs.Responses;
-
+using Fenicia.Auth.Domains.Token.DTOs;
 using Microsoft.Extensions.Configuration;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
 public class GenerateTokenStringHandlerTests
 {
-    private readonly Faker faker;
+    private readonly Faker _faker;
 
-    private readonly TokenService handler;
+    private readonly TokenService _handler;
 
     public GenerateTokenStringHandlerTests()
     {
@@ -21,17 +20,16 @@ public class GenerateTokenStringHandlerTests
 
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
-        handler = new TokenService(null!, configuration, null!);
-        faker = new Faker();
+        _handler = new TokenService(null!, configuration, null!);
+        _faker = new Faker();
     }
 
     [Fact]
     public void Handle_WhenValidUser_ReturnsValidToken()
     {
+        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
-        var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
-
-        var token = handler.GenerateString(user);
+        var token = _handler.GenerateString(user);
 
         Assert.NotNull(token);
         Assert.NotEmpty(token);
@@ -40,11 +38,10 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenValidUser_ReturnsTokenThatCanBeRead()
     {
-
         var userId = Guid.NewGuid();
-        var user = new GenerateTokenResponse(userId, faker.Person.FullName, faker.Internet.Email());
+        var user = new GenerateTokenResponse(userId, _faker.Person.FullName, _faker.Internet.Email());
 
-        var token = handler.GenerateString(user);
+        var token = _handler.GenerateString(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -54,13 +51,12 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenValidUser_TokenContainsCorrectClaims()
     {
-
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
-        var name = faker.Person.FullName;
+        var email = _faker.Internet.Email();
+        var name = _faker.Person.FullName;
         var user = new GenerateTokenResponse(userId, name, email);
 
-        var token = handler.GenerateString(user);
+        var token = _handler.GenerateString(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -74,10 +70,9 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenUserHasCompanyId_TokenContainsCompanyIdClaim()
     {
+        var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), Guid.NewGuid());
 
-        var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), Guid.NewGuid());
-
-        var token = handler.GenerateString(userWithCompany);
+        var token = _handler.GenerateString(userWithCompany);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -89,10 +84,9 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenUserHasRoles_TokenContainsRoleClaims()
     {
+        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", "Manager"]);
 
-        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["Admin", "User", "Manager"]);
-
-        var token = handler.GenerateString(userWithRoles);
+        var token = _handler.GenerateString(userWithRoles);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -107,10 +101,9 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenUserHasModules_TokenContainsModuleClaims()
     {
+        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", "social"]);
 
-        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["basic", "social"]);
-
-        var token = handler.GenerateString(userWithModules);
+        var token = _handler.GenerateString(userWithModules);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -124,10 +117,9 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenTokenIsGenerated_HasExpiration()
     {
+        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
-        var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
-
-        var token = handler.GenerateString(user);
+        var token = _handler.GenerateString(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -138,11 +130,10 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenConfigurationSecretIsNull_ThrowsInvalidOperationException()
     {
-
         var badConfig = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
 
         var badHandler = new TokenService(null!, badConfig, null!);
-        var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
+        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         Assert.Throws<InvalidOperationException>(() => badHandler.GenerateString(user));
     }
@@ -150,10 +141,9 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
+        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", string.Empty, null!, "User"]);
 
-        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["Admin", "", null!, "User"]);
-
-        var token = handler.GenerateString(userWithEmptyRoles);
+        var token = _handler.GenerateString(userWithEmptyRoles);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -165,10 +155,9 @@ public class GenerateTokenStringHandlerTests
     [Fact]
     public void Handle_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
+        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), [string.Empty, null!, "basic"]);
 
-        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["", null!, "basic"]);
-
-        var token = handler.GenerateString(userWithEmptyModules);
+        var token = _handler.GenerateString(userWithEmptyModules);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -177,11 +166,11 @@ public class GenerateTokenStringHandlerTests
         Assert.Single(moduleClaims);
     }
 
-    private record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId) : GenerateTokenResponse(Id, Name, Email);
 
-    private record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, IEnumerable<string> Roles) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, IEnumerable<string> Roles) : GenerateTokenResponse(Id, Name, Email);
 
-    private record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, IEnumerable<string> Modules) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, IEnumerable<string> Modules) : GenerateTokenResponse(Id, Name, Email);
 
-    private record GenerateTokenResponseWithRolesAndModules(Guid Id, string Name, string Email, IEnumerable<string> Roles, IEnumerable<string> Modules) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithRolesAndModules(Guid Id, string Name, string Email, IEnumerable<string> Roles, IEnumerable<string> Modules) : GenerateTokenResponse(Id, Name, Email);
 }

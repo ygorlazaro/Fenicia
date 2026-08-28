@@ -3,7 +3,6 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
-using Fenicia.Module.Basic.Domains.Supplier;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Services;
@@ -17,9 +16,9 @@ public class SupplierService(SupplierRepository supplierRepository)
         var suppliers = await supplierRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
         var response = suppliers.Select(s =>
-        {
-            var personAddress = s.Person.PersonAddresses.FirstOrDefault();
-            var address = personAddress?.Address;
+    {
+        var personAddress = s.Person.PersonAddresses.FirstOrDefault();
+        var address = personAddress?.Address;
 
             return new GetAllSupplierResponse(
                 s.Id,

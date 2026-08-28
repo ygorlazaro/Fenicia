@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectSubtask;
 
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 

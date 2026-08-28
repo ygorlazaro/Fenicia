@@ -13,8 +13,10 @@ public static class VerifyPasswordExtensions
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
+#pragma warning disable CA1031
         catch (Exception)
         {
+#pragma warning restore CA1031
             return false;
         }
     }

@@ -4,8 +4,7 @@ using System.Text;
 
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Token.DTOs.Queries;
-using Fenicia.Auth.Domains.Token.DTOs.Responses;
+using Fenicia.Auth.Domains.Token.DTOs;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
@@ -53,8 +52,7 @@ public class TokenService(DefaultContext db, IConfiguration configuration, Login
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Expires = DateTime.UtcNow.AddHours(3),
-            SigningCredentials = new SigningCredentials(authSigningKey,
-                SecurityAlgorithms.HmacSha256),
+            SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
             Subject = new ClaimsIdentity(authClaims)
         };
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -62,27 +60,6 @@ public class TokenService(DefaultContext db, IConfiguration configuration, Login
         var finalToken = tokenHandler.WriteToken(token);
 
         return finalToken;
-    }
-
-    private int ValidateAttempts(GenerateTokenQuery query)
-    {
-        if (string.IsNullOrWhiteSpace(query.Password))
-        {
-            throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
-        }
-
-        if (string.IsNullOrWhiteSpace(query.Email))
-        {
-            throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
-        }
-
-        var attempts = loginAttemptService.GetAttempts(query.Email);
-
-        return attempts switch
-        {
-            >= 5 => throw new PermissionDeniedException(ExceptionMessages.TooManyLoginAttempts),
-            _ => attempts
-        };
     }
 
     private static List<Claim> GenerateClaims(GenerateTokenResponse user)
@@ -118,5 +95,26 @@ public class TokenService(DefaultContext db, IConfiguration configuration, Login
         authClaims.AddRange(modulesList.Where(m => !string.IsNullOrEmpty(m)).Select(m => new Claim("module", m ?? string.Empty)));
 
         return authClaims;
+    }
+
+    private int ValidateAttempts(GenerateTokenQuery query)
+    {
+        if (string.IsNullOrWhiteSpace(query.Password))
+        {
+            throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
+        }
+
+        if (string.IsNullOrWhiteSpace(query.Email))
+        {
+            throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
+        }
+
+        var attempts = loginAttemptService.GetAttempts(query.Email);
+
+        return attempts switch
+        {
+            >= 5 => throw new PermissionDeniedException(ExceptionMessages.TooManyLoginAttempts),
+            _ => attempts
+        };
     }
 }

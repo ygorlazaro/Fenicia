@@ -1,4 +1,3 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Data.Repositories;
@@ -11,7 +10,7 @@ public class ProjectRepository(DefaultContext context) : Repository<ProjectModel
     public async Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct = default)
     {
         return await DbSet
-            .Include(p => p.Statuses)
+                .Include(p => p.Statuses)
             .Include(p => p.Tasks)
             .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
     }

@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record ProductPerformanceResponse
 {
-
     public List<BestSellingProductResponse> BestSellingProducts { get; set; } = [];
 
     public List<WorstSellingProductResponse> WorstSellingProducts { get; set; } = [];

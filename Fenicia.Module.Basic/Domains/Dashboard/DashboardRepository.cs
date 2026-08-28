@@ -44,6 +44,7 @@ public class DashboardRepository(DefaultContext context)
                 weekStarts.Add(weekStart);
             }
         }
+
         return weekStarts;
     }
 

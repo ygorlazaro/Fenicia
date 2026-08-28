@@ -1,7 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
 
@@ -21,9 +20,9 @@ public class CustomerService(
         var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
         var response = customers.Select(c =>
-        {
-            var personAddress = c.Person.PersonAddresses.FirstOrDefault();
-            var address = personAddress?.Address;
+    {
+        var personAddress = c.Person.PersonAddresses.FirstOrDefault();
+        var address = personAddress?.Address;
 
             return new GetAllCustomerResponse(
                 c.Id,
@@ -55,7 +54,9 @@ public class CustomerService(
         var customer = await customerRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (customer == null)
-            return null;
+{
+    return null;
+}
 
         var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
@@ -234,9 +235,9 @@ public class CustomerService(
         var orders = await dashboardRepository.GetAtRiskOrdersAsync(ct);
 
         var response = orders.GroupBy(o => o.CustomerId).Select(g =>
-        {
-            var lastOrder = g.Max(o => o.SaleDate);
-            var daysSince = (now - lastOrder).Days;
+    {
+        var lastOrder = g.Max(o => o.SaleDate);
+        var daysSince = (now - lastOrder).Days;
             var riskLevel = daysSince >= query.RiskThresholdDays * 2 ? "High" : daysSince >= query.RiskThresholdDays ? "Medium" : "Low";
 
             return new CustomerRiskAlertResponse(g.Key, g.First().Customer.Person.Name, g.Count(), lastOrder, daysSince, g.Sum(o => o.TotalAmount), riskLevel);

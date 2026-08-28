@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
-using Fenicia.Module.Projects.Domains.Project;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +15,6 @@ namespace Fenicia.Module.Projects.Domains.Project;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectController(ProjectService projectService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

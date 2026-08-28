@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Module.DTOs.Responses;
+using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -21,32 +21,32 @@ namespace Fenicia.Auth.Tests.Domains.Module;
 
 public class ModuleControllerTests : IDisposable
 {
-    private readonly ModuleController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
+    private readonly ModuleController _controller;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
 
     public ModuleControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
+        _db = new DefaultContext(options, new TestCompanyContext());
         var services = new ServiceCollection();
-        services.AddSingleton(db);
+        services.AddSingleton(_db);
         services.AddLogging();
-        services.AddSingleton(new ModuleService(db));
+        services.AddSingleton(new ModuleService(_db));
 
         var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<ModuleService>();
 
         var mockHttpContext = new Mock<HttpContext>();
-        faker = new Faker();
+        _faker = new Faker();
 
-        controller = new ModuleController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        _controller = new ModuleController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -54,12 +54,11 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
     {
-
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -77,11 +76,10 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
-
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m,
             IsActive = true,
@@ -91,21 +89,21 @@ public class ModuleControllerTests : IDisposable
         var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
             Price = 20.0m,
             IsActive = true,
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(module1, module2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(module1, module2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -123,11 +121,10 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
-
         var authModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Auth,
             Price = 50.0m,
             IsActive = true,
@@ -137,21 +134,21 @@ public class ModuleControllerTests : IDisposable
         var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m,
             IsActive = true,
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(authModule, basicModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(authModule, basicModule);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -168,7 +165,6 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_ExcludesInactiveModules()
     {
-
         var activeModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -189,14 +185,14 @@ public class ModuleControllerTests : IDisposable
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(activeModule, inactiveModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(activeModule, inactiveModule);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -213,12 +209,11 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_SetsWideEventContextUserIdToGuest()
     {
-
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await controller.GetAllModulesAsync(query, wide, ct);
+        await _controller.GetAllModulesAsync(query, wide, ct);
 
         Assert.Equal("Guest", wide.UserId);
     }
@@ -226,29 +221,28 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
-
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Name = $"Module {faker.Commerce.ProductName()} {i}",
-                Type = (ModuleType)(i % 10 + 1),
+                Name = $"Module {_faker.Commerce.ProductName()} {i}",
+                Type = (ModuleType)((i % 10) + 1),
                 Price = 10.0m,
                 IsActive = true,
                 SortOrder = i
             });
         }
 
-        db.AuthModules.AddRange(modules);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(modules);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(2, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -267,7 +261,6 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public void ModuleController_HasAuthorizeAttribute()
     {
-
         var controllerType = typeof(ModuleController);
 
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -278,7 +271,6 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public void ModuleController_HasRouteAttribute()
     {
-
         var controllerType = typeof(ModuleController);
 
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
@@ -290,7 +282,6 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public void ModuleController_HasProducesAttribute()
     {
-
         var controllerType = typeof(ModuleController);
 
         var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
@@ -302,7 +293,6 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public void GetAllModulesAsync_HasAllowAnonymousAttribute()
     {
-
         var controllerType = typeof(ModuleController);
         var methodInfo = controllerType.GetMethod(nameof(ModuleController.GetAllModulesAsync));
 

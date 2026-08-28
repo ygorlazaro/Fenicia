@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectTask;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 

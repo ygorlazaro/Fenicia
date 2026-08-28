@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 public record DailySalesSummaryResponse
 {
-
     public decimal TodayRevenue { get; set; }
 
     public int TodayOrders { get; set; }

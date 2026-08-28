@@ -15,7 +15,6 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class DashboardController(DashboardService dashboardService) : ControllerBase
 {
-
     [HttpGet("financial")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

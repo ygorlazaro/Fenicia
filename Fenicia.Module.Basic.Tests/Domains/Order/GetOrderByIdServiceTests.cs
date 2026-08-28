@@ -1,85 +1,69 @@
-using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.Order.DTOs;
-using Fenicia.Module.Basic.Domains.Inventory;
-using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
-using Microsoft.EntityFrameworkCore;
-using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.Inventory;
+using Fenicia.Module.Basic.Domains.Order.DTOs;
+using Fenicia.Module.Basic.Domains.Order;
+using Microsoft.EntityFrameworkCore;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
 
-namespace Fenicia.Module.Basic.Tests.Domains.Order;
-
-public class GetOrderByIdServiceTests : IDisposable
+            {
+            },
+        {
+        };
+    {
+    }
 {
+}
+        Assert.Equal(order.Id, result.Id);
+        Assert.NotNull(result);
+        await db.SaveChangesAsync(CancellationToken.None);
+        companyId = companyContext.CompanyId;
+            CompanyId = companyId
+            Customer = customer,
+            CustomerId = customer.Id,
+        db.BasicCustomers.Add(customer);
+        db.BasicOrders.Add(order);
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+            DiscountAmount = 0,
+                Document = faker.Random.Replace("###.###.###-##"),
+                Email = faker.Internet.Email(),
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+                Id = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
+                Name = faker.Person.FullName,
+namespace Fenicia.Module.Basic.Tests.Domains.Order;
+            OrderNumber = "ORD-001",
+            PaymentMethod = PaymentMethod.Cash,
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly OrderService service;
     private readonly Guid companyId;
-
-    public GetOrderByIdServiceTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var orderRepository = new OrderRepository(db);
-        var orderDetailRepository = new SalesOrderDetailRepository(db);
-        var stockMovementRepository = new StockMovementRepository(db);
-        var productRepository = new ProductRepository(db);
-        service = new OrderService(orderRepository, orderDetailRepository, stockMovementRepository, productRepository);
-        faker = new Faker();
-        companyId = companyContext.CompanyId;
-    }
-
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
+    private readonly OrderService service;
     public async Task GetByIdAsync_WhenOrderExists_ReturnsOrder()
-    {
-        var customer = new CustomerModel
-        {
-            Id = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####")
-            },
-            PersonId = Guid.NewGuid(),
-            CompanyId = companyId
-        };
-        db.BasicCustomers.Add(customer);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            OrderNumber = "ORD-001",
-            UserId = Guid.NewGuid(),
-            CustomerId = customer.Id,
-            TotalAmount = 100,
-            DiscountAmount = 0,
-            TotalQuantity = 1,
+public class GetOrderByIdServiceTests : IDisposable
+    public GetOrderByIdServiceTests()
+    public void Dispose()
             SaleDate = DateTime.UtcNow,
+        service = new OrderService(orderRepository, orderDetailRepository, stockMovementRepository, productRepository);
             Status = OrderStatus.Pending,
-            PaymentMethod = PaymentMethod.Cash,
-            Customer = customer,
-            CompanyId = companyId
-        };
-        db.BasicOrders.Add(order);
-        await db.SaveChangesAsync(CancellationToken.None);
-
+            TotalAmount = 100,
+            TotalQuantity = 1,
+            UserId = Guid.NewGuid(),
+        var companyContext = new TestCompanyContext();
+        var customer = new CustomerModel
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var orderDetailRepository = new SalesOrderDetailRepository(db);
+        var order = new OrderModel
+        var orderRepository = new OrderRepository(db);
+        var productRepository = new ProductRepository(db);
         var result = await service.GetByIdAsync(new GetOrderByIdQuery(order.Id), CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.Equal(order.Id, result.Id);
-    }
-}
+        var stockMovementRepository = new StockMovementRepository(db);

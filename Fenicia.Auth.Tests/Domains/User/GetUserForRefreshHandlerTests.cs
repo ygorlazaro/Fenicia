@@ -1,11 +1,12 @@
 using Bogus;
-
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
@@ -15,13 +16,17 @@ public class GetUserForRefreshHandlerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly UserService userService;
+    private readonly UserRepository userRepository;
+    private readonly UserRoleRepository userRoleRepository;
+    private readonly RoleRepository roleRepository;
+    private readonly CompanyRepository companyRepository;
 
     public GetUserForRefreshHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        userService = new UserService(db);
+        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
         faker = new Faker();
     }
 
@@ -35,7 +40,6 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
-
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -48,7 +52,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
@@ -63,7 +67,6 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
     {
-
         var userId = Guid.NewGuid();
 
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.GetForRefreshAsync(userId, CancellationToken.None));
@@ -73,7 +76,6 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
-
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         const string email1 = "user1@example.com";
@@ -111,7 +113,6 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
     {
-
         var userId = Guid.NewGuid();
 
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.GetForRefreshAsync(userId, CancellationToken.None));
@@ -121,7 +122,6 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_ResponseDoesNotIncludePassword()
     {
-
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -135,7 +135,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = password
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
@@ -147,7 +147,6 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesResponseContainsAllExpectedFields()
     {
-
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -160,7 +159,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);

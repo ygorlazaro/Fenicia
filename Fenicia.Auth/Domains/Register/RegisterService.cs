@@ -1,7 +1,6 @@
+using Fenicia.Auth.Domains.Register.DTOs;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.DTOs.Commands;
-using Fenicia.Auth.Domains.Register.DTOs.Commands;
-using Fenicia.Auth.Domains.Register.DTOs.Responses;
+using Fenicia.Auth.Domains.User.DTOs;
 
 namespace Fenicia.Auth.Domains.Register;
 

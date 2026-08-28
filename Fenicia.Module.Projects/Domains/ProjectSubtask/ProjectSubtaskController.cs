@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectSubtask;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +15,6 @@ namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectSubtaskController(ProjectSubtaskService projectSubtaskService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectSubtaskResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

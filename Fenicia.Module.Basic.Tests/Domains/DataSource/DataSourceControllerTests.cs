@@ -1,69 +1,54 @@
-using Fenicia.Common.Data.Models.Basic;
-using Microsoft.EntityFrameworkCore;
-using Fenicia.Common.Tests;
-using Bogus;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.DataSource;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using System.Security.Claims;
-using Fenicia.Common;
+using Bogus;
 using Fenicia.Common.API;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
+using Fenicia.Common;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Module.Basic.Domains.DataSource;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
-
-public class DataSourceControllerTests : IDisposable
+        
+    {
+    }
 {
+}
+        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.NotNull(authorizeAttribute);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        controller = new DataSourceController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+        mockHttpContext = new Mock<HttpContext>();
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
     private readonly DataSourceController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
-
-    public DataSourceControllerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        
-        var service = new DataSourceService(db);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new DataSourceController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        SetupUserClaims(testUserId);
-        faker = new Faker();
-    }
-
+    private readonly Mock<HttpContext> mockHttpContext;
     private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
-    }
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
     public async Task GetPositionsAsync_ReturnsOkWithEmptyList()
-    {
-        var wide = new WideEventContext();
-        var result = await controller.GetPositionsAsync(wide, CancellationToken.None);
-
-        Assert.IsType<OkObjectResult>(result.Result);
-    }
-
-    [Fact]
+public class DataSourceControllerTests : IDisposable
+    public DataSourceControllerTests()
     public void DataSourceController_HasAuthorizeAttribute()
-    {
+    public void Dispose()
+        SetupUserClaims(testUserId);
+        testUserId = Guid.NewGuid();
         var authorizeAttribute = typeof(DataSourceController).GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
-        Assert.NotNull(authorizeAttribute);
-    }
-}
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var companyContext = new TestCompanyContext();
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var result = await controller.GetPositionsAsync(wide, CancellationToken.None);
+        var service = new DataSourceService(db);
+        var wide = new WideEventContext();

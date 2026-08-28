@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Subscription.DTOs.Responses;
+using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
@@ -28,19 +28,20 @@ public class SubscriptionService(DefaultContext db)
                       join c in db.AuthCompanies on s.CompanyId equals c.Id
                       join ur in db.AuthUserRoles on c.Id equals ur.CompanyId
                       where ur.UserId == userId
-                      select new UserSubscriptionResponse(s.Id,
-                          c.Id,
-                          c.Name,
-                          s.Status,
-                          s.StartDate,
-                          s.EndDate);
+                      select new UserSubscriptionResponse(
+                            s.Id,
+                            c.Id,
+                            c.Name,
+                            s.Status,
+                            s.StartDate,
+                            s.EndDate);
 
         var subscriptions = await request.ToListAsync(ct);
 
         foreach (var subscription in subscriptions)
         {
             var modules = await db.AuthModules
-                .Where(m => m.SubscriptionCredits.Any(sc => sc.SubscriptionId == subscription.Id))
+                    .Where(m => m.SubscriptionCredits.Any(sc => sc.SubscriptionId == subscription.Id))
                 .Select(m => new UserModuleResponse(m.Id, m.Name, m.Type))
                 .ToListAsync(ct);
 
@@ -55,9 +56,10 @@ public class SubscriptionService(DefaultContext db)
         var request = from ur in db.AuthUserRoles
                       join c in db.AuthCompanies on ur.CompanyId equals c.Id
                       where ur.UserId == userId
-                      select new UserCompanyResponse(c.Id,
-                          c.Name,
-                          c.Cnpj);
+                      select new UserCompanyResponse(
+                            c.Id,
+                            c.Name,
+                            c.Cnpj);
 
         var companies = await request.ToListAsync(ct);
 

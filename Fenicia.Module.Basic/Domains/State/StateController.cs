@@ -14,7 +14,6 @@ namespace Fenicia.Module.Basic.Domains.State;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class StateController(StateService stateService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllStateResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -15,7 +15,6 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class DataSourceController(DataSourceService dataSourceService) : ControllerBase
 {
-
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

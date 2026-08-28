@@ -14,10 +14,10 @@ public static class FeniciaLocalizationExtensions
         builder.Services.AddLocalization();
 
         builder.Services.Configure<RequestLocalizationOptions>(options =>
-        {
-            var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("pt-BR"), new CultureInfo("es-ES") };
+    {
+        var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("pt-BR"), new CultureInfo("es-ES") };
 
-            options.DefaultRequestCulture = new RequestCulture("en-US");
+        options.DefaultRequestCulture = new RequestCulture("en-US");
             options.SupportedCultures = supportedCultures;
             options.SupportedUICultures = supportedCultures;
 

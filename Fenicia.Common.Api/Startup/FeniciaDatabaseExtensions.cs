@@ -13,7 +13,7 @@ public static class FeniciaDatabaseExtensions
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            throw new Exception("Connection string inválida");
+            throw new InvalidOperationException("Connection string inválida");
         }
 
         builder.Services.AddDbContextPool<TContext>(o => o.UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationAssembly)).EnableSensitiveDataLogging().UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).UseSnakeCaseNamingConvention());

@@ -1,62 +1,50 @@
-using Fenicia.Common;
+using System.Security.Claims;
+using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Tests;
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Bogus;
-using System.Security.Claims;
 
-namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;
-
-public class DashboardControllerTests : IDisposable
+        
+    {
+    }
 {
+}
+        Assert.IsType<OkObjectResult>(result.Result);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        controller = new DashboardController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+        mockHttpContext = new Mock<HttpContext>();
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;
     private readonly DashboardController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
-
-    public DashboardControllerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var dashboardRepository = new DashboardRepository(db);
-        var service = new DashboardService(dashboardRepository);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new DashboardController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        SetupUserClaims(testUserId);
-        faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task GetFinancialDashboardAsync_ReturnsOk()
-    {
-        var wide = new WideEventContext();
-        
-        var result = await controller.GetFinancialDashboardAsync(wide, 90, CancellationToken.None);
-        
-        Assert.IsType<OkObjectResult>(result.Result);
-    }
-
+    private readonly Mock<HttpContext> mockHttpContext;
     private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
+    public async Task GetFinancialDashboardAsync_ReturnsOk()
+public class DashboardControllerTests : IDisposable
+    public DashboardControllerTests()
+    public void Dispose()
+        SetupUserClaims(testUserId);
+        testUserId = Guid.NewGuid();
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
-    }
-}
+        var companyContext = new TestCompanyContext();
+        var dashboardRepository = new DashboardRepository(db);
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var result = await controller.GetFinancialDashboardAsync(wide, 90, CancellationToken.None);
+        var service = new DashboardService(dashboardRepository);
+        var wide = new WideEventContext();

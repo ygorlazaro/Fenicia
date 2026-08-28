@@ -12,22 +12,22 @@ namespace Fenicia.Auth.Tests.Domains.Module;
 
 public class ModuleServiceTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly ModuleService service;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly ModuleService _service;
 
     public ModuleServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        service = new ModuleService(db);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _service = new ModuleService(_db);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -38,7 +38,7 @@ public class ModuleServiceTests : IDisposable
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m,
             IsActive = true,
@@ -48,17 +48,17 @@ public class ModuleServiceTests : IDisposable
         var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
             Price = 20.0m,
             IsActive = true,
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(module1, module2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(module1, module2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
@@ -73,7 +73,7 @@ public class ModuleServiceTests : IDisposable
         var authModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Auth,
             Price = 50.0m,
             IsActive = true,
@@ -83,17 +83,17 @@ public class ModuleServiceTests : IDisposable
         var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m,
             IsActive = true,
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(authModule, basicModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(authModule, basicModule);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -124,10 +124,10 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(activeModule, inactiveModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(activeModule, inactiveModule);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -143,18 +143,18 @@ public class ModuleServiceTests : IDisposable
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Name = $"Module {faker.Commerce.ProductName()} {i}",
-                Type = (ModuleType)(i % 10 + 1),
+                Name = $"Module {_faker.Commerce.ProductName()} {i}",
+                Type = (ModuleType)((i % 10) + 1),
                 Price = 10.0m,
                 IsActive = true,
                 SortOrder = i
             });
         }
 
-        db.AuthModules.AddRange(modules);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(modules);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(2, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(2, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
@@ -167,7 +167,7 @@ public class ModuleServiceTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsEmptyPagination()
     {
-        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result.Data);
@@ -187,10 +187,10 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 1
         };
 
-        db.AuthModules.Add(module);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(10, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(10, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result.Data);
@@ -230,10 +230,10 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 2
         };
 
-        db.AuthModules.AddRange(module1, module2, module3);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(module1, module2, module3);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(3, result.Data.Count);
@@ -251,17 +251,17 @@ public class ModuleServiceTests : IDisposable
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m,
             IsActive = true,
             SortOrder = 1
         };
 
-        db.AuthModules.Add(module);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(1, 20, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 20, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(1, result.Page);
@@ -279,7 +279,7 @@ public class ModuleServiceTests : IDisposable
         var module = new ModuleModel
         {
             Id = moduleId,
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m,
             Description = description,
@@ -288,10 +288,10 @@ public class ModuleServiceTests : IDisposable
             SortOrder = sortOrder
         };
 
-        db.AuthModules.Add(module);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotEmpty(result.Data);
@@ -355,13 +355,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);
@@ -376,7 +376,7 @@ public class ModuleServiceTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -431,13 +431,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -492,13 +492,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -553,13 +553,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -631,13 +631,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.AddRange(module1, module2);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.AddRange(module1, module2);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
@@ -692,13 +692,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -761,13 +761,13 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
+        var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);

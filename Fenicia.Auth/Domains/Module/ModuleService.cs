@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Module.DTOs.Responses;
+using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
@@ -12,8 +12,9 @@ public class ModuleService(DefaultContext db)
     public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken ct)
     {
         var request = db.AuthModules.Where(m => m.Type != ModuleType.Auth && m.IsActive)
-            .OrderBy(m => m.SortOrder)
-            .Select(m => new GetModuleResponse(m.Id,
+                .OrderBy(m => m.SortOrder)
+            .Select(m => new GetModuleResponse(
+                m.Id,
                 m.Name,
                 m.Type,
                 m.Description,
@@ -45,7 +46,8 @@ public class ModuleService(DefaultContext db)
                           sc.IsActive &&
                           now >= sc.StartDate &&
                           now <= sc.EndDate
-                    select new GetUserModulesResponse(m.Id,
+                    select new GetUserModulesResponse(
+                        m.Id,
                         m.Name,
                         m.Type);
 
