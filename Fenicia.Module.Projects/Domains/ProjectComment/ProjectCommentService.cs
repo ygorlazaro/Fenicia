@@ -1,20 +1,20 @@
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Fenicia.Common.Data.Models.ProjectModels;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectComment;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment;
 
-public class ProjectCommentService(DefaultContext db)
+public class ProjectCommentService(ProjectCommentRepository repository)
 {
     public async Task<List<GetAllProjectCommentResponse>> GetAllAsync(GetAllProjectCommentQuery query, CancellationToken ct)
     {
-        return await db.ProjectComments.Select(pc => new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var comments = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return comments.Select(pc => new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId)).ToList();
     }
 
     public async Task<GetProjectCommentByIdResponse?> GetByIdAsync(GetProjectCommentByIdQuery query, CancellationToken ct)
     {
-        var projectComment = await db.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == query.Id, ct);
+        var projectComment = await repository.GetByIdAsync(query.Id, ct);
 
         return projectComment switch
         {
@@ -23,54 +23,38 @@ public class ProjectCommentService(DefaultContext db)
         };
     }
 
-    public async Task<AddProjectCommentResponse> AddAsync(AddProjectCommentCommand command, CancellationToken ct)
+    public async Task<AddProjectCommentResponse> AddAsync(AddProjectCommentCommand command, Guid companyId, CancellationToken ct)
     {
         var projectComment = new ProjectCommentModel
         {
             Id = command.Id,
             TaskId = command.TaskId,
             UserId = command.UserId,
-            Content = command.Content
+            Content = command.Content,
+            CompanyId = companyId
         };
 
-        db.ProjectComments.Add(projectComment);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AddProjectCommentResponse(projectComment.Id, projectComment.TaskId, projectComment.UserId, projectComment.Content, projectComment.CompanyId);
+        var created = await repository.InsertAsync(projectComment, ct);
+        return new AddProjectCommentResponse(created.Id, created.TaskId, created.UserId, created.Content, created.CompanyId);
     }
 
-    public async Task<UpdateProjectCommentResponse?> UpdateAsync(UpdateProjectCommentCommand command, CancellationToken ct)
+    public async Task<UpdateProjectCommentResponse?> UpdateAsync(UpdateProjectCommentCommand command, Guid companyId, CancellationToken ct)
     {
-        var projectComment = await db.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == command.Id, ct);
-
-        if (projectComment is null)
+        var existing = await repository.GetByIdAsync(command.Id, ct);
+        if (existing is null)
         {
             return null;
         }
 
-        projectComment.Content = command.Content;
+        existing.Content = command.Content;
+        existing.CompanyId = companyId;
 
-        db.ProjectComments.Update(projectComment);
-
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateProjectCommentResponse(projectComment.Id, projectComment.TaskId, projectComment.UserId, projectComment.Content, projectComment.CompanyId);
+        var updated = await repository.UpdateAsync(command.Id, existing, ct);
+        return updated is null ? null : new UpdateProjectCommentResponse(updated.Id, updated.TaskId, updated.UserId, updated.Content, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectCommentCommand command, CancellationToken ct)
     {
-        var projectComment = await db.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == command.Id, ct);
-
-        if (projectComment is null)
-        {
-            return;
-        }
-
-        projectComment.Deleted = DateTime.UtcNow;
-
-        db.ProjectComments.Update(projectComment);
-
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }

@@ -22,16 +22,19 @@ public class ProjectCommentControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public ProjectCommentControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        var service = new ProjectCommentService(db);
+        var repository = new ProjectCommentRepository(db);
+        var service = new ProjectCommentService(repository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new ProjectCommentController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }
