@@ -26,109 +26,11 @@ const ProjectCommentList = React.lazy(() => import("./template/project/comment")
 const ProjectAttachmentList = React.lazy(() => import("./template/project/attachment"));
 const ProjectTaskAssigneeList = React.lazy(() => import("./template/project/task-assignee"));
 const Dashboard = React.lazy(() => import("./views/dashboard"));
-const Colors = React.lazy(() => import("./template/theme/colors/Colors"));
-const Typography = React.lazy(() => import("./template/theme/typography/Typography"));
 const Orders = React.lazy(() => import("./views/basic/order"));
-
-// Base
-const Accordion = React.lazy(() => import("./template/base/accordion/Accordion"));
-const Breadcrumbs = React.lazy(() => import("./template/base/breadcrumbs/Breadcrumbs"));
-const Cards = React.lazy(() => import("./template/base/cards/Cards"));
-const Carousels = React.lazy(() => import("./template/base/carousels/Carousels"));
-const Collapses = React.lazy(() => import("./template/base/collapses/Collapses"));
-const ListGroups = React.lazy(() => import("./template/base/list-groups/ListGroups"));
-const Navs = React.lazy(() => import("./template/base/navs/Navs"));
-const Paginations = React.lazy(() => import("./template/base/paginations/Paginations"));
-const Placeholders = React.lazy(() => import("./template/base/placeholders/Placeholders"));
-const Popovers = React.lazy(() => import("./template/base/popovers/Popovers"));
-const Progress = React.lazy(() => import("./template/base/progress/Progress"));
-const Spinners = React.lazy(() => import("./template/base/spinners/Spinners"));
-const Tabs = React.lazy(() => import("./template/base/tabs/Tabs"));
-const Tables = React.lazy(() => import("./template/base/tables/Tables"));
-const Tooltips = React.lazy(() => import("./template/base/tooltips/Tooltips"));
-
-// Buttons
-const Buttons = React.lazy(() => import("./template/buttons/buttons/Buttons"));
-const ButtonGroups = React.lazy(() => import("./template/buttons/button-groups/ButtonGroups"));
-const Dropdowns = React.lazy(() => import("./template/buttons/dropdowns/Dropdowns"));
-
-//Forms
-const ChecksRadios = React.lazy(() => import("./template/forms/checks-radios/ChecksRadios"));
-const FloatingLabels = React.lazy(() => import("./template/forms/floating-labels/FloatingLabels"));
-const FormControl = React.lazy(() => import("./template/forms/form-control/FormControl"));
-const InputGroup = React.lazy(() => import("./template/forms/input-group/InputGroup"));
-const Layout = React.lazy(() => import("./template/forms/layout/Layout"));
-const Range = React.lazy(() => import("./template/forms/range/Range"));
-const Select = React.lazy(() => import("./template/forms/select/Select"));
-const Validation = React.lazy(() => import("./template/forms/validation/Validation"));
-
-const Charts = React.lazy(() => import("./template/charts/Charts"));
-
-// Icons
-const CoreUIIcons = React.lazy(() => import("./template/icons/coreui-icons/CoreUIIcons"));
-const Flags = React.lazy(() => import("./template/icons/flags/Flags"));
-const Brands = React.lazy(() => import("./template/icons/brands/Brands"));
-
-// Notifications
-const Alerts = React.lazy(() => import("./template/notifications/alerts/Alerts"));
-const Badges = React.lazy(() => import("./template/notifications/badges/Badges"));
-const Modals = React.lazy(() => import("./template/notifications/modals/Modals"));
-const Toasts = React.lazy(() => import("./template/notifications/toasts/Toasts"));
-
-const Widgets = React.lazy(() => import("./template/widgets/Widgets"));
 
 const routes = [
     { path: "/", exact: true, name: "Home" },
     { path: "/dashboard", name: "Dashboard", element: Dashboard },
-    { path: "/theme", name: "Theme", element: Colors, exact: true },
-    { path: "/theme/colors", name: "Colors", element: Colors },
-    { path: "/theme/typography", name: "Typography", element: Typography },
-    { path: "/base", name: "Base", element: Cards, exact: true },
-    { path: "/base/accordion", name: "Accordion", element: Accordion },
-    { path: "/base/breadcrumbs", name: "Breadcrumbs", element: Breadcrumbs },
-    { path: "/base/cards", name: "Cards", element: Cards },
-    { path: "/base/carousels", name: "Carousel", element: Carousels },
-    { path: "/base/collapses", name: "Collapse", element: Collapses },
-    { path: "/base/list-groups", name: "List Groups", element: ListGroups },
-    { path: "/base/navs", name: "Navs", element: Navs },
-    { path: "/base/paginations", name: "Paginations", element: Paginations },
-    { path: "/base/placeholders", name: "Placeholders", element: Placeholders },
-    { path: "/base/popovers", name: "Popovers", element: Popovers },
-    { path: "/base/progress", name: "Progress", element: Progress },
-    { path: "/base/spinners", name: "Spinners", element: Spinners },
-    { path: "/base/tabs", name: "Tabs", element: Tabs },
-    { path: "/base/tables", name: "Tables", element: Tables },
-    { path: "/base/tooltips", name: "Tooltips", element: Tooltips },
-    { path: "/buttons", name: "Buttons", element: Buttons, exact: true },
-    { path: "/buttons/buttons", name: "Buttons", element: Buttons },
-    { path: "/buttons/dropdowns", name: "Dropdowns", element: Dropdowns },
-    {
-        path: "/buttons/button-groups",
-        name: "Button Groups",
-        element: ButtonGroups
-    },
-    { path: "/charts", name: "Charts", element: Charts },
-    { path: "/forms", name: "Forms", element: FormControl, exact: true },
-    { path: "/forms/form-control", name: "Form Control", element: FormControl },
-    { path: "/forms/select", name: "Select", element: Select },
-    {
-        path: "/forms/checks-radios",
-        name: "Checks & Radios",
-        element: ChecksRadios
-    },
-    { path: "/forms/range", name: "Range", element: Range },
-    { path: "/forms/input-group", name: "Input Group", element: InputGroup },
-    {
-        path: "/forms/floating-labels",
-        name: "Floating Labels",
-        element: FloatingLabels
-    },
-    { path: "/forms/layout", name: "Layout", element: Layout },
-    { path: "/forms/validation", name: "Validation", element: Validation },
-    { path: "/icons", exact: true, name: "Icons", element: CoreUIIcons },
-    { path: "/icons/fenicia-icons", name: "Fenicia Icons", element: CoreUIIcons },
-    { path: "/icons/flags", name: "Flags", element: Flags },
-    { path: "/icons/brands", name: "Brands", element: Brands },
     {
         path: "/notifications",
         name: "Notifications",
@@ -140,11 +42,6 @@ const routes = [
         name: "Notification Details",
         element: NotificationDetail
     },
-    { path: "/notifications/alerts", name: "Alerts", element: Alerts },
-    { path: "/notifications/badges", name: "Badges", element: Badges },
-    { path: "/notifications/modals", name: "Modals", element: Modals },
-    { path: "/notifications/toasts", name: "Toasts", element: Toasts },
-    { path: "/widgets", name: "Widgets", element: Widgets },
     { path: "/auth/login", name: "Login", element: AuthLogin },
     { path: "/auth/register", name: "Register", element: AuthRegister },
     { path: "/auth/company", name: "Company Selection", element: AuthCompany },
