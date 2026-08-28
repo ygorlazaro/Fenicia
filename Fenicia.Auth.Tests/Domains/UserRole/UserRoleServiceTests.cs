@@ -23,6 +23,9 @@ public class UserRoleServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        companyRepository = new CompanyRepository(_db);
         _service = new UserRoleService(_userRoleRepository);
         _faker = new Faker();
     }

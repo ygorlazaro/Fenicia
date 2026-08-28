@@ -14,16 +14,26 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(DefaultContext db, IConfiguration configuration, LoginAttemptService loginAttemptService)
+public class TokenService
 {
+    private readonly DefaultContext _db;
+    private readonly IConfiguration _configuration;
+    private readonly LoginAttemptService _loginAttemptService;
+
+    public TokenService(DefaultContext db, IConfiguration configuration, LoginAttemptService loginAttemptService)
+    {
+        _db = db;
+        _configuration = configuration;
+        _loginAttemptService = loginAttemptService;
+    }
     public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken ct)
     {
         var attempts = ValidateAttempts(query);
-        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var user = await _db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
 
         if (user is null)
         {
-            await loginAttemptService.IncrementAsync(query.Email, ct);
+            await _loginAttemptService.IncrementAsync(query.Email, ct);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
@@ -33,12 +43,12 @@ public class TokenService(DefaultContext db, IConfiguration configuration, Login
 
         if (isValidPassword)
         {
-            await loginAttemptService.ResetAsync(query.Email, ct);
+            await _loginAttemptService.ResetAsync(query.Email, ct);
 
             return new GenerateTokenResponse(user.Id, user.Name, user.Email);
         }
 
-        await loginAttemptService.IncrementAsync(query.Email, ct);
+        await _loginAttemptService.IncrementAsync(query.Email, ct);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
@@ -46,7 +56,7 @@ public class TokenService(DefaultContext db, IConfiguration configuration, Login
 
     public virtual string GenerateString(GenerateTokenResponse user)
     {
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+        var key = Encoding.ASCII.GetBytes( _configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
         var authSigningKey = new SymmetricSecurityKey(key);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -109,7 +119,7 @@ public class TokenService(DefaultContext db, IConfiguration configuration, Login
             throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
         }
 
-        var attempts = loginAttemptService.GetAttempts(query.Email);
+        var attempts = _loginAttemptService.GetAttempts(query.Email);
 
         return attempts switch
         {

@@ -29,6 +29,10 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
+        userRepository = new UserRepository(db);
+        userRoleRepository = new UserRoleRepository(db);
+        roleRepository = new RoleRepository(db);
+        companyRepository = new CompanyRepository(db);
         userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
         faker = new Faker();
 
