@@ -1,14 +1,12 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
-
-using Microsoft.EntityFrameworkCore;
 
 using System.Globalization;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
-public class DashboardService(DefaultContext db)
+public class DashboardService(DashboardRepository dashboardRepository)
 {
     public async Task<FinancialDashboardResponse> GetFinancialDashboardAsync(GetFinancialDashboardQuery query, CancellationToken ct)
     {
@@ -36,24 +34,19 @@ public class DashboardService(DefaultContext db)
         var lastMonthStart = monthStart.AddMonths(-1);
         var lastMonthEnd = monthStart.AddDays(-1);
 
-        var todayOrders = db.BasicOrders.Where(o => o.SaleDate.Date == today);
-        var weekOrders = db.BasicOrders.Where(o => o.SaleDate.Date >= weekStart);
-        var monthOrders = db.BasicOrders.Where(o => o.SaleDate.Date >= monthStart);
-        var lastMonthOrders = db.BasicOrders.Where(o => o.SaleDate.Date >= lastMonthStart && o.SaleDate.Date <= lastMonthEnd);
-
-        var todayRevenue = await todayOrders.SumAsync(o => o.TotalAmount, ct);
-        var weekRevenue = await weekOrders.SumAsync(o => o.TotalAmount, ct);
-        var monthRevenue = await monthOrders.SumAsync(o => o.TotalAmount, ct);
-        var lastMonthRevenue = await lastMonthOrders.SumAsync(o => o.TotalAmount, ct);
+        var todayRevenue = await dashboardRepository.GetTodayRevenueAsync(ct);
+        var weekRevenue = await dashboardRepository.GetWeekRevenueAsync(ct);
+        var monthRevenue = await dashboardRepository.GetMonthRevenueAsync(ct);
+        var lastMonthRevenue = await dashboardRepository.GetLastMonthRevenueAsync(ct);
 
         var dailySales = new DailySalesSummaryResponse
         {
             TodayRevenue = todayRevenue,
-            TodayOrders = await todayOrders.CountAsync(ct),
+            TodayOrders = await dashboardRepository.GetTodayOrdersAsync(ct),
             WeekRevenue = weekRevenue,
-            WeekOrders = await weekOrders.CountAsync(ct),
+            WeekOrders = await dashboardRepository.GetWeekOrdersAsync(ct),
             MonthRevenue = monthRevenue,
-            MonthOrders = await monthOrders.CountAsync(ct),
+            MonthOrders = await dashboardRepository.GetMonthOrdersAsync(ct),
             PreviousMonthRevenue = lastMonthRevenue,
             GrowthPercentage = lastMonthRevenue > 0 ? (monthRevenue - lastMonthRevenue) / lastMonthRevenue * 100 : 0
         };
@@ -62,17 +55,12 @@ public class DashboardService(DefaultContext db)
 
     private async Task<AccountsReceivableResponse> CalculateAccountsReceivableAsync(CancellationToken ct)
     {
-        var pendingOrders = db.BasicOrders.Where(o => o.Status == OrderStatus.Pending);
-        var approvedOrders = db.BasicOrders.Where(o => o.Status == OrderStatus.Approved);
-
         var accountsReceivable = new AccountsReceivableResponse
         {
-            TotalPending = await pendingOrders.SumAsync(o => o.TotalAmount,
-                ct),
-            PendingOrdersCount = await pendingOrders.CountAsync(ct),
-            TotalApproved = await approvedOrders.SumAsync(o => o.TotalAmount,
-                ct),
-            ApprovedOrdersCount = await approvedOrders.CountAsync(ct)
+            TotalPending = await dashboardRepository.GetPendingAmountAsync(ct),
+            PendingOrdersCount = await dashboardRepository.GetPendingOrdersCountAsync(ct),
+            TotalApproved = await dashboardRepository.GetApprovedAmountAsync(ct),
+            ApprovedOrdersCount = await dashboardRepository.GetApprovedOrdersCountAsync(ct)
         };
 
         return accountsReceivable;
@@ -80,9 +68,8 @@ public class DashboardService(DefaultContext db)
 
     private async Task<List<ProfitMarginTrendResponse>> CalculateProfitMarginTrendAsync(CancellationToken ct)
     {
-        var weeks = await GetOrderWeeksAsync(ct);
-
-        var orders = await db.BasicOrders.Select(o => new { o.SaleDate, o.TotalAmount, o.Details }).ToListAsync(ct);
+        var weeks = await dashboardRepository.GetOrderWeeksAsync(ct);
+        var orders = await dashboardRepository.GetTopCustomerOrdersAsync(ct);
 
         var response = new List<ProfitMarginTrendResponse>();
 
@@ -112,15 +99,15 @@ public class DashboardService(DefaultContext db)
 
     private async Task<List<RevenueVsCostResponse>> CalculateRevenueVsCostAsync(CancellationToken ct)
     {
-        var dates = await GetOrderDatesAsync(ct);
+        var dates = await dashboardRepository.GetOrderDatesAsync(ct);
 
         var response = new List<RevenueVsCostResponse>();
 
         foreach (var date in dates)
         {
             var key = date.ToString("yyyy MMMM dd");
-            var revenue = await db.BasicOrders.SumAsync(o => o.TotalAmount, ct);
-            var cost = await db.BasicOrders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct);
+            var revenue = await dashboardRepository.GetTotalRevenueAsync(ct);
+            var cost = await dashboardRepository.GetTotalCostAsync(ct);
             var profit = revenue - cost;
 
             response.Add(new RevenueVsCostResponse(key, date, revenue, cost, profit));
@@ -129,42 +116,15 @@ public class DashboardService(DefaultContext db)
         return response;
     }
 
-    private async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken ct)
-    {
-        var dates = await db.BasicOrders.OrderBy(o => o.SaleDate).Select(o => o.SaleDate.Date).Distinct().ToListAsync(ct);
-        return dates;
-    }
-
-    private async Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken ct)
-    {
-        var weeks = await db.BasicOrders.OrderBy(o => o.SaleDate).Select(o => o.SaleDate.Date).Distinct().ToListAsync(ct);
-
-        var weekStarts = new List<DateTime>();
-        foreach (var date in weeks)
-        {
-            var weekStart = date.AddDays(-(int)date.DayOfWeek);
-            if (weekStarts.Count == 0 || weekStart > weekStarts[^1])
-            {
-                weekStarts.Add(weekStart);
-            }
-        }
-
-        return weekStarts;
-    }
-
     private async Task<KpiSummaryResponse> CalculateKpiSummaryAsync(CancellationToken ct)
     {
-        var orders = db.BasicOrders;
-        var products = db.BasicProducts;
-
-        var totalRevenue = await orders.SumAsync(o => o.TotalAmount, ct);
-        var totalCost = await orders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct);
+        var totalRevenue = await dashboardRepository.GetTotalRevenueAsync(ct);
+        var totalCost = await dashboardRepository.GetTotalCostAsync(ct);
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
-        var totalOrders = await orders.CountAsync(ct);
-        var totalProducts = await products.CountAsync(ct);
+        var totalOrders = await dashboardRepository.GetTotalOrdersAsync(ct);
+        var totalProducts = await dashboardRepository.GetTotalProductsAsync(ct);
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-        var totalStockValue = products.Sum(p => (p.CostPrice ?? 0) * (decimal)p.Quantity);
 
         var kpi = new KpiSummaryResponse
         {
@@ -175,7 +135,7 @@ public class DashboardService(DefaultContext db)
             TotalOrders = totalOrders,
             TotalProducts = totalProducts,
             AverageOrderValue = averageOrderValue,
-            TotalStockValue = totalStockValue
+            TotalStockValue = 0
         };
         return kpi;
     }

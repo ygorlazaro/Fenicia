@@ -1,27 +1,24 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
-
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Dashboard;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
-public class CustomerService(DefaultContext db)
+public class CustomerService(
+    CustomerRepository customerRepository,
+    PersonRepository personRepository,
+    AddressRepository addressRepository,
+    PersonAddressRepository personAddressRepository,
+    DashboardRepository dashboardRepository)
 {
     public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken ct)
     {
-        var total = await db.BasicCustomers.CountAsync(ct);
+        var total = await customerRepository.CountAsync(ct);
 
-        var customers = await db.BasicCustomers
-            .Include(c => c.Person)
-            .Include(c => c.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(ct);
+        var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
         var response = customers.Select(c =>
         {
@@ -55,12 +52,7 @@ public class CustomerService(DefaultContext db)
 
     public async Task<GetCustomerByIdResponse?> GetByIdAsync(GetCustomerByIdQuery query, CancellationToken ct)
     {
-        var customer = await db.BasicCustomers
-            .Include(c => c.Person)
-            .Include(c => c.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .FirstOrDefaultAsync(c => c.Id == query.Id, ct);
+        var customer = await customerRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (customer == null)
             return null;
@@ -90,7 +82,7 @@ public class CustomerService(DefaultContext db)
         );
     }
 
-    public async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, CancellationToken ct)
+    public async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken ct)
     {
         var person = new PersonModel
         {
@@ -98,7 +90,8 @@ public class CustomerService(DefaultContext db)
             Name = command.Name,
             Email = command.Email,
             Document = command.Document,
-            PhoneNumber = command.PhoneNumber
+            PhoneNumber = command.PhoneNumber,
+            CompanyId = companyId
         };
 
         AddressModel? address = null;
@@ -117,7 +110,7 @@ public class CustomerService(DefaultContext db)
                 City = command.Address.City,
                 Country = command.Address.Country
             };
-            db.AuthAddresses.Add(address);
+            await addressRepository.InsertAsync(address, ct);
         }
 
         var customer = new CustomerModel
@@ -134,23 +127,18 @@ public class CustomerService(DefaultContext db)
                 PersonId = person.Id,
                 AddressId = address.Id
             };
-            db.BasicPersonAddresses.Add(personAddress);
+            await personAddressRepository.InsertAsync(personAddress, ct);
         }
 
-        db.BasicCustomers.Add(customer);
+        await personRepository.InsertAsync(person, ct);
+        var created = await customerRepository.InsertAsync(customer, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        return new AddCustomerResponse(customer.Id, person.Id);
+        return new AddCustomerResponse(created.Id, person.Id);
     }
 
-    public async Task<UpdateCustomerResponse?> UpdateAsync(UpdateCustomerCommand command, CancellationToken ct)
+    public async Task<UpdateCustomerResponse?> UpdateAsync(UpdateCustomerCommand command, Guid companyId, CancellationToken ct)
     {
-        var customer = await db.BasicCustomers
-            .Include(c => c.Person)
-            .Include(c => c.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-            .FirstOrDefaultAsync(c => c.Id == command.Id, ct);
+        var customer = await customerRepository.GetByIdWithDetailsAsync(command.Id, ct);
 
         if (customer is null)
         {
@@ -176,6 +164,7 @@ public class CustomerService(DefaultContext db)
                 existingPersonAddress.Address.StateId = command.Address.StateId;
                 existingPersonAddress.Address.City = command.Address.City;
                 existingPersonAddress.Address.Country = command.Address.Country;
+                await addressRepository.UpdateAsync(existingPersonAddress.Address.Id, existingPersonAddress.Address, ct);
             }
             else
             {
@@ -191,7 +180,7 @@ public class CustomerService(DefaultContext db)
                     City = command.Address.City,
                     Country = command.Address.Country
                 };
-                db.AuthAddresses.Add(newAddress);
+                await addressRepository.InsertAsync(newAddress, ct);
 
                 var newPersonAddress = new PersonAddressModel
                 {
@@ -199,20 +188,19 @@ public class CustomerService(DefaultContext db)
                     PersonId = customer.PersonId,
                     AddressId = newAddress.Id
                 };
-                db.BasicPersonAddresses.Add(newPersonAddress);
+                await personAddressRepository.InsertAsync(newPersonAddress, ct);
             }
         }
 
-        db.BasicCustomers.Update(customer);
+        await personRepository.UpdateAsync(customer.Person.Id, customer.Person, ct);
+        var updated = await customerRepository.UpdateAsync(command.Id, customer, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateCustomerResponse(customer.Id, customer.PersonId);
+        return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
 
     public async Task DeleteAsync(DeleteCustomerCommand command, CancellationToken ct)
     {
-        var customer = await db.BasicCustomers.FirstOrDefaultAsync(c => c.Id == command.Id, ct);
+        var customer = await customerRepository.GetByIdAsync(command.Id, ct);
 
         if (customer is null)
         {
@@ -221,9 +209,7 @@ public class CustomerService(DefaultContext db)
 
         customer.Deleted = DateTime.Now;
 
-        db.BasicCustomers.Update(customer);
-
-        await db.SaveChangesAsync(ct);
+        await customerRepository.UpdateAsync(command.Id, customer, ct);
     }
 
     public async Task<CustomerInsightsResponse> GetInsightsAsync(GetCustomerInsightsQuery query, CancellationToken ct)
@@ -245,8 +231,7 @@ public class CustomerService(DefaultContext db)
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(GetCustomerInsightsQuery query, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
-
-        var orders = await db.BasicOrders.Include(o => o.Customer).ThenInclude(c => c.Person).ToListAsync(ct);
+        var orders = await dashboardRepository.GetAtRiskOrdersAsync(ct);
 
         var response = orders.GroupBy(o => o.CustomerId).Select(g =>
         {
@@ -262,7 +247,7 @@ public class CustomerService(DefaultContext db)
 
     private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
     {
-        var orders = await db.BasicOrders.Include(o => o.Customer).ThenInclude(c => c.Person).Include(o => o.Details).OrderByDescending(o => o.SaleDate).Take(topLimit * 2).ToListAsync(ct);
+        var orders = await dashboardRepository.GetRecentOrdersAsync(topLimit, ct);
 
         var response = orders.Take(topLimit).Select(o => new CustomerRecentOrdersResponse(o.Id, o.CustomerId, o.Customer.Person.Name, o.TotalAmount, o.SaleDate, o.Status.ToString(), o.Details.Sum(d => (int)d.Quantity))).ToList();
 
@@ -271,7 +256,7 @@ public class CustomerService(DefaultContext db)
 
     private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(int topLimit, CancellationToken ct)
     {
-        var orders = await db.BasicOrders.Include(o => o.Customer).ThenInclude(c => c.Person).Include(o => o.Details).ToListAsync(ct);
+        var orders = await dashboardRepository.GetTopCustomerOrdersAsync(ct);
 
         var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g => new CustomerOrderHistoryResponse(g.Key.CustomerId, g.Key.CustomerName, g.Count(), g.Sum(o => o.TotalAmount), g.Sum(o => o.Details.Sum(d => (int)d.Quantity)), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate), g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent).Take(topLimit).ToList();
 
@@ -280,10 +265,15 @@ public class CustomerService(DefaultContext db)
 
     private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken ct)
     {
-        var totalCustomers = await db.BasicCustomers.CountAsync(ct);
-        var totalOrders = await db.BasicOrders.CountAsync(ct);
-        var totalRevenue = await db.BasicOrders.SumAsync(o => o.TotalAmount, ct);
-        var averageOrderValue = totalRevenue / (totalOrders > 0 ? totalOrders : 1);
+        var totalCustomers = await customerRepository.CountAsync(ct);
+        var totalOrders = await dashboardRepository.GetTotalOrdersAsync(ct);
+        var totalRevenue = await dashboardRepository.GetTotalRevenueAsync(ct);
+        var totalProducts = await dashboardRepository.GetTotalProductsAsync(ct);
+        var totalCost = await dashboardRepository.GetTotalCostAsync(ct);
+        var grossProfit = totalRevenue - totalCost;
+        var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
+        var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+        var totalStockValue = totalProducts * 0;
 
         var summary = new CustomerSummaryResponse
         {

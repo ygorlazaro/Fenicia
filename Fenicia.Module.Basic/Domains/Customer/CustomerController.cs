@@ -69,7 +69,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await customerService.AddAsync(command, ct);
+            var customer = await customerService.AddAsync(command, ClaimReader.UserId(User), ct);
 
             return new CreatedResult(string.Empty, customer);
         }
@@ -91,7 +91,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await customerService.UpdateAsync(command with { Id = id }, ct);
+            var customer = await customerService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
             return customer switch
             {

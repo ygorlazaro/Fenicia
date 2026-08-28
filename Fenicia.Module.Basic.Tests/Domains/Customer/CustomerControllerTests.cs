@@ -4,6 +4,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Dashboard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Fenicia.Common;
@@ -22,17 +23,23 @@ public class CustomerControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public CustomerControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        
-        var service = new CustomerService(db);
+        var customerRepository = new CustomerRepository(db);
+        var personRepository = new PersonRepository(db);
+        var addressRepository = new AddressRepository(db);
+        var personAddressRepository = new PersonAddressRepository(db);
+        var dashboardRepository = new DashboardRepository(db);
+        var service = new CustomerService(customerRepository, personRepository, addressRepository, personAddressRepository, dashboardRepository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new CustomerController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }
@@ -73,14 +80,16 @@ public class CustomerControllerTests : IDisposable
             Name = faker.Person.FullName,
             Email = faker.Internet.Email(),
             Document = faker.Random.Replace("###.###.###-##"),
-            PhoneNumber = faker.Random.Replace("(##) #####-####")
+            PhoneNumber = faker.Random.Replace("(##) #####-####"),
+            CompanyId = companyId
         };
 
         var customer = new CustomerModel
         {
             Id = Guid.NewGuid(),
             Person = person,
-            PersonId = person.Id
+            PersonId = person.Id,
+            CompanyId = companyId
         };
 
         db.BasicCustomers.Add(customer);
