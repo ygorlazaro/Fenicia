@@ -10,10 +10,10 @@ dotnet test Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj \
   --collect:"XPlat Code Coverage;Format=Cobertura" \
   --results-directory /tmp/coverage-husky-auth
 
-dotnet test Fenicia.Module.Basic.Tests/Fenicia.Module.Basic.Tests.csproj \
+dotnet test Fenicia.Module.Projects.Tests/Fenicia.Module.Projects.Tests.csproj \
   --configuration Release \
   --collect:"XPlat Code Coverage;Format=Cobertura" \
-  --results-directory /tmp/coverage-husky-basic
+  --results-directory /tmp/coverage-husky-projects
 
 echo "Tests passed. Checking coverage..."
 
@@ -22,7 +22,7 @@ import xml.etree.ElementTree as ET
 import glob
 import sys
 
-coverage_dirs = ['/tmp/coverage-husky-auth', '/tmp/coverage-husky-basic']
+coverage_dirs = ['/tmp/coverage-husky-auth', '/tmp/coverage-husky-projects']
 total_valid = 0
 total_covered = 0
 
@@ -34,7 +34,7 @@ for coverage_dir in coverage_dirs:
 
         for cls in root.iter('class'):
             filename = cls.get('filename', '')
-            if ('Fenicia.Auth' in filename or 'Fenicia.Module.Basic' in filename) and 'Tests' not in filename and 'Migrations' not in filename and 'obj' not in filename:
+            if ('Fenicia.Auth' in filename or 'Fenicia.Module.Projects' in filename) and 'Tests' not in filename and 'Migrations' not in filename and 'obj' not in filename:
                 for line in cls.iter('line'):
                     total_valid += 1
                     if int(line.get('hits', 0)) > 0:
