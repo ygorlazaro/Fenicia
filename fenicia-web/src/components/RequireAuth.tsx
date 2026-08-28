@@ -1,9 +1,9 @@
 import { Navigate } from "react-router-dom";
-
-const TOKEN_KEY = "auth_token";
+import { ApiClient } from "../services/api-client";
 
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const apiClient = new ApiClient();
+    const token = apiClient.getToken();
     if (!token) {
         return <Navigate to="/auth/login" replace />;
     }
