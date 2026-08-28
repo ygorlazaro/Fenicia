@@ -54,7 +54,7 @@ public partial class DefaultContext : DbContext
 
     private void ApplyCompanyId()
     {
-        var entries = ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added);
+        var entries = ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added && e.Entity.CompanyId == Guid.Empty);
 
         foreach (var entry in entries)
         {
@@ -63,7 +63,6 @@ public partial class DefaultContext : DbContext
                 null => throw new InvalidOperationException("CompanyId is required"),
                 _ => CurrentCompanyId.Value
             };
-
         }
     }
 

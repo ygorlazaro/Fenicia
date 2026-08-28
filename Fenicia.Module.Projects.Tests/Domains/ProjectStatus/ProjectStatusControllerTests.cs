@@ -28,7 +28,8 @@ public class ProjectStatusControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        var service = new ProjectStatusService(db);
+        var repository = new ProjectStatusRepository(db);
+        var service = new ProjectStatusService(repository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new ProjectStatusController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
