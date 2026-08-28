@@ -9,12 +9,7 @@ public class ConfigurationService(ConfigurationRepository repository)
     {
         var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, ct);
 
-        return configurations.Select(c => new GetConfigurationResponse(
-            c.Id,
-            c.UserId,
-            c.CompanyId,
-            c.ConfigType,
-            c.Value)).ToList();
+        return configurations.Select(c => c.MapToGetConfigurationResponse()).ToList();
     }
 
     public async Task UpsertAsync(UpsertConfigurationCommand command, CancellationToken ct)
