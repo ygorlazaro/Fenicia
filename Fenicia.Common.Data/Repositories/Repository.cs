@@ -4,10 +4,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Repositories;
 
-public class Repository<T>(DefaultContext context) : IRepository<T>
+public class Repository<T> : IRepository<T>
     where T : BaseModel
 {
-    protected DbSet<T> DbSet { get; set; } = context.Set<T>();
+    public Repository(DefaultContext context)
+    {
+        DbSet = context.Set<T>();
+        Context = context;
+    }
+
+    public Repository()
+    {
+    }
+
+    protected DefaultContext Context { get; set; } = null!;
+    protected DbSet<T> DbSet { get; set; }
 
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
@@ -39,7 +50,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
             return null;
         }
 
-        context.Entry(existing).CurrentValues.SetValues(model);
+        Context.Entry(existing).CurrentValues.SetValues(model);
         existing.Updated = DateTime.UtcNow;
         await SaveChangesAsync(ct);
         return existing;
@@ -106,7 +117,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
-        return await context.SaveChangesAsync(ct);
+        return await Context.SaveChangesAsync(ct);
     }
 
     public IQueryable<T> Query()

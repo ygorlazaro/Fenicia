@@ -33,7 +33,7 @@ public class TokenControllerTests
 
         _tokenServiceMock = new Mock<TokenService>(null!, null!, null!) { CallBase = true };
         _refreshTokenServiceMock = new Mock<RefreshTokenService>(redisMock.Object) { CallBase = true };
-        _userServiceMock = new Mock<UserService>(null!) { CallBase = true };
+        _userServiceMock = new Mock<UserService>(null!, null!, null!, null!) { CallBase = true };
 
         _controller = new TokenController(_tokenServiceMock.Object, _refreshTokenServiceMock.Object, _userServiceMock.Object);
     }
