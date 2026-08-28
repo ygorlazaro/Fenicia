@@ -1,66 +1,44 @@
 using Fenicia.Auth.Domains.Configuration.DTOs;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationService(DefaultContext db)
+public class ConfigurationService(ConfigurationRepository repository)
 {
     public async Task<List<GetConfigurationResponse>> GetAllAsync(Guid userId, Guid companyId, CancellationToken ct)
     {
-        var request = db.AuthConfigurations.Where(c => c.UserId == userId && companyId == c.CompanyId)
-                .OrderBy(c => c.ConfigType)
-            .Select(c => new GetConfigurationResponse(
-                c.Id,
-                c.UserId,
-                c.CompanyId,
-                c.ConfigType,
-                c.Value));
+        var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, ct);
 
-        return await request.ToListAsync(ct);
+        return configurations.Select(c => new GetConfigurationResponse(
+            c.Id,
+            c.UserId,
+            c.CompanyId,
+            c.ConfigType,
+            c.Value)).ToList();
     }
 
     public async Task UpsertAsync(UpsertConfigurationCommand command, CancellationToken ct)
     {
-        var configuration = await GetCurrentConfigurationAsync(command, ct);
+        var configuration = await repository.GetByUserCompanyAndTypeAsync(
+            command.UserId, command.CompanyId, command.ConfigType, ct);
 
         if (configuration is null)
         {
-            AddConfiguration(command);
+            configuration = new ConfigurationModel
+            {
+                Id = command.Id ?? Guid.NewGuid(),
+                UserId = command.UserId,
+                CompanyId = command.CompanyId,
+                ConfigType = command.ConfigType,
+                Value = command.Value
+            };
+
+            await repository.InsertAsync(configuration, ct);
         }
         else
         {
-            UpdateConfiguration(command, configuration);
+            configuration.Value = command.Value;
+            await repository.UpdateAsync(configuration.Id, configuration, ct);
         }
-
-        await db.SaveChangesAsync(ct);
-    }
-
-    private void UpdateConfiguration(UpsertConfigurationCommand command, ConfigurationModel configuration)
-    {
-        configuration.Value = command.Value;
-        db.Entry(configuration).State = EntityState.Modified;
-    }
-
-    private void AddConfiguration(UpsertConfigurationCommand command)
-    {
-        var configuration = new ConfigurationModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = command.UserId,
-            CompanyId = command.CompanyId,
-            ConfigType = command.ConfigType,
-            Value = command.Value
-        };
-
-        db.AuthConfigurations.Add(configuration);
-    }
-
-    private async Task<ConfigurationModel?> GetCurrentConfigurationAsync(UpsertConfigurationCommand command, CancellationToken ct)
-    {
-        return await db.AuthConfigurations.FirstOrDefaultAsync(
-            c => c.UserId == command.UserId && c.ConfigType == command.ConfigType && c.CompanyId == command.CompanyId,
-            ct);
     }
 }
