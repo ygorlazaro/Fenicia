@@ -37,59 +37,182 @@ Domains/NomeDoDominio/
 - **Controllers**: ficam na raiz do domínio
 - **NÃO** criar pastas como `Add/`, `Delete/`, `GetAll/`, `GetById/`, `Update/`, `Handlers/`, `Services/` dentro do domínio
 
-## 3. Padrão de Service
+## 3. Padrão de Repository
 
-Services substituem os handlers antigos. Eles recebem `DefaultContext` via construtor e expõem métodos públicos assíncronos.
+Services **NÃO** podem acessar `DbContext` diretamente. Toda comunicação com banco deve ser feita através de repositories.
 
 ```csharp
-using Fenicia.Common.Data.Contexts;
+namespace Fenicia.Common.Data.Repositories;
+
+public interface IRepository<T> where T : BaseModel
+{
+    Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default);
+    Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<T> InsertAsync(T model, CancellationToken ct = default);
+    Task<T?> UpdateAsync(Guid id, T model, CancellationToken ct = default);
+    Task<int> DeleteAsync(Guid id, CancellationToken ct = default);
+    Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
+    Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
+    Task<int> CountAsync(CancellationToken ct = default);
+    Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
+}
+```
+
+```csharp
+namespace Fenicia.Common.Data.Repositories;
+
+public class Repository<T>(DefaultContext context) : IRepository<T> where T : BaseModel
+{
+    protected readonly DbSet<T> DbSet = context.Set<T>();
+
+    public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    {
+        return await DbSet
+            .Where(e => e.Deleted == null)
+            .Skip((page - 1) * perPage)
+            .Take(perPage)
+            .ToListAsync(ct);
+    }
+
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+    }
+
+    public async Task<T> InsertAsync(T model, CancellationToken ct = default)
+    {
+        model.Created = DateTime.UtcNow;
+        await DbSet.AddAsync(model, ct);
+        await SaveChangesAsync(ct);
+        return model;
+    }
+
+    public async Task<T?> UpdateAsync(Guid id, T model, CancellationToken ct = default)
+    {
+        var existing = await GetByIdAsync(id, ct);
+        if (existing is null)
+        {
+            return null;
+        }
+
+        context.Entry(existing).CurrentValues.SetValues(model);
+        existing.Updated = DateTime.UtcNow;
+        await SaveChangesAsync(ct);
+        return existing;
+    }
+
+    public async Task<int> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var entity = await GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return 0;
+        }
+
+        entity.Deleted = DateTime.UtcNow;
+        return await SaveChangesAsync(ct);
+    }
+
+    public async Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var entities = await DbSet.Where(e => ids.Contains(e.Id) && e.Deleted == null).ToListAsync(ct);
+        if (entities.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach (var entity in entities)
+        {
+            entity.Deleted = DateTime.UtcNow;
+        }
+
+        return await SaveChangesAsync(ct);
+    }
+
+    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        return await DbSet.Where(predicate).ToListAsync(ct);
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        return await DbSet.AnyAsync(predicate, ct);
+    }
+
+    public async Task<int> CountAsync(CancellationToken ct = default)
+    {
+        return await DbSet.CountAsync(ct);
+    }
+
+    public async Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        return await DbSet.CountAsync(predicate, ct);
+    }
+
+    public async Task<int> SaveChangesAsync(CancellationToken ct = default)
+    {
+        return await context.SaveChangesAsync(ct);
+    }
+}
+```
+
+### Regras:
+- Todos os métodos são `async`
+- Todos recebem `CancellationToken` como último parâmetro
+- Métodos de escrita retornam `Task<T>` ou `Task<T?>`
+- Delete retorna `Task<int>` com quantidade de registros afetados
+- `SaveChangesAsync` é usado como transação; não chamar `SaveChangesAsync` fora do repository
+- Sempre filtrar por `Deleted == null` nas queries
+- Repositories retornam apenas entidades ou primitivos, nunca DTOs ou Responses
+
+## 4. Padrão de Service
+
+Services recebem `IRepository<T>` via construtor e expõem métodos públicos assíncronos.
+
+```csharp
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Project;
 
-public class ProjectService(DefaultContext db)
+public class ProjectService(IRepository<ProjectModel> repository)
 {
     public async Task<List<GetAllProjectResponse>> GetAllAsync(GetAllProjectQuery query, CancellationToken ct)
     {
-        return await db.Projects
-            .Select(p => new GetAllProjectResponse(...))
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(ct);
+        var projects = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return projects.Select(p => new GetAllProjectResponse(p.Id, p.Title, ...)).ToList();
     }
 
     public async Task<GetProjectByIdResponse?> GetByIdAsync(GetProjectByIdQuery query, CancellationToken ct)
     {
-        var entity = await db.Projects.FirstOrDefaultAsync(x => x.Id == query.Id, ct);
-        return entity is null ? null : new GetProjectByIdResponse(...);
+        var project = await repository.GetByIdAsync(query.Id, ct);
+        return project is null ? null : new GetProjectByIdResponse(...);
     }
 
-    public async Task<AddProjectResponse> AddAsync(AddProjectCommand command, CancellationToken ct)
+    public async Task<AddProjectResponse> AddAsync(AddProjectCommand command, Guid companyId, CancellationToken ct)
     {
-        var entity = new Model { ... };
-        db.Add(entity);
-        await db.SaveChangesAsync(ct);
-        return new AddProjectResponse(...);
+        var model = new ProjectModel
+        {
+            Id = command.Id,
+            CompanyId = companyId,
+            ...
+        };
+
+        var created = await repository.InsertAsync(model, ct);
+        return new AddProjectResponse(created.Id, ...);
     }
 
-    public async Task<UpdateProjectResponse?> UpdateAsync(UpdateProjectCommand command, CancellationToken ct)
+    public async Task<UpdateProjectResponse?> UpdateAsync(UpdateProjectCommand command, Guid companyId, CancellationToken ct)
     {
-        var entity = await db.Projects.FirstOrDefaultAsync(x => x.Id == command.Id, ct);
-        if (entity is null) return null;
-        entity.Property = command.Property;
-        db.Update(entity);
-        await db.SaveChangesAsync(ct);
-        return new UpdateProjectResponse(...);
+        var updated = await repository.UpdateAsync(command.Id, model, ct);
+        return updated is null ? null : new UpdateProjectResponse(...);
     }
 
     public async Task DeleteAsync(DeleteProjectCommand command, CancellationToken ct)
     {
-        var entity = await db.Projects.FirstOrDefaultAsync(x => x.Id == command.Id, ct);
-        if (entity is null) return;
-        entity.Deleted = DateTime.UtcNow;
-        db.Update(entity);
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }
 ```
@@ -97,12 +220,12 @@ public class ProjectService(DefaultContext db)
 ### Regras:
 - Métodos devem ser `public async Task<...>`
 - Usar `CancellationToken` como último parâmetro
-- Métodos de consulta retornam `Task<List<T>>` ou `Task<T?>`
-- Métodos de escrita retornam `Task<T>` ou `Task<T?>` para update
-- Delete retorna `Task`
+- Services não acessam `DbContext` diretamente
 - Usar `record` para DTOs
+- Services de escrita devem receber `CompanyId` quando a entidade herda de `BaseCompanyModel`
+- `CompanyId` nunca deve vir do command/query; sempre do token
 
-## 4. Padrão de Controller
+## 5. Padrão de Controller
 
 Controllers injetam services diretamente via construtor, sem `ISender` ou handlers.
 
@@ -145,7 +268,7 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     public async Task<ActionResult<AddProjectResponse>> PostAsync([FromBody] AddProjectCommand command, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-        var result = await projectService.AddAsync(command, ct);
+        var result = await projectService.AddAsync(command, ClaimReader.UserId(User), ct);
         return new CreatedResult(string.Empty, result);
     }
 
@@ -154,7 +277,7 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     public async Task<ActionResult<UpdateProjectResponse>> PatchAsync([FromBody] UpdateProjectCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-        var result = await projectService.UpdateAsync(command with { Id = id }, ct);
+        var result = await projectService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -174,8 +297,9 @@ public class ProjectController(ProjectService projectService) : ControllerBase
 - Usar `ClaimReader.UserId(User).ToString()` para obter o usuário autenticado
 - Usar `WideEventContext` para passar `UserId`
 - Retornos padrão: `Ok()`, `NotFound()`, `NoContent()`, `Created()`, `Forbid()`
+- Passar `CompanyId` para services de escrita quando a entidade herda de `BaseCompanyModel`
 
-## 5. Padrão de DTOs
+## 6. Padrão de DTOs
 
 Todos os DTOs são `record` e ficam na raiz de `DTOs/`.
 
@@ -201,7 +325,7 @@ public record AddProjectResponse(Guid Id, string Title, string? Description, str
 - Queries são inputs de leitura (GET)
 - Responses são outputs
 
-## 6. Padrão de Testes
+## 7. Padrão de Testes
 
 Seguir o padrão dos testes de `Fenicia.Auth.Tests` e `Fenicia.Module.Basic.Tests`.
 
@@ -322,7 +446,7 @@ public class ProjectControllerTests : IDisposable
 - Sempre incluir `using System.Security.Claims` nos controller tests
 - Sempre configurar `mockHttpContext.Setup(x => x.User).Returns(...)` para tests que usam `ClaimReader`
 
-## 7. Convenções Gerais
+## 8. Convenções Gerais
 
 - **Namespaces**: sempre usar o namespace completo do domínio
   - Controllers: `Fenicia.Module.Projects.Domains.Project`
@@ -334,7 +458,7 @@ public class ProjectControllerTests : IDisposable
 - **Record types**: usar `record` para DTOs e commands
 - **Primary constructors**: usar para services (ex: `public class ProjectService(DefaultContext db)`)
 
-## 8. O que NÃO fazer
+## 9. O que NÃO fazer
 
 - ❌ Criar pastas `Handlers/`
 - ❌ Criar subpastas em `DTOs/` (`Commands/`, `Queries/`, `Responses/`)
@@ -343,3 +467,5 @@ public class ProjectControllerTests : IDisposable
 - ❌ Implementar `IRequest` ou `IRequestHandler`
 - ❌ Injetar handlers em controllers
 - ❌ Usar `MediatR` nos testes (mockar services diretamente)
+- ❌ Services acessarem `DbContext` diretamente
+- ❌ Repositories retornarem DTOs ou Responses
