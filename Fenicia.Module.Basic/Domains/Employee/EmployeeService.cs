@@ -1,28 +1,28 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Dashboard;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
-public class EmployeeService(DefaultContext db)
+public class EmployeeService(
+    EmployeeRepository employeeRepository,
+    PersonRepository personRepository,
+    AddressRepository addressRepository,
+    PersonAddressRepository personAddressRepository,
+    PositionRepository positionRepository,
+    DashboardRepository dashboardRepository)
 {
     public async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken ct)
     {
-        var total = await db.BasicEmployees.CountAsync(ct);
+        var total = await employeeRepository.CountAsync(ct);
 
-        var employees = await db.BasicEmployees
-            .Include(e => e.Person)
-            .Include(e => e.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .Include(e => e.Position)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(ct);
+        var employees = await employeeRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
         var response = employees.Select(e =>
         {
@@ -58,12 +58,7 @@ public class EmployeeService(DefaultContext db)
 
     public async Task<GetEmployeeByIdResponse?> GetByIdAsync(GetEmployeeByIdQuery query, CancellationToken ct)
     {
-        var employee = await db.BasicEmployees
-            .Include(e => e.Person)
-            .Include(e => e.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .FirstOrDefaultAsync(e => e.Id == query.Id, ct);
+        var employee = await employeeRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (employee == null)
             return null;
@@ -94,7 +89,7 @@ public class EmployeeService(DefaultContext db)
         );
     }
 
-    public async Task<AddEmployeeResponse> AddAsync(AddEmployeeCommand command, CancellationToken ct)
+    public async Task<AddEmployeeResponse> AddAsync(AddEmployeeCommand command, Guid companyId, CancellationToken ct)
     {
         var person = new PersonModel
         {
@@ -103,6 +98,7 @@ public class EmployeeService(DefaultContext db)
             Email = command.Email,
             Document = command.Document,
             PhoneNumber = command.PhoneNumber,
+            CompanyId = companyId
         };
 
         AddressModel? address = null;
@@ -121,7 +117,7 @@ public class EmployeeService(DefaultContext db)
                 City = command.Address.City,
                 Country = command.Address.Country
             };
-            db.AuthAddresses.Add(address);
+            await addressRepository.InsertAsync(address, ct);
         }
 
         var employee = new EmployeeModel
@@ -130,6 +126,7 @@ public class EmployeeService(DefaultContext db)
             PositionId = command.PositionId,
             Person = person,
             PersonId = person.Id,
+            CompanyId = companyId
         };
 
         if (address != null)
@@ -140,23 +137,18 @@ public class EmployeeService(DefaultContext db)
                 PersonId = person.Id,
                 AddressId = address.Id,
             };
-            db.BasicPersonAddresses.Add(personAddress);
+            await personAddressRepository.InsertAsync(personAddress, ct);
         }
 
-        db.BasicEmployees.Add(employee);
+        await personRepository.InsertAsync(person, ct);
+        var created = await employeeRepository.InsertAsync(employee, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        return new AddEmployeeResponse(employee.Id, employee.PositionId, employee.PersonId);
+        return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
     }
 
-    public async Task<UpdateEmployeeResponse?> UpdateAsync(UpdateEmployeeCommand command, CancellationToken ct)
+    public async Task<UpdateEmployeeResponse?> UpdateAsync(UpdateEmployeeCommand command, Guid companyId, CancellationToken ct)
     {
-        var employee = await db.BasicEmployees
-            .Include(employeeModel => employeeModel.Person)
-            .Include(employeeModel => employeeModel.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-            .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
+        var employee = await employeeRepository.GetByIdWithDetailsAsync(command.Id, ct);
 
         if (employee is null)
         {
@@ -183,6 +175,7 @@ public class EmployeeService(DefaultContext db)
                 existingPersonAddress.Address.StateId = command.Address.StateId;
                 existingPersonAddress.Address.City = command.Address.City;
                 existingPersonAddress.Address.Country = command.Address.Country;
+                await addressRepository.UpdateAsync(existingPersonAddress.Address.Id, existingPersonAddress.Address, ct);
             }
             else
             {
@@ -198,7 +191,7 @@ public class EmployeeService(DefaultContext db)
                     City = command.Address.City,
                     Country = command.Address.Country
                 };
-                db.AuthAddresses.Add(newAddress);
+                await addressRepository.InsertAsync(newAddress, ct);
 
                 var newPersonAddress = new PersonAddressModel
                 {
@@ -206,20 +199,19 @@ public class EmployeeService(DefaultContext db)
                     PersonId = employee.PersonId,
                     AddressId = newAddress.Id,
                 };
-                db.BasicPersonAddresses.Add(newPersonAddress);
+                await personAddressRepository.InsertAsync(newPersonAddress, ct);
             }
         }
 
-        db.BasicEmployees.Update(employee);
+        await personRepository.UpdateAsync(employee.Person.Id, employee.Person, ct);
+        var updated = await employeeRepository.UpdateAsync(command.Id, employee, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateEmployeeResponse(employee.Id, employee.PositionId, employee.PersonId);
+        return new UpdateEmployeeResponse(updated.Id, updated.PositionId, employee.PersonId);
     }
 
     public async Task DeleteAsync(DeleteEmployeeCommand command, CancellationToken ct)
     {
-        var employee = await db.BasicEmployees.FirstOrDefaultAsync(e => e.Id == command.Id, ct);
+        var employee = await employeeRepository.GetByIdAsync(command.Id, ct);
 
         if (employee is null)
         {
@@ -228,9 +220,7 @@ public class EmployeeService(DefaultContext db)
 
         employee.Deleted = DateTime.Now;
 
-        db.BasicEmployees.Update(employee);
-
-        await db.SaveChangesAsync(ct);
+        await employeeRepository.UpdateAsync(command.Id, employee, ct);
     }
 
     public async Task<EmployeePerformanceResponse> GetPerformanceAsync(GetEmployeePerformanceQuery query, CancellationToken ct)
@@ -238,11 +228,12 @@ public class EmployeeService(DefaultContext db)
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-query.Days);
 
-        var orders = await db.BasicOrders.Include(o => o.Employee).ThenInclude(e => e!.Person).Include(o => o.Employee).ThenInclude(e => e!.Position).Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate).ToListAsync(ct);
+        var orders = await dashboardRepository.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
+        var employees = await dashboardRepository.GetAllEmployeesAsync(ct);
 
-        var summary = await GetEmployeePerformanceSummaryAsync(orders, ct);
-        var salesByEmployee = GetSalesByEmployeeAsync(orders);
-        var ordersByEmployee = await GetOrdersByEmployeeAsync(orders, ct);
+        var summary = await GetEmployeePerformanceSummaryAsync(orders, employees, ct);
+        var salesByEmployee = GetSalesByEmployeeAsync(orders, employees);
+        var ordersByEmployee = GetOrdersByEmployeeAsync(orders, employees);
         var topPerformers = GetTopPerformerAsync(query, salesByEmployee, summary);
 
         return new EmployeePerformanceResponse
@@ -256,18 +247,9 @@ public class EmployeeService(DefaultContext db)
 
     public async Task<Pagination<List<GetEmployeesByPositionIdResponse>>> GetByPositionIdAsync(GetEmployeesByPositionIdQuery query, CancellationToken ct)
     {
-        var total = await db.BasicEmployees.CountAsync(e => e.PositionId == query.PositionId, ct);
+        var total = await employeeRepository.CountAsync(e => e.PositionId == query.PositionId, ct);
 
-        var employees = await db.BasicEmployees
-            .Where(e => e.PositionId == query.PositionId)
-            .Include(e => e.Person)
-            .Include(e => e.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .Include(e => e.Position)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(ct);
+        var employees = await employeeRepository.GetByPositionIdAsync(query.PositionId, query.Page, query.PerPage, ct);
 
         var response = employees.Select(e =>
         {
@@ -324,10 +306,8 @@ public class EmployeeService(DefaultContext db)
         return topPerformers;
     }
 
-    private async Task<List<EmployeeOrderCountResponse>> GetOrdersByEmployeeAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, CancellationToken ct)
+    private List<EmployeeOrderCountResponse> GetOrdersByEmployeeAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees)
     {
-        var employees = await db.BasicEmployees.Include(e => e.Person).Include(e => e.Position).ToListAsync(ct);
-
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
         var ordersByEmployee = ordersList.GroupBy(o => o.EmployeeId!.Value).Select(g =>
@@ -339,7 +319,7 @@ public class EmployeeService(DefaultContext db)
         return ordersByEmployee;
     }
 
-    private List<EmployeeSalesResponse> GetSalesByEmployeeAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders)
+    private List<EmployeeSalesResponse> GetSalesByEmployeeAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.Employee != null).ToList();
 
@@ -357,7 +337,7 @@ public class EmployeeService(DefaultContext db)
         return data;
     }
 
-    private async Task<EmployeePerformanceSummaryResponse> GetEmployeePerformanceSummaryAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, CancellationToken ct)
+    private async Task<EmployeePerformanceSummaryResponse> GetEmployeePerformanceSummaryAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees, CancellationToken ct)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
@@ -366,9 +346,11 @@ public class EmployeeService(DefaultContext db)
         var totalSales = ordersList.Sum(o => o.TotalAmount);
         var totalOrders = ordersList.Count;
 
+        var totalEmployees = employees.Count();
+
         var summary = new EmployeePerformanceSummaryResponse
         {
-            TotalEmployees = await db.BasicEmployees.CountAsync(ct),
+            TotalEmployees = totalEmployees,
             ActiveEmployees = employeesWithOrders,
             TotalSales = totalSales,
             TotalOrders = totalOrders,

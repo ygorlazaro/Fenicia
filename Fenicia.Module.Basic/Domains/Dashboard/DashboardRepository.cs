@@ -125,4 +125,19 @@ public class DashboardRepository(DefaultContext context)
     {
         return await context.BasicOrders.Include(o => o.Customer).ThenInclude(c => c.Person).ToListAsync(ct);
     }
+
+    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        return await context.BasicOrders.Include(o => o.Employee).ThenInclude(e => e!.Person).Include(o => o.Employee).ThenInclude(e => e!.Position).Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate).ToListAsync(ct);
+    }
+
+    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct = default)
+    {
+        return await context.BasicEmployees.Include(e => e.Person).Include(e => e.Position).ToListAsync(ct);
+    }
+
+    public async Task<int> GetTotalEmployeesAsync(CancellationToken ct = default)
+    {
+        return await context.BasicEmployees.CountAsync(ct);
+    }
 }
