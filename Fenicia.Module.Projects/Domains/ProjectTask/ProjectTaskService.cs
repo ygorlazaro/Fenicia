@@ -9,7 +9,7 @@ public class ProjectTaskService(ProjectTaskRepository repository)
     public async Task<List<GetAllProjectTaskResponse>> GetAllAsync(GetAllProjectTaskQuery query, CancellationToken ct)
     {
         var tasks = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return tasks.Select(pt => new GetAllProjectTaskResponse(pt.Id, pt.ProjectId, pt.StatusId, pt.Title, pt.Description, pt.Priority.ToString(), pt.Type.ToString(), pt.Order, pt.EstimatePoints, pt.DueDate, pt.CreatedBy, pt.CompanyId)).ToList();
+        return [.. tasks.Select(pt => new GetAllProjectTaskResponse(pt.Id, pt.ProjectId, pt.StatusId, pt.Title, pt.Description, pt.Priority.ToString(), pt.Type.ToString(), pt.Order, pt.EstimatePoints, pt.DueDate, pt.CreatedBy, pt.CompanyId))];
     }
 
     public async Task<GetProjectTaskByIdResponse?> GetByIdAsync(GetProjectTaskByIdQuery query, CancellationToken ct)
@@ -19,8 +19,7 @@ public class ProjectTaskService(ProjectTaskRepository repository)
         return projectTask switch
         {
             null => null,
-            _ => new GetProjectTaskByIdResponse(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, projectTask.Title, projectTask.Description, projectTask.Priority.ToString(), projectTask.Type.ToString(), projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy, projectTask.CompanyId, projectTask.Attachments.Select(a => new ProjectAttachmentResponse(a.Id, a.FileName, a.ContentType, a.Size)).ToList(),
-                projectTask.Comments.Select(c => new ProjectCommentResponse(c.Id, c.Content, c.AuthorId)).ToList(), projectTask.Subtasks.Select(s => new ProjectSubtaskResponse(s.Id, s.Title, s.IsCompleted, s.Order, s.DueDate)).ToList(), projectTask.Assignees.Select(a => new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email)).ToList())
+            _ => new GetProjectTaskByIdResponse(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, projectTask.Title, projectTask.Description, projectTask.Priority.ToString(), projectTask.Type.ToString(), projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy, projectTask.CompanyId, [.. projectTask.Attachments.Select(a => new ProjectAttachmentResponse(a.Id, a.FileName, a.ContentType ?? string.Empty, a.Size))], [.. projectTask.Comments.Select(c => new ProjectCommentResponse(c.Id, c.Content, c.AuthorId))], [.. projectTask.Subtasks.Select(s => new ProjectSubtaskResponse(s.Id, s.Title, s.IsCompleted, s.Order, s.DueDate))], [.. projectTask.Assignees.Select(a => new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))])
         };
     }
 

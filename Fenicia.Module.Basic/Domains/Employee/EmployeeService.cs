@@ -1,6 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
@@ -14,7 +15,6 @@ public class EmployeeService(
     PersonRepository personRepository,
     AddressRepository addressRepository,
     PersonAddressRepository personAddressRepository,
-    PositionRepository positionRepository,
     DashboardRepository dashboardRepository)
 {
     public async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken ct)
@@ -28,29 +28,17 @@ public class EmployeeService(
         var personAddress = e.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
-            return new GetAllEmployeeResponse(
-                e.Id,
-                e.PositionId,
-                e.PersonId,
-                e.Person.Name,
-                e.Person.Email,
-                e.Person.PhoneNumber,
-                e.Person.Document,
-                e.Position.Name,
-                address != null ? new AddressResponse(
-                    address.Id,
-                    address.Street,
-                    address.Number,
-                    address.Complement,
-                    address.Neighborhood,
-                    address.ZipCode,
-                    address.StateId,
-                    address.State?.Name,
-                    address.City,
-                    address.Country
-                ) : null
-            );
-        }).ToList();
+        return new GetAllEmployeeResponse(
+            e.Id,
+            e.PositionId,
+            e.PersonId,
+            e.Person.Name,
+            e.Person.Email,
+            e.Person.PhoneNumber,
+            e.Person.Document,
+            e.Position.Name,
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+    }).ToList();
 
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -60,9 +48,9 @@ public class EmployeeService(
         var employee = await employeeRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (employee == null)
-{
-    return null;
-}
+        {
+            return null;
+        }
 
         var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
@@ -75,19 +63,7 @@ public class EmployeeService(
             employee.Person.Email,
             employee.Person.PhoneNumber,
             employee.Person.Document,
-            address != null ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode,
-                address.StateId,
-                address.State?.Name,
-                address.City,
-                address.Country
-            ) : null
-        );
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }
 
     public async Task<AddEmployeeResponse> AddAsync(AddEmployeeCommand command, Guid companyId, CancellationToken ct)
@@ -205,8 +181,7 @@ public class EmployeeService(
         }
 
         await personRepository.UpdateAsync(employee.Person.Id, employee.Person, ct);
-        var updated = await employeeRepository.UpdateAsync(command.Id, employee, ct);
-
+        var updated = await employeeRepository.UpdateAsync(command.Id, employee, ct) ?? throw new ItemNotExistsException();
         return new UpdateEmployeeResponse(updated.Id, updated.PositionId, employee.PersonId);
     }
 
@@ -257,29 +232,17 @@ public class EmployeeService(
         var personAddress = e.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
-            return new GetEmployeesByPositionIdResponse(
-                e.Id,
-                e.PositionId,
-                e.PersonId,
-                e.Person.Name,
-                e.Person.Email,
-                e.Person.PhoneNumber,
-                e.Person.Document,
-                e.Position.Name,
-                address != null ? new AddressResponse(
-                    address.Id,
-                    address.Street,
-                    address.Number,
-                    address.Complement,
-                    address.Neighborhood,
-                    address.ZipCode,
-                    address.StateId,
-                    address.State?.Name,
-                    address.City,
-                    address.Country
-                ) : null
-            );
-        }).ToList();
+        return new GetEmployeesByPositionIdResponse(
+            e.Id,
+            e.PositionId,
+            e.PersonId,
+            e.Person.Name,
+            e.Person.Email,
+            e.Person.PhoneNumber,
+            e.Person.Document,
+            e.Position.Name,
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+    }).ToList();
 
         return new Pagination<List<GetEmployeesByPositionIdResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -290,17 +253,17 @@ public class EmployeeService(
         {
             var performanceLevel = "Standard";
             if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
-        {
-            performanceLevel = "Excellent";
-        }
-            else if (e.TotalSales >= summary.AverageSalesPerEmployee * (decimal)1.5)
-        {
-            performanceLevel = "Very Good";
-        }
+            {
+                performanceLevel = "Excellent";
+            }
+            else if (e.TotalSales >= summary.AverageSalesPerEmployee * 1.5M)
+            {
+                performanceLevel = "Very Good";
+            }
             else if (e.TotalSales >= summary.AverageSalesPerEmployee)
-        {
-            performanceLevel = "Good";
-        }
+            {
+                performanceLevel = "Good";
+            }
 
             return new TopPerformerResponse(e.EmployeeId, e.EmployeeName, e.PositionName, e.TotalSales, e.TotalOrders, performanceLevel);
         }).ToList();
@@ -315,7 +278,7 @@ public class EmployeeService(
     {
         var employee = employees.First(e => e.Id == g.Key);
         return new EmployeeOrderCountResponse(g.Key, employee.Person.Name, employee.Position.Name, g.Count(), g.Sum(o => o.TotalAmount), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate));
-        }).OrderByDescending(e => e.OrderCount).ToList();
+    }).OrderByDescending(e => e.OrderCount).ToList();
 
         return ordersByEmployee;
     }
@@ -328,7 +291,7 @@ public class EmployeeService(
     {
         var employee = g.First().Employee!;
         return new EmployeeSalesResponse(employee.Id, employee.Person.Name, employee.Position.Name, g.Sum(o => o.TotalAmount), g.Count(), g.Sum(o => o.TotalAmount), 0);
-        }).ToList();
+    }).ToList();
 
         for (var i = 0; i < data.Count; i++)
         {

@@ -8,7 +8,7 @@ public class ProjectStatusService(ProjectStatusRepository repository)
     public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(GetAllProjectStatusQuery query, CancellationToken ct)
     {
         var statuses = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return statuses.Select(s => new GetAllProjectStatusResponse(s.Id, s.ProjectId, s.Name, s.Color, s.Order, s.IsFinal, s.CompanyId)).ToList();
+        return [.. statuses.Select(s => new GetAllProjectStatusResponse(s.Id, s.ProjectId, s.Name, s.Color, s.Order, s.IsFinal, s.CompanyId))];
     }
 
     public async Task<GetProjectStatusByIdResponse?> GetByIdAsync(GetProjectStatusByIdQuery query, CancellationToken ct)

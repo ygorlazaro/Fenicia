@@ -24,6 +24,15 @@ public class DashboardService(DashboardRepository dashboardRepository)
         };
     }
 
+    private static int GetWeekNumber(DateTime date)
+    {
+        var culture = CultureInfo.CurrentCulture;
+        var calendar = culture.Calendar;
+        var weekRule = culture.DateTimeFormat.CalendarWeekRule;
+        var firstDay = culture.DateTimeFormat.FirstDayOfWeek;
+        return calendar.GetWeekOfYear(date, weekRule, firstDay);
+    }
+
     private async Task<DailySalesSummaryResponse> CalculateDailySalesSummaryAsync(CancellationToken ct)
     {
         var today = DateTime.UtcNow.Date;
@@ -136,14 +145,5 @@ public class DashboardService(DashboardRepository dashboardRepository)
             TotalStockValue = 0
         };
         return kpi;
-    }
-
-    private static int GetWeekNumber(DateTime date)
-    {
-        var culture = CultureInfo.CurrentCulture;
-        var calendar = culture.Calendar;
-        var weekRule = culture.DateTimeFormat.CalendarWeekRule;
-        var firstDay = culture.DateTimeFormat.FirstDayOfWeek;
-        return calendar.GetWeekOfYear(date, weekRule, firstDay);
     }
 }

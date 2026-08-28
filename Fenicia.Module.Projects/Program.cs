@@ -23,13 +23,13 @@ public abstract class Program
         builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ProjectRepository>();
-            builder.Services.AddScoped<ProjectAttachmentRepository>();
-            builder.Services.AddScoped<ProjectCommentRepository>();
-            builder.Services.AddScoped<ProjectSubtaskRepository>();
-            builder.Services.AddScoped<ProjectTaskRepository>();
-            builder.Services.AddScoped<ProjectTaskAssigneeRepository>();
-            builder.Services.AddScoped<ProjectStatusRepository>();
-        }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.Services.AddScoped<ProjectAttachmentRepository>();
+        builder.Services.AddScoped<ProjectCommentRepository>();
+        builder.Services.AddScoped<ProjectSubtaskRepository>();
+        builder.Services.AddScoped<ProjectTaskRepository>();
+        builder.Services.AddScoped<ProjectTaskAssigneeRepository>();
+        builder.Services.AddScoped<ProjectStatusRepository>();
+    }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         builder.Start("/projects", "projects");
     }

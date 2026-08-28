@@ -133,6 +133,10 @@ dotnet_diagnostic.SA1633.severity = none
 # ============================================================
 # 7. EXCLUIR CÓDIGOS GERADOS (migrations, designers, snapshots)
 # ============================================================
+
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
+
 [**/Migrations/**/*.cs]
 dotnet_diagnostic.SA1201.severity = none
 dotnet_diagnostic.SA1202.severity = none

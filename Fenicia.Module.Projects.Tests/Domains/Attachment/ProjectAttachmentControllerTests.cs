@@ -13,31 +13,31 @@ namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
 public class ProjectAttachmentControllerTests : IDisposable
 {
-    private readonly ProjectAttachmentController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
-    private readonly Guid companyId;
+    private readonly ProjectAttachmentController _controller;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Guid _testUserId;
+    private readonly Guid _companyId;
 
     public ProjectAttachmentControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var repository = new ProjectAttachmentRepository(db);
+        _db = new DefaultContext(options, companyContext);
+        var repository = new ProjectAttachmentRepository(_db);
         var service = new ProjectAttachmentService(repository);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new ProjectAttachmentController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        companyId = companyContext.CompanyId;
-        SetupUserClaims(testUserId);
-        faker = new Faker();
+        _mockHttpContext = new Mock<HttpContext>();
+        _controller = new ProjectAttachmentController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _testUserId = Guid.NewGuid();
+        _companyId = companyContext.CompanyId;
+        SetupUserClaims(_testUserId);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -46,8 +46,8 @@ public class ProjectAttachmentControllerTests : IDisposable
     {
         var wide = new WideEventContext();
 
-        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
         Assert.IsType<OkObjectResult>(result.Result);
     }
 
@@ -56,7 +56,7 @@ public class ProjectAttachmentControllerTests : IDisposable
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

@@ -1,5 +1,6 @@
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
+
 namespace Fenicia.Module.Basic.Domains.Order.DTOs;
 
 public record CreateOrderCommand(

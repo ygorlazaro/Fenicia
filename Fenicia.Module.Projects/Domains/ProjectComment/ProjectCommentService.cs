@@ -8,7 +8,7 @@ public class ProjectCommentService(ProjectCommentRepository repository)
     public async Task<List<GetAllProjectCommentResponse>> GetAllAsync(GetAllProjectCommentQuery query, CancellationToken ct)
     {
         var comments = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return comments.Select(pc => new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId)).ToList();
+        return [.. comments.Select(pc => new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId))];
     }
 
     public async Task<GetProjectCommentByIdResponse?> GetByIdAsync(GetProjectCommentByIdQuery query, CancellationToken ct)

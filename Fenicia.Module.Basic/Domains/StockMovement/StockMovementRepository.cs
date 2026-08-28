@@ -7,7 +7,10 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementRepository(DefaultContext context) : Repository<StockMovementModel>(context)
 {
-    public DefaultContext Context => context;
+    private readonly DefaultContext _context = context;
+
+    public DefaultContext Context => _context;
+
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         return await DbSet
@@ -34,9 +37,6 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate && m.Deleted == null)
             .Include(m => m.Product).ThenInclude(p => p.Category)
-            .Include(m => m.Customer).ThenInclude(c => c.Person)
-            .Include(m => m.Supplier).ThenInclude(s => s.Person)
-            .Include(m => m.Employee).ThenInclude(e => e.Person)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(ct);

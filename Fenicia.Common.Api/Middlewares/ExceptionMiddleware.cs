@@ -52,7 +52,7 @@ public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyCo
         }
     }
 
-    private static (int statusCode, string errorCode) GetStatusCodeAndErrorCode(Exception ex)
+    private static (int StatusCode, string ErrorCode) GetStatusCodeAndErrorCode(Exception ex)
     {
         return ex switch
         {
@@ -64,17 +64,6 @@ public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyCo
             NotSavedException => (StatusCodes.Status500InternalServerError, "NotSaved"),
             _ => (StatusCodes.Status500InternalServerError, "InternalError")
         };
-    }
-
-    private Guid? GetUserId(HttpContext context)
-    {
-        var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
-        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId) ? userId : null;
-    }
-
-    private Guid? GetCompanyId()
-    {
-        return companyContext.CompanyId != Guid.Empty ? companyContext.CompanyId : null;
     }
 
     private static void SetCulture(string acceptLanguage)
@@ -98,5 +87,16 @@ public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyCo
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
         }
+    }
+
+    private Guid? GetUserId(HttpContext context)
+    {
+        var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId) ? userId : null;
+    }
+
+    private Guid? GetCompanyId()
+    {
+        return companyContext.CompanyId != Guid.Empty ? companyContext.CompanyId : null;
     }
 }

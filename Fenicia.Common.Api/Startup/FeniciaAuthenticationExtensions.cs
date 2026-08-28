@@ -18,27 +18,27 @@ public static class FeniciaAuthenticationExtensions
     {
         options.AddPolicy("God", policy => policy.RequireRole("God"));
         options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-        });
+    });
 
         builder.Services.AddAuthentication(o =>
     {
         o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(o =>
+    }).AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = true;
+    o.SaveToken = false;
+    o.ClaimsIssuer = "AuthService";
+    o.TokenValidationParameters = new TokenValidationParameters
     {
-        o.RequireHttpsMetadata = true;
-        o.SaveToken = false;
-            o.ClaimsIssuer = "AuthService";
-            o.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-        });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
         return builder;
     }

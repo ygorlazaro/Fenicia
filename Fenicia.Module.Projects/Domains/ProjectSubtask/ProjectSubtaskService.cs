@@ -8,7 +8,7 @@ public class ProjectSubtaskService(ProjectSubtaskRepository repository)
     public async Task<List<GetAllProjectSubtaskResponse>> GetAllAsync(GetAllProjectSubtaskQuery query, CancellationToken ct)
     {
         var subtasks = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return subtasks.Select(ps => new GetAllProjectSubtaskResponse(ps.Id, ps.TaskId, ps.Title, ps.IsCompleted, ps.Order, ps.CompletedAt, ps.CompanyId)).ToList();
+        return [.. subtasks.Select(ps => new GetAllProjectSubtaskResponse(ps.Id, ps.TaskId, ps.Title, ps.IsCompleted, ps.Order, ps.CompletedAt, ps.CompanyId))];
     }
 
     public async Task<GetProjectSubtaskByIdResponse?> GetByIdAsync(GetProjectSubtaskByIdQuery query, CancellationToken ct)

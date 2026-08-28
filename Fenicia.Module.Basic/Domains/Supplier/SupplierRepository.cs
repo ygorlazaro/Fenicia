@@ -9,7 +9,9 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierRepository(DefaultContext context) : Repository<SupplierModel>(context)
 {
-    public DefaultContext Context => context;
+    private readonly DefaultContext _context = context;
+
+    public DefaultContext Context => _context;
 
     public async Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
@@ -37,7 +39,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
 
     public async Task<List<SupplierProductCountResponse>> GetProductStatsAsync(CancellationToken ct = default)
     {
-        return await context.BasicProducts
+        return await _context.BasicProducts
                 .Where(p => p.SupplierId.HasValue && p.Deleted == null)
             .GroupBy(p => p.SupplierId!.Value)
             .Select(g => new SupplierProductCountResponse(
@@ -61,7 +63,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
     public async Task<List<SupplierStockMovementResponse>> GetRecentStockMovementsAsync(int days, int topLimit, CancellationToken ct = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-days);
-        return await context.BasicStockMovements
+        return await _context.BasicStockMovements
             .Include(m => m.Product)
             .Where(m => m.SupplierId.HasValue && m.Date >= startDate && m.Deleted == null)
             .OrderByDescending(m => m.Date)
@@ -79,8 +81,8 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
 
     public async Task<List<SupplierCostComparisonResponse>> GetCostComparisonAsync(int topLimit, CancellationToken ct = default)
     {
-        return await context.BasicProducts
-                .Include(p => p.Supplier).ThenInclude(s => s.Person)
+        return await _context.BasicProducts
+                .Include(p => p.Supplier)
             .Where(p => p.SupplierId.HasValue && p.Deleted == null)
             .GroupBy(p => p.Name)
             .Where(g => g.Count() > 1)
@@ -103,7 +105,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
             .Include(s => s.Person)
             .ToListAsync(ct);
 
-        var products = await context.BasicProducts
+        var products = await _context.BasicProducts
             .Where(p => p.SupplierId.HasValue && p.Deleted == null)
             .Include(p => p.Supplier)
             .ThenInclude(s => s!.Person)

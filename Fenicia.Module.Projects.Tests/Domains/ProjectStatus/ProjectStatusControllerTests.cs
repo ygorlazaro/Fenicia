@@ -13,29 +13,29 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectStatus;
 
 public class ProjectStatusControllerTests : IDisposable
 {
-    private readonly ProjectStatusController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
+    private readonly ProjectStatusController _controller;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Guid _testUserId;
 
     public ProjectStatusControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var repository = new ProjectStatusRepository(db);
+        _db = new DefaultContext(options, companyContext);
+        var repository = new ProjectStatusRepository(_db);
         var service = new ProjectStatusService(repository);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new ProjectStatusController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        SetupUserClaims(testUserId);
-        faker = new Faker();
+        _mockHttpContext = new Mock<HttpContext>();
+        _controller = new ProjectStatusController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _testUserId = Guid.NewGuid();
+        SetupUserClaims(_testUserId);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -44,8 +44,8 @@ public class ProjectStatusControllerTests : IDisposable
     {
         var wide = new WideEventContext();
 
-        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
         Assert.IsType<OkObjectResult>(result.Result);
     }
 
@@ -54,7 +54,7 @@ public class ProjectStatusControllerTests : IDisposable
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

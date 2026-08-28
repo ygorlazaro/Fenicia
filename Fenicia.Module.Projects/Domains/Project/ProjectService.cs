@@ -9,7 +9,7 @@ public class ProjectService(ProjectRepository repository)
     public async Task<List<GetAllProjectResponse>> GetAllAsync(GetAllProjectQuery query, CancellationToken ct)
     {
         var projects = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return projects.Select(p => new GetAllProjectResponse(p.Id, p.Title, p.Description, p.Status.ToString(), p.StartDate, p.EndDate, p.Owner, p.CompanyId)).ToList();
+        return [.. projects.Select(p => new GetAllProjectResponse(p.Id, p.Title, p.Description, p.Status.ToString(), p.StartDate, p.EndDate, p.Owner, p.CompanyId))];
     }
 
     public async Task<GetProjectByIdResponse?> GetByIdAsync(GetProjectByIdQuery query, CancellationToken ct)
@@ -19,7 +19,7 @@ public class ProjectService(ProjectRepository repository)
         return project switch
         {
             null => null,
-            _ => new GetProjectByIdResponse(project.Id, project.Title, project.Description, project.Status.ToString(), project.StartDate, project.EndDate, project.Owner, project.CompanyId, project.Statuses.Select(s => new ProjectStatusResponse(s.Id, s.Name, s.Color, s.Order, s.IsFinal)).ToList(), project.Tasks.Select(t => new ProjectTaskResponse(t.Id, t.Title, t.Description, t.Priority.ToString(), t.Type.ToString(), t.EstimatePoints, t.DueDate)).ToList())
+            _ => new GetProjectByIdResponse(project.Id, project.Title, project.Description, project.Status.ToString(), project.StartDate, project.EndDate, project.Owner, project.CompanyId, [.. project.Statuses.Select(s => new ProjectStatusResponse(s.Id, s.Name, s.Color, s.Order, s.IsFinal))], [.. project.Tasks.Select(t => new ProjectTaskResponse(t.Id, t.Title, t.Description, t.Priority.ToString(), t.Type.ToString(), t.EstimatePoints, t.DueDate))])
         };
     }
 

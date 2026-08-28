@@ -41,6 +41,7 @@ public class AuthProgramIntegrationTests
     private sealed class TestBrevoProvider : Externals.Email.IBrevoProvider
     {
         public void Send(Common.Enums.External.EmailTemplate template, string email, string name, Dictionary<string, object>? parameters)
-        { }
+        {
+        }
     }
 }

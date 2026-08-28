@@ -7,21 +7,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Contexts;
 
+#pragma warning disable SA1601 // Partial elements should be documented
 public partial class DefaultContext : DbContext
+#pragma warning restore SA1601 // Partial elements should be documented
 {
-    private readonly ICompanyContext companyContext;
+    private readonly ICompanyContext _companyContext;
 
-    public DefaultContext(DbContextOptions<DefaultContext> options, ICompanyContext companyContext) : base(options)
+    public DefaultContext(DbContextOptions<DefaultContext> options, ICompanyContext companyContext)
+        : base(options)
     {
-        this.companyContext = companyContext;
+        this._companyContext = companyContext;
     }
 
-    public DefaultContext() : base(new DbContextOptions<DefaultContext>())
+    public DefaultContext()
+        : base(new DbContextOptions<DefaultContext>())
     {
-        companyContext = new CompanyContext(new HttpContextAccessor());
+        _companyContext = new CompanyContext(new HttpContextAccessor());
     }
 
-    public Guid? CurrentCompanyId => companyContext.CompanyId;
+    public Guid? CurrentCompanyId => _companyContext.CompanyId;
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -97,12 +101,14 @@ public partial class DefaultContext : DbContext
         }
     }
 
-    private void SetFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseCompanyModel
+    private void SetFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : BaseCompanyModel
     {
         modelBuilder.Entity<TEntity>().HasQueryFilter(e => (CurrentCompanyId == null || e.CompanyId == CurrentCompanyId) && e.Deleted == null);
     }
 
-    private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseModel
+    private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : BaseModel
     {
         modelBuilder.Entity<TEntity>().HasQueryFilter(e => e.Deleted == null);
     }
