@@ -17,7 +17,7 @@ public class Repository<T> : IRepository<T>
     {
     }
 
-    protected DefaultContext Context { get; set; } = null!;
+    public DefaultContext Context { get; set; } = null!;
 
     protected DbSet<T> DbSet { get; set; } = null!;
 

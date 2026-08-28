@@ -7,10 +7,6 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementRepository(DefaultContext context) : Repository<StockMovementModel>(context)
 {
-    private readonly DefaultContext _context = context;
-
-    public DefaultContext Context => _context;
-
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         return await DbSet
