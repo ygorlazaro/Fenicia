@@ -110,7 +110,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
       - VITE_AUTH_API_BASE_URL=http://localhost:5000/api
     depends_on:
       postgres:
@@ -146,7 +146,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -171,7 +171,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -196,7 +196,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -219,7 +219,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -242,7 +242,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -265,7 +265,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -288,7 +288,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -311,7 +311,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -334,7 +334,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -357,7 +357,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -380,7 +380,7 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
-      - JWT_SECRET
+      - Jwt__Secret
     depends_on:
       postgres:
         condition: service_healthy
