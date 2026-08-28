@@ -13,6 +13,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Fenicia.Module.Projects/Fenicia.Module.Projects.csproj", "Fenicia.Module.Projects/"]
+COPY ["Fenicia.Common/Fenicia.Common.csproj", "Fenicia.Common/"]
+COPY ["Fenicia.Common.Api/Fenicia.Common.Api.csproj", "Fenicia.Common.Api/"]
+COPY ["Fenicia.Common.Data/Fenicia.Common.Data.csproj", "Fenicia.Common.Data/"]
 RUN dotnet restore "Fenicia.Module.Projects/Fenicia.Module.Projects.csproj"
 COPY . .
 WORKDIR "/src/Fenicia.Module.Projects"
