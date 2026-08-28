@@ -1,11 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Projects.Domains.ProjectStatus.Add;
-using Fenicia.Module.Projects.Domains.ProjectStatus.Delete;
-using Fenicia.Module.Projects.Domains.ProjectStatus.GetAll;
-using Fenicia.Module.Projects.Domains.ProjectStatus.GetById;
-using Fenicia.Module.Projects.Domains.ProjectStatus.Update;
+using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectStatus;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +14,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectStatusHandler, GetProjectStatusByIdHandler getProjectStatusByIdHandler, AddProjectStatusHandler addProjectStatusHandler, UpdateProjectStatusHandler updateProjectStatusHandler, DeleteProjectStatusHandler deleteProjectStatusHandler) : ControllerBase
+public class ProjectStatusController(ProjectStatusService projectStatusService) : ControllerBase
 {
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectStatusResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -26,7 +24,7 @@ public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectSta
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var statuses = await getAllProjectStatusHandler.Handle(new GetAllProjectStatusQuery(page, perPage), ct);
+        var statuses = await projectStatusService.GetAllAsync(new GetAllProjectStatusQuery(page, perPage), ct);
 
         return Ok(statuses);
     }
@@ -39,7 +37,7 @@ public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectSta
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await getProjectStatusByIdHandler.Handle(new GetProjectStatusByIdQuery(id), ct);
+        var status = await projectStatusService.GetByIdAsync(new GetProjectStatusByIdQuery(id), ct);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -55,7 +53,7 @@ public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectSta
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await addProjectStatusHandler.Handle(command, ct);
+        var status = await projectStatusService.AddAsync(command, ct);
 
         return new CreatedResult(string.Empty, status);
     }
@@ -72,7 +70,7 @@ public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectSta
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await updateProjectStatusHandler.Handle(command with { Id = id }, ct);
+        var status = await projectStatusService.UpdateAsync(command with { Id = id }, ct);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -86,7 +84,7 @@ public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectSta
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await deleteProjectStatusHandler.Handle(new DeleteProjectStatusCommand(id), ct);
+        await projectStatusService.DeleteAsync(new DeleteProjectStatusCommand(id), ct);
 
         return NoContent();
     }
