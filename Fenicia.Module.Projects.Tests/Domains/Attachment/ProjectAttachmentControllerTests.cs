@@ -22,16 +22,19 @@ public class ProjectAttachmentControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public ProjectAttachmentControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        var service = new ProjectAttachmentService(db);
+        var repository = new ProjectAttachmentRepository(db);
+        var service = new ProjectAttachmentService(repository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new ProjectAttachmentController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }

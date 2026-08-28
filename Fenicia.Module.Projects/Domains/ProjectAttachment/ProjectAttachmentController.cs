@@ -53,7 +53,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await projectAttachmentService.AddAsync(command, ct);
+        var projectAttachment = await projectAttachmentService.AddAsync(command, ClaimReader.UserId(User), ct);
 
         return new CreatedResult(string.Empty, projectAttachment);
     }
@@ -70,7 +70,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await projectAttachmentService.UpdateAsync(command with { Id = id }, ct);
+        var projectAttachment = await projectAttachmentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
