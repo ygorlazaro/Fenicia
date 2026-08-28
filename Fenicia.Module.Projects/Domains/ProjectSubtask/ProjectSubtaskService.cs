@@ -1,20 +1,20 @@
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
 using Fenicia.Common.Data.Models.ProjectModels;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectSubtask;
 
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 
-public class ProjectSubtaskService(DefaultContext db)
+public class ProjectSubtaskService(ProjectSubtaskRepository repository)
 {
     public async Task<List<GetAllProjectSubtaskResponse>> GetAllAsync(GetAllProjectSubtaskQuery query, CancellationToken ct)
     {
-        return await db.ProjectSubtasks.Select(ps => new GetAllProjectSubtaskResponse(ps.Id, ps.TaskId, ps.Title, ps.IsCompleted, ps.Order, ps.CompletedAt, ps.CompanyId)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var subtasks = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return subtasks.Select(ps => new GetAllProjectSubtaskResponse(ps.Id, ps.TaskId, ps.Title, ps.IsCompleted, ps.Order, ps.CompletedAt, ps.CompanyId)).ToList();
     }
 
     public async Task<GetProjectSubtaskByIdResponse?> GetByIdAsync(GetProjectSubtaskByIdQuery query, CancellationToken ct)
     {
-        var projectSubtask = await db.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == query.Id, ct);
+        var projectSubtask = await repository.GetByIdAsync(query.Id, ct);
 
         return projectSubtask switch
         {
@@ -23,7 +23,7 @@ public class ProjectSubtaskService(DefaultContext db)
         };
     }
 
-    public async Task<AddProjectSubtaskResponse> AddAsync(AddProjectSubtaskCommand command, CancellationToken ct)
+    public async Task<AddProjectSubtaskResponse> AddAsync(AddProjectSubtaskCommand command, Guid companyId, CancellationToken ct)
     {
         var projectSubtask = new ProjectSubtaskModel
         {
@@ -32,51 +32,33 @@ public class ProjectSubtaskService(DefaultContext db)
             Title = command.Title,
             IsCompleted = command.IsCompleted,
             Order = command.Order,
-            CompletedAt = command.CompletedAt
+            CompletedAt = command.CompletedAt,
+            CompanyId = companyId
         };
 
-        db.ProjectSubtasks.Add(projectSubtask);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AddProjectSubtaskResponse(projectSubtask.Id, projectSubtask.TaskId, projectSubtask.Title, projectSubtask.IsCompleted, projectSubtask.Order, projectSubtask.CompletedAt, projectSubtask.CompanyId);
+        var created = await repository.InsertAsync(projectSubtask, ct);
+        return new AddProjectSubtaskResponse(created.Id, created.TaskId, created.Title, created.IsCompleted, created.Order, created.CompletedAt, created.CompanyId);
     }
 
-    public async Task<UpdateProjectSubtaskResponse?> UpdateAsync(UpdateProjectSubtaskCommand command, CancellationToken ct)
+    public async Task<UpdateProjectSubtaskResponse?> UpdateAsync(UpdateProjectSubtaskCommand command, Guid companyId, CancellationToken ct)
     {
-        var projectSubtask = await db.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == command.Id, ct);
-
-        if (projectSubtask is null)
+        var projectSubtask = new ProjectSubtaskModel
         {
-            return null;
-        }
+            Id = command.Id,
+            TaskId = command.TaskId,
+            Title = command.Title,
+            IsCompleted = command.IsCompleted,
+            Order = command.Order,
+            CompletedAt = command.CompletedAt,
+            CompanyId = companyId
+        };
 
-        projectSubtask.TaskId = command.TaskId;
-        projectSubtask.Title = command.Title;
-        projectSubtask.IsCompleted = command.IsCompleted;
-        projectSubtask.Order = command.Order;
-        projectSubtask.CompletedAt = command.CompletedAt;
-
-        db.ProjectSubtasks.Update(projectSubtask);
-
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateProjectSubtaskResponse(projectSubtask.Id, projectSubtask.TaskId, projectSubtask.Title, projectSubtask.IsCompleted, projectSubtask.Order, projectSubtask.CompletedAt, projectSubtask.CompanyId);
+        var updated = await repository.UpdateAsync(command.Id, projectSubtask, ct);
+        return updated is null ? null : new UpdateProjectSubtaskResponse(updated.Id, updated.TaskId, updated.Title, updated.IsCompleted, updated.Order, updated.CompletedAt, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectSubtaskCommand command, CancellationToken ct)
     {
-        var projectSubtask = await db.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == command.Id, ct);
-
-        if (projectSubtask is null)
-        {
-            return;
-        }
-
-        projectSubtask.Deleted = DateTime.UtcNow;
-
-        db.ProjectSubtasks.Update(projectSubtask);
-
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }

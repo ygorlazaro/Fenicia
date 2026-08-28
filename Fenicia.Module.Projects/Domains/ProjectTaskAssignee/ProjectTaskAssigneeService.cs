@@ -1,21 +1,21 @@
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
-public class ProjectTaskAssigneeService(DefaultContext db)
+public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository)
 {
     public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken ct)
     {
-        return await db.ProjectTaskAssignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var assignees = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return assignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId)).ToList();
     }
 
     public async Task<GetProjectTaskAssigneeByIdResponse?> GetByIdAsync(GetProjectTaskAssigneeByIdQuery query, CancellationToken ct)
     {
-        var assignee = await db.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == query.Id, ct);
+        var assignee = await repository.GetByIdAsync(query.Id, ct);
 
         return assignee switch
         {
@@ -24,7 +24,7 @@ public class ProjectTaskAssigneeService(DefaultContext db)
         };
     }
 
-    public async Task<AddProjectTaskAssigneeResponse> AddAsync(AddProjectTaskAssigneeCommand command, CancellationToken ct)
+    public async Task<AddProjectTaskAssigneeResponse> AddAsync(AddProjectTaskAssigneeCommand command, Guid companyId, CancellationToken ct)
     {
         var assignee = new TaskAssigneeModel
         {
@@ -32,50 +32,32 @@ public class ProjectTaskAssigneeService(DefaultContext db)
             TaskId = command.TaskId,
             UserId = command.UserId,
             Role = Enum.Parse<EnumAssigneeRole>(command.Role, true),
-            AssignedAt = command.AssignedAt
+            AssignedAt = command.AssignedAt,
+            CompanyId = companyId
         };
 
-        db.ProjectTaskAssignees.Add(assignee);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AddProjectTaskAssigneeResponse(assignee.Id, assignee.TaskId, assignee.UserId, assignee.Role.ToString(), assignee.AssignedAt, assignee.CompanyId);
+        var created = await repository.InsertAsync(assignee, ct);
+        return new AddProjectTaskAssigneeResponse(created.Id, created.TaskId, created.UserId, created.Role.ToString(), created.AssignedAt, created.CompanyId);
     }
 
-    public async Task<UpdateProjectTaskAssigneeResponse?> UpdateAsync(UpdateProjectTaskAssigneeCommand command, CancellationToken ct)
+    public async Task<UpdateProjectTaskAssigneeResponse?> UpdateAsync(UpdateProjectTaskAssigneeCommand command, Guid companyId, CancellationToken ct)
     {
-        var assignee = await db.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == command.Id, ct);
-
-        if (assignee is null)
+        var assignee = new TaskAssigneeModel
         {
-            return null;
-        }
+            Id = command.Id,
+            TaskId = command.TaskId,
+            UserId = command.UserId,
+            Role = Enum.Parse<EnumAssigneeRole>(command.Role, true),
+            AssignedAt = command.AssignedAt,
+            CompanyId = companyId
+        };
 
-        assignee.TaskId = command.TaskId;
-        assignee.UserId = command.UserId;
-        assignee.Role = Enum.Parse<EnumAssigneeRole>(command.Role, true);
-        assignee.AssignedAt = command.AssignedAt;
-
-        db.ProjectTaskAssignees.Update(assignee);
-
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateProjectTaskAssigneeResponse(assignee.Id, assignee.TaskId, assignee.UserId, assignee.Role.ToString(), assignee.AssignedAt, assignee.CompanyId);
+        var updated = await repository.UpdateAsync(command.Id, assignee, ct);
+        return updated is null ? null : new UpdateProjectTaskAssigneeResponse(updated.Id, updated.TaskId, updated.UserId, updated.Role.ToString(), updated.AssignedAt, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectTaskAssigneeCommand command, CancellationToken ct)
     {
-        var assignee = await db.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == command.Id, ct);
-
-        if (assignee is null)
-        {
-            return;
-        }
-
-        assignee.Deleted = DateTime.UtcNow;
-
-        db.ProjectTaskAssignees.Update(assignee);
-
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }

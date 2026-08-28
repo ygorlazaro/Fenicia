@@ -22,16 +22,19 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public ProjectTaskAssigneeControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        var service = new ProjectTaskAssigneeService(db);
+        var repository = new ProjectTaskAssigneeRepository(db);
+        var service = new ProjectTaskAssigneeService(repository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new ProjectTaskAssigneeController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }
