@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook, useSelector } from "react-redux";
+import { TypedUseSelectorHook, useSelector, useDispatch } from "react-redux";
 import uiSlice from "./features/ui/uiSlice";
 import authSlice from "./features/auth/authSlice";
 
@@ -15,5 +15,6 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppDispatch: () => AppDispatch = useDispatch;
 
 export default store;
