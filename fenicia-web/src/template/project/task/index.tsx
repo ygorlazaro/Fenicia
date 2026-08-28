@@ -3,8 +3,8 @@ import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CAlert, CBadge, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
 import { useEffect, useState } from "react";
-import Pagination from "../../components/fenicia/pagination";
-import ProjectTaskModal from "../../components/ProjectTaskModal";
+import Pagination from "../../../components/fenicia/pagination";
+import ProjectTaskModal from "../../../components/ProjectTaskModal";
 import ProjectTaskClient from "../../../services/project/project-task-client";
 
 const projectTaskClient = new ProjectTaskClient("http://localhost:5144");

@@ -4,7 +4,7 @@ import { CAlert, CButton, CForm, CFormInput, CFormLabel, CModal, CModalBody, CMo
 import axios from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppSelector } from "../../store.ts";
+import { useAppSelector } from "../store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 

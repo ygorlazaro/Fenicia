@@ -3,8 +3,8 @@ import { GenerateTokenQuery } from "../../types/auth/generate-token-query";
 import { TokenResponse } from "../../types/auth/token-response";
 import { ValidateTokenQuery } from "../../types/auth/validate-token-query";
 import { AuthClient } from "./auth-client.ts";
-import { store } from "../store.ts";
-import { setCredentials } from "../features/auth/authSlice.ts";
+import { store } from "../../store.ts";
+import { setCredentials } from "../../features/auth/authSlice.ts";
 
 /**
  * AuthTokenClient - Handles token authentication operations
@@ -28,11 +28,13 @@ export class AuthTokenClient extends AuthClient {
         const data = (response as AxiosResponse).data;
 
         if (data.accessToken && data.user) {
-            store.dispatch(setCredentials({
-                token: data.accessToken,
-                refreshToken: data.refreshToken || "",
-                user: data.user
-            }));
+            store.dispatch(
+                setCredentials({
+                    token: data.accessToken,
+                    refreshToken: data.refreshToken || "",
+                    user: data.user
+                })
+            );
         }
 
         return data;
@@ -51,11 +53,13 @@ export class AuthTokenClient extends AuthClient {
         const data = (response as AxiosResponse).data;
 
         if (data.accessToken && data.user) {
-            store.dispatch(setCredentials({
-                token: data.accessToken,
-                refreshToken: data.refreshToken || "",
-                user: data.user
-            }));
+            store.dispatch(
+                setCredentials({
+                    token: data.accessToken,
+                    refreshToken: data.refreshToken || "",
+                    user: data.user
+                })
+            );
         }
 
         return data;
