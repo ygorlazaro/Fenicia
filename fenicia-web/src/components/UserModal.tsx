@@ -108,7 +108,7 @@ const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean;
         setError(null);
 
         try {
-            const payload = {
+            const payload: { name: string; email: string; password?: string; companiesRoles?: { companyId: string; roleId: string }[] } = {
                 name: formData.name,
                 email: formData.email
             };
