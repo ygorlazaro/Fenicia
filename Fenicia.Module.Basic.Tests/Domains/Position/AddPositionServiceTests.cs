@@ -1,8 +1,9 @@
+using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Position;
-using Fenicia.Module.Basic.Domains.Position.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;

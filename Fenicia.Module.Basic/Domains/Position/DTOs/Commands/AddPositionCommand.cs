@@ -1,6 +1,0 @@
-using Fenicia.Module.Basic.Domains.Position.DTOs.Responses;
-
-
-namespace Fenicia.Module.Basic.Domains.Position.DTOs.Commands;
-
-public record AddPositionCommand(Guid Id, string Name);

@@ -2,7 +2,6 @@ using System.Text.Json;
 
 using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.DTOs.Queries;
-using Fenicia.Auth.Domains.RefreshToken.DTOs.Responses;
 using Fenicia.Common.Exceptions;
 
 using Moq;

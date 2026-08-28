@@ -1,13 +1,10 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.DTOs.Commands;
 using Fenicia.Auth.Domains.RefreshToken.DTOs.Queries;
 using Fenicia.Auth.Domains.Token.DTOs.Queries;
 using Fenicia.Auth.Domains.Token.DTOs.Responses;
-using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.DTOs.Queries;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 

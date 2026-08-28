@@ -1,9 +1,9 @@
+using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.Product.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;

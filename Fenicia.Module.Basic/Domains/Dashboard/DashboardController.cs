@@ -1,8 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Queries;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,8 +1,8 @@
+using Fenicia.Common.Tests;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Dashboard;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Queries;
+using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;

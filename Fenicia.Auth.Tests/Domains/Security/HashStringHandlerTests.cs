@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Security.DTOs.Commands;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Tests.Domains.Security;

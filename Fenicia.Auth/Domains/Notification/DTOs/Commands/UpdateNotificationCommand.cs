@@ -1,5 +1,3 @@
-using Fenicia.Auth.Domains.Notification.DTOs.Responses;
-
 namespace Fenicia.Auth.Domains.Notification.DTOs.Commands;
 
 public record UpdateNotificationCommand(

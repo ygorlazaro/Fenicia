@@ -3,18 +3,14 @@ using System.Security.Claims;
 using System.Text;
 
 using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.LoginAttempt.DTOs.Commands;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token.DTOs.Queries;
 using Fenicia.Auth.Domains.Token.DTOs.Responses;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.DTOs.Queries;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;

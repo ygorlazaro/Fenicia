@@ -1,0 +1,27 @@
+using Fenicia.Common.Enums.Basic;
+
+namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
+
+public record UpdateStockMovementResponse(
+
+    Guid Id,
+
+    Guid ProductId,
+
+    double Quantity,
+
+    DateTime? Date,
+
+    decimal? Price,
+
+    StockMovementType Type,
+
+    Guid? CustomerId,
+
+    Guid? SupplierId,
+
+    Guid? EmployeeId,
+
+    Guid? OrderId,
+
+    string? Reason);

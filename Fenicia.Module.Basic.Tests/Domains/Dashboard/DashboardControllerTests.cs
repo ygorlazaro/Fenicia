@@ -1,17 +1,16 @@
-using System.Security.Claims;
 using Bogus;
-using Fenicia.Common;
-using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Dashboard;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Queries;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs.Responses;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Microsoft.AspNetCore.Http;
+using Fenicia.Common.Tests;
+using System.Security.Claims;
+using Fenicia.Common.API;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;
 

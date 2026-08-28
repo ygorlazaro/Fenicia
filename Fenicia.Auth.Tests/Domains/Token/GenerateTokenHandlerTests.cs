@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs.Queries;
 using Fenicia.Common.Data.Contexts;

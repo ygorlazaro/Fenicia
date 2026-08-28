@@ -1,10 +1,10 @@
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 

@@ -2,9 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Customer.DTOs.Commands;
-using Fenicia.Module.Basic.Domains.Customer.DTOs.Queries;
-using Fenicia.Module.Basic.Domains.Customer.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.Customer.DTOs;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
