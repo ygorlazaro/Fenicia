@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 
@@ -12,6 +13,7 @@ public class DeletePositionServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly PositionService service;
 
     public DeletePositionServiceTests()
@@ -19,8 +21,10 @@ public class DeletePositionServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new PositionService(db);
+        var positionRepository = new Fenicia.Module.Basic.Domains.Employee.PositionRepository(db);
+        service = new PositionService(positionRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -36,7 +40,7 @@ public class DeletePositionServiceTests : IDisposable
         db.BasicPositions.Add(position);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        await service.DeleteAsync(new DeletePositionCommand(position.Id), CancellationToken.None);
+        await service.DeleteAsync(new DeletePositionCommand(position.Id), companyId, CancellationToken.None);
 
         var updated = await db.BasicPositions.FindAsync(position.Id);
         Assert.NotNull(updated);
@@ -46,7 +50,7 @@ public class DeletePositionServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenPositionDoesNotExist_DoesNothing()
     {
-        await service.DeleteAsync(new DeletePositionCommand(Guid.NewGuid()), CancellationToken.None);
+        await service.DeleteAsync(new DeletePositionCommand(Guid.NewGuid()), companyId, CancellationToken.None);
 
         var count = await db.BasicPositions.CountAsync();
         Assert.Equal(0, count);

@@ -6,6 +6,7 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Product;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
@@ -13,6 +14,7 @@ public class AddStockMovementServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly StockMovementService service;
 
     public AddStockMovementServiceTests()
@@ -20,8 +22,11 @@ public class AddStockMovementServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new StockMovementService(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var productRepository = new ProductRepository(db);
+        service = new StockMovementService(stockMovementRepository, productRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -59,7 +64,7 @@ public class AddStockMovementServiceTests : IDisposable
             null, null, null, null,
             "Initial stock");
 
-        var result = await service.AddAsync(command, CancellationToken.None);
+        var result = await service.AddAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);

@@ -20,8 +20,10 @@ public class StateControllerTests : IDisposable
     private readonly StateController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly StateService stateService;
 
     public StateControllerTests()
     {
@@ -29,12 +31,14 @@ public class StateControllerTests : IDisposable
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
         
-        var service = new StateService(db);
+        var stateRepository = new StateRepository(db);
+        stateService = new StateService(stateRepository);
         mockHttpContext = new Mock<HttpContext>();
-        controller = new StateController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new StateController(stateService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
         SetupUserClaims(testUserId);
         faker = new Faker();
+        companyId = companyContext.CompanyId;
     }
 
     private void SetupUserClaims(Guid userId)

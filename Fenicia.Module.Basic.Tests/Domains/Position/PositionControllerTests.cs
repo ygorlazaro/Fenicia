@@ -24,8 +24,10 @@ public class PositionControllerTests : IDisposable
     private readonly PositionController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly PositionService positionService;
 
     public PositionControllerTests()
     {
@@ -33,12 +35,12 @@ public class PositionControllerTests : IDisposable
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
         
-        var positionService = new PositionService(db);
+        var positionRepository = new Fenicia.Module.Basic.Domains.Employee.PositionRepository(db);
+        positionService = new PositionService(positionRepository);
         var employeeRepository = new EmployeeRepository(db);
         var personRepository = new PersonRepository(db);
         var addressRepository = new AddressRepository(db);
         var personAddressRepository = new PersonAddressRepository(db);
-        var positionRepository = new PositionRepository(db);
         var dashboardRepository = new DashboardRepository(db);
         var employeeService = new EmployeeService(employeeRepository, personRepository, addressRepository, personAddressRepository, positionRepository, dashboardRepository);
         mockHttpContext = new Mock<HttpContext>();
@@ -46,6 +48,7 @@ public class PositionControllerTests : IDisposable
         testUserId = Guid.NewGuid();
         SetupUserClaims(testUserId);
         faker = new Faker();
+        companyId = companyContext.CompanyId;
     }
 
     private void SetupUserClaims(Guid userId)

@@ -6,6 +6,7 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Product;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
@@ -13,6 +14,7 @@ public class UpdateStockMovementServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly StockMovementService service;
 
     public UpdateStockMovementServiceTests()
@@ -20,8 +22,11 @@ public class UpdateStockMovementServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new StockMovementService(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var productRepository = new ProductRepository(db);
+        service = new StockMovementService(stockMovementRepository, productRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -64,7 +69,7 @@ public class UpdateStockMovementServiceTests : IDisposable
 
         var command = new UpdateStockMovementCommand(movement.Id, 20, DateTime.UtcNow, 15, StockMovementType.Out, product.Id, null, null, null, null, "Updated");
 
-        var result = await service.UpdateAsync(command, CancellationToken.None);
+        var result = await service.UpdateAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(movement.Id, result.Id);
@@ -76,7 +81,7 @@ public class UpdateStockMovementServiceTests : IDisposable
     {
         var command = new UpdateStockMovementCommand(Guid.NewGuid(), 10, DateTime.UtcNow, 10, StockMovementType.In, Guid.NewGuid(), null, null, null, null, "Test");
 
-        var result = await service.UpdateAsync(command, CancellationToken.None);
+        var result = await service.UpdateAsync(command, companyId, CancellationToken.None);
 
         Assert.Null(result);
     }

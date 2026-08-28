@@ -1,27 +1,20 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Services;
 
-public class SupplierService(DefaultContext db)
+public class SupplierService(SupplierRepository supplierRepository)
 {
     public async Task<Pagination<List<GetAllSupplierResponse>>> GetAllAsync(GetAllSupplierQuery query, CancellationToken ct)
     {
-        var total = await db.BasicSuppliers.CountAsync(ct);
+        var total = await supplierRepository.CountAsync(ct);
 
-        var suppliers = await db.BasicSuppliers
-            .Include(s => s.Person)
-            .Include(s => s.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(ct);
+        var suppliers = await supplierRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
         var response = suppliers.Select(s =>
         {
@@ -55,12 +48,7 @@ public class SupplierService(DefaultContext db)
 
     public async Task<GetSupplierByIdResponse?> GetByIdAsync(GetSupplierByIdQuery query, CancellationToken ct)
     {
-        var supplier = await db.BasicSuppliers
-            .Include(s => s.Person)
-            .Include(s => s.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
-            .FirstOrDefaultAsync(s => s.Id == query.Id, ct);
+        var supplier = await supplierRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (supplier is null)
         {
@@ -92,7 +80,7 @@ public class SupplierService(DefaultContext db)
         );
     }
 
-    public async Task<AddSupplierResponse> AddAsync(AddSupplierCommand command, CancellationToken ct)
+    public async Task<AddSupplierResponse> AddAsync(AddSupplierCommand command, Guid companyId, CancellationToken ct)
     {
         var person = new PersonModel
         {
@@ -100,7 +88,8 @@ public class SupplierService(DefaultContext db)
             Name = command.Name,
             Email = command.Email,
             Document = command.Document,
-            PhoneNumber = command.PhoneNumber
+            PhoneNumber = command.PhoneNumber,
+            CompanyId = companyId
         };
 
         AddressModel? address = null;
@@ -119,7 +108,7 @@ public class SupplierService(DefaultContext db)
                 City = command.Address.City,
                 Country = command.Address.Country
             };
-            db.AuthAddresses.Add(address);
+            supplierRepository.Context.AuthAddresses.Add(address);
         }
 
         var supplier = new SupplierModel
@@ -127,7 +116,8 @@ public class SupplierService(DefaultContext db)
             Id = command.Id,
             Person = person,
             PersonId = person.Id,
-            Cnpj = command.Cnpj
+            Cnpj = command.Cnpj,
+            CompanyId = companyId
         };
 
         if (address != null)
@@ -136,25 +126,20 @@ public class SupplierService(DefaultContext db)
             {
                 Id = Guid.NewGuid(),
                 PersonId = person.Id,
-                AddressId = address.Id
+                AddressId = address.Id,
+                CompanyId = companyId
             };
-            db.BasicPersonAddresses.Add(personAddress);
+            supplierRepository.Context.BasicPersonAddresses.Add(personAddress);
         }
 
-        db.BasicSuppliers.Add(supplier);
-
-        await db.SaveChangesAsync(ct);
+        await supplierRepository.InsertAsync(supplier, ct);
 
         return new AddSupplierResponse(supplier.Id, supplier.Cnpj);
     }
 
-    public async Task<UpdateSupplierResponse?> UpdateAsync(UpdateSupplierCommand command, CancellationToken ct)
+    public async Task<UpdateSupplierResponse?> UpdateAsync(UpdateSupplierCommand command, Guid companyId, CancellationToken ct)
     {
-        var supplier = await db.BasicSuppliers
-            .Include(s => s.Person)
-            .Include(s => s.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-            .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
+        var supplier = await supplierRepository.GetByIdWithDetailsAsync(command.Id, ct);
 
         if (supplier is null)
         {
@@ -162,10 +147,12 @@ public class SupplierService(DefaultContext db)
         }
 
         supplier.Cnpj = command.Cnpj;
+        supplier.CompanyId = companyId;
         supplier.Person.Name = command.Name;
         supplier.Person.Email = command.Email;
         supplier.Person.Document = command.Document;
         supplier.Person.PhoneNumber = command.PhoneNumber ?? string.Empty;
+        supplier.Person.CompanyId = companyId;
 
         if (command.Address != null)
         {
@@ -196,28 +183,27 @@ public class SupplierService(DefaultContext db)
                     City = command.Address.City,
                     Country = command.Address.Country
                 };
-                db.AuthAddresses.Add(newAddress);
+                supplierRepository.Context.AuthAddresses.Add(newAddress);
 
                 var newPersonAddress = new PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = supplier.PersonId,
-                    AddressId = newAddress.Id
+                    AddressId = newAddress.Id,
+                    CompanyId = companyId
                 };
-                db.BasicPersonAddresses.Add(newPersonAddress);
+                supplierRepository.Context.BasicPersonAddresses.Add(newPersonAddress);
             }
         }
 
-        db.BasicSuppliers.Update(supplier);
-
-        await db.SaveChangesAsync(ct);
+        await supplierRepository.UpdateAsync(supplier.Id, supplier, ct);
 
         return new UpdateSupplierResponse(supplier.Id, supplier.Cnpj);
     }
 
-    public async Task DeleteAsync(DeleteSupplierCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteSupplierCommand command, Guid companyId, CancellationToken ct)
     {
-        var supplier = await db.BasicSuppliers.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
+        var supplier = await supplierRepository.GetByIdAsync(command.Id, ct);
 
         if (supplier is null)
         {
@@ -225,26 +211,23 @@ public class SupplierService(DefaultContext db)
         }
 
         supplier.Deleted = DateTime.Now;
+        supplier.CompanyId = companyId;
 
-        db.BasicSuppliers.Update(supplier);
-
-        await db.SaveChangesAsync(ct);
+        await supplierRepository.UpdateAsync(supplier.Id, supplier, ct);
     }
 
     public async Task<SupplierPerformanceResponse> GetPerformanceAsync(GetSupplierPerformanceQuery query, CancellationToken ct)
     {
+        var productStats = await supplierRepository.GetProductStatsAsync(ct);
 
-        var productStats = await db.BasicProducts.Where(p => p.SupplierId.HasValue).GroupBy(p => p.SupplierId!.Value).Select(g => new { SupplierId = g.Key, ProductCount = g.Count(), TotalCostValue = g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity), TotalSalesValue = g.Sum(p => p.SalesPrice * (decimal)p.Quantity) }).ToListAsync(ct);
+        var supplierIds = productStats.Select(ps => ps.SupplierId).ToList();
+        var supplierNames = await supplierRepository.GetSupplierNamesAsync(supplierIds, ct);
 
-        var supplierNames = await db.BasicSuppliers.Include(s => s.Person).Where(s => productStats.Select(ps => ps.SupplierId).Contains(s.Id)).Select(s => new { s.Id, s.Person.Name }).ToDictionaryAsync(s => s.Id, s => s.Name, ct);
+        var productsPerSupplier = productStats.Where(ps => supplierNames.ContainsKey(ps.SupplierId)).Select(ps => new SupplierProductCountResponse(ps.SupplierId, supplierNames[ps.SupplierId], ps.ProductCount, ps.TotalStockValue, ps.TotalRevenue)).OrderByDescending(x => x.TotalStockValue).Take(query.TopLimit).ToList();
 
-        var productsPerSupplier = productStats.Where(ps => supplierNames.ContainsKey(ps.SupplierId)).Select(ps => new SupplierProductCountResponse(ps.SupplierId, supplierNames[ps.SupplierId], ps.ProductCount, ps.TotalCostValue, ps.TotalSalesValue)).OrderByDescending(x => x.TotalStockValue).Take(query.TopLimit).ToList();
+        var recentStockMovements = await supplierRepository.GetRecentStockMovementsAsync(query.Days, query.TopLimit, ct);
 
-        var recentStockMovementsQuery = db.BasicStockMovements.Include(m => m.Product).Where(m => m.SupplierId.HasValue && m.Date >= DateTime.UtcNow.AddDays(-query.Days)).OrderByDescending(m => m.Date).Take(query.TopLimit).Select(m => new SupplierStockMovementResponse(m.Id, m.ProductId, m.Product.Name, m.Quantity, m.Price ?? 0, m.Date!.Value, m.Type.ToString()));
-
-        var recentStockMovements = await recentStockMovementsQuery.ToListAsync(ct);
-
-        var productsWithMultipleSuppliers = await GetSupplierCostComparisonAsync(query, ct);
+        var productsWithMultipleSuppliers = await supplierRepository.GetCostComparisonAsync(query.TopLimit, ct);
 
         var summary = new SupplierSummaryResponse
         {
@@ -263,13 +246,5 @@ public class SupplierService(DefaultContext db)
             RecentStockMovements = recentStockMovements,
             Summary = summary
         };
-    }
-
-    private async Task<List<SupplierCostComparisonResponse>> GetSupplierCostComparisonAsync(GetSupplierPerformanceQuery query, CancellationToken ct)
-    {
-        var productsWithMultipleSuppliers = await db.BasicProducts.Include(p => p.Supplier).ThenInclude(s => s.Person).Where(p => p.SupplierId.HasValue).GroupBy(p => p.Name).Where(g => g.Count() > 1).Select(g => new SupplierCostComparisonResponse(g.Key, g.Select(p => new ProductSupplierPriceResponse(p.SupplierId!.Value, p.Supplier!.Person.Name, p.CostPrice ?? 0, p.SalesPrice, p.SalesPrice > 0 ? (p.SalesPrice - (p.CostPrice ?? 0)) / p.SalesPrice * 100 : 0)).ToList())).Take(query.TopLimit)
-            .ToListAsync(ct);
-
-        return productsWithMultipleSuppliers;
     }
 }

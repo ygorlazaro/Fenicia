@@ -11,6 +11,10 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.ProductCategory;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
@@ -20,8 +24,10 @@ public class ProductControllerTests : IDisposable
     private readonly ProductController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly ProductService productService;
 
     public ProductControllerTests()
     {
@@ -29,12 +35,18 @@ public class ProductControllerTests : IDisposable
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
         
-        var service = new ProductService(db);
+        var productRepository = new ProductRepository(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        var supplierRepository = new SupplierRepository(db);
+        var orderDetailRepository = new Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository(db);
+        var stockMovementRepository = new Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository(db);
+        productService = new ProductService(productRepository, productCategoryRepository, supplierRepository, orderDetailRepository, stockMovementRepository);
         mockHttpContext = new Mock<HttpContext>();
-        controller = new ProductController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ProductController(productService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
         SetupUserClaims(testUserId);
         faker = new Faker();
+        companyId = companyContext.CompanyId;
     }
 
     private void SetupUserClaims(Guid userId)

@@ -67,7 +67,8 @@ public class SupplierController(SupplierService supplierService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await supplierService.AddAsync(command, ct);
+            var companyId = ClaimReader.UserId(User);
+            var supplier = await supplierService.AddAsync(command, companyId, ct);
 
             return new CreatedResult(string.Empty, supplier);
         }
@@ -89,7 +90,8 @@ public class SupplierController(SupplierService supplierService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await supplierService.UpdateAsync(command with { Id = id }, ct);
+            var companyId = ClaimReader.UserId(User);
+            var supplier = await supplierService.UpdateAsync(command with { Id = id }, companyId, ct);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }
@@ -108,7 +110,8 @@ public class SupplierController(SupplierService supplierService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await supplierService.DeleteAsync(new DeleteSupplierCommand(id), ct);
+            var companyId = ClaimReader.UserId(User);
+            await supplierService.DeleteAsync(new DeleteSupplierCommand(id), companyId, ct);
 
             return NoContent();
         }

@@ -70,7 +70,7 @@ public class OrderController(OrderService orderService, OrderDetailService order
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
-            var order = await orderService.CreateAsync(command with { UserId = userId }, ct);
+            var order = await orderService.CreateAsync(command with { UserId = userId }, ClaimReader.UserId(User), ct);
 
             return new CreatedResult(string.Empty, order);
         }

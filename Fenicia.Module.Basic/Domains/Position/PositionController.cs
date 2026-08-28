@@ -88,7 +88,8 @@ public class PositionController(PositionService positionService, EmployeeService
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await positionService.AddAsync(command, ct);
+            var companyId = ClaimReader.UserId(User);
+            var position = await positionService.AddAsync(command, companyId, ct);
 
             return new CreatedResult(string.Empty, position);
         }
@@ -110,7 +111,8 @@ public class PositionController(PositionService positionService, EmployeeService
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await positionService.UpdateAsync(command with { Id = id }, ct);
+            var companyId = ClaimReader.UserId(User);
+            var position = await positionService.UpdateAsync(command with { Id = id }, companyId, ct);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -129,7 +131,8 @@ public class PositionController(PositionService positionService, EmployeeService
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await positionService.DeleteAsync(new DeletePositionCommand(id), ct);
+            var companyId = ClaimReader.UserId(User);
+            await positionService.DeleteAsync(new DeletePositionCommand(id), companyId, ct);
 
             return NoContent();
         }

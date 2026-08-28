@@ -13,6 +13,10 @@ using Fenicia.Common.API;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Fenicia.Module.Basic.Domains.Inventory;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
+using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
@@ -23,18 +27,23 @@ public class OrderControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public OrderControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        
-        var orderService = new OrderService(db);
-        var orderDetailService = new OrderDetailService(db);
+        var orderRepository = new OrderRepository(db);
+        var orderDetailRepository = new SalesOrderDetailRepository(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var productRepository = new ProductRepository(db);
+        var orderService = new OrderService(orderRepository, orderDetailRepository, stockMovementRepository, productRepository);
+        var orderDetailService = new OrderDetailService(orderDetailRepository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new OrderController(orderService, orderDetailService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }

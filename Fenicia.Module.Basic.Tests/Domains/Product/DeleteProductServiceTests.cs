@@ -5,6 +5,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.ProductCategory;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
@@ -12,6 +16,7 @@ public class DeleteProductServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly ProductService service;
 
     public DeleteProductServiceTests()
@@ -19,8 +24,14 @@ public class DeleteProductServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new ProductService(db);
+        var productRepository = new ProductRepository(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        var supplierRepository = new SupplierRepository(db);
+        var orderDetailRepository = new Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository(db);
+        var stockMovementRepository = new Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository(db);
+        service = new ProductService(productRepository, productCategoryRepository, supplierRepository, orderDetailRepository, stockMovementRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -45,7 +56,7 @@ public class DeleteProductServiceTests : IDisposable
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        await service.DeleteAsync(new DeleteProductCommand(product.Id), CancellationToken.None);
+        await service.DeleteAsync(new DeleteProductCommand(product.Id), companyId, CancellationToken.None);
 
         var updated = await db.BasicProducts.FindAsync(product.Id);
         Assert.NotNull(updated);
@@ -55,7 +66,7 @@ public class DeleteProductServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenProductDoesNotExist_DoesNothing()
     {
-        await service.DeleteAsync(new DeleteProductCommand(Guid.NewGuid()), CancellationToken.None);
+        await service.DeleteAsync(new DeleteProductCommand(Guid.NewGuid()), companyId, CancellationToken.None);
 
         var count = await db.BasicProducts.CountAsync();
         Assert.Equal(0, count);

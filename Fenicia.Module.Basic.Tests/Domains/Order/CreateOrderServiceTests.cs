@@ -1,13 +1,14 @@
 using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Order;
-using Microsoft.EntityFrameworkCore;
-using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
-
+using Fenicia.Module.Basic.Domains.Inventory;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
+using Microsoft.EntityFrameworkCore;
+using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
 public class CreateOrderServiceTests : IDisposable
@@ -15,14 +16,20 @@ public class CreateOrderServiceTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly OrderService service;
+    private readonly Guid companyId;
 
     public CreateOrderServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new OrderService(db);
+        var orderRepository = new OrderRepository(db);
+        var orderDetailRepository = new SalesOrderDetailRepository(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var productRepository = new ProductRepository(db);
+        service = new OrderService(orderRepository, orderDetailRepository, stockMovementRepository, productRepository);
         faker = new Faker();
+        companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -45,7 +52,8 @@ public class CreateOrderServiceTests : IDisposable
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####")
             },
-            PersonId = Guid.NewGuid()
+            PersonId = Guid.NewGuid(),
+            CompanyId = companyId
         };
         db.BasicCustomers.Add(customer);
         await db.SaveChangesAsync(CancellationToken.None);
@@ -61,7 +69,8 @@ public class CreateOrderServiceTests : IDisposable
             SalesPrice = faker.Random.Decimal(10, 100),
             Quantity = 100,
             CategoryId = category.Id,
-            IsActive = true
+            IsActive = true,
+            CompanyId = companyId
         };
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
@@ -77,7 +86,7 @@ public class CreateOrderServiceTests : IDisposable
             },
             PaymentMethod.Cash);
 
-        var result = await service.CreateAsync(command, CancellationToken.None);
+        var result = await service.CreateAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotEqual(Guid.Empty, result.Id);

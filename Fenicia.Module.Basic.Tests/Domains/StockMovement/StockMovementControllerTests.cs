@@ -11,6 +11,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Product;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
@@ -20,8 +21,10 @@ public class StockMovementControllerTests : IDisposable
     private readonly StockMovementController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly StockMovementService stockMovementService;
 
     public StockMovementControllerTests()
     {
@@ -29,12 +32,15 @@ public class StockMovementControllerTests : IDisposable
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
         
-        var service = new StockMovementService(db);
+        var stockMovementRepository = new StockMovementRepository(db);
+        var productRepository = new ProductRepository(db);
+        stockMovementService = new StockMovementService(stockMovementRepository, productRepository);
         mockHttpContext = new Mock<HttpContext>();
-        controller = new StockMovementController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new StockMovementController(stockMovementService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
         SetupUserClaims(testUserId);
         faker = new Faker();
+        companyId = companyContext.CompanyId;
     }
 
     private void SetupUserClaims(Guid userId)

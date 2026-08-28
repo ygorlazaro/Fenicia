@@ -5,6 +5,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.ProductCategory;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
@@ -12,6 +16,7 @@ public class AddProductServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly ProductService service;
 
     public AddProductServiceTests()
@@ -19,8 +24,14 @@ public class AddProductServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new ProductService(db);
+        var productRepository = new ProductRepository(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        var supplierRepository = new SupplierRepository(db);
+        var orderDetailRepository = new Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository(db);
+        var stockMovementRepository = new Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository(db);
+        service = new ProductService(productRepository, productCategoryRepository, supplierRepository, orderDetailRepository, stockMovementRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -43,7 +54,7 @@ public class AddProductServiceTests : IDisposable
             SalesPrice: faker.Random.Decimal(10, 100),
             Quantity: faker.Random.Int(1, 100));
 
-        var result = await service.AddAsync(command, CancellationToken.None);
+        var result = await service.AddAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);

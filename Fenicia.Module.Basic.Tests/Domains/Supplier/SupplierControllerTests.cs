@@ -21,8 +21,10 @@ public class SupplierControllerTests : IDisposable
     private readonly SupplierController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly SupplierService supplierService;
 
     public SupplierControllerTests()
     {
@@ -30,12 +32,14 @@ public class SupplierControllerTests : IDisposable
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
         
-        var service = new SupplierService(db);
+        var supplierRepository = new SupplierRepository(db);
+        supplierService = new SupplierService(supplierRepository);
         mockHttpContext = new Mock<HttpContext>();
-        controller = new SupplierController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new SupplierController(supplierService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
         SetupUserClaims(testUserId);
         faker = new Faker();
+        companyId = companyContext.CompanyId;
     }
 
     private void SetupUserClaims(Guid userId)

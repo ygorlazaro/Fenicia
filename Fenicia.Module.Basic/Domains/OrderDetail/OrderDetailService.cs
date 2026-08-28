@@ -1,16 +1,13 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.OrderDetail;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public class OrderDetailService(DefaultContext db)
+public class OrderDetailService(OrderDetailRepository orderDetailRepository)
 {
     public async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(GetOrderDetailsByOrderIdQuery query, CancellationToken ct)
     {
-        var details = await db.BasicOrderDetails
-            .Where(d => d.OrderId == query.OrderId)
-            .ToListAsync(ct);
+        var details = await orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);
 
         return details.Select(d => new GetOrderDetailsByOrderIdResponse(
                 d.Id,

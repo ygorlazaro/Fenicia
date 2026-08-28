@@ -13,6 +13,7 @@ public class GetAllStateServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly StateService service;
 
     public GetAllStateServiceTests()
@@ -20,8 +21,10 @@ public class GetAllStateServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new StateService(db);
+        var stateRepository = new StateRepository(db);
+        service = new StateService(stateRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()

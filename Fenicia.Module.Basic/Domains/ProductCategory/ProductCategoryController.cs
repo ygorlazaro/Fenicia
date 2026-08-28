@@ -69,7 +69,8 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await productCategoryService.AddAsync(command, ct);
+            var companyId = ClaimReader.UserId(User);
+            var productCategory = await productCategoryService.AddAsync(command, companyId, ct);
 
             return new CreatedResult(string.Empty, productCategory);
         }
@@ -91,7 +92,8 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await productCategoryService.UpdateAsync(command with { Id = id }, ct);
+            var companyId = ClaimReader.UserId(User);
+            var productCategory = await productCategoryService.UpdateAsync(command with { Id = id }, companyId, ct);
 
             return productCategory is null ? NotFound() : Ok(productCategory);
         }
@@ -110,7 +112,8 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await productCategoryService.DeleteAsync(new DeleteProductCategoryCommand(id), ct);
+            var companyId = ClaimReader.UserId(User);
+            await productCategoryService.DeleteAsync(new DeleteProductCategoryCommand(id), companyId, ct);
 
             return NoContent();
         }

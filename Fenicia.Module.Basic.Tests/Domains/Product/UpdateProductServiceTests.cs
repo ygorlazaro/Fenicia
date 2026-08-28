@@ -5,6 +5,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.ProductCategory;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
@@ -12,6 +16,7 @@ public class UpdateProductServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly ProductService service;
 
     public UpdateProductServiceTests()
@@ -19,8 +24,14 @@ public class UpdateProductServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new ProductService(db);
+        var productRepository = new ProductRepository(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        var supplierRepository = new SupplierRepository(db);
+        var orderDetailRepository = new Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository(db);
+        var stockMovementRepository = new Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository(db);
+        service = new ProductService(productRepository, productCategoryRepository, supplierRepository, orderDetailRepository, stockMovementRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -52,7 +63,7 @@ public class UpdateProductServiceTests : IDisposable
         var newName = faker.Commerce.ProductName();
         var command = new UpdateProductCommand(product.Id, newName, CategoryId: category.Id, SalesPrice: product.SalesPrice, Quantity: product.Quantity);
 
-        var result = await service.UpdateAsync(command, CancellationToken.None);
+        var result = await service.UpdateAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(product.Id, result.Id);
@@ -64,7 +75,7 @@ public class UpdateProductServiceTests : IDisposable
     {
         var command = new UpdateProductCommand(Guid.NewGuid(), faker.Commerce.ProductName(), CategoryId: Guid.NewGuid(), SalesPrice: 10, Quantity: 1);
 
-        var result = await service.UpdateAsync(command, CancellationToken.None);
+        var result = await service.UpdateAsync(command, companyId, CancellationToken.None);
 
         Assert.Null(result);
     }

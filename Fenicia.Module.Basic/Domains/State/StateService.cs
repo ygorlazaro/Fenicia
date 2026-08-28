@@ -1,13 +1,15 @@
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.State.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.State;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateService(DefaultContext db)
+public class StateService(StateRepository stateRepository)
 {
     public async Task<List<GetAllStateResponse>> GetAllAsync(CancellationToken ct)
     {
-        return await db.AuthStates.OrderBy(s => s.Uf).Select(s => new GetAllStateResponse(s.Id, s.Name, s.Uf)).ToListAsync(ct);
+        var states = await stateRepository.GetAllOrderedAsync(ct);
+
+        return states.Select(s => new GetAllStateResponse(s.Id, s.Name, s.Uf)).ToList();
     }
 }
