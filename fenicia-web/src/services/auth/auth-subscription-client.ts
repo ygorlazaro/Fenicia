@@ -6,7 +6,7 @@ import { AuthClient } from "./auth-client";
  * AuthProfileClient - Handles user profile operations
  *
  * Microservice: Authentication
- * Base URL: http://localhost:5144 (from VITE_AUTH_API_BASE_URL)
+ * Base URL: http://localhost:5001/api (from VITE_AUTH_API_BASE_URL)
  * Routes: /subscription/profile
  */
 export class AuthSubscriptionClient extends AuthClient {

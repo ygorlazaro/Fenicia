@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { ApiClient } from "../api-client";
 
-const PROJECTS_API_BASE_URL = import.meta.env.VITE_PROJECTS_API_BASE_URL || "http://localhost:5004/api";
+const PROJECTS_API_BASE_URL = import.meta.env.VITE_PROJECTS_API_BASE_URL || "http://localhost:5144";
 
 /**
  * ProjectClient - Handles project CRUD operations
