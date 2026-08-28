@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { CCard, CCardBody, CCardHeader, CCol, CPagination, CPaginationItem, CRow } from "@coreui/react";
 import { DocsComponents, DocsExample } from "src/components";

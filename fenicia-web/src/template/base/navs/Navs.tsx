@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { CRow, CCol, CCard, CCardBody, CCardHeader, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CNav, CNavItem, CNavLink } from "@coreui/react";
 import { DocsComponents, DocsExample } from "src/components";

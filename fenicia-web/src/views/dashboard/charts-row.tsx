@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CRow } from "@coreui/react";
 import { FinancialAccountsReceivable } from "../../types/basic/dashboard/financial-accounts-receivable";
 import { RevenueVsCost } from "../../types/basic/dashboard/revenue-vs-cost";

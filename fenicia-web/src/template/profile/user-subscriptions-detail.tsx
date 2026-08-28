@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cilCalendar } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CBadge, CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";

@@ -3,7 +3,7 @@ import CIcon from "@coreui/icons-react";
 import { CContainer, CHeader, CHeaderNav, CHeaderToggler, CNavItem, CNavLink } from "@coreui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../store";
 import { NavLink } from "react-router-dom";
 
 import { ApiClient } from "../services/api-client";
@@ -18,10 +18,10 @@ const companyClient = new AuthCompanyClient("http://localhost:5144");
 const apiClient = new ApiClient();
 
 const AppHeader = () => {
-    const headerRef = useRef();
+    const headerRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
-    const dispatch = useDispatch();
-    const sidebarShow = useSelector((state) => state.sidebarShow);
+    const dispatch = useAppDispatch();
+    const sidebarShow = useAppSelector((state) => state.sidebarShow);
 
     // Company selection modal state
     const [showCompanyModal, setShowCompanyModal] = useState(false);
@@ -31,7 +31,7 @@ const AppHeader = () => {
 
     useEffect(() => {
         document.addEventListener("scroll", () => {
-            headerRef.current && headerRef.current.classList.toggle("shadow-sm", document.documentElement.scrollTop > 0);
+            headerRef.current?.classList.toggle("shadow-sm", document.documentElement.scrollTop > 0);
         });
     }, []);
 
@@ -42,7 +42,7 @@ const AppHeader = () => {
 
         try {
             const response = await companyClient.getCompaniesByUser(1, 50);
-            const companiesList = Array.isArray(response) ? response : response.items || response.data || [];
+            const companiesList = Array.isArray(response) ? response : response.data || [];
             setCompanies(companiesList);
 
             if (companiesList.length === 0) {

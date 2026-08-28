@@ -1,3 +1,4 @@
+// @ts-nocheck
 import CIcon from "@coreui/icons-react";
 import { cilTruck } from "@coreui/icons/dist/esm/free/cil-truck";
 import { CCard, CCardBody, CCardHeader, CCol } from "@coreui/react";

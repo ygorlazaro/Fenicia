@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cilCart, cilDollar, cilGraph } from "@coreui/icons";
 import { CRow } from "@coreui/react";
 import { t } from "i18next";

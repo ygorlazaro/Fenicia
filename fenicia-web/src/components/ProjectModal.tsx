@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CButton, CForm, CFormInput, CFormLabel, CFormTextarea, CFormSelect, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CAlert } from "@coreui/react";
+import { CButton, CCol, CRow, CForm, CFormInput, CFormLabel, CFormTextarea, CFormSelect, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CAlert } from "@coreui/react";
 
 const ProjectModal = ({ visible, onClose, onSave, project, loading }) => {
     const [formData, setFormData] = useState({

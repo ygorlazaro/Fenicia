@@ -53,12 +53,12 @@ const AppHeaderDropdown = ({ onCompanySelect }) => {
 
     return (
         <CDropdown variant="nav-item">
-            <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
+            <CDropdownToggle className="py-0 pe-0" caret={false}>
                 <CAvatar color="primary" textColor="white" size="md">
                     {userName.charAt(0).toUpperCase()}
                 </CAvatar>
             </CDropdownToggle>
-            <CDropdownMenu className="pt-0" placement="bottom-end">
+            <CDropdownMenu className="pt-0">
                 <div className="p-3">
                     <div className="fw-semibold">{userName}</div>
                     <small className="text-muted" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={handleCompanySelect} title={t("auth.selectCompany")}>

@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { IPagination } from "../../types";
 import { OrderAnalytics } from "../../types/basic/order/order-analytics";
-import { CreateOrderCommand, CreateOrderResponse, GetAllOrderResponse, GetOrderByIdResponse, OrderDetailResponse } from "../../types/basic/product-category/add-product-category-command";
+import { CreateOrderCommand, CreateOrderResponse, GetAllOrderResponse, GetOrderByIdResponse, OrderDetailResponse } from "../../types/basic/order/create-order-command";
 import { ApiClient } from "../api-client";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 

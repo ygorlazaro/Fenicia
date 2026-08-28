@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cilBuilding } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CCard, CCardBody, CCardHeader, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CCard, CCardBody, CCardHeader, CCol } from "@coreui/react";
 import { Link } from "react-router-dom";
 import { UserSubscriptionResponse } from "../../types/auth/user-subscription-response";

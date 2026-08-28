@@ -2,10 +2,11 @@ import { CAlert, CButton, CCard, CCol, CForm, CFormCheck, CFormInput, CFormLabel
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IUser } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-const UserModal = ({ visible, onClose, onSave, mode, user }) => {
+const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean; onClose: () => void; onSave: () => void; mode: string; user?: IUser & { companies?: { company_id: string; role_id: string }[] } }) => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

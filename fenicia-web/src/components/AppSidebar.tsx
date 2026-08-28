@@ -1,8 +1,9 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../store";
 
 import CIcon from "@coreui/icons-react";
 import { CCloseButton, CSidebar, CSidebarBrand, CSidebarFooter, CSidebarHeader, CSidebarToggler } from "@coreui/react";
+import { NavLink } from "react-router-dom";
 
 import { AppSidebarNav } from "./AppSidebarNav";
 
@@ -11,9 +12,9 @@ import { lines } from "../assets/brand/logo";
 import navigation from "../_nav";
 
 const AppSidebar = () => {
-    const dispatch = useDispatch();
-    const unfoldable = useSelector((state) => state.sidebarUnfoldable);
-    const sidebarShow = useSelector((state) => state.sidebarShow);
+    const dispatch = useAppDispatch();
+    const unfoldable = useAppSelector((state) => state.sidebarUnfoldable);
+    const sidebarShow = useAppSelector((state) => state.sidebarShow);
 
     return (
         <CSidebar
@@ -27,8 +28,10 @@ const AppSidebar = () => {
             }}
         >
             <CSidebarHeader className="border-bottom">
-                <CSidebarBrand to="/dashboard">
-                    <CIcon customClassName="sidebar-brand-full" icon={lines} height={32} />
+                <CSidebarBrand>
+                    <NavLink to="/dashboard">
+                        <CIcon customClassName="sidebar-brand-full" icon={lines} height={32} />
+                    </NavLink>
                 </CSidebarBrand>
                 <CCloseButton className="d-lg-none" dark onClick={() => dispatch({ type: "set", sidebarShow: false })} />
             </CSidebarHeader>
