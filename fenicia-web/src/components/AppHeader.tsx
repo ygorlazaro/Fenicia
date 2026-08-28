@@ -4,6 +4,7 @@ import { CContainer, CHeader, CHeaderNav, CHeaderToggler, CNavItem, CNavLink } f
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../store";
+import { setSidebarShow } from "../features/ui/uiSlice";
 import { NavLink } from "react-router-dom";
 
 import { ApiClient } from "../services/api-client";
@@ -21,7 +22,9 @@ const AppHeader = () => {
     const headerRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    const sidebarShow = useAppSelector((state) => state.sidebarShow);
+    const sidebarShow = useAppSelector((state) => state.ui.sidebarShow);
+    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+    const companyName = useAppSelector((state) => state.auth.companyName);
 
     // Company selection modal state
     const [showCompanyModal, setShowCompanyModal] = useState(false);
@@ -57,14 +60,12 @@ const AppHeader = () => {
     };
 
     const handleSelectCompany = (company) => {
-        // Persist company ID and name to localStorage
         apiClient.setCompanyId(company.id);
-        localStorage.setItem("company_name", company.name);
 
-        // Close modal
+        dispatch(setSidebarShow(false));
+
         setShowCompanyModal(false);
 
-        // Reload page to apply new company context
         window.location.reload();
     };
 
@@ -77,7 +78,7 @@ const AppHeader = () => {
     return (
         <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
             <CContainer className="border-bottom px-4" fluid>
-                <CHeaderToggler onClick={() => dispatch({ type: "set", sidebarShow: !sidebarShow })} style={{ marginInlineStart: "-14px" }}>
+                <CHeaderToggler onClick={() => dispatch(setSidebarShow(!sidebarShow))} style={{ marginInlineStart: "-14px" }}>
                     <CIcon icon={cilMenu} size="lg" />
                 </CHeaderToggler>
                 <CHeaderNav className="d-none d-md-flex">
@@ -88,17 +89,17 @@ const AppHeader = () => {
                             </CNavLink>
                         </CNavItem>
                     ))}
-                    {apiClient.getCompanyId() && localStorage.getItem("company_name") && (
+                    {isAuthenticated && companyName && (
                         <CNavItem>
                             <CNavLink style={{ cursor: "pointer" }} onClick={handleOpenCompanySelect} title={t("auth.selectCompany")}>
                                 <CIcon icon={cilBuilding} className="me-1" />
-                                {localStorage.getItem("company_name")}
+                                {companyName}
                             </CNavLink>
                         </CNavItem>
                     )}
                 </CHeaderNav>
                 <CHeaderNav>
-                    {apiClient.getToken() && (
+                    {isAuthenticated && (
                         <>
                             <NotificationDropdown />
                             <li className="nav-item py-1">

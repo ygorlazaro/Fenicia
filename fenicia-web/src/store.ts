@@ -1,36 +1,19 @@
-import { legacy_createStore as createStore } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+import uiSlice from "./features/ui/uiSlice";
+import authSlice from "./features/auth/authSlice";
 
-interface AppState {
-    sidebarShow: boolean;
-    sidebarUnfoldable?: boolean;
-}
+export const store = configureStore({
+    reducer: {
+        ui: uiSlice,
+        auth: authSlice
+    },
+    devTools: import.meta.env.DEV
+});
 
-interface Action {
-    type: string;
-    [key: string]: any;
-}
-
-const initialState: AppState = {
-    sidebarShow: true
-};
-
-const changeState = (state: AppState = initialState, { type, ...rest }: Action): AppState => {
-    switch (type) {
-        case "set":
-            return { ...state, ...rest } as AppState;
-        default:
-            return state;
-    }
-};
-
-const store = createStore(changeState);
-
-// Export types
-export type RootState = ReturnType<typeof changeState>;
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// Create typed hooks for usage instead of plain useDispatch/useSelector
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export default store;

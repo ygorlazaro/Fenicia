@@ -1,5 +1,6 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../store";
+import { setSidebarShow, setSidebarUnfoldable } from "../features/ui/uiSlice";
 
 import CIcon from "@coreui/icons-react";
 import { CCloseButton, CSidebar, CSidebarBrand, CSidebarFooter, CSidebarHeader, CSidebarToggler } from "@coreui/react";
@@ -13,8 +14,8 @@ import navigation from "../_nav";
 
 const AppSidebar = () => {
     const dispatch = useAppDispatch();
-    const unfoldable = useAppSelector((state) => state.sidebarUnfoldable);
-    const sidebarShow = useAppSelector((state) => state.sidebarShow);
+    const unfoldable = useAppSelector((state) => state.ui.sidebarUnfoldable);
+    const sidebarShow = useAppSelector((state) => state.ui.sidebarShow);
 
     return (
         <CSidebar
@@ -24,7 +25,7 @@ const AppSidebar = () => {
             unfoldable={unfoldable}
             visible={sidebarShow}
             onVisibleChange={(visible) => {
-                dispatch({ type: "set", sidebarShow: visible });
+                dispatch(setSidebarShow(visible));
             }}
         >
             <CSidebarHeader className="border-bottom">
@@ -33,11 +34,11 @@ const AppSidebar = () => {
                         <CIcon customClassName="sidebar-brand-full" icon={lines} height={32} />
                     </NavLink>
                 </CSidebarBrand>
-                <CCloseButton className="d-lg-none" dark onClick={() => dispatch({ type: "set", sidebarShow: false })} />
+                <CCloseButton className="d-lg-none" dark onClick={() => dispatch(setSidebarShow(false))} />
             </CSidebarHeader>
             <AppSidebarNav items={navigation} />
             <CSidebarFooter className="border-top d-none d-lg-flex">
-                <CSidebarToggler onClick={() => dispatch({ type: "set", sidebarUnfoldable: !unfoldable })} />
+                <CSidebarToggler onClick={() => dispatch(setSidebarUnfoldable(!unfoldable))} />
             </CSidebarFooter>
         </CSidebar>
     );
