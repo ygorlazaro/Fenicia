@@ -1,7 +1,7 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.Order.DTOs.Commands;
+using Fenicia.Auth.Domains.Order.DTOs;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -15,23 +15,26 @@ namespace Fenicia.Auth.Tests.Domains.Order;
 
 public class CreateNewOrderHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly OrderService service;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly OrderService _service;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly UserRoleService _userRoleService;
 
     public CreateNewOrderHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        var userRoleService = new UserRoleService(db);
-        service = new OrderService(db, userRoleService);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRoleRepository = new UserRoleRepository(_db);
+        _userRoleService = new UserRoleService(_userRoleRepository);
+        _service = new OrderService(_db, _userRoleService);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -39,7 +42,6 @@ public class CreateNewOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesOrderSuccessfully()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var module1Id = Guid.NewGuid();
@@ -49,16 +51,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -94,19 +96,19 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 150.00m
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        db.AuthModules.AddRange(module1, module2, moduleBasic);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.AuthModules.AddRange(module1, module2, moduleBasic);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await service.CreateAsync(command, CancellationToken.None);
+        var result = await _service.CreateAsync(command, CancellationToken.None);
 
         Assert.NotNull(result);
 
-        var order = await db.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result.OrderId);
+        var order = await _db.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result.OrderId);
         Assert.NotNull(order);
 
         Assert.Equal(userId, order.UserId);
@@ -119,21 +121,19 @@ public class CreateNewOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserDoesNotExistInCompany_ThrowsPermissionDeniedException()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var modules = new List<Guid> { Guid.NewGuid() };
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("User does not exists at the company", ex.Message);
     }
 
     [Fact]
     public async Task Handle_WhenModulesNotFound_ThrowsItemNotExistsException()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var nonExistentModuleId = Guid.NewGuid();
@@ -142,16 +142,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -163,21 +163,20 @@ public class CreateNewOrderHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("Modules not found", ex.Message);
     }
 
     [Fact]
     public async Task Handle_WhenNoModulesRequested_ReturnsNull()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var modules = new List<Guid>();
@@ -185,16 +184,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -206,14 +205,14 @@ public class CreateNewOrderHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.CreateAsync(command, CancellationToken.None));
 
         Assert.Equal("Modules not found", ex.Message);
     }
@@ -221,7 +220,6 @@ public class CreateNewOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenModuleIsBasicType_DoesNotAddAnotherBasic()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var basicModuleId = Guid.NewGuid();
@@ -230,16 +228,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -259,17 +257,17 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 50.00m
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        db.AuthModules.Add(basicModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.AuthModules.Add(basicModule);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await service.CreateAsync(command, CancellationToken.None);
+        var result = await _service.CreateAsync(command, CancellationToken.None);
 
-        var order = await db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await _db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
         Assert.Single(order.Details);
     }
@@ -277,7 +275,6 @@ public class CreateNewOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenModuleIsNotBasic_AddsBasicModuleAutomatically()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var accountingModuleId = Guid.NewGuid();
@@ -287,16 +284,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -324,17 +321,17 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 50.00m
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        db.AuthModules.AddRange(accountingModule, basicModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.AuthModules.AddRange(accountingModule, basicModule);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await service.CreateAsync(command, CancellationToken.None);
+        var result = await _service.CreateAsync(command, CancellationToken.None);
 
-        var order = await db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await _db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
         Assert.Equal(2, order.Details.Count());
     }
@@ -342,7 +339,6 @@ public class CreateNewOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenBasicModuleNotFound_ReturnsNull()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var accountingModuleId = Guid.NewGuid();
@@ -351,16 +347,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -380,15 +376,15 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 100.00m
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        db.AuthModules.Add(accountingModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.AuthModules.Add(accountingModule);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.CreateAsync(command, CancellationToken.None));
 
         Assert.Equal("Modules not found", ex.Message);
     }
@@ -396,7 +392,6 @@ public class CreateNewOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenDuplicateModuleIds_RemovesDuplicates()
     {
-
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var module1Id = Guid.NewGuid();
@@ -405,16 +400,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -442,17 +437,17 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 50.00m
         };
 
-        db.AuthUsers.Add(user);
-        db.AuthCompanies.Add(company);
-        db.AuthUserRoles.Add(userRole);
-        db.AuthModules.AddRange(module1, basicModule);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.Add(user);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUserRoles.Add(userRole);
+        _db.AuthModules.AddRange(module1, basicModule);
+        _db.SaveChanges();
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var result = await service.CreateAsync(command, CancellationToken.None);
+        var result = await _service.CreateAsync(command, CancellationToken.None);
 
-        var order = await db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await _db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
         Assert.Equal(2, order.Details.Count());
     }

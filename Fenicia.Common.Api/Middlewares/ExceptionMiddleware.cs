@@ -1,9 +1,7 @@
-using System.Globalization;
 using System.Diagnostics;
-
-using Fenicia.Common.Exceptions;
+using System.Globalization;
 using Fenicia.Common.Data;
-
+using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.API.Middlewares;
@@ -18,8 +16,10 @@ public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyCo
         {
             await next(context);
         }
+#pragma warning disable CA1031
         catch (Exception ex)
         {
+#pragma warning restore CA1031
             sw.Stop();
 
             var acceptLanguage = context.Request.Headers.AcceptLanguage.FirstOrDefault();

@@ -1,0 +1,35 @@
+<Project>
+  <!--
+    Aplicado automaticamente a TODOS os projetos abaixo desta pasta (monorepo inteiro).
+    Não precisa editar nenhum .csproj individualmente.
+  -->
+
+  <PropertyGroup>
+    <!-- Ativa os analisadores nativos do .NET (build-in, sem pacote extra) -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Default</AnalysisMode>
+
+    <!-- Faz o "code style" do .editorconfig valer também durante o BUILD, não só no IDE -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Ainda em desenvolvimento, sem usuário em produção: já como erro -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!--
+      Categoria de segurança dos analisadores nativos (CA5xxx: crypto fraca,
+      segredo hardcoded, SQL injection, etc). Faz sentido reforçar dado o
+      que já aconteceu com o segredo JWT commitado.
+    -->
+    <AnalysisModeSecurity>All</AnalysisModeSecurity>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- StyleCop.Analyzers: cobre ordenação de membros, using directives, brackets obrigatórios -->
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

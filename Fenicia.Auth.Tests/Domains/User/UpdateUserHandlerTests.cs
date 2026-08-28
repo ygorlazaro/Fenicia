@@ -1,13 +1,14 @@
 using Bogus;
-
-using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.User.DTOs.Commands;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
@@ -18,6 +19,10 @@ public class UpdateUserHandlerTests : IDisposable
     private readonly Faker faker;
 
     private readonly UserService userService;
+    private readonly UserRepository userRepository;
+    private readonly UserRoleRepository userRoleRepository;
+    private readonly RoleRepository roleRepository;
+    private readonly CompanyRepository companyRepository;
     private readonly UserModel testUser;
 
     public UpdateUserHandlerTests()
@@ -25,7 +30,7 @@ public class UpdateUserHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        userService = new UserService(db);
+        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
         faker = new Faker();
 
         testUser = new UserModel
@@ -35,7 +40,7 @@ public class UpdateUserHandlerTests : IDisposable
             Name = faker.Person.FullName
         };
 
-        db.AuthUsers.Add(testUser);
+        userRepository.InsertAsync(testUser, CancellationToken.None).GetAwaiter().GetResult();
         db.SaveChanges();
     }
 
@@ -48,7 +53,6 @@ public class UpdateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_UpdatesUserNameSuccessfully()
     {
-
         var newName = faker.Person.FullName;
         var request = new UpdateUserCommand(testUser.Id, newName);
 
@@ -57,7 +61,7 @@ public class UpdateUserHandlerTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal(newName, result.Name);
 
-        var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
+        var updatedUser = await userRepository.GetByIdAsync(testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(updatedUser);
         Assert.Equal(newName, updatedUser.Name);
     }
@@ -65,7 +69,6 @@ public class UpdateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_UpdatesUserEmailSuccessfully()
     {
-
         var newEmail = faker.Internet.Email();
         var request = new UpdateUserCommand(testUser.Id, Email: newEmail);
 
@@ -74,7 +77,7 @@ public class UpdateUserHandlerTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal(newEmail, result.Email);
 
-        var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
+        var updatedUser = await userRepository.GetByIdAsync(testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(updatedUser);
         Assert.Equal(newEmail, updatedUser.Email);
     }
@@ -82,7 +85,6 @@ public class UpdateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
-
         var nonExistentUserId = Guid.NewGuid();
         var request = new UpdateUserCommand(nonExistentUserId, "Test");
 
@@ -94,7 +96,6 @@ public class UpdateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
-
         var existingEmail = faker.Internet.Email();
 
         var anotherUser = new UserModel
@@ -104,7 +105,7 @@ public class UpdateUserHandlerTests : IDisposable
             Name = faker.Person.FullName
         };
 
-        db.AuthUsers.Add(anotherUser);
+        userRepository.InsertAsync(anotherUser, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateUserCommand(testUser.Id, Email: existingEmail);
@@ -117,14 +118,12 @@ public class UpdateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCompanyNotFound_ThrowsArgumentException()
     {
-
         var role = new RoleModel { Name = "Admin" };
-        db.AuthRoles.Add(role);
+        await roleRepository.InsertAsync(role, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UpdateUserRoleCommand>
-        {
-            new(Guid.NewGuid(), role.Id)
+    { new(Guid.NewGuid(), role.Id)
         };
 
         var request = new UpdateUserCommand(testUser.Id, CompaniesRoles: companiesRoles);
@@ -137,18 +136,16 @@ public class UpdateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
     {
-
         var company = new CompanyModel
         {
             Name = faker.Company.CompanyName(),
             Cnpj = string.Empty
         };
-        db.AuthCompanies.Add(company);
+        await companyRepository.InsertAsync(company, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UpdateUserRoleCommand>
-        {
-            new(company.Id, Guid.NewGuid())
+    { new(company.Id, Guid.NewGuid())
         };
 
         var request = new UpdateUserCommand(testUser.Id, CompaniesRoles: companiesRoles);

@@ -1,8 +1,7 @@
 using System.Security.Claims;
 
 using Fenicia.Auth.Domains.Configuration;
-using Fenicia.Auth.Domains.Configuration.DTOs.Commands;
-using Fenicia.Auth.Domains.Configuration.DTOs.Responses;
+using Fenicia.Auth.Domains.Configuration.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -20,42 +19,31 @@ namespace Fenicia.Auth.Tests.Domains.Configuration;
 
 public class ConfigurationControllerTests : IDisposable
 {
-    private readonly ConfigurationController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
+    private readonly ConfigurationController _controller;
+    private readonly DefaultContext _db;
+    private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Guid _testUserId;
 
     public ConfigurationControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        testUserId = Guid.NewGuid();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _testUserId = Guid.NewGuid();
 
-        mockHttpContext = new Mock<HttpContext>();
+        _mockHttpContext = new Mock<HttpContext>();
 
-        var configurationService = new ConfigurationService(db);
-        controller = new ConfigurationController(configurationService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        var configurationService = new ConfigurationService(_db);
+        _controller = new ConfigurationController(configurationService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
-        SetupUserClaims(testUserId);
+        SetupUserClaims(_testUserId);
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
-    }
-
-    private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -63,9 +51,9 @@ public class ConfigurationControllerTests : IDisposable
     {
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
-        var companyId = db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
 
-        var result = await controller.GetAsync(companyId, wide, ct);
+        var result = await _controller.GetAsync(companyId, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -77,18 +65,18 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(returnedList);
 
         Assert.Empty(returnedList);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task GetAsync_WhenUserHasConfigurations_ReturnsOkWithList()
     {
-        var companyId = db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
 
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-BR"
@@ -97,19 +85,19 @@ public class ConfigurationControllerTests : IDisposable
         var config2 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "en-US"
         };
 
-        db.AuthConfigurations.AddRange(config1, config2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthConfigurations.AddRange(config1, config2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAsync(companyId, wide, ct);
+        var result = await _controller.GetAsync(companyId, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -121,20 +109,19 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(returnedList);
 
         Assert.Equal(2, returnedList.Count);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task GetAsync_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
     {
-
-        var companyId = db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
 
         var userConfig = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-BR"
@@ -149,13 +136,13 @@ public class ConfigurationControllerTests : IDisposable
             Value = "en-US"
         };
 
-        db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetAsync(companyId, wide, ct);
+        var result = await _controller.GetAsync(companyId, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -174,112 +161,106 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_SetsWideEventContextUserId()
     {
-
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
-        var companyId = db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
 
-        await controller.GetAsync(companyId, wide, ct);
+        await _controller.GetAsync(companyId, wide, ct);
 
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
-
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", db.CurrentCompanyId ?? Guid.Empty);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", _db.CurrentCompanyId ?? Guid.Empty);
 
-        var result = await controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
+        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
 
         Assert.NotNull(configuration);
         Assert.Equal("pt-BR", configuration.Value);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenConfigurationExists_UpdatesExistingConfiguration()
     {
-
-        var companyId = db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
         var existingConfig = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "light"
         };
 
-        db.AuthConfigurations.Add(existingConfig);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthConfigurations.Add(existingConfig);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", companyId);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", companyId);
 
-        var result = await controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var updatedConfig = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
+        var updatedConfig = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
 
         Assert.NotNull(updatedConfig);
         Assert.Equal("pt-BR", updatedConfig.Value);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WithCompanyId_CreatesCompanyConfiguration()
     {
-
-        var companyId = db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", companyId);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", companyId);
 
-        var result = await controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId, CancellationToken.None);
+        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId, CancellationToken.None);
 
         Assert.NotNull(configuration);
 
         Assert.Equal(companyId, configuration.CompanyId);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
-
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", db.CurrentCompanyId ?? Guid.Empty);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", _db.CurrentCompanyId ?? Guid.Empty);
 
-        await controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public void ConfigurationController_HasAuthorizeAttribute()
     {
-
         var controllerType = typeof(ConfigurationController);
 
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -290,7 +271,6 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public void ConfigurationController_HasRouteAttribute()
     {
-
         var controllerType = typeof(ConfigurationController);
 
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
@@ -302,12 +282,22 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public void ConfigurationController_HasProducesAttribute()
     {
-
         var controllerType = typeof(ConfigurationController);
 
         var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+    }
+
+    private void SetupUserClaims(Guid userId)
+    {
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

@@ -11,7 +11,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-            .Where(e => e.Deleted == null)
+                .Where(e => e.Deleted == null)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(ct);
@@ -70,6 +70,17 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
         }
 
         return await SaveChangesAsync(ct);
+    }
+
+    public async Task InsertRangeAsync(IEnumerable<T> models, CancellationToken ct = default)
+    {
+        foreach (var model in models)
+        {
+            model.Created = DateTime.UtcNow;
+        }
+
+        await DbSet.AddRangeAsync(models, ct);
+        await SaveChangesAsync(ct);
     }
 
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)

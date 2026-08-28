@@ -16,7 +16,6 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class SupplierController(SupplierService supplierService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllSupplierResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

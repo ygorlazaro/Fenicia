@@ -4,7 +4,6 @@ namespace Fenicia.Common.Api.Controllers;
 
 public static class ControllerBaseExtensions
 {
-
     public static ObjectResult ForbidWithMessage(this ControllerBase controller, string message)
     {
         var problem = new

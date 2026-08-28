@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectComment;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment;
 

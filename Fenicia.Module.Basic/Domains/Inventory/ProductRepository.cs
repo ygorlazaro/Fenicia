@@ -1,4 +1,3 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
@@ -12,7 +11,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-            .Include(p => p.Category)
+                .Include(p => p.Category)
             .Where(p => p.Deleted == null)
             .OrderBy(p => p.Quantity)
             .Skip((page - 1) * perPage)
@@ -23,7 +22,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-            .Where(p => p.CategoryId == categoryId && p.Deleted == null)
+                .Where(p => p.CategoryId == categoryId && p.Deleted == null)
             .Include(p => p.Category)
             .OrderBy(p => p.Quantity)
             .Skip((page - 1) * perPage)
@@ -34,7 +33,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-            .Where(p => p.Id == productId && p.Deleted == null)
+                .Where(p => p.Id == productId && p.Deleted == null)
             .Include(p => p.Category)
             .OrderBy(p => p.Quantity)
             .Skip((page - 1) * perPage)
@@ -45,7 +44,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<List<ProductModel>> GetLowStockAsync(CancellationToken ct = default)
     {
         return await DbSet
-            .Where(p => p.Deleted == null)
+                .Where(p => p.Deleted == null)
             .Include(p => p.Category)
             .OrderBy(p => p.Quantity)
             .Take(5)
@@ -110,7 +109,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<List<CategoryBreakdownResponse>> GetCategoryBreakdownAsync(CancellationToken ct = default)
     {
         return await DbSet
-            .GroupBy(p => new { p.CategoryId, CategoryName = p.Category.Name })
+                .GroupBy(p => new { p.CategoryId, CategoryName = p.Category.Name })
             .Select(g => new CategoryBreakdownResponse(
                 g.Key.CategoryId,
                 g.Key.CategoryName,
@@ -134,7 +133,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken ct = default)
     {
         return await DbSet
-            .Where(p => p.Quantity > 0 && p.Deleted == null)
+                .Where(p => p.Quantity > 0 && p.Deleted == null)
             .Include(p => p.Category)
             .Include(p => p.Supplier)
                 .ThenInclude(s => s!.Person)
@@ -144,7 +143,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken ct = default)
     {
         return await DbSet
-            .Where(p => p.Quantity > 0 && p.Deleted == null)
+                .Where(p => p.Quantity > 0 && p.Deleted == null)
             .Select(p => new { p.CategoryId, CategoryName = p.Category.Name, p.Quantity, p.CostPrice })
             .ToListAsync(ct)
             .ContinueWith(t => t.Result

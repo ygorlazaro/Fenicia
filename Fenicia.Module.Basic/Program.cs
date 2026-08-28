@@ -6,14 +6,12 @@ using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Inventory;
-using Fenicia.Module.Basic.Domains.Product;
-using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.State;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
-using InventoryStockMovementRepository = Fenicia.Module.Basic.Domains.Inventory.StockMovementRepository;
 using Fenicia.Module.Basic.Domains.Supplier;
+using InventoryStockMovementRepository = Fenicia.Module.Basic.Domains.Inventory.StockMovementRepository;
+using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
+using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
 
 namespace Fenicia.Module.Basic;
 
@@ -24,9 +22,9 @@ public class Program
         var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
-        {
-            builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-            builder.Services.AddHttpContextAccessor();
+    {
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<CustomerRepository>();
             builder.Services.AddScoped<PersonRepository>();
             builder.Services.AddScoped<AddressRepository>();

@@ -15,9 +15,9 @@ public static class FeniciaLoggingExtensions
             var seqUrl = context.Configuration["Seq:Url"];
 
             if (!string.IsNullOrWhiteSpace(seqUrl))
-            {
-                config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);
-            }
+        {
+            config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);
+        }
         });
 
         Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();

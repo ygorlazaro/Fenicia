@@ -1,5 +1,4 @@
 using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
-using Fenicia.Module.Basic.Domains.OrderDetail;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 

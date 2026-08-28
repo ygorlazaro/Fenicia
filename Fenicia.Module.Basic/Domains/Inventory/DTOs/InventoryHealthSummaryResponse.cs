@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Inventory.DTOs;
 
 public record InventoryHealthSummaryResponse
 {
-
     public int TotalProducts { get; set; }
 
     public int HealthyProducts { get; set; }

@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 public record FinancialDashboardResponse
 {
-
     public KpiSummaryResponse Kpi { get; set; } = new();
 
     public List<RevenueVsCostResponse> RevenueVsCost { get; set; } = [];

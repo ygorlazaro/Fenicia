@@ -1,10 +1,10 @@
 using Bogus;
-
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.UserRole;
@@ -14,13 +14,16 @@ public class UserRoleServiceTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly UserRoleService service;
+    private readonly UserRoleRepository userRoleRepository;
+    private readonly RoleRepository roleRepository;
+    private readonly CompanyRepository companyRepository;
 
     public UserRoleServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        service = new UserRoleService(db);
+        service = new UserRoleService(userRoleRepository);
         faker = new Faker();
     }
 
@@ -60,9 +63,9 @@ public class UserRoleServiceTests : IDisposable
             RoleId = roleId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUserRoles.Add(userRole);
+        companyRepository.InsertAsync(company, CancellationToken.None).GetAwaiter().GetResult();
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
+        userRoleRepository.InsertAsync(userRole, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetCompaniesByUserAsync(userId, CancellationToken.None);
@@ -114,9 +117,9 @@ public class UserRoleServiceTests : IDisposable
             RoleId = roleId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUserRoles.Add(userRole);
+        companyRepository.InsertAsync(company, CancellationToken.None).GetAwaiter().GetResult();
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
+        userRoleRepository.InsertAsync(userRole, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetCompaniesByUserAsync(userId, CancellationToken.None);
@@ -143,7 +146,7 @@ public class UserRoleServiceTests : IDisposable
             Id = roleId,
             Name = "Admin"
         };
-        db.AuthRoles.Add(role);
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
 
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
@@ -169,8 +172,8 @@ public class UserRoleServiceTests : IDisposable
             userRoles.Add(userRole);
         }
 
-        db.AuthCompanies.AddRange(companies);
-        db.AuthUserRoles.AddRange(userRoles);
+        await companyRepository.InsertRangeAsync(companies, CancellationToken.None);
+        await userRoleRepository.InsertRangeAsync(userRoles, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetCompaniesByUserAsync(userId, CancellationToken.None);
@@ -191,7 +194,7 @@ public class UserRoleServiceTests : IDisposable
             Id = roleId,
             Name = "Admin"
         };
-        db.AuthRoles.Add(role);
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
 
         var company1 = new CompanyModel
         {
@@ -209,7 +212,7 @@ public class UserRoleServiceTests : IDisposable
             IsActive = true
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
+        await companyRepository.InsertRangeAsync(new[] { company1, company2 }, CancellationToken.None);
 
         var userRole1 = new UserRoleModel
         {
@@ -227,7 +230,7 @@ public class UserRoleServiceTests : IDisposable
             RoleId = roleId
         };
 
-        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await userRoleRepository.InsertRangeAsync(new[] { userRole1, userRole2 }, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetCompaniesByUserAsync(userId1, CancellationToken.None);
@@ -255,7 +258,7 @@ public class UserRoleServiceTests : IDisposable
             Name = "User"
         };
 
-        db.AuthRoles.AddRange(adminRole, userRole);
+        await roleRepository.InsertRangeAsync(new[] { adminRole, userRole }, CancellationToken.None);
 
         var company1 = new CompanyModel
         {
@@ -273,7 +276,7 @@ public class UserRoleServiceTests : IDisposable
             IsActive = true
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
+        await companyRepository.InsertRangeAsync(new[] { company1, company2 }, CancellationToken.None);
 
         var userRole1 = new UserRoleModel
         {
@@ -291,7 +294,7 @@ public class UserRoleServiceTests : IDisposable
             RoleId = userRole.Id
         };
 
-        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await userRoleRepository.InsertRangeAsync(new[] { userRole1, userRole2 }, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetCompaniesByUserAsync(userId, CancellationToken.None);
@@ -332,9 +335,9 @@ public class UserRoleServiceTests : IDisposable
             RoleId = roleId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUserRoles.Add(userRole);
+        companyRepository.InsertAsync(company, CancellationToken.None).GetAwaiter().GetResult();
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
+        userRoleRepository.InsertAsync(userRole, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetUserCompaniesAsync(userId, CancellationToken.None);
@@ -386,9 +389,9 @@ public class UserRoleServiceTests : IDisposable
             RoleId = roleId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUserRoles.Add(userRole);
+        companyRepository.InsertAsync(company, CancellationToken.None).GetAwaiter().GetResult();
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
+        userRoleRepository.InsertAsync(userRole, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetUserCompaniesAsync(userId, CancellationToken.None);
@@ -415,7 +418,7 @@ public class UserRoleServiceTests : IDisposable
             Id = roleId,
             Name = "Admin"
         };
-        db.AuthRoles.Add(role);
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
 
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
@@ -441,8 +444,8 @@ public class UserRoleServiceTests : IDisposable
             userRoles.Add(userRole);
         }
 
-        db.AuthCompanies.AddRange(companies);
-        db.AuthUserRoles.AddRange(userRoles);
+        await companyRepository.InsertRangeAsync(companies, CancellationToken.None);
+        await userRoleRepository.InsertRangeAsync(userRoles, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetUserCompaniesAsync(userId, CancellationToken.None);
@@ -463,7 +466,7 @@ public class UserRoleServiceTests : IDisposable
             Id = roleId,
             Name = "Admin"
         };
-        db.AuthRoles.Add(role);
+        roleRepository.InsertAsync(role, CancellationToken.None).GetAwaiter().GetResult();
 
         var company1 = new CompanyModel
         {
@@ -481,7 +484,7 @@ public class UserRoleServiceTests : IDisposable
             IsActive = true
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
+        await companyRepository.InsertRangeAsync(new[] { company1, company2 }, CancellationToken.None);
 
         var userRole1 = new UserRoleModel
         {
@@ -499,7 +502,7 @@ public class UserRoleServiceTests : IDisposable
             RoleId = roleId
         };
 
-        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await userRoleRepository.InsertRangeAsync(new[] { userRole1, userRole2 }, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result1 = await service.GetUserCompaniesAsync(userId1, CancellationToken.None);
@@ -528,7 +531,7 @@ public class UserRoleServiceTests : IDisposable
             Name = "User"
         };
 
-        db.AuthRoles.AddRange(adminRole, userRole);
+        await roleRepository.InsertRangeAsync(new[] { adminRole, userRole }, CancellationToken.None);
 
         var company1 = new CompanyModel
         {
@@ -546,7 +549,7 @@ public class UserRoleServiceTests : IDisposable
             IsActive = true
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
+        await companyRepository.InsertRangeAsync(new[] { company1, company2 }, CancellationToken.None);
 
         var userRole1 = new UserRoleModel
         {
@@ -564,7 +567,7 @@ public class UserRoleServiceTests : IDisposable
             RoleId = userRole.Id
         };
 
-        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await userRoleRepository.InsertRangeAsync(new[] { userRole1, userRole2 }, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await service.GetUserCompaniesAsync(userId, CancellationToken.None);

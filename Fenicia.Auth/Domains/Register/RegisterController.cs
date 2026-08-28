@@ -1,6 +1,5 @@
 using System.Net.Mime;
-using Fenicia.Auth.Domains.Register.DTOs.Commands;
-using Fenicia.Auth.Domains.Register.DTOs.Responses;
+using Fenicia.Auth.Domains.Register.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -15,7 +14,6 @@ namespace Fenicia.Auth.Domains.Register;
 [Produces(MediaTypeNames.Application.Json)]
 public class RegisterController(RegisterService registerService) : ControllerBase
 {
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

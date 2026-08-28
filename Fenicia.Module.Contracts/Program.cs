@@ -33,27 +33,27 @@ public class Program
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddDbContext<DefaultContext>((sp, o) =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
 
-            var connString = config.GetConnectionString("Auth");
+        var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
-            {
-                throw new Exception("Connection string inválida");
-            }
+        {
+            throw new InvalidOperationException("Connection string inválida");
+        }
 
             o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
 
         builder.Services.AddAuthentication(o =>
-        {
-            o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    {
+        o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(o =>
-        {
-            o.RequireHttpsMetadata = false;
-            o.SaveToken = true;
+    {
+        o.RequireHttpsMetadata = false;
+        o.SaveToken = true;
             o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

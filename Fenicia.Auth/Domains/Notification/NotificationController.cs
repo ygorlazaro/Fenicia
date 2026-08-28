@@ -1,7 +1,5 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.Notification.DTOs.Commands;
-using Fenicia.Auth.Domains.Notification.DTOs.Responses;
+using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.API;
 
@@ -17,7 +15,6 @@ namespace Fenicia.Auth.Domains.Notification;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class NotificationController(NotificationService notificationService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllNotificationsResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -31,7 +31,7 @@ public class RoleGodRequirementMiddleware(RequestDelegate next)
                 return;
             }
         }
-        catch
+        catch (JsonException)
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsync("Invalid 'role' claim format.");

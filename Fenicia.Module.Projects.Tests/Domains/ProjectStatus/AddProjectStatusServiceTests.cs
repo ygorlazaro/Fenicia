@@ -1,6 +1,5 @@
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectStatus;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;

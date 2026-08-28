@@ -1,6 +1,5 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.Module.DTOs.Responses;
+using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.API;
 
@@ -16,7 +15,6 @@ namespace Fenicia.Auth.Domains.Module;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ModuleController(ModuleService service) : ControllerBase
 {
-
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<GetModuleResponse>>), StatusCodes.Status200OK)]

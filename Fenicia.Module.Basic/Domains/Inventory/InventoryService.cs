@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Employee;
-using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier;
 
@@ -129,9 +128,9 @@ public class InventoryService(
 
         var zeroMovementProducts = candidateProducts
             .Select(p =>
-            {
-                var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
-                var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
+        {
+            var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
+            var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
                 var stockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity;
                 return new ZeroMovementProductResponse(
                     p.Id,
@@ -160,9 +159,9 @@ public class InventoryService(
         var allProductsWithStock = await productRepository.GetOverstockCandidatesAsync(ct);
 
         var overstockProducts = allProductsWithStock.Where(p => productSales.ContainsKey(p.Id)).Select(p =>
-        {
-            var avgMonthlySales = productSales[p.Id];
-            var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
+    {
+        var avgMonthlySales = productSales[p.Id];
+        var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
             var excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity);
             var excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0);
             return excessValue > 0
@@ -212,9 +211,9 @@ public class InventoryService(
         var grouped = productsByCategory
             .GroupBy(p => new { p.CategoryId, p.CategoryName })
             .Select(g =>
-            {
-                var totalValue = g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity);
-                return new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
+        {
+            var totalValue = g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity);
+            return new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
             })
             .OrderByDescending(g => g.TotalStockValue)
             .ToList();

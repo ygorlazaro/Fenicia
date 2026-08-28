@@ -1,73 +1,58 @@
-using Fenicia.Common.Data.Models.Basic;
 using System.Security.Claims;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.State;
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.State.DTOs;
+using Fenicia.Module.Basic.Domains.State;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Fenicia.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace Fenicia.Module.Basic.Tests.Domains.State;
-
-public class StateControllerTests : IDisposable
+        
+    {
+    }
 {
-    private readonly StateController controller;
+}
+        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.NotNull(authorizeAttribute);
+        companyId = companyContext.CompanyId;
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        controller = new StateController(stateService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+        mockHttpContext = new Mock<HttpContext>();
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+namespace Fenicia.Module.Basic.Tests.Domains.State;
+    private Guid companyId;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private Guid companyId;
-    private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly StateController controller;
     private readonly StateService stateService;
-
-    public StateControllerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        
-        var stateRepository = new StateRepository(db);
-        stateService = new StateService(stateRepository);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new StateController(stateService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        SetupUserClaims(testUserId);
-        faker = new Faker();
-        companyId = companyContext.CompanyId;
-    }
-
     private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
-    }
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
     public async Task GetAllAsync_WhenNoStates_ReturnsOkWithEmptyList()
-    {
-        var wide = new WideEventContext();
-        var result = await controller.GetAllAsync(wide, CancellationToken.None);
-
-        Assert.IsType<OkObjectResult>(result.Result);
-    }
-
-    [Fact]
+public class StateControllerTests : IDisposable
+    public StateControllerTests()
+    public void Dispose()
     public void StateController_HasAuthorizeAttribute()
-    {
+        SetupUserClaims(testUserId);
+        stateService = new StateService(stateRepository);
+        testUserId = Guid.NewGuid();
         var authorizeAttribute = typeof(StateController).GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
-        Assert.NotNull(authorizeAttribute);
-    }
-}
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var companyContext = new TestCompanyContext();
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var result = await controller.GetAllAsync(wide, CancellationToken.None);
+        var stateRepository = new StateRepository(db);
+        var wide = new WideEventContext();

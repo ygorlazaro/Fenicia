@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Customer.DTOs;
 
 public record CustomerSummaryResponse
 {
-
     public int TotalCustomers { get; set; }
 
     public int TotalOrders { get; set; }

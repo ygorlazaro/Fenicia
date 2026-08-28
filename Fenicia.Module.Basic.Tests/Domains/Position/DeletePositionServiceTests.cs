@@ -1,58 +1,43 @@
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Position;
-using Fenicia.Module.Basic.Domains.Position.DTOs;
-using Microsoft.EntityFrameworkCore;
-using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.Employee;
+using Fenicia.Module.Basic.Domains.Position.DTOs;
+using Fenicia.Module.Basic.Domains.Position;
+using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Module.Basic.Tests.Domains.Position;
-
-public class DeletePositionServiceTests : IDisposable
+    {
+    }
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private Guid companyId;
-    private readonly PositionService service;
-
-    public DeletePositionServiceTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var positionRepository = new Fenicia.Module.Basic.Domains.Employee.PositionRepository(db);
-        service = new PositionService(positionRepository);
-        faker = new Faker();
-        var companyId = companyContext.CompanyId;
-    }
-
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_WhenPositionExists_SetsDeletedDate()
-    {
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = faker.Commerce.Categories(1).First() };
-        db.BasicPositions.Add(position);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        await service.DeleteAsync(new DeletePositionCommand(position.Id), companyId, CancellationToken.None);
-
-        var updated = await db.BasicPositions.FindAsync(position.Id);
+}
+        Assert.Equal(0, count);
         Assert.NotNull(updated);
         Assert.NotNull(updated.Deleted);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_WhenPositionDoesNotExist_DoesNothing()
-    {
+        await db.SaveChangesAsync(CancellationToken.None);
         await service.DeleteAsync(new DeletePositionCommand(Guid.NewGuid()), companyId, CancellationToken.None);
-
+        await service.DeleteAsync(new DeletePositionCommand(position.Id), companyId, CancellationToken.None);
+        db.BasicPositions.Add(position);
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+namespace Fenicia.Module.Basic.Tests.Domains.Position;
+    private Guid companyId;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly PositionService service;
+    public async Task DeleteAsync_WhenPositionDoesNotExist_DoesNothing()
+    public async Task DeleteAsync_WhenPositionExists_SetsDeletedDate()
+public class DeletePositionServiceTests : IDisposable
+    public DeletePositionServiceTests()
+    public void Dispose()
+        service = new PositionService(positionRepository);
+        var companyContext = new TestCompanyContext();
+        var companyId = companyContext.CompanyId;
         var count = await db.BasicPositions.CountAsync();
-        Assert.Equal(0, count);
-    }
-}
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = faker.Commerce.Categories(1).First() };
+        var positionRepository = new Fenicia.Module.Basic.Domains.Employee.PositionRepository(db);
+        var updated = await db.BasicPositions.FindAsync(position.Id);

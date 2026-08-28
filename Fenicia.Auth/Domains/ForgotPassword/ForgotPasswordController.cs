@@ -1,6 +1,5 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.ForgotPassword.DTOs.Commands;
+using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -16,7 +15,6 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ForgotPasswordController(ForgotPasswordService forgotPasswordService) : ControllerBase
 {
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,22 +1,26 @@
-using Fenicia.Auth.Domains.User.DTOs.Commands;
-using Fenicia.Auth.Domains.User.DTOs.Responses;
-using Fenicia.Auth.Domains.UserRole.DTOs.Responses;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User;
 
-public class UserService(DefaultContext db)
+public class UserService(
+    UserRepository userRepository,
+    UserRoleRepository userRoleRepository,
+    RoleRepository roleRepository,
+    CompanyRepository companyRepository)
 {
     public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(int page, int perPage, CancellationToken ct)
     {
-        var request = db.AuthUsers.OrderBy(u => u.Name);
+        var request = userRepository.Query().OrderBy(u => u.Name);
         var totalCount = await request.CountAsync(ct);
 
         var users = await request.Skip((page - 1) * perPage).Take(perPage).Select(u => new UserListItemResponse(u.Id, u.Name, u.Email)).ToListAsync(ct);
@@ -26,34 +30,36 @@ public class UserService(DefaultContext db)
 
     public async Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken ct)
     {
-        var request = db.AuthUsers.Where(u => u.Id == userId).Select(u => new GetUserByIdResponse(u.Id, u.Name, u.Email));
+        var request = userRepository.Query().Where(u => u.Id == userId).Select(u => new GetUserByIdResponse(u.Id, u.Name, u.Email));
 
         return await request.FirstOrDefaultAsync(ct);
     }
 
     public async Task<GetByEmailResponse?> GetByEmailAsync(string email, CancellationToken ct)
     {
-        return await db.AuthUsers.Where(user => user.Email == email)
-            .Select(user => new GetByEmailResponse(user.Id,
-                user.Email,
-                user.Name,
-                user.Password))
-            .FirstOrDefaultAsync(ct);
+        var user = await userRepository.GetByEmailAsync(email, ct);
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        return new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct)
     {
-        return await db.AuthUsers.AnyAsync(u => u.Email == email, ct);
+        return await userRepository.ExistsByEmailAsync(email, ct);
     }
 
     public async Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken ct)
     {
-        return await db.AuthUsers.FirstOrDefaultAsync(u => u.Id == userId, ct) ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);
+        return await userRepository.GetByIdAsync(userId, ct) ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);
     }
 
     public async Task<UserModel?> FirstByEmailOrDefaultAsync(string email, CancellationToken ct)
     {
-        return await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email, ct);
+        return await userRepository.GetByEmailAsync(email, ct);
     }
 
     public async Task<UserModel> UpdatePasswordAsync(Guid userId, string plainPassword, CancellationToken ct)
@@ -72,18 +78,12 @@ public class UserService(DefaultContext db)
 
     public async Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken ct)
     {
-        var query = from ur in db.AuthUserRoles
-                    join c in db.AuthCompanies on ur.CompanyId equals c.Id
-                    join r in db.AuthRoles on ur.RoleId equals r.Id
-                    where ur.UserId == userId
-                    select new GetUserCompaniesResponse(c.Id, r.Name, c.Id, c.Name, c.Cnpj);
-
-        return await query.ToListAsync(ct);
+        return await userRepository.GetCompaniesAsync(userId, ct);
     }
 
     public async Task<CreateUserResponse> CreateAsync(CreateUserCommand command, CancellationToken ct)
     {
-        var userExists = await db.AuthUsers.AnyAsync(u => u.Email == command.Email, ct);
+        var userExists = await userRepository.ExistsByEmailAsync(command.Email, ct);
 
         if (userExists)
         {
@@ -99,9 +99,8 @@ public class UserService(DefaultContext db)
             Name = command.Name
         };
 
-        db.AuthUsers.Add(user);
+        await userRepository.InsertAsync(user, ct);
         await RelateRolesAsync(user.Id, command.Roles, ct);
-        await db.SaveChangesAsync(ct);
 
         return new CreateUserResponse(user.Id, user.Name, user.Email);
     }
@@ -126,7 +125,6 @@ public class UserService(DefaultContext db)
 
         await ValidateCompanies(companies, ct);
         await RelateRolesAsync(command, user, ct);
-        await db.SaveChangesAsync(ct);
 
         return new UpdateUserResponse(user.Id, user.Name, user.Email);
     }
@@ -136,8 +134,6 @@ public class UserService(DefaultContext db)
         var user = await FirstByIdAsync(userId, ct);
 
         user.Deleted = DateTime.UtcNow;
-
-        await db.SaveChangesAsync(ct);
     }
 
     public async Task<UpdateUserPasswordResponse> UpdatePasswordAsync(UpdateUserPasswordCommand command, CancellationToken ct)
@@ -147,17 +143,13 @@ public class UserService(DefaultContext db)
 
         user.Password = hashedPassword;
 
-        await db.SaveChangesAsync(ct);
-
         return new UpdateUserPasswordResponse(true, "Password changed successfully");
     }
 
     public async Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(UpdatePasswordCommand command, CancellationToken ct)
     {
         var user = await UpdatePasswordAsync(command.UserId, command.Password, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
-        db.Entry(user).State = EntityState.Modified;
-
-        await db.SaveChangesAsync(ct);
+        await userRepository.UpdateAsync(user.Id, user, ct);
 
         return new UpdatePasswordResponse(user.Id, user.Name, user.Email);
     }
@@ -175,45 +167,41 @@ public class UserService(DefaultContext db)
             CompanyId = r.CompanyId
         });
 
-        db.AuthUserRoles.AddRange(userRoles);
+        await userRoleRepository.InsertRangeAsync(userRoles, ct);
     }
 
     private async Task ValidateCompanies(IEnumerable<Guid> companies, CancellationToken ct)
     {
-        var distinct = companies.Distinct();
+        var distinct = companies.Distinct().ToList();
 
-        var query = db.AuthCompanies.Where(c => distinct.Contains(c.Id));
-
-        if (distinct.Count() != await query.CountAsync(ct))
+        foreach (var companyId in distinct)
         {
-            throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
+            var exists = await companyRepository.GetByIdAsync(companyId, ct) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
         }
     }
 
     private async Task ValidateRoles(IEnumerable<Guid> roles, CancellationToken ct)
     {
-        var distinct = roles.Distinct();
+        var distinct = roles.Distinct().ToList();
 
-        var query = db.AuthRoles.Where(r => distinct.Contains(r.Id));
-
-        if (distinct.Count() != await query.CountAsync(ct))
+        foreach (var roleId in distinct)
         {
-            throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
+            var exists = await roleRepository.GetByIdAsync(roleId, ct) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
         }
     }
 
-    private async Task<(UserModel user, CompanyModel company)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
+    private async Task<(UserModel User, CompanyModel Company)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
     {
-        var existingUser = await db.AuthUsers.AnyAsync(u => u.Email == command.Email, ct);
+        var existingUser = await userRepository.ExistsByEmailAsync(command.Email, ct);
 
         if (existingUser)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var existingCompany = await db.AuthCompanies.AnyAsync(c => c.Cnpj == command.Company.Cnpj, ct);
+        var existingCompany = await companyRepository.GetByCnpjAsync(command.Company.Cnpj, ct);
 
-        if (existingCompany)
+        if (existingCompany is not null)
         {
             throw new InvalidRequestException(ExceptionMessages.CompanyExists);
         }
@@ -226,7 +214,7 @@ public class UserService(DefaultContext db)
             Name = command.Name
         };
 
-        db.AuthUsers.Add(user);
+        await userRepository.InsertAsync(user, ct);
 
         var company = new CompanyModel
         {
@@ -234,33 +222,32 @@ public class UserService(DefaultContext db)
             Cnpj = command.Company.Cnpj
         };
 
-        db.AuthCompanies.Add(company);
+        await companyRepository.InsertAsync(company, ct);
 
-        var adminRole = await db.AuthRoles.FirstOrDefaultAsync(r => r.Name == "Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
+        var adminRole = await roleRepository.GetByNameAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
         var userRole = new UserRoleModel
         {
             UserId = user.Id,
-            Company = company,
+            CompanyId = company.Id,
             RoleId = adminRole.Id
         };
 
-        db.AuthUserRoles.Add(userRole);
+        await userRoleRepository.InsertAsync(userRole, ct);
 
-        await db.SaveChangesAsync(ct);
         return (user, company);
     }
 
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)
     {
-        var isExistingUser = await db.AuthUsers.AnyAsync(u => u.Email == request.Email, ct);
-        var isExistingCompany = await db.AuthCompanies.AnyAsync(c => c.Cnpj == request.Company.Cnpj, ct);
+        var isExistingUser = await userRepository.ExistsByEmailAsync(request.Email, ct);
+        var isExistingCompany = await companyRepository.GetByCnpjAsync(request.Company.Cnpj, ct);
 
         if (isExistingUser)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        if (isExistingCompany)
+        if (isExistingCompany is not null)
         {
             throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundWithCNPJ);
         }
@@ -272,15 +259,24 @@ public class UserService(DefaultContext db)
 
         if (requestedRoles.Count == 0)
         {
-            var existing = await db.AuthUserRoles.Where(x => x.UserId == user.Id).ToListAsync(ct);
+            var existing = await userRoleRepository.Query()
+                    .Where(x => x.UserId == user.Id)
+                    .ToListAsync(ct);
 
-            db.AuthUserRoles.RemoveRange(existing);
+            foreach (var role in existing)
+            {
+                await userRoleRepository.DeleteAsync(role.Id, ct);
+            }
+
             return;
         }
 
         var requestedRoleIds = requestedRoles.Select(r => r.RoleId).Distinct().ToList();
 
-        var validRoleIds = await db.AuthRoles.Where(r => requestedRoleIds.Contains(r.Id)).Select(r => r.Id).ToListAsync(ct);
+        var validRoleIds = await roleRepository.Query()
+            .Where(r => requestedRoleIds.Contains(r.Id))
+            .Select(r => r.Id)
+            .ToListAsync(ct);
 
         if (validRoleIds.Count != requestedRoleIds.Count)
         {
@@ -291,7 +287,9 @@ public class UserService(DefaultContext db)
 
         var requestedSet = requestedRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
-        var existingRoles = await db.AuthUserRoles.Where(x => x.UserId == user.Id).ToListAsync(ct);
+        var existingRoles = await userRoleRepository.Query()
+            .Where(x => x.UserId == user.Id)
+            .ToListAsync(ct);
 
         var existingSet = existingRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
@@ -306,12 +304,15 @@ public class UserService(DefaultContext db)
 
         if (toRemove.Count > 0)
         {
-            db.AuthUserRoles.RemoveRange(toRemove);
+            foreach (var role in toRemove)
+            {
+                await userRoleRepository.DeleteAsync(role.Id, ct);
+            }
         }
 
         if (toInsert.Count > 0)
         {
-            db.AuthUserRoles.AddRange(toInsert);
+            await userRoleRepository.InsertRangeAsync(toInsert, ct);
         }
     }
 
@@ -328,7 +329,8 @@ public class UserService(DefaultContext db)
             return;
         }
 
-        var emailExists = await db.AuthUsers.AnyAsync(u => u.Email == command.Email && u.Id != command.UserId, ct);
+        var emailExists = await userRepository.Query()
+            .AnyAsync(u => u.Email == command.Email && u.Id != command.UserId, ct);
 
         user.Email = emailExists switch
         {
@@ -336,5 +338,4 @@ public class UserService(DefaultContext db)
             _ => command.Email
         };
     }
-
 }

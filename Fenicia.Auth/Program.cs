@@ -1,3 +1,7 @@
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -24,11 +28,15 @@ public class Program
         builder.Configuration.AddConfiguration(configuration);
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
-        {
-            builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
-            builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-            builder.Services.AddHttpContextAccessor();
-        }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+    {
+        builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<UserRepository>();
+        builder.Services.AddScoped<UserRoleRepository>();
+        builder.Services.AddScoped<RoleRepository>();
+        builder.Services.AddScoped<CompanyRepository>();
+    }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();

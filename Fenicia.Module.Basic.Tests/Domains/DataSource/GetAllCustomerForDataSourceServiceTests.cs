@@ -1,68 +1,46 @@
-using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.DataSource;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Module.Basic.Domains.DataSource;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
-
-public class GetAllCustomerForDataSourceServiceTests : IDisposable
+        {
+        };
+    {
+    }
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly DataSourceService service;
-
-    public GetAllCustomerForDataSourceServiceTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        service = new DataSourceService(db);
-        faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task GetCustomersAsync_WhenNoCustomers_ReturnsEmptyList()
-    {
-        var result = await service.GetCustomersAsync(CancellationToken.None);
-
-        Assert.NotNull(result);
+}
         Assert.Empty(result);
-    }
-
-    [Fact]
-    public async Task GetCustomersAsync_WhenCustomersExist_ReturnsCustomers()
-    {
-        var person = new PersonModel
-        {
-            Id = Guid.NewGuid(),
-            Name = faker.Person.FullName,
-            Email = faker.Internet.Email(),
-            Document = faker.Random.Replace("###.###.###-##"),
-            PhoneNumber = faker.Random.Replace("(##) #####-####")
-        };
-
-        var customer = new CustomerModel
-        {
-            Id = Guid.NewGuid(),
-            Person = person,
-            PersonId = person.Id
-        };
-
-        db.BasicCustomers.Add(customer);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var result = await service.GetCustomersAsync(CancellationToken.None);
-
         Assert.NotNull(result);
         Assert.Single(result);
-    }
-}
+        await db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+            Document = faker.Random.Replace("###.###.###-##"),
+            Email = faker.Internet.Email(),
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+            Id = Guid.NewGuid(),
+            Name = faker.Person.FullName,
+namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
+            PersonId = person.Id
+            Person = person,
+            PhoneNumber = faker.Random.Replace("(##) #####-####")
+    private readonly DataSourceService service;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    public async Task GetCustomersAsync_WhenCustomersExist_ReturnsCustomers()
+    public async Task GetCustomersAsync_WhenNoCustomers_ReturnsEmptyList()
+public class GetAllCustomerForDataSourceServiceTests : IDisposable
+    public GetAllCustomerForDataSourceServiceTests()
+    public void Dispose()
+        service = new DataSourceService(db);
+        var companyContext = new TestCompanyContext();
+        var customer = new CustomerModel
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var person = new PersonModel
+        var result = await service.GetCustomersAsync(CancellationToken.None);

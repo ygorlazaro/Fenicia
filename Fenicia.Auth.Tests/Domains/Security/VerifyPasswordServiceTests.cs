@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Tests.Domains.Security;
 
 public class VerifyPasswordServiceTests
 {
-    private readonly Faker faker = new();
+    private readonly Faker _faker = new();
 
     [Theory]
     [InlineData("SimplePass123")]
@@ -15,7 +15,6 @@ public class VerifyPasswordServiceTests
     [InlineData("SecurePass")]
     public void Handle_WhenPasswordMatchesHash_ReturnsTrue(string password)
     {
-
         var hashedPassword = SecurityService.Hash(password);
 
         var result = SecurityService.Verify(password, hashedPassword);
@@ -29,7 +28,6 @@ public class VerifyPasswordServiceTests
     [InlineData("abc", "xyz")]
     public void Handle_WhenPasswordDoesNotMatchHash_ReturnsFalse(string password, string wrongPassword)
     {
-
         var hashedPassword = SecurityService.Hash(password);
 
         var result = SecurityService.Verify(wrongPassword, hashedPassword);
@@ -40,8 +38,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordIsNull_ReturnsFalse()
     {
-
-        var hashedPassword = SecurityService.Hash(faker.Internet.Password());
+        var hashedPassword = SecurityService.Hash(_faker.Internet.Password());
 
         var result = SecurityService.Verify(null!, hashedPassword);
 
@@ -51,8 +48,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenHashedPasswordIsNull_ReturnsFalse()
     {
-
-        var password = faker.Internet.Password();
+        var password = _faker.Internet.Password();
 
         var result = SecurityService.Verify(password, null!);
 
@@ -62,7 +58,6 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenBothPasswordAndHashAreNull_ReturnsFalse()
     {
-
         var result = SecurityService.Verify(null!, null!);
 
         Assert.False(result);
@@ -71,8 +66,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordIsEmpty_ReturnsFalse()
     {
-
-        var hashedPassword = SecurityService.Hash(faker.Internet.Password());
+        var hashedPassword = SecurityService.Hash(_faker.Internet.Password());
 
         var result = SecurityService.Verify(string.Empty, hashedPassword);
 
@@ -82,8 +76,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenHashedPasswordIsEmpty_ReturnsFalse()
     {
-
-        var password = faker.Internet.Password();
+        var password = _faker.Internet.Password();
 
         var result = SecurityService.Verify(password, string.Empty);
 
@@ -93,7 +86,6 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordHasDifferentCase_ReturnsFalse()
     {
-
         var password = "TestPass123";
         var wrongCasePassword = password.ToLowerInvariant();
         var hashedPassword = SecurityService.Hash(password);
@@ -106,9 +98,8 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenHashIsInvalidFormat_ReturnsFalse()
     {
-
-        var password = faker.Internet.Password();
-        var invalidHash = faker.Lorem.Word();
+        var password = _faker.Internet.Password();
+        var invalidHash = _faker.Lorem.Word();
 
         var result = SecurityService.Verify(password, invalidHash);
 
@@ -118,8 +109,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordContainsSpecialCharacters_VerifiesCorrectly()
     {
-
-        var password = $"P@$$w0rd!{faker.Random.AlphaNumeric(10)}";
+        var password = $"P@$$w0rd!{_faker.Random.AlphaNumeric(10)}";
         var hashedPassword = SecurityService.Hash(password);
 
         var result = SecurityService.Verify(password, hashedPassword);
@@ -130,8 +120,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordIsVeryLong_VerifiesCorrectly()
     {
-
-        var password = faker.Lorem.Paragraphs();
+        var password = _faker.Lorem.Paragraphs();
         var hashedPassword = SecurityService.Hash(password);
 
         var result = SecurityService.Verify(password, hashedPassword);
@@ -142,8 +131,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordIsShort_VerifiesCorrectly()
     {
-
-        var password = faker.Random.String2(1, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        var password = _faker.Random.String2(1, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         var hashedPassword = SecurityService.Hash(password);
 
         var result = SecurityService.Verify(password, hashedPassword);
@@ -154,8 +142,7 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenPasswordContainsUnicode_VerifiesCorrectly()
     {
-
-        var password = $"{faker.Internet.Password()} 日本語 🔐";
+        var password = $"{_faker.Internet.Password()} 日本語 🔐";
         var hashedPassword = SecurityService.Hash(password);
 
         var result = SecurityService.Verify(password, hashedPassword);
@@ -166,9 +153,8 @@ public class VerifyPasswordServiceTests
     [Fact]
     public void Handle_WhenDifferentPasswordsProduceDifferentHashes()
     {
-
-        var password1 = faker.Internet.Password();
-        var password2 = faker.Internet.Password();
+        var password1 = _faker.Internet.Password();
+        var password2 = _faker.Internet.Password();
         var hash1 = SecurityService.Hash(password1);
         var hash2 = SecurityService.Hash(password2);
 

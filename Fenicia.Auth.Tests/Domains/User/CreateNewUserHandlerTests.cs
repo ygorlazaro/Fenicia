@@ -1,34 +1,43 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
-
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.DTOs.Commands;
+using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
 public class CreateNewUserHandlerTests : IDisposable
 {
-    private readonly Guid adminRoleId;
+    private readonly Guid _adminRoleId;
 
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly UserService userService;
+    private readonly UserRepository userRepository;
+    private readonly UserRoleRepository userRoleRepository;
+    private readonly RoleRepository roleRepository;
+    private readonly CompanyRepository companyRepository;
 
     public CreateNewUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        userService = new UserService(db);
+        userRepository = new UserRepository(db);
+        userRoleRepository = new UserRoleRepository(db);
+        roleRepository = new RoleRepository(db);
+        companyRepository = new CompanyRepository(db);
+        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
         faker = new Faker();
 
-        adminRoleId = Guid.NewGuid();
+        _adminRoleId = Guid.NewGuid();
         SeedAdminRole();
     }
 
@@ -39,21 +48,20 @@ public class CreateNewUserHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SeedAdminRole()
+    private async Task SeedAdminRole()
     {
         var adminRole = new RoleModel
         {
-            Id = adminRoleId,
+            Id = _adminRoleId,
             Name = "Admin"
         };
-        db.AuthRoles.Add(adminRole);
-        db.SaveChanges();
+        await roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
     }
 
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserAndCompanySuccessfully()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -66,13 +74,13 @@ public class CreateNewUserHandlerTests : IDisposable
 
         Assert.NotNull(result);
 
-        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await userRepository.Query().FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.Equal(email, user.Email);
         Assert.Equal(name, user.Name);
         Assert.NotEqual(password, user.Password);
 
-        var company = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await companyRepository.Query().FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.Equal(companyName, company.Name);
         Assert.Equal(cnpj, company.Cnpj);
@@ -81,7 +89,6 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -94,7 +101,7 @@ public class CreateNewUserHandlerTests : IDisposable
             Name = "Existing User",
             Password = "password"
         };
-        db.AuthUsers.Add(existingUser);
+        userRepository.InsertAsync(existingUser, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
@@ -106,7 +113,6 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -118,7 +124,7 @@ public class CreateNewUserHandlerTests : IDisposable
             Cnpj = cnpj,
             Name = "Existing Company"
         };
-        db.AuthCompanies.Add(existingCompany);
+        await companyRepository.InsertAsync(existingCompany, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
@@ -130,7 +136,6 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenAdminRoleNotFound_ThrowsArgumentException()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -151,7 +156,6 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_CreatesUserRoleLinkingUserCompanyAndRole()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -162,16 +166,15 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var result = await userService.CreateNewAsync(request, CancellationToken.None);
 
-        var userRole = await db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
+        var userRole = await userRoleRepository.Query().FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.NotNull(userRole);
-        Assert.Equal(adminRoleId, userRole.RoleId);
+        Assert.Equal(_adminRoleId, userRole.RoleId);
         Assert.NotEqual(Guid.Empty, userRole.CompanyId);
     }
 
     [Fact]
     public async Task Handle_ReturnsCorrectResponseData()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -193,7 +196,6 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_PasswordIsHashedBeforeSaving()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -204,7 +206,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         await userService.CreateNewAsync(request, CancellationToken.None);
 
-        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await userRepository.Query().FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.NotEqual(password, user.Password);
     }
@@ -212,7 +214,6 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_CompanyIsActiveByDefault()
     {
-
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -223,7 +224,7 @@ public class CreateNewUserHandlerTests : IDisposable
 
         await userService.CreateNewAsync(request, CancellationToken.None);
 
-        var company = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await companyRepository.Query().FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.True(company.IsActive);
     }

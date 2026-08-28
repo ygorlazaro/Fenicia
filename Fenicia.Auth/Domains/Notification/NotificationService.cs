@@ -1,5 +1,4 @@
-using Fenicia.Auth.Domains.Notification.DTOs.Commands;
-using Fenicia.Auth.Domains.Notification.DTOs.Responses;
+using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -26,8 +25,7 @@ public class NotificationService(DefaultContext db)
             n.Description,
             n.Date,
             n.ImageUrl,
-            n.Read
-        )).ToList();
+            n.Read)).ToList();
 
         return new Pagination<List<GetAllNotificationsResponse>>(response, total, page, perPage);
     }
@@ -35,7 +33,7 @@ public class NotificationService(DefaultContext db)
     public async Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         var notification = await db.AuthNotifications
-            .FirstOrDefaultAsync(n => n.Id == id, ct);
+                .FirstOrDefaultAsync(n => n.Id == id, ct);
 
         if (notification is null)
         {
@@ -48,8 +46,7 @@ public class NotificationService(DefaultContext db)
             notification.Description,
             notification.Date,
             notification.ImageUrl,
-            notification.Read
-        );
+            notification.Read);
     }
 
     public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, CancellationToken ct)
@@ -72,7 +69,7 @@ public class NotificationService(DefaultContext db)
     public async Task<UpdateNotificationResponse?> UpdateAsync(UpdateNotificationCommand command, CancellationToken ct)
     {
         var notification = await db.AuthNotifications
-            .FirstOrDefaultAsync(n => n.Id == command.Id, ct);
+                .FirstOrDefaultAsync(n => n.Id == command.Id, ct);
 
         if (notification is null)
         {
@@ -98,7 +95,7 @@ public class NotificationService(DefaultContext db)
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
         var notification = await db.AuthNotifications
-            .FirstOrDefaultAsync(n => n.Id == id, ct);
+                .FirstOrDefaultAsync(n => n.Id == id, ct);
 
         if (notification is null)
         {
@@ -115,7 +112,7 @@ public class NotificationService(DefaultContext db)
     public async Task<bool> MarkAsReadAsync(Guid id, CancellationToken ct)
     {
         var notification = await db.AuthNotifications
-            .FirstOrDefaultAsync(n => n.Id == id, ct);
+                .FirstOrDefaultAsync(n => n.Id == id, ct);
 
         if (notification is null)
         {

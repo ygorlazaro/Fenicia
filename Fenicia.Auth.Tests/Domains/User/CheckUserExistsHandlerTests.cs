@@ -1,32 +1,42 @@
 using Bogus;
-
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
 public class CheckUserExistsHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly UserService userService;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly UserService _userService;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
 
     public CheckUserExistsHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userService = new UserService(db);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -34,21 +44,20 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailExists_ReturnsTrue()
     {
-
-        var email = faker.Internet.Email();
+        var email = _faker.Internet.Email();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.ExistsByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.ExistsByEmailAsync(email, CancellationToken.None);
 
         Assert.True(result, "Should return true when email exists");
     }
@@ -56,10 +65,9 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailDoesNotExist_ReturnsFalse()
     {
+        var email = _faker.Internet.Email();
 
-        var email = faker.Internet.Email();
-
-        var result = await userService.ExistsByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.ExistsByEmailAsync(email, CancellationToken.None);
 
         Assert.False(result, "Should return false when email doesn't exist");
     }
@@ -67,22 +75,21 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsFalse()
     {
-
-        var email = faker.Internet.Email();
+        var email = _faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.ExistsByEmailAsync(upperCaseEmail, CancellationToken.None);
+        var result = await _userService.ExistsByEmailAsync(upperCaseEmail, CancellationToken.None);
 
         Assert.False(result, "Email comparison is case-sensitive");
     }
@@ -90,7 +97,6 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_OnlyMatchesExactEmail()
     {
-
         const string email1 = "user1@example.com";
         const string email2 = "user2@example.com";
 
@@ -98,24 +104,24 @@ public class CheckUserExistsHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Email = email1,
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var user2 = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email2,
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthUsers.AddRange(user1, user2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.AddRange(user1, user2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result1 = await userService.ExistsByEmailAsync(email1, CancellationToken.None);
-        var result2 = await userService.ExistsByEmailAsync(email2, CancellationToken.None);
-        var result3 = await userService.ExistsByEmailAsync("other@example.com", CancellationToken.None);
+        var result1 = await _userService.ExistsByEmailAsync(email1, CancellationToken.None);
+        var result2 = await _userService.ExistsByEmailAsync(email2, CancellationToken.None);
+        var result3 = await _userService.ExistsByEmailAsync("other@example.com", CancellationToken.None);
 
         Assert.True(result1, "Should find user1");
         Assert.True(result2, "Should find user2");
@@ -125,10 +131,9 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsFalse()
     {
+        var email = _faker.Internet.Email();
 
-        var email = faker.Internet.Email();
-
-        var result = await userService.ExistsByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.ExistsByEmailAsync(email, CancellationToken.None);
 
         Assert.False(result, "Should return false with empty database");
     }
@@ -136,7 +141,6 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsFalse()
     {
-
         const string email = "test@example.com";
         const string emailWithSpaces = " test@example.com ";
 
@@ -144,14 +148,14 @@ public class CheckUserExistsHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Email = email,
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.ExistsByEmailAsync(emailWithSpaces, CancellationToken.None);
+        var result = await _userService.ExistsByEmailAsync(emailWithSpaces, CancellationToken.None);
 
         Assert.False(result, "Should not match email with extra spaces");
     }
@@ -159,7 +163,6 @@ public class CheckUserExistsHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailHasExtraCharacters_ReturnsFalse()
     {
-
         const string email = "test@example.com";
         const string emailWithExtra = "test@example.com.";
 
@@ -167,14 +170,14 @@ public class CheckUserExistsHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Email = email,
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.ExistsByEmailAsync(emailWithExtra, CancellationToken.None);
+        var result = await _userService.ExistsByEmailAsync(emailWithExtra, CancellationToken.None);
 
         Assert.False(result, "Should not match email with extra characters");
     }

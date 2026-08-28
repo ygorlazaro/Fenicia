@@ -1,4 +1,3 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
@@ -11,7 +10,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
     {
         return await DbSet
-            .Where(d => d.OrderId == orderId && d.Deleted == null)
+                .Where(d => d.OrderId == orderId && d.Deleted == null)
             .ToListAsync(ct);
     }
 
@@ -38,7 +37,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         return await DbSet
-            .Include(d => d.Order)
+                .Include(d => d.Order)
             .Where(d => d.Order.SaleDate >= startDate && d.Order.SaleDate <= endDate && d.Deleted == null)
             .ToListAsync(ct);
     }

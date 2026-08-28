@@ -38,13 +38,13 @@ public static class FeniciaControllersExtensions
         var targetAssembly = (assembly ?? Assembly.GetEntryAssembly()) ?? throw new InvalidOperationException("Could not determine the assembly to load controllers from.");
 
         builder.Services.AddControllers().ConfigureApplicationPartManager(manager =>
-        {
-            manager.ApplicationParts.Clear();
-            manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
+    {
+        manager.ApplicationParts.Clear();
+        manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
         }).AddJsonOptions(o =>
-        {
-            o.JsonSerializerOptions.AllowTrailingCommas = false;
-            o.JsonSerializerOptions.MaxDepth = 0;
+    {
+        o.JsonSerializerOptions.AllowTrailingCommas = false;
+        o.JsonSerializerOptions.MaxDepth = 0;
             o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });

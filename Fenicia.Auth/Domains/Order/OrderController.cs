@@ -1,6 +1,5 @@
 using System.Net.Mime;
-using Fenicia.Auth.Domains.Order.DTOs.Commands;
-using Fenicia.Auth.Domains.Order.DTOs.Responses;
+using Fenicia.Auth.Domains.Order.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -16,7 +15,6 @@ namespace Fenicia.Auth.Domains.Order;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class OrderController(OrderService orderService) : ControllerBase
 {
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,4 +1,3 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -11,7 +10,7 @@ public class StateRepository(DefaultContext context) : Repository<StateModel>(co
     public async Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct = default)
     {
         return await DbSet
-            .Where(e => e.Deleted == null)
+                .Where(e => e.Deleted == null)
             .OrderBy(s => s.Uf)
             .ToListAsync(ct);
     }

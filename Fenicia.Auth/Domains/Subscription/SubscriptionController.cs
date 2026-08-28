@@ -1,6 +1,5 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.Subscription.DTOs.Responses;
+using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +14,6 @@ namespace Fenicia.Auth.Domains.Subscription;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class SubscriptionController(SubscriptionService subscriptionService) : ControllerBase
 {
-
     [HttpGet("profile")]
     [ProducesResponseType(typeof(GetUserProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

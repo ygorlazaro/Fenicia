@@ -1,8 +1,6 @@
-using Fenicia.Auth.Domains.Configuration.DTOs.Responses;
-using Fenicia.Auth.Domains.Configuration.DTOs.Commands;
+using Fenicia.Auth.Domains.Configuration.DTOs;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration;
@@ -12,8 +10,9 @@ public class ConfigurationService(DefaultContext db)
     public async Task<List<GetConfigurationResponse>> GetAllAsync(Guid userId, Guid companyId, CancellationToken ct)
     {
         var request = db.AuthConfigurations.Where(c => c.UserId == userId && companyId == c.CompanyId)
-            .OrderBy(c => c.ConfigType)
-            .Select(c => new GetConfigurationResponse(c.Id,
+                .OrderBy(c => c.ConfigType)
+            .Select(c => new GetConfigurationResponse(
+                c.Id,
                 c.UserId,
                 c.CompanyId,
                 c.ConfigType,

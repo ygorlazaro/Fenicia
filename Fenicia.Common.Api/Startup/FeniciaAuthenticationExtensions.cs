@@ -15,19 +15,19 @@ public static class FeniciaAuthenticationExtensions
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret configuration is missing."));
 
         builder.Services.AddAuthorization(options =>
-        {
-            options.AddPolicy("God", policy => policy.RequireRole("God"));
-            options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    {
+        options.AddPolicy("God", policy => policy.RequireRole("God"));
+        options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
         });
 
         builder.Services.AddAuthentication(o =>
-        {
-            o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    {
+        o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(o =>
-        {
-            o.RequireHttpsMetadata = true;
-            o.SaveToken = false;
+    {
+        o.RequireHttpsMetadata = true;
+        o.SaveToken = false;
             o.ClaimsIssuer = "AuthService";
             o.TokenValidationParameters = new TokenValidationParameters
             {

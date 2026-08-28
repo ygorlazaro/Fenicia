@@ -1,74 +1,59 @@
-using Fenicia.Common.Data.Models.Basic;
+using System.Security.Claims;
 using Bogus;
+using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.Services;
-using Microsoft.AspNetCore.Http;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using Fenicia.Common;
-using Fenicia.Common.API;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
-
-public class SupplierControllerTests : IDisposable
+        
+    {
+    }
 {
-    private readonly SupplierController controller;
+}
+        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.NotNull(authorizeAttribute);
+        companyId = companyContext.CompanyId;
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        controller = new SupplierController(supplierService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        db.Dispose();
+        db = new DefaultContext(options, companyContext);
+    [Fact]
+        faker = new Faker();
+        GC.SuppressFinalize(this);
+        mockHttpContext = new Mock<HttpContext>();
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
+    private Guid companyId;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private Guid companyId;
-    private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly SupplierController controller;
     private readonly SupplierService supplierService;
-
-    public SupplierControllerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        
-        var supplierRepository = new SupplierRepository(db);
-        supplierService = new SupplierService(supplierRepository);
-        mockHttpContext = new Mock<HttpContext>();
-        controller = new SupplierController(supplierService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        testUserId = Guid.NewGuid();
-        SetupUserClaims(testUserId);
-        faker = new Faker();
-        companyId = companyContext.CompanyId;
-    }
-
     private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
-    }
-    public void Dispose()
-    {
-        db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    [Fact]
     public async Task GetAsync_WhenNoSuppliers_ReturnsOkWithEmptyPagination()
-    {
-        var wide = new WideEventContext();
-        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
-
-        Assert.IsType<OkObjectResult>(result.Result);
-    }
-
-    [Fact]
+public class SupplierControllerTests : IDisposable
+    public SupplierControllerTests()
+    public void Dispose()
     public void SupplierController_HasAuthorizeAttribute()
-    {
+        SetupUserClaims(testUserId);
+        supplierService = new SupplierService(supplierRepository);
+        testUserId = Guid.NewGuid();
         var authorizeAttribute = typeof(SupplierController).GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
-        Assert.NotNull(authorizeAttribute);
-    }
-}
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var companyContext = new TestCompanyContext();
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var result = await controller.GetAsync(wide, 1, 10, CancellationToken.None);
+        var supplierRepository = new SupplierRepository(db);
+        var wide = new WideEventContext();

@@ -16,7 +16,6 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class CustomerController(CustomerService customerService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllCustomerResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

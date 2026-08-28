@@ -14,7 +14,7 @@ public static class SecurityService
 
         var hashed = BCrypt.Net.BCrypt.HashPassword(original, BCrypt.Net.BCrypt.GenerateSalt(12));
 
-        return hashed ?? throw new Exception(ExceptionMessages.ErrorHashingPassword);
+        return hashed ?? throw new InvalidOperationException(ExceptionMessages.ErrorHashingPassword);
     }
 
     public static bool Verify(string password, string hashedPassword)
@@ -28,8 +28,10 @@ public static class SecurityService
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
+#pragma warning disable CA1031
         catch (Exception)
         {
+#pragma warning restore CA1031
             return false;
         }
     }

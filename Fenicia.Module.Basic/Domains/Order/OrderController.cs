@@ -18,7 +18,6 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class OrderController(OrderService orderService, OrderDetailService orderDetailService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllOrderResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

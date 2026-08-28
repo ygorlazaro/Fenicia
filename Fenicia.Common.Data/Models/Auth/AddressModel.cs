@@ -28,7 +28,8 @@ public class AddressModel : BaseModel
     {
         get => field;
         set => field = !string.IsNullOrWhiteSpace(value) ? new string([.. value.Where(char.IsDigit).Take(8)]) : null!;
-    } = null!;
+    }
+= null!;
 
     [Required]
     public Guid StateId { get; set; }

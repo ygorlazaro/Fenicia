@@ -52,6 +52,18 @@ public partial class DefaultContext : DbContext
         return base.SaveChangesAsync(cancellationToken);
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        ApplyFilters(modelBuilder);
+
+        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer).HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee).HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
+
+        base.OnModelCreating(modelBuilder);
+    }
+
     private void ApplyCompanyId()
     {
         var entries = ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added && e.Entity.CompanyId == Guid.Empty);
@@ -64,18 +76,6 @@ public partial class DefaultContext : DbContext
                 _ => CurrentCompanyId.Value
             };
         }
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        PostgresDateTimeOffsetSupport.Init(modelBuilder);
-        ApplyFilters(modelBuilder);
-
-        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer).HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee).HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
-
-        base.OnModelCreating(modelBuilder);
     }
 
     private void ApplyFilters(ModelBuilder modelBuilder)

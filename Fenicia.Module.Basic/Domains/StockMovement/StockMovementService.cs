@@ -2,10 +2,7 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Product;
 using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
-using Fenicia.Module.Basic.Domains.Inventory;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;

@@ -13,22 +13,22 @@ namespace Fenicia.Auth.Tests.Domains.Company;
 
 public class CompanyServiceTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly CompanyService service;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly CompanyService _service;
 
     public CompanyServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        service = new CompanyService(db);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _service = new CompanyService(_db);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -38,7 +38,7 @@ public class CompanyServiceTests : IDisposable
     {
         var userId = Guid.NewGuid();
 
-        var result = await service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
+        var result = await _service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
@@ -59,8 +59,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -73,9 +73,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -86,13 +86,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
+        var result = await _service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -109,17 +109,17 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
         var role = new RoleModel
@@ -136,13 +136,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = company.Id
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetCompaniesByUserAsync(userId, 5, 10, CancellationToken.None);
+        var result = await _service.GetCompaniesByUserAsync(userId, 5, 10, CancellationToken.None);
 
         Assert.Empty(result.Data);
         Assert.Equal(1, result.Total);
@@ -161,8 +161,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -181,33 +181,36 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
-        var userRoles = new List<UserRoleModel> { new()
+        var userRoles = new List<UserRoleModel>
+        {
+        new()
         {
             Id = Guid.NewGuid(),
             UserId = userId,
             RoleId = roleId1,
             CompanyId = companyId
-        }, new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId2,
-                CompanyId = companyId
-            }
+        },
+        new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId2,
+            CompanyId = companyId
+        }
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.AddRange(role1, role2);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.AddRange(userRoles);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.AddRange(role1, role2);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.AddRange(userRoles);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
+        var result = await _service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
 
         Assert.Equal(2, result.Data.Count());
         Assert.Equal(2, result.Total);
@@ -227,33 +230,33 @@ public class CompanyServiceTests : IDisposable
         var company1 = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var company2 = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var user1 = new UserModel
         {
             Id = userId1,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
         var user2 = new UserModel
         {
             Id = userId2,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
         var role = new RoleModel
@@ -278,13 +281,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = company2.Id
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.AddRange(user1, user2);
-        db.AuthUserRoles.AddRange(userRole1, userRole2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.AddRange(company1, company2);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.AddRange(user1, user2);
+        _db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetCompaniesByUserAsync(userId1, 1, 10, CancellationToken.None);
+        var result = await _service.GetCompaniesByUserAsync(userId1, 1, 10, CancellationToken.None);
 
         Assert.Single(result.Data);
         Assert.Equal(1, result.Total);
@@ -300,25 +303,25 @@ public class CompanyServiceTests : IDisposable
         var activeCompany = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var inactiveCompany = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = false
         };
 
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
         var role = new RoleModel
@@ -327,28 +330,31 @@ public class CompanyServiceTests : IDisposable
             Name = "User"
         };
 
-        var userRoles = new List<UserRoleModel> { new()
+        var userRoles = new List<UserRoleModel>
+        {
+        new()
+        {
+        Id = Guid.NewGuid(),
+        UserId = userId,
+        RoleId = roleId,
+        CompanyId = activeCompany.Id
+        },
+        new()
         {
             Id = Guid.NewGuid(),
             UserId = userId,
             RoleId = roleId,
-            CompanyId = activeCompany.Id
-        }, new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId,
-                CompanyId = inactiveCompany.Id
-            }
+            CompanyId = inactiveCompany.Id
+        }
         };
 
-        db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.AddRange(userRoles);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.AddRange(userRoles);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
+        var result = await _service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
 
         Assert.Single(result.Data);
         Assert.Equal(1, result.Total);
@@ -365,17 +371,17 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Internet.UserName(),
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Internet.UserName(),
+            Password = _faker.Internet.Password()
         };
 
         var role = new RoleModel
@@ -392,13 +398,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.GetCompaniesByUserAsync(userId, 1, 0, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GetCompaniesByUserAsync(userId, 1, 0, CancellationToken.None));
     }
 
     [Fact]
@@ -411,8 +417,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -425,9 +431,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -438,16 +444,16 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var newName = faker.Company.CompanyName();
-        await service.UpdateAsync(companyId, userId, newName, CancellationToken.None);
+        var newName = _faker.Company.CompanyName();
+        await _service.UpdateAsync(companyId, userId, newName, CancellationToken.None);
 
-        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await _db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(newName, updatedCompany.Name);
         Assert.True(updatedCompany.IsActive);
@@ -463,15 +469,15 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
-        db.AuthCompanies.Add(company);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.UpdateAsync(nonExistentCompanyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.UpdateAsync(nonExistentCompanyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
@@ -485,8 +491,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = false
         };
 
@@ -499,9 +505,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FirstName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FirstName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -512,13 +518,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
@@ -532,8 +538,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -546,9 +552,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -559,13 +565,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -578,24 +584,24 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthUsers.Add(user);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUsers.Add(user);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -610,16 +616,16 @@ public class CompanyServiceTests : IDisposable
         var company1 = new CompanyModel
         {
             Id = companyId1,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var company2 = new CompanyModel
         {
             Id = companyId2,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -632,9 +638,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -645,13 +651,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId1
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.AddRange(company1, company2);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.UpdateAsync(companyId2, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId2, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -666,8 +672,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -686,36 +692,39 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        var userRoles = new List<UserRoleModel> { new()
+        var userRoles = new List<UserRoleModel>
+        {
+        new()
         {
             Id = Guid.NewGuid(),
             UserId = userId,
             RoleId = adminRoleId,
             CompanyId = companyId
-        }, new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = memberRoleId,
-                CompanyId = companyId
-            }
+        },
+        new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = memberRoleId,
+            CompanyId = companyId
+        }
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.AddRange(adminRole, memberRole);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.AddRange(userRoles);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.AddRange(adminRole, memberRole);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.AddRange(userRoles);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var newName = faker.Company.CompanyName();
-        await service.UpdateAsync(companyId, userId, newName, CancellationToken.None);
+        var newName = _faker.Company.CompanyName();
+        await _service.UpdateAsync(companyId, userId, newName, CancellationToken.None);
 
-        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await _db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(newName, updatedCompany.Name);
     }
@@ -731,8 +740,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -745,44 +754,47 @@ public class CompanyServiceTests : IDisposable
         var admin1 = new UserModel
         {
             Id = admin1Id,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var admin2 = new UserModel
         {
             Id = admin2Id,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        var userRoles = new List<UserRoleModel> { new()
+        var userRoles = new List<UserRoleModel>
+        {
+        new()
         {
             Id = Guid.NewGuid(),
             UserId = admin1Id,
             RoleId = roleId,
             CompanyId = companyId
-        }, new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = admin2Id,
-                RoleId = roleId,
-                CompanyId = companyId
-            }
+        },
+        new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = admin2Id,
+            RoleId = roleId,
+            CompanyId = companyId
+        }
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.AddRange(admin1, admin2);
-        db.AuthUserRoles.AddRange(userRoles);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.AddRange(admin1, admin2);
+        _db.AuthUserRoles.AddRange(userRoles);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var newName = faker.Company.CompanyName();
-        await service.UpdateAsync(companyId, admin2Id, newName, CancellationToken.None);
+        var newName = _faker.Company.CompanyName();
+        await _service.UpdateAsync(companyId, admin2Id, newName, CancellationToken.None);
 
-        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await _db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(newName, updatedCompany.Name);
     }
@@ -796,24 +808,24 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthUsers.Add(user);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthUsers.Add(user);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -827,8 +839,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -841,9 +853,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -854,13 +866,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -874,8 +886,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -888,9 +900,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -901,13 +913,13 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -921,8 +933,8 @@ public class CompanyServiceTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -935,9 +947,9 @@ public class CompanyServiceTests : IDisposable
         var user = new UserModel
         {
             Id = userId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -948,16 +960,16 @@ public class CompanyServiceTests : IDisposable
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var newName = faker.Company.CompanyName();
-        await service.UpdateAsync(companyId, userId, newName, CancellationToken.None);
+        var newName = _faker.Company.CompanyName();
+        await _service.UpdateAsync(companyId, userId, newName, CancellationToken.None);
 
-        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await _db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.True(updatedCompany.IsActive);
         Assert.Equal(company.Cnpj, updatedCompany.Cnpj);
@@ -969,26 +981,26 @@ public class CompanyServiceTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
     [Fact]
     public async Task CheckExistsAsync_WhenCompanyExistsWithMatchingCnpj_ReturnsTrue()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj,
             IsActive = true
         };
 
-        db.AuthCompanies.Add(company);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.CheckExistsAsync(cnpj, false, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj, false, CancellationToken.None);
 
         Assert.True(result);
     }
@@ -996,9 +1008,9 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
 
-        var result = await service.CheckExistsAsync(cnpj, false, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj, false, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -1006,19 +1018,19 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenOnlyActiveIsTrueAndCompanyIsActive_ReturnsTrue()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj,
             IsActive = true
         };
 
-        db.AuthCompanies.Add(company);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.CheckExistsAsync(cnpj, true, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj, true, CancellationToken.None);
 
         Assert.True(result);
     }
@@ -1026,19 +1038,19 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenOnlyActiveIsTrueAndCompanyIsInactive_ReturnsFalse()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj,
             IsActive = false
         };
 
-        db.AuthCompanies.Add(company);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.CheckExistsAsync(cnpj, true, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj, true, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -1046,19 +1058,19 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenOnlyActiveIsFalseAndCompanyIsInactive_ReturnsTrue()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj,
             IsActive = false
         };
 
-        db.AuthCompanies.Add(company);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.CheckExistsAsync(cnpj, false, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj, false, CancellationToken.None);
 
         Assert.True(result);
     }
@@ -1066,13 +1078,13 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenMultipleCompaniesExist_OnlyMatchesExactCnpj()
     {
-        var cnpj1 = faker.Company.Cnpj();
-        var cnpj2 = faker.Company.Cnpj();
+        var cnpj1 = _faker.Company.Cnpj();
+        var cnpj2 = _faker.Company.Cnpj();
 
         var company1 = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj1,
             IsActive = true
         };
@@ -1080,15 +1092,15 @@ public class CompanyServiceTests : IDisposable
         var company2 = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj2,
             IsActive = true
         };
 
-        db.AuthCompanies.AddRange(company1, company2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.AddRange(company1, company2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.CheckExistsAsync(cnpj1, false, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj1, false, CancellationToken.None);
 
         Assert.True(result);
     }
@@ -1096,12 +1108,12 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenMixedActiveAndInactiveCompanies_OnlyActiveFilterWorksCorrectly()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
 
         var activeCompany = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj,
             IsActive = true
         };
@@ -1109,16 +1121,16 @@ public class CompanyServiceTests : IDisposable
         var inactiveCompany = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
+            Name = _faker.Company.CompanyName(),
             Cnpj = cnpj,
             IsActive = false
         };
 
-        db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var activeResult = await service.CheckExistsAsync(cnpj, true, CancellationToken.None);
-        var inactiveResult = await service.CheckExistsAsync(cnpj, false, CancellationToken.None);
+        var activeResult = await _service.CheckExistsAsync(cnpj, true, CancellationToken.None);
+        var inactiveResult = await _service.CheckExistsAsync(cnpj, false, CancellationToken.None);
 
         Assert.True(activeResult);
         Assert.True(inactiveResult);
@@ -1127,7 +1139,7 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WithEmptyDatabase_ReturnsFalse()
     {
-        var result = await service.CheckExistsAsync(faker.Company.Cnpj(), false, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(_faker.Company.Cnpj(), false, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -1135,19 +1147,19 @@ public class CompanyServiceTests : IDisposable
     [Fact]
     public async Task CheckExistsAsync_WhenCnpjContainsSpecialCharacters_NoMatch()
     {
-        var cnpj = faker.Company.Cnpj();
+        var cnpj = _faker.Company.Cnpj();
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Company.CompanyName(),
-            Cnpj = string.Concat(faker.Company.Cnpj(), "./"),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = string.Concat(_faker.Company.Cnpj(), "./"),
             IsActive = true
         };
 
-        db.AuthCompanies.Add(company);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.CheckExistsAsync(cnpj, false, CancellationToken.None);
+        var result = await _service.CheckExistsAsync(cnpj, false, CancellationToken.None);
 
         Assert.False(result);
     }

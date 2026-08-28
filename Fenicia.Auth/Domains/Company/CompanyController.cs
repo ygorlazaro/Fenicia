@@ -1,6 +1,5 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.Company.DTOs.Responses;
+using Fenicia.Auth.Domains.Company.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
@@ -76,5 +75,3 @@ public class CompanyController(CompanyService service) : ControllerBase
         }
     }
 }
-
-public record UpdateCompanyRequest(string Name);

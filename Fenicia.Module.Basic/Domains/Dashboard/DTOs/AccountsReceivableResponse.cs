@@ -2,7 +2,6 @@ namespace Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 public record AccountsReceivableResponse
 {
-
     public decimal TotalPending { get; set; }
 
     public int PendingOrdersCount { get; set; }

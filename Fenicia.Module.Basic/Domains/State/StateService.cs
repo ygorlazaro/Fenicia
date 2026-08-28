@@ -1,6 +1,4 @@
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.State.DTOs;
-using Fenicia.Module.Basic.Domains.State;
 
 namespace Fenicia.Module.Basic.Domains.State;
 

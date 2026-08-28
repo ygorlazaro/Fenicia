@@ -35,7 +35,6 @@ public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
                 }
                 catch (CultureNotFoundException)
                 {
-
                 }
             }
         }

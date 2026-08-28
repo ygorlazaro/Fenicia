@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.ForgotPassword.DTOs.Commands;
+using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;

@@ -15,7 +15,6 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class InventoryController(InventoryService inventoryService) : ControllerBase
 {
-
     [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

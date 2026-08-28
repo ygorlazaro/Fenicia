@@ -1,24 +1,23 @@
 using System.Security.Claims;
-
 using Bogus;
 using Bogus.Extensions.Brazil;
-
+using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Module.DTOs.Responses;
+using Fenicia.Auth.Domains.Module.DTOs;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.DTOs.Commands;
-using Fenicia.Auth.Domains.UserRole.DTOs.Responses;
+using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
@@ -30,20 +29,29 @@ public class UserControllerTests
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly UserRepository userRepository;
+    private readonly UserRoleRepository userRoleRepository;
+    private readonly RoleRepository roleRepository;
+    private readonly CompanyRepository companyRepository;
+    private readonly UserService userService;
+    private readonly ModuleService moduleService;
 
     public UserControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
+        userRepository = new UserRepository(db);
+        userRoleRepository = new UserRoleRepository(db);
+        roleRepository = new RoleRepository(db);
+        companyRepository = new CompanyRepository(db);
+        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
+        moduleService = new ModuleService(db);
         testUserId = Guid.NewGuid();
 
         mockHttpContext = new Mock<HttpContext>();
         var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);
-
-        var userService = new UserService(db);
-        var moduleService = new ModuleService(db);
 
         controller = new UserController(userService, moduleService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
@@ -70,7 +78,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserModulesAsync_WhenUserHasNoModules_ReturnsOkWithEmptyList()
     {
-
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
@@ -91,7 +98,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserModulesAsync_WhenUserHasActiveSubscription_ReturnsOkWithModules()
     {
-
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
         var subscriptionId = Guid.NewGuid();
@@ -144,8 +150,8 @@ public class UserControllerTests
         db.AuthModules.Add(module);
         db.AuthSubscriptions.Add(subscription);
         db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
+        await userRoleRepository.InsertAsync(userRole, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var headers = new Headers { CompanyId = companyId };
@@ -169,7 +175,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserModulesAsync_SetsWideEventContextUserId()
     {
-
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
@@ -183,7 +188,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserCompanyAsync_WhenUserHasNoCompanies_ReturnsOkWithEmptyList()
     {
-
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -202,7 +206,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserCompanyAsync_WhenUserHasCompanies_ReturnsOkWithCompanies()
     {
-
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
@@ -236,10 +239,10 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
+        await companyRepository.InsertAsync(company, CancellationToken.None);
+        await roleRepository.InsertAsync(role, CancellationToken.None);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
+        await userRoleRepository.InsertAsync(userRole, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
@@ -263,7 +266,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserCompanyAsync_SetsWideEventContextUserId()
     {
-
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -275,7 +277,6 @@ public class UserControllerTests
     [Fact]
     public void UserController_HasAuthorizeAttribute()
     {
-
         var controllerType = typeof(UserController);
 
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -286,7 +287,6 @@ public class UserControllerTests
     [Fact]
     public void UserController_HasRouteAttribute()
     {
-
         var controllerType = typeof(UserController);
 
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
@@ -298,7 +298,6 @@ public class UserControllerTests
     [Fact]
     public void UserController_HasApiControllerAttribute()
     {
-
         var controllerType = typeof(UserController);
 
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
@@ -311,7 +310,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetAsync_WithGodRole_ReturnsOkWithUsers()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var user = new UserModel
@@ -322,7 +320,7 @@ public class UserControllerTests
             Password = faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await controller.GetAsync(CancellationToken.None);
@@ -338,7 +336,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetByIdAsync_WithGodRole_ReturnsFullUserData()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var roleId = Guid.NewGuid();
@@ -373,10 +370,10 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        db.AuthRoles.Add(role);
-        db.AuthCompanies.Add(company);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
+        await roleRepository.InsertAsync(role, CancellationToken.None);
+        await companyRepository.InsertAsync(company, CancellationToken.None);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
+        await userRoleRepository.InsertAsync(userRole, CancellationToken.None);
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await controller.GetByIdAsync(user.Id, CancellationToken.None);
@@ -388,7 +385,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetByIdAsync_WhenUserNotFound_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
@@ -401,7 +397,6 @@ public class UserControllerTests
     [Fact]
     public async Task GetByIdAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var user = new UserModel
@@ -413,7 +408,7 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await controller.GetByIdAsync(user.Id, CancellationToken.None);
@@ -429,7 +424,6 @@ public class UserControllerTests
     [Fact]
     public async Task UpdateAsync_WhenUserNotFound_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
@@ -444,7 +438,6 @@ public class UserControllerTests
     [Fact]
     public async Task UpdateAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var user = new UserModel
@@ -456,7 +449,7 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdateUserCommand(user.Id, "Updated Name");
@@ -474,7 +467,6 @@ public class UserControllerTests
     [Fact]
     public async Task DeleteAsync_WhenUserNotFound_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
@@ -487,7 +479,6 @@ public class UserControllerTests
     [Fact]
     public async Task DeleteAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var user = new UserModel
@@ -499,7 +490,7 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await controller.DeleteAsync(user.Id, CancellationToken.None);
@@ -511,7 +502,6 @@ public class UserControllerTests
     [Fact]
     public async Task DeleteAsync_WhenAttemptingSelfDeletion_ReturnsBadRequest()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var user = new UserModel
@@ -522,7 +512,7 @@ public class UserControllerTests
             Password = faker.Internet.Password()
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var result = await controller.DeleteAsync(testUserId, CancellationToken.None);
@@ -538,7 +528,6 @@ public class UserControllerTests
     [Fact]
     public async Task ChangePasswordAsync_WhenUserNotFound_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
@@ -553,7 +542,6 @@ public class UserControllerTests
     [Fact]
     public async Task ChangePasswordAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-
         SetupUserClaims(testUserId, "God");
 
         var user = new UserModel
@@ -565,7 +553,7 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        db.AuthUsers.Add(user);
+        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdateUserPasswordCommand(user.Id, faker.Internet.Password());

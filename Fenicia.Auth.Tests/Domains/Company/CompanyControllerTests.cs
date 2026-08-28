@@ -4,7 +4,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Company.DTOs.Responses;
+using Fenicia.Auth.Domains.Company.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -24,60 +24,49 @@ namespace Fenicia.Auth.Tests.Domains.Company;
 
 public class CompanyControllerTests : IDisposable
 {
-    private readonly CompanyController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
+    private readonly CompanyController _controller;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Guid _testUserId;
 
     public CompanyControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        testUserId = Guid.NewGuid();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _testUserId = Guid.NewGuid();
         var services = new ServiceCollection();
-        services.AddSingleton(db);
+        services.AddSingleton(_db);
         services.AddLogging();
-        services.AddSingleton(new CompanyService(db));
+        services.AddSingleton(new CompanyService(_db));
 
         var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<CompanyService>();
 
-        mockHttpContext = new Mock<HttpContext>();
+        _mockHttpContext = new Mock<HttpContext>();
 
-        controller = new CompanyController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        _controller = new CompanyController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
-        SetupUserClaims(testUserId);
-        faker = new Faker();
+        SetupUserClaims(_testUserId);
+        _faker = new Faker();
     }
+
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
-    }
-
-    private void SetupUserClaims(Guid userId)
-    {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
-
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
     public async Task GetByLoggedUser_WhenUserHasNoCompanies_ReturnsOkWithEmptyPagination()
     {
-
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetByLoggedUser(query, wide, ct);
+        var result = await _controller.GetByLoggedUser(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -89,21 +78,20 @@ public class CompanyControllerTests : IDisposable
         Assert.NotNull(returnedPagination);
         Assert.Empty(returnedPagination.Data);
         Assert.Equal(0, returnedPagination.Total);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task GetByLoggedUser_WhenUserHasCompanies_ReturnsOkWithPagination()
     {
-
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -115,31 +103,31 @@ public class CompanyControllerTests : IDisposable
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             RoleId = roleId,
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(role);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(role);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetByLoggedUser(query, wide, ct);
+        var result = await _controller.GetByLoggedUser(query, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -152,26 +140,24 @@ public class CompanyControllerTests : IDisposable
         Assert.Single(returnedPagination.Data);
         Assert.Equal(1, returnedPagination.Total);
         Assert.Equal(company.Name, returnedPagination.Data.First().Name);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task GetByLoggedUser_SetsWideEventContextUserId()
     {
-
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await controller.GetByLoggedUser(query, wide, ct);
+        await _controller.GetByLoggedUser(query, wide, ct);
 
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenUserIsAdminAndCompanyExists_ReturnsNoContent()
     {
-
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
@@ -180,8 +166,8 @@ public class CompanyControllerTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -193,29 +179,29 @@ public class CompanyControllerTests : IDisposable
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             RoleId = adminRoleId,
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(adminRole);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(adminRole);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        var result = await controller.PatchAsync(companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(companyId, request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -223,9 +209,9 @@ public class CompanyControllerTests : IDisposable
         var noContentResult = result as NoContentResult;
         Assert.NotNull(noContentResult);
         Assert.Equal(204, noContentResult.StatusCode);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
 
-        var updatedCompany = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
+        var updatedCompany = await _db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.NotNull(updatedCompany);
         Assert.Equal(request.Name, updatedCompany.Name);
     }
@@ -233,23 +219,21 @@ public class CompanyControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
     {
-
         var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        var result = await controller.PatchAsync(companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(companyId, request, wide, ct);
 
         Assert.IsType<NotFoundObjectResult>(result);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenUserIsNotAdmin_ReturnsForbidden()
     {
-
         var companyId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
@@ -258,8 +242,8 @@ public class CompanyControllerTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -271,38 +255,37 @@ public class CompanyControllerTests : IDisposable
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRoleMapping = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             RoleId = userRoleId,
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(userRole);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRoleMapping);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(userRole);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRoleMapping);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        var result = await controller.PatchAsync(companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(companyId, request, wide, ct);
 
         Assert.IsType<ForbidResult>(result);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
-
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
@@ -311,8 +294,8 @@ public class CompanyControllerTests : IDisposable
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -324,37 +307,36 @@ public class CompanyControllerTests : IDisposable
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             RoleId = adminRoleId,
             CompanyId = companyId
         };
 
-        db.AuthCompanies.Add(company);
-        db.AuthRoles.Add(adminRole);
-        db.AuthUsers.Add(user);
-        db.AuthUserRoles.Add(userRole);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthCompanies.Add(company);
+        _db.AuthRoles.Add(adminRole);
+        _db.AuthUsers.Add(user);
+        _db.AuthUserRoles.Add(userRole);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyRequest(faker.Company.CompanyName());
+        var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        await controller.PatchAsync(companyId, request, wide, ct);
+        await _controller.PatchAsync(companyId, request, wide, ct);
 
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public void CompanyController_HasAuthorizeAttribute()
     {
-
         var controllerType = typeof(CompanyController);
 
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -365,7 +347,6 @@ public class CompanyControllerTests : IDisposable
     [Fact]
     public void CompanyController_HasRouteAttribute()
     {
-
         var controllerType = typeof(CompanyController);
 
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
@@ -377,7 +358,6 @@ public class CompanyControllerTests : IDisposable
     [Fact]
     public void CompanyController_HasProducesAttribute()
     {
-
         var controllerType = typeof(CompanyController);
 
         var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
@@ -389,7 +369,6 @@ public class CompanyControllerTests : IDisposable
     [Fact]
     public void PatchAsync_HasAuthorizeRolesAttribute()
     {
-
         var controllerType = typeof(CompanyController);
         var methodInfo = controllerType.GetMethod(nameof(CompanyController.PatchAsync));
 
@@ -397,5 +376,16 @@ public class CompanyControllerTests : IDisposable
 
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
+    }
+
+    private void SetupUserClaims(Guid userId)
+    {
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

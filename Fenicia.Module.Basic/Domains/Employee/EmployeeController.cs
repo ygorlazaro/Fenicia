@@ -16,7 +16,6 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class EmployeeController(EmployeeService employeeService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

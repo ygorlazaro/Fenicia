@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectAttachment;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +15,6 @@ namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectAttachmentController(ProjectAttachmentService projectAttachmentService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectAttachmentResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

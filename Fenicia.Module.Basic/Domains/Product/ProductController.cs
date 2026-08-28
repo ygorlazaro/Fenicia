@@ -16,7 +16,6 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProductController(ProductService productService) : ControllerBase
 {
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
