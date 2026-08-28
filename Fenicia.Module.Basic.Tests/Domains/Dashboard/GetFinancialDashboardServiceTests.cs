@@ -18,7 +18,8 @@ public class GetFinancialDashboardServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new DashboardService(db);
+        var dashboardRepository = new DashboardRepository(db);
+        service = new DashboardService(dashboardRepository);
         faker = new Faker();
     }
 
