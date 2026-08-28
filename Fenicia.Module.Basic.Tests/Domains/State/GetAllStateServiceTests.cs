@@ -1,9 +1,10 @@
+using Fenicia.Common.Data.Models.Basic;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.State;
+using Fenicia.Module.Basic.Domains.State.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.State;

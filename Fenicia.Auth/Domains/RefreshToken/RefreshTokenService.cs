@@ -1,7 +1,5 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-
-using Fenicia.Auth.Domains.RefreshToken.DTOs.Commands;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 

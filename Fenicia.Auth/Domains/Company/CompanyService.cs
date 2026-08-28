@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.Company.DTOs.Responses;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

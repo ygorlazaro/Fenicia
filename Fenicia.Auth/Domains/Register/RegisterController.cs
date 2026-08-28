@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Auth.Domains.Register.DTOs.Commands;
 using Fenicia.Auth.Domains.Register.DTOs.Responses;
 using Fenicia.Common.API;

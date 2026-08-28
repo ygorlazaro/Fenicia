@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.LoginAttempt.DTOs.Commands;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Domains.LoginAttempt;

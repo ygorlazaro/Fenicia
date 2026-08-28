@@ -1,12 +1,12 @@
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.Order.DTOs.Commands;
+using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 

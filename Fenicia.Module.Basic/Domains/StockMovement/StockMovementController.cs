@@ -1,9 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Commands;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Queries;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

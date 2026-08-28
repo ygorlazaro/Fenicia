@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.LoginAttempt.DTOs.Commands;
 
 using Microsoft.Extensions.Caching.Memory;
 

@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.DTOs.Responses;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs.Commands;
 using Fenicia.Auth.Domains.UserRole.DTOs.Responses;
 using Fenicia.Common.API;

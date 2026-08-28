@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.Register.DTOs.Responses;
 using Fenicia.Auth.Domains.User.DTOs.Commands;
 
 namespace Fenicia.Auth.Domains.Register.DTOs.Commands;

@@ -2,12 +2,9 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Order.DTOs.Commands;
-using Fenicia.Module.Basic.Domains.Order.DTOs.Queries;
-using Fenicia.Module.Basic.Domains.Order.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Queries;
-using Fenicia.Module.Basic.Domains.OrderDetail.DTOs.Responses;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

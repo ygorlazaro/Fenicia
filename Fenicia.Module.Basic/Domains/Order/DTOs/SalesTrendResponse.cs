@@ -1,0 +1,3 @@
+namespace Fenicia.Module.Basic.Domains.Order.DTOs;
+
+public record SalesTrendResponse(string Period, DateTime Date, int OrderCount, decimal TotalValue, int TotalItems);
