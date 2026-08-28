@@ -1,21 +1,21 @@
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectTask;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
-public class ProjectTaskService(DefaultContext db)
+public class ProjectTaskService(ProjectTaskRepository repository)
 {
     public async Task<List<GetAllProjectTaskResponse>> GetAllAsync(GetAllProjectTaskQuery query, CancellationToken ct)
     {
-        return await db.ProjectTasks.Select(pt => new GetAllProjectTaskResponse(pt.Id, pt.ProjectId, pt.StatusId, pt.Title, pt.Description, pt.Priority.ToString(), pt.Type.ToString(), pt.Order, pt.EstimatePoints, pt.DueDate, pt.CreatedBy, pt.CompanyId)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var tasks = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return tasks.Select(pt => new GetAllProjectTaskResponse(pt.Id, pt.ProjectId, pt.StatusId, pt.Title, pt.Description, pt.Priority.ToString(), pt.Type.ToString(), pt.Order, pt.EstimatePoints, pt.DueDate, pt.CreatedBy, pt.CompanyId)).ToList();
     }
 
     public async Task<GetProjectTaskByIdResponse?> GetByIdAsync(GetProjectTaskByIdQuery query, CancellationToken ct)
     {
-        var projectTask = await db.ProjectTasks.Include(pt => pt.Attachments).Include(pt => pt.Comments).Include(pt => pt.Subtasks).Include(pt => pt.Assignees).ThenInclude(a => a.User).FirstOrDefaultAsync(pt => pt.Id == query.Id, ct);
+        var projectTask = await repository.GetByIdWithRelationsAsync(query.Id, ct);
 
         return projectTask switch
         {
@@ -25,7 +25,7 @@ public class ProjectTaskService(DefaultContext db)
         };
     }
 
-    public async Task<AddProjectTaskResponse> AddAsync(AddProjectTaskCommand command, CancellationToken ct)
+    public async Task<AddProjectTaskResponse> AddAsync(AddProjectTaskCommand command, Guid companyId, CancellationToken ct)
     {
         var projectTask = new ProjectTaskModel
         {
@@ -39,56 +39,38 @@ public class ProjectTaskService(DefaultContext db)
             Order = command.Order,
             EstimatePoints = command.EstimatePoints,
             DueDate = command.DueDate,
-            CreatedBy = command.CreatedBy
+            CreatedBy = command.CreatedBy,
+            CompanyId = companyId
         };
 
-        db.ProjectTasks.Add(projectTask);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AddProjectTaskResponse(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, projectTask.Title, projectTask.Description, projectTask.Priority.ToString(), projectTask.Type.ToString(), projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy, projectTask.CompanyId);
+        var created = await repository.InsertAsync(projectTask, ct);
+        return new AddProjectTaskResponse(created.Id, created.ProjectId, created.StatusId, created.Title, created.Description, created.Priority.ToString(), created.Type.ToString(), created.Order, created.EstimatePoints, created.DueDate, created.CreatedBy, created.CompanyId);
     }
 
-    public async Task<UpdateProjectTaskResponse?> UpdateAsync(UpdateProjectTaskCommand command, CancellationToken ct)
+    public async Task<UpdateProjectTaskResponse?> UpdateAsync(UpdateProjectTaskCommand command, Guid companyId, CancellationToken ct)
     {
-        var projectTask = await db.ProjectTasks.FirstOrDefaultAsync(pt => pt.Id == command.Id, ct);
-
-        if (projectTask is null)
+        var projectTask = new ProjectTaskModel
         {
-            return null;
-        }
+            Id = command.Id,
+            ProjectId = command.ProjectId,
+            StatusId = command.StatusId,
+            Title = command.Title,
+            Description = command.Description,
+            Priority = Enum.Parse<EnumTaskPriority>(command.Priority, true),
+            Type = Enum.Parse<EnumTaskType>(command.Type, true),
+            Order = command.Order,
+            EstimatePoints = command.EstimatePoints,
+            DueDate = command.DueDate,
+            CreatedBy = command.CreatedBy,
+            CompanyId = companyId
+        };
 
-        projectTask.ProjectId = command.ProjectId;
-        projectTask.StatusId = command.StatusId;
-        projectTask.Title = command.Title;
-        projectTask.Description = command.Description;
-        projectTask.Priority = Enum.Parse<EnumTaskPriority>(command.Priority, true);
-        projectTask.Type = Enum.Parse<EnumTaskType>(command.Type, true);
-        projectTask.Order = command.Order;
-        projectTask.EstimatePoints = command.EstimatePoints;
-        projectTask.DueDate = command.DueDate;
-        projectTask.CreatedBy = command.CreatedBy;
-
-        db.ProjectTasks.Update(projectTask);
-
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateProjectTaskResponse(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, projectTask.Title, projectTask.Description, projectTask.Priority.ToString(), projectTask.Type.ToString(), projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy, projectTask.CompanyId);
+        var updated = await repository.UpdateAsync(command.Id, projectTask, ct);
+        return updated is null ? null : new UpdateProjectTaskResponse(updated.Id, updated.ProjectId, updated.StatusId, updated.Title, updated.Description, updated.Priority.ToString(), updated.Type.ToString(), updated.Order, updated.EstimatePoints, updated.DueDate, updated.CreatedBy, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectTaskCommand command, CancellationToken ct)
     {
-        var projectTask = await db.ProjectTasks.FirstOrDefaultAsync(pt => pt.Id == command.Id, ct);
-
-        if (projectTask is null)
-        {
-            return;
-        }
-
-        projectTask.Deleted = DateTime.UtcNow;
-
-        db.ProjectTasks.Update(projectTask);
-
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }

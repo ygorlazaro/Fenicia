@@ -22,16 +22,19 @@ public class ProjectSubtaskControllerTests : IDisposable
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
+    private readonly Guid companyId;
 
     public ProjectSubtaskControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        var service = new ProjectSubtaskService(db);
+        var repository = new ProjectSubtaskRepository(db);
+        var service = new ProjectSubtaskService(repository);
         mockHttpContext = new Mock<HttpContext>();
         controller = new ProjectSubtaskController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         testUserId = Guid.NewGuid();
+        companyId = companyContext.CompanyId;
         SetupUserClaims(testUserId);
         faker = new Faker();
     }

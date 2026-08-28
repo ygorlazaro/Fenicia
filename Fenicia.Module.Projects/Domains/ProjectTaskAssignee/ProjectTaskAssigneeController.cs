@@ -53,7 +53,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.AddAsync(command, ct);
+        var assignee = await projectTaskAssigneeService.AddAsync(command, ClaimReader.UserId(User), ct);
 
         return new CreatedResult(string.Empty, assignee);
     }
@@ -70,7 +70,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.UpdateAsync(command with { Id = id }, ct);
+        var assignee = await projectTaskAssigneeService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }

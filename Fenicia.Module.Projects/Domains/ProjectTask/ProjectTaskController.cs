@@ -53,7 +53,7 @@ public class ProjectTaskController(ProjectTaskService projectTaskService) : Cont
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectTask = await projectTaskService.AddAsync(command, ct);
+        var projectTask = await projectTaskService.AddAsync(command, ClaimReader.UserId(User), ct);
 
         return new CreatedResult(string.Empty, projectTask);
     }
@@ -70,7 +70,7 @@ public class ProjectTaskController(ProjectTaskService projectTaskService) : Cont
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectTask = await projectTaskService.UpdateAsync(command with { Id = id }, ct);
+        var projectTask = await projectTaskService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
         return projectTask is null ? NotFound() : Ok(projectTask);
     }

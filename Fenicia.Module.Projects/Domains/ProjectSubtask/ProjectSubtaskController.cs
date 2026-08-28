@@ -53,7 +53,7 @@ public class ProjectSubtaskController(ProjectSubtaskService projectSubtaskServic
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await projectSubtaskService.AddAsync(command, ct);
+        var projectSubtask = await projectSubtaskService.AddAsync(command, ClaimReader.UserId(User), ct);
 
         return new CreatedResult(string.Empty, projectSubtask);
     }
@@ -70,7 +70,7 @@ public class ProjectSubtaskController(ProjectSubtaskService projectSubtaskServic
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await projectSubtaskService.UpdateAsync(command with { Id = id }, ct);
+        var projectSubtask = await projectSubtaskService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
     }
