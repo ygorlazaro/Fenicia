@@ -489,6 +489,7 @@ public class ProjectControllerTests : IDisposable
 - **Campos privados**: usar `_camelCase` (ex: `private readonly DefaultContext _db;`)
  - **Métodos async**: sempre terminam com `Async` (ex: `GetAsync`)
  - **LINQ**: usar sintaxe LINQ query expression sempre que possível ao invés de lambda expressions
+ - **Mapeamento**: usar Mapperly para transformação entre entidades e DTOs/responses
  - **XML comments**: não obrigatórios
 - **Usings desnecessários**: não obrigatória remoção
 - **Migrations**: excluídas das regras de estilo
