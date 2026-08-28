@@ -1,21 +1,21 @@
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Projects.Domains.Project.DTOs;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.Project.DTOs;
+using Fenicia.Module.Projects.Domains.Project;
 
 namespace Fenicia.Module.Projects.Domains.Project;
 
-public class ProjectService(DefaultContext db)
+public class ProjectService(ProjectRepository repository)
 {
     public async Task<List<GetAllProjectResponse>> GetAllAsync(GetAllProjectQuery query, CancellationToken ct)
     {
-        return await db.Projects.Select(p => new GetAllProjectResponse(p.Id, p.Title, p.Description, p.Status.ToString(), p.StartDate, p.EndDate, p.Owner, p.CompanyId)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var projects = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return projects.Select(p => new GetAllProjectResponse(p.Id, p.Title, p.Description, p.Status.ToString(), p.StartDate, p.EndDate, p.Owner, p.CompanyId)).ToList();
     }
 
     public async Task<GetProjectByIdResponse?> GetByIdAsync(GetProjectByIdQuery query, CancellationToken ct)
     {
-        var project = await db.Projects.Include(p => p.Statuses).Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == query.Id, ct);
+        var project = await repository.GetByIdWithRelationsAsync(query.Id, ct);
 
         return project switch
         {
@@ -24,7 +24,7 @@ public class ProjectService(DefaultContext db)
         };
     }
 
-    public async Task<AddProjectResponse> AddAsync(AddProjectCommand command, CancellationToken ct)
+    public async Task<AddProjectResponse> AddAsync(AddProjectCommand command, Guid companyId, CancellationToken ct)
     {
         var project = new ProjectModel
         {
@@ -34,52 +34,34 @@ public class ProjectService(DefaultContext db)
             Status = Enum.Parse<EnumProjectStatus>(command.Status, true),
             StartDate = command.StartDate,
             EndDate = command.EndDate,
-            Owner = command.Owner
+            Owner = command.Owner,
+            CompanyId = companyId
         };
 
-        db.Projects.Add(project);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AddProjectResponse(project.Id, project.Title, project.Description, project.Status.ToString(), project.StartDate, project.EndDate, project.Owner, project.CompanyId);
+        var created = await repository.InsertAsync(project, ct);
+        return new AddProjectResponse(created.Id, created.Title, created.Description, created.Status.ToString(), created.StartDate, created.EndDate, created.Owner, created.CompanyId);
     }
 
-    public async Task<UpdateProjectResponse?> UpdateAsync(UpdateProjectCommand command, CancellationToken ct)
+    public async Task<UpdateProjectResponse?> UpdateAsync(UpdateProjectCommand command, Guid companyId, CancellationToken ct)
     {
-        var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
-
-        if (project is null)
+        var project = new ProjectModel
         {
-            return null;
-        }
+            Id = command.Id,
+            Title = command.Title,
+            Description = command.Description,
+            Status = Enum.Parse<EnumProjectStatus>(command.Status, true),
+            StartDate = command.StartDate,
+            EndDate = command.EndDate,
+            Owner = command.Owner,
+            CompanyId = companyId
+        };
 
-        project.Title = command.Title;
-        project.Description = command.Description;
-        project.Status = Enum.Parse<EnumProjectStatus>(command.Status, true);
-        project.StartDate = command.StartDate;
-        project.EndDate = command.EndDate;
-        project.Owner = command.Owner;
-
-        db.Projects.Update(project);
-
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateProjectResponse(project.Id, project.Title, project.Description, project.Status.ToString(), project.StartDate, project.EndDate, project.Owner, project.CompanyId);
+        var updated = await repository.UpdateAsync(command.Id, project, ct);
+        return updated is null ? null : new UpdateProjectResponse(updated.Id, updated.Title, updated.Description, updated.Status.ToString(), updated.StartDate, updated.EndDate, updated.Owner, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectCommand command, CancellationToken ct)
     {
-        var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
-
-        if (project is null)
-        {
-            return;
-        }
-
-        project.Deleted = DateTime.UtcNow;
-
-        db.Projects.Update(project);
-
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }
