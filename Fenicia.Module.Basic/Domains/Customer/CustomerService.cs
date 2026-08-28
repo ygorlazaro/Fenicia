@@ -25,7 +25,7 @@ public class CustomerService(
         var personAddress = c.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
-        return new GetAllCustomerResponse(c.Id, c.PersonId, c.Person.Name, c.Person.Email, c.Person.PhoneNumber, c.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+        return new GetAllCustomerResponse(c.Id, c.PersonId, c.Person.Name, c.Person.Email, c.Person.PhoneNumber, c.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
@@ -50,7 +50,7 @@ public class CustomerService(
             customer.Person.Email,
             customer.Person.PhoneNumber,
             customer.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
     }
 
     public async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken ct)

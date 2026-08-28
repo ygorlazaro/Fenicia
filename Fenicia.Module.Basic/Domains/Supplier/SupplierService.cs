@@ -27,7 +27,7 @@ public class SupplierService(SupplierRepository supplierRepository)
             s.Person.Email,
             s.Person.PhoneNumber,
             s.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }).ToList();
 
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
@@ -52,7 +52,7 @@ public class SupplierService(SupplierRepository supplierRepository)
             supplier.Person.Email,
             supplier.Person.PhoneNumber,
             supplier.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }
 
     public async Task<AddSupplierResponse> AddAsync(AddSupplierCommand command, Guid companyId, CancellationToken ct)

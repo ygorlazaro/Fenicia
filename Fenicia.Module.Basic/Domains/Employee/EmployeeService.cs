@@ -37,7 +37,7 @@ public class EmployeeService(
             e.Person.PhoneNumber,
             e.Person.Document,
             e.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }).ToList();
 
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
@@ -63,7 +63,7 @@ public class EmployeeService(
             employee.Person.Email,
             employee.Person.PhoneNumber,
             employee.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }
 
     public async Task<AddEmployeeResponse> AddAsync(AddEmployeeCommand command, Guid companyId, CancellationToken ct)
@@ -241,7 +241,7 @@ public class EmployeeService(
             e.Person.PhoneNumber,
             e.Person.Document,
             e.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }).ToList();
 
         return new Pagination<List<GetEmployeesByPositionIdResponse>>(response, total, query.Page, query.PerPage);
