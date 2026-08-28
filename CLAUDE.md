@@ -57,15 +57,27 @@ public interface IRepository<T> where T : BaseModel
     Task<int> CountAsync(CancellationToken ct = default);
     Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
     Task<int> SaveChangesAsync(CancellationToken ct = default);
+    IQueryable<T> Query();
 }
 ```
 
 ```csharp
 namespace Fenicia.Common.Data.Repositories;
 
-public class Repository<T>(DefaultContext context) : IRepository<T> where T : BaseModel
+public class Repository<T> : IRepository<T> where T : BaseModel
 {
-    protected readonly DbSet<T> DbSet = context.Set<T>();
+    public Repository(DefaultContext context)
+    {
+        DbSet = context.Set<T>();
+        Context = context;
+    }
+
+    public Repository()
+    {
+    }
+
+    public DefaultContext Context { get; set; } = null!;
+    protected DbSet<T> DbSet { get; set; } = null!;
 
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
@@ -97,7 +109,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
             return null;
         }
 
-        context.Entry(existing).CurrentValues.SetValues(model);
+        Context.Entry(existing).CurrentValues.SetValues(model);
         existing.Updated = DateTime.UtcNow;
         await SaveChangesAsync(ct);
         return existing;
@@ -131,6 +143,17 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
         return await SaveChangesAsync(ct);
     }
 
+    public async Task InsertRangeAsync(IEnumerable<T> models, CancellationToken ct = default)
+    {
+        foreach (var model in models)
+        {
+            model.Created = DateTime.UtcNow;
+        }
+
+        await DbSet.AddRangeAsync(models, ct);
+        await SaveChangesAsync(ct);
+    }
+
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
     {
         return await DbSet.Where(predicate).ToListAsync(ct);
@@ -153,7 +176,12 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
-        return await context.SaveChangesAsync(ct);
+        return await Context.SaveChangesAsync(ct);
+    }
+
+    public IQueryable<T> Query()
+    {
+        return DbSet;
     }
 }
 ```
@@ -166,6 +194,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
 - `SaveChangesAsync` é usado como transação; não chamar `SaveChangesAsync` fora do repository
 - Sempre filtrar por `Deleted == null` nas queries
 - Repositories retornam apenas entidades ou primitivos, nunca DTOs ou Responses
+- `Context` é público para permitir acesso cross-assembly
 
 ## 4. Padrão de Service
 
@@ -283,7 +312,7 @@ public class ProjectController(ProjectService projectService) : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task Task DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
         await projectService.DeleteAsync(new DeleteProjectCommand(id), ct);
@@ -327,7 +356,7 @@ public record AddProjectResponse(Guid Id, string Title, string? Description, str
 
 ## 7. Padrão de Testes
 
-Seguir o padrão dos testes de `Fenicia.Auth.Tests` e `Fenicia.Module.Basic.Tests`.
+Seguir o padrão dos testes de `Fenicia.Auth.Tests` e `Fenicia.Module.Projects.Tests`.
 
 ### Service Tests:
 ```csharp
@@ -457,8 +486,35 @@ public class ProjectControllerTests : IDisposable
 - **Nullable reference types**: habilitado nos projetos
 - **Record types**: usar `record` para DTOs e commands
 - **Primary constructors**: usar para services (ex: `public class ProjectService(DefaultContext db)`)
+- **Campos privados**: usar `_camelCase` (ex: `private readonly DefaultContext _db;`)
+- **Métodos async**: sempre terminam com `Async` (ex: `GetAsync`)
+- **XML comments**: não obrigatórios
+- **Usings desnecessários**: não obrigatória remoção
+- **Migrations**: excluídas das regras de estilo
 
-## 9. O que NÃO fazer
+## 9. Regras de Estilo (StyleCop/EditorConfig)
+
+O projeto usa regras rigorosas de estilo definidas no `.editorconfig`. Antes de commitar, garanta que o build não tem erros de StyleCop.
+
+### Regras obrigatórias:
+- **SA1201**: ordem de membros (campos > construtores > propriedades > eventos > métodos)
+- **SA1202**: ordem por visibilidade (public > internal > protected > private)
+- **SA1203**: campos `const` antes de campos não-`const`
+- **SA1214**: campos `static readonly` antes de campos de instância
+- **SA1208**: `using` de `System.*` antes dos demais
+- **SA1210**: `using` em ordem alfabética
+- **SA1211**: `using` estáticos depois dos normais
+- **SA1503/SA1519**: chaves obrigatórias mesmo em blocos de uma linha
+- **IDE0130**: namespace deve bater com estrutura de pastas
+- **CA1852**: classes internas não devem ser herdadas a menos que projetadas para isso
+- **CA1031**: não capturar `Exception` genérica sem tratamento específico
+- **CA2201**: não lançar `Exception` ou `SystemException` diretamente
+
+### Exceções:
+- **Migrations**: arquivos em `Migrations/` estão excluídos das regras acima
+- **SA0001/IDE0005**: desabilitados globalmente (não exigem documentação XML nem remoção de usings)
+
+## 10. O que NÃO fazer
 
 - ❌ Criar pastas `Handlers/`
 - ❌ Criar subpastas em `DTOs/` (`Commands/`, `Queries/`, `Responses/`)
@@ -469,3 +525,8 @@ public class ProjectControllerTests : IDisposable
 - ❌ Usar `MediatR` nos testes (mockar services diretamente)
 - ❌ Services acessarem `DbContext` diretamente
 - ❌ Repositories retornarem DTOs ou Responses
+- ❌ Lançar `Exception` genérica (usar tipos específicos)
+- ❌ Capturar `Exception` genérica sem tratamento específico
+- ❌ Omitir chaves em blocos `if`/`for`/`while`
+- ❌ Usar `this.` em métodos de instância
+- ❌ Esquecer de incluir `CancellationToken` como último parâmetro em métodos async

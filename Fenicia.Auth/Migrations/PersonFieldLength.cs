@@ -90,7 +90,7 @@ public partial class PersonFieldLength : Migration
 
         migrationBuilder.AddColumn<Guid>("user_model_id", schema: "project", table: "comments", type: "uuid", nullable: false, defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
-        migrationBuilder.AddColumn<string>("content_type", schema: "project", table: "attachments", type: "text", nullable: false, defaultValue: "");
+        migrationBuilder.AddColumn<string>("content_type", schema: "project", table: "attachments", type: "text", nullable: false, defaultValue: string.Empty);
 
         migrationBuilder.AddColumn<long>("size", schema: "project", table: "attachments", type: "bigint", nullable: false, defaultValue: 0L);
 

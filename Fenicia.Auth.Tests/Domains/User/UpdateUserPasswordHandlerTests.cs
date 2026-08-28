@@ -15,59 +15,59 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class UpdateUserPasswordHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly UserService userService;
-    private readonly UserRepository userRepository;
-    private readonly UserRoleRepository userRoleRepository;
-    private readonly RoleRepository roleRepository;
-    private readonly CompanyRepository companyRepository;
-    private readonly UserModel testUser;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly UserService _userService;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
+    private readonly UserModel _testUser;
 
     public UpdateUserPasswordHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userRepository = new UserRepository(db);
-        userRoleRepository = new UserRoleRepository(db);
-        roleRepository = new RoleRepository(db);
-        companyRepository = new CompanyRepository(db);
-        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _faker = new Faker();
 
-        testUser = new UserModel
+        _testUser = new UserModel
         {
-            Email = faker.Internet.Email(),
-            Password = SecurityService.Hash(faker.Internet.Password()),
-            Name = faker.Person.FullName
+            Email = _faker.Internet.Email(),
+            Password = SecurityService.Hash(_faker.Internet.Password()),
+            Name = _faker.Person.FullName
         };
 
-        userRepository.InsertAsync(testUser, CancellationToken.None).GetAwaiter().GetResult();
-        db.SaveChanges();
+        _userRepository.InsertAsync(_testUser, CancellationToken.None).GetAwaiter().GetResult();
+        _db.SaveChanges();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task Handle_WhenValidRequest_ChangesPasswordSuccessfully()
     {
-        var newPassword = faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
-        var originalPasswordHash = testUser.Password;
+        var newPassword = _faker.Internet.Password();
+        var request = new UpdateUserPasswordCommand(_testUser.Id, newPassword);
+        var originalPasswordHash = _testUser.Password;
 
-        var result = await userService.UpdatePasswordAsync(request, CancellationToken.None);
+        var result = await _userService.UpdatePasswordAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
 
         Assert.True(result.Success);
         Assert.Equal("Password changed successfully", result.Message);
 
-        var updatedUser = await userRepository.GetByIdAsync(testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
+        var updatedUser = await _userRepository.GetByIdAsync(_testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(updatedUser);
 
         Assert.NotEqual(originalPasswordHash, updatedUser.Password);
@@ -76,12 +76,12 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_NewPasswordIsHashed()
     {
-        var newPassword = faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
+        var newPassword = _faker.Internet.Password();
+        var request = new UpdateUserPasswordCommand(_testUser.Id, newPassword);
 
-        await userService.UpdatePasswordAsync(request, CancellationToken.None);
+        await _userService.UpdatePasswordAsync(request, CancellationToken.None);
 
-        var updatedUser = await userRepository.GetByIdAsync(testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
+        var updatedUser = await _userRepository.GetByIdAsync(_testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(newPassword, updatedUser.Password);
         Assert.StartsWith("$2", updatedUser.Password);
@@ -93,10 +93,10 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
         var nonExistentUserId = Guid.NewGuid();
-        var newPassword = faker.Internet.Password();
+        var newPassword = _faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(nonExistentUserId, newPassword);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.UpdatePasswordAsync(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _userService.UpdatePasswordAsync(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }

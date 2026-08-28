@@ -12,30 +12,30 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class GetByEmailHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly UserService userService;
-    private readonly UserRepository userRepository;
-    private readonly UserRoleRepository userRoleRepository;
-    private readonly RoleRepository roleRepository;
-    private readonly CompanyRepository companyRepository;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly UserService _userService;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
 
     public GetByEmailHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userRepository = new UserRepository(db);
-        userRoleRepository = new UserRoleRepository(db);
-        roleRepository = new RoleRepository(db);
-        companyRepository = new CompanyRepository(db);
-        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -44,9 +44,9 @@ public class GetByEmailHandlerTests : IDisposable
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
-        var name = faker.Person.FullName;
-        var password = faker.Internet.Password();
+        var email = _faker.Internet.Email();
+        var name = _faker.Person.FullName;
+        var password = _faker.Internet.Password();
 
         var user = new UserModel
         {
@@ -56,10 +56,10 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -72,9 +72,9 @@ public class GetByEmailHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserDoesNotExist_ReturnsNull()
     {
-        var email = faker.Internet.Email();
+        var email = _faker.Internet.Email();
 
-        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -83,10 +83,10 @@ public class GetByEmailHandlerTests : IDisposable
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsNull()
     {
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
+        var email = _faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
-        var name = faker.Person.FullName;
-        var password = faker.Internet.Password();
+        var name = _faker.Person.FullName;
+        var password = _faker.Internet.Password();
 
         var user = new UserModel
         {
@@ -96,10 +96,10 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetByEmailAsync(upperCaseEmail, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(upperCaseEmail, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -111,10 +111,10 @@ public class GetByEmailHandlerTests : IDisposable
         var userId2 = Guid.NewGuid();
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
-        var name1 = faker.Person.FullName;
-        var name2 = faker.Person.FullName;
-        var password1 = faker.Internet.Password();
-        var password2 = faker.Internet.Password();
+        var name1 = _faker.Person.FullName;
+        var name2 = _faker.Person.FullName;
+        var password1 = _faker.Internet.Password();
+        var password2 = _faker.Internet.Password();
 
         var user1 = new UserModel
         {
@@ -132,10 +132,10 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password2
         };
 
-        db.AuthUsers.AddRange(user1, user2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.AddRange(user1, user2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetByEmailAsync(email1, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(email1, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -146,9 +146,9 @@ public class GetByEmailHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        var email = faker.Internet.Email();
+        var email = _faker.Internet.Email();
 
-        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -159,8 +159,8 @@ public class GetByEmailHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var email = "test@example.com";
         var emailWithSpaces = " test@example.com ";
-        var name = faker.Person.FullName;
-        var password = faker.Internet.Password();
+        var name = _faker.Person.FullName;
+        var password = _faker.Internet.Password();
 
         var user = new UserModel
         {
@@ -170,10 +170,10 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetByEmailAsync(emailWithSpaces, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(emailWithSpaces, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -182,9 +182,9 @@ public class GetByEmailHandlerTests : IDisposable
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
-        var name = faker.Person.FullName;
-        var password = faker.Internet.Password();
+        var email = _faker.Internet.Email();
+        var name = _faker.Person.FullName;
+        var password = _faker.Internet.Password();
 
         var user = new UserModel
         {
@@ -194,10 +194,10 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetByEmailAsync(email, CancellationToken.None);
+        var result = await _userService.GetByEmailAsync(email, CancellationToken.None);
 
         Assert.NotNull(result);
 
