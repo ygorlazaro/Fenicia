@@ -47,32 +47,32 @@ public class Program
         var config = sp.GetRequiredService<IConfiguration>();
         var connString = config.GetConnectionString("Auth");
 
-            if (string.IsNullOrWhiteSpace(connString))
+        if (string.IsNullOrWhiteSpace(connString))
         {
             throw new InvalidOperationException("Connection string inválida");
         }
 
-            o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
-        });
+        o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
+    });
 
         builder.Services.AddAuthentication(o =>
     {
         o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(o =>
+    }).AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = true;
+    o.TokenValidationParameters = new TokenValidationParameters
     {
-        o.RequireHttpsMetadata = false;
-        o.SaveToken = true;
-            o.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidIssuer = "AuthService",
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true
-            };
-        });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidIssuer = "AuthService",
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true
+    };
+});
 
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();

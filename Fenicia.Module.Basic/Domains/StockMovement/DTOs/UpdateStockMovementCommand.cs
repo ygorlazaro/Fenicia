@@ -1,4 +1,5 @@
 using Fenicia.Common.Enums.Basic;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 public record UpdateStockMovementCommand(

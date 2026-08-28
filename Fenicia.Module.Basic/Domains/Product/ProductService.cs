@@ -94,7 +94,7 @@ public class ProductService(
     {
         var products = await productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, ct);
 
-        return products.Select(p => new GetProductsByCategoryIdResponse(
+        return [.. products.Select(p => new GetProductsByCategoryIdResponse(
             p.Id,
             p.Name,
             p.SKU,
@@ -111,8 +111,7 @@ public class ProductService(
             p.UnitOfMeasure,
             p.CategoryId,
             p.Category.Name,
-            p.IsActive))
-            .ToList();
+            p.IsActive))];
     }
 
     public async Task<AddProductResponse> AddAsync(AddProductCommand command, Guid companyId, CancellationToken ct)
@@ -254,7 +253,7 @@ public class ProductService(
 
         var orderDetails = await orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
         var orderDetailList = orderDetails.ToList();
-        
+
         var stockMovements = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, ct);
         var stockMovementList = stockMovements.ToList();
 
@@ -285,7 +284,7 @@ public class ProductService(
                         orderby (p.CostPrice ?? 0) * (decimal)p.Quantity descending
                         select new NeverSoldProductResponse(p.Id, p.Name, p.Category.Name, p.Supplier != null ? p.Supplier.Person.Name : null, p.Quantity, (p.CostPrice ?? 0) * (decimal)p.Quantity, lastMovementDate);
 
-        return queryable.Take(query.TopLimit).ToList();
+        return [.. queryable.Take(query.TopLimit)];
     }
 
     private async Task<List<ProfitMarginResponse>> GetProfitMarginsListAsync(IEnumerable<ProductModel> products, CancellationToken ct)
@@ -333,7 +332,7 @@ public class ProductService(
     {
         var sale = salesStats.FirstOrDefault(s => s.ProductId == p.Id);
         return new WorstSellingProductResponse(p.Id, p.Name, p.CategoryName, sale != null ? sale.QuantitySold : 0, sale != null ? sale.Revenue : 0m, sale != null ? sale.OrderCount : 0, p.Quantity, p.StockValue);
-        }).OrderBy(p => p.TotalQuantitySold).ThenByDescending(p => p.CurrentStock).Take(query.TopLimit).ToList();
+    }).OrderBy(p => p.TotalQuantitySold).ThenByDescending(p => p.CurrentStock).Take(query.TopLimit).ToList();
 
         return worstSellingProducts;
     }
@@ -362,7 +361,7 @@ public class ProductService(
     {
         var details = products[s.ProductId];
         return new BestSellingProductResponse(s.ProductId, details.ProductName, details.CategoryName, s.TotalQuantitySold, s.TotalRevenue, s.OrderCount, s.AveragePrice);
-        }).ToList();
+    }).ToList();
 
         return bestSellingProducts;
     }

@@ -18,11 +18,11 @@ public static class FeniciaLocalizationExtensions
         var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("pt-BR"), new CultureInfo("es-ES") };
 
         options.DefaultRequestCulture = new RequestCulture("en-US");
-            options.SupportedCultures = supportedCultures;
-            options.SupportedUICultures = supportedCultures;
+        options.SupportedCultures = supportedCultures;
+        options.SupportedUICultures = supportedCultures;
 
-            options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
-        });
+        options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
+    });
 
         return builder;
     }

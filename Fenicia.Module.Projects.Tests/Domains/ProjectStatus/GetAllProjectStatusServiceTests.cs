@@ -10,37 +10,37 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectStatus;
 
 public class GetAllProjectStatusServiceTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly ProjectStatusService service;
-    private readonly ProjectStatusRepository repository;
-    private readonly Guid companyId;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly ProjectStatusService _service;
+    private readonly ProjectStatusRepository _repository;
+    private readonly Guid _companyId;
 
     public GetAllProjectStatusServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        repository = new ProjectStatusRepository(db);
-        service = new ProjectStatusService(repository);
-        faker = new Faker();
-        companyId = companyContext.CompanyId;
+        _db = new DefaultContext(options, companyContext);
+        _repository = new ProjectStatusRepository(_db);
+        _service = new ProjectStatusService(_repository);
+        _faker = new Faker();
+        _companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAllAsync_WhenStatusesExist_ReturnsPaginationWithStatuses()
     {
-        var status = new ProjectStatusModel { Id = Guid.NewGuid(), Name = faker.Commerce.Categories(1).First(), Color = "#FF0000", CompanyId = companyId };
-        db.ProjectStatuses.Add(status);
-        await db.SaveChangesAsync(CancellationToken.None);
+        var status = new ProjectStatusModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), Color = "#FF0000", CompanyId = _companyId };
+        _db.ProjectStatuses.Add(status);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await service.GetAllAsync(new GetAllProjectStatusQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectStatusQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);

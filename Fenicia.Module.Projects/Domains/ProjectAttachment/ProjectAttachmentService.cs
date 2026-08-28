@@ -8,7 +8,7 @@ public class ProjectAttachmentService(ProjectAttachmentRepository repository)
     public async Task<List<GetAllProjectAttachmentResponse>> GetAllAsync(GetAllProjectAttachmentQuery query, CancellationToken ct)
     {
         var attachments = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return attachments.Select(p => new GetAllProjectAttachmentResponse(p.Id, p.TaskId, p.FileName, p.FileUrl, p.FileSize, p.UploadedBy, p.CompanyId)).ToList();
+        return [.. attachments.Select(p => new GetAllProjectAttachmentResponse(p.Id, p.TaskId, p.FileName, p.FileUrl, p.FileSize, p.UploadedBy, p.CompanyId))];
     }
 
     public async Task<GetProjectAttachmentByIdResponse?> GetByIdAsync(GetProjectAttachmentByIdQuery query, CancellationToken ct)

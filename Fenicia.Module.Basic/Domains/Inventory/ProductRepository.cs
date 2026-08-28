@@ -113,7 +113,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .Select(g => new CategoryBreakdownResponse(
                 g.Key.CategoryId,
                 g.Key.CategoryName,
-                g.Sum(p => p.CostPrice.Value * (decimal)p.Quantity),
+                g.Sum(p => (decimal)(p.CostPrice ?? 0) * (decimal)p.Quantity),
                 g.Sum(p => p.SalesPrice * (decimal)p.Quantity),
                 g.Sum(p => p.Quantity)))
             .ToListAsync(ct);
@@ -121,7 +121,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
 
     public async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct = default)
     {
-        var activeIds = activeProductIds as HashSet<Guid> ?? activeProductIds.ToHashSet();
+        var activeIds = activeProductIds as HashSet<Guid> ?? [.. activeProductIds];
         return await DbSet
             .Where(p => p.Quantity > 0 && !activeIds.Contains(p.Id) && p.Deleted == null)
             .Include(p => p.Category)
@@ -146,10 +146,6 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
                 .Where(p => p.Quantity > 0 && p.Deleted == null)
             .Select(p => new { p.CategoryId, CategoryName = p.Category.Name, p.Quantity, p.CostPrice })
             .ToListAsync(ct)
-            .ContinueWith(t => t.Result
-                .GroupBy(p => new { p.CategoryId, p.CategoryName })
-                .Select(g => (g.Key.CategoryId, g.Key.CategoryName, g.Count(), g.First().CostPrice))
-                .OrderByDescending(g => g.Item4 * (decimal)g.Item3)
-                .ToList(), ct);
+            .ContinueWith(t => t.Result.GroupBy(p => new { p.CategoryId, p.CategoryName }).Select(g => (g.Key.CategoryId, g.Key.CategoryName, g.Count(), g.First().CostPrice)).OrderByDescending(g => g.CostPrice * (decimal)g.Item3).ToList(), ct);
     }
 }

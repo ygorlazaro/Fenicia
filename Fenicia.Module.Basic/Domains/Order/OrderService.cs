@@ -205,6 +205,23 @@ public class OrderService(
         };
     }
 
+    private static decimal CalculateMedian(List<decimal> values)
+    {
+        var count = values.Count;
+        if (count == 0)
+        {
+            return 0;
+        }
+
+        var mid = count / 2;
+        return count % 2 == 0 ? (values[mid - 1] + values[mid]) / 2 : values[mid];
+    }
+
+    private static string GenerateOrderNumber()
+    {
+        return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+    }
+
     private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
         var cancelled = orders
@@ -216,7 +233,7 @@ public class OrderService(
 
         var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
-        return cancelled
+        return [.. cancelled
             .Select(o => new CancelledOrderResponse(
                 o.Id,
                 o.CustomerName,
@@ -225,8 +242,7 @@ public class OrderService(
                 (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0),
                 null))
             .OrderByDescending(o => o.SaleDate)
-            .Take(20)
-            .ToList();
+            .Take(20)];
     }
 
     private async Task<AverageOrderValueResponse> GetAverageOrderValueAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
@@ -299,26 +315,8 @@ public class OrderService(
             .Select(g => new { Status = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
             .ToList();
 
-        return groups
+        return [.. groups
             .Select(g => new OrderStatusCountResponse(g.Status.ToString(), g.Count, g.Total))
-            .OrderByDescending(s => s.Count)
-            .ToList();
-    }
-
-    private static decimal CalculateMedian(List<decimal> values)
-    {
-        var count = values.Count;
-        if (count == 0)
-        {
-            return 0;
-        }
-
-        var mid = count / 2;
-        return count % 2 == 0 ? (values[mid - 1] + values[mid]) / 2 : values[mid];
-    }
-
-    private static string GenerateOrderNumber()
-    {
-        return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+            .OrderByDescending(s => s.Count)];
     }
 }

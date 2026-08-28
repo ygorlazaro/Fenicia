@@ -18,8 +18,7 @@ public class BrevoProvider : IBrevoProvider
         {
             To =
             [
-                new SendSmtpEmailTo(email,
-                    name)
+                new SendSmtpEmailTo(email, name)
             ],
             TemplateId = (int)template,
             Params = parameters

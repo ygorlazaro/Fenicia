@@ -2,8 +2,8 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
-using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
 using Microsoft.EntityFrameworkCore;
+using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
@@ -17,7 +17,7 @@ public class StockMovementService(
         var endDate = query.EndDate ?? DateTime.MaxValue;
         var movements = await stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PageSize, ct);
 
-        return movements.Select(m => new GetStockMovementResponse(
+        return [.. movements.Select(m => new GetStockMovementResponse(
             m.Id,
             m.ProductId,
             m.Product.Name,
@@ -32,7 +32,7 @@ public class StockMovementService(
             m.EmployeeId,
             m.Employee != null && m.Employee.Person != null ? m.Employee.Person.Name : null,
             m.OrderId,
-            m.Reason)).ToList();
+            m.Reason))];
     }
 
     public async Task<AddStockMovementResponse> AddAsync(AddStockMovementCommand command, Guid companyId, CancellationToken ct)
@@ -126,10 +126,10 @@ public class StockMovementService(
         var customerIds = movementList.Where(m => m.CustomerId.HasValue).Select(m => m.CustomerId!.Value).Distinct().ToList();
         var supplierIds = movementList.Where(m => m.SupplierId.HasValue).Select(m => m.SupplierId!.Value).Distinct().ToList();
 
-        var customers = customerIds.Any() 
+        var customers = customerIds.Any()
             ? await stockMovementRepository.Context.BasicCustomers.Where(c => customerIds.Contains(c.Id)).Include(c => c.Person).ToDictionaryAsync(c => c.Id, c => c.Person != null ? c.Person.Name : null, ct)
             : new Dictionary<Guid, string?>();
-        
+
         var suppliers = supplierIds.Any()
             ? await stockMovementRepository.Context.BasicSuppliers.Where(s => supplierIds.Contains(s.Id)).Include(s => s.Person).ToDictionaryAsync(s => s.Id, s => s.Person != null ? s.Person.Name : null, ct)
             : new Dictionary<Guid, string?>();
@@ -148,7 +148,7 @@ public class StockMovementService(
                           m.CustomerId.HasValue && customers.TryGetValue(m.CustomerId.Value, out var cName) ? cName : null,
                           m.SupplierId.HasValue && suppliers.TryGetValue(m.SupplierId.Value, out var sName) ? sName : null);
 
-        return request.ToList();
+        return [.. request];
     }
 
     private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken ct)
@@ -176,7 +176,7 @@ public class StockMovementService(
 
         var data = request.Take(query.TopLimit).ToList();
 
-        return data.Select(x => new StockTurnoverResponse(x.Id, x.Name, x.CategoryName, x.Quantity, x.totalSold, x.turnoverRate, ClassifyTurnover(x.turnoverRate))).ToList();
+        return [.. data.Select(x => new StockTurnoverResponse(x.Id, x.Name, x.CategoryName, x.Quantity, x.totalSold, x.turnoverRate, ClassifyTurnover(x.turnoverRate)))];
     }
 
     private async Task<List<TopMovedProductResponse>> GetTopMovedProductAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken ct)
@@ -210,7 +210,7 @@ public class StockMovementService(
 
         var data = query.ToList();
 
-        return data.Select(x => new MonthlyInOutResponse($"{x.Month:D2}/{x.Year}", x.TotalIn, x.TotalOut, x.TotalInValue, x.TotalOutValue)).ToList();
+        return [.. data.Select(x => new MonthlyInOutResponse($"{x.Month:D2}/{x.Year}", x.TotalIn, x.TotalOut, x.TotalInValue, x.TotalOutValue))];
     }
 
     private string ClassifyTurnover(double rate)

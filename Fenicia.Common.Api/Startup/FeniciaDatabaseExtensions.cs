@@ -7,7 +7,8 @@ namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaDatabaseExtensions
 {
-    public static WebApplicationBuilder AddFeniciaDbContext<TContext>(this WebApplicationBuilder builder, IConfiguration configuration, string migrationAssembly, string connectionStringName) where TContext : DbContext
+    public static WebApplicationBuilder AddFeniciaDbContext<TContext>(this WebApplicationBuilder builder, IConfiguration configuration, string migrationAssembly, string connectionStringName)
+        where TContext : DbContext
     {
         var connectionString = configuration.GetConnectionString(connectionStringName);
 

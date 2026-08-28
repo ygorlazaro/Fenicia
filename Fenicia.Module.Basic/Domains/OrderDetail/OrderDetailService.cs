@@ -8,7 +8,7 @@ public class OrderDetailService(OrderDetailRepository orderDetailRepository)
     {
         var details = await orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);
 
-        return details.Select(d => new GetOrderDetailsByOrderIdResponse(
+        return [.. details.Select(d => new GetOrderDetailsByOrderIdResponse(
                 d.Id,
                 d.OrderId,
                 d.ProductId,
@@ -16,7 +16,6 @@ public class OrderDetailService(OrderDetailRepository orderDetailRepository)
                 d.Price,
                 d.DiscountAmount,
                 d.Quantity,
-                d.Subtotal))
-            .ToList();
+                d.Subtotal))];
     }
 }

@@ -5,7 +5,7 @@ using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Module.Basic.Domains.Supplier.Services;
+namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierService(SupplierRepository supplierRepository)
 {
@@ -20,27 +20,15 @@ public class SupplierService(SupplierRepository supplierRepository)
         var personAddress = s.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
-            return new GetAllSupplierResponse(
-                s.Id,
-                s.PersonId,
-                s.Person.Name,
-                s.Person.Email,
-                s.Person.PhoneNumber,
-                s.Person.Document,
-                address != null ? new AddressResponse(
-                    address.Id,
-                    address.Street,
-                    address.Number,
-                    address.Complement,
-                    address.Neighborhood,
-                    address.ZipCode,
-                    address.StateId,
-                    address.State?.Name,
-                    address.City,
-                    address.Country
-                ) : null
-            );
-        }).ToList();
+        return new GetAllSupplierResponse(
+            s.Id,
+            s.PersonId,
+            s.Person.Name,
+            s.Person.Email,
+            s.Person.PhoneNumber,
+            s.Person.Document,
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+    }).ToList();
 
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -64,19 +52,7 @@ public class SupplierService(SupplierRepository supplierRepository)
             supplier.Person.Email,
             supplier.Person.PhoneNumber,
             supplier.Person.Document,
-            address != null ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode,
-                address.StateId,
-                address.State?.Name,
-                address.City,
-                address.Country
-            ) : null
-        );
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
     }
 
     public async Task<AddSupplierResponse> AddAsync(AddSupplierCommand command, Guid companyId, CancellationToken ct)

@@ -24,12 +24,11 @@ public class AddressModel : BaseModel
     [Required]
     [MaxLength(8)]
     [RegularExpression(@"^\d{8}$", ErrorMessage = "ZipCode deve conter exatamente 8 dígitos numéricos.")]
-    public string ZipCode
+    public string? ZipCode
     {
-        get => field;
+        get;
         set => field = !string.IsNullOrWhiteSpace(value) ? new string([.. value.Where(char.IsDigit).Take(8)]) : null!;
     }
-= null!;
 
     [Required]
     public Guid StateId { get; set; }

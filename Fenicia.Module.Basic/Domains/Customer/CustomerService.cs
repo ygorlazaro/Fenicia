@@ -1,6 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
 
@@ -24,27 +25,8 @@ public class CustomerService(
         var personAddress = c.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
-            return new GetAllCustomerResponse(
-                c.Id,
-                c.PersonId,
-                c.Person.Name,
-                c.Person.Email,
-                c.Person.PhoneNumber,
-                c.Person.Document,
-                address != null ? new AddressResponse(
-                    address.Id,
-                    address.Street,
-                    address.Number,
-                    address.Complement,
-                    address.Neighborhood,
-                    address.ZipCode,
-                    address.StateId,
-                    address.State?.Name,
-                    address.City,
-                    address.Country
-                ) : null
-            );
-        }).ToList();
+        return new GetAllCustomerResponse(c.Id, c.PersonId, c.Person.Name, c.Person.Email, c.Person.PhoneNumber, c.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State?.Name, address.City, address.Country) : null);
+    }).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -54,9 +36,9 @@ public class CustomerService(
         var customer = await customerRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (customer == null)
-{
-    return null;
-}
+        {
+            return null;
+        }
 
         var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
@@ -68,19 +50,7 @@ public class CustomerService(
             customer.Person.Email,
             customer.Person.PhoneNumber,
             customer.Person.Document,
-            address != null ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country
-            ) : null
-        );
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode, address.StateId, address.State.Name, address.City, address.Country) : null);
     }
 
     public async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken ct)
@@ -194,8 +164,7 @@ public class CustomerService(
         }
 
         await personRepository.UpdateAsync(customer.Person.Id, customer.Person, ct);
-        var updated = await customerRepository.UpdateAsync(command.Id, customer, ct);
-
+        var updated = await customerRepository.UpdateAsync(command.Id, customer, ct) ?? throw new ItemNotExistsException();
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
 
@@ -238,10 +207,10 @@ public class CustomerService(
     {
         var lastOrder = g.Max(o => o.SaleDate);
         var daysSince = (now - lastOrder).Days;
-            var riskLevel = daysSince >= query.RiskThresholdDays * 2 ? "High" : daysSince >= query.RiskThresholdDays ? "Medium" : "Low";
+        var riskLevel = daysSince >= query.RiskThresholdDays * 2 ? "High" : daysSince >= query.RiskThresholdDays ? "Medium" : "Low";
 
-            return new CustomerRiskAlertResponse(g.Key, g.First().Customer.Person.Name, g.Count(), lastOrder, daysSince, g.Sum(o => o.TotalAmount), riskLevel);
-        }).Where(c => c.DaysSinceLastOrder >= query.RiskThresholdDays).OrderByDescending(c => c.DaysSinceLastOrder).ToList();
+        return new CustomerRiskAlertResponse(g.Key, g.First().Customer.Person.Name, g.Count(), lastOrder, daysSince, g.Sum(o => o.TotalAmount), riskLevel);
+    }).Where(c => c.DaysSinceLastOrder >= query.RiskThresholdDays).OrderByDescending(c => c.DaysSinceLastOrder).ToList();
 
         return response;
     }

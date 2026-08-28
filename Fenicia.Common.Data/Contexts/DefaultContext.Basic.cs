@@ -7,7 +7,9 @@ using OrderModel = Fenicia.Common.Data.Models.Basic.OrderModel;
 
 namespace Fenicia.Common.Data.Contexts;
 
+#pragma warning disable SA1601 // Partial elements should be documented
 public partial class DefaultContext
+#pragma warning restore SA1601 // Partial elements should be documented
 {
     public DbSet<CustomerModel> BasicCustomers { get; set; }
 

@@ -9,7 +9,7 @@ public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository
     public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken ct)
     {
         var assignees = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return assignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId)).ToList();
+        return [.. assignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId))];
     }
 
     public async Task<GetProjectTaskAssigneeByIdResponse?> GetByIdAsync(GetProjectTaskAssigneeByIdQuery query, CancellationToken ct)

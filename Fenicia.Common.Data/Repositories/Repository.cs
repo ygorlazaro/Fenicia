@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Repositories;
 
-public class Repository<T>(DefaultContext context) : IRepository<T> where T : BaseModel
+public class Repository<T>(DefaultContext context) : IRepository<T>
+    where T : BaseModel
 {
-    protected readonly DbSet<T> DbSet = context.Set<T>();
+    protected DbSet<T> DbSet { get; set; } = context.Set<T>();
 
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {

@@ -25,21 +25,21 @@ public class Program
     {
         builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
         builder.Services.AddHttpContextAccessor();
-            builder.Services.AddScoped<CustomerRepository>();
-            builder.Services.AddScoped<PersonRepository>();
-            builder.Services.AddScoped<AddressRepository>();
-            builder.Services.AddScoped<PersonAddressRepository>();
-            builder.Services.AddScoped<DashboardRepository>();
-            builder.Services.AddScoped<EmployeeRepository>();
-            builder.Services.AddScoped<PositionRepository>();
-            builder.Services.AddScoped<ProductRepository>();
-            builder.Services.AddScoped<ProductCategoryRepository>();
-            builder.Services.AddScoped<StockMovementRepository>();
-            builder.Services.AddScoped<InventoryStockMovementRepository>();
-            builder.Services.AddScoped<OrderDetailRepository>();
-            builder.Services.AddScoped<SupplierRepository>();
-            builder.Services.AddScoped<StateRepository>();
-        }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.Services.AddScoped<CustomerRepository>();
+        builder.Services.AddScoped<PersonRepository>();
+        builder.Services.AddScoped<AddressRepository>();
+        builder.Services.AddScoped<PersonAddressRepository>();
+        builder.Services.AddScoped<DashboardRepository>();
+        builder.Services.AddScoped<EmployeeRepository>();
+        builder.Services.AddScoped<PositionRepository>();
+        builder.Services.AddScoped<ProductRepository>();
+        builder.Services.AddScoped<ProductCategoryRepository>();
+        builder.Services.AddScoped<StockMovementRepository>();
+        builder.Services.AddScoped<InventoryStockMovementRepository>();
+        builder.Services.AddScoped<OrderDetailRepository>();
+        builder.Services.AddScoped<SupplierRepository>();
+        builder.Services.AddScoped<StateRepository>();
+    }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();

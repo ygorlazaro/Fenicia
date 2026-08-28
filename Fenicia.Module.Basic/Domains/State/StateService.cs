@@ -8,6 +8,6 @@ public class StateService(StateRepository stateRepository)
     {
         var states = await stateRepository.GetAllOrderedAsync(ct);
 
-        return states.Select(s => new GetAllStateResponse(s.Id, s.Name, s.Uf)).ToList();
+        return [.. states.Select(s => new GetAllStateResponse(s.Id, s.Name, s.Uf))];
     }
 }
