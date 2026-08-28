@@ -2,12 +2,12 @@
 
 declare module "*.scss" {
     const content: Record<string, string>;
-    export default content;
+    export = content;
 }
 
 declare module "*.css" {
     const content: Record<string, string>;
-    export default content;
+    export = content;
 }
 
 declare module "*.png";

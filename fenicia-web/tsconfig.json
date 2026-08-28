@@ -12,8 +12,7 @@
       "DOM.Iterable"
     ],
     "module": "ESNext",
-    /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": false,
