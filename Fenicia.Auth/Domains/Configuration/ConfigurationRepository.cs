@@ -17,9 +17,11 @@ public class ConfigurationRepository(DefaultContext context) : Repository<Config
 
     public async Task<List<ConfigurationModel>> GetByUserAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct = default)
     {
-        return await DbSet
-            .Where(c => c.UserId == userId && c.CompanyId == companyId)
-            .OrderBy(c => c.ConfigType)
-            .ToListAsync(ct);
+        var query = from c in DbSet
+                    where c.UserId == userId && c.CompanyId == companyId
+                    orderby c.ConfigType
+                    select c;
+
+        return await query.ToListAsync(ct);
     }
 }
