@@ -1,3 +1,3 @@
-namespace Fenicia.Module.Projects.Domains.ProjectSubtask.GetAll;
+namespace Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
 
 public record GetAllProjectSubtaskResponse(Guid Id, Guid TaskId, string Title, bool IsCompleted, int Order, DateTime? CompletedAt, Guid CompanyId);

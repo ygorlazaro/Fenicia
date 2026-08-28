@@ -1,11 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.Add;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.Delete;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.GetAll;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.GetById;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.Update;
+using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectSubtask;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +14,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectSubtaskController(GetAllProjectSubtaskHandler getAllProjectSubtaskHandler, GetProjectSubtaskByIdHandler getProjectSubtaskByIdHandler, AddProjectSubtaskHandler addProjectSubtaskHandler, UpdateProjectSubtaskHandler updateProjectSubtaskHandler, DeleteProjectSubtaskHandler deleteProjectSubtaskHandler) : ControllerBase
+public class ProjectSubtaskController(ProjectSubtaskService projectSubtaskService) : ControllerBase
 {
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectSubtaskResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -26,7 +24,7 @@ public class ProjectSubtaskController(GetAllProjectSubtaskHandler getAllProjectS
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtasks = await getAllProjectSubtaskHandler.Handle(new GetAllProjectSubtaskQuery(page, perPage), ct);
+        var projectSubtasks = await projectSubtaskService.GetAllAsync(new GetAllProjectSubtaskQuery(page, perPage), ct);
 
         return Ok(projectSubtasks);
     }
@@ -39,7 +37,7 @@ public class ProjectSubtaskController(GetAllProjectSubtaskHandler getAllProjectS
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await getProjectSubtaskByIdHandler.Handle(new GetProjectSubtaskByIdQuery(id), ct);
+        var projectSubtask = await projectSubtaskService.GetByIdAsync(new GetProjectSubtaskByIdQuery(id), ct);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
     }
@@ -55,7 +53,7 @@ public class ProjectSubtaskController(GetAllProjectSubtaskHandler getAllProjectS
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await addProjectSubtaskHandler.Handle(command, ct);
+        var projectSubtask = await projectSubtaskService.AddAsync(command, ct);
 
         return new CreatedResult(string.Empty, projectSubtask);
     }
@@ -72,7 +70,7 @@ public class ProjectSubtaskController(GetAllProjectSubtaskHandler getAllProjectS
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await updateProjectSubtaskHandler.Handle(command with { Id = id }, ct);
+        var projectSubtask = await projectSubtaskService.UpdateAsync(command with { Id = id }, ct);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
     }
@@ -86,7 +84,7 @@ public class ProjectSubtaskController(GetAllProjectSubtaskHandler getAllProjectS
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await deleteProjectSubtaskHandler.Handle(new DeleteProjectSubtaskCommand(id), ct);
+        await projectSubtaskService.DeleteAsync(new DeleteProjectSubtaskCommand(id), ct);
 
         return NoContent();
     }
