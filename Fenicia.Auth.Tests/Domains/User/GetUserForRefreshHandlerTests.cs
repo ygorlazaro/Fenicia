@@ -13,30 +13,30 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class GetUserForRefreshHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly UserService userService;
-    private readonly UserRepository userRepository;
-    private readonly UserRoleRepository userRoleRepository;
-    private readonly RoleRepository roleRepository;
-    private readonly CompanyRepository companyRepository;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly UserService _userService;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
 
     public GetUserForRefreshHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userRepository = new UserRepository(db);
-        userRoleRepository = new UserRoleRepository(db);
-        roleRepository = new RoleRepository(db);
-        companyRepository = new CompanyRepository(db);
-        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
-        faker = new Faker();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -45,21 +45,21 @@ public class GetUserForRefreshHandlerTests : IDisposable
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
-        var name = faker.Person.FullName;
+        var email = _faker.Internet.Email();
+        var name = _faker.Person.FullName;
 
         var user = new UserModel
         {
             Id = userId,
             Email = email,
             Name = name,
-            Password = faker.Internet.Password()
+            Password = _faker.Internet.Password()
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
+        var result = await _userService.GetForRefreshAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -73,7 +73,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
     {
         var userId = Guid.NewGuid();
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.GetForRefreshAsync(userId, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _userService.GetForRefreshAsync(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -84,15 +84,15 @@ public class GetUserForRefreshHandlerTests : IDisposable
         var userId2 = Guid.NewGuid();
         const string email1 = "user1@example.com";
         const string email2 = "user2@example.com";
-        var name1 = faker.Person.FullName;
-        var name2 = faker.Person.FullName;
+        var name1 = _faker.Person.FullName;
+        var name2 = _faker.Person.FullName;
 
         var user1 = new UserModel
         {
             Id = userId1,
             Email = email1,
             Name = name1,
-            Password = faker.Internet.Password()
+            Password = _faker.Internet.Password()
         };
 
         var user2 = new UserModel
@@ -100,13 +100,13 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Id = userId2,
             Email = email2,
             Name = name2,
-            Password = faker.Internet.Password()
+            Password = _faker.Internet.Password()
         };
 
-        db.AuthUsers.AddRange(user1, user2);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthUsers.AddRange(user1, user2);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetForRefreshAsync(userId1, CancellationToken.None);
+        var result = await _userService.GetForRefreshAsync(userId1, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -119,7 +119,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
     {
         var userId = Guid.NewGuid();
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.GetForRefreshAsync(userId, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _userService.GetForRefreshAsync(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -127,9 +127,9 @@ public class GetUserForRefreshHandlerTests : IDisposable
     public async Task Handle_ResponseDoesNotIncludePassword()
     {
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
-        var name = faker.Person.FullName;
-        var password = faker.Internet.Password();
+        var email = _faker.Internet.Email();
+        var name = _faker.Person.FullName;
+        var password = _faker.Internet.Password();
 
         var user = new UserModel
         {
@@ -139,10 +139,10 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = password
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
+        var result = await _userService.GetForRefreshAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(result.Email);
@@ -152,21 +152,21 @@ public class GetUserForRefreshHandlerTests : IDisposable
     public async Task Handle_VerifiesResponseContainsAllExpectedFields()
     {
         var userId = Guid.NewGuid();
-        var email = faker.Internet.Email();
-        var name = faker.Person.FullName;
+        var email = _faker.Internet.Email();
+        var name = _faker.Person.FullName;
 
         var user = new UserModel
         {
             Id = userId,
             Email = email,
             Name = name,
-            Password = faker.Internet.Password()
+            Password = _faker.Internet.Password()
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await userService.GetForRefreshAsync(userId, CancellationToken.None);
+        var result = await _userService.GetForRefreshAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
 

@@ -14,40 +14,40 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class DeleteUserHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly UserService userService;
-    private readonly UserRepository userRepository;
-    private readonly UserRoleRepository userRoleRepository;
-    private readonly RoleRepository roleRepository;
-    private readonly CompanyRepository companyRepository;
-    private readonly UserModel testUser;
+    private readonly DefaultContext _db;
+    private readonly UserService _userService;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
+    private readonly UserModel _testUser;
 
     public DeleteUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userRepository = new UserRepository(db);
-        userRoleRepository = new UserRoleRepository(db);
-        roleRepository = new RoleRepository(db);
-        companyRepository = new CompanyRepository(db);
-        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
         var faker = new Faker();
 
-        testUser = new UserModel
+        _testUser = new UserModel
         {
             Email = faker.Internet.Email(),
             Password = SecurityService.Hash(faker.Internet.Password()),
             Name = faker.Person.FullName
         };
 
-        userRepository.InsertAsync(testUser, CancellationToken.None).GetAwaiter().GetResult();
-        db.SaveChanges();
+        _userRepository.InsertAsync(_testUser, CancellationToken.None).GetAwaiter().GetResult();
+        _db.SaveChanges();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -55,9 +55,9 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_SoftDeletesUserSuccessfully()
     {
-        await userService.DeleteAsync(testUser.Id, CancellationToken.None);
+        await _userService.DeleteAsync(_testUser.Id, CancellationToken.None);
 
-        var deletedUser = await userRepository.GetByIdAsync(testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
+        var deletedUser = await _userRepository.GetByIdAsync(_testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(deletedUser);
         Assert.NotNull(deletedUser.Deleted);
         Assert.True(deletedUser.Deleted.Value <= DateTime.UtcNow);
@@ -68,7 +68,7 @@ public class DeleteUserHandlerTests : IDisposable
     {
         var nonExistentUserId = Guid.NewGuid();
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.DeleteAsync(nonExistentUserId, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _userService.DeleteAsync(nonExistentUserId, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }
@@ -76,10 +76,10 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserAlreadyDeleted_ThrowsArgumentException()
     {
-        testUser.Deleted = DateTime.UtcNow;
-        await db.SaveChangesAsync(CancellationToken.None);
+        _testUser.Deleted = DateTime.UtcNow;
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await userService.DeleteAsync(testUser.Id, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _userService.DeleteAsync(_testUser.Id, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }
@@ -87,13 +87,13 @@ public class DeleteUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_SoftDelete_UserStillExistsInDatabase()
     {
-        await userService.DeleteAsync(testUser.Id, CancellationToken.None);
+        await _userService.DeleteAsync(_testUser.Id, CancellationToken.None);
 
-        var user = await userRepository.GetByIdAsync(testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
+        var user = await _userRepository.GetByIdAsync(_testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(user);
         Assert.NotNull(user.Deleted);
 
-        var totalCount = await userRepository.Query().IgnoreQueryFilters().CountAsync();
+        var totalCount = await _userRepository.Query().IgnoreQueryFilters().CountAsync();
         Assert.Equal(1, totalCount);
     }
 }

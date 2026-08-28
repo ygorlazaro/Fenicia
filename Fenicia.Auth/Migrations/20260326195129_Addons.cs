@@ -330,7 +330,7 @@ public partial class Addons : Migration
             type: "character varying(20)",
             maxLength: 20,
             nullable: false,
-            defaultValue: "");
+            defaultValue: string.Empty);
 
         migrationBuilder.AddColumn<int>(
             name: "payment_method",
@@ -371,7 +371,7 @@ public partial class Addons : Migration
             type: "character varying(20)",
             maxLength: 20,
             nullable: false,
-            defaultValue: "");
+            defaultValue: string.Empty);
 
         migrationBuilder.AddColumn<int>(
             name: "payment_method",
@@ -1153,7 +1153,7 @@ public partial class Addons : Migration
             type: "character varying(10)",
             maxLength: 10,
             nullable: false,
-            defaultValue: "");
+            defaultValue: string.Empty);
 
         migrationBuilder.AddColumn<string>(
             name: "time_zone",
@@ -1162,7 +1162,7 @@ public partial class Addons : Migration
             type: "character varying(256)",
             maxLength: 256,
             nullable: false,
-            defaultValue: "");
+            defaultValue: string.Empty);
 
         migrationBuilder.AlterColumn<string>(
             name: "content",
@@ -1208,7 +1208,7 @@ public partial class Addons : Migration
             table: "attachments",
             type: "text",
             nullable: false,
-            defaultValue: "",
+            defaultValue: string.Empty,
             oldClrType: typeof(string),
             oldType: "character varying(50)",
             oldMaxLength: 50,
@@ -1232,7 +1232,7 @@ public partial class Addons : Migration
             type: "character varying(50)",
             maxLength: 50,
             nullable: false,
-            defaultValue: "",
+            defaultValue: string.Empty,
             oldClrType: typeof(string),
             oldType: "character varying(20)",
             oldMaxLength: 20,

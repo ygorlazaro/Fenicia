@@ -24,39 +24,39 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class UserControllerTests
 {
-    private readonly UserController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
-    private readonly UserRepository userRepository;
-    private readonly UserRoleRepository userRoleRepository;
-    private readonly RoleRepository roleRepository;
-    private readonly CompanyRepository companyRepository;
-    private readonly UserService userService;
-    private readonly ModuleService moduleService;
+    private readonly UserController _controller;
+    private readonly DefaultContext _db;
+    private readonly Faker _faker;
+    private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Guid _testUserId;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
+    private readonly UserService _userService;
+    private readonly ModuleService _moduleService;
 
     public UserControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userRepository = new UserRepository(db);
-        userRoleRepository = new UserRoleRepository(db);
-        roleRepository = new RoleRepository(db);
-        companyRepository = new CompanyRepository(db);
-        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
-        moduleService = new ModuleService(db);
-        testUserId = Guid.NewGuid();
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _moduleService = new ModuleService(_db);
+        _testUserId = Guid.NewGuid();
 
-        mockHttpContext = new Mock<HttpContext>();
+        _mockHttpContext = new Mock<HttpContext>();
         var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);
+        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(_mockHttpContext.Object);
 
-        controller = new UserController(userService, moduleService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        _controller = new UserController(_userService, _moduleService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
-        SetupUserClaims(testUserId);
-        faker = new Faker();
+        SetupUserClaims(_testUserId);
+        _faker = new Faker();
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetUserModulesAsync(headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -76,7 +76,7 @@ public class UserControllerTests
 
         var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
         Assert.Empty(returnedModules);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -90,10 +90,9 @@ public class UserControllerTests
         var module = new ModuleModel
         {
             Id = moduleId,
-            Name = faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = faker.Finance.Amount(10,
-                100)
+            Price = _faker.Finance.Amount(10,                100)
         };
 
         var subscription = new SubscriptionModel
@@ -117,32 +116,32 @@ public class UserControllerTests
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             RoleId = Guid.NewGuid(),
             CompanyId = companyId
         };
 
-        db.AuthModules.Add(module);
-        db.AuthSubscriptions.Add(subscription);
-        db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await userRoleRepository.InsertAsync(userRole, CancellationToken.None);
-        await db.SaveChangesAsync(CancellationToken.None);
+        _db.AuthModules.Add(module);
+        _db.AuthSubscriptions.Add(subscription);
+        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(userRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetUserModulesAsync(headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -153,7 +152,7 @@ public class UserControllerTests
         Assert.Single(returnedModules);
         Assert.Equal(moduleId, returnedModules[0].Id);
         Assert.Equal(module.Name, returnedModules[0].Name);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -164,9 +163,9 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await controller.GetUserModulesAsync(headers, wide, ct);
+        await _controller.GetUserModulesAsync(headers, wide, ct);
 
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -175,7 +174,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetUserCompanyAsync(wide, ct);
+        var result = await _controller.GetUserCompanyAsync(wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -184,7 +183,7 @@ public class UserControllerTests
 
         var returnedCompanies = Assert.IsType<List<GetUserCompaniesResponse>>(okResult.Value);
         Assert.Empty(returnedCompanies);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -196,8 +195,8 @@ public class UserControllerTests
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = faker.Company.CompanyName(),
-            Cnpj = faker.Company.Cnpj(),
+            Name = _faker.Company.CompanyName(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
@@ -209,30 +208,30 @@ public class UserControllerTests
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = testUserId,
+            UserId = _testUserId,
             RoleId = roleId,
             CompanyId = companyId
         };
 
-        await companyRepository.InsertAsync(company, CancellationToken.None);
-        await roleRepository.InsertAsync(role, CancellationToken.None);
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await userRoleRepository.InsertAsync(userRole, CancellationToken.None);
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _companyRepository.InsertAsync(company, CancellationToken.None);
+        await _roleRepository.InsertAsync(role, CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(userRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await controller.GetUserCompanyAsync(wide, ct);
+        var result = await _controller.GetUserCompanyAsync(wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -244,7 +243,7 @@ public class UserControllerTests
         Assert.Equal(companyId, returnedCompanies[0].Id);
         Assert.Equal("Admin", returnedCompanies[0].Role);
         Assert.Equal(company.Name, returnedCompanies[0].CompanyName);
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -253,9 +252,9 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await controller.GetUserCompanyAsync(wide, ct);
+        await _controller.GetUserCompanyAsync(wide, ct);
 
-        Assert.Equal(testUserId.ToString(), wide.UserId);
+        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -289,38 +288,32 @@ public class UserControllerTests
         Assert.NotNull(apiControllerAttribute);
     }
 
-    #region GetAsync Tests (List Users)
-
     [Fact]
     public async Task GetAsync_WithGodRole_ReturnsOkWithUsers()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await controller.GetAsync(CancellationToken.None);
+        var result = await _controller.GetAsync(CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result);
     }
 
-    #endregion
-
-    #region GetByIdAsync Tests
-
     [Fact]
     public async Task GetByIdAsync_WithGodRole_ReturnsFullUserData()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var roleId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
@@ -334,16 +327,16 @@ public class UserControllerTests
         {
             Id = companyId,
             Name = "Test Company",
-            Cnpj = faker.Company.Cnpj(),
+            Cnpj = _faker.Company.Cnpj(),
             IsActive = true
         };
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -354,13 +347,13 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        await roleRepository.InsertAsync(role, CancellationToken.None);
-        await companyRepository.InsertAsync(company, CancellationToken.None);
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await userRoleRepository.InsertAsync(userRole, CancellationToken.None);
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _roleRepository.InsertAsync(role, CancellationToken.None);
+        await _companyRepository.InsertAsync(company, CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(userRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await controller.GetByIdAsync(user.Id, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(user.Id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result);
@@ -369,10 +362,10 @@ public class UserControllerTests
     [Fact]
     public async Task GetByIdAsync_WhenUserNotFound_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var result = await controller.GetByIdAsync(nonExistentUserId, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(nonExistentUserId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -381,39 +374,35 @@ public class UserControllerTests
     [Fact]
     public async Task GetByIdAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password(),
             Deleted = DateTime.UtcNow
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await controller.GetByIdAsync(user.Id, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(user.Id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
     }
 
-    #endregion
-
-    #region UpdateAsync Tests
-
     [Fact]
     public async Task UpdateAsync_WhenUserNotFound_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
         var query = new UpdateUserCommand(nonExistentUserId, "Updated Name");
 
-        var result = await controller.UpdateAsync(nonExistentUserId, query, CancellationToken.None);
+        var result = await _controller.UpdateAsync(nonExistentUserId, query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -422,39 +411,35 @@ public class UserControllerTests
     [Fact]
     public async Task UpdateAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password(),
             Deleted = DateTime.UtcNow
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdateUserCommand(user.Id, "Updated Name");
 
-        var result = await controller.UpdateAsync(user.Id, query, CancellationToken.None);
+        var result = await _controller.UpdateAsync(user.Id, query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
     }
 
-    #endregion
-
-    #region DeleteAsync Tests
-
     [Fact]
     public async Task DeleteAsync_WhenUserNotFound_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var result = await controller.DeleteAsync(nonExistentUserId, CancellationToken.None);
+        var result = await _controller.DeleteAsync(nonExistentUserId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -463,21 +448,21 @@ public class UserControllerTests
     [Fact]
     public async Task DeleteAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password(),
             Deleted = DateTime.UtcNow
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await controller.DeleteAsync(user.Id, CancellationToken.None);
+        var result = await _controller.DeleteAsync(user.Id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -486,38 +471,34 @@ public class UserControllerTests
     [Fact]
     public async Task DeleteAsync_WhenAttemptingSelfDeletion_ReturnsBadRequest()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var user = new UserModel
         {
-            Id = testUserId,
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Id = _testUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await controller.DeleteAsync(testUserId, CancellationToken.None);
+        var result = await _controller.DeleteAsync(_testUserId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
     }
 
-    #endregion
-
-    #region ChangePasswordAsync Tests
-
     [Fact]
     public async Task ChangePasswordAsync_WhenUserNotFound_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var query = new UpdateUserPasswordCommand(testUserId, faker.Internet.Password());
+        var query = new UpdateUserPasswordCommand(_testUserId, _faker.Internet.Password());
 
-        var result = await controller.ChangePasswordAsync(nonExistentUserId, query, CancellationToken.None);
+        var result = await _controller.ChangePasswordAsync(nonExistentUserId, query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -526,29 +507,28 @@ public class UserControllerTests
     [Fact]
     public async Task ChangePasswordAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
-        SetupUserClaims(testUserId, "God");
+        SetupUserClaims(_testUserId, "God");
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Person.FullName,
-            Password = faker.Internet.Password(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password(),
             Deleted = DateTime.UtcNow
         };
 
-        userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
-        await db.SaveChangesAsync(CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new UpdateUserPasswordCommand(user.Id, faker.Internet.Password());
+        var query = new UpdateUserPasswordCommand(user.Id, _faker.Internet.Password());
 
-        var result = await controller.ChangePasswordAsync(user.Id, query, CancellationToken.None);
+        var result = await _controller.ChangePasswordAsync(user.Id, query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
     }
 
-    #endregion
     private void SetupUserClaims(Guid userId, string? role = null)
     {
         var claims = new List<Claim> { new("userId", userId.ToString()) };
@@ -561,8 +541,7 @@ public class UserControllerTests
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
-
 }

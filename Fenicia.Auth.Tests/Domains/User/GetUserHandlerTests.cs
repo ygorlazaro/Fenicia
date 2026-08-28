@@ -13,23 +13,23 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class GetUserHandlerTests : IDisposable
 {
-    private readonly DefaultContext db;
-    private readonly UserService userService;
-    private readonly UserRepository userRepository;
-    private readonly UserRoleRepository userRoleRepository;
-    private readonly RoleRepository roleRepository;
-    private readonly CompanyRepository companyRepository;
+    private readonly DefaultContext _db;
+    private readonly UserService _userService;
+    private readonly UserRepository _userRepository;
+    private readonly UserRoleRepository _userRoleRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly CompanyRepository _companyRepository;
 
     public GetUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        db = new DefaultContext(options, new TestCompanyContext());
-        userRepository = new UserRepository(db);
-        userRoleRepository = new UserRoleRepository(db);
-        roleRepository = new RoleRepository(db);
-        companyRepository = new CompanyRepository(db);
-        userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository);
+        _db = new DefaultContext(options, new TestCompanyContext());
+        _userRepository = new UserRepository(_db);
+        _userRoleRepository = new UserRoleRepository(_db);
+        _roleRepository = new RoleRepository(_db);
+        _companyRepository = new CompanyRepository(_db);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
 
         var faker = new Faker();
 
@@ -41,22 +41,22 @@ public class GetUserHandlerTests : IDisposable
                 Password = SecurityService.Hash(faker.Internet.Password()),
                 Name = faker.Person.FullName
             };
-            userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
+            _userRepository.InsertAsync(user, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        db.SaveChanges();
+        _db.SaveChanges();
     }
 
     public void Dispose()
     {
-        db.Dispose();
+        _db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task Handle_WhenNoParameters_ReturnsFirstPageWithDefaultPerPage()
     {
-        var result = await userService.GetAllAsync(1, 10, CancellationToken.None);
+        var result = await _userService.GetAllAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -70,7 +70,7 @@ public class GetUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenPageSpecified_ReturnsCorrectPage()
     {
-        var result = await userService.GetAllAsync(2, 5, CancellationToken.None);
+        var result = await _userService.GetAllAsync(2, 5, CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -82,7 +82,7 @@ public class GetUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_UsersAreOrderedAlphabeticallyByName()
     {
-        var result = await userService.GetAllAsync(1, 15, CancellationToken.None);
+        var result = await _userService.GetAllAsync(1, 15, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(result.Data.Select(u => u.Name).OrderBy(n => n), result.Data.Select(u => u.Name));
@@ -91,7 +91,7 @@ public class GetUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenLastPage_HasNextIsFalse()
     {
-        var result = await userService.GetAllAsync(2, 10, CancellationToken.None);
+        var result = await _userService.GetAllAsync(2, 10, CancellationToken.None);
 
         Assert.NotNull(result);
 

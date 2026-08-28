@@ -14,18 +14,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService
+public class TokenService(DefaultContext db, IConfiguration configuration, LoginAttemptService loginAttemptService)
 {
-    private readonly DefaultContext _db;
-    private readonly IConfiguration _configuration;
-    private readonly LoginAttemptService _loginAttemptService;
+    private readonly DefaultContext _db = db;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly LoginAttemptService _loginAttemptService = loginAttemptService;
 
-    public TokenService(DefaultContext db, IConfiguration configuration, LoginAttemptService loginAttemptService)
-    {
-        _db = db;
-        _configuration = configuration;
-        _loginAttemptService = loginAttemptService;
-    }
     public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken ct)
     {
         var attempts = ValidateAttempts(query);
@@ -56,7 +50,7 @@ public class TokenService
 
     public virtual string GenerateString(GenerateTokenResponse user)
     {
-        var key = Encoding.ASCII.GetBytes( _configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
         var authSigningKey = new SymmetricSecurityKey(key);
         var tokenDescriptor = new SecurityTokenDescriptor
