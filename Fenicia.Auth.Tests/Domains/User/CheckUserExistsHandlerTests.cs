@@ -86,7 +86,7 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = _faker.Internet.Password()
         };
 
-        _userRepository.InsertAsync(user, CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var result = await _userService.ExistsByEmailAsync(upperCaseEmail, CancellationToken.None);
@@ -152,7 +152,7 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = _faker.Internet.Password()
         };
 
-        _userRepository.InsertAsync(user, CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var result = await _userService.ExistsByEmailAsync(emailWithSpaces, CancellationToken.None);
@@ -174,7 +174,7 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = _faker.Internet.Password()
         };
 
-        _userRepository.InsertAsync(user, CancellationToken.None);
+        await _userRepository.InsertAsync(user, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var result = await _userService.ExistsByEmailAsync(emailWithExtra, CancellationToken.None);
