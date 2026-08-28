@@ -1,6 +1,8 @@
 import { CCol, CContainer, CRow } from "@coreui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../../store";
+import { setCompany } from "../../../features/auth/authSlice";
 import AuthCompanyClient from "../../../services/auth/auth-company-client";
 import { GetCompaniesByUserResponse } from "../../../types/auth/get-companies-by-user-response";
 import CompanySelectModal from "./company-select-modal";
@@ -9,6 +11,7 @@ const companyClient = new AuthCompanyClient();
 
 const CompanySelect = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const [companies, setCompanies] = useState<GetCompaniesByUserResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -41,7 +44,7 @@ const CompanySelect = () => {
         setSelected(true);
 
         companyClient.setCompanyId(company.id);
-        localStorage.setItem("company_name", company.name);
+        dispatch(setCompany({ companyId: company.id, companyName: company.name }));
 
         navigate("/dashboard");
     };

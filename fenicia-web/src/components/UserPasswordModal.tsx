@@ -4,20 +4,19 @@ import { CAlert, CButton, CForm, CFormInput, CFormLabel, CModal, CModalBody, CMo
 import axios from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAppSelector } from "../../store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const UserPasswordModal = ({ visible, onClose, onSave, userId }) => {
     const { t } = useTranslation();
+    const token = useAppSelector((state) => state.auth.token);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
         newPassword: "",
         confirmPassword: ""
     });
-
-    const getToken = () => localStorage.getItem("token") || "";
-    const getCompanyId = () => localStorage.getItem("companyId") || "";
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -29,14 +28,12 @@ const UserPasswordModal = ({ visible, onClose, onSave, userId }) => {
         setLoading(true);
         setError(null);
 
-        // Validate passwords match
         if (formData.newPassword !== formData.confirmPassword) {
             setError(t("users.errors.passwordsMatch") || "Passwords do not match");
             setLoading(false);
             return;
         }
 
-        // Validate password length
         if (formData.newPassword.length < 6) {
             setError(t("users.errors.passwordLength") || "Password must be at least 6 characters");
             setLoading(false);
@@ -44,7 +41,6 @@ const UserPasswordModal = ({ visible, onClose, onSave, userId }) => {
         }
 
         try {
-            const token = getToken();
             await axios.patch(
                 `${API_BASE_URL}/user/${userId}/password`,
                 { newPassword: formData.newPassword },

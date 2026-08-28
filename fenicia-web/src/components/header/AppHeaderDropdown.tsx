@@ -4,40 +4,23 @@ import { CAvatar, CDropdown, CDropdownDivider, CDropdownItem, CDropdownMenu, CDr
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ApiClient } from "../../services/api-client";
+import { useAppSelector } from "../../store";
+import { logout } from "../../features/auth/authSlice";
 
 const AppHeaderDropdown = ({ onCompanySelect }) => {
-    const apiClient = new ApiClient();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const user = useAppSelector((state) => state.auth.user);
+    const companyName = useAppSelector((state) => state.auth.companyName);
     const [userName, setUserName] = useState("");
-    const [companyName, setCompanyName] = useState("");
 
     useEffect(() => {
-        // Get user info from token
-        const token = apiClient.getToken();
-        if (token) {
-            try {
-                const tokenPayload = JSON.parse(atob(token.split(".")[1]));
-                setUserName(tokenPayload.name || tokenPayload.email || t("auth.welcome"));
-            } catch (err) {
-                console.error("Failed to parse token:", err);
-                setUserName(t("auth.welcome"));
-            }
+        if (user) {
+            setUserName(user.name || user.email || t("auth.welcome"));
         }
-
-        // Get company name from localStorage
-        const companyId = apiClient.getCompanyId();
-        const companyNameStored = localStorage.getItem("company_name");
-        if (companyId && companyNameStored) {
-            setCompanyName(companyNameStored);
-        } else if (companyId) {
-            setCompanyName(t("auth.selectCompany"));
-        }
-    }, [t]);
+    }, [user, t]);
 
     const handleLogout = () => {
-        apiClient.clearAuth();
         navigate("/auth/login");
     };
 
@@ -62,7 +45,7 @@ const AppHeaderDropdown = ({ onCompanySelect }) => {
                 <div className="p-3">
                     <div className="fw-semibold">{userName}</div>
                     <small className="text-muted" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={handleCompanySelect} title={t("auth.selectCompany")}>
-                        {companyName}
+                        {companyName || t("auth.selectCompany")}
                     </small>
                 </div>
                 <CDropdownDivider />

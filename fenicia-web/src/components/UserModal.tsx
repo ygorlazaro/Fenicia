@@ -2,12 +2,14 @@ import { CAlert, CButton, CCard, CCol, CForm, CFormCheck, CFormInput, CFormLabel
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IUser } from "../types";
+import { useAppSelector } from "../../store";
+import { IUser } from "../../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean; onClose: () => void; onSave: () => void; mode: string; user?: IUser & { companies?: { company_id: string; role_id: string }[] } }) => {
     const { t } = useTranslation();
+    const token = useAppSelector((state) => state.auth.token);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [companies, setCompanies] = useState([]);
@@ -15,11 +17,8 @@ const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean;
         name: "",
         email: "",
         password: "",
-        companiesRoles: []
+        companiesRoles: [] as { companyId: string; roleId: string }[]
     });
-
-    const getToken = () => localStorage.getItem("token") || "";
-    const getCompanyId = () => localStorage.getItem("companyId") || "";
 
     // Fetch companies on mount
     useEffect(() => {
@@ -49,7 +48,6 @@ const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean;
 
     const fetchCompanies = async () => {
         try {
-            const token = getToken();
             const response = await axios.get(`${API_BASE_URL}/company`, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -63,7 +61,6 @@ const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean;
 
     const fetchRoles = async () => {
         try {
-            const token = getToken();
             const response = await axios.get(`${API_BASE_URL}/role`, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -111,7 +108,6 @@ const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean;
         setError(null);
 
         try {
-            const token = getToken();
             const payload = {
                 name: formData.name,
                 email: formData.email
@@ -202,14 +198,12 @@ const UserModal = ({ visible, onClose, onSave, mode, user }: { visible: boolean;
                                                 label={company.name}
                                                 checked={formData.companiesRoles.some((cr) => cr.companyId === company.id)}
                                                 onChange={() => {
-                                                    // If already selected, remove all roles for this company
                                                     if (formData.companiesRoles.some((cr) => cr.companyId === company.id)) {
                                                         setFormData((prev) => ({
                                                             ...prev,
                                                             companiesRoles: prev.companiesRoles.filter((cr) => cr.companyId !== company.id)
                                                         }));
                                                     } else {
-                                                        // Add with first role
                                                         const firstRole = roles[0];
                                                         if (firstRole) {
                                                             setFormData((prev) => ({

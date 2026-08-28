@@ -3,6 +3,8 @@ import { GenerateTokenQuery } from "../../types/auth/generate-token-query";
 import { TokenResponse } from "../../types/auth/token-response";
 import { ValidateTokenQuery } from "../../types/auth/validate-token-query";
 import { AuthClient } from "./auth-client";
+import { store } from "../store";
+import { setCredentials } from "../features/auth/authSlice";
 
 /**
  * AuthTokenClient - Handles token authentication operations
@@ -25,14 +27,12 @@ export class AuthTokenClient extends AuthClient {
         const response = await this.getClient().post("/token", credentials);
         const data = (response as AxiosResponse).data;
 
-        // Persist access token
-        if (data.accessToken) {
-            super.setToken(data.accessToken);
-        }
-
-        // Persist company ID if returned
-        if (data.user?.companyId) {
-            super.setCompanyId(data.user.companyId);
+        if (data.accessToken && data.user) {
+            store.dispatch(setCredentials({
+                token: data.accessToken,
+                refreshToken: data.refreshToken || "",
+                user: data.user
+            }));
         }
 
         return data;
@@ -50,9 +50,12 @@ export class AuthTokenClient extends AuthClient {
         const response = await this.getClient().post("/token/refresh", requestData);
         const data = (response as AxiosResponse).data;
 
-        // Persist new access token
-        if (data.accessToken) {
-            super.setToken(data.accessToken);
+        if (data.accessToken && data.user) {
+            store.dispatch(setCredentials({
+                token: data.accessToken,
+                refreshToken: data.refreshToken || "",
+                user: data.user
+            }));
         }
 
         return data;

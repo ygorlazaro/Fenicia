@@ -1,4 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { store } from "../store";
+import { setCredentials, logout } from "../features/auth/authSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5144";
 export const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || "http://localhost:5144";
@@ -29,7 +31,7 @@ export class ApiClient {
      * Get the stored auth token
      */
     public getToken(): string | null {
-        return localStorage.getItem(TOKEN_KEY);
+        return store.getState().auth.token || localStorage.getItem(TOKEN_KEY);
     }
 
     /**
@@ -47,7 +49,7 @@ export class ApiClient {
      * Get the stored company ID
      */
     public getCompanyId(): string | null {
-        return localStorage.getItem(COMPANY_ID_KEY);
+        return store.getState().auth.companyId || localStorage.getItem(COMPANY_ID_KEY);
     }
 
     /**
@@ -68,6 +70,7 @@ export class ApiClient {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(COMPANY_ID_KEY);
         localStorage.removeItem("company_name");
+        store.dispatch(logout());
     }
 
     /**

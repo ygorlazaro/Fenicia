@@ -1,10 +1,9 @@
 import { Navigate } from "react-router-dom";
-import { ApiClient } from "../services/api-client";
+import { useAppSelector } from "../store";
 
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-    const apiClient = new ApiClient();
-    const token = apiClient.getToken();
-    if (!token) {
+    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+    if (!isAuthenticated) {
         return <Navigate to="/auth/login" replace />;
     }
     return <>{children}</>;
