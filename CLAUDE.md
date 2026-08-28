@@ -487,8 +487,9 @@ public class ProjectControllerTests : IDisposable
 - **Record types**: usar `record` para DTOs e commands
 - **Primary constructors**: usar para services (ex: `public class ProjectService(DefaultContext db)`)
 - **Campos privados**: usar `_camelCase` (ex: `private readonly DefaultContext _db;`)
-- **Métodos async**: sempre terminam com `Async` (ex: `GetAsync`)
-- **XML comments**: não obrigatórios
+ - **Métodos async**: sempre terminam com `Async` (ex: `GetAsync`)
+ - **LINQ**: usar sintaxe LINQ query expression sempre que possível ao invés de lambda expressions
+ - **XML comments**: não obrigatórios
 - **Usings desnecessários**: não obrigatória remoção
 - **Migrations**: excluídas das regras de estilo
 
