@@ -1,11 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Projects.Domains.Project.Add;
-using Fenicia.Module.Projects.Domains.Project.Delete;
-using Fenicia.Module.Projects.Domains.Project.GetAll;
-using Fenicia.Module.Projects.Domains.Project.GetById;
-using Fenicia.Module.Projects.Domains.Project.Update;
+using Fenicia.Module.Projects.Domains.Project.DTOs;
+using Fenicia.Module.Projects.Domains.Project;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +14,9 @@ namespace Fenicia.Module.Projects.Domains.Project;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectController(GetAllProjectHandler getAllProjectHandler, GetProjectByIdHandler getProductByIdHandler, AddProjectHandler addProjectHandler, UpdateProjectHandler updateProjectHandler, DeleteProjectHandler deleteProjectHandler) : ControllerBase
+public class ProjectController(ProjectService projectService) : ControllerBase
 {
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -26,7 +24,7 @@ public class ProjectController(GetAllProjectHandler getAllProjectHandler, GetPro
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projects = await getAllProjectHandler.Handle(new GetAllProjectQuery(page, perPage), ct);
+        var projects = await projectService.GetAllAsync(new GetAllProjectQuery(page, perPage), ct);
 
         return Ok(projects);
     }
@@ -39,7 +37,7 @@ public class ProjectController(GetAllProjectHandler getAllProjectHandler, GetPro
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var project = await getProductByIdHandler.Handle(new GetProjectByIdQuery(id), ct);
+        var project = await projectService.GetByIdAsync(new GetProjectByIdQuery(id), ct);
 
         return project is null ? NotFound() : Ok(project);
     }
@@ -55,7 +53,7 @@ public class ProjectController(GetAllProjectHandler getAllProjectHandler, GetPro
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var project = await addProjectHandler.Handle(command, ct);
+        var project = await projectService.AddAsync(command, ct);
 
         return new CreatedResult(string.Empty, project);
     }
@@ -72,7 +70,7 @@ public class ProjectController(GetAllProjectHandler getAllProjectHandler, GetPro
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var project = await updateProjectHandler.Handle(command with { Id = id }, ct);
+        var project = await projectService.UpdateAsync(command with { Id = id }, ct);
 
         return project is null ? NotFound() : Ok(project);
     }
@@ -86,7 +84,7 @@ public class ProjectController(GetAllProjectHandler getAllProjectHandler, GetPro
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await deleteProjectHandler.Handle(new DeleteProjectCommand(id), ct);
+        await projectService.DeleteAsync(new DeleteProjectCommand(id), ct);
 
         return NoContent();
     }

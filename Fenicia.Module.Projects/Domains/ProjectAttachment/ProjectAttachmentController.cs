@@ -1,11 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.Add;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.Delete;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.GetAll;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.GetById;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.Update;
+using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectAttachment;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +14,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllProjectAttachmentHandler, GetProjectAttachmentByIdHandler getProjectAttachmentByIdHandler, AddProjectAttachmentHandler addProjectAttachmentHandler, UpdateProjectAttachmentHandler updateProjectAttachmentHandler, DeleteProjectAttachmentHandler deleteProjectAttachmentHandler) : ControllerBase
+public class ProjectAttachmentController(ProjectAttachmentService projectAttachmentService) : ControllerBase
 {
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectAttachmentResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -26,7 +24,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachments = await getAllProjectAttachmentHandler.Handle(new GetAllProjectAttachmentQuery(page, perPage), ct);
+        var projectAttachments = await projectAttachmentService.GetAllAsync(new GetAllProjectAttachmentQuery(page, perPage), ct);
 
         return Ok(projectAttachments);
     }
@@ -39,7 +37,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await getProjectAttachmentByIdHandler.Handle(new GetProjectAttachmentByIdQuery(id), ct);
+        var projectAttachment = await projectAttachmentService.GetByIdAsync(new GetProjectAttachmentByIdQuery(id), ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
@@ -55,7 +53,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await addProjectAttachmentHandler.Handle(command, ct);
+        var projectAttachment = await projectAttachmentService.AddAsync(command, ct);
 
         return new CreatedResult(string.Empty, projectAttachment);
     }
@@ -72,7 +70,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await updateProjectAttachmentHandler.Handle(command with { Id = id }, ct);
+        var projectAttachment = await projectAttachmentService.UpdateAsync(command with { Id = id }, ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
@@ -86,7 +84,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await deleteProjectAttachmentHandler.Handle(new DeleteProjectAttachmentCommand(id), ct);
+        await projectAttachmentService.DeleteAsync(new DeleteProjectAttachmentCommand(id), ct);
 
         return NoContent();
     }
