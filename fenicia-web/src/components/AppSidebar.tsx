@@ -1,6 +1,6 @@
 import React from "react";
-import { useAppDispatch, useAppSelector } from "../store";
-import { setSidebarShow, setSidebarUnfoldable } from "../features/ui/uiSlice";
+import { useAppDispatch, useAppSelector } from "../store.ts";
+import { setSidebarShow, setSidebarUnfoldable } from "../features/ui/uiSlice.ts";
 
 import CIcon from "@coreui/icons-react";
 import { CCloseButton, CSidebar, CSidebarBrand, CSidebarFooter, CSidebarHeader, CSidebarToggler } from "@coreui/react";

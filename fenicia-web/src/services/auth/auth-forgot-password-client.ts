@@ -1,4 +1,4 @@
-import { AuthClient } from "./auth-client";
+import { AuthClient } from "./auth-client.ts";
 
 /**
  * AuthForgotPasswordClient - Handles forgot password operations

@@ -3,8 +3,8 @@ import CIcon from "@coreui/icons-react";
 import { CContainer, CHeader, CHeaderNav, CHeaderToggler, CNavItem, CNavLink } from "@coreui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "../store";
-import { setSidebarShow } from "../features/ui/uiSlice";
+import { useAppDispatch, useAppSelector } from "../store.ts";
+import { setSidebarShow } from "../features/ui/uiSlice.ts";
 import { NavLink } from "react-router-dom";
 
 import { ApiClient } from "../services/api-client";

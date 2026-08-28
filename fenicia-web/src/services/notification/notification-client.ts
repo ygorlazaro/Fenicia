@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { Notification } from "../../types/notification/notification";
 import { AuthClient } from "../auth/auth-client";
 

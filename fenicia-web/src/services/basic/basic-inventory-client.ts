@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { InventoryHealth } from "../../types/basic/inventory/inventory-health";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 
 const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || "http://localhost:5083";
 

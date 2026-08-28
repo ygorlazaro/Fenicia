@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import type { IPagination } from "../../types";
+import type { IPagination } from "../../types/index.ts";
 import type { GetAllEmployeeResponse } from "../../types/basic/employee/get-all-employee-response";
 import type { AddPositionCommand } from "../../types/basic/position/add-position-command";
 import type { AddPositionResponse } from "../../types/basic/position/add-position-response";
@@ -7,7 +7,7 @@ import type { GetAllPositionResponse } from "../../types/basic/position/get-all-
 import type { GetPositionByIdResponse } from "../../types/basic/position/get-position-by-id-response";
 import type { UpdatePositionCommand } from "../../types/basic/position/update-position-command";
 import type { UpdatePositionResponse } from "../../types/basic/position/update-position-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**

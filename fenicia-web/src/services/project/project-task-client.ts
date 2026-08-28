@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 
 const PROJECTS_API_BASE_URL = import.meta.env.VITE_PROJECTS_API_BASE_URL || "http://localhost:5144";
 

@@ -1,9 +1,9 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { GetModuleResponse } from "../../types/auth/get-module-response";
 import { UserModuleResponse } from "../../types/auth/user-module-response";
 import { UserSubscriptionResponse } from "../../types/auth/user-subscription-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || "http://localhost:5001/api";
 

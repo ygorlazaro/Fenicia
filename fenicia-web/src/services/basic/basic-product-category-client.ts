@@ -1,9 +1,9 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { AddProductCategoryCommand, AddProductCategoryResponse, UpdateProductCategoryCommand, UpdateProductCategoryResponse } from "../../types/basic/product-category/add-product-category-command";
 import { GetAllProductCategoryResponse } from "../../types/basic/product-category/get-all-product-category-response";
 import { GetProductCategoryByIdResponse } from "../../types/basic/product-category/get-product-category-by-id-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**
