@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { AddCustomerCommand } from "../../types/basic/customer/add-customer-command";
 import { AddCustomerResponse } from "../../types/basic/customer/add-customer-response";
 import { CustomerInsights } from "../../types/basic/customer/customer-insights";
@@ -7,7 +7,7 @@ import { GetAllCustomerResponse } from "../../types/basic/customer/get-all-custo
 import { GetCustomerByIdResponse } from "../../types/basic/customer/get-customer-by-id-response";
 import { UpdateCustomerCommand } from "../../types/basic/customer/update-customer-command";
 import { UpdateCustomerResponse } from "../../types/basic/customer/update-customer-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**

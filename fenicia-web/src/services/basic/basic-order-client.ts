@@ -1,12 +1,12 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { OrderAnalytics } from "../../types/basic/order/order-analytics";
 import { CreateOrderCommand } from "../../types/basic/order/create-order-command";
 import { CreateOrderResponse } from "../../types/basic/order/create-order-response";
 import { GetAllOrderResponse } from "../../types/basic/order/get-all-order-response";
 import { GetOrderByIdResponse } from "../../types/basic/order/get-order-by-id-response";
 import { OrderDetailResponse } from "../../types/basic/order/order-detail-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**

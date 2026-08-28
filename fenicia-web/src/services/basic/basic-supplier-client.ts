@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { AddSupplierCommand } from "../../types/basic/supplier/add-supplier-command";
 import { AddSupplierResponse } from "../../types/basic/supplier/add-supplier-response";
 import { GetAllSupplierResponse } from "../../types/basic/supplier/get-all-supplier-response";
@@ -7,7 +7,7 @@ import { GetSupplierByIdResponse } from "../../types/basic/supplier/get-supplier
 import { SupplierPerformance } from "../../types/basic/supplier/supplier-performance";
 import { UpdateSupplierCommand } from "../../types/basic/supplier/update-supplier-command";
 import { UpdateSupplierResponse } from "../../types/basic/supplier/update-supplier-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**

@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import type { IPagination } from "../../types";
+import type { IPagination } from "../../types/index.ts";
 import type { AddEmployeeCommand } from "../../types/basic/employee/add-employee-command";
 import type { AddEmployeeResponse } from "../../types/basic/employee/add-employee-response";
 import type { GetAllEmployeeResponse } from "../../types/basic/employee/get-all-employee-response";
@@ -9,7 +9,7 @@ import type { UpdateEmployeeResponse } from "../../types/basic/employee/update-e
 import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
 
 import { EmployeePerformance } from "../../types/basic/employee/employee-performance";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**

@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { FinancialDashboard } from "../../types/basic/dashboard/financial-dashboard";
 import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 import { BASIC_API_BASE_URL } from "./basic-product-client";
 
 /**

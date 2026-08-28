@@ -4,7 +4,7 @@ import { CAvatar, CDropdown, CDropdownDivider, CDropdownItem, CDropdownMenu, CDr
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../store";
+import { useAppSelector } from "../../store.ts";
 import { logout } from "../../features/auth/authSlice";
 
 const AppHeaderDropdown = ({ onCompanySelect }) => {

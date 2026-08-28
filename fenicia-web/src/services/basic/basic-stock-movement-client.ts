@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { StockMovement } from "../../types/basic/stock-movement/stock-movement";
 import { StockMovementDashboard } from "../../types/basic/stock-movement/stock-movement-dashboard";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 
 const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || "http://localhost:5083";
 

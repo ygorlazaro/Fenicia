@@ -2,9 +2,9 @@ import { AxiosResponse } from "axios";
 import { GenerateTokenQuery } from "../../types/auth/generate-token-query";
 import { TokenResponse } from "../../types/auth/token-response";
 import { ValidateTokenQuery } from "../../types/auth/validate-token-query";
-import { AuthClient } from "./auth-client";
-import { store } from "../store";
-import { setCredentials } from "../features/auth/authSlice";
+import { AuthClient } from "./auth-client.ts";
+import { store } from "../store.ts";
+import { setCredentials } from "../features/auth/authSlice.ts";
 
 /**
  * AuthTokenClient - Handles token authentication operations

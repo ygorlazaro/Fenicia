@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { store } from "../store";
-import { setCredentials, logout } from "../features/auth/authSlice";
+import { store } from "../store.ts";
+import { setCredentials, logout } from "../features/auth/authSlice.ts";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5144";
 export const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || "http://localhost:5144";

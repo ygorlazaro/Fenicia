@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import type { IPagination } from "../../types";
+import type { IPagination } from "../../types/index.ts";
 import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
 import type { AddProductCommand } from "../../types/basic/product/add-product-command";
 import type { AddProductResponse } from "../../types/basic/product/add-product-response";
@@ -8,7 +8,7 @@ import type { GetProductByIdResponse } from "../../types/basic/product/get-produ
 import { ProductPerformance } from "../../types/basic/product/product-performance";
 import type { UpdateProductCommand } from "../../types/basic/product/update-product-command";
 import type { UpdateProductResponse } from "../../types/basic/product/update-product-response";
-import { ApiClient } from "../api-client";
+import { ApiClient } from "../api-client.ts";
 
 export const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || "http://localhost:5083";
 

@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
-import { IPagination } from "../../types";
+import { IPagination } from "../../types/index.ts";
 import { GetCompaniesByUserResponse } from "../../types/auth/get-companies-by-user-response";
-import { AuthClient } from "./auth-client";
+import { AuthClient } from "./auth-client.ts";
 
 /**
  * AuthCompanyClient - Handles company-related operations
