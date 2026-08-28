@@ -18,7 +18,8 @@ public class Repository<T> : IRepository<T>
     }
 
     protected DefaultContext Context { get; set; } = null!;
-    protected DbSet<T> DbSet { get; set; }
+
+    protected DbSet<T> DbSet { get; set; } = null!;
 
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
