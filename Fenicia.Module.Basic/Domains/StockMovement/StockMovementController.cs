@@ -46,7 +46,8 @@ public class StockMovementController(StockMovementService stockMovementService) 
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await stockMovementService.AddAsync(command, ct);
+            var companyId = ClaimReader.UserId(User);
+            var stockMovement = await stockMovementService.AddAsync(command, companyId, ct);
 
             return new CreatedResult(string.Empty, stockMovement);
         }
@@ -70,7 +71,8 @@ public class StockMovementController(StockMovementService stockMovementService) 
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await stockMovementService.UpdateAsync(command with { Id = id }, ct);
+            var companyId = ClaimReader.UserId(User);
+            var stockMovement = await stockMovementService.UpdateAsync(command with { Id = id }, companyId, ct);
 
             return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
         }

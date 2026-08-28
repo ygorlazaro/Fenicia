@@ -12,6 +12,7 @@ public class GetAllProductCategoryServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly ProductCategoryService service;
 
     public GetAllProductCategoryServiceTests()
@@ -19,8 +20,10 @@ public class GetAllProductCategoryServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new ProductCategoryService(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        service = new ProductCategoryService(productCategoryRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()

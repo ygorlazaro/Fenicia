@@ -67,7 +67,8 @@ public class ProductController(ProductService productService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await productService.AddAsync(command, ct);
+            var companyId = ClaimReader.UserId(User);
+            var product = await productService.AddAsync(command, companyId, ct);
 
             return new CreatedResult(string.Empty, product);
         }
@@ -89,7 +90,8 @@ public class ProductController(ProductService productService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await productService.UpdateAsync(command with { Id = id }, ct);
+            var companyId = ClaimReader.UserId(User);
+            var product = await productService.UpdateAsync(command with { Id = id }, companyId, ct);
 
             return product is null ? NotFound() : Ok(product);
         }
@@ -108,7 +110,8 @@ public class ProductController(ProductService productService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await productService.DeleteAsync(new DeleteProductCommand(id), ct);
+            var companyId = ClaimReader.UserId(User);
+            await productService.DeleteAsync(new DeleteProductCommand(id), companyId, ct);
 
             return NoContent();
         }

@@ -12,6 +12,7 @@ public class AddProductCategoryServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly ProductCategoryService service;
 
     public AddProductCategoryServiceTests()
@@ -19,8 +20,10 @@ public class AddProductCategoryServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new ProductCategoryService(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        service = new ProductCategoryService(productCategoryRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -34,7 +37,7 @@ public class AddProductCategoryServiceTests : IDisposable
     {
         var command = new AddProductCategoryCommand(Guid.NewGuid(), faker.Commerce.Categories(1).First());
 
-        var result = await service.AddAsync(command, CancellationToken.None);
+        var result = await service.AddAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);

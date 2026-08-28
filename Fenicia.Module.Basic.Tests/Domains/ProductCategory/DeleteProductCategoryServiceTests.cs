@@ -12,6 +12,7 @@ public class DeleteProductCategoryServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly ProductCategoryService service;
 
     public DeleteProductCategoryServiceTests()
@@ -19,8 +20,10 @@ public class DeleteProductCategoryServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new ProductCategoryService(db);
+        var productCategoryRepository = new ProductCategoryRepository(db);
+        service = new ProductCategoryService(productCategoryRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -36,7 +39,7 @@ public class DeleteProductCategoryServiceTests : IDisposable
         db.BasicProductCategories.Add(category);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        await service.DeleteAsync(new DeleteProductCategoryCommand(category.Id), CancellationToken.None);
+        await service.DeleteAsync(new DeleteProductCategoryCommand(category.Id), companyId, CancellationToken.None);
 
         var updated = await db.BasicProductCategories.FindAsync(category.Id);
         Assert.NotNull(updated);
@@ -46,7 +49,7 @@ public class DeleteProductCategoryServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenCategoryDoesNotExist_DoesNothing()
     {
-        await service.DeleteAsync(new DeleteProductCategoryCommand(Guid.NewGuid()), CancellationToken.None);
+        await service.DeleteAsync(new DeleteProductCategoryCommand(Guid.NewGuid()), companyId, CancellationToken.None);
 
         var count = await db.BasicProductCategories.CountAsync();
         Assert.Equal(0, count);

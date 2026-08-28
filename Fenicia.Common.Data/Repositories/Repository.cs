@@ -96,4 +96,9 @@ public class Repository<T>(DefaultContext context) : IRepository<T> where T : Ba
     {
         return await context.SaveChangesAsync(ct);
     }
+
+    public IQueryable<T> Query()
+    {
+        return DbSet;
+    }
 }

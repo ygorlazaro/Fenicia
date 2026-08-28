@@ -5,6 +5,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.Services;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Supplier;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
@@ -12,6 +13,7 @@ public class GetSupplierPerformanceServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly SupplierService service;
 
     public GetSupplierPerformanceServiceTests()
@@ -19,8 +21,10 @@ public class GetSupplierPerformanceServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new SupplierService(db);
+        var supplierRepository = new SupplierRepository(db);
+        service = new SupplierService(supplierRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()

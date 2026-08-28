@@ -1,64 +1,74 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
-
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
+using Fenicia.Module.Basic.Domains.Inventory;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-public class ProductService(DefaultContext db)
+public class ProductService(
+    ProductRepository productRepository,
+    ProductCategoryRepository productCategoryRepository,
+    SupplierRepository supplierRepository,
+    SalesOrderDetailRepository orderDetailRepository,
+    StockMovementRepository stockMovementRepository)
 {
     public async Task<Pagination<List<GetAllProductResponse>>> GetAllAsync(GetAllProductQuery query, CancellationToken ct)
     {
-        var request = from p in db.BasicProducts
-                      join c in db.BasicProductCategories on p.CategoryId equals c.Id
-                      join s in db.BasicSuppliers on p.SupplierId equals s.Id into ps
-                      from s in ps.DefaultIfEmpty()
-                      select new GetAllProductResponse(
-                          p.Id,
-                          p.Name,
-                          p.SKU,
-                          p.Barcode,
-                          p.Description,
-                          p.CostPrice,
-                          p.SalesPrice,
-                          p.Quantity,
-                          p.MinStockLevel,
-                          p.MaxStockLevel,
-                          p.ImageUrl,
-                          p.Weight,
-                          p.Dimensions,
-                          p.UnitOfMeasure,
-                          p.CategoryId,
-                          c.Name,
-                          p.SupplierId,
-                          s != null ? s.Person.Name : string.Empty,
-                          p.IsActive);
+        var total = await productRepository.CountAsync(ct);
 
-        var total = await request.CountAsync(ct);
-
-        var products = await request.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var products = await (from p in productRepository.Query()
+                              join c in productCategoryRepository.Query() on p.CategoryId equals c.Id
+                              join s in supplierRepository.Query() on p.SupplierId equals s.Id into ps
+                              from s in ps.DefaultIfEmpty()
+                              select new GetAllProductResponse(
+                                  p.Id,
+                                  p.Name,
+                                  p.SKU,
+                                  p.Barcode,
+                                  p.Description,
+                                  p.CostPrice,
+                                  p.SalesPrice,
+                                  p.Quantity,
+                                  p.MinStockLevel,
+                                  p.MaxStockLevel,
+                                  p.ImageUrl,
+                                  p.Weight,
+                                  p.Dimensions,
+                                  p.UnitOfMeasure,
+                                  p.CategoryId,
+                                  c.Name,
+                                  p.SupplierId,
+                                  s != null ? s.Person.Name : string.Empty,
+                                  p.IsActive))
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(ct);
 
         return new Pagination<List<GetAllProductResponse>>(products, total, query.Page, query.PerPage);
     }
 
     public async Task<GetProductByIdResponse?> GetByIdAsync(GetProductByIdQuery query, CancellationToken ct)
     {
-        var product = await db.BasicProducts.FirstOrDefaultAsync(p => p.Id == query.Id, ct);
+        var product = await productRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (product is null)
         {
             return null;
         }
 
-        var category = await db.BasicProductCategories.FirstOrDefaultAsync(c => c.Id == product.CategoryId, ct);
+        var category = await productCategoryRepository.GetByIdAsync(product.CategoryId, ct);
 
         SupplierModel? supplier = null;
         if (product.SupplierId.HasValue)
         {
-            supplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == product.SupplierId, ct);
+            supplier = await supplierRepository.GetByIdAsync(product.SupplierId.Value, ct);
         }
 
         return new GetProductByIdResponse(
@@ -79,38 +89,36 @@ public class ProductService(DefaultContext db)
             product.CategoryId,
             category?.Name ?? string.Empty,
             product.SupplierId,
-            supplier?.Person?.Name,
+            supplier != null ? supplier.Person.Name : null,
             product.IsActive);
     }
 
     public async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(GetProductsByCategoryIdQuery query, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
-        return await db.BasicProducts
-            .Where(p => p.CategoryId == query.CategoryId)
-            .Select(p => new GetProductsByCategoryIdResponse(
-                p.Id,
-                p.Name,
-                p.SKU,
-                p.Barcode,
-                p.Description,
-                p.CostPrice,
-                p.SalesPrice,
-                p.Quantity,
-                p.MinStockLevel,
-                p.MaxStockLevel,
-                p.ImageUrl,
-                p.Weight,
-                p.Dimensions,
-                p.UnitOfMeasure,
-                p.CategoryId,
-                p.Category.Name,
-                p.IsActive))
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
-            .ToListAsync(ct);
+        var products = await productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, ct);
+
+        return products.Select(p => new GetProductsByCategoryIdResponse(
+            p.Id,
+            p.Name,
+            p.SKU,
+            p.Barcode,
+            p.Description,
+            p.CostPrice,
+            p.SalesPrice,
+            p.Quantity,
+            p.MinStockLevel,
+            p.MaxStockLevel,
+            p.ImageUrl,
+            p.Weight,
+            p.Dimensions,
+            p.UnitOfMeasure,
+            p.CategoryId,
+            p.Category.Name,
+            p.IsActive))
+            .ToList();
     }
 
-    public async Task<AddProductResponse> AddAsync(AddProductCommand command, CancellationToken ct)
+    public async Task<AddProductResponse> AddAsync(AddProductCommand command, Guid companyId, CancellationToken ct)
     {
         var product = new ProductModel
         {
@@ -130,19 +138,18 @@ public class ProductService(DefaultContext db)
             UnitOfMeasure = command.UnitOfMeasure,
             CategoryId = command.CategoryId,
             SupplierId = command.SupplierId,
-            IsActive = true
+            IsActive = true,
+            CompanyId = companyId
         };
 
-        db.BasicProducts.Add(product);
+        await productRepository.InsertAsync(product, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        var category = await db.BasicProductCategories.FirstOrDefaultAsync(c => c.Id == product.CategoryId, ct);
+        var category = await productCategoryRepository.GetByIdAsync(product.CategoryId, ct);
 
         SupplierModel? supplier = null;
         if (product.SupplierId.HasValue)
         {
-            supplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == product.SupplierId, ct);
+            supplier = await supplierRepository.GetByIdAsync(product.SupplierId.Value, ct);
         }
 
         return new AddProductResponse(
@@ -163,13 +170,13 @@ public class ProductService(DefaultContext db)
             product.CategoryId,
             category?.Name ?? string.Empty,
             product.SupplierId,
-            supplier?.Person.Name,
+            supplier != null ? supplier.Person.Name : null,
             product.IsActive);
     }
 
-    public async Task<UpdateProductResponse?> UpdateAsync(UpdateProductCommand command, CancellationToken ct)
+    public async Task<UpdateProductResponse?> UpdateAsync(UpdateProductCommand command, Guid companyId, CancellationToken ct)
     {
-        var product = await db.BasicProducts.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var product = await productRepository.GetByIdAsync(command.Id, ct);
 
         if (product is null)
         {
@@ -191,17 +198,16 @@ public class ProductService(DefaultContext db)
         product.UnitOfMeasure = command.UnitOfMeasure;
         product.CategoryId = command.CategoryId;
         product.SupplierId = command.SupplierId;
+        product.CompanyId = companyId;
 
-        db.BasicProducts.Update(product);
+        await productRepository.UpdateAsync(product.Id, product, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        var category = await db.BasicProductCategories.FirstOrDefaultAsync(c => c.Id == product.CategoryId, ct);
+        var category = await productCategoryRepository.GetByIdAsync(product.CategoryId, ct);
 
         SupplierModel? supplier = null;
         if (product.SupplierId.HasValue)
         {
-            supplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == product.SupplierId, ct);
+            supplier = await supplierRepository.GetByIdAsync(product.SupplierId.Value, ct);
         }
 
         return new UpdateProductResponse(
@@ -222,13 +228,13 @@ public class ProductService(DefaultContext db)
             product.CategoryId,
             category?.Name ?? string.Empty,
             product.SupplierId,
-            supplier?.Person.Name,
+            supplier != null ? supplier.Person.Name : null,
             product.IsActive);
     }
 
-    public async Task DeleteAsync(DeleteProductCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProductCommand command, Guid companyId, CancellationToken ct)
     {
-        var product = await db.BasicProducts.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var product = await productRepository.GetByIdAsync(command.Id, ct);
 
         if (product is null)
         {
@@ -236,10 +242,9 @@ public class ProductService(DefaultContext db)
         }
 
         product.Deleted = DateTime.Now;
+        product.CompanyId = companyId;
 
-        db.BasicProducts.Update(product);
-
-        await db.SaveChangesAsync(ct);
+        await productRepository.UpdateAsync(product.Id, product, ct);
     }
 
     public async Task<ProductPerformanceResponse> GetPerformanceAsync(GetProductPerformanceQuery query, CancellationToken ct)
@@ -247,15 +252,19 @@ public class ProductService(DefaultContext db)
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var products = db.BasicProducts.Include(p => p.Category).Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
+        var products = await productRepository.GetAllWithDetailsAsync(ct: ct);
+        var productList = products.ToList();
 
-        var orderDetails = db.BasicOrderDetails.Include(d => d.Order).Where(d => d.Order.SaleDate >= startDate && d.Order.SaleDate <= endDate);
-        var stockMovements = db.BasicStockMovements.Where(m => m.Date >= startDate && m.Date <= endDate);
+        var orderDetails = await orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
+        var orderDetailList = orderDetails.ToList();
+        
+        var stockMovements = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, ct);
+        var stockMovementList = stockMovements.ToList();
 
-        var bestSellingProducts = await GetBestSellingProductAsync(query, orderDetails, ct);
-        var worstSellingProducts = await GetWorstSellingProductAsync(query, orderDetails, products, ct);
-        var profitMargins = await GetProfitMarginsListAsync(products, ct);
-        var neverSoldProducts = await GetNeverSoldProductAsync(query, orderDetails, products, stockMovements, ct);
+        var bestSellingProducts = await GetBestSellingProductAsync(query, orderDetailList, ct);
+        var worstSellingProducts = await GetWorstSellingProductAsync(query, orderDetailList, productList, ct);
+        var profitMargins = await GetProfitMarginsListAsync(productList, ct);
+        var neverSoldProducts = await GetNeverSoldProductAsync(query, orderDetailList, productList, stockMovementList, ct);
 
         return new ProductPerformanceResponse
         {
@@ -266,46 +275,54 @@ public class ProductService(DefaultContext db)
         };
     }
 
-    private async Task<List<NeverSoldProductResponse>> GetNeverSoldProductAsync(GetProductPerformanceQuery query, IQueryable<OrderDetailModel> orderDetails, IIncludableQueryable<ProductModel, PersonModel?> products, IQueryable<StockMovementModel> stockMovements, CancellationToken ct)
+    private async Task<List<NeverSoldProductResponse>> GetNeverSoldProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, IEnumerable<StockMovementModel> stockMovements, CancellationToken ct)
     {
-        var queryable = from p in products
+        var orderDetailList = orderDetails.ToList();
+        var productList = products.ToList();
+        var stockMovementList = stockMovements.ToList();
+
+        var queryable = from p in productList
                         where p.Quantity > 0
-                        where !(from d in orderDetails select d.ProductId).Contains(p.Id)
-                        let lastMovementDate = (from m in stockMovements where m.ProductId == p.Id orderby m.Date descending select m.Date).FirstOrDefault()
+                        where !orderDetailList.Any(d => d.ProductId == p.Id)
+                        let lastMovementDate = stockMovementList.Where(m => m.ProductId == p.Id).OrderByDescending(m => m.Date).Select(m => m.Date).FirstOrDefault()
                         orderby (p.CostPrice ?? 0) * (decimal)p.Quantity descending
                         select new NeverSoldProductResponse(p.Id, p.Name, p.Category.Name, p.Supplier != null ? p.Supplier.Person.Name : null, p.Quantity, (p.CostPrice ?? 0) * (decimal)p.Quantity, lastMovementDate);
 
-        return await queryable.Take(query.TopLimit).ToListAsync(ct);
+        return queryable.Take(query.TopLimit).ToList();
     }
 
-    private async Task<List<ProfitMarginResponse>> GetProfitMarginsListAsync(IIncludableQueryable<ProductModel, PersonModel?> products, CancellationToken ct)
+    private async Task<List<ProfitMarginResponse>> GetProfitMarginsListAsync(IEnumerable<ProductModel> products, CancellationToken ct)
     {
-        var rawMargins = await (from p in products
-                                where p.SalesPrice > 0
-                                let costPrice = p.CostPrice ?? 0m
-                                let margin = (p.SalesPrice - costPrice) / p.SalesPrice * 100m
-                                orderby margin descending
-                                select new
-                                {
-                                    p.Id,
-                                    p.Name,
-                                    CategoryName = p.Category.Name,
-                                    costPrice,
-                                    p.SalesPrice,
-                                    margin
-                                }).ToListAsync(ct);
+        var productList = products.ToList();
+
+        var rawMargins = (from p in productList
+                          where p.SalesPrice > 0
+                          let costPrice = p.CostPrice ?? 0m
+                          let margin = (p.SalesPrice - costPrice) / p.SalesPrice * 100m
+                          orderby margin descending
+                          select new
+                          {
+                              p.Id,
+                              p.Name,
+                              CategoryName = p.Category.Name,
+                              costPrice,
+                              p.SalesPrice,
+                              margin
+                          }).ToList();
 
         var profitMargins = rawMargins.Select(p => new ProfitMarginResponse(p.Id, p.Name, p.CategoryName, p.costPrice, p.SalesPrice, p.margin, ClassifyMargin((double)p.margin))).ToList();
 
         return profitMargins;
     }
 
-    private async Task<List<WorstSellingProductResponse>> GetWorstSellingProductAsync(GetProductPerformanceQuery query, IQueryable<OrderDetailModel> orderDetails, IIncludableQueryable<ProductModel, PersonModel?> products, CancellationToken ct)
+    private async Task<List<WorstSellingProductResponse>> GetWorstSellingProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, CancellationToken ct)
     {
+        var orderDetailList = orderDetails.ToList();
+        var productList = products.ToList();
 
-        var salesStats = await orderDetails.GroupBy(d => d.ProductId).Select(g => new { ProductId = g.Key, QuantitySold = g.Sum(d => d.Quantity), Revenue = g.Sum(d => d.Price * (decimal)d.Quantity), OrderCount = g.Select(d => d.OrderId).Distinct().Count() }).ToListAsync(ct);
+        var salesStats = orderDetailList.GroupBy(d => d.ProductId).Select(g => new { ProductId = g.Key, QuantitySold = g.Sum(d => d.Quantity), Revenue = g.Sum(d => d.Price * (decimal)d.Quantity), OrderCount = g.Select(d => d.OrderId).Distinct().Count() }).ToList();
 
-        var productDetails = await products.Where(p => p.Quantity > 0).Select(p => new
+        var productDetails = productList.Where(p => p.Quantity > 0).Select(p => new
         {
             p.Id,
             p.Name,
@@ -313,7 +330,7 @@ public class ProductService(DefaultContext db)
             p.Quantity,
             StockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity,
             SupplierName = p.Supplier != null ? p.Supplier.Person.Name : null
-        }).ToDictionaryAsync(p => p.Id, p => p, ct);
+        }).ToDictionary(p => p.Id, p => p);
 
         var worstSellingProducts = productDetails.Values.Select(p =>
         {
@@ -324,23 +341,29 @@ public class ProductService(DefaultContext db)
         return worstSellingProducts;
     }
 
-    private async Task<List<BestSellingProductResponse>> GetBestSellingProductAsync(GetProductPerformanceQuery query, IQueryable<OrderDetailModel> orderDetails, CancellationToken ct)
+    private async Task<List<BestSellingProductResponse>> GetBestSellingProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, CancellationToken ct)
     {
+        var orderDetailList = orderDetails.ToList();
 
-        var salesStats = await orderDetails.GroupBy(d => d.ProductId).Select(g => new
+        var salesStats = orderDetailList.GroupBy(d => d.ProductId).Select(g => new
         {
             ProductId = g.Key,
             TotalQuantitySold = g.Sum(d => d.Quantity),
             TotalRevenue = g.Sum(d => d.Price * (decimal)d.Quantity),
             OrderCount = g.Select(d => d.OrderId).Distinct().Count(),
             AveragePrice = g.Average(d => d.Price)
-        }).OrderByDescending(x => x.TotalQuantitySold).Take(query.TopLimit).ToListAsync(ct);
+        }).OrderByDescending(x => x.TotalQuantitySold).Take(query.TopLimit).ToList();
 
-        var productDetails = await db.BasicProducts.Include(p => p.Category).Where(p => salesStats.Select(s => s.ProductId).Contains(p.Id)).Select(p => new { p.Id, ProductName = p.Name, CategoryName = p.Category.Name }).ToDictionaryAsync(p => p.Id, p => p, ct);
+        var productIds = salesStats.Select(s => s.ProductId).ToList();
+        var products = await productRepository.Query()
+            .Include(p => p.Category)
+            .Where(p => productIds.Contains(p.Id))
+            .Select(p => new { p.Id, ProductName = p.Name, CategoryName = p.Category.Name })
+            .ToDictionaryAsync(p => p.Id, p => p, ct);
 
-        var bestSellingProducts = salesStats.Where(s => productDetails.ContainsKey(s.ProductId)).Select(s =>
+        var bestSellingProducts = salesStats.Where(s => products.ContainsKey(s.ProductId)).Select(s =>
         {
-            var details = productDetails[s.ProductId];
+            var details = products[s.ProductId];
             return new BestSellingProductResponse(s.ProductId, details.ProductName, details.CategoryName, s.TotalQuantitySold, s.TotalRevenue, s.OrderCount, s.AveragePrice);
         }).ToList();
 

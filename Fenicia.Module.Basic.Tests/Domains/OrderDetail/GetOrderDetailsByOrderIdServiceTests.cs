@@ -19,7 +19,8 @@ public class GetOrderDetailsByOrderIdServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new OrderDetailService(db);
+        var orderDetailRepository = new OrderDetailRepository(db);
+        service = new OrderDetailService(orderDetailRepository);
         faker = new Faker();
     }
 

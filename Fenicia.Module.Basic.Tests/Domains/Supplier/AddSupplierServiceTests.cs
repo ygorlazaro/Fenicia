@@ -5,6 +5,7 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.Services;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Supplier;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
@@ -12,6 +13,7 @@ public class AddSupplierServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly SupplierService service;
 
     public AddSupplierServiceTests()
@@ -19,8 +21,10 @@ public class AddSupplierServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new SupplierService(db);
+        var supplierRepository = new SupplierRepository(db);
+        service = new SupplierService(supplierRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()
@@ -41,7 +45,7 @@ public class AddSupplierServiceTests : IDisposable
             faker.Random.Replace("##.###.###/####-##"),
             null);
 
-        var result = await service.AddAsync(command, CancellationToken.None);
+        var result = await service.AddAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);

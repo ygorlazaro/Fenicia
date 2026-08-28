@@ -4,6 +4,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
@@ -12,6 +13,7 @@ public class GetPositionByIdServiceTests : IDisposable
 {
     private readonly DefaultContext db;
     private readonly Faker faker;
+    private Guid companyId;
     private readonly PositionService service;
 
     public GetPositionByIdServiceTests()
@@ -19,8 +21,10 @@ public class GetPositionByIdServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        service = new PositionService(db);
+        var positionRepository = new Fenicia.Module.Basic.Domains.Employee.PositionRepository(db);
+        service = new PositionService(positionRepository);
         faker = new Faker();
+        var companyId = companyContext.CompanyId;
     }
 
     public void Dispose()

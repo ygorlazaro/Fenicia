@@ -1,34 +1,30 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
-
+using Fenicia.Module.Basic.Domains.Order;
+using Fenicia.Module.Basic.Domains.Inventory;
+using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
-public class OrderService(DefaultContext db)
+public class OrderService(
+    OrderRepository orderRepository,
+    SalesOrderDetailRepository orderDetailRepository,
+    StockMovementRepository stockMovementRepository,
+    ProductRepository productRepository)
 {
     public async Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(GetAllOrderQuery query, CancellationToken ct)
     {
-        var total = await db.BasicOrders.CountAsync(ct);
+        var total = await orderRepository.CountAsync(ct);
 
-        var orderIds = await db.BasicOrders
-            .OrderByDescending(o => o.SaleDate)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .Select(o => o.Id)
-            .ToListAsync(ct);
+        var orderIds = await orderRepository.GetRecentOrderIdsAsync(query.Page, query.PerPage, ct);
 
-        var detailCounts = await db.BasicOrderDetails
-            .Where(d => orderIds.Contains(d.OrderId))
-            .GroupBy(d => d.OrderId)
-            .Select(g => new { OrderId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(g => g.OrderId, g => g.Count, ct);
+        var detailCounts = await orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, ct);
 
-        var orders = await (from o in db.BasicOrders
+        var orders = await (from o in orderRepository.Query()
                             where orderIds.Contains(o.Id)
                             select new
                             {
@@ -71,10 +67,7 @@ public class OrderService(DefaultContext db)
 
     public async Task<GetOrderByIdResponse?> GetByIdAsync(GetOrderByIdQuery query, CancellationToken ct)
     {
-        var order = await db.BasicOrders
-            .Include(o => o.Customer).ThenInclude(c => c.Person)
-            .Include(o => o.Details).ThenInclude(d => d.Product)
-            .FirstOrDefaultAsync(o => o.Id == query.Id, ct);
+        var order = await orderRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (order is null)
         {
@@ -97,7 +90,7 @@ public class OrderService(DefaultContext db)
             order.EmployeeId);
     }
 
-    public async Task<CreateOrderResponse> CreateAsync(CreateOrderCommand command, CancellationToken ct)
+    public async Task<CreateOrderResponse> CreateAsync(CreateOrderCommand command, Guid companyId, CancellationToken ct)
     {
         var details = command.Details.Select(d =>
         {
@@ -131,10 +124,11 @@ public class OrderService(DefaultContext db)
             TotalQuantity = totalQuantity,
             PaymentMethod = command.PaymentMethod,
             Notes = command.Notes,
-            EmployeeId = command.EmployeeId
+            EmployeeId = command.EmployeeId,
+            CompanyId = companyId
         };
 
-        db.BasicOrders.Add(order);
+        var created = await orderRepository.InsertAsync(order, ct);
 
         foreach (var detail in details)
         {
@@ -144,53 +138,47 @@ public class OrderService(DefaultContext db)
                 Date = DateTime.UtcNow,
                 ProductId = detail.ProductId,
                 Type = StockMovementType.Out,
-                CustomerId = order.CustomerId,
-                EmployeeId = order.EmployeeId,
-                OrderId = order.Id,
+                CustomerId = created.CustomerId,
+                EmployeeId = created.EmployeeId,
+                OrderId = created.Id,
                 Quantity = detail.Quantity,
                 Price = detail.Price,
-                Reason = $"Sale order {order.Id}"
+                Reason = $"Sale order {created.Id}"
             };
+            await stockMovementRepository.InsertAsync(stockMovement, ct);
 
-            db.BasicStockMovements.Add(stockMovement);
-
-            var product = await db.BasicProducts.FirstOrDefaultAsync(p => p.Id == detail.ProductId, ct);
-
+            var product = await productRepository.GetByIdAsync(detail.ProductId, ct);
             if (product is null)
             {
                 continue;
             }
-
             product.Quantity -= detail.Quantity;
-            db.Entry(product).State = EntityState.Modified;
+            await productRepository.UpdateAsync(product.Id, product, ct);
         }
 
-        await db.SaveChangesAsync(ct);
-
         return new CreateOrderResponse(
-            order.Id,
-            order.OrderNumber,
-            order.UserId,
-            order.CustomerId,
-            order.TotalAmount,
-            order.DiscountAmount,
-            order.TotalQuantity,
-            order.SaleDate,
-            order.Status,
-            order.PaymentMethod,
-            order.Notes,
-            order.EmployeeId);
+            created.Id,
+            created.OrderNumber,
+            created.UserId,
+            created.CustomerId,
+            created.TotalAmount,
+            created.DiscountAmount,
+            created.TotalQuantity,
+            created.SaleDate,
+            created.Status,
+            created.PaymentMethod,
+            created.Notes,
+            created.EmployeeId);
     }
 
     public async Task DeleteAsync(DeleteOrderCommand command, CancellationToken ct)
     {
-        var order = await db.BasicOrders.FirstOrDefaultAsync(o => o.Id == command.Id, ct);
+        var order = await orderRepository.GetByIdAsync(command.Id, ct);
 
         if (order is not null)
         {
             order.Deleted = DateTime.UtcNow;
-            db.BasicOrders.Update(order);
-            await db.SaveChangesAsync(ct);
+            await orderRepository.UpdateAsync(command.Id, order, ct);
         }
     }
 
@@ -199,7 +187,7 @@ public class OrderService(DefaultContext db)
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var orders = db.BasicOrders.Include(o => o.Customer).ThenInclude(c => c.Person).Include(o => o.Details).Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate);
+        var orders = await orderRepository.GetAnalyticsOrdersAsync(startDate, endDate, ct);
 
         var ordersByStatus = await GetOrdersByStatusAsync(orders, ct);
         var salesTrend = await GetSalesTrendAsync(orders, ct);
@@ -217,20 +205,16 @@ public class OrderService(DefaultContext db)
         };
     }
 
-    private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IQueryable<OrderModel> orders, CancellationToken ct)
+    private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var cancelled = await orders
+        var cancelled = orders
             .Where(o => o.Status == OrderStatus.Cancelled)
             .Select(o => new { o.Id, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.SaleDate })
-            .ToListAsync(ct);
+            .ToList();
 
         var orderIds = cancelled.Select(o => o.Id).ToList();
 
-        var detailQtys = await db.BasicOrderDetails
-            .Where(d => orderIds.Contains(d.OrderId))
-            .GroupBy(d => d.OrderId)
-            .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
-            .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
+        var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
         return cancelled
             .Select(o => new CancelledOrderResponse(
@@ -245,9 +229,9 @@ public class OrderService(DefaultContext db)
             .ToList();
     }
 
-    private async Task<AverageOrderValueResponse> GetAverageOrderValueAsync(IQueryable<OrderModel> orders, CancellationToken ct)
+    private async Task<AverageOrderValueResponse> GetAverageOrderValueAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var orderValues = await orders.Select(o => o.TotalAmount).OrderBy(v => v).ToListAsync(ct);
+        var orderValues = orders.Select(o => o.TotalAmount).OrderBy(v => v).ToList();
         var averageOrderValue = new AverageOrderValueResponse
         {
             TotalOrders = orderValues.Count,
@@ -259,19 +243,15 @@ public class OrderService(DefaultContext db)
         return averageOrderValue;
     }
 
-    private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IQueryable<OrderModel> orders, CancellationToken ct)
+    private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var raw = await orders
+        var raw = orders
             .Select(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.Id })
-            .ToListAsync(ct);
+            .ToList();
 
         var orderIds = raw.Select(o => o.Id).ToList();
 
-        var detailQtys = await db.BasicOrderDetails
-            .Where(d => orderIds.Contains(d.OrderId))
-            .GroupBy(d => d.OrderId)
-            .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
-            .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
+        var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
         var topCustomers = raw
             .GroupBy(o => new { o.CustomerId, o.CustomerName })
@@ -288,19 +268,15 @@ public class OrderService(DefaultContext db)
         return topCustomers;
     }
 
-    private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IQueryable<OrderModel> orders, CancellationToken ct)
+    private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var orderData = await orders
+        var orderData = orders
             .Select(o => new { Date = o.SaleDate.Date, o.TotalAmount, o.Id })
-            .ToListAsync(ct);
+            .ToList();
 
         var orderIds = orderData.Select(o => o.Id).ToList();
 
-        var detailQtys = await db.BasicOrderDetails
-            .Where(d => orderIds.Contains(d.OrderId))
-            .GroupBy(d => d.OrderId)
-            .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
-            .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
+        var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
         var salesTrend = orderData
             .GroupBy(o => o.Date)
@@ -316,12 +292,12 @@ public class OrderService(DefaultContext db)
         return salesTrend;
     }
 
-    private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IQueryable<OrderModel> orders, CancellationToken ct)
+    private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var groups = await orders
+        var groups = orders
             .GroupBy(o => o.Status)
             .Select(g => new { Status = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
-            .ToListAsync(ct);
+            .ToList();
 
         return groups
             .Select(g => new OrderStatusCountResponse(g.Status.ToString(), g.Count, g.Total))

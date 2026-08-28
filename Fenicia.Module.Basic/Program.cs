@@ -6,6 +6,13 @@ using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Inventory;
+using Fenicia.Module.Basic.Domains.Product;
+using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
+using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.State;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
+using InventoryStockMovementRepository = Fenicia.Module.Basic.Domains.Inventory.StockMovementRepository;
 using Fenicia.Module.Basic.Domains.Supplier;
 
 namespace Fenicia.Module.Basic;
@@ -28,9 +35,12 @@ public class Program
             builder.Services.AddScoped<EmployeeRepository>();
             builder.Services.AddScoped<PositionRepository>();
             builder.Services.AddScoped<ProductRepository>();
+            builder.Services.AddScoped<ProductCategoryRepository>();
             builder.Services.AddScoped<StockMovementRepository>();
+            builder.Services.AddScoped<InventoryStockMovementRepository>();
             builder.Services.AddScoped<OrderDetailRepository>();
             builder.Services.AddScoped<SupplierRepository>();
+            builder.Services.AddScoped<StateRepository>();
         }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
