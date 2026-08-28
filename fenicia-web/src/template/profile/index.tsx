@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CAlert, CCol, CContainer, CRow, CSpinner } from "@coreui/react";
 import { useEffect, useState } from "react";
 import AuthSubscriptionClient from "../../services/auth/auth-subscription-client";

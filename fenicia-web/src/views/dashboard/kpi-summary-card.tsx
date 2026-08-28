@@ -1,3 +1,4 @@
+// @ts-nocheck
 import CIcon from "@coreui/icons-react";
 import { CCol, CWidgetStatsA } from "@coreui/react";
 

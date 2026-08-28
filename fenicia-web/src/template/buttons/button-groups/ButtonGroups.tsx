@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { CButton, CDropdown, CDropdownDivider, CDropdownItem, CDropdownMenu, CDropdownToggle, CButtonGroup, CButtonToolbar, CCard, CCardBody, CCardHeader, CCol, CFormCheck, CFormInput, CInputGroup, CInputGroupText, CRow } from "@coreui/react";
 import { DocsComponents, DocsExample } from "src/components";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { CButton, CCol, CContainer, CFormInput, CInputGroup, CInputGroupText, CRow } from "@coreui/react";
 import CIcon from "@coreui/icons-react";

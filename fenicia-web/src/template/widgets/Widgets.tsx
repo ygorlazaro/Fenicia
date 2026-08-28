@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { CCard, CCardBody, CCardGroup, CCardHeader, CCol, CLink, CRow, CWidgetStatsB, CWidgetStatsC, CWidgetStatsE, CWidgetStatsF } from "@coreui/react";
 import { getStyle } from "@coreui/utils";

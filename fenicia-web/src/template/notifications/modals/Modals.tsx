@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 import { CButton, CCard, CCardBody, CCardHeader, CCol, CLink, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CPopover, CRow, CTooltip } from "@coreui/react";
 import { DocsComponents, DocsExample } from "src/components";

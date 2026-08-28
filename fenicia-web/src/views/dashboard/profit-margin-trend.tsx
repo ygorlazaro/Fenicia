@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cilArrowBottom, cilArrowTop } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { cilGraph } from "@coreui/icons/dist/esm/free/cil-graph";

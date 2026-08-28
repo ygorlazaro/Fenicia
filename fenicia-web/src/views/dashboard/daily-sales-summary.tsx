@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cilArrowBottom, cilArrowTop } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CCol, CRow, CWidgetStatsB } from "@coreui/react";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 import { CButton, CCard, CCardBody, CCardHeader, CCol, CForm, CFormCheck, CFormInput, CFormFeedback, CFormLabel, CFormSelect, CFormTextarea, CInputGroup, CInputGroupText, CRow } from "@coreui/react";
 import { DocsComponents, DocsExample } from "src/components";

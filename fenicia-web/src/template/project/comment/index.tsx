@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";

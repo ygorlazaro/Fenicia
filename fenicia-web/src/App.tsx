@@ -36,11 +36,11 @@ const App = () => {
                 }
             >
                 <Routes>
-                    <Route exact path="/auth/login" name="Login Page" element={<AuthLogin />} />
-                    <Route exact path="/auth/register" name="Register Page" element={<AuthRegister />} />
-                    <Route exact path="/auth/forgot-password" name="Forgot Password" element={<ForgotPassword />} />
-                    <Route exact path="/404" name="Page 404" element={<Page404 />} />
-                    <Route exact path="/500" name="Page 500" element={<Page500 />} />
+                    <Route path="/auth/login" name="Login Page" element={<AuthLogin />} />
+                    <Route path="/auth/register" name="Register Page" element={<AuthRegister />} />
+                    <Route path="/auth/forgot-password" name="Forgot Password" element={<ForgotPassword />} />
+                    <Route path="/404" name="Page 404" element={<Page404 />} />
+                    <Route path="/500" name="Page 500" element={<Page500 />} />
                     <Route path="*" name="Home" element={<RequireAuth><DefaultLayout /></RequireAuth>} />
                 </Routes>
             </Suspense>
