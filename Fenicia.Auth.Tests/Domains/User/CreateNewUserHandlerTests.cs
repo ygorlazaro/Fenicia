@@ -48,17 +48,6 @@ public class CreateNewUserHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private async Task SeedAdminRole()
-    {
-        var adminRole = new RoleModel
-        {
-            Id = _adminRoleId,
-            Name = "Admin"
-        };
-        await roleRepository.InsertAsync(adminRole, CancellationToken.None);
-        await db.SaveChangesAsync(CancellationToken.None);
-    }
-
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserAndCompanySuccessfully()
     {
@@ -227,5 +216,16 @@ public class CreateNewUserHandlerTests : IDisposable
         var company = await companyRepository.Query().FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.True(company.IsActive);
+    }
+
+    private async Task SeedAdminRole()
+    {
+        var adminRole = new RoleModel
+        {
+            Id = _adminRoleId,
+            Name = "Admin"
+        };
+        await roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
     }
 }
