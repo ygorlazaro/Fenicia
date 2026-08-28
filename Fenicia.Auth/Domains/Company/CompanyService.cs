@@ -18,19 +18,19 @@ public class CompanyService(DefaultContext db)
             throw new InvalidRequestException(ExceptionMessages.UserNotAssociatedWithActiveCompanies);
         }
 
-        var request = db.AuthUserRoles.Where(ur => ur.UserId == userId && ur.Company.IsActive);
+        var request = from ur in db.AuthUserRoles
+                      where ur.UserId == userId && ur.Company.IsActive
+                      select ur;
         var total = await request.CountAsync(ct);
-        var items = await request.OrderBy(ur => ur.Company.Name)
+        var items = await request
+            .OrderBy(ur => ur.Company.Name)
             .Skip((page - 1) * perPage)
             .Take(perPage)
-            .Select(ur => new GetCompaniesByUserResponse(
-                ur.Company.Id,
-                ur.Company.Name,
-                ur.Company.Cnpj,
-                ur.Role.Name))
             .ToListAsync(ct);
 
-        return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(items, total, page, perPage);
+        var result = items.Select(ur => ur.MapToGetCompaniesByUserResponse());
+
+        return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
     }
 
     public async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken ct)
