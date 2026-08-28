@@ -1,29 +1,25 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectStatus;
 using Fenicia.Common.Data.Models.ProjectModels;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Common.Enums.Project;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
-public class ProjectStatusService(DefaultContext db)
+public class ProjectStatusService(ProjectStatusRepository repository)
 {
     public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(GetAllProjectStatusQuery query, CancellationToken ct)
     {
-        return await db.ProjectStatuses.Select(s => new GetAllProjectStatusResponse(s.Id, s.ProjectId, s.Name, s.Color, s.Order, s.IsFinal, s.CompanyId)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var statuses = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        return statuses.Select(s => new GetAllProjectStatusResponse(s.Id, s.ProjectId, s.Name, s.Color, s.Order, s.IsFinal, s.CompanyId)).ToList();
     }
 
     public async Task<GetProjectStatusByIdResponse?> GetByIdAsync(GetProjectStatusByIdQuery query, CancellationToken ct)
     {
-        var status = await db.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == query.Id, ct);
-
-        return status switch
-        {
-            null => null,
-            _ => new GetProjectStatusByIdResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId)
-        };
+        var status = await repository.GetByIdAsync(query.Id, ct);
+        return status is null ? null : new GetProjectStatusByIdResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId);
     }
 
-    public async Task<AddProjectStatusResponse> AddAsync(AddProjectStatusCommand command, CancellationToken ct)
+    public async Task<AddProjectStatusResponse> AddAsync(AddProjectStatusCommand command, Guid companyId, CancellationToken ct)
     {
         var status = new ProjectStatusModel
         {
@@ -32,51 +28,33 @@ public class ProjectStatusService(DefaultContext db)
             Name = command.Name,
             Color = command.Color,
             Order = command.Order,
-            IsFinal = command.IsFinal
+            IsFinal = command.IsFinal,
+            CompanyId = companyId
         };
 
-        db.ProjectStatuses.Add(status);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AddProjectStatusResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId);
+        var created = await repository.InsertAsync(status, ct);
+        return new AddProjectStatusResponse(created.Id, created.ProjectId, created.Name, created.Color, created.Order, created.IsFinal, created.CompanyId);
     }
 
-    public async Task<UpdateProjectStatusResponse?> UpdateAsync(UpdateProjectStatusCommand command, CancellationToken ct)
+    public async Task<UpdateProjectStatusResponse?> UpdateAsync(UpdateProjectStatusCommand command, Guid companyId, CancellationToken ct)
     {
-        var status = await db.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
-
-        if (status is null)
+        var status = new ProjectStatusModel
         {
-            return null;
-        }
+            Id = command.Id,
+            ProjectId = command.ProjectId,
+            Name = command.Name,
+            Color = command.Color,
+            Order = command.Order,
+            IsFinal = command.IsFinal,
+            CompanyId = companyId
+        };
 
-        status.ProjectId = command.ProjectId;
-        status.Name = command.Name;
-        status.Color = command.Color;
-        status.Order = command.Order;
-        status.IsFinal = command.IsFinal;
-
-        db.ProjectStatuses.Update(status);
-
-        await db.SaveChangesAsync(ct);
-
-        return new UpdateProjectStatusResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId);
+        var updated = await repository.UpdateAsync(command.Id, status, ct);
+        return updated is null ? null : new UpdateProjectStatusResponse(updated.Id, updated.ProjectId, updated.Name, updated.Color, updated.Order, updated.IsFinal, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectStatusCommand command, CancellationToken ct)
     {
-        var status = await db.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
-
-        if (status is null)
-        {
-            return;
-        }
-
-        status.Deleted = DateTime.UtcNow;
-
-        db.ProjectStatuses.Update(status);
-
-        await db.SaveChangesAsync(ct);
+        await repository.DeleteAsync(command.Id, ct);
     }
 }

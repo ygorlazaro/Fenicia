@@ -53,7 +53,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.AddAsync(command, ct);
+        var status = await projectStatusService.AddAsync(command, ClaimReader.UserId(User), ct);
 
         return new CreatedResult(string.Empty, status);
     }
@@ -70,7 +70,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.UpdateAsync(command with { Id = id }, ct);
+        var status = await projectStatusService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
         return status is null ? NotFound() : Ok(status);
     }
