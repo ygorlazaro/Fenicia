@@ -1,11 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Projects.Domains.ProjectComment.Add;
-using Fenicia.Module.Projects.Domains.ProjectComment.Delete;
-using Fenicia.Module.Projects.Domains.ProjectComment.GetAll;
-using Fenicia.Module.Projects.Domains.ProjectComment.GetById;
-using Fenicia.Module.Projects.Domains.ProjectComment.Update;
+using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectComment;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +14,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectComment;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectCommentHandler, GetProjectCommentByIdHandler getProjectCommentByIdHandler, AddProjectCommentHandler addProjectCommentHandler, UpdateProjectCommentHandler updateProjectCommentHandler, DeleteProjectCommentHandler deleteProjectCommentHandler) : ControllerBase
+public class ProjectCommentController(ProjectCommentService projectCommentService) : ControllerBase
 {
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectCommentResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -26,7 +24,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComments = await getAllProjectCommentHandler.Handle(new GetAllProjectCommentQuery(page, perPage), ct);
+        var projectComments = await projectCommentService.GetAllAsync(new GetAllProjectCommentQuery(page, perPage), ct);
 
         return Ok(projectComments);
     }
@@ -39,7 +37,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await getProjectCommentByIdHandler.Handle(new GetProjectCommentByIdQuery(id), ct);
+        var projectComment = await projectCommentService.GetByIdAsync(new GetProjectCommentByIdQuery(id), ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
@@ -55,7 +53,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await addProjectCommentHandler.Handle(command, ct);
+        var projectComment = await projectCommentService.AddAsync(command, ct);
 
         return new CreatedResult(string.Empty, projectComment);
     }
@@ -72,7 +70,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await updateProjectCommentHandler.Handle(command with { Id = id }, ct);
+        var projectComment = await projectCommentService.UpdateAsync(command with { Id = id }, ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
@@ -86,7 +84,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await deleteProjectCommentHandler.Handle(new DeleteProjectCommentCommand(id), ct);
+        await projectCommentService.DeleteAsync(new DeleteProjectCommentCommand(id), ct);
 
         return NoContent();
     }
