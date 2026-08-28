@@ -53,7 +53,7 @@ public class ProjectCommentController(ProjectCommentService projectCommentServic
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await projectCommentService.AddAsync(command, ct);
+        var projectComment = await projectCommentService.AddAsync(command, ClaimReader.UserId(User), ct);
 
         return new CreatedResult(string.Empty, projectComment);
     }
@@ -70,7 +70,7 @@ public class ProjectCommentController(ProjectCommentService projectCommentServic
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await projectCommentService.UpdateAsync(command with { Id = id }, ct);
+        var projectComment = await projectCommentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }

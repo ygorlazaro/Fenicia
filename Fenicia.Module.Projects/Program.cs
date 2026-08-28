@@ -4,6 +4,7 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.ProjectAttachment;
+using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectStatus;
 
 namespace Fenicia.Module.Projects;
@@ -20,6 +21,7 @@ public abstract class Program
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ProjectRepository>();
             builder.Services.AddScoped<ProjectAttachmentRepository>();
+            builder.Services.AddScoped<ProjectCommentRepository>();
             builder.Services.AddScoped<ProjectStatusRepository>();
         }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
