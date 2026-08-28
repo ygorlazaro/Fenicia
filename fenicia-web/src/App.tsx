@@ -41,7 +41,14 @@ const App = () => {
                     <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                     <Route path="/404" element={<Page404 />} />
                     <Route path="/500" element={<Page500 />} />
-                    <Route path="*" element={<RequireAuth><DefaultLayout /></RequireAuth>} />
+                    <Route
+                        path="*"
+                        element={
+                            <RequireAuth>
+                                <DefaultLayout />
+                            </RequireAuth>
+                        }
+                    />
                 </Routes>
             </Suspense>
         </HashRouter>
