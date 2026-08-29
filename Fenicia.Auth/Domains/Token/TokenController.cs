@@ -89,8 +89,7 @@ public class TokenController(TokenService tokenService, RefreshTokenService refr
     {
         var token = tokenService.GenerateString(user);
         var refreshToken = refreshTokenService.Generate(user.Id);
-        var userResponse = new UserResponse(user.Id, user.Name, user.Email);
-        var response = new TokenResponse(token, refreshToken, userResponse);
+        var response = token.MapToTokenResponse(refreshToken, user);
 
         return Created(string.Empty, response);
     }

@@ -5,25 +5,25 @@ using System.Text;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token.DTOs;
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(DefaultContext db, IConfiguration configuration, LoginAttemptService loginAttemptService)
+public class TokenService(IConfiguration configuration, LoginAttemptService loginAttemptService, UserRepository userRepository)
 {
-    private readonly DefaultContext _db = db;
     private readonly IConfiguration _configuration = configuration;
     private readonly LoginAttemptService _loginAttemptService = loginAttemptService;
+    private readonly UserRepository _userRepository = userRepository;
 
     public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken ct)
     {
         var attempts = ValidateAttempts(query);
-        var user = await _db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var user = await _userRepository.GetByEmailAsync(query.Email, ct);
 
         if (user is null)
         {
