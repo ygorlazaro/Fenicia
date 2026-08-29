@@ -58,7 +58,7 @@ public class OrderControllerTests : IDisposable
         var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
         var companyService = new CompanyService(companyRepository);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
         var subscriptionService = new SubscriptionService(subscriptionRepository, userService);
         var orderService = new OrderService(moduleService, orderRepository, subscriptionService, _userRoleService);
 

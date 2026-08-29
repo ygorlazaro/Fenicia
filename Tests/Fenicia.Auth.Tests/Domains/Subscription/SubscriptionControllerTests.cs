@@ -4,6 +4,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
@@ -48,7 +49,9 @@ public class SubscriptionControllerTests : IDisposable
         var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
         var companyService = new CompanyService(companyRepository);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var moduleRepository = new ModuleRepository(_db);
+        var moduleService = new ModuleService(moduleRepository);
+        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
         var subscriptionService = new SubscriptionService(subscriptionRepository, userService);
         _controller = new SubscriptionController(subscriptionService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 

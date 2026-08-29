@@ -1,6 +1,8 @@
 using System.Linq;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User.DTOs;
@@ -19,10 +21,11 @@ public class UserService(
     UserRoleService userRoleService,
     RoleService roleService,
     CompanyService companyService,
-    SecurityService securityService)
+    SecurityService securityService,
+    ModuleService moduleService)
 {
     public UserService()
-        : this(null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!, null!)
     {
     }
 
@@ -90,6 +93,11 @@ public class UserService(
     public async Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken ct)
     {
         return await userRepository.GetCompaniesAsync(userId, ct);
+    }
+
+    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken ct)
+    {
+        return await moduleService.GetUserModulesAsync(companyId, userId, ct);
     }
 
     public async Task EnsureCanAccessUserAsync(Guid loggedInUserId, Guid requestedUserId, Guid? companyId, CancellationToken ct)
