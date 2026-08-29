@@ -92,6 +92,44 @@ public class UserService(
         return await userRepository.GetCompaniesAsync(userId, ct);
     }
 
+    public async Task EnsureCanAccessUserAsync(Guid loggedInUserId, Guid requestedUserId, Guid? companyId, CancellationToken ct)
+    {
+        if (loggedInUserId == requestedUserId)
+        {
+            return;
+        }
+
+        var userRoles = await userRoleService.GetUserRolesByUserIdAsync(loggedInUserId, ct);
+
+        var isGod = userRoles.Any(r => r.Role.Name.Equals("God", StringComparison.OrdinalIgnoreCase));
+        if (isGod)
+        {
+            return;
+        }
+
+        if (!companyId.HasValue)
+        {
+            var targetUserRoles = await userRoleService.GetUserRolesByUserIdAsync(requestedUserId, ct);
+            var targetCompanyIds = targetUserRoles.Select(r => r.CompanyId).ToHashSet();
+
+            var isAdminInSharedCompany = userRoles.Any(r => r.Role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase) && targetCompanyIds.Contains(r.CompanyId));
+            if (isAdminInSharedCompany)
+            {
+                return;
+            }
+        }
+        else
+        {
+            var isAdminInCompany = userRoles.Any(r => r.Role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase) && r.CompanyId == companyId.Value);
+            if (isAdminInCompany)
+            {
+                return;
+            }
+        }
+
+        throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
+    }
+
     public async Task<CreateUserResponse> CreateAsync(CreateUserCommand command, CancellationToken ct)
     {
         var userExists = await userRepository.ExistsByEmailAsync(command.Email, ct);

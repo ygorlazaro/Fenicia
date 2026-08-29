@@ -20,8 +20,9 @@ namespace Fenicia.Auth.Domains.User;
 public class UserController(UserService userService, ModuleService moduleService) : ControllerBase
 {
     /// <summary>
-    /// Obtém os módulos do usuário para uma empresa.
+    /// Obtém os módulos de um usuário para uma empresa.
     /// </summary>
+    /// <param name="id">ID do usuário</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="ct">Token de cancelamento</param>
@@ -30,18 +31,21 @@ public class UserController(UserService userService, ModuleService moduleService
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="403">Usuário não tem permissão para acessar módulos desta empresa</response>
     /// <response code="500">Erro interno do servidor</response>
-    [HttpGet("module")]
+    [HttpGet("{id:guid}/module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync([FromRoute] Guid id, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
         try
         {
-            var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
+            var loggedInUserId = ClaimReader.UserId(User);
+            wide.UserId = loggedInUserId.ToString();
+
+            await userService.EnsureCanAccessUserAsync(loggedInUserId, id, headers.CompanyId, ct);
 
             var companyId = headers.CompanyId;
-            var response = await moduleService.GetUserModulesAsync(companyId, userId, ct);
+            var response = await moduleService.GetUserModulesAsync(companyId, id, ct);
 
             return Ok(response);
         }
@@ -52,25 +56,30 @@ public class UserController(UserService userService, ModuleService moduleService
     }
 
     /// <summary>
-    /// Obtém as empresas associadas ao usuário autenticado.
+    /// Obtém as empresas associadas a um usuário.
     /// </summary>
+    /// <param name="id">ID do usuário</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Lista de empresas do usuário</returns>
     /// <response code="200">Empresas encontradas</response>
     /// <response code="401">Usuário não autenticado</response>
+    /// <response code="403">Usuário não tem permissão para acessar empresas deste usuário</response>
     /// <response code="500">Erro interno do servidor</response>
-    [HttpGet("company")]
+    [HttpGet("{id:guid}/company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(WideEventContext wide, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         try
         {
-            var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
+            var loggedInUserId = ClaimReader.UserId(User);
+            wide.UserId = loggedInUserId.ToString();
 
-            var response = await userService.GetCompaniesAsync(userId, ct);
+            await userService.EnsureCanAccessUserAsync(loggedInUserId, id, null, ct);
+
+            var response = await userService.GetCompaniesAsync(id, ct);
 
             return Ok(response);
         }
