@@ -73,7 +73,7 @@ services:
   
   fenicia-web:
     build:
-      context: ../fenicia-web
+      context: ../Src/Front
       dockerfile: Dockerfile
     container_name: fenicia-web
     restart: unless-stopped
@@ -118,7 +118,7 @@ services:
     networks:
       - fenicia-network
     volumes:
-      - ./Fenicia.Auth:/src:ro
+      - ./Src/APIs/Fenicia.Auth:/src:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -133,7 +133,7 @@ services:
   fenicia-module-basic:
     build:
       context: ..
-      dockerfile: Fenicia.Module.Basic/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.Basic/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -153,12 +153,12 @@ services:
     networks:
       - fenicia-network
     volumes:
-      - ./Fenicia.Module.Basic:/src:ro
+      - ./Src/APIs/Fenicia.Module.Basic:/src:ro
 
   fenicia-module-projects:
     build:
       context: ..
-      dockerfile: Fenicia.Module.Projects/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.Projects/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -178,12 +178,12 @@ services:
     networks:
       - fenicia-network
     volumes:
-      - ./Fenicia.Module.Projects:/src:ro
+      - ./Src/APIs/Fenicia.Module.Projects:/src:ro
 
   fenicia-module-accounting:
     build:
       context: ..
-      dockerfile: Fenicia.Module.Accounting/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.Accounting/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -206,7 +206,7 @@ services:
   fenicia-module-contracts:
     build:
       context: ..
-      dockerfile: Fenicia.Module.Contracts/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.Contracts/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -229,7 +229,7 @@ services:
   fenicia-module-customersupport:
     build:
       context: ..
-      dockerfile: Fenicia.Module.CustomerSupport/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.CustomerSupport/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -252,7 +252,7 @@ services:
   fenicia-module-ecommerce:
     build:
       context: ..
-      dockerfile: Fenicia.Module.Ecommerce/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.Ecommerce/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -275,7 +275,7 @@ services:
   fenicia-module-hr:
     build:
       context: ..
-      dockerfile: Fenicia.Module.HR/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.HR/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -298,7 +298,7 @@ services:
   fenicia-module-performanceevaluation:
     build:
       context: ..
-      dockerfile: Fenicia.Module.PerformanceEvaluation/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.PerformanceEvaluation/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -321,7 +321,7 @@ services:
   fenicia-module-pos:
     build:
       context: ..
-      dockerfile: Fenicia.Module.POS/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.POS/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -344,7 +344,7 @@ services:
   fenicia-module-plus:
     build:
       context: ..
-      dockerfile: Fenicia.Module.Plus/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.Plus/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug
@@ -367,7 +367,7 @@ services:
   fenicia-module-socialnetwork:
     build:
       context: ..
-      dockerfile: Fenicia.Module.SocialNetwork/Dockerfile
+      dockerfile: Src/APIs/Fenicia.Module.SocialNetwork/Dockerfile
       target: final
       args:
         - BUILD_CONFIGURATION=Debug

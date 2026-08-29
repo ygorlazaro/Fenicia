@@ -12,13 +12,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Fenicia.Module.Projects/Fenicia.Module.Projects.csproj", "Fenicia.Module.Projects/"]
-COPY ["Fenicia.Common/Fenicia.Common.csproj", "Fenicia.Common/"]
-COPY ["Fenicia.Common.API/Fenicia.Common.API.csproj", "Fenicia.Common.API/"]
-COPY ["Fenicia.Common.Data/Fenicia.Common.Data.csproj", "Fenicia.Common.Data/"]
-RUN dotnet restore "Fenicia.Module.Projects/Fenicia.Module.Projects.csproj"
+COPY ["Src/APIs/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj", "Src/APIs/Fenicia.Module.Projects/"]
+COPY ["Src/Libs/Fenicia.Common/Fenicia.Common.csproj", "Src/Libs/Fenicia.Common/"]
+COPY ["Src/Libs/Fenicia.Common.API/Fenicia.Common.API.csproj", "Src/Libs/Fenicia.Common.API/"]
+COPY ["Src/Libs/Fenicia.Common.Data/Fenicia.Common.Data.csproj", "Src/Libs/Fenicia.Common.Data/"]
+RUN dotnet restore "Src/APIs/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj"
 COPY . .
-WORKDIR "/src/Fenicia.Module.Projects"
+WORKDIR "/src/Src/APIs/Fenicia.Module.Projects"
 RUN dotnet build "./Fenicia.Module.Projects.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish

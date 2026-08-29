@@ -7,13 +7,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj", "Fenicia.Module.PerformanceEvaluation/"]
-COPY ["Fenicia.Common/Fenicia.Common.csproj", "Fenicia.Common/"]
-COPY ["Fenicia.Common.API/Fenicia.Common.API.csproj", "Fenicia.Common.API/"]
-COPY ["Fenicia.Common.Data/Fenicia.Common.Data.csproj", "Fenicia.Common.Data/"]
-RUN dotnet restore "Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj"
+COPY ["Src/APIs/Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj", "Src/APIs/Fenicia.Module.PerformanceEvaluation/"]
+COPY ["Src/Libs/Fenicia.Common/Fenicia.Common.csproj", "Src/Libs/Fenicia.Common/"]
+COPY ["Src/Libs/Fenicia.Common.API/Fenicia.Common.API.csproj", "Src/Libs/Fenicia.Common.API/"]
+COPY ["Src/Libs/Fenicia.Common.Data/Fenicia.Common.Data.csproj", "Src/Libs/Fenicia.Common.Data/"]
+RUN dotnet restore "Src/APIs/Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj"
 COPY . .
-WORKDIR "/src/Fenicia.Module.PerformanceEvaluation"
+WORKDIR "/src/Src/APIs/Fenicia.Module.PerformanceEvaluation"
 RUN dotnet build "./Fenicia.Module.PerformanceEvaluation.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
