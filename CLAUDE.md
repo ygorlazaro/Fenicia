@@ -337,7 +337,51 @@ public class ProjectController(ProjectService projectService) : ControllerBase
 - Retornos padrão: `Ok()`, `NotFound()`, `NoContent()`, `Created()`, `Forbid()`
 - Passar `CompanyId` para services de escrita quando a entidade herda de `BaseCompanyModel`
 
-## 6. Padrão de DTOs
+### Documentação OpenAPI (XML Comments)
+
+Todas as actions dos controllers devem possuir **XML documentation comments** para documentar a API via OpenAPI/Swagger. Esta é a **única exceção** à regra de não obrigatoriedade de XML comments no projeto.
+
+Cada action deve documentar:
+
+- **Descrição** do que o endpoint faz
+- **Parâmetros** de rota, query string e body (com exemplos de payload)
+- **Resposta** de sucesso (com exemplo de response)
+- **Status codes** possíveis de retorno
+- **Exceções** que podem ocorrer (levantadas pela controller, service ou repository)
+
+Para documentar exceções corretamente, analise todo o fluxo: **Controller → Service → Repository**, identificando possíveis erros em cada camada.
+
+```csharp
+/// <summary>
+/// Obtém um usuário pelo ID.
+/// </summary>
+/// <param name="id">ID do usuário</param>
+/// <param name="wide">Contexto de eventos wide</param>
+/// <param name="ct">Token de cancelamento</param>
+/// <returns>Dados do usuário</returns>
+/// <response code="200">Usuário encontrado</response>
+/// <response code="404">Usuário não encontrado</response>
+/// <response code="400">ID inválido</response>
+/// <response code="500">Erro interno do servidor</response>
+[HttpGet("{id:guid}")]
+public async Task<ActionResult<GetUserByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+{
+    // ...
+}
+```
+
+Todas as actions devem ter **obrigatoriamente** o atributo `[ProducesResponseType]` para cada status code possível de retorno, garantindo documentação precisa no Swagger/OpenAPI.
+
+```csharp
+[HttpGet("{id:guid}")]
+[ProducesResponseType(typeof(GetUserByIdResponse), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+public async Task<ActionResult<GetUserByIdResponse>> GetByIdAsync(...)
+```
+
+## 7. Padrão de DTOs
 
 Todos os DTOs são `record` e ficam na raiz de `DTOs/`.
 
@@ -363,7 +407,7 @@ public record AddProjectResponse(Guid Id, string Title, string? Description, str
 - Queries são inputs de leitura (GET)
 - Responses são outputs
 
-## 7. Padrão de Testes
+## 8. Padrão de Testes
 
 Seguir o padrão dos testes de `Fenicia.Auth.Tests` e `Fenicia.Module.Projects.Tests`.
 
@@ -487,7 +531,7 @@ public class ProjectControllerTests : IDisposable
 - **Toda Service, Provider, Repository e Controller precisa ter testes unitários correspondentes.**
 - **Um arquivo de teste por classe testada.** Não criar múltiplos arquivos de teste para a mesma classe de produção.
 
-## 8. Convenções Gerais
+## 9. Convenções Gerais
 
 - **Namespaces**: sempre usar o namespace completo do domínio
   - Controllers: `Fenicia.Module.Projects.Domains.Project`
@@ -508,7 +552,7 @@ public class ProjectControllerTests : IDisposable
 - **Usings desnecessários**: não obrigatória remoção
 - **Migrations**: excluídas das regras de estilo
 
-## 9. Regras de Estilo (StyleCop/EditorConfig)
+## 10. Regras de Estilo (StyleCop/EditorConfig)
 
 O projeto usa regras rigorosas de estilo definidas no `.editorconfig`. Antes de commitar, garanta que o build não tem erros de StyleCop.
 
@@ -530,7 +574,7 @@ O projeto usa regras rigorosas de estilo definidas no `.editorconfig`. Antes de 
 - **Migrations**: arquivos em `Migrations/` estão excluídos das regras acima
 - **SA0001/IDE0005**: desabilitados globalmente (não exigem documentação XML nem remoção de usings)
 
-## 10. O que NÃO fazer
+## 11. O que NÃO fazer
 
 - ❌ Criar pastas `Handlers/`
 - ❌ Criar subpastas em `DTOs/` (`Commands/`, `Queries/`, `Responses/`)

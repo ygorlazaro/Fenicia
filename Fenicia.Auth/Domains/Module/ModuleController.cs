@@ -15,6 +15,15 @@ namespace Fenicia.Auth.Domains.Module;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ModuleController(ModuleService service) : ControllerBase
 {
+    /// <summary>
+    /// Obtém todos os módulos ativos com paginação (endpoint anônimo).
+    /// </summary>
+    /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista paginada de módulos</returns>
+    /// <response code="200">Lista de módulos retornada com sucesso</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<GetModuleResponse>>), StatusCodes.Status200OK)]

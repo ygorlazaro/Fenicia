@@ -18,6 +18,16 @@ namespace Fenicia.Auth.Domains.Token;
 [Produces(MediaTypeNames.Application.Json)]
 public class TokenController(TokenService tokenService, RefreshTokenService refreshTokenService, UserService userService) : ControllerBase
 {
+    /// <summary>
+    /// Gera um token JWT para o usuário (login).
+    /// </summary>
+    /// <param name="request">Query com e-mail e senha</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Token JWT e refresh token</returns>
+    /// <response code="201">Token gerado com sucesso</response>
+    /// <response code="400">E-mail ou senha inválidos, senha vazia ou muitas tentativas</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -51,6 +61,16 @@ public class TokenController(TokenService tokenService, RefreshTokenService refr
         }
     }
 
+    /// <summary>
+    /// Atualiza o token de acesso usando um refresh token válido.
+    /// </summary>
+    /// <param name="request">Query com UserId e RefreshToken</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Novo token JWT e refresh token</returns>
+    /// <response code="201">Token atualizado com sucesso</response>
+    /// <response code="400">Refresh token inválido ou requisição inválida</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [AllowAnonymous]
     [Route("refresh")]
