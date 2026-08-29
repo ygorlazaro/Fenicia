@@ -10,18 +10,24 @@ public class UserRoleRepository(DefaultContext context) : Repository<UserRoleMod
 {
     public async Task<List<UserRoleResponse>> GetCompaniesByUserAsync(Guid userId, CancellationToken ct = default)
     {
-        return await DbSet
-                .Where(ur => ur.UserId == userId && ur.Deleted == null)
-                .Select(ur => new UserRoleResponse(ur.CompanyId, ur.Role.Name, new CompanyResponse(ur.CompanyId, ur.Company.Name, ur.Company.Cnpj)))
-                .ToListAsync(ct);
+        var query = from ur in DbSet
+                    where ur.UserId == userId && ur.Deleted == null
+                    select ur;
+
+        var userRoles = await query.ToListAsync(ct);
+
+        return userRoles.Select(ur => ur.MapToUserRoleResponse()).ToList();
     }
 
     public async Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(Guid userId, CancellationToken ct = default)
     {
-        return await DbSet
-                .Where(ur => ur.UserId == userId && ur.Deleted == null)
-                .Select(ur => new GetUserCompaniesResponse(ur.CompanyId, ur.Role.Name, ur.CompanyId, ur.Company.Name, ur.Company.Cnpj))
-                .ToListAsync(ct);
+        var query = from ur in DbSet
+                    where ur.UserId == userId && ur.Deleted == null
+                    select ur;
+
+        var userRoles = await query.ToListAsync(ct);
+
+        return userRoles.Select(ur => ur.MapToGetUserCompaniesResponse()).ToList();
     }
 
     public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct = default)
