@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.17.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Libs\Fenicia.Common.API\Fenicia.Common.API.csproj" />
+        <ProjectReference Include="..\..\Libs\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
+
+        <ProjectReference Include="..\..\Libs\Fenicia.Common\Fenicia.Common.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\..\Libs\Fenicia.Common.API\appsettings.json">
+            <Link>appsettings.Common.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+</Project>
