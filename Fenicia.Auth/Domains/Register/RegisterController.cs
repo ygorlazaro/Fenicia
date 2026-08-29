@@ -14,6 +14,16 @@ namespace Fenicia.Auth.Domains.Register;
 [Produces(MediaTypeNames.Application.Json)]
 public class RegisterController(RegisterService registerService) : ControllerBase
 {
+    /// <summary>
+    /// Cria um novo usuário com sua empresa inicial.
+    /// </summary>
+    /// <param name="request">Dados do usuário (e-mail, senha, nome, empresa)</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do usuário e empresa criados</returns>
+    /// <response code="201">Usuário criado com sucesso</response>
+    /// <response code="400">E-mail já existe, empresa já existe ou dados inválidos</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

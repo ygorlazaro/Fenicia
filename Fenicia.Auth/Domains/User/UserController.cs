@@ -19,6 +19,17 @@ namespace Fenicia.Auth.Domains.User;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class UserController(UserService userService, ModuleService moduleService) : ControllerBase
 {
+    /// <summary>
+    /// Obtém os módulos do usuário para uma empresa.
+    /// </summary>
+    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de módulos do usuário na empresa</returns>
+    /// <response code="200">Módulos encontrados</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="403">Usuário não tem permissão para acessar módulos desta empresa</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -40,6 +51,15 @@ public class UserController(UserService userService, ModuleService moduleService
         }
     }
 
+    /// <summary>
+    /// Obtém as empresas associadas ao usuário autenticado.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de empresas do usuário</returns>
+    /// <response code="200">Empresas encontradas</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -60,6 +80,16 @@ public class UserController(UserService userService, ModuleService moduleService
         }
     }
 
+    /// <summary>
+    /// Obtém todos os usuários com paginação.
+    /// </summary>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="page">Número da página (padrão: 1)</param>
+    /// <param name="pageSize">Quantidade de itens por página (padrão: 10)</param>
+    /// <returns>Lista paginada de usuários</returns>
+    /// <response code="200">Lista de usuários retornada com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -70,6 +100,16 @@ public class UserController(UserService userService, ModuleService moduleService
         return Ok(result);
     }
 
+    /// <summary>
+    /// Obtém um usuário pelo ID.
+    /// </summary>
+    /// <param name="userId">ID do usuário</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do usuário</returns>
+    /// <response code="200">Usuário encontrado</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Usuário não encontrado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -85,6 +125,16 @@ public class UserController(UserService userService, ModuleService moduleService
         };
     }
 
+    /// <summary>
+    /// Cria um novo usuário.
+    /// </summary>
+    /// <param name="request">Dados do usuário (e-mail, senha, nome, roles)</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do usuário criado</returns>
+    /// <response code="201">Usuário criado com sucesso</response>
+    /// <response code="400">E-mail já existe ou dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -104,6 +154,18 @@ public class UserController(UserService userService, ModuleService moduleService
         }
     }
 
+    /// <summary>
+    /// Atualiza um usuário existente.
+    /// </summary>
+    /// <param name="userId">ID do usuário</param>
+    /// <param name="request">Dados atualizados do usuário (nome, e-mail, roles por empresa)</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do usuário atualizado</returns>
+    /// <response code="200">Usuário atualizado com sucesso</response>
+    /// <response code="400">E-mail já existe ou dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Usuário não encontrado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -126,6 +188,16 @@ public class UserController(UserService userService, ModuleService moduleService
         }
     }
 
+    /// <summary>
+    /// Remove um usuário (soft delete).
+    /// </summary>
+    /// <param name="userId">ID do usuário</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Sem conteúdo (204) se removido com sucesso</returns>
+    /// <response code="204">Usuário removido com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Usuário não encontrado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -143,6 +215,18 @@ public class UserController(UserService userService, ModuleService moduleService
         }
     }
 
+    /// <summary>
+    /// Altera a senha de um usuário.
+    /// </summary>
+    /// <param name="userId">ID do usuário</param>
+    /// <param name="request">Comando com a nova senha</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Confirmação de alteração de senha</returns>
+    /// <response code="200">Senha alterada com sucesso</response>
+    /// <response code="400">Senha inválida</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Usuário não encontrado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{userId:guid}/password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
