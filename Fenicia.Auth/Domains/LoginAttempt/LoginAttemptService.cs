@@ -1,35 +1,35 @@
-using Microsoft.Extensions.Caching.Memory;
+using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.LoginAttempt;
 
-public class LoginAttemptService(IMemoryCache cache)
+public class LoginAttemptService(IConnectionMultiplexer redis)
 {
     private const int _expirationMinutes = 15;
     private const string _keyPrefix = "login-attempt:";
 
+    private readonly IDatabase _redisDb = redis.GetDatabase();
+
     public int GetAttempts(string email)
     {
-        return cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0;
+        var key = GetKey(email);
+        var value = _redisDb.StringGet(key);
+
+        return value.HasValue ? (int)value : 0;
     }
 
-    public Task IncrementAsync(string email, CancellationToken ct = default)
+    public async Task IncrementAsync(string email, CancellationToken ct = default)
     {
         var key = GetKey(email);
-        var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
+        var current = _redisDb.StringGet(key);
 
-        var options = new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_expirationMinutes)
-        };
+        var newValue = current.HasValue ? (int)current + 1 : 1;
 
-        cache.Set(key, current, options);
-
-        return Task.CompletedTask;
+        await _redisDb.StringSetAsync(key, newValue, TimeSpan.FromMinutes(_expirationMinutes), When.Always, CommandFlags.None);
     }
 
     public Task ResetAsync(string email, CancellationToken ct = default)
     {
-        cache.Remove(GetKey(email));
+        _redisDb.KeyDelete(GetKey(email));
         return Task.CompletedTask;
     }
 
