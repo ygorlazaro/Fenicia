@@ -46,7 +46,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailExists_ReturnsTrue()
+    public async Task ExistsByEmailAsync_WhenEmailExists_ReturnsTrue()
     {
         var email = _faker.Internet.Email();
 
@@ -67,7 +67,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailDoesNotExist_ReturnsFalse()
+    public async Task ExistsByEmailAsync_WhenEmailDoesNotExist_ReturnsFalse()
     {
         var email = _faker.Internet.Email();
 
@@ -77,7 +77,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailHasDifferentCase_ReturnsFalse()
+    public async Task ExistsByEmailAsync_WhenEmailHasDifferentCase_ReturnsFalse()
     {
         var email = _faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
@@ -99,7 +99,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleUsersExist_OnlyMatchesExactEmail()
+    public async Task ExistsByEmailAsync_WhenMultipleUsersExist_OnlyMatchesExactEmail()
     {
         const string email1 = "user1@example.com";
         const string email2 = "user2@example.com";
@@ -133,7 +133,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithEmptyDatabase_ReturnsFalse()
+    public async Task ExistsByEmailAsync_WithEmptyDatabase_ReturnsFalse()
     {
         var email = _faker.Internet.Email();
 
@@ -143,7 +143,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsFalse()
+    public async Task ExistsByEmailAsync_WhenEmailContainsExtraSpaces_ReturnsFalse()
     {
         const string email = "test@example.com";
         const string emailWithSpaces = " test@example.com ";
@@ -165,7 +165,7 @@ public class CheckUserExistsServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailHasExtraCharacters_ReturnsFalse()
+    public async Task ExistsByEmailAsync_WhenEmailHasExtraCharacters_ReturnsFalse()
     {
         const string email = "test@example.com";
         const string emailWithExtra = "test@example.com.";

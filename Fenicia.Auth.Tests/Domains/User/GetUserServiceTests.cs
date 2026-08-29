@@ -57,7 +57,7 @@ public class GetUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenNoParameters_ReturnsFirstPageWithDefaultPerPage()
+    public async Task GetAllAsync_WhenNoParameters_ReturnsFirstPageWithDefaultPerPage()
     {
         var result = await _userService.GetAllAsync(1, 10, CancellationToken.None);
 
@@ -71,7 +71,7 @@ public class GetUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenPageSpecified_ReturnsCorrectPage()
+    public async Task GetAllAsync_WhenPageSpecified_ReturnsCorrectPage()
     {
         var result = await _userService.GetAllAsync(2, 5, CancellationToken.None);
 
@@ -83,7 +83,7 @@ public class GetUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_UsersAreOrderedAlphabeticallyByName()
+    public async Task GetAllAsync_UsersAreOrderedAlphabeticallyByName()
     {
         var result = await _userService.GetAllAsync(1, 15, CancellationToken.None);
 
@@ -92,7 +92,7 @@ public class GetUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenLastPage_HasNextIsFalse()
+    public async Task GetAllAsync_WhenLastPage_HasNextIsFalse()
     {
         var result = await _userService.GetAllAsync(2, 10, CancellationToken.None);
 

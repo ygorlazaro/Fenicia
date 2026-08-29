@@ -57,7 +57,7 @@ public class UpdateUserPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequest_ChangesPasswordSuccessfully()
+    public async Task UpdatePasswordAsync_WhenValidRequest_ChangesPasswordSuccessfully()
     {
         var newPassword = _faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(_testUser.Id, newPassword);
@@ -77,7 +77,7 @@ public class UpdateUserPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_NewPasswordIsHashed()
+    public async Task UpdatePasswordAsync_NewPasswordIsHashed()
     {
         var newPassword = _faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(_testUser.Id, newPassword);
@@ -93,7 +93,7 @@ public class UpdateUserPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
+    public async Task UpdatePasswordAsync_WhenUserNotFound_ThrowsArgumentException()
     {
         var nonExistentUserId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();

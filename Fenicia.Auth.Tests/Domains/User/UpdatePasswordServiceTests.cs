@@ -47,7 +47,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserExists_ChangesPasswordSuccessfully()
+    public async Task UpdatePasswordAsync_WhenUserExists_ChangesPasswordSuccessfully()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();
@@ -80,7 +80,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserDoesNotExist_ThrowsArgumentException()
+    public async Task UpdatePasswordAsync_WhenUserDoesNotExist_ThrowsArgumentException()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();
@@ -91,7 +91,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_PasswordIsHashedBeforeSaving()
+    public async Task UpdatePasswordAsync_PasswordIsHashedBeforeSaving()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();
@@ -119,7 +119,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_VerifiesPasswordCanBeVerified()
+    public async Task UpdatePasswordAsync_VerifiesPasswordCanBeVerified()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();
@@ -147,7 +147,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleUsersExist_OnlyUpdatesRequestedUser()
+    public async Task UpdatePasswordAsync_WhenMultipleUsersExist_OnlyUpdatesRequestedUser()
     {
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
@@ -186,7 +186,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_PreservesOtherUserProperties()
+    public async Task UpdatePasswordAsync_PreservesOtherUserProperties()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();
@@ -217,7 +217,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithEmptyDatabase_ThrowsArgumentException()
+    public async Task UpdatePasswordAsync_WithEmptyDatabase_ThrowsArgumentException()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();
@@ -228,7 +228,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenPasswordIsEmpty_StillHashesAndSaves()
+    public async Task UpdatePasswordAsync_WhenPasswordIsEmpty_StillHashesAndSaves()
     {
         var userId = Guid.NewGuid();
         var newPassword = string.Empty;
@@ -251,7 +251,7 @@ public class UpdatePasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_ReturnsCorrectResponseData()
+    public async Task UpdatePasswordAsync_ReturnsCorrectResponseData()
     {
         var userId = Guid.NewGuid();
         var newPassword = _faker.Internet.Password();

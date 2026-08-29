@@ -56,7 +56,7 @@ public class DeleteUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequest_SoftDeletesUserSuccessfully()
+    public async Task DeleteAsync_WhenValidRequest_SoftDeletesUserSuccessfully()
     {
         await _userService.DeleteAsync(_testUser.Id, CancellationToken.None);
 
@@ -67,7 +67,7 @@ public class DeleteUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
+    public async Task DeleteAsync_WhenUserNotFound_ThrowsArgumentException()
     {
         var nonExistentUserId = Guid.NewGuid();
 
@@ -77,7 +77,7 @@ public class DeleteUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserAlreadyDeleted_ThrowsArgumentException()
+    public async Task DeleteAsync_WhenUserAlreadyDeleted_ThrowsArgumentException()
     {
         _testUser.Deleted = DateTime.UtcNow;
         await _db.SaveChangesAsync(CancellationToken.None);
@@ -88,7 +88,7 @@ public class DeleteUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_SoftDelete_UserStillExistsInDatabase()
+    public async Task DeleteAsync_SoftDelete_UserStillExistsInDatabase()
     {
         await _userService.DeleteAsync(_testUser.Id, CancellationToken.None);
 
