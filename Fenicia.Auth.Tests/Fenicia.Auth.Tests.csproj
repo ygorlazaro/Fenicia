@@ -34,7 +34,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Fenicia.Auth\Fenicia.Auth.csproj" />
-        <ProjectReference Include="..\Fenicia.Common.Api.Tests\Fenicia.Common.Api.Tests.csproj" />
+        <ProjectReference Include="..\Fenicia.Common.API.Tests\Fenicia.Common.API.Tests.csproj" />
         <ProjectReference Include="..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj" />
 
     </ItemGroup>

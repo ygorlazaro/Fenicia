@@ -23,12 +23,12 @@
         <PackageReference Include="Scalar.AspNetCore" Version="2.17.1" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />
+        <ProjectReference Include="..\Fenicia.Common.API\Fenicia.Common.API.csproj" />
         <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <Content Include="..\Fenicia.Common.Api\appsettings.json">
+        <Content Include="..\Fenicia.Common.API\appsettings.json">
             <Link>appsettings.Common.json</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

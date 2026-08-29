@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Role;
 
-public class GetAdminRoleHandlerTests : IDisposable
+public class RoleServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly RoleService _service;
 
-    public GetAdminRoleHandlerTests()
+    public RoleServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
@@ -27,7 +27,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAdminRoleExists_ReturnsAdminRole()
+    public async Task GetAdminAsync_WhenAdminRoleExists_ReturnsAdminRole()
     {
         var adminRoleId = Guid.NewGuid();
 
@@ -48,7 +48,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAdminRoleDoesNotExist_ReturnsNull()
+    public async Task GetAdminAsync_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
         var role = new RoleModel
         {
@@ -65,7 +65,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleRolesExist_ReturnsOnlyAdminRole()
+    public async Task GetAdminAsync_WhenMultipleRolesExist_ReturnsOnlyAdminRole()
     {
         var adminRoleId = Guid.NewGuid();
 
@@ -97,7 +97,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
+    public async Task GetAdminAsync_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
         var role = new RoleModel
         {
@@ -114,7 +114,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithEmptyDatabase_ReturnsNull()
+    public async Task GetAdminAsync_WithEmptyDatabase_ReturnsNull()
     {
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
@@ -122,7 +122,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
+    public async Task GetAdminAsync_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
         var role = new RoleModel
         {
@@ -139,7 +139,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleAdminRolesExist_ReturnsFirst()
+    public async Task GetAdminAsync_WhenMultipleAdminRolesExist_ReturnsFirst()
     {
         var adminRoleId1 = Guid.NewGuid();
         var adminRoleId2 = Guid.NewGuid();

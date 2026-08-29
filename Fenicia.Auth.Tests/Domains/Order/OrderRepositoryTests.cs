@@ -118,7 +118,7 @@ public class OrderRepositoryTests : IDisposable
         _db.AuthOrders.AddRange(order1, order2);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var results = await _repository.GetAllAsync(CancellationToken.None);
+        var results = await _repository.GetAllAsync(1, 10, CancellationToken.None);
 
         Assert.Single(results);
         Assert.Equal(order1.Id, results.First().Id);

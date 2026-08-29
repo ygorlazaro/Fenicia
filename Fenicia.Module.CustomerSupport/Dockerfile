@@ -9,7 +9,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj", "Fenicia.Module.CustomerSupport/"]
 COPY ["Fenicia.Common/Fenicia.Common.csproj", "Fenicia.Common/"]
-COPY ["Fenicia.Common.Api/Fenicia.Common.Api.csproj", "Fenicia.Common.Api/"]
+COPY ["Fenicia.Common.API/Fenicia.Common.API.csproj", "Fenicia.Common.API/"]
 COPY ["Fenicia.Common.Data/Fenicia.Common.Data.csproj", "Fenicia.Common.Data/"]
 RUN dotnet restore "Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj"
 COPY . .
