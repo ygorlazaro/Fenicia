@@ -33,7 +33,8 @@ public class ConfigurationControllerTests : IDisposable
 
         _mockHttpContext = new Mock<HttpContext>();
 
-        var configurationService = new ConfigurationService(_db);
+        var configurationRepository = new ConfigurationRepository(_db);
+        var configurationService = new ConfigurationService(configurationRepository);
         _controller = new ConfigurationController(configurationService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);

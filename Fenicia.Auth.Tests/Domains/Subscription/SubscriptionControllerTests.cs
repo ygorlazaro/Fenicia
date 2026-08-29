@@ -5,6 +5,7 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.DTOs;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -36,7 +37,7 @@ public class SubscriptionControllerTests : IDisposable
         _mockHttpContext = new Mock<HttpContext>();
 
         var subscriptionRepository = new SubscriptionRepository(_db);
-        var subscriptionService = new SubscriptionService(subscriptionRepository);
+        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserRepository(_db));
         _controller = new SubscriptionController(subscriptionService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);

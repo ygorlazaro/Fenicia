@@ -8,16 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Notification;
 
-public class NotificationHandlerTests : IDisposable
+public class NotificationServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly NotificationService _service;
 
-    public NotificationHandlerTests()
+    public NotificationServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new NotificationService(_db);
+        _service = new NotificationService(new NotificationRepository(_db));
     }
 
     public void Dispose()

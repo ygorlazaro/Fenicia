@@ -476,6 +476,8 @@ public class ProjectControllerTests : IDisposable
 - Sempre incluir `using System.Security.Claims` nos controller tests
 - Sempre configurar `mockHttpContext.Setup(x => x.User).Returns(...)` para tests que usam `ClaimReader`
 - **Todo código novo ou refatoração deve incluir testes unitários correspondentes.**
+- **Toda Service, Provider, Repository e Controller precisa ter testes unitários correspondentes.**
+- **Um arquivo de teste por classe testada.** Não criar múltiplos arquivos de teste para a mesma classe de produção.
 
 ## 8. Convenções Gerais
 

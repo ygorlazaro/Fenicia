@@ -3,33 +3,38 @@ using Bogus;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Moq;
+using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
 public class GenerateTokenHandlerTests : IDisposable
 {
-    private readonly MemoryCache _cache;
+    private readonly Mock<IConnectionMultiplexer> _redisMock;
+    private readonly Mock<IDatabase> _redisDbMock;
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly TokenService _service;
 
     public GenerateTokenHandlerTests()
     {
-        _cache = new MemoryCache(new MemoryCacheOptions());
-        var loginAttemptService = new LoginAttemptService(_cache);
+        _redisMock = new Mock<IConnectionMultiplexer>();
+        _redisDbMock = new Mock<IDatabase>();
+        _redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(_redisDbMock.Object);
+        var loginAttemptService = new LoginAttemptService(_redisMock.Object);
 
         var inMemorySettings = new Dictionary<string, string?>
         {
             {
-            "Jwt:Secret", "ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes"
+                "Jwt:Secret", "ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes"
             }
         };
 
@@ -38,14 +43,13 @@ public class GenerateTokenHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new TokenService(_db, configuration, loginAttemptService);
+        _service = new TokenService(configuration, loginAttemptService, new UserRepository(_db));
         _faker = new Faker();
     }
 
     public void Dispose()
     {
         _db.Dispose();
-        _cache.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -55,7 +59,9 @@ public class GenerateTokenHandlerTests : IDisposable
     {
         var email = _faker.Internet.Email();
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
-        SetupCacheAttempts(email, 5);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)5);
 
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Too many login attempts. Please try again later.", ex.Message);
@@ -66,7 +72,9 @@ public class GenerateTokenHandlerTests : IDisposable
     {
         var email = _faker.Internet.Email();
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
-        SetupCacheAttempts(email, 2);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)2);
 
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
@@ -78,7 +86,9 @@ public class GenerateTokenHandlerTests : IDisposable
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
         var query = new GenerateTokenQuery(email, password);
-        SetupCacheAttempts(email, 0);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
 
         var user = new UserModel
         {
@@ -105,7 +115,9 @@ public class GenerateTokenHandlerTests : IDisposable
         var email = _faker.Internet.Email();
         var correctPassword = _faker.Internet.Password();
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
-        SetupCacheAttempts(email, 2);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)2);
 
         var user = new UserModel
         {
@@ -128,7 +140,9 @@ public class GenerateTokenHandlerTests : IDisposable
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
         var query = new GenerateTokenQuery(email, password);
-        SetupCacheAttempts(email, 4);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)4);
 
         var user = new UserModel
         {
@@ -150,7 +164,9 @@ public class GenerateTokenHandlerTests : IDisposable
         var email = _faker.Internet.Email();
         var correctPassword = _faker.Internet.Password();
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
-        SetupCacheAttempts(email, 0);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
 
         var user = new UserModel
         {
@@ -165,9 +181,7 @@ public class GenerateTokenHandlerTests : IDisposable
 
         _ = await Record.ExceptionAsync(async () => await _service.GenerateAsync(query, CancellationToken.None));
 
-        var key = $"login-attempt:{query.Email.ToLower()}";
-        Assert.True(_cache.TryGetValue(key, out int count));
-        Assert.Equal(1, count);
+        _redisDbMock.Verify(x => x.StringSetAsync(key, 1, TimeSpan.FromMinutes(15), When.Always, CommandFlags.None), Times.Once);
     }
 
     [Fact]
@@ -175,7 +189,9 @@ public class GenerateTokenHandlerTests : IDisposable
     {
         var email = _faker.Internet.Email();
         var query = new GenerateTokenQuery(string.Empty, _faker.Internet.Password());
-        SetupCacheAttempts(email, 0);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
 
         await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
     }
@@ -186,7 +202,9 @@ public class GenerateTokenHandlerTests : IDisposable
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
         var query = new GenerateTokenQuery(email, string.Empty);
-        SetupCacheAttempts(email, 0);
+        var key = $"login-attempt:{email.ToLower()}";
+
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
 
         var user = new UserModel
         {
@@ -201,14 +219,5 @@ public class GenerateTokenHandlerTests : IDisposable
 
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Contains("Password", ex.Message);
-    }
-
-    private void SetupCacheAttempts(string email, int attempts)
-    {
-        var key = $"login-attempt:{email.ToLower()}";
-        if (attempts > 0)
-        {
-            _cache.Set(key, attempts);
-        }
     }
 }
