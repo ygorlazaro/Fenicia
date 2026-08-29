@@ -1,3 +1,5 @@
+using Fenicia.Module.Basic.Domains.Address.DTOs;
+
 namespace Fenicia.Module.Basic.Domains.Customer.DTOs;
 
 public record GetAllCustomerResponse(
