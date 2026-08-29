@@ -2,8 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,20 +14,32 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductCategoryController(ProductCategoryService productCategoryService, ProductService productService) : ControllerBase
+public class ProductCategoryController(ProductCategoryService productCategoryService) : ControllerBase
 {
+    /// <summary>
+    /// Obtém uma lista paginada de categorias de produto.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="page">Número da página</param>
+    /// <param name="perPage">Itens por página</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista paginada de categorias</returns>
+    /// <response code="200">Lista de categorias retornada com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductCategoryResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(page, perPage), ct);
+            var categories = await productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(page, perPage), ct);
 
-            return Ok(productCategory);
+            return Ok(categories);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -37,19 +47,31 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         }
     }
 
+    /// <summary>
+    /// Obtém uma categoria de produto pelo ID.
+    /// </summary>
+    /// <param name="id">ID da categoria</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados da categoria</returns>
+    /// <response code="200">Categoria encontrada</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Categoria não encontrada</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductCategoryByIdResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(id), ct);
+            var category = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(id), ct);
 
-            return productCategory is null ? NotFound() : Ok(productCategory);
+            return category is null ? NotFound() : Ok(category);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -57,10 +79,22 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         }
     }
 
+    /// <summary>
+    /// Cria uma nova categoria de produto.
+    /// </summary>
+    /// <param name="command">Dados da categoria a ser criada</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Categoria criada</returns>
+    /// <response code="201">Categoria criada com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, WideEventContext wide, CancellationToken ct)
     {
@@ -69,9 +103,9 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            var productCategory = await productCategoryService.AddAsync(command, companyId, ct);
+            var category = await productCategoryService.AddAsync(command, companyId, ct);
 
-            return new CreatedResult(string.Empty, productCategory);
+            return new CreatedResult(string.Empty, category);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -79,11 +113,25 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         }
     }
 
+    /// <summary>
+    /// Atualiza uma categoria de produto existente.
+    /// </summary>
+    /// <param name="command">Dados atualizados da categoria</param>
+    /// <param name="id">ID da categoria</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Categoria atualizada</returns>
+    /// <response code="200">Categoria atualizada com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Categoria não encontrada</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync([FromBody] UpdateProductCategoryCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
@@ -92,9 +140,9 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            var productCategory = await productCategoryService.UpdateAsync(command with { Id = id }, companyId, ct);
+            var category = await productCategoryService.UpdateAsync(command with { Id = id }, companyId, ct);
 
-            return productCategory is null ? NotFound() : Ok(productCategory);
+            return category is null ? NotFound() : Ok(category);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -102,9 +150,21 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
         }
     }
 
+    /// <summary>
+    /// Remove uma categoria de produto (soft delete).
+    /// </summary>
+    /// <param name="id">ID da categoria</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <response code="204">Categoria removida com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="403">Acesso negado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         try
@@ -115,25 +175,6 @@ public class ProductCategoryController(ProductCategoryService productCategorySer
             await productCategoryService.DeleteAsync(new DeleteProductCategoryCommand(id), companyId, ct);
 
             return NoContent();
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid(ex.Message);
-        }
-    }
-
-    [HttpGet("{id:guid}/product")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetProductsByCategoryIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<List<GetProductsByCategoryIdResponse>>> GetProductsByCategoryAsync([FromRoute] Guid categoryId, [FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
-    {
-        try
-        {
-            wide.UserId = ClaimReader.UserId(User).ToString();
-
-            var products = await productService.GetByCategoryIdAsync(new GetProductsByCategoryIdQuery(categoryId), query.Page, query.PerPage, ct);
-
-            return Ok(products);
         }
         catch (UnauthorizedAccessException ex)
         {

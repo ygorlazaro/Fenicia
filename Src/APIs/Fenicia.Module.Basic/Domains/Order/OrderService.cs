@@ -2,18 +2,17 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.StockMovement;
 using Microsoft.EntityFrameworkCore;
-using SalesOrderDetailRepository = Fenicia.Module.Basic.Domains.OrderDetail.OrderDetailRepository;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderService(
     OrderRepository orderRepository,
-    SalesOrderDetailRepository orderDetailRepository,
-    StockMovementRepository stockMovementRepository,
-    ProductRepository productRepository)
+    OrderDetailService orderDetailService,
+    StockMovementService stockMovementService)
 {
     public async Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(GetAllOrderQuery query, CancellationToken ct)
     {
@@ -21,7 +20,7 @@ public class OrderService(
 
         var orderIds = await orderRepository.GetRecentOrderIdsAsync(query.Page, query.PerPage, ct);
 
-        var detailCounts = await orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, ct);
+        var detailCounts = await orderDetailService.GetDetailCountsByOrderIdsAsync(orderIds, ct);
 
         var orders = await (from o in orderRepository.Query()
                             where orderIds.Contains(o.Id)
@@ -144,16 +143,21 @@ public class OrderService(
                 Price = detail.Price,
                 Reason = $"Sale order {created.Id}"
             };
-            await stockMovementRepository.InsertAsync(stockMovement, ct);
 
-            var product = await productRepository.GetByIdAsync(detail.ProductId, ct);
-            if (product is null)
-            {
-                continue;
-            }
+            var movementCommand = new Fenicia.Module.Basic.Domains.StockMovement.DTOs.AddStockMovementCommand(
+                stockMovement.Id,
+                stockMovement.Quantity,
+                stockMovement.Date,
+                stockMovement.Price ?? 0,
+                stockMovement.Type,
+                stockMovement.ProductId,
+                stockMovement.CustomerId,
+                stockMovement.SupplierId,
+                stockMovement.EmployeeId,
+                stockMovement.OrderId,
+                stockMovement.Reason);
 
-            product.Quantity -= detail.Quantity;
-            await productRepository.UpdateAsync(product.Id, product, ct);
+            await stockMovementService.AddAsync(movementCommand, companyId, ct);
         }
 
         return new CreateOrderResponse(
@@ -205,6 +209,11 @@ public class OrderService(
         };
     }
 
+    public async Task<int> GetCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.CountAsync(ct);
+    }
+
     private static decimal CalculateMedian(List<decimal> values)
     {
         var count = values.Count;
@@ -231,7 +240,7 @@ public class OrderService(
 
         var orderIds = cancelled.Select(o => o.Id).ToList();
 
-        var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
+        var detailQtys = await orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
         return [.. cancelled
             .Select(o => new CancelledOrderResponse(
@@ -267,7 +276,7 @@ public class OrderService(
 
         var orderIds = raw.Select(o => o.Id).ToList();
 
-        var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
+        var detailQtys = await orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
         var topCustomers = raw
             .GroupBy(o => new { o.CustomerId, o.CustomerName })
@@ -292,7 +301,7 @@ public class OrderService(
 
         var orderIds = orderData.Select(o => o.Id).ToList();
 
-        var detailQtys = await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
+        var detailQtys = await orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
 
         var salesTrend = orderData
             .GroupBy(o => o.Date)

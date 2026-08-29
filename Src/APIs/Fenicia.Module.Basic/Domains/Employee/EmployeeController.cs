@@ -16,6 +16,17 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class EmployeeController(EmployeeService employeeService) : ControllerBase
 {
+    /// <summary>
+    /// Obtém a lista de funcionários.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="page">Número da página (padrão: 1)</param>
+    /// <param name="perPage">Quantidade de registros por página (padrão: 10)</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista paginada de funcionários</returns>
+    /// <response code="200">Lista de funcionários retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os funcionários</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -35,6 +46,17 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         }
     }
 
+    /// <summary>
+    /// Obtém um funcionário pelo ID.
+    /// </summary>
+    /// <param name="id">ID do funcionário</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do funcionário</returns>
+    /// <response code="200">Funcionário encontrado</response>
+    /// <response code="404">Funcionário não encontrado</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o funcionário</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetEmployeeByIdResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -55,6 +77,17 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         }
     }
 
+    /// <summary>
+    /// Cria um novo funcionário.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="command">Dados do funcionário</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Funcionário criado</returns>
+    /// <response code="201">Funcionário criado com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a criar funcionário</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddEmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -76,6 +109,19 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         }
     }
 
+    /// <summary>
+    /// Atualiza um funcionário existente.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="command">Dados atualizados do funcionário</param>
+    /// <param name="id">ID do funcionário</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Funcionário atualizado</returns>
+    /// <response code="200">Funcionário atualizado com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <response code="404">Funcionário não encontrado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a atualizar funcionário</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateEmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -98,6 +144,16 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         }
     }
 
+    /// <summary>
+    /// Remove um funcionário.
+    /// </summary>
+    /// <param name="id">ID do funcionário</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Sem conteúdo</returns>
+    /// <response code="204">Funcionário removido com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a remover funcionário</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -117,6 +173,17 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         }
     }
 
+    /// <summary>
+    /// Obtém o desempenho dos funcionários.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
+    /// <param name="topLimit">Limite de top performers (padrão: 10)</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados de desempenho dos funcionários</returns>
+    /// <response code="200">Desempenho retornado com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o desempenho</exception>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeePerformanceResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

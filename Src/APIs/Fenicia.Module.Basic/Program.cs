@@ -7,11 +7,13 @@ using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Inventory;
+using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.Person;
+using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.Supplier;
-using InventoryStockMovementRepository = Fenicia.Module.Basic.Domains.Inventory.StockMovementRepository;
 using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
 using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
 
@@ -37,7 +39,6 @@ public class Program
         builder.Services.AddScoped<ProductRepository>();
         builder.Services.AddScoped<ProductCategoryRepository>();
         builder.Services.AddScoped<StockMovementRepository>();
-        builder.Services.AddScoped<InventoryStockMovementRepository>();
         builder.Services.AddScoped<OrderDetailRepository>();
         builder.Services.AddScoped<SupplierRepository>();
         builder.Services.AddScoped<StateRepository>();

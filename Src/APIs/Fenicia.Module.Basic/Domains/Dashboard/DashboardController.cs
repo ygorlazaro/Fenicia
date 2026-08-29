@@ -15,6 +15,16 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class DashboardController(DashboardService dashboardService) : ControllerBase
 {
+    /// <summary>
+    /// Obtém o dashboard financeiro com KPIs, receita vs custo, margem de lucro, contas a receber e vendas diárias.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dashboard financeiro completo</returns>
+    /// <response code="200">Dashboard financeiro retornado com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o dashboard</exception>
     [HttpGet("financial")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -5,18 +5,20 @@ using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
 using Fenicia.Module.Basic.Domains.Person;
+using Fenicia.Module.Basic.Domains.PersonAddress;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
 public class EmployeeService(
     EmployeeRepository employeeRepository,
-    PersonRepository personRepository,
-    AddressRepository addressRepository,
-    PersonAddressRepository personAddressRepository,
-    DashboardRepository dashboardRepository)
+    PersonService personService,
+    AddressService addressService,
+    PersonAddressService personAddressService,
+    DashboardService dashboardService)
 {
     public async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken ct)
     {
@@ -24,24 +26,16 @@ public class EmployeeService(
 
         var employees = await employeeRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
-        var response = employees.Select(e =>
-    {
-        var personAddress = e.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        return new GetAllEmployeeResponse(
-            e.Id,
-            e.PositionId,
-            e.PersonId,
-            e.Person.Name,
-            e.Person.Email,
-            e.Person.PhoneNumber,
-            e.Person.Document,
-            e.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
-    }).ToList();
+        var response = employees.Select(e => e.MapToGetAllEmployeeResponse()).ToList();
 
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
+    }
+
+    public async Task<List<GetAllEmployeeForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken ct)
+    {
+        var employees = await employeeRepository.GetAllWithDetailsAsync(ct: ct);
+
+        return employees.Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.Person.Name)).ToList();
     }
 
     public async Task<GetEmployeeByIdResponse?> GetByIdAsync(GetEmployeeByIdQuery query, CancellationToken ct)
@@ -53,18 +47,7 @@ public class EmployeeService(
             return null;
         }
 
-        var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        return new GetEmployeeByIdResponse(
-            employee.Id,
-            employee.PositionId,
-            employee.PersonId,
-            employee.Person.Name,
-            employee.Person.Email,
-            employee.Person.PhoneNumber,
-            employee.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
+        return employee.MapToGetEmployeeByIdResponse();
     }
 
     public async Task<AddEmployeeResponse> AddAsync(AddEmployeeCommand command, Guid companyId, CancellationToken ct)
@@ -79,23 +62,18 @@ public class EmployeeService(
             CompanyId = companyId
         };
 
-        AddressModel? address = null;
-
         if (command.Address != null)
         {
-            address = new AddressModel
+            var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+            var createdAddress = await addressService.AddAsync(addressCommand, ct);
+
+            var personAddress = new PersonAddressModel
             {
                 Id = Guid.NewGuid(),
-                Street = command.Address.Street,
-                Number = command.Address.Number,
-                Complement = command.Address.Complement,
-                Neighborhood = command.Address.Neighborhood,
-                ZipCode = command.Address.ZipCode,
-                StateId = command.Address.StateId,
-                City = command.Address.City,
-                Country = command.Address.Country
+                PersonId = person.Id,
+                AddressId = createdAddress.Id,
             };
-            await addressRepository.InsertAsync(address, ct);
+            await personAddressService.InsertAsync(personAddress, companyId, ct);
         }
 
         var employee = new EmployeeModel
@@ -107,18 +85,7 @@ public class EmployeeService(
             CompanyId = companyId
         };
 
-        if (address != null)
-        {
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = address.Id,
-            };
-            await personAddressRepository.InsertAsync(personAddress, ct);
-        }
-
-        await personRepository.InsertAsync(person, ct);
+        await personService.InsertAsync(person, companyId, ct);
         var created = await employeeRepository.InsertAsync(employee, ct);
 
         return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
@@ -145,43 +112,25 @@ public class EmployeeService(
 
             if (existingPersonAddress?.Address != null)
             {
-                existingPersonAddress.Address.Street = command.Address.Street;
-                existingPersonAddress.Address.Number = command.Address.Number;
-                existingPersonAddress.Address.Complement = command.Address.Complement;
-                existingPersonAddress.Address.Neighborhood = command.Address.Neighborhood;
-                existingPersonAddress.Address.ZipCode = command.Address.ZipCode;
-                existingPersonAddress.Address.StateId = command.Address.StateId;
-                existingPersonAddress.Address.City = command.Address.City;
-                existingPersonAddress.Address.Country = command.Address.Country;
-                await addressRepository.UpdateAsync(existingPersonAddress.Address.Id, existingPersonAddress.Address, ct);
+                var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+                await addressService.UpdateAsync(existingPersonAddress.Address.Id, addressCommand, ct);
             }
             else
             {
-                var newAddress = new AddressModel
-                {
-                    Id = Guid.NewGuid(),
-                    Street = command.Address.Street,
-                    Number = command.Address.Number,
-                    Complement = command.Address.Complement,
-                    Neighborhood = command.Address.Neighborhood,
-                    ZipCode = command.Address.ZipCode,
-                    StateId = command.Address.StateId,
-                    City = command.Address.City,
-                    Country = command.Address.Country
-                };
-                await addressRepository.InsertAsync(newAddress, ct);
+                var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+                var createdAddress = await addressService.AddAsync(addressCommand, ct);
 
                 var newPersonAddress = new PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = employee.PersonId,
-                    AddressId = newAddress.Id,
+                    AddressId = createdAddress.Id,
                 };
-                await personAddressRepository.InsertAsync(newPersonAddress, ct);
+                await personAddressService.InsertAsync(newPersonAddress, companyId, ct);
             }
         }
 
-        await personRepository.UpdateAsync(employee.Person.Id, employee.Person, ct);
+        await personService.UpdateAsync(employee.Person.Id, employee.Person, companyId, ct);
         var updated = await employeeRepository.UpdateAsync(command.Id, employee, ct) ?? throw new ItemNotExistsException();
         return new UpdateEmployeeResponse(updated.Id, updated.PositionId, employee.PersonId);
     }
@@ -195,7 +144,7 @@ public class EmployeeService(
             return;
         }
 
-        employee.Deleted = DateTime.Now;
+        employee.Deleted = DateTime.UtcNow;
 
         await employeeRepository.UpdateAsync(command.Id, employee, ct);
     }
@@ -205,8 +154,8 @@ public class EmployeeService(
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-query.Days);
 
-        var orders = await dashboardRepository.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
-        var employees = await dashboardRepository.GetAllEmployeesAsync(ct);
+        var orders = await dashboardService.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
+        var employees = await dashboardService.GetAllEmployeesAsync(ct);
 
         var summary = await GetEmployeePerformanceSummaryAsync(orders, employees, ct);
         var salesByEmployee = GetSalesByEmployeeAsync(orders, employees);
@@ -222,28 +171,18 @@ public class EmployeeService(
         };
     }
 
+    public async Task<int> GetCountAsync(CancellationToken ct)
+    {
+        return await employeeRepository.CountAsync(ct);
+    }
+
     public async Task<Pagination<List<GetEmployeesByPositionIdResponse>>> GetByPositionIdAsync(GetEmployeesByPositionIdQuery query, CancellationToken ct)
     {
         var total = await employeeRepository.CountAsync(e => e.PositionId == query.PositionId, ct);
 
         var employees = await employeeRepository.GetByPositionIdAsync(query.PositionId, query.Page, query.PerPage, ct);
 
-        var response = employees.Select(e =>
-    {
-        var personAddress = e.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        return new GetEmployeesByPositionIdResponse(
-            e.Id,
-            e.PositionId,
-            e.PersonId,
-            e.Person.Name,
-            e.Person.Email,
-            e.Person.PhoneNumber,
-            e.Person.Document,
-            e.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
-    }).ToList();
+        var response = employees.Select(e => e.MapToGetEmployeesByPositionIdResponse()).ToList();
 
         return new Pagination<List<GetEmployeesByPositionIdResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -276,10 +215,10 @@ public class EmployeeService(
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
         var ordersByEmployee = ordersList.GroupBy(o => o.EmployeeId!.Value).Select(g =>
-    {
-        var employee = employees.First(e => e.Id == g.Key);
-        return new EmployeeOrderCountResponse(g.Key, employee.Person.Name, employee.Position.Name, g.Count(), g.Sum(o => o.TotalAmount), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate));
-    }).OrderByDescending(e => e.OrderCount).ToList();
+        {
+            var employee = employees.First(e => e.Id == g.Key);
+            return new EmployeeOrderCountResponse(g.Key, employee.Person.Name, employee.Position.Name, g.Count(), g.Sum(o => o.TotalAmount), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate));
+        }).OrderByDescending(e => e.OrderCount).ToList();
 
         return ordersByEmployee;
     }
@@ -289,10 +228,10 @@ public class EmployeeService(
         var ordersList = orders.Where(o => o.Employee != null).ToList();
 
         var data = ordersList.GroupBy(o => o.Employee!.Id).Select(g =>
-    {
-        var employee = g.First().Employee!;
-        return new EmployeeSalesResponse(employee.Id, employee.Person.Name, employee.Position.Name, g.Sum(o => o.TotalAmount), g.Count(), g.Sum(o => o.TotalAmount), 0);
-    }).ToList();
+        {
+            var employee = g.First().Employee!;
+            return new EmployeeSalesResponse(employee.Id, employee.Person.Name, employee.Position.Name, g.Sum(o => o.TotalAmount), g.Count(), g.Sum(o => o.TotalAmount), 0);
+        }).ToList();
 
         for (var i = 0; i < data.Count; i++)
         {

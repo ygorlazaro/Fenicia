@@ -16,9 +16,21 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProductController(ProductService productService) : ControllerBase
 {
+    /// <summary>
+    /// Obtém uma lista paginada de produtos.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="page">Número da página</param>
+    /// <param name="perPage">Itens por página</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista paginada de produtos</returns>
+    /// <response code="200">Lista de produtos retornada com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllProductResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         try
@@ -35,10 +47,22 @@ public class ProductController(ProductService productService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Obtém um produto pelo ID.
+    /// </summary>
+    /// <param name="id">ID do produto</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do produto</returns>
+    /// <response code="200">Produto encontrado</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Produto não encontrado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductByIdResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProductByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         try
@@ -55,10 +79,22 @@ public class ProductController(ProductService productService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Cria um novo produto.
+    /// </summary>
+    /// <param name="command">Dados do produto a ser criado</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Produto criado</returns>
+    /// <response code="201">Produto criado com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProductResponse>> PostAsync([FromBody] AddProductCommand command, WideEventContext wide, CancellationToken ct)
     {
@@ -77,11 +113,25 @@ public class ProductController(ProductService productService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Atualiza um produto existente.
+    /// </summary>
+    /// <param name="command">Dados atualizados do produto</param>
+    /// <param name="id">ID do produto</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Produto atualizado</returns>
+    /// <response code="200">Produto atualizado com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Produto não encontrado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProductResponse>> PatchAsync([FromBody] UpdateProductCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
@@ -100,9 +150,19 @@ public class ProductController(ProductService productService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Remove um produto (soft delete).
+    /// </summary>
+    /// <param name="id">ID do produto</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <response code="204">Produto removido com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         try
@@ -120,9 +180,21 @@ public class ProductController(ProductService productService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Obtém métricas de desempenho dos produtos.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="days">Período em dias para análise</param>
+    /// <param name="topLimit">Limite de registros no top</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Métricas de desempenho dos produtos</returns>
+    /// <response code="200">Desempenho retornado com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPerformanceResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductPerformanceResponse>> GetPerformanceAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, CancellationToken ct = default)
     {
         try
