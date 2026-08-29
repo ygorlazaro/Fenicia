@@ -7,6 +7,9 @@ using Fenicia.Module.Basic.Domains.Dashboard;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
+/// <summary>
+/// Serviço responsável pela lógica de negócio de clientes.
+/// </summary>
 public class CustomerService(
     CustomerRepository customerRepository,
     PersonRepository personRepository,
@@ -14,6 +17,12 @@ public class CustomerService(
     PersonAddressRepository personAddressRepository,
     DashboardRepository dashboardRepository)
 {
+    /// <summary>
+    /// Obtém uma lista paginada de clientes com detalhes.
+    /// </summary>
+    /// <param name="query">Parâmetros de paginação</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista paginada de clientes</returns>
     public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken ct)
     {
         var total = await customerRepository.CountAsync(ct);
@@ -21,16 +30,22 @@ public class CustomerService(
         var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
         var response = customers.Select(c =>
-    {
-        var personAddress = c.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
+        {
+            var personAddress = c.Person.PersonAddresses.FirstOrDefault();
+            var address = personAddress?.Address;
 
-        return new GetAllCustomerResponse(c.Id, c.PersonId, c.Person.Name, c.Person.Email, c.Person.PhoneNumber, c.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
-    }).ToList();
+            return new GetAllCustomerResponse(c.Id, c.PersonId, c.Person.Name, c.Person.Email, c.Person.PhoneNumber, c.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
+        }).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
     }
 
+    /// <summary>
+    /// Obtém um cliente pelo ID com detalhes.
+    /// </summary>
+    /// <param name="query">ID do cliente</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Dados do cliente</returns>
     public async Task<GetCustomerByIdResponse?> GetByIdAsync(GetCustomerByIdQuery query, CancellationToken ct)
     {
         var customer = await customerRepository.GetByIdWithDetailsAsync(query.Id, ct);
@@ -53,6 +68,14 @@ public class CustomerService(
             address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
     }
 
+    /// <summary>
+    /// Cria um novo cliente com endereço opcional.
+    /// </summary>
+    /// <param name="command">Dados do cliente</param>
+    /// <param name="companyId">ID da empresa</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Cliente criado</returns>
+    /// <exception cref="InvalidOperationException">Lançada quando o CompanyId é vazio</exception>
     public async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken ct)
     {
         var person = new PersonModel
@@ -107,6 +130,14 @@ public class CustomerService(
         return new AddCustomerResponse(created.Id, person.Id);
     }
 
+    /// <summary>
+    /// Atualiza um cliente existente.
+    /// </summary>
+    /// <param name="command">Dados atualizados do cliente</param>
+    /// <param name="companyId">ID da empresa</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Cliente atualizado</returns>
+    /// <exception cref="ItemNotExistsException">Lançada quando o cliente não existe</exception>
     public async Task<UpdateCustomerResponse?> UpdateAsync(UpdateCustomerCommand command, Guid companyId, CancellationToken ct)
     {
         var customer = await customerRepository.GetByIdWithDetailsAsync(command.Id, ct);
@@ -168,6 +199,11 @@ public class CustomerService(
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
 
+    /// <summary>
+    /// Remove um cliente (soft delete).
+    /// </summary>
+    /// <param name="command">ID do cliente</param>
+    /// <param name="ct">Token de cancelamento</param>
     public async Task DeleteAsync(DeleteCustomerCommand command, CancellationToken ct)
     {
         var customer = await customerRepository.GetByIdAsync(command.Id, ct);
@@ -177,11 +213,17 @@ public class CustomerService(
             return;
         }
 
-        customer.Deleted = DateTime.Now;
+        customer.Deleted = DateTime.UtcNow;
 
         await customerRepository.UpdateAsync(command.Id, customer, ct);
     }
 
+    /// <summary>
+    /// Obtém insights agregados de clientes.
+    /// </summary>
+    /// <param name="query">Parâmetros de insights</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Insights de clientes</returns>
     public async Task<CustomerInsightsResponse> GetInsightsAsync(GetCustomerInsightsQuery query, CancellationToken ct)
     {
         var summary = await GetSummaryAsync(ct);
@@ -204,13 +246,13 @@ public class CustomerService(
         var orders = await dashboardRepository.GetAtRiskOrdersAsync(ct);
 
         var response = orders.GroupBy(o => o.CustomerId).Select(g =>
-    {
-        var lastOrder = g.Max(o => o.SaleDate);
-        var daysSince = (now - lastOrder).Days;
-        var riskLevel = daysSince >= query.RiskThresholdDays * 2 ? "High" : daysSince >= query.RiskThresholdDays ? "Medium" : "Low";
+        {
+            var lastOrder = g.Max(o => o.SaleDate);
+            var daysSince = (now - lastOrder).Days;
+            var riskLevel = daysSince >= query.RiskThresholdDays * 2 ? "High" : daysSince >= query.RiskThresholdDays ? "Medium" : "Low";
 
-        return new CustomerRiskAlertResponse(g.Key, g.First().Customer.Person.Name, g.Count(), lastOrder, daysSince, g.Sum(o => o.TotalAmount), riskLevel);
-    }).Where(c => c.DaysSinceLastOrder >= query.RiskThresholdDays).OrderByDescending(c => c.DaysSinceLastOrder).ToList();
+            return new CustomerRiskAlertResponse(g.Key, g.First().Customer.Person.Name, g.Count(), lastOrder, daysSince, g.Sum(o => o.TotalAmount), riskLevel);
+        }).Where(c => c.DaysSinceLastOrder >= query.RiskThresholdDays).OrderByDescending(c => c.DaysSinceLastOrder).ToList();
 
         return response;
     }
