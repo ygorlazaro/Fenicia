@@ -191,6 +191,7 @@ public class UserService(
         var user = await FirstByIdAsync(userId, ct);
 
         user.Deleted = DateTime.UtcNow;
+        await userRepository.UpdateAsync(user.Id, user, ct);
     }
 
     public async Task<UpdateUserPasswordResponse> UpdatePasswordAsync(UpdateUserPasswordCommand command, CancellationToken ct)
