@@ -92,7 +92,9 @@ public class UserService(
 
     public async Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken ct)
     {
-        return await userRepository.GetCompaniesAsync(userId, ct);
+        var userRoles = await userRepository.GetCompaniesAsync(userId, ct);
+
+        return userRoles.Select(ur => ur.MapToGetUserCompaniesResponse()).ToList();
     }
 
     public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken ct)
