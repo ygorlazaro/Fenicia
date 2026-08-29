@@ -2,6 +2,7 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Subscription;
@@ -21,7 +22,7 @@ public class SubscriptionServiceTests : IDisposable
         _context.Database.OpenConnection();
         _context.Database.EnsureCreated();
 
-        _service = new SubscriptionService(_context);
+        _service = new SubscriptionService(new SubscriptionRepository(_context));
     }
 
     [Fact]
