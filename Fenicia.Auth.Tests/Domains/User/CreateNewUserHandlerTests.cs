@@ -2,6 +2,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.UserRole;
@@ -34,7 +35,7 @@ public class CreateNewUserHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
         _faker = new Faker();
 
         _adminRoleId = Guid.NewGuid();

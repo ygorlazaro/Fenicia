@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 using Bogus;
 
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs;
 using Microsoft.Extensions.Configuration;
@@ -20,12 +21,12 @@ public class GenerateTokenStringHandlerTests
 
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
-        _handler = new TokenService(configuration, null!, null!);
+        _handler = new TokenService(configuration, null!, null!, new SecurityService());
         _faker = new Faker();
     }
 
     [Fact]
-    public void Handle_WhenValidUser_ReturnsValidToken()
+    public void GenerateString_WhenValidUser_ReturnsValidToken()
     {
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
@@ -36,7 +37,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenValidUser_ReturnsTokenThatCanBeRead()
+    public void GenerateString_WhenValidUser_ReturnsTokenThatCanBeRead()
     {
         var userId = Guid.NewGuid();
         var user = new GenerateTokenResponse(userId, _faker.Person.FullName, _faker.Internet.Email());
@@ -49,7 +50,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenValidUser_TokenContainsCorrectClaims()
+    public void GenerateString_WhenValidUser_TokenContainsCorrectClaims()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -68,7 +69,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenUserHasCompanyId_TokenContainsCompanyIdClaim()
+    public void GenerateString_WhenUserHasCompanyId_TokenContainsCompanyIdClaim()
     {
         var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), Guid.NewGuid());
 
@@ -82,7 +83,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenUserHasRoles_TokenContainsRoleClaims()
+    public void GenerateString_WhenUserHasRoles_TokenContainsRoleClaims()
     {
         var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", "Manager"]);
 
@@ -99,7 +100,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenUserHasModules_TokenContainsModuleClaims()
+    public void GenerateString_WhenUserHasModules_TokenContainsModuleClaims()
     {
         var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", "social"]);
 
@@ -115,7 +116,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenTokenIsGenerated_HasExpiration()
+    public void GenerateString_WhenTokenIsGenerated_HasExpiration()
     {
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
@@ -128,18 +129,18 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenConfigurationSecretIsNull_ThrowsInvalidOperationException()
+    public void GenerateString_WhenConfigurationSecretIsNull_ThrowsInvalidOperationException()
     {
         var badConfig = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
 
-        var badHandler = new TokenService(badConfig, null!, null!);
+        var badHandler = new TokenService(badConfig, null!, null!, new SecurityService());
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         Assert.Throws<InvalidOperationException>(() => badHandler.GenerateString(user));
     }
 
     [Fact]
-    public void Handle_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
+    public void GenerateString_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
         var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", string.Empty, null!, "User"]);
 
@@ -153,7 +154,7 @@ public class GenerateTokenStringHandlerTests
     }
 
     [Fact]
-    public void Handle_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
+    public void GenerateString_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
         var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), [string.Empty, null!, "basic"]);
 

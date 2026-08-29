@@ -4,11 +4,11 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public class SubscriptionService(SubscriptionRepository subscriptionRepository, UserRepository userRepository)
+public class SubscriptionService(SubscriptionRepository subscriptionRepository, UserService userService)
 {
     public async Task<GetUserProfileResponse?> GetUserProfileAsync(Guid userId, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct);
+        var user = await userService.GetByIdAsync(userId, ct);
 
         if (user is null)
         {

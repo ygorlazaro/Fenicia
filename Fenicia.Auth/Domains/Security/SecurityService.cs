@@ -3,9 +3,9 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Security;
 
-public static class SecurityService
+public class SecurityService
 {
-    public static string Hash(string original)
+    public string Hash(string original)
     {
         if (string.IsNullOrEmpty(original))
         {
@@ -17,7 +17,7 @@ public static class SecurityService
         return hashed ?? throw new InvalidOperationException(ExceptionMessages.ErrorHashingPassword);
     }
 
-    public static bool Verify(string password, string hashedPassword)
+    public bool Verify(string password, string hashedPassword)
     {
         if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
         {

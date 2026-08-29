@@ -7,7 +7,7 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordService(ForgotPasswordRepository repository, UserService userService)
+public class ForgotPasswordService(ForgotPasswordRepository repository, UserService userService, SecurityService securityService)
 {
     public async Task AddAsync(AddForgotPasswordCommand command, CancellationToken ct)
     {
@@ -31,7 +31,7 @@ public class ForgotPasswordService(ForgotPasswordRepository repository, UserServ
         var user = await userService.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var currentCode = await repository.GetActiveByUserIdAndCodeAsync(user.Id, command.Code, ct) ?? throw new InvalidDataException(ExceptionMessages.InvalidForgotPasswordCode);
 
-        user.Password = SecurityService.Hash(command.Password);
+        user.Password = securityService.Hash(command.Password);
 
         currentCode.IsActive = false;
         await repository.UpdateAsync(currentCode.Id, currentCode, ct);
