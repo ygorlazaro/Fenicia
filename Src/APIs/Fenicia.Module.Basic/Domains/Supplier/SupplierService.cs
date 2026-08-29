@@ -1,7 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
 

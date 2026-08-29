@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 
 using Microsoft.AspNetCore.Authorization;
@@ -137,7 +138,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<NoContentResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 

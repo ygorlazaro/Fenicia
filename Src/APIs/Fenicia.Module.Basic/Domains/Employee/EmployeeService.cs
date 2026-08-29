@@ -2,10 +2,11 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Exceptions;
-using Fenicia.Module.Basic.Domains.Customer;
-using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Address;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
+using Fenicia.Module.Basic.Domains.Person;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee;

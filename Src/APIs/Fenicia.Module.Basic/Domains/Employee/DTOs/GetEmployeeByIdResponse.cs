@@ -1,4 +1,4 @@
-using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Employee.DTOs;
 

@@ -1,4 +1,4 @@
-namespace Fenicia.Module.Basic.Domains.Customer.DTOs;
+namespace Fenicia.Module.Basic.Domains.Address.DTOs;
 
 public record AddressResponse(
     Guid Id,
