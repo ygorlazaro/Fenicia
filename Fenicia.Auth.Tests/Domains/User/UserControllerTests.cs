@@ -565,9 +565,18 @@ public class UserControllerTests
             Password = _faker.Internet.Password()
         };
 
+        var otherUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = otherUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
+
         await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
         await _userRepository.InsertAsync(otherUser, CancellationToken.None);
         await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(otherUserRole, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
