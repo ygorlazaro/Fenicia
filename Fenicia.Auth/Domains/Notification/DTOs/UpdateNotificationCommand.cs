@@ -6,4 +6,4 @@ public record UpdateNotificationCommand(
     string Description,
     DateTime? Date,
     string? ImageUrl,
-    bool? Read);
+    bool? IsRead);

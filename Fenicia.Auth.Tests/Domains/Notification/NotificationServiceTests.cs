@@ -110,30 +110,23 @@ public class NotificationServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldReturnNull_WhenNotExists()
-    {
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), CancellationToken.None);
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task MarkAsReadAsync_ShouldMarkNotificationAsRead_WhenExists()
+    public async Task UpdateAsync_ShouldMarkAsRead_WhenIsReadIsTrue()
     {
         var id = Guid.NewGuid();
         _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false });
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.MarkAsReadAsync(id, CancellationToken.None);
+        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "T", "D", null, null, true), CancellationToken.None);
 
-        Assert.True(result);
+        Assert.NotNull(result);
         var notification = await _db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == id);
         Assert.True(notification?.Read);
     }
 
     [Fact]
-    public async Task MarkAsReadAsync_ShouldReturnFalse_WhenNotExists()
+    public async Task UpdateAsync_ShouldReturnNull_WhenNotExists()
     {
-        var result = await _service.MarkAsReadAsync(Guid.NewGuid(), CancellationToken.None);
-        Assert.False(result);
+        var result = await _service.UpdateAsync(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), CancellationToken.None);
+        Assert.Null(result);
     }
 }

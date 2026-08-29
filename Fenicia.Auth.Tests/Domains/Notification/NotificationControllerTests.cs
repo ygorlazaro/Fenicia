@@ -132,6 +132,23 @@ public class NotificationControllerTests : IDisposable
     }
 
     [Fact]
+    public async Task PatchAsync_WhenMarkingAsRead_ReturnsOk()
+    {
+        var id = Guid.NewGuid();
+        _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false });
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateNotificationCommand(id, "T", "D", null, null, true);
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var result = await _controller.PatchAsync(command, id, wide, ct);
+
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
+    }
+
+    [Fact]
     public async Task PatchAsync_WhenNotificationDoesNotExist_ReturnsNotFound()
     {
         var command = new UpdateNotificationCommand(Guid.NewGuid(), "Title", "Desc", null, null, null);
@@ -157,33 +174,6 @@ public class NotificationControllerTests : IDisposable
         var result = await _controller.DeleteAsync(id, wide, ct);
 
         Assert.IsType<NoContentResult>(result);
-    }
-
-    [Fact]
-    public async Task MarkAsReadAsync_WhenNotificationExists_ReturnsNoContent()
-    {
-        var id = Guid.NewGuid();
-        _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false });
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var wide = new WideEventContext();
-        var ct = CancellationToken.None;
-
-        var result = await _controller.MarkAsReadAsync(id, wide, ct);
-
-        Assert.IsType<NoContentResult>(result);
-    }
-
-    [Fact]
-    public async Task MarkAsReadAsync_WhenNotificationDoesNotExist_ReturnsNotFound()
-    {
-        var wide = new WideEventContext();
-        var ct = CancellationToken.None;
-
-        var result = await _controller.MarkAsReadAsync(Guid.NewGuid(), wide, ct);
-
-        Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
