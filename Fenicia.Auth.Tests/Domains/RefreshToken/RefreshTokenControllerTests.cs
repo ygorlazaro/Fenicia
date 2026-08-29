@@ -80,36 +80,35 @@ public class RefreshTokenControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GenerateAsync_SetsWideEventContextUserId()
+    public async Task PostAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await _controller.GenerateAsync(wide, ct);
+        await _controller.PostAsync(wide, ct);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
-    public async Task ValidateAsync_SetsWideEventContextUserId()
+    public async Task GetAsync_SetsWideEventContextUserId()
     {
-        var query = new ValidateTokenQuery(_testUserId, "some_token");
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.ValidateAsync(query, wide, ct);
+        await _controller.GetAsync("some_token", wide, ct);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
-    public async Task InvalidateAsync_SetsWideEventContextUserId()
+    public async Task PatchAsync_SetsWideEventContextUserId()
     {
-        var command = new InvalidateRefreshTokenCommand("some_token");
+        var command = new UpdateRefreshTokenCommand(true);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.InvalidateAsync(command, wide, ct);
+        await _controller.PatchAsync("some_token", command, wide, ct);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }

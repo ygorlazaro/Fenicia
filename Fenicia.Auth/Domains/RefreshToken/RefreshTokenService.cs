@@ -21,6 +21,36 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
         return refreshToken.Token;
     }
 
+    public virtual async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return null;
+        }
+
+        return await repository.GetAsync(token, ct);
+    }
+
+    public virtual async Task<RefreshTokenModel> UpdateAsync(string token, bool isActive, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
+        }
+
+        var existing = await repository.GetAsync(token, ct);
+
+        if (existing is null)
+        {
+            throw new ItemNotExistsException(ExceptionMessages.ItemNotFound);
+        }
+
+        var updated = existing with { IsActive = isActive };
+        await repository.UpdateAsync(updated, ct);
+
+        return updated;
+    }
+
     public virtual async Task InvalidateAsync(string refreshToken, CancellationToken ct = default)
     {
         if (refreshToken is null)
