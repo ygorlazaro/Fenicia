@@ -33,7 +33,7 @@ public class SubscriptionServiceTests : IDisposable
         var companyRepository = new CompanyRepository(_context);
         var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository);
+        var companyService = new CompanyService(companyRepository, userRoleService);
         var moduleRepository = new ModuleRepository(_context);
         var moduleService = new ModuleService(moduleRepository);
         var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);

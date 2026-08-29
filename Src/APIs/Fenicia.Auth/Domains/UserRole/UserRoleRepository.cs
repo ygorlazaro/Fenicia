@@ -25,6 +25,34 @@ public class UserRoleRepository(DefaultContext context) : Repository<UserRoleMod
             .ToListAsync(ct);
     }
 
+    public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken ct = default)
+    {
+        return await DbSet
+            .Where(ur => ur.UserId == userId && ur.Deleted == null && ur.Company.IsActive)
+            .Include(ur => ur.Role)
+            .Include(ur => ur.Company)
+            .Skip((page - 1) * perPage)
+            .Take(perPage)
+            .ToListAsync(ct);
+    }
+
+    public async Task<int> CountUserRolesAsync(Guid userId, CancellationToken ct = default)
+    {
+        return await DbSet.CountAsync(ur => ur.UserId == userId && ur.Deleted == null && ur.Company.IsActive, ct);
+    }
+
+    public async Task<UserRoleModel?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken ct = default)
+    {
+        return await DbSet
+            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Deleted == null, ct);
+    }
+
+    public async Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken ct = default)
+    {
+        return await DbSet
+            .AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == "Admin" && ur.Deleted == null, ct);
+    }
+
     public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct = default)
     {
         return await DbSet.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Deleted == null, ct);

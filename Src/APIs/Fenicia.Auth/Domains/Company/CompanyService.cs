@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.Company.DTOs;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -6,7 +7,7 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyService(CompanyRepository repository)
+public class CompanyService(CompanyRepository repository, UserRoleService userRoleService)
 {
     public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(Guid userId, int page, int perPage, CancellationToken ct)
     {
@@ -15,8 +16,8 @@ public class CompanyService(CompanyRepository repository)
             throw new InvalidRequestException(ExceptionMessages.UserNotAssociatedWithActiveCompanies);
         }
 
-        var userRoles = await repository.GetUserRolesAsync(userId, page, perPage, ct);
-        var total = await repository.CountUserRolesAsync(userId, ct);
+        var userRoles = await userRoleService.GetUserRolesAsync(userId, page, perPage, ct);
+        var total = await userRoleService.CountUserRolesAsync(userId, ct);
 
         var result = userRoles.Select(ur => ur.MapToGetCompaniesByUserResponse());
 
@@ -26,7 +27,7 @@ public class CompanyService(CompanyRepository repository)
     public async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken ct)
     {
         var company = await repository.AnyActiveAsync(companyId, ct) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
-        var isAdmin = await repository.IsAdminAsync(userId, companyId, ct);
+        var isAdmin = await userRoleService.IsAdminAsync(userId, companyId, ct);
 
         if (!isAdmin)
         {

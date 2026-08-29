@@ -5,6 +5,7 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.DTOs;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -40,7 +41,9 @@ public class CompanyControllerTests : IDisposable
         services.AddSingleton(_db);
         services.AddLogging();
         var repository = new CompanyRepository(_db);
-        services.AddSingleton(new CompanyService(repository));
+        var userRoleRepository = new UserRoleRepository(_db);
+        var userRoleService = new UserRoleService(userRoleRepository);
+        services.AddSingleton(new CompanyService(repository, userRoleService));
 
         var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<CompanyService>();

@@ -27,30 +27,4 @@ public class CompanyRepository(DefaultContext context) : Repository<CompanyModel
     {
         return await DbSet.AnyAsync(c => c.Cnpj == cnpj && (!onlyActive || c.IsActive), ct);
     }
-
-    public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken ct = default)
-    {
-        var query = from ur in Context.AuthUserRoles
-                    where ur.UserId == userId && ur.Company.IsActive
-                    select ur;
-
-        return await query.Skip((page - 1) * perPage).Take(perPage).ToListAsync(ct);
-    }
-
-    public async Task<int> CountUserRolesAsync(Guid userId, CancellationToken ct = default)
-    {
-        return await Context.AuthUserRoles.CountAsync(ur => ur.UserId == userId && ur.Company.IsActive, ct);
-    }
-
-    public async Task<UserRoleModel?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken ct = default)
-    {
-        return await Context.AuthUserRoles
-            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, ct);
-    }
-
-    public async Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken ct = default)
-    {
-        return await Context.AuthUserRoles
-            .AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == "Admin", ct);
-    }
 }

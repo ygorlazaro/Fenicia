@@ -29,9 +29,11 @@ public class ForgotPasswordServiceTests : IDisposable
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _userRepository = new UserRepository(_db);
-        var userRoleService = new UserRoleService(new UserRoleRepository(_db));
-        var roleService = new RoleService(new RoleRepository(_db));
-        var companyService = new CompanyService(new CompanyRepository(_db));
+        var userRoleRepository = new UserRoleRepository(_db);
+        var userRoleService = new UserRoleService(userRoleRepository);
+        var roleRepository = new RoleRepository(_db);
+        var roleService = new RoleService(roleRepository);
+        var companyService = new CompanyService(new CompanyRepository(_db), userRoleService);
         var moduleRepository = new ModuleRepository(_db);
         var moduleService = new ModuleService(moduleRepository);
         var userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);

@@ -56,7 +56,7 @@ public class TokenServiceTests : IDisposable
         var companyRepository = new CompanyRepository(_db);
         var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository);
+        var companyService = new CompanyService(companyRepository, userRoleService);
         var moduleRepository = new ModuleRepository(_db);
         var moduleService = new ModuleService(moduleRepository);
         var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
