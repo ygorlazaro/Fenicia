@@ -347,9 +347,9 @@ public class SubscriptionControllerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             CompanyId = company2.Id,
-            Status = SubscriptionStatus.Inactive,
-            StartDate = DateTime.Now.AddDays(-60),
-            EndDate = DateTime.Now.AddDays(-30),
+            Status = SubscriptionStatus.Active,
+            StartDate = DateTime.Now.AddDays(-10),
+            EndDate = DateTime.Now.AddDays(30),
             Company = company2
         };
 
