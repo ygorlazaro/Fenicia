@@ -54,7 +54,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequest_CreatesUserAndCompanySuccessfully()
+    public async Task CreateNewAsync_WhenValidRequest_CreatesUserAndCompanySuccessfully()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -81,7 +81,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
+    public async Task CreateNewAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -105,7 +105,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCompanyAlreadyExists_ThrowsArgumentException()
+    public async Task CreateNewAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -128,7 +128,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAdminRoleNotFound_ThrowsArgumentException()
+    public async Task CreateNewAsync_WhenAdminRoleNotFound_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -148,7 +148,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_CreatesUserRoleLinkingUserCompanyAndRole()
+    public async Task CreateNewAsync_CreatesUserRoleLinkingUserCompanyAndRole()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -167,7 +167,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_ReturnsCorrectResponseData()
+    public async Task CreateNewAsync_ReturnsCorrectResponseData()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -188,7 +188,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_PasswordIsHashedBeforeSaving()
+    public async Task CreateNewAsync_PasswordIsHashedBeforeSaving()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -206,7 +206,7 @@ public class CreateNewUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_CompanyIsActiveByDefault()
+    public async Task CreateNewAsync_CompanyIsActiveByDefault()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();

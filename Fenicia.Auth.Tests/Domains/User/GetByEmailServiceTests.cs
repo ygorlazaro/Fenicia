@@ -45,7 +45,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserExists_ReturnsUserResponse()
+    public async Task GetByEmailAsync_WhenUserExists_ReturnsUserResponse()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -74,7 +74,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserDoesNotExist_ReturnsNull()
+    public async Task GetByEmailAsync_WhenUserDoesNotExist_ReturnsNull()
     {
         var email = _faker.Internet.Email();
 
@@ -84,7 +84,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailHasDifferentCase_ReturnsNull()
+    public async Task GetByEmailAsync_WhenEmailHasDifferentCase_ReturnsNull()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -109,7 +109,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
+    public async Task GetByEmailAsync_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
@@ -148,7 +148,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithEmptyDatabase_ReturnsNull()
+    public async Task GetByEmailAsync_WithEmptyDatabase_ReturnsNull()
     {
         var email = _faker.Internet.Email();
 
@@ -158,7 +158,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsNull()
+    public async Task GetByEmailAsync_WhenEmailContainsExtraSpaces_ReturnsNull()
     {
         var userId = Guid.NewGuid();
         var email = "test@example.com";
@@ -183,7 +183,7 @@ public class GetByEmailServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_VerifiesResponseContainsAllFields()
+    public async Task GetByEmailAsync_VerifiesResponseContainsAllFields()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();

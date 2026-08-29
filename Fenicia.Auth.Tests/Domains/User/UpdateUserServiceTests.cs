@@ -58,7 +58,7 @@ public class UpdateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequest_UpdatesUserNameSuccessfully()
+    public async Task UpdateAsync_WhenValidRequest_UpdatesUserNameSuccessfully()
     {
         var newName = _faker.Person.FullName;
         var request = new UpdateUserCommand(_testUser.Id, newName);
@@ -74,7 +74,7 @@ public class UpdateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequest_UpdatesUserEmailSuccessfully()
+    public async Task UpdateAsync_WhenValidRequest_UpdatesUserEmailSuccessfully()
     {
         var newEmail = _faker.Internet.Email();
         var request = new UpdateUserCommand(_testUser.Id, Email: newEmail);
@@ -90,7 +90,7 @@ public class UpdateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
+    public async Task UpdateAsync_WhenUserNotFound_ThrowsArgumentException()
     {
         var nonExistentUserId = Guid.NewGuid();
         var request = new UpdateUserCommand(nonExistentUserId, "Test");
@@ -101,7 +101,7 @@ public class UpdateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
+    public async Task UpdateAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         var existingEmail = _faker.Internet.Email();
 
@@ -123,7 +123,7 @@ public class UpdateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCompanyNotFound_ThrowsArgumentException()
+    public async Task UpdateAsync_WhenCompanyNotFound_ThrowsArgumentException()
     {
         var role = new RoleModel { Name = "Admin" };
         await _roleRepository.InsertAsync(role, CancellationToken.None);
@@ -142,7 +142,7 @@ public class UpdateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
+    public async Task UpdateAsync_WhenRoleNotFound_ThrowsArgumentException()
     {
         var company = new CompanyModel
         {

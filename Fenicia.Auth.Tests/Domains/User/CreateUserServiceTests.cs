@@ -48,7 +48,7 @@ public class CreateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequest_CreatesUserSuccessfully()
+    public async Task CreateAsync_WhenValidRequest_CreatesUserSuccessfully()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -70,7 +70,7 @@ public class CreateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailExists_ThrowsArgumentException()
+    public async Task CreateAsync_WhenEmailExists_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -94,7 +94,7 @@ public class CreateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidRequestWithCompanies_CreatesUserWithCompaniesSuccessfully()
+    public async Task CreateAsync_WhenValidRequestWithCompanies_CreatesUserWithCompaniesSuccessfully()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -127,7 +127,7 @@ public class CreateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCompanyNotFound_ThrowsArgumentException()
+    public async Task CreateAsync_WhenCompanyNotFound_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -150,7 +150,7 @@ public class CreateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
+    public async Task CreateAsync_WhenRoleNotFound_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -177,7 +177,7 @@ public class CreateUserServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_PasswordIsHashed_BeforeSaving()
+    public async Task CreateAsync_PasswordIsHashed_BeforeSaving()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();

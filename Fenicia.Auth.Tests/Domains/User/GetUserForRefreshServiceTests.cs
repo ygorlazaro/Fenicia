@@ -46,7 +46,7 @@ public class GetUserForRefreshServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserExists_ReturnsUserResponse()
+    public async Task GetForRefreshAsync_WhenUserExists_ReturnsUserResponse()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -73,7 +73,7 @@ public class GetUserForRefreshServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
+    public async Task GetForRefreshAsync_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
     {
         var userId = Guid.NewGuid();
 
@@ -82,7 +82,7 @@ public class GetUserForRefreshServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
+    public async Task GetForRefreshAsync_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
@@ -119,7 +119,7 @@ public class GetUserForRefreshServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
+    public async Task GetForRefreshAsync_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
     {
         var userId = Guid.NewGuid();
 
@@ -128,7 +128,7 @@ public class GetUserForRefreshServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_ResponseDoesNotIncludePassword()
+    public async Task GetForRefreshAsync_ResponseDoesNotIncludePassword()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -153,7 +153,7 @@ public class GetUserForRefreshServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_VerifiesResponseContainsAllExpectedFields()
+    public async Task GetForRefreshAsync_VerifiesResponseContainsAllExpectedFields()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
