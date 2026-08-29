@@ -1,52 +1,23 @@
 using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public class NotificationService(DefaultContext db)
+public class NotificationService(NotificationRepository repository)
 {
     public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(int page, int perPage, CancellationToken ct)
     {
-        var total = await db.AuthNotifications.CountAsync(ct);
+        var result = await repository.GetAllWithPaginationAsync(page, perPage, ct);
 
-        var notifications = await db.AuthNotifications
-            .OrderByDescending(n => n.Date)
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
-            .ToListAsync(ct);
-
-        var response = notifications.Select(n => new GetAllNotificationsResponse(
-            n.Id,
-            n.Title,
-            n.Description,
-            n.Date,
-            n.ImageUrl,
-            n.Read)).ToList();
-
-        return new Pagination<List<GetAllNotificationsResponse>>(response, total, page, perPage);
+        return new Pagination<List<GetAllNotificationsResponse>>(result.Data.Select(n => n.MapToGetAllNotificationsResponse()).ToList(), result.Total, page, perPage);
     }
 
     public async Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var notification = await db.AuthNotifications
-                .FirstOrDefaultAsync(n => n.Id == id, ct);
+        var notification = await repository.GetByIdAsync(id, ct);
 
-        if (notification is null)
-        {
-            return null;
-        }
-
-        return new GetNotificationByIdResponse(
-            notification.Id,
-            notification.Title,
-            notification.Description,
-            notification.Date,
-            notification.ImageUrl,
-            notification.Read);
+        return notification is null ? null : notification.MapToGetNotificationByIdResponse();
     }
 
     public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, CancellationToken ct)
@@ -60,16 +31,14 @@ public class NotificationService(DefaultContext db)
             Read = false
         };
 
-        db.AuthNotifications.Add(notification);
-        await db.SaveChangesAsync(ct);
+        var created = await repository.InsertAsync(notification, ct);
 
-        return new AddNotificationResponse(notification.Id);
+        return new AddNotificationResponse(created.Id);
     }
 
     public async Task<UpdateNotificationResponse?> UpdateAsync(UpdateNotificationCommand command, CancellationToken ct)
     {
-        var notification = await db.AuthNotifications
-                .FirstOrDefaultAsync(n => n.Id == command.Id, ct);
+        var notification = await repository.GetByIdAsync(command.Id, ct);
 
         if (notification is null)
         {
@@ -86,16 +55,14 @@ public class NotificationService(DefaultContext db)
             notification.Read = command.Read.Value;
         }
 
-        db.AuthNotifications.Update(notification);
-        await db.SaveChangesAsync(ct);
+        await repository.UpdateAsync(notification.Id, notification, ct);
 
         return new UpdateNotificationResponse(notification.Id);
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
-        var notification = await db.AuthNotifications
-                .FirstOrDefaultAsync(n => n.Id == id, ct);
+        var notification = await repository.GetByIdAsync(id, ct);
 
         if (notification is null)
         {
@@ -103,16 +70,14 @@ public class NotificationService(DefaultContext db)
         }
 
         notification.Deleted = DateTime.UtcNow;
-        db.AuthNotifications.Update(notification);
-        await db.SaveChangesAsync(ct);
+        await repository.UpdateAsync(notification.Id, notification, ct);
 
         return true;
     }
 
     public async Task<bool> MarkAsReadAsync(Guid id, CancellationToken ct)
     {
-        var notification = await db.AuthNotifications
-                .FirstOrDefaultAsync(n => n.Id == id, ct);
+        var notification = await repository.GetByIdAsync(id, ct);
 
         if (notification is null)
         {
@@ -120,8 +85,7 @@ public class NotificationService(DefaultContext db)
         }
 
         notification.Read = true;
-        db.AuthNotifications.Update(notification);
-        await db.SaveChangesAsync(ct);
+        await repository.UpdateAsync(notification.Id, notification, ct);
 
         return true;
     }
