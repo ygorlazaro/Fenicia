@@ -1,5 +1,6 @@
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Configuration;
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
@@ -38,6 +39,7 @@ public class Program
         builder.Services.AddScoped<RoleRepository>();
         builder.Services.AddScoped<CompanyRepository>();
         builder.Services.AddScoped<ConfigurationRepository>();
+        builder.Services.AddScoped<ForgotPasswordRepository>();
     }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
