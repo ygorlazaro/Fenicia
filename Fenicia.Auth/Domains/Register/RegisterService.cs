@@ -11,6 +11,6 @@ public class RegisterService(UserService userService)
         var command = new CreateNewUserCommand(request.Email, request.Password, request.Name, request.Company);
         var user = await userService.CreateNewAsync(command, ct);
 
-        return new RegisterResponse(user.Id, user.Name, user.Email, user.Company);
+        return user.MapToRegisterResponse();
     }
 }
