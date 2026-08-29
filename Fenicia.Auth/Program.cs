@@ -3,7 +3,9 @@ using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Notification;
+using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.API.Startup;
@@ -44,6 +46,8 @@ public class Program
         builder.Services.AddScoped<ForgotPasswordRepository>();
         builder.Services.AddScoped<ModuleRepository>();
         builder.Services.AddScoped<NotificationRepository>();
+        builder.Services.AddScoped<OrderRepository>();
+        builder.Services.AddScoped<SubscriptionRepository>();
     }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();

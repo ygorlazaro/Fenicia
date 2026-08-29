@@ -43,4 +43,14 @@ public class ModuleRepository(DefaultContext context) : Repository<ModuleModel>(
 
         return await query.Distinct().ToListAsync(ct);
     }
+
+    public async Task<List<ModuleModel>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        return await DbSet.Where(m => ids.Contains(m.Id)).OrderBy(m => m.Type).ToListAsync(ct);
+    }
+
+    public async Task<ModuleModel?> GetByTypeAsync(ModuleType type, CancellationToken ct = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(m => m.Type == type, ct);
+    }
 }

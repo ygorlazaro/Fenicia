@@ -1,16 +1,15 @@
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order.DTOs;
+using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace Fenicia.Auth.Domains.Order;
 
-public class OrderService(DefaultContext db, UserRoleService userRoleService)
+public class OrderService(ModuleRepository moduleRepository, OrderRepository orderRepository, SubscriptionRepository subscriptionRepository, UserRoleService userRoleService)
 {
     public async Task<CreateNewOrderResponse?> CreateAsync(CreateNewOrderCommand command, CancellationToken ct)
     {
@@ -24,12 +23,12 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
         }
 
         var order = PersistOrderAsync(command, modules);
+        await orderRepository.InsertAsync(order, ct);
 
         LoadCreditsAsync(command.CompanyId, order);
+        await subscriptionRepository.InsertAsync(order.Subscription!, ct);
 
-        await db.SaveChangesAsync(ct);
-
-        return new CreateNewOrderResponse(order.Id);
+        return order.MapToCreateNewOrderResponse();
     }
 
     private static string GenerateOrderNumber()
@@ -58,8 +57,6 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
             Details = details,
             CompanyId = command.CompanyId
         };
-
-        db.AuthOrders.Add(order);
 
         return order;
     }
@@ -103,12 +100,12 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
 
     private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
-        return await db.AuthModules.Where(module => request.Any(r => r == module.Id)).OrderBy(module => module.Type).ToListAsync(ct);
+        return await moduleRepository.GetByIdsAsync(request, ct);
     }
 
     private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
-        return await db.AuthModules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
+        return await moduleRepository.GetByTypeAsync(moduleType, ct);
     }
 
     private void LoadCreditsAsync(Guid companyId, OrderModel order)
@@ -133,6 +130,6 @@ public class OrderService(DefaultContext db, UserRoleService userRoleService)
             Credits = credits
         };
 
-        db.AuthSubscriptions.Add(subscription);
+        order.Subscription = subscription;
     }
 }
