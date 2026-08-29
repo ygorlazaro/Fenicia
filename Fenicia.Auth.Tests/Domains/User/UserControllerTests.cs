@@ -46,7 +46,10 @@ public class UserControllerTests
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
+        var userRoleService = new UserRoleService(_userRoleRepository);
+        var roleService = new RoleService(_roleRepository);
+        var companyService = new CompanyService(_companyRepository);
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
         _moduleService = new ModuleService(new ModuleRepository(_db));
         _testUserId = Guid.NewGuid();
 

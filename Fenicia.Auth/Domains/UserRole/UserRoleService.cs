@@ -1,4 +1,6 @@
 using Fenicia.Auth.Domains.UserRole.DTOs;
+using Fenicia.Common.Data.Models.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
@@ -22,5 +24,27 @@ public class UserRoleService(UserRoleRepository userRoleRepository)
     public async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
     {
         return await userRoleRepository.HasRoleAsync(userId, companyId, role, ct);
+    }
+
+    public async Task InsertRangeAsync(List<UserRoleModel> userRoles, CancellationToken ct)
+    {
+        await userRoleRepository.InsertRangeAsync(userRoles, ct);
+    }
+
+    public async Task<UserRoleModel> InsertAsync(UserRoleModel userRole, CancellationToken ct)
+    {
+        return await userRoleRepository.InsertAsync(userRole, ct);
+    }
+
+    public async Task DeleteAsync(Guid roleId, CancellationToken ct)
+    {
+        await userRoleRepository.DeleteAsync(roleId, ct);
+    }
+
+    public async Task<List<UserRoleModel>> GetUserRolesByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return await userRoleRepository.Query()
+            .Where(x => x.UserId == userId)
+            .ToListAsync(ct);
     }
 }

@@ -39,7 +39,10 @@ public class ForgotPasswordControllerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        var userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
+        var userRoleService = new UserRoleService(_userRoleRepository);
+        var roleService = new RoleService(_roleRepository);
+        var companyService = new CompanyService(_companyRepository);
+        var userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
         var forgotPasswordRepository = new ForgotPasswordRepository(_db);
         var forgotPasswordService = new ForgotPasswordService(forgotPasswordRepository, userService, new SecurityService());
         _controller = new ForgotPasswordController(forgotPasswordService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };

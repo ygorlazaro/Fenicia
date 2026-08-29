@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-public class DeleteUserHandlerTests : IDisposable
+public class DeleteUserServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly UserService _userService;
@@ -22,7 +22,7 @@ public class DeleteUserHandlerTests : IDisposable
     private readonly CompanyRepository _companyRepository;
     private readonly UserModel _testUser;
 
-    public DeleteUserHandlerTests()
+    public DeleteUserServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
@@ -31,7 +31,10 @@ public class DeleteUserHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
+        var userRoleService = new UserRoleService(_userRoleRepository);
+        var roleService = new RoleService(_roleRepository);
+        var companyService = new CompanyService(_companyRepository);
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
         var faker = new Faker();
 
         _testUser = new UserModel
