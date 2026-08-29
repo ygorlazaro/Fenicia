@@ -90,12 +90,14 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
                 _ => [basicModule, .. modules]
             };
         }
-#pragma warning disable CA1031
-        catch
+        catch (InvalidRequestException)
         {
             return [];
         }
-#pragma warning restore CA1031
+        catch (ItemNotExistsException)
+        {
+            return [];
+        }
     }
 
     private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)

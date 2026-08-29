@@ -28,10 +28,12 @@ public class SecurityService
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
-#pragma warning disable CA1031
-        catch (Exception)
+        catch (ArgumentException)
         {
-#pragma warning restore CA1031
+            return false;
+        }
+        catch (FormatException)
+        {
             return false;
         }
     }
