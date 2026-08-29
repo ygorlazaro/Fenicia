@@ -542,7 +542,7 @@ public class UserServiceTests : IDisposable
     {
         await _userService.DeleteAsync(_testUser.Id, CancellationToken.None);
 
-        var deletedUser = await _userRepository.GetByIdAsync(_testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
+        var deletedUser = await _userRepository.Query().IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == _testUser.Id, CancellationToken.None);
         Assert.NotNull(deletedUser);
         Assert.NotNull(deletedUser.Deleted);
         Assert.True(deletedUser.Deleted.Value <= DateTime.UtcNow);
@@ -574,7 +574,7 @@ public class UserServiceTests : IDisposable
     {
         await _userService.DeleteAsync(_testUser.Id, CancellationToken.None);
 
-        var user = await _userRepository.GetByIdAsync(_testUser.Id, CancellationToken.None).ContinueWith(t => t.Result);
+        var user = await _userRepository.Query().IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == _testUser.Id, CancellationToken.None);
         Assert.NotNull(user);
         Assert.NotNull(user.Deleted);
 
