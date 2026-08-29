@@ -37,12 +37,14 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
 
             return JsonSerializer.Deserialize<RefreshTokenModel>(value.ToString());
         }
-#pragma warning disable CA1031
-        catch
+        catch (RedisException)
         {
             return null;
         }
-#pragma warning restore CA1031
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     public async Task UpdateAsync(RefreshTokenModel token, CancellationToken ct = default)
