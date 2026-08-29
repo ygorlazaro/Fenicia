@@ -38,21 +38,6 @@ public class CompanyService(CompanyRepository repository, UserRoleService userRo
         await repository.UpdateAsync(company.Id, company, ct);
     }
 
-    public async Task<bool> CheckExistsAsync(string cnpj, bool onlyActive, CancellationToken ct)
-    {
-        return await repository.CheckExistsAsync(cnpj, onlyActive, ct);
-    }
-
-    public async Task<CompanyModel?> AnyActiveAsync(Guid companyId, CancellationToken ct)
-    {
-        return await repository.AnyActiveAsync(companyId, ct);
-    }
-
-    public async Task<bool> AnyAsync(Guid companyId, CancellationToken ct)
-    {
-        return await repository.AnyAsync(companyId, ct);
-    }
-
     public async Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken ct)
     {
         return await repository.GetByIdAsync(companyId, ct);
