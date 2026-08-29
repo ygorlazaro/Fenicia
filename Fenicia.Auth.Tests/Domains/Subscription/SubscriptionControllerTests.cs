@@ -35,7 +35,8 @@ public class SubscriptionControllerTests : IDisposable
 
         _mockHttpContext = new Mock<HttpContext>();
 
-        var subscriptionService = new SubscriptionService(_db);
+        var subscriptionRepository = new SubscriptionRepository(_db);
+        var subscriptionService = new SubscriptionService(subscriptionRepository);
         _controller = new SubscriptionController(subscriptionService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
