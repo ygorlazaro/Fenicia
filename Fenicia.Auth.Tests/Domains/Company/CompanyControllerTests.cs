@@ -39,7 +39,8 @@ public class CompanyControllerTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton(_db);
         services.AddLogging();
-        services.AddSingleton(new CompanyService(_db));
+        var repository = new CompanyRepository(_db);
+        services.AddSingleton(new CompanyService(repository));
 
         var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<CompanyService>();

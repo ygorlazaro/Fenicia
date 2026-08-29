@@ -22,7 +22,8 @@ public class CompanyServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new CompanyService(_db);
+        var repository = new CompanyRepository(_db);
+        _service = new CompanyService(repository);
         _faker = new Faker();
     }
 
