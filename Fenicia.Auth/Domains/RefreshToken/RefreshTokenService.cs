@@ -1,18 +1,11 @@
 using System.Security.Cryptography;
-using System.Text.Json;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
-using StackExchange.Redis;
-
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public class RefreshTokenService(IConnectionMultiplexer redis)
+public class RefreshTokenService(IRefreshTokenRepository repository)
 {
-    private const string _redisPrefix = "refresh_token:";
-
-    private readonly IDatabase _redisDb = redis.GetDatabase();
-
     public virtual string Generate(Guid userId)
     {
         var randomNumber = new byte[32];
@@ -23,7 +16,7 @@ public class RefreshTokenService(IConnectionMultiplexer redis)
         var stringToken = Convert.ToBase64String(randomNumber);
         var refreshToken = new RefreshTokenModel(stringToken, DateTime.UtcNow.AddDays(7), userId);
 
-        Add(refreshToken);
+        repository.AddAsync(refreshToken).GetAwaiter().GetResult();
 
         return refreshToken.Token;
     }
@@ -35,32 +28,15 @@ public class RefreshTokenService(IConnectionMultiplexer redis)
             throw new ArgumentNullException(nameof(refreshToken));
         }
 
-        try
+        var token = await repository.GetAsync(refreshToken, ct);
+
+        if (token is null)
         {
-            var key = _redisPrefix + refreshToken;
-            var value = await _redisDb.StringGetAsync(key, CommandFlags.None);
-
-            if (value.IsNullOrEmpty)
-            {
-                return;
-            }
-
-            var token = JsonSerializer.Deserialize<RefreshTokenModel>(value.ToString());
-
-            if (token is null)
-            {
-                return;
-            }
-
-            var updatedToken = token with { IsActive = false };
-
-            await _redisDb.StringSetAsync(key, JsonSerializer.Serialize(updatedToken), TimeSpan.FromDays(7), When.Always, CommandFlags.None);
-#pragma warning disable CA1031
+            return;
         }
-        catch
-        {
-        }
-#pragma warning restore CA1031
+
+        var updatedToken = token with { IsActive = false };
+        await repository.UpdateAsync(updatedToken, ct);
     }
 
     public virtual async Task<bool> ValidateAsync(Guid userId, string refreshToken, CancellationToken ct = default)
@@ -70,35 +46,8 @@ public class RefreshTokenService(IConnectionMultiplexer redis)
             throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
         }
 
-        try
-        {
-            var key = _redisPrefix + refreshToken;
-            var value = await _redisDb.StringGetAsync(key, CommandFlags.None);
+        var token = await repository.GetAsync(refreshToken, ct);
 
-            if (value.IsNullOrEmpty)
-            {
-                return false;
-            }
-
-            var token = JsonSerializer.Deserialize<RefreshTokenModel>(value.ToString());
-
-            return token != null && token.UserId == userId && token.IsActive && token.ExpirationDate > DateTime.UtcNow;
-#pragma warning disable CA1031
-        }
-        catch
-        {
-            return false;
-        }
-#pragma warning restore CA1031
-    }
-
-    private void Add(RefreshTokenModel refreshToken)
-    {
-        ArgumentNullException.ThrowIfNull(refreshToken);
-
-        var key = _redisPrefix + refreshToken.Token;
-        var value = JsonSerializer.Serialize(refreshToken);
-
-        _redisDb.StringSet(key, value, refreshToken.ExpirationDate, When.Always, CommandFlags.None);
+        return token != null && token.UserId == userId && token.IsActive && token.ExpirationDate > DateTime.UtcNow;
     }
 }
