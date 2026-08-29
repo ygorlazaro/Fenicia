@@ -144,6 +144,7 @@ public class OrderRepositoryTests : IDisposable
 
         var updatedOrder = new OrderModel
         {
+            Id = orderId,
             OrderNumber = "AO-20240101-UPDATED",
             SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Cancelled,
@@ -200,7 +201,7 @@ public class OrderRepositoryTests : IDisposable
 
         Assert.Equal(1, result);
 
-        var deletedOrder = await _repository.GetByIdAsync(orderId, CancellationToken.None);
+        var deletedOrder = await _db.AuthOrders.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == orderId, CancellationToken.None);
         Assert.NotNull(deletedOrder);
         Assert.NotNull(deletedOrder.Deleted);
     }
