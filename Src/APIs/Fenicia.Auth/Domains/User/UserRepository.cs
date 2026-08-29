@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -18,14 +17,12 @@ public class UserRepository(DefaultContext context) : Repository<UserModel>(cont
         return await DbSet.AnyAsync(u => u.Email == email && u.Deleted == null, ct);
     }
 
-    public async Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken ct = default)
+    public async Task<List<UserRoleModel>> GetCompaniesAsync(Guid userId, CancellationToken ct = default)
     {
-        var query = from u in DbSet
-                    where u.Id == userId && u.Deleted == null
-                    from ur in u.UsersRoles
-                    where ur.Deleted == null
-                    select new GetUserCompaniesResponse(ur.CompanyId, ur.Role.Name, ur.Company.Id, ur.Company.Name, ur.Company.Cnpj);
-
-        return await query.ToListAsync(ct);
+        return await Context.AuthUserRoles
+            .Where(ur => ur.UserId == userId && ur.Deleted == null)
+            .Include(ur => ur.Role)
+            .Include(ur => ur.Company)
+            .ToListAsync(ct);
     }
 }

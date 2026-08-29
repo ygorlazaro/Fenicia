@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -8,26 +7,22 @@ namespace Fenicia.Auth.Domains.UserRole;
 
 public class UserRoleRepository(DefaultContext context) : Repository<UserRoleModel>(context)
 {
-    public async Task<List<UserRoleResponse>> GetCompaniesByUserAsync(Guid userId, CancellationToken ct = default)
+    public async Task<List<UserRoleModel>> GetCompaniesByUserAsync(Guid userId, CancellationToken ct = default)
     {
-        var query = from ur in DbSet
-                    where ur.UserId == userId && ur.Deleted == null
-                    select ur;
-
-        var userRoles = await query.ToListAsync(ct);
-
-        return userRoles.Select(ur => ur.MapToUserRoleResponse()).ToList();
+        return await DbSet
+            .Where(ur => ur.UserId == userId && ur.Deleted == null)
+            .Include(ur => ur.Role)
+            .Include(ur => ur.Company)
+            .ToListAsync(ct);
     }
 
-    public async Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(Guid userId, CancellationToken ct = default)
+    public async Task<List<UserRoleModel>> GetUserCompaniesAsync(Guid userId, CancellationToken ct = default)
     {
-        var query = from ur in DbSet
-                    where ur.UserId == userId && ur.Deleted == null
-                    select ur;
-
-        var userRoles = await query.ToListAsync(ct);
-
-        return userRoles.Select(ur => ur.MapToGetUserCompaniesResponse()).ToList();
+        return await DbSet
+            .Where(ur => ur.UserId == userId && ur.Deleted == null)
+            .Include(ur => ur.Role)
+            .Include(ur => ur.Company)
+            .ToListAsync(ct);
     }
 
     public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct = default)
