@@ -44,6 +44,7 @@ public class UserRoleService(UserRoleRepository userRoleRepository)
     public async Task<List<UserRoleModel>> GetUserRolesByUserIdAsync(Guid userId, CancellationToken ct)
     {
         return await userRoleRepository.Query()
+            .Include(x => x.Role)
             .Where(x => x.UserId == userId)
             .ToListAsync(ct);
     }

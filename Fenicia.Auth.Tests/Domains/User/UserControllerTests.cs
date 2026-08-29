@@ -71,7 +71,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetUserModulesAsync(headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -81,6 +81,116 @@ public class UserControllerTests
         var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
         Assert.Empty(returnedModules);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
+    }
+
+    [Fact]
+    public async Task GetUserModulesAsync_WhenUserIsNotOwner_AndNotAdmin_ReturnsForbid()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var headers = new Headers { CompanyId = companyId };
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserModulesAsync_WhenUserIsNotOwner_ButIsAdmin_ReturnsOk()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var adminRoleId = Guid.NewGuid();
+        var headers = new Headers { CompanyId = companyId };
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
+
+        var loggedInUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = _testUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+
+        Assert.IsType<OkObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserModulesAsync_WhenUserIsNotOwner_AdminInDifferentCompany_ReturnsForbid()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var otherCompanyId = Guid.NewGuid();
+        var adminRoleId = Guid.NewGuid();
+        var headers = new Headers { CompanyId = companyId };
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
+
+        var loggedInUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = _testUserId,
+            RoleId = adminRoleId,
+            CompanyId = otherCompanyId
+        };
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+
+        Assert.IsType<ForbidResult>(result.Result);
     }
 
     [Fact]
@@ -145,7 +255,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetUserModulesAsync(headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -167,7 +277,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await _controller.GetUserModulesAsync(headers, wide, ct);
+        await _controller.GetUserModulesAsync(_testUserId, headers, wide, ct);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -178,7 +288,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetUserCompanyAsync(wide, ct);
+        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -235,7 +345,7 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetUserCompanyAsync(wide, ct);
+        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -256,9 +366,213 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await _controller.GetUserCompanyAsync(wide, ct);
+        await _controller.GetUserCompanyAsync(_testUserId, wide, ct);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
+    }
+
+    [Fact]
+    public async Task GetUserCompanyAsync_WhenUserIsNotOwner_AndNotAdmin_ReturnsForbid()
+    {
+        var otherUserId = Guid.NewGuid();
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserCompanyAsync_WhenUserIsNotOwner_ButSharesCompany_ReturnsOk()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var adminRoleId = Guid.NewGuid();
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
+
+        var loggedInUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = _testUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
+
+        var otherUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = otherUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(otherUserRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+
+        Assert.IsType<OkObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserModulesAsync_WhenUserIsNotOwner_AndNotAdmin_ReturnsForbid()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var headers = new Headers { CompanyId = companyId };
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserModulesAsync_WhenUserIsNotOwner_ButIsAdmin_ReturnsOk()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var adminRoleId = Guid.NewGuid();
+        var headers = new Headers { CompanyId = companyId };
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
+
+        var loggedInUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = _testUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+
+        Assert.IsType<OkObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserCompanyAsync_WhenUserIsNotOwner_AndNotAdmin_ReturnsForbid()
+    {
+        var otherUserId = Guid.NewGuid();
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetUserCompanyAsync_WhenUserIsNotOwner_ButIsAdmin_ReturnsOk()
+    {
+        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var adminRoleId = Guid.NewGuid();
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
+
+        var loggedInUserRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = _testUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
+
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
+        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
+        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+
+        Assert.IsType<OkObjectResult>(result.Result);
     }
 
     [Fact]
