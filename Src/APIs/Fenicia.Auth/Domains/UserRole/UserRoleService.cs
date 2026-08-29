@@ -20,6 +20,26 @@ public class UserRoleService(UserRoleRepository userRoleRepository)
         return userRoles.Select(ur => ur.MapToGetUserCompaniesResponse()).ToList();
     }
 
+    public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken ct)
+    {
+        return await userRoleRepository.GetUserRolesAsync(userId, page, perPage, ct);
+    }
+
+    public async Task<int> CountUserRolesAsync(Guid userId, CancellationToken ct)
+    {
+        return await userRoleRepository.CountUserRolesAsync(userId, ct);
+    }
+
+    public async Task<UserRoleModel?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken ct)
+    {
+        return await userRoleRepository.GetUserRoleAsync(userId, companyId, ct);
+    }
+
+    public async Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken ct)
+    {
+        return await userRoleRepository.IsAdminAsync(userId, companyId, ct);
+    }
+
     public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct)
     {
         return await userRoleRepository.AnyIdAndCompanyAsync(userId, companyId, ct);

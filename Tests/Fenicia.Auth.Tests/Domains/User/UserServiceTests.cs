@@ -41,7 +41,7 @@ public class UserServiceTests : IDisposable
         _companyRepository = new CompanyRepository(_db);
         var userRoleService = new UserRoleService(_userRoleRepository);
         var roleService = new RoleService(_roleRepository);
-        var companyService = new CompanyService(_companyRepository);
+        var companyService = new CompanyService(_companyRepository, userRoleService);
         var moduleRepository = new ModuleRepository(_db);
         var moduleService = new ModuleService(moduleRepository);
         _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new TestSecurityService(), moduleService);

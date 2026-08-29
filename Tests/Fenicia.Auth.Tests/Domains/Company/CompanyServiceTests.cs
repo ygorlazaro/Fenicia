@@ -2,6 +2,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -23,7 +24,9 @@ public class CompanyServiceTests : IDisposable
 
         _db = new DefaultContext(options, new TestCompanyContext());
         var repository = new CompanyRepository(_db);
-        _service = new CompanyService(repository);
+        var userRoleRepository = new UserRoleRepository(_db);
+        var userRoleService = new UserRoleService(userRoleRepository);
+        _service = new CompanyService(repository, userRoleService);
         _faker = new Faker();
     }
 
