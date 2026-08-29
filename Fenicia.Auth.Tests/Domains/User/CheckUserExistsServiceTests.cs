@@ -12,7 +12,7 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-public class CheckUserExistsHandlerTests : IDisposable
+public class CheckUserExistsServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly Faker _faker;
@@ -22,7 +22,7 @@ public class CheckUserExistsHandlerTests : IDisposable
     private readonly RoleRepository _roleRepository;
     private readonly CompanyRepository _companyRepository;
 
-    public CheckUserExistsHandlerTests()
+    public CheckUserExistsServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
@@ -31,7 +31,10 @@ public class CheckUserExistsHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
+        var userRoleService = new UserRoleService(_userRoleRepository);
+        var roleService = new RoleService(_roleRepository);
+        var companyService = new CompanyService(_companyRepository);
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
         _faker = new Faker();
     }
 

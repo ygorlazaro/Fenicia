@@ -51,4 +51,19 @@ public class CompanyService(CompanyRepository repository)
     {
         return await repository.AnyAsync(companyId, ct);
     }
+
+    public async Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken ct)
+    {
+        return await repository.GetByIdAsync(companyId, ct);
+    }
+
+    public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken ct)
+    {
+        return await repository.GetByCnpjAsync(cnpj, ct);
+    }
+
+    public async Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken ct)
+    {
+        return await repository.InsertAsync(company, ct);
+    }
 }

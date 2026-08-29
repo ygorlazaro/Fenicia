@@ -1,3 +1,5 @@
+using System.Linq;
+
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
@@ -14,9 +16,9 @@ namespace Fenicia.Auth.Domains.User;
 
 public class UserService(
     UserRepository userRepository,
-    UserRoleRepository userRoleRepository,
-    RoleRepository roleRepository,
-    CompanyRepository companyRepository,
+    UserRoleService userRoleService,
+    RoleService roleService,
+    CompanyService companyService,
     SecurityService securityService)
 {
     public UserService()
@@ -176,7 +178,7 @@ public class UserService(
             CompanyId = r.CompanyId
         });
 
-        await userRoleRepository.InsertRangeAsync(userRoles, ct);
+        await userRoleService.InsertRangeAsync(userRoles.ToList(), ct);
     }
 
     private async Task ValidateCompanies(IEnumerable<Guid> companies, CancellationToken ct)
@@ -185,7 +187,7 @@ public class UserService(
 
         foreach (var companyId in distinct)
         {
-            var exists = await companyRepository.GetByIdAsync(companyId, ct) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
+            var exists = await companyService.GetByIdAsync(companyId, ct) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
         }
     }
 
@@ -195,7 +197,7 @@ public class UserService(
 
         foreach (var roleId in distinct)
         {
-            var exists = await roleRepository.GetByIdAsync(roleId, ct) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
+            var exists = await roleService.GetByIdAsync(roleId, ct) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
         }
     }
 
@@ -208,7 +210,7 @@ public class UserService(
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var existingCompany = await companyRepository.GetByCnpjAsync(command.Company.Cnpj, ct);
+        var existingCompany = await companyService.GetByCnpjAsync(command.Company.Cnpj, ct);
 
         if (existingCompany is not null)
         {
@@ -231,9 +233,9 @@ public class UserService(
             Cnpj = command.Company.Cnpj
         };
 
-        await companyRepository.InsertAsync(company, ct);
+        await companyService.InsertAsync(company, ct);
 
-        var adminRole = await roleRepository.GetByNameAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
+        var adminRole = await roleService.GetRoleAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
         var userRole = new UserRoleModel
         {
             UserId = user.Id,
@@ -241,7 +243,7 @@ public class UserService(
             RoleId = adminRole.Id
         };
 
-        await userRoleRepository.InsertAsync(userRole, ct);
+        await userRoleService.InsertAsync(userRole, ct);
 
         return (user, company);
     }
@@ -249,7 +251,7 @@ public class UserService(
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)
     {
         var isExistingUser = await userRepository.ExistsByEmailAsync(request.Email, ct);
-        var isExistingCompany = await companyRepository.GetByCnpjAsync(request.Company.Cnpj, ct);
+        var isExistingCompany = await companyService.GetByCnpjAsync(request.Company.Cnpj, ct);
 
         if (isExistingUser)
         {
@@ -268,13 +270,11 @@ public class UserService(
 
         if (requestedRoles.Count == 0)
         {
-            var existing = await userRoleRepository.Query()
-                    .Where(x => x.UserId == user.Id)
-                    .ToListAsync(ct);
+            var existing = await userRoleService.GetUserRolesByUserIdAsync(user.Id, ct);
 
             foreach (var role in existing)
             {
-                await userRoleRepository.DeleteAsync(role.Id, ct);
+                await userRoleService.DeleteAsync(role.Id, ct);
             }
 
             return;
@@ -282,23 +282,18 @@ public class UserService(
 
         var requestedRoleIds = requestedRoles.Select(r => r.RoleId).Distinct().ToList();
 
-        var validRoleIds = await roleRepository.Query()
-            .Where(r => requestedRoleIds.Contains(r.Id))
-            .Select(r => r.Id)
-            .ToListAsync(ct);
+        var validRoleIds = await roleService.GetRolesByIdsAsync(requestedRoleIds, ct);
 
         if (validRoleIds.Count != requestedRoleIds.Count)
         {
-            var missingRoles = requestedRoleIds.Except(validRoleIds);
+            var missingRoles = requestedRoleIds.Except(validRoleIds.Select(r => r.Id));
 
             throw new InvalidRequestException($"Role(s) not found: {string.Join(", ", missingRoles)}");
         }
 
         var requestedSet = requestedRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
-        var existingRoles = await userRoleRepository.Query()
-            .Where(x => x.UserId == user.Id)
-            .ToListAsync(ct);
+        var existingRoles = await userRoleService.GetUserRolesByUserIdAsync(user.Id, ct);
 
         var existingSet = existingRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
@@ -315,13 +310,13 @@ public class UserService(
         {
             foreach (var role in toRemove)
             {
-                await userRoleRepository.DeleteAsync(role.Id, ct);
+                await userRoleService.DeleteAsync(role.Id, ct);
             }
         }
 
         if (toInsert.Count > 0)
         {
-            await userRoleRepository.InsertRangeAsync(toInsert, ct);
+            await userRoleService.InsertRangeAsync(toInsert, ct);
         }
     }
 
