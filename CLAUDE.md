@@ -195,6 +195,7 @@ public class Repository<T> : IRepository<T> where T : BaseModel
 - Sempre filtrar por `Deleted == null` nas queries
 - Repositories retornam apenas entidades ou primitivos, nunca DTOs ou Responses
 - `Context` é público para permitir acesso cross-assembly
+- **Um domínio NÃO pode acessar o repository de outro domínio diretamente.** Se precisar de dados/externa, use a **service** desse domínio, não o repository.
 
 ## 4. Padrão de Service
 
@@ -474,6 +475,7 @@ public class ProjectControllerTests : IDisposable
 - Usar `DefaultContext` com banco in-memory
 - Sempre incluir `using System.Security.Claims` nos controller tests
 - Sempre configurar `mockHttpContext.Setup(x => x.User).Returns(...)` para tests que usam `ClaimReader`
+- **Todo código novo ou refatoração deve incluir testes unitários correspondentes.**
 
 ## 8. Convenções Gerais
 
@@ -490,6 +492,8 @@ public class ProjectControllerTests : IDisposable
  - **Métodos async**: sempre terminam com `Async` (ex: `GetAsync`)
  - **LINQ**: usar sintaxe LINQ query expression sempre que possível ao invés de lambda expressions
  - **Mapeamento**: usar Mapperly para transformação entre entidades e DTOs/responses
+ - **Testes obrigatórios**: todo código novo ou refatoração deve incluir testes unitários correspondentes
+ - **Domain isolation**: um domínio NÃO pode acessar repository de outro domínio diretamente; use a service do domínio correspondente
  - **XML comments**: não obrigatórios
 - **Usings desnecessários**: não obrigatória remoção
 - **Migrations**: excluídas das regras de estilo
