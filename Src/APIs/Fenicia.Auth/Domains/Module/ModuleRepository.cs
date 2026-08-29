@@ -34,11 +34,9 @@ public class ModuleRepository(DefaultContext context) : Repository<ModuleModel>(
                     where ur.UserId == userId &&
                           s.CompanyId == companyId &&
                           s.Status == SubscriptionStatus.Active &&
-                          now >= s.StartDate &&
-                          now <= s.EndDate &&
+                          now >= s.StartDate && now <= s.EndDate &&
                           sc.IsActive &&
-                          now >= sc.StartDate &&
-                          now <= sc.EndDate
+                          now >= sc.StartDate && now <= sc.EndDate
                     select m;
 
         return await query.Distinct().ToListAsync(ct);
