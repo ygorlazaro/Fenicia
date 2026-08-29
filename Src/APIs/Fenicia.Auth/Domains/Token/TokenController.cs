@@ -13,6 +13,7 @@ namespace Fenicia.Auth.Domains.Token;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class TokenController(TokenService tokenService) : ControllerBase
 {
     /// <summary>
@@ -24,11 +25,14 @@ public class TokenController(TokenService tokenService) : ControllerBase
     /// <returns>Token JWT e refresh token</returns>
     /// <response code="201">Token gerado com sucesso</response>
     /// <response code="400">E-mail ou senha inválidos, senha vazia ou muitas tentativas</response>
+    /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(GenerateTokenQuery request, WideEventContext wide, CancellationToken ct)
     {
