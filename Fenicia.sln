@@ -3,50 +3,54 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36127.28
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth", "Src/APIs/Fenicia.Auth/Fenicia.Auth.csproj", "{41FF3537-AEFA-4392-8878-99533A868FC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth", "Src\APIs\Fenicia.Auth\Fenicia.Auth.csproj", "{41FF3537-AEFA-4392-8878-99533A868FC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Data", "Src/Libs/Fenicia.Common.Data/Fenicia.Common.Data.csproj", "{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Data", "Src\Libs\Fenicia.Common.Data\Fenicia.Common.Data.csproj", "{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic", "Src/APIs/Fenicia.Module.Basic/Fenicia.Module.Basic.csproj", "{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic", "Src\APIs\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj", "{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common", "Src/Libs/Fenicia.Common/Fenicia.Common.csproj", "{058D60E2-328D-4A4B-9686-12F6F7223C4D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common", "Src\Libs\Fenicia.Common\Fenicia.Common.csproj", "{058D60E2-328D-4A4B-9686-12F6F7223C4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Projects", "Src/APIs/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj", "{D6D68C9A-816B-40D9-AA5E-B11596996694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Projects", "Src\APIs\Fenicia.Module.Projects\Fenicia.Module.Projects.csproj", "{D6D68C9A-816B-40D9-AA5E-B11596996694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.SocialNetwork", "Src/APIs/Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj", "{6512C8A2-2118-4176-B243-5F0976016236}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.SocialNetwork", "Src\APIs\Fenicia.Module.SocialNetwork\Fenicia.Module.SocialNetwork.csproj", "{6512C8A2-2118-4176-B243-5F0976016236}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.PerformanceEvaluation", "Src/APIs/Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj", "{60563E64-F30C-4F61-8D07-E14C50DE8F12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.PerformanceEvaluation", "Src\APIs\Fenicia.Module.PerformanceEvaluation\Fenicia.Module.PerformanceEvaluation.csproj", "{60563E64-F30C-4F61-8D07-E14C50DE8F12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Accounting", "Src/APIs/Fenicia.Module.Accounting/Fenicia.Module.Accounting.csproj", "{D2324252-735E-4A62-B1EF-3A5D006442B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Accounting", "Src\APIs\Fenicia.Module.Accounting\Fenicia.Module.Accounting.csproj", "{D2324252-735E-4A62-B1EF-3A5D006442B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.HR", "Src/APIs/Fenicia.Module.HR/Fenicia.Module.HR.csproj", "{DFCECA32-D5AB-44AF-B960-1500F0224964}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.HR", "Src\APIs\Fenicia.Module.HR\Fenicia.Module.HR.csproj", "{DFCECA32-D5AB-44AF-B960-1500F0224964}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.POS", "Src/APIs/Fenicia.Module.POS/Fenicia.Module.POS.csproj", "{F95B5946-83A5-4D79-8D61-D39D5B2A9335}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.POS", "Src\APIs\Fenicia.Module.POS\Fenicia.Module.POS.csproj", "{F95B5946-83A5-4D79-8D61-D39D5B2A9335}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Contracts", "Src/APIs/Fenicia.Module.Contracts/Fenicia.Module.Contracts.csproj", "{D21DEC28-48D1-4B9A-925F-2C798B2F3E2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Contracts", "Src\APIs\Fenicia.Module.Contracts\Fenicia.Module.Contracts.csproj", "{D21DEC28-48D1-4B9A-925F-2C798B2F3E2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Ecommerce", "Src/APIs/Fenicia.Module.Ecommerce/Fenicia.Module.Ecommerce.csproj", "{D1BD3E62-8E17-454F-9736-2ACFF76B9C9B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Ecommerce", "Src\APIs\Fenicia.Module.Ecommerce\Fenicia.Module.Ecommerce.csproj", "{D1BD3E62-8E17-454F-9736-2ACFF76B9C9B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.CustomerSupport", "Src/APIs/Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj", "{3D2CDC5D-7069-4150-A9B0-EBAAC6CAADD4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.CustomerSupport", "Src\APIs\Fenicia.Module.CustomerSupport\Fenicia.Module.CustomerSupport.csproj", "{3D2CDC5D-7069-4150-A9B0-EBAAC6CAADD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Plus", "Src/APIs/Fenicia.Module.Plus/Fenicia.Module.Plus.csproj", "{664C8060-90B4-4EF6-BA6D-C3B6480B26CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Plus", "Src\APIs\Fenicia.Module.Plus\Fenicia.Module.Plus.csproj", "{664C8060-90B4-4EF6-BA6D-C3B6480B26CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Externals.Email", "Src/Libs/Fenicia.Externals.Email/Fenicia.Externals.Email.csproj", "{15A64760-2D36-4FE7-80A9-85DCEFADD74C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Externals.Email", "Src\Libs\Fenicia.Externals.Email\Fenicia.Externals.Email.csproj", "{15A64760-2D36-4FE7-80A9-85DCEFADD74C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth.Tests", "Tests/Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj", "{79F6DE1F-1827-443B-8A31-775B179F6B28}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth.Tests", "Tests\Fenicia.Auth.Tests\Fenicia.Auth.Tests.csproj", "{79F6DE1F-1827-443B-8A31-775B179F6B28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Projects.Tests", "Tests/Fenicia.Module.Projects.Tests/Fenicia.Module.Projects.Tests.csproj", "{283F0EA6-4BFB-4162-8F78-F69C70496797}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Projects.Tests", "Tests\Fenicia.Module.Projects.Tests\Fenicia.Module.Projects.Tests.csproj", "{283F0EA6-4BFB-4162-8F78-F69C70496797}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Tests", "Tests/Fenicia.Common.Tests/Fenicia.Common.Tests.csproj", "{139604AE-1DCA-49C3-AB26-05E54BD8A88E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Tests", "Tests\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj", "{139604AE-1DCA-49C3-AB26-05E54BD8A88E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.API.Tests", "Tests/Fenicia.Common.API.Tests/Fenicia.Common.API.Tests.csproj", "{B6AD01ED-F7A3-4422-BAD9-A87BC184D7AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.API.Tests", "Tests\Fenicia.Common.API.Tests\Fenicia.Common.API.Tests.csproj", "{B6AD01ED-F7A3-4422-BAD9-A87BC184D7AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.API", "Src/Libs/Fenicia.Common.API/Fenicia.Common.API.csproj", "{9C792606-B7E6-4282-966B-5FBC7963C7CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.API", "Src\Libs\Fenicia.Common.API\Fenicia.Common.API.csproj", "{9C792606-B7E6-4282-966B-5FBC7963C7CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Data.Tests", "Tests\Fenicia.Common.Data.Tests\Fenicia.Common.Data.Tests.csproj", "{C5EE83E4-A821-4365-A204-BF8BD754B67B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -298,10 +302,23 @@ Global
 		{9C792606-B7E6-4282-966B-5FBC7963C7CE}.Release|x64.Build.0 = Release|Any CPU
 		{9C792606-B7E6-4282-966B-5FBC7963C7CE}.Release|x86.ActiveCfg = Release|Any CPU
 		{9C792606-B7E6-4282-966B-5FBC7963C7CE}.Release|x86.Build.0 = Release|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Debug|x64.Build.0 = Debug|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Debug|x86.Build.0 = Debug|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Release|x64.ActiveCfg = Release|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Release|x64.Build.0 = Release|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Release|x86.ActiveCfg = Release|Any CPU
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{C5EE83E4-A821-4365-A204-BF8BD754B67B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
