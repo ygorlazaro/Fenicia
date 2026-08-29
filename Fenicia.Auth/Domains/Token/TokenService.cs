@@ -14,7 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(IConfiguration configuration, LoginAttemptService loginAttemptService, UserRepository userRepository, SecurityService securityService)
+public class TokenService(IConfiguration configuration, LoginAttemptService loginAttemptService, UserService userService, SecurityService securityService)
 {
     public TokenService()
         : this(null!, null!, null!, null!)
@@ -24,7 +24,7 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
     public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken ct)
     {
         var attempts = ValidateAttempts(query);
-        var user = await userRepository.GetByEmailAsync(query.Email, ct);
+        var user = await userService.FirstByEmailOrDefaultAsync(query.Email, ct);
 
         if (user is null)
         {
