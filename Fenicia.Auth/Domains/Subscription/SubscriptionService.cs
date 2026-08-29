@@ -32,4 +32,9 @@ public class SubscriptionService(SubscriptionRepository subscriptionRepository, 
 
         return new GetUserProfileResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
     }
+
+    public async Task<SubscriptionModel> CreateSubscriptionAsync(SubscriptionModel subscription, CancellationToken ct)
+    {
+        return await subscriptionRepository.InsertAsync(subscription, ct);
+    }
 }

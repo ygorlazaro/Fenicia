@@ -33,7 +33,7 @@ public class ModuleControllerTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton(_db);
         services.AddLogging();
-        services.AddSingleton(new ModuleService(_db));
+        services.AddSingleton(new ModuleService(new ModuleRepository(_db)));
 
         var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<ModuleService>();

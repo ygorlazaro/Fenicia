@@ -9,7 +9,7 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public class OrderService(ModuleRepository moduleRepository, OrderRepository orderRepository, SubscriptionRepository subscriptionRepository, UserRoleService userRoleService)
+public class OrderService(ModuleService moduleService, OrderRepository orderRepository, SubscriptionService subscriptionService, UserRoleService userRoleService)
 {
     public async Task<CreateNewOrderResponse?> CreateAsync(CreateNewOrderCommand command, CancellationToken ct)
     {
@@ -26,7 +26,7 @@ public class OrderService(ModuleRepository moduleRepository, OrderRepository ord
         await orderRepository.InsertAsync(order, ct);
 
         LoadCreditsAsync(command.CompanyId, order);
-        await subscriptionRepository.InsertAsync(order.Subscription!, ct);
+        await subscriptionService.CreateSubscriptionAsync(order.Subscription!, ct);
 
         return order.MapToCreateNewOrderResponse();
     }
@@ -100,12 +100,12 @@ public class OrderService(ModuleRepository moduleRepository, OrderRepository ord
 
     private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
-        return await moduleRepository.GetByIdsAsync(request, ct);
+        return await moduleService.GetModulesByIdsAsync(request, ct);
     }
 
     private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
-        return await moduleRepository.GetByTypeAsync(moduleType, ct);
+        return await moduleService.GetModuleByTypeAsync(moduleType, ct);
     }
 
     private void LoadCreditsAsync(Guid companyId, OrderModel order)

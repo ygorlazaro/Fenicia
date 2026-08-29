@@ -9,31 +9,27 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Tests;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
-public class ResetPasswordServiceTests : IDisposable
+public class ForgotPasswordServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly ForgotPasswordService _service;
     private readonly UserRepository _userRepository;
-    private readonly UserRoleRepository _userRoleRepository;
-    private readonly RoleRepository _roleRepository;
-    private readonly CompanyRepository _companyRepository;
 
-    public ResetPasswordServiceTests()
+    public ForgotPasswordServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _userRepository = new UserRepository(_db);
-        _userRoleRepository = new UserRoleRepository(_db);
-        _roleRepository = new RoleRepository(_db);
-        _companyRepository = new CompanyRepository(_db);
-        var userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
-        _service = new ForgotPasswordService(_db, userService);
+        var userService = new UserService(_userRepository, new UserRoleRepository(_db), new RoleRepository(_db), new CompanyRepository(_db));
+        var repository = new ForgotPasswordRepository(_db);
+        _service = new ForgotPasswordService(repository, userService);
         _faker = new Faker();
     }
 
@@ -45,7 +41,213 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenValidCode_ResetsPasswordSuccessfully()
+    public async Task AddAsync_WhenEmailExists_CreatesForgotPasswordCodeSuccessfully()
+    {
+        var userId = Guid.NewGuid();
+        var email = _faker.Internet.Email();
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+
+        var command = new AddForgotPasswordCommand(email);
+
+        await _service.AddAsync(command, CancellationToken.None);
+
+        var forgotPassword = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
+        Assert.NotNull(forgotPassword);
+        Assert.Equal(6, forgotPassword.Code.Length);
+        Assert.True(forgotPassword.IsActive);
+        Assert.Equal(userId, forgotPassword.UserId);
+        Assert.True(forgotPassword.ExpirationDate > DateTime.UtcNow);
+        Assert.Null(forgotPassword.IpAddress);
+        Assert.Null(forgotPassword.UserAgent);
+    }
+
+    [Fact]
+    public async Task AddAsync_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
+    {
+        var email = _faker.Internet.Email();
+        var command = new AddForgotPasswordCommand(email);
+
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.AddAsync(command, CancellationToken.None));
+        Assert.Equal("User with given email does not exist.", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddAsync_WhenEmailHasDifferentCase_ThrowsItemNotExistsException()
+    {
+        var userId = Guid.NewGuid();
+        var email = _faker.Internet.Email();
+        var upperCaseEmail = email.ToUpper();
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+
+        var command = new AddForgotPasswordCommand(upperCaseEmail);
+
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.AddAsync(command, CancellationToken.None));
+        Assert.Equal("User with given email does not exist.", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddAsync_WhenMultipleUsersExist_CreatesCodeForCorrectUser()
+    {
+        var userId1 = Guid.NewGuid();
+        var userId2 = Guid.NewGuid();
+        var email1 = _faker.Internet.Email();
+        var email2 = _faker.Internet.Email();
+
+        var user1 = new UserModel
+        {
+            Id = userId1,
+            Email = email1,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        var user2 = new UserModel
+        {
+            Id = userId2,
+            Email = email2,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        _db.AuthUsers.AddRange(user1, user2);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new AddForgotPasswordCommand(email1);
+
+        await _service.AddAsync(command, CancellationToken.None);
+
+        var forgotPassword = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
+        Assert.NotNull(forgotPassword);
+        Assert.Equal(userId1, forgotPassword.UserId);
+        Assert.Equal(6, forgotPassword.Code.Length);
+
+        var forgotPasswordForUser2 = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
+        Assert.Null(forgotPasswordForUser2);
+    }
+
+    [Fact]
+    public async Task AddAsync_WhenCalledMultipleTimesForSameUser_CreatesMultipleCodes()
+    {
+        var userId = Guid.NewGuid();
+        var email = _faker.Internet.Email();
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+
+        var command = new AddForgotPasswordCommand(email);
+
+        await _service.AddAsync(command, CancellationToken.None);
+        await _service.AddAsync(command, CancellationToken.None);
+
+        var codes = await _db.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
+        Assert.Equal(2, codes.Count);
+        Assert.True(codes.All(c => c.IsActive));
+        Assert.True(codes.All(c => c.Code.Length == 6));
+    }
+
+    [Fact]
+    public async Task AddAsync_WithEmptyDatabase_ThrowsItemNotExistsException()
+    {
+        var email = _faker.Internet.Email();
+        var command = new AddForgotPasswordCommand(email);
+
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.AddAsync(command, CancellationToken.None));
+        Assert.Equal("User with given email does not exist.", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddAsync_VerifiesCodeIsUnique()
+    {
+        var userId1 = Guid.NewGuid();
+        var userId2 = Guid.NewGuid();
+        var email1 = _faker.Internet.Email();
+        var email2 = _faker.Internet.Email();
+
+        var user1 = new UserModel
+        {
+            Id = userId1,
+            Email = email1,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        var user2 = new UserModel
+        {
+            Id = userId2,
+            Email = email2,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        _db.AuthUsers.AddRange(user1, user2);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command1 = new AddForgotPasswordCommand(email1);
+        var command2 = new AddForgotPasswordCommand(email2);
+
+        await _service.AddAsync(command1, CancellationToken.None);
+        await _service.AddAsync(command2, CancellationToken.None);
+
+        var codes = await _db.AuthForgottenPasswords.ToListAsync();
+        var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
+        Assert.Equal(2, distinctCodes.Count);
+    }
+
+    [Fact]
+    public async Task AddAsync_WhenIpAddressAndUserAgentProvided_StoresThemCorrectly()
+    {
+        var userId = Guid.NewGuid();
+        var email = _faker.Internet.Email();
+        var ipAddress = "192.168.1.1";
+        var userAgent = "Mozilla/5.0 (Test Browser)";
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = _faker.Person.FullName,
+            Password = _faker.Internet.Password()
+        };
+
+        await _userRepository.InsertAsync(user, CancellationToken.None);
+
+        var command = new AddForgotPasswordCommand(email, ipAddress, userAgent);
+
+        await _service.AddAsync(command, CancellationToken.None);
+
+        var forgotPassword = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
+        Assert.NotNull(forgotPassword);
+        Assert.Equal(ipAddress, forgotPassword.IpAddress);
+        Assert.Equal(userAgent, forgotPassword.UserAgent);
+    }
+
+    [Fact]
+    public async Task ResetAsync_WhenValidCode_ResetsPasswordSuccessfully()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -71,13 +273,13 @@ public class ResetPasswordServiceTests : IDisposable
 
         await _userRepository.InsertAsync(user, CancellationToken.None);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         await _service.ResetAsync(command, CancellationToken.None);
 
-        var updatedUser = await _userRepository.GetByIdAsync(userId, CancellationToken.None).ContinueWith(t => t.Result);
+        var updatedUser = await _userRepository.GetByIdAsync(userId, CancellationToken.None);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(_faker.Internet.Password(), updatedUser.Password);
 
@@ -87,7 +289,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
+    public async Task ResetAsync_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
         var email = _faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
@@ -100,7 +302,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCodeDoesNotExist_ThrowsInvalidDataException()
+    public async Task ResetAsync_WhenCodeDoesNotExist_ThrowsInvalidDataException()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -127,7 +329,7 @@ public class ResetPasswordServiceTests : IDisposable
 
         await _userRepository.InsertAsync(user, CancellationToken.None);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
@@ -136,7 +338,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCodeIsInactive_ThrowsInvalidDataException()
+    public async Task ResetAsync_WhenCodeIsInactive_ThrowsInvalidDataException()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -162,7 +364,7 @@ public class ResetPasswordServiceTests : IDisposable
 
         await _userRepository.InsertAsync(user, CancellationToken.None);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -171,7 +373,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCodeIsExpired_ThrowsInvalidDataException()
+    public async Task ResetAsync_WhenCodeIsExpired_ThrowsInvalidDataException()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -197,7 +399,7 @@ public class ResetPasswordServiceTests : IDisposable
 
         await _userRepository.InsertAsync(user, CancellationToken.None);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -206,7 +408,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCodeBelongsToDifferentUser_ThrowsInvalidDataException()
+    public async Task ResetAsync_WhenCodeBelongsToDifferentUser_ThrowsInvalidDataException()
     {
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
@@ -242,7 +444,7 @@ public class ResetPasswordServiceTests : IDisposable
 
         _db.AuthUsers.AddRange(user1, user2);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
@@ -251,7 +453,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenCodeIsUsedSecondTime_ThrowsInvalidDataException()
+    public async Task ResetAsync_WhenCodeIsUsedSecondTime_ThrowsInvalidDataException()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -277,7 +479,7 @@ public class ResetPasswordServiceTests : IDisposable
 
         await _userRepository.InsertAsync(user, CancellationToken.None);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -288,7 +490,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_VerifiesPasswordWasActuallyChanged()
+    public async Task ResetAsync_VerifiesPasswordWasActuallyChanged()
     {
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
@@ -315,7 +517,7 @@ public class ResetPasswordServiceTests : IDisposable
 
         await _userRepository.InsertAsync(user, CancellationToken.None);
         _db.AuthForgottenPasswords.Add(forgotPassword);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -330,7 +532,7 @@ public class ResetPasswordServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
+    public async Task ResetAsync_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
         var email = _faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];

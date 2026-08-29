@@ -46,7 +46,7 @@ public class UserControllerTests
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
         _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
-        _moduleService = new ModuleService(_db);
+        _moduleService = new ModuleService(new ModuleRepository(_db));
         _testUserId = Guid.NewGuid();
 
         _mockHttpContext = new Mock<HttpContext>();

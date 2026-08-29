@@ -1,7 +1,10 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.DTOs;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -13,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
 
-public class CreateNewOrderHandlerTests : IDisposable
+public class OrderServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly Faker _faker;
@@ -21,14 +24,19 @@ public class CreateNewOrderHandlerTests : IDisposable
     private readonly UserRoleRepository _userRoleRepository;
     private readonly UserRoleService _userRoleService;
 
-    public CreateNewOrderHandlerTests()
+    public OrderServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _userRoleRepository = new UserRoleRepository(_db);
         _userRoleService = new UserRoleService(_userRoleRepository);
-        _service = new OrderService(_db, _userRoleService);
+        var moduleRepository = new ModuleRepository(_db);
+        var moduleService = new ModuleService(moduleRepository);
+        var orderRepository = new OrderRepository(_db);
+        var subscriptionRepository = new SubscriptionRepository(_db);
+        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserRepository(_db));
+        _service = new OrderService(moduleService, orderRepository, subscriptionService, _userRoleService);
         _faker = new Faker();
     }
 

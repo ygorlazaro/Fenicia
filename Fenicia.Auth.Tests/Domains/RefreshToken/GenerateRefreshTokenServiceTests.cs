@@ -23,7 +23,7 @@ public class GenerateRefreshTokenServiceTests
     public void Generate_GeneratesValidRefreshToken()
     {
         var userId = Guid.NewGuid();
-        var service = new RefreshTokenService(_redisMock.Object);
+        var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
 
         var result = service.Generate(userId);
 
@@ -36,7 +36,7 @@ public class GenerateRefreshTokenServiceTests
     public void Generate_GeneratesUniqueTokensForEachCall()
     {
         var userId = Guid.NewGuid();
-        var service = new RefreshTokenService(_redisMock.Object);
+        var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
 
         var token1 = service.Generate(userId);
         var token2 = service.Generate(userId);
@@ -52,7 +52,7 @@ public class GenerateRefreshTokenServiceTests
     {
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
-        var service = new RefreshTokenService(_redisMock.Object);
+        var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
 
         var token1 = service.Generate(userId1);
         var token2 = service.Generate(userId2);
@@ -64,7 +64,7 @@ public class GenerateRefreshTokenServiceTests
     public void Generate_MultipleTokensForSameUser_AreUnique()
     {
         var userId = Guid.NewGuid();
-        var service = new RefreshTokenService(_redisMock.Object);
+        var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
         var tokens = new List<string>();
 
         for (var i = 0; i < 10; i++)

@@ -17,7 +17,7 @@ public class GetAdminRoleHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new RoleService(_db);
+        _service = new RoleService(new RoleRepository(_db));
     }
 
     public void Dispose()

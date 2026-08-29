@@ -20,7 +20,7 @@ public class GenerateTokenStringHandlerTests
 
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
-        _handler = new TokenService(null!, configuration, null!);
+        _handler = new TokenService(configuration, null!, null!);
         _faker = new Faker();
     }
 
@@ -132,7 +132,7 @@ public class GenerateTokenStringHandlerTests
     {
         var badConfig = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
 
-        var badHandler = new TokenService(null!, badConfig, null!);
+        var badHandler = new TokenService(badConfig, null!, null!);
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         Assert.Throws<InvalidOperationException>(() => badHandler.GenerateString(user));

@@ -1,5 +1,6 @@
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.DTOs;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Auth;
@@ -15,14 +16,13 @@ public class SubscriptionServiceTests : IDisposable
     public SubscriptionServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         _context = new DefaultContext(options, new TestCompanyContext());
-        _context.Database.OpenConnection();
         _context.Database.EnsureCreated();
 
-        _service = new SubscriptionService(new SubscriptionRepository(_context));
+        _service = new SubscriptionService(new SubscriptionRepository(_context), new UserRepository(_context));
     }
 
     [Fact]
@@ -62,7 +62,6 @@ public class SubscriptionServiceTests : IDisposable
 
     public void Dispose()
     {
-        _context.Database.CloseConnection();
         _context.Dispose();
     }
 }

@@ -21,7 +21,7 @@ public class ModuleServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new ModuleService(_db);
+        _service = new ModuleService(new ModuleRepository(_db));
         _faker = new Faker();
     }
 
