@@ -1,6 +1,7 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
@@ -41,7 +42,9 @@ public class UserServiceTests : IDisposable
         var userRoleService = new UserRoleService(_userRoleRepository);
         var roleService = new RoleService(_roleRepository);
         var companyService = new CompanyService(_companyRepository);
-        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new TestSecurityService());
+        var moduleRepository = new ModuleRepository(_db);
+        var moduleService = new ModuleService(moduleRepository);
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new TestSecurityService(), moduleService);
         _faker = new Faker();
 
         _adminRoleId = Guid.NewGuid();

@@ -2,6 +2,7 @@ using Bogus;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.DTOs;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
@@ -31,7 +32,9 @@ public class ForgotPasswordServiceTests : IDisposable
         var userRoleService = new UserRoleService(new UserRoleRepository(_db));
         var roleService = new RoleService(new RoleRepository(_db));
         var companyService = new CompanyService(new CompanyRepository(_db));
-        var userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var moduleRepository = new ModuleRepository(_db);
+        var moduleService = new ModuleService(moduleRepository);
+        var userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
         var repository = new ForgotPasswordRepository(_db);
         _service = new ForgotPasswordService(repository, userService, new SecurityService());
         _faker = new Faker();

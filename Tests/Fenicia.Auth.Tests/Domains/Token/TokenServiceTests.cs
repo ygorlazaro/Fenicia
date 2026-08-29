@@ -4,6 +4,7 @@ using Bogus;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token;
@@ -56,7 +57,9 @@ public class TokenServiceTests : IDisposable
         var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
         var companyService = new CompanyService(companyRepository);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var moduleRepository = new ModuleRepository(_db);
+        var moduleService = new ModuleService(moduleRepository);
+        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
         _service = new TokenService(configuration, loginAttemptService, userService, new SecurityService());
         _faker = new Faker();
     }

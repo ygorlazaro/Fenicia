@@ -35,7 +35,6 @@ public class UserControllerTests
     private readonly RoleRepository _roleRepository;
     private readonly CompanyRepository _companyRepository;
     private readonly UserService _userService;
-    private readonly ModuleService _moduleService;
 
     public UserControllerTests()
     {
@@ -49,15 +48,14 @@ public class UserControllerTests
         var userRoleService = new UserRoleService(_userRoleRepository);
         var roleService = new RoleService(_roleRepository);
         var companyService = new CompanyService(_companyRepository);
-        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
-        _moduleService = new ModuleService(new ModuleRepository(_db));
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService(), new ModuleService(new ModuleRepository(_db)));
         _testUserId = Guid.NewGuid();
 
         _mockHttpContext = new Mock<HttpContext>();
         var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(_mockHttpContext.Object);
 
-        _controller = new UserController(_userService, _moduleService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new UserController(_userService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
         _faker = new Faker();
