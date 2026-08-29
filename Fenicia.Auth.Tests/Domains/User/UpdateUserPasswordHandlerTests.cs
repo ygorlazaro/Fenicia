@@ -33,13 +33,13 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
         _faker = new Faker();
 
         _testUser = new UserModel
         {
             Email = _faker.Internet.Email(),
-            Password = SecurityService.Hash(_faker.Internet.Password()),
+            Password = new SecurityService().Hash(_faker.Internet.Password()),
             Name = _faker.Person.FullName
         };
 

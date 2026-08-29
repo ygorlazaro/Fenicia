@@ -1,6 +1,10 @@
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Auth;
@@ -22,7 +26,13 @@ public class SubscriptionServiceTests : IDisposable
         _context = new DefaultContext(options, new TestCompanyContext());
         _context.Database.EnsureCreated();
 
-        _service = new SubscriptionService(new SubscriptionRepository(_context), new UserRepository(_context));
+        var userRepository = new UserRepository(_context);
+        var userRoleRepository = new UserRoleRepository(_context);
+        var roleRepository = new RoleRepository(_context);
+        var companyRepository = new CompanyRepository(_context);
+        var userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository, new SecurityService());
+
+        _service = new SubscriptionService(new SubscriptionRepository(_context), userService);
     }
 
     [Fact]
@@ -44,6 +54,7 @@ public class SubscriptionServiceTests : IDisposable
             Id = userId,
             Name = "Test User",
             Email = "test@example.com",
+            Password = new SecurityService().Hash("password123"),
             Created = DateTime.UtcNow
         };
 

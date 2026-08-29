@@ -31,9 +31,9 @@ public class TokenControllerTests
         var redisMock = new Mock<IConnectionMultiplexer>();
         redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(new Mock<IDatabase>().Object);
 
-        _tokenServiceMock = new Mock<TokenService>(null!, null!, null!) { CallBase = true };
+        _tokenServiceMock = new Mock<TokenService>(null!, null!, null!, null!) { CallBase = true };
         _refreshTokenServiceMock = new Mock<RefreshTokenService>(new RefreshTokenRepository(redisMock.Object)) { CallBase = true };
-        _userServiceMock = new Mock<UserService>(null!, null!, null!, null!) { CallBase = true };
+        _userServiceMock = new Mock<UserService>(null!, null!, null!, null!, null!) { CallBase = true };
 
         _controller = new TokenController(_tokenServiceMock.Object, _refreshTokenServiceMock.Object, _userServiceMock.Object);
     }

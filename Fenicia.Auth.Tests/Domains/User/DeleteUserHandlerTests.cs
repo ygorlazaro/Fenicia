@@ -31,13 +31,13 @@ public class DeleteUserHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
         var faker = new Faker();
 
         _testUser = new UserModel
         {
             Email = faker.Internet.Email(),
-            Password = SecurityService.Hash(faker.Internet.Password()),
+            Password = new SecurityService().Hash(faker.Internet.Password()),
             Name = faker.Person.FullName
         };
 

@@ -16,10 +16,11 @@ public class UserService(
     UserRepository userRepository,
     UserRoleRepository userRoleRepository,
     RoleRepository roleRepository,
-    CompanyRepository companyRepository)
+    CompanyRepository companyRepository,
+    SecurityService securityService)
 {
     public UserService()
-        : this(null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!)
     {
     }
 
@@ -73,7 +74,7 @@ public class UserService(
     public async Task<UserModel> UpdatePasswordAsync(Guid userId, string plainPassword, CancellationToken ct)
     {
         var user = await FirstByIdAsync(userId, ct);
-        user.Password = SecurityService.Hash(plainPassword);
+        user.Password = securityService.Hash(plainPassword);
         return user;
     }
 
@@ -98,7 +99,7 @@ public class UserService(
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var hashedPassword = SecurityService.Hash(command.Password);
+        var hashedPassword = securityService.Hash(command.Password);
 
         var user = new UserModel
         {
@@ -147,7 +148,7 @@ public class UserService(
     public async Task<UpdateUserPasswordResponse> UpdatePasswordAsync(UpdateUserPasswordCommand command, CancellationToken ct)
     {
         var user = await FirstByIdAsync(command.UserId, ct);
-        var hashedPassword = SecurityService.Hash(command.Password);
+        var hashedPassword = securityService.Hash(command.Password);
 
         user.Password = hashedPassword;
 
@@ -214,7 +215,7 @@ public class UserService(
             throw new InvalidRequestException(ExceptionMessages.CompanyExists);
         }
 
-        var hashedPassword = SecurityService.Hash(command.Password);
+        var hashedPassword = securityService.Hash(command.Password);
         var user = new UserModel
         {
             Email = command.Email,

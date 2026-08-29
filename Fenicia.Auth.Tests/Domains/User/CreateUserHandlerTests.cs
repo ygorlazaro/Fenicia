@@ -33,7 +33,7 @@ public class CreateUserHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
         _faker = new Faker();
     }
 
@@ -76,7 +76,7 @@ public class CreateUserHandlerTests : IDisposable
         var existingUser = new UserModel
         {
             Email = email,
-            Password = SecurityService.Hash(password),
+            Password = new SecurityService().Hash(password),
             Name = name
         };
 

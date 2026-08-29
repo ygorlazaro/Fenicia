@@ -2,6 +2,7 @@ using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.Register.DTOs;
 using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.UserRole;
@@ -35,7 +36,7 @@ public class RegisterControllerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        var userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        var userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
         var registerService = new RegisterService(userService);
 
         var mockHttpContext = new Mock<HttpContext>();

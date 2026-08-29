@@ -14,35 +14,36 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(IConfiguration configuration, LoginAttemptService loginAttemptService, UserRepository userRepository)
+public class TokenService(IConfiguration configuration, LoginAttemptService loginAttemptService, UserRepository userRepository, SecurityService securityService)
 {
-    private readonly IConfiguration _configuration = configuration;
-    private readonly LoginAttemptService _loginAttemptService = loginAttemptService;
-    private readonly UserRepository _userRepository = userRepository;
+    public TokenService()
+        : this(null!, null!, null!, null!)
+    {
+    }
 
     public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken ct)
     {
         var attempts = ValidateAttempts(query);
-        var user = await _userRepository.GetByEmailAsync(query.Email, ct);
+        var user = await userRepository.GetByEmailAsync(query.Email, ct);
 
         if (user is null)
         {
-            await _loginAttemptService.IncrementAsync(query.Email, ct);
+            await loginAttemptService.IncrementAsync(query.Email, ct);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
         }
 
-        var isValidPassword = SecurityService.Verify(query.Password, user.Password);
+        var isValidPassword = securityService.Verify(query.Password, user.Password);
 
         if (isValidPassword)
         {
-            await _loginAttemptService.ResetAsync(query.Email, ct);
+            await loginAttemptService.ResetAsync(query.Email, ct);
 
             return new GenerateTokenResponse(user.Id, user.Name, user.Email);
         }
 
-        await _loginAttemptService.IncrementAsync(query.Email, ct);
+        await loginAttemptService.IncrementAsync(query.Email, ct);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
@@ -50,7 +51,7 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
 
     public virtual string GenerateString(GenerateTokenResponse user)
     {
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
         var authSigningKey = new SymmetricSecurityKey(key);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -113,7 +114,7 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
             throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
         }
 
-        var attempts = _loginAttemptService.GetAttempts(query.Email);
+        var attempts = loginAttemptService.GetAttempts(query.Email);
 
         return attempts switch
         {

@@ -3,9 +3,13 @@ using System.Security.Claims;
 using Bogus;
 using Bogus.Extensions.Brazil;
 
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -37,7 +41,12 @@ public class SubscriptionControllerTests : IDisposable
         _mockHttpContext = new Mock<HttpContext>();
 
         var subscriptionRepository = new SubscriptionRepository(_db);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserRepository(_db));
+        var userRepository = new UserRepository(_db);
+        var userRoleRepository = new UserRoleRepository(_db);
+        var roleRepository = new RoleRepository(_db);
+        var companyRepository = new CompanyRepository(_db);
+        var userService = new UserService(userRepository, userRoleRepository, roleRepository, companyRepository, new SecurityService());
+        var subscriptionService = new SubscriptionService(subscriptionRepository, userService);
         _controller = new SubscriptionController(subscriptionService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
@@ -62,7 +71,7 @@ public class SubscriptionControllerTests : IDisposable
             Id = _testUserId,
             Email = _faker.Internet.Email(),
             Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
+            Password = new SecurityService().Hash(_faker.Internet.Password())
         };
 
         var company = new CompanyModel
@@ -184,7 +193,7 @@ public class SubscriptionControllerTests : IDisposable
             Id = _testUserId,
             Email = _faker.Internet.Email(),
             Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
+            Password = new SecurityService().Hash(_faker.Internet.Password())
         };
 
         _db.AuthUsers.Add(user);
@@ -214,7 +223,7 @@ public class SubscriptionControllerTests : IDisposable
             Id = _testUserId,
             Email = _faker.Internet.Email(),
             Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
+            Password = new SecurityService().Hash(_faker.Internet.Password())
         };
 
         var company = new CompanyModel
@@ -274,7 +283,7 @@ public class SubscriptionControllerTests : IDisposable
             Id = _testUserId,
             Email = _faker.Internet.Email(),
             Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
+            Password = new SecurityService().Hash(_faker.Internet.Password())
         };
 
         var company1 = new CompanyModel
@@ -413,7 +422,7 @@ public class SubscriptionControllerTests : IDisposable
             Id = _testUserId,
             Email = _faker.Internet.Email(),
             Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
+            Password = new SecurityService().Hash(_faker.Internet.Password())
         };
 
         _db.AuthUsers.Add(user);
@@ -437,7 +446,7 @@ public class SubscriptionControllerTests : IDisposable
             Id = _testUserId,
             Email = _faker.Internet.Email(),
             Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
+            Password = new SecurityService().Hash(_faker.Internet.Password())
         };
 
         var company = new CompanyModel

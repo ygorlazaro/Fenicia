@@ -32,7 +32,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _roleRepository = new RoleRepository(_db);
         _companyRepository = new CompanyRepository(_db);
-        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository);
+        _userService = new UserService(_userRepository, _userRoleRepository, _roleRepository, _companyRepository, new SecurityService());
         _faker = new Faker();
     }
 
@@ -139,7 +139,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         var updatedUser = await _userRepository.GetByIdAsync(userId, CancellationToken.None).ContinueWith(t => t.Result);
         Assert.NotNull(updatedUser);
 
-        var isValid = SecurityService.Verify(newPassword, updatedUser.Password);
+        var isValid = new SecurityService().Verify(newPassword, updatedUser.Password);
         Assert.True(isValid);
     }
 

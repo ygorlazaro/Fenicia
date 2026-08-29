@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs;
 using Fenicia.Auth.Domains.User;
@@ -43,7 +44,7 @@ public class GenerateTokenHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new TokenService(configuration, loginAttemptService, new UserRepository(_db));
+        _service = new TokenService(configuration, loginAttemptService, new UserRepository(_db), new SecurityService());
         _faker = new Faker();
     }
 
@@ -55,7 +56,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenTooManyAttempts_ThrowsPermissionDeniedException()
+    public async Task GenerateAsync_WhenTooManyAttempts_ThrowsPermissionDeniedException()
     {
         var email = _faker.Internet.Email();
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
@@ -68,7 +69,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenUserDoesNotExist_ThrowsPermissionDeniedException()
+    public async Task GenerateAsync_WhenUserDoesNotExist_ThrowsPermissionDeniedException()
     {
         var email = _faker.Internet.Email();
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
@@ -81,7 +82,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenPasswordIsValid_ReturnsGenerateTokenResponse()
+    public async Task GenerateAsync_WhenPasswordIsValid_ReturnsGenerateTokenResponse()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -110,7 +111,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenPasswordIsInvalid_ThrowsPermissionDeniedException()
+    public async Task GenerateAsync_WhenPasswordIsInvalid_ThrowsPermissionDeniedException()
     {
         var email = _faker.Internet.Email();
         var correctPassword = _faker.Internet.Password();
@@ -135,7 +136,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAttemptsAreBelowThreshold_AllowsAuthentication()
+    public async Task GenerateAsync_WhenAttemptsAreBelowThreshold_AllowsAuthentication()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
@@ -159,7 +160,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenAuthenticationFails_IncrementsAttempts()
+    public async Task GenerateAsync_WhenAuthenticationFails_IncrementsAttempts()
     {
         var email = _faker.Internet.Email();
         var correctPassword = _faker.Internet.Password();
@@ -185,7 +186,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenEmailIsEmpty_ThrowsArgumentException()
+    public async Task GenerateAsync_WhenEmailIsEmpty_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var query = new GenerateTokenQuery(string.Empty, _faker.Internet.Password());
@@ -197,7 +198,7 @@ public class GenerateTokenHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WhenPasswordIsEmpty_ThrowsArgumentException()
+    public async Task GenerateAsync_WhenPasswordIsEmpty_ThrowsArgumentException()
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();

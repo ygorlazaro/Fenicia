@@ -3,6 +3,7 @@ using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
@@ -27,9 +28,9 @@ public class ForgotPasswordServiceTests : IDisposable
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _userRepository = new UserRepository(_db);
-        var userService = new UserService(_userRepository, new UserRoleRepository(_db), new RoleRepository(_db), new CompanyRepository(_db));
+        var userService = new UserService(_userRepository, new UserRoleRepository(_db), new RoleRepository(_db), new CompanyRepository(_db), new SecurityService());
         var repository = new ForgotPasswordRepository(_db);
-        _service = new ForgotPasswordService(repository, userService);
+        _service = new ForgotPasswordService(repository, userService, new SecurityService());
         _faker = new Faker();
     }
 
