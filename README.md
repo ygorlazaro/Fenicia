@@ -29,7 +29,7 @@ Fenicia is a modular, multi-tenant SaaS platform for administrative ERP, client 
 ```
 Fenicia.sln
 ├── Fenicia.Auth/                    # Authentication & authorization service
-├── Fenicia.Common.Api/              # Shared API infrastructure (auth, rate limiting, CORS, logging)
+├── Fenicia.Common.API/              # Shared API infrastructure (auth, rate limiting, CORS, logging)
 ├── Fenicia.Common.Data/             # Shared data layer (company context, base models, repositories)
 ├── Fenicia.Common/                  # Shared domain logic
 ├── Fenicia.Module.Basic/            # Core ERP module (products, orders, inventory, etc.)

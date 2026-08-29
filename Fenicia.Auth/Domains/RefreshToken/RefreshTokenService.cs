@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Domains.RefreshToken;
 
 public class RefreshTokenService(IRefreshTokenRepository repository)
 {
-    public virtual string Generate(Guid userId)
+    public virtual async Task<string> GenerateAsync(Guid userId, CancellationToken ct = default)
     {
         var randomNumber = new byte[32];
 
@@ -16,7 +16,7 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
         var stringToken = Convert.ToBase64String(randomNumber);
         var refreshToken = new RefreshTokenModel(stringToken, DateTime.UtcNow.AddDays(7), userId);
 
-        repository.AddAsync(refreshToken).GetAwaiter().GetResult();
+        await repository.AddAsync(refreshToken, ct);
 
         return refreshToken.Token;
     }

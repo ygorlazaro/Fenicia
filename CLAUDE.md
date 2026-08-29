@@ -27,15 +27,23 @@ Domains/NomeDoDominio/
 │   ├── UpdateNomeCommand.cs
 │   ├── UpdateNomeResponse.cs
 │   └── ... (outros DTOs)
-├── NomeController.cs        # Controller na raiz do domínio
+├── NomeController.cs        # Controller na raiz do domínio (se existir)
 └── NomeService.cs           # Service na raiz do domínio, AO LADO do controller
 ```
 
 ### Regras:
 - **DTOs**: todos os arquivos ficam na raiz de `DTOs/`, sem subpastas `Commands/`, `Queries/`, `Responses/`
 - **Services**: ficam na raiz do domínio, ao lado do controller
-- **Controllers**: ficam na raiz do domínio
+- **Controllers**: são opcionais. Quando existirem, ficam na raiz do domínio. Quando não existirem, o domínio terá apenas `DTOs/`, services e repositories.
 - **NÃO** criar pastas como `Add/`, `Delete/`, `GetAll/`, `GetById/`, `Update/`, `Handlers/`, `Services/` dentro do domínio
+- **Controllers** podem acessar apenas services e inserções de libs externas quando necessário (logs, por exemplo). Nunca acessar outros tipos de entidades ou repositories diretamente.
+
+### Rotas RESTful
+Seguir princípios RESTful nas rotas:
+- **NÃO** usar verbos na URL (ex: `refreshtoken/validate`, `refreshtoken/invalidate`)
+- Usar apenas o nome do recurso/entidade no **singular** (ex: `refreshtoken`, `role`, `user`)
+- Usar métodos HTTP apropriados: `GET` (leitura), `POST` (criação), `PATCH` (atualização parcial), `DELETE` (remoção)
+- Exemplo correto: `PATCH /refreshtokens/{id}` em vez de `POST /refreshtoken/invalidate`
 
 ## 3. Padrão de Repository
 

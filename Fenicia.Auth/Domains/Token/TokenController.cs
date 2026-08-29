@@ -88,7 +88,7 @@ public class TokenController(TokenService tokenService, RefreshTokenService refr
     private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(GenerateTokenResponse user, CancellationToken ct)
     {
         var token = tokenService.GenerateString(user);
-        var refreshToken = refreshTokenService.Generate(user.Id);
+        var refreshToken = await refreshTokenService.GenerateAsync(user.Id, ct);
         var response = token.MapToTokenResponse(refreshToken, user);
 
         return Created(string.Empty, response);

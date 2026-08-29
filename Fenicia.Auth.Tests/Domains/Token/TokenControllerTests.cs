@@ -32,7 +32,7 @@ public class TokenControllerTests
         redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(new Mock<IDatabase>().Object);
 
         _tokenServiceMock = new Mock<TokenService>(null!, null!, null!) { CallBase = true };
-        _refreshTokenServiceMock = new Mock<RefreshTokenService>(redisMock.Object) { CallBase = true };
+        _refreshTokenServiceMock = new Mock<RefreshTokenService>(new RefreshTokenRepository(redisMock.Object)) { CallBase = true };
         _userServiceMock = new Mock<UserService>(null!, null!, null!, null!) { CallBase = true };
 
         _controller = new TokenController(_tokenServiceMock.Object, _refreshTokenServiceMock.Object, _userServiceMock.Object);
@@ -61,7 +61,7 @@ public class TokenControllerTests
 
         _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _tokenServiceMock.Setup(s => s.GenerateString(It.IsAny<GenerateTokenResponse>())).Returns("jwt");
-        _refreshTokenServiceMock.Setup(s => s.Generate(It.IsAny<Guid>())).Returns("refresh");
+        _refreshTokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh");
 
         var result = await _controller.PostAsync(request, wide, CancellationToken.None);
 
@@ -94,7 +94,7 @@ public class TokenControllerTests
         _refreshTokenServiceMock.Setup(s => s.InvalidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _userServiceMock.Setup(s => s.GetForRefreshAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _tokenServiceMock.Setup(s => s.GenerateString(It.IsAny<GenerateTokenResponse>())).Returns("jwt");
-        _refreshTokenServiceMock.Setup(s => s.Generate(It.IsAny<Guid>())).Returns("refresh2");
+        _refreshTokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh2");
 
         var result = await _controller.Refresh(request, wide, CancellationToken.None);
 

@@ -18,6 +18,11 @@ public class UserService(
     RoleRepository roleRepository,
     CompanyRepository companyRepository)
 {
+    public UserService()
+        : this(null!, null!, null!, null!)
+    {
+    }
+
     public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(int page, int perPage, CancellationToken ct)
     {
         var request = from u in userRepository.Query()
@@ -108,7 +113,7 @@ public class UserService(
         return user.MapToCreateUserResponse();
     }
 
-    public async Task<CreateNewUserResponse> CreateNewAsync(CreateNewUserCommand command, CancellationToken ct)
+    public virtual async Task<CreateNewUserResponse> CreateNewAsync(CreateNewUserCommand command, CancellationToken ct)
     {
         await ValidateAsync(command, ct);
 
