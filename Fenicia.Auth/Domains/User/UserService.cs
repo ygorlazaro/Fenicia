@@ -20,19 +20,22 @@ public class UserService(
 {
     public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(int page, int perPage, CancellationToken ct)
     {
-        var request = userRepository.Query().OrderBy(u => u.Name);
+        var request = from u in userRepository.Query()
+                      orderby u.Name
+                      select u;
+
         var totalCount = await request.CountAsync(ct);
 
-        var users = await request.Skip((page - 1) * perPage).Take(perPage).Select(u => new UserListItemResponse(u.Id, u.Name, u.Email)).ToListAsync(ct);
+        var users = await request.Skip((page - 1) * perPage).Take(perPage).ToListAsync(ct);
 
-        return new Pagination<List<UserListItemResponse>>(users, totalCount, page, perPage);
+        return new Pagination<List<UserListItemResponse>>(users.Select(u => u.MapToUserListItemResponse()).ToList(), totalCount, page, perPage);
     }
 
     public async Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken ct)
     {
-        var request = userRepository.Query().Where(u => u.Id == userId).Select(u => new GetUserByIdResponse(u.Id, u.Name, u.Email));
+        var user = await userRepository.GetByIdAsync(userId, ct);
 
-        return await request.FirstOrDefaultAsync(ct);
+        return user is null ? null : user.MapToGetUserByIdResponse();
     }
 
     public async Task<GetByEmailResponse?> GetByEmailAsync(string email, CancellationToken ct)
@@ -44,7 +47,7 @@ public class UserService(
             return null;
         }
 
-        return new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password);
+        return user.MapToGetByEmailResponse();
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct)
@@ -73,7 +76,7 @@ public class UserService(
     {
         var user = await FirstByIdAsync(userId, ct);
 
-        return new GetUserForRefreshResponse(user.Id, user.Email, user.Name);
+        return user.MapToGetUserForRefreshResponse();
     }
 
     public async Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken ct)
@@ -102,7 +105,7 @@ public class UserService(
         await userRepository.InsertAsync(user, ct);
         await RelateRolesAsync(user.Id, command.Roles, ct);
 
-        return new CreateUserResponse(user.Id, user.Name, user.Email);
+        return user.MapToCreateUserResponse();
     }
 
     public async Task<CreateNewUserResponse> CreateNewAsync(CreateNewUserCommand command, CancellationToken ct)
@@ -126,7 +129,7 @@ public class UserService(
         await ValidateCompanies(companies, ct);
         await RelateRolesAsync(command, user, ct);
 
-        return new UpdateUserResponse(user.Id, user.Name, user.Email);
+        return user.MapToUpdateUserResponse();
     }
 
     public async Task DeleteAsync(Guid userId, CancellationToken ct)
@@ -151,7 +154,7 @@ public class UserService(
         var user = await UpdatePasswordAsync(command.UserId, command.Password, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
         await userRepository.UpdateAsync(user.Id, user, ct);
 
-        return new UpdatePasswordResponse(user.Id, user.Name, user.Email);
+        return user.MapToUpdatePasswordResponse();
     }
 
     private async Task RelateRolesAsync(Guid userId, List<CreateUserRoleCommand>? command, CancellationToken ct)

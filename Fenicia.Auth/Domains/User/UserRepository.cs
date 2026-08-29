@@ -20,11 +20,12 @@ public class UserRepository(DefaultContext context) : Repository<UserModel>(cont
 
     public async Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken ct = default)
     {
-        return await DbSet
-                .Where(u => u.Id == userId && u.Deleted == null)
-                .SelectMany(u => u.UsersRoles)
-                .Where(ur => ur.Deleted == null)
-                .Select(ur => new GetUserCompaniesResponse(ur.CompanyId, ur.Role.Name, ur.Company.Id, ur.Company.Name, ur.Company.Cnpj))
-                .ToListAsync(ct);
+        var query = from u in DbSet
+                    where u.Id == userId && u.Deleted == null
+                    from ur in u.UsersRoles
+                    where ur.Deleted == null
+                    select new GetUserCompaniesResponse(ur.CompanyId, ur.Role.Name, ur.Company.Id, ur.Company.Name, ur.Company.Cnpj);
+
+        return await query.ToListAsync(ct);
     }
 }
