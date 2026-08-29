@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
@@ -22,6 +23,56 @@ public class DashboardService(DashboardRepository dashboardRepository)
             AccountsReceivable = accountsReceivable,
             DailySales = dailySales
         };
+    }
+
+    public async Task<decimal> GetTotalRevenueAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetTotalRevenueAsync(ct);
+    }
+
+    public async Task<decimal> GetTotalCostAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetTotalCostAsync(ct);
+    }
+
+    public async Task<int> GetTotalOrdersAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetTotalOrdersAsync(ct);
+    }
+
+    public async Task<int> GetTotalProductsAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetTotalProductsAsync(ct);
+    }
+
+    public async Task<int> GetTotalEmployeesAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetTotalEmployeesAsync(ct);
+    }
+
+    public async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
+    {
+        return await dashboardRepository.GetRecentOrdersAsync(topLimit, ct);
+    }
+
+    public async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetTopCustomerOrdersAsync(ct);
+    }
+
+    public async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetAtRiskOrdersAsync(ct);
+    }
+
+    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    {
+        return await dashboardRepository.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
+    }
+
+    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct)
+    {
+        return await dashboardRepository.GetAllEmployeesAsync(ct);
     }
 
     private static int GetWeekNumber(DateTime date)

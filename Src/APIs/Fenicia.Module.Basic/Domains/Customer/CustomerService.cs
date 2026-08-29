@@ -6,16 +6,18 @@ using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Person;
+using Fenicia.Module.Basic.Domains.PersonAddress;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
 public class CustomerService(
     CustomerRepository customerRepository,
-    PersonRepository personRepository,
-    AddressRepository addressRepository,
-    PersonAddressRepository personAddressRepository,
-    DashboardRepository dashboardRepository)
+    PersonService personService,
+    AddressService addressService,
+    PersonAddressService personAddressService,
+    DashboardService dashboardService)
 {
     public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken ct)
     {
@@ -23,15 +25,16 @@ public class CustomerService(
 
         var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
-        var response = customers.Select(c =>
-        {
-            var personAddress = c.Person.PersonAddresses.FirstOrDefault();
-            var address = personAddress?.Address;
-
-            return new GetAllCustomerResponse(c.Id, c.PersonId, c.Person.Name, c.Person.Email, c.Person.PhoneNumber, c.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
-        }).ToList();
+        var response = customers.Select(c => c.MapToGetAllCustomerResponse()).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
+    }
+
+    public async Task<List<GetAllCustomerForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken ct)
+    {
+        var customers = await customerRepository.GetAllWithDetailsAsync(ct: ct);
+
+        return customers.Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name)).ToList();
     }
 
     public async Task<GetCustomerByIdResponse?> GetByIdAsync(GetCustomerByIdQuery query, CancellationToken ct)
@@ -43,17 +46,7 @@ public class CustomerService(
             return null;
         }
 
-        var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        return new GetCustomerByIdResponse(
-            customer.Id,
-            customer.PersonId,
-            customer.Person.Name,
-            customer.Person.Email,
-            customer.Person.PhoneNumber,
-            customer.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+        return customer.MapToGetCustomerByIdResponse();
     }
 
     public async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken ct)
@@ -64,27 +57,21 @@ public class CustomerService(
             Name = command.Name,
             Email = command.Email,
             Document = command.Document,
-            PhoneNumber = command.PhoneNumber,
-            CompanyId = companyId
+            PhoneNumber = command.PhoneNumber
         };
-
-        AddressModel? address = null;
 
         if (command.Address != null)
         {
-            address = new AddressModel
+            var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+            var createdAddress = await addressService.AddAsync(addressCommand, ct);
+
+            var personAddress = new PersonAddressModel
             {
                 Id = Guid.NewGuid(),
-                Street = command.Address.Street,
-                Number = command.Address.Number,
-                Complement = command.Address.Complement,
-                Neighborhood = command.Address.Neighborhood,
-                ZipCode = command.Address.ZipCode,
-                StateId = command.Address.StateId,
-                City = command.Address.City,
-                Country = command.Address.Country
+                PersonId = person.Id,
+                AddressId = createdAddress.Id
             };
-            await addressRepository.InsertAsync(address, ct);
+            await personAddressService.InsertAsync(personAddress, companyId, ct);
         }
 
         var customer = new CustomerModel
@@ -93,18 +80,7 @@ public class CustomerService(
             PersonId = person.Id
         };
 
-        if (address != null)
-        {
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = address.Id
-            };
-            await personAddressRepository.InsertAsync(personAddress, ct);
-        }
-
-        await personRepository.InsertAsync(person, ct);
+        await personService.InsertAsync(person, companyId, ct);
         var created = await customerRepository.InsertAsync(customer, ct);
 
         return new AddCustomerResponse(created.Id, person.Id);
@@ -130,43 +106,25 @@ public class CustomerService(
 
             if (existingPersonAddress?.Address != null)
             {
-                existingPersonAddress.Address.Street = command.Address.Street;
-                existingPersonAddress.Address.Number = command.Address.Number;
-                existingPersonAddress.Address.Complement = command.Address.Complement;
-                existingPersonAddress.Address.Neighborhood = command.Address.Neighborhood;
-                existingPersonAddress.Address.ZipCode = command.Address.ZipCode;
-                existingPersonAddress.Address.StateId = command.Address.StateId;
-                existingPersonAddress.Address.City = command.Address.City;
-                existingPersonAddress.Address.Country = command.Address.Country;
-                await addressRepository.UpdateAsync(existingPersonAddress.Address.Id, existingPersonAddress.Address, ct);
+                var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+                await addressService.UpdateAsync(existingPersonAddress.Address.Id, addressCommand, ct);
             }
             else
             {
-                var newAddress = new AddressModel
-                {
-                    Id = Guid.NewGuid(),
-                    Street = command.Address.Street,
-                    Number = command.Address.Number,
-                    Complement = command.Address.Complement,
-                    Neighborhood = command.Address.Neighborhood,
-                    ZipCode = command.Address.ZipCode,
-                    StateId = command.Address.StateId,
-                    City = command.Address.City,
-                    Country = command.Address.Country
-                };
-                await addressRepository.InsertAsync(newAddress, ct);
+                var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+                var createdAddress = await addressService.AddAsync(addressCommand, ct);
 
                 var newPersonAddress = new PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = customer.PersonId,
-                    AddressId = newAddress.Id
+                    AddressId = createdAddress.Id
                 };
-                await personAddressRepository.InsertAsync(newPersonAddress, ct);
+                await personAddressService.InsertAsync(newPersonAddress, companyId, ct);
             }
         }
 
-        await personRepository.UpdateAsync(customer.Person.Id, customer.Person, ct);
+        await personService.UpdateAsync(customer.Person.Id, customer.Person, companyId, ct);
         var updated = await customerRepository.UpdateAsync(command.Id, customer, ct) ?? throw new ItemNotExistsException();
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
@@ -201,10 +159,15 @@ public class CustomerService(
         };
     }
 
+    public async Task<int> GetCountAsync(CancellationToken ct)
+    {
+        return await customerRepository.CountAsync(ct);
+    }
+
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(GetCustomerInsightsQuery query, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
-        var orders = await dashboardRepository.GetAtRiskOrdersAsync(ct);
+        var orders = await dashboardService.GetAtRiskOrdersAsync(ct);
 
         var response = orders.GroupBy(o => o.CustomerId).Select(g =>
         {
@@ -220,7 +183,7 @@ public class CustomerService(
 
     private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
     {
-        var orders = await dashboardRepository.GetRecentOrdersAsync(topLimit, ct);
+        var orders = await dashboardService.GetRecentOrdersAsync(topLimit, ct);
 
         var response = orders.Take(topLimit).Select(o => new CustomerRecentOrdersResponse(o.Id, o.CustomerId, o.Customer.Person.Name, o.TotalAmount, o.SaleDate, o.Status.ToString(), o.Details.Sum(d => (int)d.Quantity))).ToList();
 
@@ -229,7 +192,7 @@ public class CustomerService(
 
     private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(int topLimit, CancellationToken ct)
     {
-        var orders = await dashboardRepository.GetTopCustomerOrdersAsync(ct);
+        var orders = await dashboardService.GetTopCustomerOrdersAsync(ct);
 
         var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g => new CustomerOrderHistoryResponse(g.Key.CustomerId, g.Key.CustomerName, g.Count(), g.Sum(o => o.TotalAmount), g.Sum(o => o.Details.Sum(d => (int)d.Quantity)), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate), g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent).Take(topLimit).ToList();
 
@@ -239,10 +202,10 @@ public class CustomerService(
     private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken ct)
     {
         var totalCustomers = await customerRepository.CountAsync(ct);
-        var totalOrders = await dashboardRepository.GetTotalOrdersAsync(ct);
-        var totalRevenue = await dashboardRepository.GetTotalRevenueAsync(ct);
-        var totalProducts = await dashboardRepository.GetTotalProductsAsync(ct);
-        var totalCost = await dashboardRepository.GetTotalCostAsync(ct);
+        var totalOrders = await dashboardService.GetTotalOrdersAsync(ct);
+        var totalRevenue = await dashboardService.GetTotalRevenueAsync(ct);
+        var totalProducts = await dashboardService.GetTotalProductsAsync(ct);
+        var totalCost = await dashboardService.GetTotalCostAsync(ct);
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;

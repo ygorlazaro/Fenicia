@@ -1,6 +1,5 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +7,11 @@ namespace Fenicia.Module.Basic.Domains.Position;
 
 public class PositionService(PositionRepository positionRepository)
 {
+    public PositionService()
+        : this(null!)
+    {
+    }
+
     public async Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(GetAllPositionQuery query, CancellationToken ct)
     {
         var total = await positionRepository.CountAsync(ct);

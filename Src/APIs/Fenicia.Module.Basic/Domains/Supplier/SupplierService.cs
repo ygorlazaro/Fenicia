@@ -2,6 +2,7 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,13 @@ public class SupplierService(SupplierRepository supplierRepository)
     }).ToList();
 
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
+    }
+
+    public async Task<List<GetAllSupplierForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken ct)
+    {
+        var suppliers = await supplierRepository.GetAllWithDetailsAsync(ct: ct);
+
+        return suppliers.Select(s => new GetAllSupplierForDataSourceResponse(s.Id, s.Person.Name)).ToList();
     }
 
     public async Task<GetSupplierByIdResponse?> GetByIdAsync(GetSupplierByIdQuery query, CancellationToken ct)
@@ -221,5 +229,10 @@ public class SupplierService(SupplierRepository supplierRepository)
             RecentStockMovements = recentStockMovements,
             Summary = summary
         };
+    }
+
+    public async Task<int> GetCountAsync(CancellationToken ct)
+    {
+        return await supplierRepository.CountAsync(ct);
     }
 }

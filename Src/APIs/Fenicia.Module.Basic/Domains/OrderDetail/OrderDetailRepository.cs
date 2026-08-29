@@ -10,6 +10,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
     {
         return await DbSet
+                .Include(d => d.Product)
                 .Where(d => d.OrderId == orderId && d.Deleted == null)
             .ToListAsync(ct);
     }
@@ -39,6 +40,14 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
         return await DbSet
                 .Include(d => d.Order)
             .Where(d => d.Order.SaleDate >= startDate && d.Order.SaleDate <= endDate && d.Deleted == null)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        return await DbSet
+                .Where(d => d.Order.SaleDate >= startDate && d.Deleted == null)
+            .Include(d => d.Order)
             .ToListAsync(ct);
     }
 }

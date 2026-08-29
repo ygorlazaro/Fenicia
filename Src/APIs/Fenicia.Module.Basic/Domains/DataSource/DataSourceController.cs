@@ -15,6 +15,15 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class DataSourceController(DataSourceService dataSourceService) : ControllerBase
 {
+    /// <summary>
+    /// Obtém a lista de cargos para datasource.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de cargos</returns>
+    /// <response code="200">Lista de cargos retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os cargos</exception>
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -34,6 +43,15 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
         }
     }
 
+    /// <summary>
+    /// Obtém a lista de categorias de produtos para datasource.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de categorias de produtos</returns>
+    /// <response code="200">Lista de categorias retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar as categorias</exception>
     [HttpGet("productcategory")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductCategoryForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -53,6 +71,15 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
         }
     }
 
+    /// <summary>
+    /// Obtém a lista de fornecedores para datasource.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de fornecedores</returns>
+    /// <response code="200">Lista de fornecedores retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os fornecedores</exception>
     [HttpGet("supplier")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllSupplierForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -72,6 +99,15 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
         }
     }
 
+    /// <summary>
+    /// Obtém a lista de clientes para datasource.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de clientes</returns>
+    /// <response code="200">Lista de clientes retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os clientes</exception>
     [HttpGet("customer")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCustomerForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -91,6 +127,15 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
         }
     }
 
+    /// <summary>
+    /// Obtém a lista de produtos para datasource.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de produtos</returns>
+    /// <response code="200">Lista de produtos retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os produtos</exception>
     [HttpGet("product")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -110,6 +155,15 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
         }
     }
 
+    /// <summary>
+    /// Obtém a lista de funcionários para datasource.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="ct">Token de cancelamento</param>
+    /// <returns>Lista de funcionários</returns>
+    /// <response code="200">Lista de funcionários retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os funcionários</exception>
     [HttpGet("employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

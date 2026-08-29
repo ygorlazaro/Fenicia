@@ -1,21 +1,28 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Microsoft.EntityFrameworkCore;
-using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementService(
     StockMovementRepository stockMovementRepository,
-    ProductRepository productRepository)
+    ProductService productService)
 {
+    public StockMovementService()
+        : this(null!, null!)
+    {
+    }
+
     public async Task<List<GetStockMovementResponse>> GetAsync(GetStockMovementQuery query, CancellationToken ct)
     {
         var startDate = query.StartDate ?? DateTime.MinValue;
         var endDate = query.EndDate ?? DateTime.MaxValue;
-        var movements = await stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PageSize, ct);
+        var movements = await stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PerPage, ct);
 
         return [.. movements.Select(m => new GetStockMovementResponse(
             m.Id,
@@ -55,18 +62,28 @@ public class StockMovementService(
 
         await stockMovementRepository.InsertAsync(stockMovement, ct);
 
-        var product = await productRepository.GetByIdAsync(command.ProductId, ct);
+        var product = await productService.GetByIdAsync(new GetProductByIdQuery(command.ProductId), ct);
 
         if (product is not null)
         {
-            product.Quantity = command.Type switch
+            var newQuantity = command.Type switch
             {
-                StockMovementType.In => product.Quantity += command.Quantity,
-                StockMovementType.Out => product.Quantity -= command.Quantity,
+                StockMovementType.In => product.Quantity + command.Quantity,
+                StockMovementType.Out => product.Quantity - command.Quantity,
                 _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
             };
 
-            await productRepository.UpdateAsync(product.Id, product, ct);
+            var updateCommand = new UpdateProductCommand(
+                product.Id,
+                product.Name,
+                Description: product.Description,
+                CostPrice: product.CostPrice,
+                SalesPrice: product.SalesPrice,
+                Quantity: (double)newQuantity,
+                CategoryId: product.CategoryId,
+                SupplierId: product.SupplierId);
+
+            await productService.UpdateAsync(updateCommand, companyId, ct);
         }
 
         return new AddStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
@@ -103,7 +120,7 @@ public class StockMovementService(
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var movements = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, ct);
+        var movements = await stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, ct);
         var movementList = movements.ToList();
 
         var history = await GetStockMovementHistoryAsync(movementList, ct);
@@ -123,16 +140,6 @@ public class StockMovementService(
     private async Task<List<StockMovementHistoryResponse>> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements, CancellationToken ct)
     {
         var movementList = movements.ToList();
-        var customerIds = movementList.Where(m => m.CustomerId.HasValue).Select(m => m.CustomerId!.Value).Distinct().ToList();
-        var supplierIds = movementList.Where(m => m.SupplierId.HasValue).Select(m => m.SupplierId!.Value).Distinct().ToList();
-
-        var customers = customerIds.Any()
-            ? await stockMovementRepository.Context.BasicCustomers.Where(c => customerIds.Contains(c.Id)).Include(c => c.Person).ToDictionaryAsync(c => c.Id, c => c.Person != null ? c.Person.Name : null, ct)
-            : new Dictionary<Guid, string?>();
-
-        var suppliers = supplierIds.Any()
-            ? await stockMovementRepository.Context.BasicSuppliers.Where(s => supplierIds.Contains(s.Id)).Include(s => s.Person).ToDictionaryAsync(s => s.Id, s => s.Person != null ? s.Person.Name : null, ct)
-            : new Dictionary<Guid, string?>();
 
         var request = from m in movementList
                       orderby m.Date descending
@@ -145,20 +152,20 @@ public class StockMovementService(
                           m.Price ?? 0,
                           m.Type.ToString(),
                           m.Reason,
-                          m.CustomerId.HasValue && customers.TryGetValue(m.CustomerId.Value, out var cName) ? cName : null,
-                          m.SupplierId.HasValue && suppliers.TryGetValue(m.SupplierId.Value, out var sName) ? sName : null);
+                          m.Customer != null && m.Customer.Person != null ? m.Customer.Person.Name : null,
+                          m.Supplier != null && m.Supplier.Person != null ? m.Supplier.Person.Name : null);
 
         return [.. request];
     }
 
     private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken ct)
     {
-        var movementList = movements.ToList();
-        var productOutMovements = movementList.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
+        var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
-        var products = await productRepository.Query().Where(p => p.Quantity > 0).ToListAsync(ct);
+        var products = await productService.GetAllAsync(new GetAllProductQuery(1, 10000), ct);
+        var productList = products.Data.Where(p => p.Quantity > 0).ToList();
 
-        var request = from p in products
+        var request = from p in productList
                       join m in productOutMovements on p.Id equals m.ProductId into gj
                       from m in gj.DefaultIfEmpty()
                       let totalSold = m.TotalSold ?? 0
@@ -168,7 +175,7 @@ public class StockMovementService(
                       {
                           p.Id,
                           p.Name,
-                          CategoryName = p.Category.Name,
+                          CategoryName = p.CategoryName,
                           p.Quantity,
                           totalSold,
                           turnoverRate

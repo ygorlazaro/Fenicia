@@ -1,5 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.Supplier;
@@ -49,6 +50,16 @@ public class ProductService(
             .ToListAsync(ct);
 
         return new Pagination<List<GetAllProductResponse>>(products, total, query.Page, query.PerPage);
+    }
+
+    public async Task<List<GetAllProductForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken ct)
+    {
+        var products = await productRepository.Query()
+            .OrderBy(p => p.Name)
+            .Select(p => new GetAllProductForDataSourceResponse(p.Id, p.Name))
+            .ToListAsync(ct);
+
+        return products;
     }
 
     public async Task<GetProductByIdResponse?> GetByIdAsync(GetProductByIdQuery query, CancellationToken ct)
@@ -269,6 +280,11 @@ public class ProductService(
             ProfitMargins = profitMargins,
             NeverSoldProducts = neverSoldProducts
         };
+    }
+
+    public async Task<int> GetCountAsync(CancellationToken ct)
+    {
+        return await productRepository.CountAsync(ct);
     }
 
     private async Task<List<NeverSoldProductResponse>> GetNeverSoldProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, IEnumerable<StockMovementModel> stockMovements, CancellationToken ct)
