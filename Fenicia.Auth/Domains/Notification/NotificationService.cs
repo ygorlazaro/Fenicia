@@ -50,9 +50,9 @@ public class NotificationService(NotificationRepository repository)
         notification.Date = command.Date ?? notification.Date;
         notification.ImageUrl = command.ImageUrl;
 
-        if (command.Read.HasValue)
+        if (command.IsRead.HasValue)
         {
-            notification.Read = command.Read.Value;
+            notification.Read = command.IsRead.Value;
         }
 
         await repository.UpdateAsync(notification.Id, notification, ct);
@@ -70,21 +70,6 @@ public class NotificationService(NotificationRepository repository)
         }
 
         notification.Deleted = DateTime.UtcNow;
-        await repository.UpdateAsync(notification.Id, notification, ct);
-
-        return true;
-    }
-
-    public async Task<bool> MarkAsReadAsync(Guid id, CancellationToken ct)
-    {
-        var notification = await repository.GetByIdAsync(id, ct);
-
-        if (notification is null)
-        {
-            return false;
-        }
-
-        notification.Read = true;
         await repository.UpdateAsync(notification.Id, notification, ct);
 
         return true;

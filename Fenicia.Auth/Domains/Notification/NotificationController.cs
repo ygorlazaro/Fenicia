@@ -167,33 +167,4 @@ public class NotificationController(NotificationService notificationService) : C
             return Forbid(ex.Message);
         }
     }
-
-    /// <summary>
-    /// Marca uma notificação como lida.
-    /// </summary>
-    /// <param name="id">ID da notificação</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se marcada como lida</returns>
-    /// <response code="204">Notificação marcada como lida com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Notificação não encontrada</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpPatch("{id:guid}/read")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> MarkAsReadAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
-    {
-        try
-        {
-            wide.UserId = ClaimReader.UserId(User).ToString();
-            var result = await notificationService.MarkAsReadAsync(id, ct);
-            return result ? NoContent() : NotFound();
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid(ex.Message);
-        }
-    }
 }
