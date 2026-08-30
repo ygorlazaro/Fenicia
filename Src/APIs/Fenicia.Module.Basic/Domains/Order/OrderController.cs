@@ -137,7 +137,7 @@ public class OrderController(OrderService orderService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await orderService.DeleteAsync(new DeleteOrderCommand(id), ct);
+            await orderService.DeleteAsync(new DeleteOrderCommand(id), ClaimReader.UserId(User), ct);
 
             return NoContent();
         }

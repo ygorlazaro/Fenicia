@@ -213,7 +213,7 @@ public class EmployeeServiceTests : IDisposable
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        await _service.DeleteAsync(new DeleteEmployeeCommand(employee.Id), CancellationToken.None);
+        await _service.DeleteAsync(new DeleteEmployeeCommand(employee.Id), Guid.NewGuid(), CancellationToken.None);
 
         var deletedEmployee = await _db.BasicEmployees.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == employee.Id);
         deletedEmployee.Should().NotBeNull();
@@ -223,7 +223,7 @@ public class EmployeeServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenEmployeeDoesNotExist_DoesNothing()
     {
-        await _service.DeleteAsync(new DeleteEmployeeCommand(Guid.NewGuid()), CancellationToken.None);
+        await _service.DeleteAsync(new DeleteEmployeeCommand(Guid.NewGuid()), Guid.NewGuid(), CancellationToken.None);
 
         var count = await _db.BasicEmployees.CountAsync();
         count.Should().Be(0);

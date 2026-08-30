@@ -135,7 +135,7 @@ public class EmployeeService(
         return new UpdateEmployeeResponse(updated.Id, updated.PositionId, employee.PersonId);
     }
 
-    public async Task DeleteAsync(DeleteEmployeeCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteEmployeeCommand command, Guid companyId, CancellationToken ct)
     {
         await employeeRepository.DeleteAsync(command.Id, ct);
     }
@@ -149,9 +149,9 @@ public class EmployeeService(
         var employees = await GetAllEmployeesAsync(ct);
 
         var summary = await GetEmployeePerformanceSummaryAsync(orders, employees, ct);
-        var salesByEmployee = GetSalesByEmployeeAsync(orders, employees);
-        var ordersByEmployee = GetOrdersByEmployeeAsync(orders, employees);
-        var topPerformers = GetTopPerformerAsync(query, salesByEmployee, summary);
+        var salesByEmployee = GetSalesByEmployee(orders, employees);
+        var ordersByEmployee = GetOrdersByEmployee(orders, employees);
+        var topPerformers = GetTopPerformer(query, salesByEmployee, summary);
 
         return new EmployeePerformanceResponse
         {
@@ -188,7 +188,7 @@ public class EmployeeService(
         return new Pagination<List<GetEmployeesByPositionIdResponse>>(response, total, query.Page, query.PerPage);
     }
 
-    private List<TopPerformerResponse> GetTopPerformerAsync(GetEmployeePerformanceQuery query, List<EmployeeSalesResponse> salesByEmployee, EmployeePerformanceSummaryResponse summary)
+    private List<TopPerformerResponse> GetTopPerformer(GetEmployeePerformanceQuery query, List<EmployeeSalesResponse> salesByEmployee, EmployeePerformanceSummaryResponse summary)
     {
         var topPerformers = salesByEmployee.Take(query.TopLimit).Select(e =>
         {
@@ -211,7 +211,7 @@ public class EmployeeService(
         return topPerformers;
     }
 
-    private List<EmployeeOrderCountResponse> GetOrdersByEmployeeAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees)
+    private List<EmployeeOrderCountResponse> GetOrdersByEmployee(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
@@ -224,7 +224,7 @@ public class EmployeeService(
         return ordersByEmployee;
     }
 
-    private List<EmployeeSalesResponse> GetSalesByEmployeeAsync(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees)
+    private List<EmployeeSalesResponse> GetSalesByEmployee(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders, IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.Employee != null).ToList();
 

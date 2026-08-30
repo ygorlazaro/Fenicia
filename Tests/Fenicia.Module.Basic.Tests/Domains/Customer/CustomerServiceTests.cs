@@ -177,7 +177,7 @@ public class CustomerServiceTests : IDisposable
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        await _service.DeleteAsync(new DeleteCustomerCommand(customer.Id), CancellationToken.None);
+        await _service.DeleteAsync(new DeleteCustomerCommand(customer.Id), Guid.NewGuid(), CancellationToken.None);
 
         var deletedCustomer = await _db.BasicCustomers.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == customer.Id);
         deletedCustomer.Should().NotBeNull();
@@ -187,7 +187,7 @@ public class CustomerServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenCustomerDoesNotExist_DoesNothing()
     {
-        await _service.DeleteAsync(new DeleteCustomerCommand(Guid.NewGuid()), CancellationToken.None);
+        await _service.DeleteAsync(new DeleteCustomerCommand(Guid.NewGuid()), Guid.NewGuid(), CancellationToken.None);
 
         var count = await _db.BasicCustomers.CountAsync();
         count.Should().Be(0);

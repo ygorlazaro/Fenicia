@@ -10,82 +10,31 @@ using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-public class ProductService
+public class ProductService(
+    ProductRepository productRepository,
+    ProductCategoryService productCategoryService,
+    OrderDetailService orderDetailService,
+    StockMovementService stockMovementService)
 {
-    private readonly ProductRepository _productRepository;
-    private readonly ProductCategoryService _productCategoryService;
-    private readonly SupplierService? _supplierService;
-    private readonly OrderDetailService _orderDetailService;
-    private readonly StockMovementService _stockMovementService;
-
-    public ProductService(
-        ProductRepository productRepository,
-        ProductCategoryService productCategoryService,
-        OrderDetailService orderDetailService,
-        StockMovementService stockMovementService)
-    {
-        _productRepository = productRepository;
-        _productCategoryService = productCategoryService;
-        _orderDetailService = orderDetailService;
-        _stockMovementService = stockMovementService;
-        _supplierService = null!;
-    }
-
-    public ProductService(
-        ProductRepository productRepository,
-        ProductCategoryService productCategoryService,
-        IServiceProvider serviceProvider,
-        OrderDetailService orderDetailService,
-        StockMovementService stockMovementService)
-    {
-        _productRepository = productRepository;
-        _productCategoryService = productCategoryService;
-        _orderDetailService = orderDetailService;
-        _stockMovementService = stockMovementService;
-        _supplierService = serviceProvider.GetService<SupplierService>() ?? throw new InvalidOperationException("SupplierService not registered");
-    }
-
     public async Task<Pagination<List<GetAllProductResponse>>> GetAllAsync(GetAllProductQuery query, CancellationToken ct)
     {
-        var total = await _productRepository.CountAsync(ct);
+        var total = await productRepository.CountAsync(ct);
 
-        var products = await _productRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
+        var products = await productRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
-        var response = products.Select(p => new GetAllProductResponse(
-            p.Id,
-            p.Name,
-            p.SKU,
-            p.Barcode,
-            p.Description,
-            p.CostPrice,
-            p.SalesPrice,
-            p.Quantity,
-            p.MinStockLevel,
-            p.MaxStockLevel,
-            p.ImageUrl,
-            p.Weight,
-            p.Dimensions,
-            p.UnitOfMeasure,
-            p.CategoryId,
-            p.Category?.Name ?? string.Empty,
-            p.SupplierId,
-            p.Supplier?.Person?.Name ?? string.Empty,
-            p.IsActive))
-            .ToList();
+        var response = products.Select(p => p.MapToGetAllProductResponse()).ToList();
 
         return new Pagination<List<GetAllProductResponse>>(response, total, query.Page, query.PerPage);
     }
 
     public async Task<List<GetAllProductForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken ct)
     {
-        var products = await _productRepository.Query()
+        var products = await productRepository.Query()
             .OrderBy(p => p.Name)
             .Select(p => new GetAllProductForDataSourceResponse(p.Id, p.Name))
             .ToListAsync(ct);
@@ -95,57 +44,21 @@ public class ProductService
 
     public async Task<GetProductByIdResponse?> GetByIdAsync(GetProductByIdQuery query, CancellationToken ct)
     {
-        var product = await _productRepository.GetByIdWithDetailsAsync(query.Id, ct);
+        var product = await productRepository.GetByIdWithDetailsAsync(query.Id, ct);
 
         if (product is null)
         {
             return null;
         }
 
-        return new GetProductByIdResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            product.Category?.Name ?? string.Empty,
-            product.SupplierId,
-            product.Supplier?.Person?.Name,
-            product.IsActive);
+        return product.MapToGetProductByIdResponse();
     }
 
     public async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(GetProductsByCategoryIdQuery query, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
-        var products = await _productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, ct);
+        var products = await productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, ct);
 
-        return [.. products.Select(p => new GetProductsByCategoryIdResponse(
-            p.Id,
-            p.Name,
-            p.SKU,
-            p.Barcode,
-            p.Description,
-            p.CostPrice,
-            p.SalesPrice,
-            p.Quantity,
-            p.MinStockLevel,
-            p.MaxStockLevel,
-            p.ImageUrl,
-            p.Weight,
-            p.Dimensions,
-            p.UnitOfMeasure,
-            p.CategoryId,
-            p.Category.Name,
-            p.IsActive))];
+        return [.. products.Select(p => p.MapToGetProductsByCategoryIdResponse())];
     }
 
     public async Task<AddProductResponse> AddAsync(AddProductCommand command, Guid companyId, CancellationToken ct)
@@ -172,41 +85,20 @@ public class ProductService
             CompanyId = companyId
         };
 
-        await _productRepository.InsertAsync(product, ct);
+        await productRepository.InsertAsync(product, ct);
 
-        var category = await _productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), ct);
+        var insertedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, ct);
 
-        GetSupplierByIdResponse? supplier = null;
-        if (product.SupplierId.HasValue)
-        {
-            supplier = await _supplierService!.GetByIdAsync(new GetSupplierByIdQuery(product.SupplierId.Value), ct);
-        }
+        var category = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), ct);
 
-        return new AddProductResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            category?.Name ?? string.Empty,
-            product.SupplierId,
-            supplier != null ? supplier.Name : null,
-            product.IsActive);
+        var supplierName = insertedProduct?.Supplier?.Person?.Name;
+
+        return product.MapToAddProductResponse(category?.Name ?? string.Empty, supplierName);
     }
 
     public async Task<UpdateProductResponse?> UpdateAsync(UpdateProductCommand command, Guid companyId, CancellationToken ct)
     {
-        var product = await _productRepository.GetByIdAsync(command.Id, ct);
+        var product = await productRepository.GetByIdAsync(command.Id, ct);
 
         if (product is null)
         {
@@ -230,41 +122,20 @@ public class ProductService
         product.SupplierId = command.SupplierId;
         product.CompanyId = companyId;
 
-        await _productRepository.UpdateAsync(product.Id, product, ct);
+        await productRepository.UpdateAsync(product.Id, product, ct);
 
-        var category = await _productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), ct);
+        var updatedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, ct);
 
-        GetSupplierByIdResponse? supplier = null;
-        if (product.SupplierId.HasValue)
-        {
-            supplier = await _supplierService!.GetByIdAsync(new GetSupplierByIdQuery(product.SupplierId.Value), ct);
-        }
+        var category = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), ct);
 
-        return new UpdateProductResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            category?.Name ?? string.Empty,
-            product.SupplierId,
-            supplier != null ? supplier.Name : null,
-            product.IsActive);
+        var supplierName = updatedProduct?.Supplier?.Person?.Name;
+
+        return product.MapToUpdateProductResponse(category?.Name ?? string.Empty, supplierName);
     }
 
     public async Task DeleteAsync(DeleteProductCommand command, Guid companyId, CancellationToken ct)
     {
-        await _productRepository.DeleteAsync(command.Id, ct);
+        await productRepository.DeleteAsync(command.Id, ct);
     }
 
     public async Task<ProductPerformanceResponse> GetPerformanceAsync(GetProductPerformanceQuery query, CancellationToken ct)
@@ -272,13 +143,13 @@ public class ProductService
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var products = await _productRepository.GetAllWithDetailsAsync(ct: ct);
+        var products = await productRepository.GetAllWithDetailsAsync(ct: ct);
         var productList = products.ToList();
 
-        var orderDetails = await _orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, ct);
+        var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, ct);
         var orderDetailList = orderDetails.ToList();
 
-        var stockMovements = await _stockMovementService.GetByDateRangeAsync(startDate, endDate, ct);
+        var stockMovements = await stockMovementService.GetByDateRangeAsync(startDate, endDate, ct);
         var stockMovementList = stockMovements.ToList();
 
         var bestSellingProducts = await GetBestSellingProductAsync(query, orderDetailList, ct);
@@ -297,126 +168,126 @@ public class ProductService
 
     public async Task<int> GetCountAsync(CancellationToken ct)
     {
-        return await _productRepository.CountAsync(ct);
+        return await productRepository.CountAsync(ct);
     }
 
     public async Task<int> GetTotalProductsAsync(CancellationToken ct)
     {
-        return await _productRepository.CountAsync(ct);
+        return await productRepository.CountAsync(ct);
     }
 
     public async Task<List<ProductModel>> GetAllWithSupplierAsync(CancellationToken ct)
     {
-        return await _productRepository.Query()
+        return await productRepository.Query()
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null)
             .ToListAsync(ct);
     }
 
     public async Task<List<ProductModel>> GetAllForStatsAsync(CancellationToken ct)
     {
-        return await _productRepository.Query()
+        return await productRepository.Query()
             .Where(p => p.SupplierId.HasValue)
             .ToListAsync(ct);
     }
 
     public async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
-        return await _productRepository.GetAllWithCategoryAsync(page, perPage, ct);
+        return await productRepository.GetAllWithCategoryAsync(page, perPage, ct);
     }
 
     public async Task<decimal> GetTotalCostPriceAsync(CancellationToken ct)
     {
-        return await _productRepository.GetTotalCostPriceAsync(ct);
+        return await productRepository.GetTotalCostPriceAsync(ct);
     }
 
     public async Task<decimal> GetTotalSalesPriceAsync(CancellationToken ct)
     {
-        return await _productRepository.GetTotalSalesPriceAsync(ct);
+        return await productRepository.GetTotalSalesPriceAsync(ct);
     }
 
     public async Task<int> GetTotalQuantityAsync(CancellationToken ct)
     {
-        return await _productRepository.GetTotalQuantityAsync(ct);
+        return await productRepository.GetTotalQuantityAsync(ct);
     }
 
     public async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
-        return await _productRepository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, ct);
+        return await productRepository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, ct);
     }
 
     public async Task<decimal> GetTotalCostPriceByCategoryAsync(Guid categoryId, CancellationToken ct)
     {
-        return await _productRepository.GetTotalCostPriceByCategoryAsync(categoryId, ct);
+        return await productRepository.GetTotalCostPriceByCategoryAsync(categoryId, ct);
     }
 
     public async Task<decimal> GetTotalSalesPriceByCategoryAsync(Guid categoryId, CancellationToken ct)
     {
-        return await _productRepository.GetTotalSalesPriceByCategoryAsync(categoryId, ct);
+        return await productRepository.GetTotalSalesPriceByCategoryAsync(categoryId, ct);
     }
 
     public async Task<int> GetTotalQuantityByCategoryAsync(Guid categoryId, CancellationToken ct)
     {
-        return await _productRepository.GetTotalQuantityByCategoryAsync(categoryId, ct);
+        return await productRepository.GetTotalQuantityByCategoryAsync(categoryId, ct);
     }
 
     public async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
-        return await _productRepository.GetByIdWithCategoryAsync(productId, page, perPage, ct);
+        return await productRepository.GetByIdWithCategoryAsync(productId, page, perPage, ct);
     }
 
     public async Task<decimal> GetTotalCostPriceByProductAsync(Guid productId, CancellationToken ct)
     {
-        return await _productRepository.GetTotalCostPriceByProductAsync(productId, ct);
+        return await productRepository.GetTotalCostPriceByProductAsync(productId, ct);
     }
 
     public async Task<decimal> GetTotalSalesPriceByProductAsync(Guid productId, CancellationToken ct)
     {
-        return await _productRepository.GetTotalSalesPriceByProductAsync(productId, ct);
+        return await productRepository.GetTotalSalesPriceByProductAsync(productId, ct);
     }
 
     public async Task<int> GetTotalQuantityByProductAsync(Guid productId, CancellationToken ct)
     {
-        return await _productRepository.GetTotalQuantityByProductAsync(productId, ct);
+        return await productRepository.GetTotalQuantityByProductAsync(productId, ct);
     }
 
     public async Task<List<ProductModel>> GetLowStockAsync(CancellationToken ct = default)
     {
-        return await _productRepository.GetLowStockAsync(ct);
+        return await productRepository.GetLowStockAsync(ct);
     }
 
     public async Task<decimal> GetTotalCostValueAsync(CancellationToken ct)
     {
-        return await _productRepository.GetTotalCostValueAsync(ct);
+        return await productRepository.GetTotalCostValueAsync(ct);
     }
 
     public async Task<decimal> GetTotalSalesValueAsync(CancellationToken ct)
     {
-        return await _productRepository.GetTotalSalesValueAsync(ct);
+        return await productRepository.GetTotalSalesValueAsync(ct);
     }
 
     public async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct = default)
     {
-        return await _productRepository.GetZeroMovementCandidatesAsync(activeProductIds, ct);
+        return await productRepository.GetZeroMovementCandidatesAsync(activeProductIds, ct);
     }
 
     public async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken ct = default)
     {
-        return await _productRepository.GetOverstockCandidatesAsync(ct);
+        return await productRepository.GetOverstockCandidatesAsync(ct);
     }
 
     public async Task<int> CountAsync(Expression<Func<ProductModel, bool>> predicate, CancellationToken ct = default)
     {
-        return await _productRepository.CountAsync(predicate, ct);
+        return await productRepository.CountAsync(predicate, ct);
     }
 
     public async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken ct = default)
     {
-        return await _productRepository.GetStockValueByCategoryAsync(ct);
+        return await productRepository.GetStockValueByCategoryAsync(ct);
     }
 
     public async Task<List<CategoryBreakdownResponse>> GetCategoryBreakdownAsync(CancellationToken ct)
     {
-        return await _productRepository.Query()
+        return await productRepository.Query()
                 .GroupBy(p => new { p.CategoryId, CategoryName = p.Category.Name })
             .Select(g => new CategoryBreakdownResponse(
                 g.Key.CategoryId,
@@ -507,7 +378,7 @@ public class ProductService
         }).OrderByDescending(x => x.TotalQuantitySold).Take(query.TopLimit).ToList();
 
         var productIds = salesStats.Select(s => s.ProductId).ToList();
-        var products = await _productRepository.Query()
+        var products = await productRepository.Query()
             .Include(p => p.Category)
             .Where(p => productIds.Contains(p.Id))
             .Select(p => new { p.Id, ProductName = p.Name, CategoryName = p.Category.Name })

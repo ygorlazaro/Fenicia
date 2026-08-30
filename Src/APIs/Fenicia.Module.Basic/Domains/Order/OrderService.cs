@@ -72,20 +72,7 @@ public class OrderService(
             return null;
         }
 
-        return new GetOrderByIdResponse(
-            order.Id,
-            order.OrderNumber,
-            order.UserId,
-            order.CustomerId,
-            order.Customer?.Person?.Name ?? "Unknown",
-            order.TotalAmount,
-            order.DiscountAmount,
-            order.TotalQuantity,
-            order.SaleDate,
-            order.Status.ToString(),
-            order.PaymentMethod,
-            order.Notes,
-            order.EmployeeId);
+        return order.MapToGetOrderByIdResponse();
     }
 
     public async Task<CreateOrderResponse> CreateAsync(CreateOrderCommand command, Guid companyId, CancellationToken ct)
@@ -160,22 +147,10 @@ public class OrderService(
             await stockMovementService.AddAsync(movementCommand, companyId, ct);
         }
 
-        return new CreateOrderResponse(
-            created.Id,
-            created.OrderNumber,
-            created.UserId,
-            created.CustomerId,
-            created.TotalAmount,
-            created.DiscountAmount,
-            created.TotalQuantity,
-            created.SaleDate,
-            created.Status,
-            created.PaymentMethod,
-            created.Notes,
-            created.EmployeeId);
+        return created.MapToCreateOrderResponse();
     }
 
-    public async Task DeleteAsync(DeleteOrderCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteOrderCommand command, Guid companyId, CancellationToken ct)
     {
         await orderRepository.DeleteAsync(command.Id, ct);
     }

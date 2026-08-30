@@ -148,11 +148,11 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await customerService.DeleteAsync(new DeleteCustomerCommand(id), ct);
+        await customerService.DeleteAsync(new DeleteCustomerCommand(id), ClaimReader.UserId(User), ct);
 
         return NoContent();
     }

@@ -26,20 +26,7 @@ public class SupplierService(
 
         var suppliers = await supplierRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
 
-        var response = suppliers.Select(s =>
-    {
-        var personAddress = s.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        return new GetAllSupplierResponse(
-            s.Id,
-            s.PersonId,
-            s.Person.Name,
-            s.Person.Email,
-            s.Person.PhoneNumber,
-            s.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
-    }).ToList();
+        var response = suppliers.Select(s => s.MapToGetAllSupplierResponse()).ToList();
 
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -60,17 +47,7 @@ public class SupplierService(
             return null;
         }
 
-        var personAddress = supplier.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        return new GetSupplierByIdResponse(
-            supplier.Id,
-            supplier.PersonId,
-            supplier.Person.Name,
-            supplier.Person.Email,
-            supplier.Person.PhoneNumber,
-            supplier.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
+        return supplier.MapToGetSupplierByIdResponse();
     }
 
     public async Task<AddSupplierResponse> AddAsync(AddSupplierCommand command, Guid companyId, CancellationToken ct)
@@ -126,7 +103,7 @@ public class SupplierService(
 
         await supplierRepository.InsertAsync(supplier, ct);
 
-        return new AddSupplierResponse(supplier.Id, supplier.Cnpj);
+        return supplier.MapToAddSupplierResponse();
     }
 
     public async Task<UpdateSupplierResponse?> UpdateAsync(UpdateSupplierCommand command, Guid companyId, CancellationToken ct)
@@ -188,7 +165,7 @@ public class SupplierService(
 
         await supplierRepository.UpdateAsync(supplier.Id, supplier, ct);
 
-        return new UpdateSupplierResponse(supplier.Id, supplier.Cnpj);
+        return supplier.MapToUpdateSupplierResponse();
     }
 
     public async Task DeleteAsync(DeleteSupplierCommand command, Guid companyId, CancellationToken ct)

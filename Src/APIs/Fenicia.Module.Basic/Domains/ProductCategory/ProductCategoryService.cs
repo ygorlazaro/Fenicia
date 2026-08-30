@@ -17,7 +17,7 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
         var total = await productCategoryRepository.CountAsync(ct);
 
         var categories = await productCategoryRepository.Query()
-            .Select(pc => new GetAllProductCategoryResponse(pc.Id, pc.Name))
+            .Select(pc => pc.MapToGetAllProductCategoryResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);
@@ -29,11 +29,7 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
     {
         var category = await productCategoryRepository.GetByIdAsync(query.Id, ct);
 
-        return category switch
-        {
-            null => null,
-            _ => new GetProductCategoryByIdResponse(category.Id, category.Name)
-        };
+        return category is null ? null : category.MapToGetProductCategoryByIdResponse();
     }
 
     public async Task<AddProductCategoryResponse> AddAsync(AddProductCategoryCommand command, Guid companyId, CancellationToken ct)
@@ -47,7 +43,7 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
 
         await productCategoryRepository.InsertAsync(category, ct);
 
-        return new AddProductCategoryResponse(category.Id, category.Name);
+        return category.MapToAddProductCategoryResponse();
     }
 
     public async Task<UpdateProductCategoryResponse?> UpdateAsync(UpdateProductCategoryCommand command, Guid companyId, CancellationToken ct)
@@ -64,7 +60,7 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
 
         await productCategoryRepository.UpdateAsync(command.Id, category, ct);
 
-        return new UpdateProductCategoryResponse(category.Id, category.Name);
+        return category.MapToUpdateProductCategoryResponse();
     }
 
     public async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
@@ -72,7 +68,7 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
         var idList = ids.ToList();
         return await productCategoryRepository.Query()
             .Where(pc => idList.Contains(pc.Id))
-            .Select(pc => new GetProductCategoryByIdResponse(pc.Id, pc.Name))
+            .Select(pc => pc.MapToGetProductCategoryByIdResponse())
             .ToListAsync(ct);
     }
 

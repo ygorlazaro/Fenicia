@@ -171,7 +171,7 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await employeeService.DeleteAsync(new DeleteEmployeeCommand(id), ct);
+            await employeeService.DeleteAsync(new DeleteEmployeeCommand(id), ClaimReader.UserId(User), ct);
 
             return NoContent();
         }
