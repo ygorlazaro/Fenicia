@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -56,16 +57,57 @@ public class SupplierControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenSuppliersExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var command = new AddSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), _faker.Person.Random.AlphaNumeric(11), _faker.Person.Random.AlphaNumeric(11), new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenSupplierExists_ReturnsOk()
+    public async Task PatchAsync_WhenSupplierExists_ReturnsOk()
     {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Company.CompanyName(), CompanyId = _companyContext.CompanyId };
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicPeople.Add(person);
+        _db.BasicSuppliers.Add(supplier);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateSupplierCommand(supplier.Id, _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, supplier.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdateSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
+    {
+        // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Company.CompanyName(), CompanyId = _companyContext.CompanyId };
         var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
         _db.BasicPeople.Add(person);
@@ -73,16 +115,57 @@ public class SupplierControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.DeleteAsync(supplier.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenSuppliersExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenSupplierExists_ReturnsOk()
+    {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Company.CompanyName(), CompanyId = _companyContext.CompanyId };
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicPeople.Add(person);
+        _db.BasicSuppliers.Add(supplier);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(supplier.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)

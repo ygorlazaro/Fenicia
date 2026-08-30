@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -33,84 +34,104 @@ public class PositionServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenPositionsExist_ReturnsPaginationWithPositions()
     {
+        // Arrange
         var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Department() };
         _db.BasicPositions.Add(position);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetAllAsync(new GetAllPositionQuery(1, 10), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Single(result.Data);
+        // Assert
+        result.Should().NotBeNull();
+        result.Data.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenPositionExists_ReturnsPosition()
     {
+        // Arrange
         var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Department() };
         _db.BasicPositions.Add(position);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetByIdAsync(new GetPositionByIdQuery(position.Id), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(position.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(position.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenPositionDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _service.GetByIdAsync(new GetPositionByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task AddAsync_WhenCommandIsValid_CreatesPosition()
     {
+        // Arrange
         var command = new AddPositionCommand(Guid.NewGuid(), _faker.Commerce.Department());
 
+        // Act
         var result = await _service.AddAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPositionExists_UpdatesPosition()
     {
+        // Arrange
         var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Department() };
         _db.BasicPositions.Add(position);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(position.Id, "Updated Name");
 
+        // Act
         var result = await _service.UpdateAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal("Updated Name", result.Name);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Name.Should().Be("Updated Name");
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPositionDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var command = new UpdatePositionCommand(Guid.NewGuid(), "Updated Name");
 
+        // Act
         var result = await _service.UpdateAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenPositionExists_SoftDeletesPosition()
     {
+        // Arrange
         var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Department() };
         _db.BasicPositions.Add(position);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         await _service.DeleteAsync(new DeletePositionCommand(position.Id), _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
+        // Assert
         var deletedPosition = await _db.BasicPositions.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == position.Id);
-        Assert.NotNull(deletedPosition);
-        Assert.NotNull(deletedPosition.Deleted);
+        deletedPosition.Should().NotBeNull();
+        deletedPosition!.Deleted.Should().NotBeNull();
     }
 }

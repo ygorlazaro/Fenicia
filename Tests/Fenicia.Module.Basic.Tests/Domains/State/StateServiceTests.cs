@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -33,22 +34,27 @@ public class StateServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsStates()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetAllAsync(new GetAllStateQuery(), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Single(result);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetAllAsync_WhenNoStatesExist_ReturnsEmptyList()
     {
+        // Act
         var result = await _service.GetAllAsync(new GetAllStateQuery(), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Empty(result);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
     }
 }

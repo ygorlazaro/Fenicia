@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -47,6 +48,7 @@ public class StockMovementServiceTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenMovementsExist_ReturnsMovements()
     {
+        // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(category);
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
@@ -55,15 +57,18 @@ public class StockMovementServiceTests : IDisposable
         _db.BasicStockMovements.Add(movement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetAsync(new GetStockMovementQuery(DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), 1, 10), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Single(result);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task AddAsync_WhenValid_InsertsMovementAndUpdatesProductQuantity()
     {
+        // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(category);
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
@@ -72,34 +77,40 @@ public class StockMovementServiceTests : IDisposable
 
         var command = new AddStockMovementCommand(Guid.NewGuid(), 5.0, DateTime.UtcNow, 100, StockMovementType.In, product.Id, null, null, null, null, "Test");
 
+        // Act
         var result = await _service.AddAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(product.Id, result.ProductId);
+        // Assert
+        result.Should().NotBeNull();
+        result.ProductId.Should().Be(product.Id);
 
         var updatedProduct = await _db.BasicProducts.FirstOrDefaultAsync(p => p.Id == product.Id);
-        Assert.NotNull(updatedProduct);
-        Assert.Equal(15, updatedProduct.Quantity);
+        updatedProduct.Should().NotBeNull();
+        updatedProduct!.Quantity.Should().Be(15);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenMovementExists_UpdatesMovement()
     {
+        // Arrange
         var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = 5, Date = DateTime.UtcNow, Price = 100, Type = StockMovementType.In, CompanyId = _db.CurrentCompanyId ?? Guid.Empty };
         _db.BasicStockMovements.Add(movement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateStockMovementCommand(movement.Id, Quantity: 10.0, Date: DateTime.UtcNow, Price: 100, Type: StockMovementType.Out, ProductId: movement.ProductId, CustomerId: null, SupplierId: null, EmployeeId: null, OrderId: null, Reason: "Updated");
 
+        // Act
         var result = await _service.UpdateAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(10, result.Quantity);
+        // Assert
+        result.Should().NotBeNull();
+        result.Quantity.Should().Be(10);
     }
 
     [Fact]
     public async Task GetDashboardAsync_WhenDataExists_ReturnsDashboard()
     {
+        // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(category);
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
@@ -108,12 +119,14 @@ public class StockMovementServiceTests : IDisposable
         _db.BasicStockMovements.Add(movement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetDashboardAsync(new GetStockMovementDashboardQuery(30, 10), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotNull(result.History);
-        Assert.NotNull(result.MonthlyInOut);
-        Assert.NotNull(result.TopMovedProducts);
-        Assert.NotNull(result.TurnoverRates);
+        // Assert
+        result.Should().NotBeNull();
+        result.History.Should().NotBeNull();
+        result.MonthlyInOut.Should().NotBeNull();
+        result.TopMovedProducts.Should().NotBeNull();
+        result.TurnoverRates.Should().NotBeNull();
     }
 }

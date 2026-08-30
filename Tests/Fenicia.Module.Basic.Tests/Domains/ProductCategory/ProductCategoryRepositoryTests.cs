@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -31,131 +32,163 @@ public class ProductCategoryRepositoryTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ReturnsAllProductCategories()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetAllAsync(ct: CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductCategoryExists_ReturnsProductCategory()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetByIdAsync(productCategory.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(productCategory.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(productCategory.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductCategoryDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _repository.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task InsertAsync_WhenProductCategoryIsValid_InsertsProductCategory()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
 
+        // Act
         var result = await _repository.InsertAsync(productCategory, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.NotEqual(default(DateTime), result.Created);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
+        result.Created.Should().NotBe(default(DateTime));
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductCategoryExists_UpdatesProductCategory()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.UpdateAsync(productCategory.Id, productCategory, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(productCategory.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(productCategory.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductCategoryDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
 
+        // Act
         var result = await _repository.UpdateAsync(productCategory.Id, productCategory, CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenProductCategoryExists_SoftDeletesProductCategory()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.DeleteAsync(productCategory.Id, CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
         var deletedProductCategory = await _db.BasicProductCategories.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == productCategory.Id);
-        Assert.NotNull(deletedProductCategory);
-        Assert.NotNull(deletedProductCategory.Deleted);
+        deletedProductCategory.Should().NotBeNull();
+        deletedProductCategory!.Deleted.Should().NotBeNull();
     }
 
     [Fact]
     public async Task CountAsync_ReturnsCorrectCount()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.CountAsync(CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
     }
 
     [Fact]
     public async Task FindAsync_ReturnsMatchingProductCategories()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.FindAsync(p => p.Id == productCategory.Id, CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task AnyAsync_WhenProductCategoryExists_ReturnsTrue()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.AnyAsync(p => p.Id == productCategory.Id, CancellationToken.None);
 
-        Assert.True(result);
+        // Assert
+        result.Should().BeTrue();
     }
 
     [Fact]
     public async Task Query_ReturnsQueryable()
     {
+        // Arrange
         var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.Query().Where(p => p.Id == productCategory.Id).ToListAsync(CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 }

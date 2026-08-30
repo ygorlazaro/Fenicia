@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -8,13 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.OrderDetail;
 
-public class GetOrderDetailsByOrderIdServiceTests : IDisposable
+public class OrderDetailServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly OrderDetailService _service;
 
-    public GetOrderDetailsByOrderIdServiceTests()
+    public OrderDetailServiceTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
@@ -33,6 +34,7 @@ public class GetOrderDetailsByOrderIdServiceTests : IDisposable
     [Fact]
     public async Task GetByOrderIdAsync_WhenDetailsExist_ReturnsDetailsWithProductName()
     {
+        // Arrange
         var orderId = Guid.NewGuid();
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() };
         _db.BasicProducts.Add(product);
@@ -42,19 +44,23 @@ public class GetOrderDetailsByOrderIdServiceTests : IDisposable
         _db.BasicOrderDetails.Add(detail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetByOrderIdAsync(new GetOrderDetailsByOrderIdQuery(orderId), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal(product.Name, result.First().ProductName);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result.First().ProductName.Should().Be(product.Name);
     }
 
     [Fact]
     public async Task GetByOrderIdAsync_WhenNoDetailsExist_ReturnsEmptyList()
     {
+        // Act
         var result = await _service.GetByOrderIdAsync(new GetOrderDetailsByOrderIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Empty(result);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
     }
 }

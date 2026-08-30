@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -62,19 +63,55 @@ public class InventoryControllerTests : IDisposable
     }
 
     [Fact]
+    public async Task GetInventoryDashboardAsync_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetInventoryDashboardAsync(wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetInventoryHealthAsync_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetInventoryHealthAsync(wide, 90, 3.0, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task GetInventoryAsync_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetInventoryAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetInventoryByProductIdAsync_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetInventoryByProductIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     private void SetupUserClaims(Guid userId)

@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -31,132 +32,164 @@ public class ProductRepositoryTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ReturnsAllProducts()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetAllAsync(ct: CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductExists_ReturnsProduct()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetByIdAsync(product.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(product.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(product.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _repository.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task InsertAsync_WhenProductIsValid_InsertsProduct()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
 
+        // Act
         var result = await _repository.InsertAsync(product, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.NotEqual(default(DateTime), result.Created);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
+        result.Created.Should().NotBe(default(DateTime));
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductExists_UpdatesProduct()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         product.Name = "Updated Name";
         var result = await _repository.UpdateAsync(product.Id, product, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal("Updated Name", result.Name);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Name.Should().Be("Updated Name");
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
 
+        // Act
         var result = await _repository.UpdateAsync(product.Id, product, CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenProductExists_SoftDeletesProduct()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.DeleteAsync(product.Id, CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
         var deletedProduct = await _db.BasicProducts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == product.Id);
-        Assert.NotNull(deletedProduct);
-        Assert.NotNull(deletedProduct.Deleted);
+        deletedProduct.Should().NotBeNull();
+        deletedProduct!.Deleted.Should().NotBeNull();
     }
 
     [Fact]
     public async Task CountAsync_ReturnsCorrectCount()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.CountAsync(CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
     }
 
     [Fact]
     public async Task FindAsync_ReturnsMatchingProducts()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.FindAsync(p => p.Id == product.Id, CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task AnyAsync_WhenProductExists_ReturnsTrue()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.AnyAsync(p => p.Id == product.Id, CancellationToken.None);
 
-        Assert.True(result);
+        // Assert
+        result.Should().BeTrue();
     }
 
     [Fact]
     public async Task Query_ReturnsQueryable()
     {
+        // Arrange
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.Query().Where(p => p.Id == product.Id).ToListAsync(CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 }

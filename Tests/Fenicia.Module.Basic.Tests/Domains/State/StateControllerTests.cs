@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -44,9 +45,14 @@ public class StateControllerTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetAllAsync(wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     private void SetupUserClaims(Guid userId)

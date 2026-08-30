@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -44,31 +45,109 @@ public class ProductCategoryControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenCategoriesExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var command = new AddProductCategoryCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First());
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenCategoryExists_ReturnsOk()
+    public async Task PatchAsync_WhenCategoryExists_ReturnsOk()
     {
+        // Arrange
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
+        _db.BasicProductCategories.Add(category);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateProductCategoryCommand(category.Id, "Updated Name");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, category.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenCategoryDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "Updated Name");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenCategoryExists_ReturnsNoContent()
+    {
+        // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
         _db.BasicProductCategories.Add(category);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.DeleteAsync(category.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenCategoriesExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenCategoryExists_ReturnsOk()
+    {
+        // Arrange
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
+        _db.BasicProductCategories.Add(category);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(category.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCategoryDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)

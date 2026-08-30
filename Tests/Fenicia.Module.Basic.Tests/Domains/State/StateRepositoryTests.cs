@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -31,131 +32,163 @@ public class StateRepositoryTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ReturnsAllStates()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetAllAsync(ct: CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenStateExists_ReturnsState()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetByIdAsync(state.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(state.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(state.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenStateDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _repository.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task InsertAsync_WhenStateIsValid_InsertsState()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
 
+        // Act
         var result = await _repository.InsertAsync(state, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.NotEqual(default(DateTime), result.Created);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
+        result.Created.Should().NotBe(default(DateTime));
     }
 
     [Fact]
     public async Task UpdateAsync_WhenStateExists_UpdatesState()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.UpdateAsync(state.Id, state, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(state.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(state.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenStateDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
 
+        // Act
         var result = await _repository.UpdateAsync(state.Id, state, CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenStateExists_SoftDeletesState()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.DeleteAsync(state.Id, CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
         var deletedState = await _db.AuthStates.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == state.Id);
-        Assert.NotNull(deletedState);
-        Assert.NotNull(deletedState.Deleted);
+        deletedState.Should().NotBeNull();
+        deletedState!.Deleted.Should().NotBeNull();
     }
 
     [Fact]
     public async Task CountAsync_ReturnsCorrectCount()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.CountAsync(CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
     }
 
     [Fact]
     public async Task FindAsync_ReturnsMatchingStates()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.FindAsync(s => s.Id == state.Id, CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task AnyAsync_WhenStateExists_ReturnsTrue()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.AnyAsync(s => s.Id == state.Id, CancellationToken.None);
 
-        Assert.True(result);
+        // Assert
+        result.Should().BeTrue();
     }
 
     [Fact]
     public async Task Query_ReturnsQueryable()
     {
+        // Arrange
         var state = new StateModel { Id = Guid.NewGuid(), Name = _faker.Address.State(), Uf = "SP" };
         _db.AuthStates.Add(state);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.Query().Where(s => s.Id == state.Id).ToListAsync(CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 }

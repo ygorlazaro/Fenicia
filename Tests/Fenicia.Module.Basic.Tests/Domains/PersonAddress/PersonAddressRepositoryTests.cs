@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -31,131 +32,163 @@ public class PersonAddressRepositoryTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ReturnsAllPersonAddresses()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetAllAsync(ct: CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenPersonAddressExists_ReturnsPersonAddress()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetByIdAsync(personAddress.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(personAddress.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(personAddress.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenPersonAddressDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _repository.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task InsertAsync_WhenPersonAddressIsValid_InsertsPersonAddress()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
 
+        // Act
         var result = await _repository.InsertAsync(personAddress, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.NotEqual(default(DateTime), result.Created);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
+        result.Created.Should().NotBe(default(DateTime));
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPersonAddressExists_UpdatesPersonAddress()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.UpdateAsync(personAddress.Id, personAddress, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(personAddress.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(personAddress.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPersonAddressDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
 
+        // Act
         var result = await _repository.UpdateAsync(personAddress.Id, personAddress, CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenPersonAddressExists_SoftDeletesPersonAddress()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.DeleteAsync(personAddress.Id, CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
         var deletedPersonAddress = await _db.BasicPersonAddresses.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == personAddress.Id);
-        Assert.NotNull(deletedPersonAddress);
-        Assert.NotNull(deletedPersonAddress.Deleted);
+        deletedPersonAddress.Should().NotBeNull();
+        deletedPersonAddress!.Deleted.Should().NotBeNull();
     }
 
     [Fact]
     public async Task CountAsync_ReturnsCorrectCount()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.CountAsync(CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
     }
 
     [Fact]
     public async Task FindAsync_ReturnsMatchingPersonAddresses()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.FindAsync(p => p.Id == personAddress.Id, CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task AnyAsync_WhenPersonAddressExists_ReturnsTrue()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.AnyAsync(p => p.Id == personAddress.Id, CancellationToken.None);
 
-        Assert.True(result);
+        // Assert
+        result.Should().BeTrue();
     }
 
     [Fact]
     public async Task Query_ReturnsQueryable()
     {
+        // Arrange
         var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.Query().Where(p => p.Id == personAddress.Id).ToListAsync(CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 }

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -58,16 +59,57 @@ public class CustomerControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenCustomersExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var command = new AddCustomerCommand(_faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenCustomerExists_ReturnsOk()
+    public async Task PatchAsync_WhenCustomerExists_ReturnsOk()
     {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicPeople.Add(person);
+        _db.BasicCustomers.Add(customer);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateCustomerCommand(customer.Id, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, customer.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdateCustomerCommand(Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
+    {
+        // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
         _db.BasicPeople.Add(person);
@@ -75,16 +117,57 @@ public class CustomerControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.DeleteAsync(customer.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenCustomersExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenCustomerExists_ReturnsOk()
+    {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicPeople.Add(person);
+        _db.BasicCustomers.Add(customer);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(customer.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)
