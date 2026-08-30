@@ -1,8 +1,6 @@
 using System.Security.Claims;
-
+using AwesomeAssertions;
 using Fenicia.Common.API;
-
-using FluentAssertions;
 
 namespace Fenicia.Common.API.Tests.ClaimReader;
 

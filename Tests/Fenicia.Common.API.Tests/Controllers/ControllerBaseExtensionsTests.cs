@@ -1,7 +1,5 @@
+using AwesomeAssertions;
 using Fenicia.Common.Api.Controllers;
-
-using FluentAssertions;
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Common.API.Tests.Controllers;

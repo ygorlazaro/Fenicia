@@ -1,6 +1,5 @@
+using AwesomeAssertions;
 using Fenicia.Common.Data;
-
-using FluentAssertions;
 
 namespace Fenicia.Common.Data.Tests.Models;
 

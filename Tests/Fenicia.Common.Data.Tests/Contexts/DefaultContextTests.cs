@@ -1,13 +1,10 @@
+using AwesomeAssertions;
 using Bogus;
 using Bogus.Extensions.Brazil;
-
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Tests;
-
-using FluentAssertions;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Tests.Contexts;

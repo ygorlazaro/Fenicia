@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Address;
@@ -15,9 +15,6 @@ using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Tests.Domains.Customer;
-
-using FluentAssertions;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;

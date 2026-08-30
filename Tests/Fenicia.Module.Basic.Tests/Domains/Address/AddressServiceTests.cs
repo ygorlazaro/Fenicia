@@ -1,13 +1,10 @@
+using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Tests.Domains.Address;
-
-using FluentAssertions;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Address;
