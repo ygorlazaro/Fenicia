@@ -29,6 +29,7 @@ public class ProductController(ProductService productService) : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllProductResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
@@ -60,6 +61,7 @@ public class ProductController(ProductService productService) : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -193,6 +195,7 @@ public class ProductController(ProductService productService) : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPerformanceResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductPerformanceResponse>> GetPerformanceAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, CancellationToken ct = default)

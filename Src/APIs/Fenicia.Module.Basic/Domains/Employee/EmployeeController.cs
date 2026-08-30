@@ -29,6 +29,7 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os funcionários</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllEmployeeResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
@@ -60,6 +61,7 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o funcionário</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetEmployeeByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -192,6 +194,7 @@ public class EmployeeController(EmployeeService employeeService) : ControllerBas
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o desempenho</exception>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeePerformanceResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<EmployeePerformanceResponse>> GetPerformanceAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, CancellationToken ct = default)

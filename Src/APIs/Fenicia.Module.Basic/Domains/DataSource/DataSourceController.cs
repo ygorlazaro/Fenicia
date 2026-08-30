@@ -26,6 +26,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os cargos</exception>
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(WideEventContext wide, CancellationToken ct)
@@ -55,6 +56,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar as categorias</exception>
     [HttpGet("productcategory")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductCategoryForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(WideEventContext wide, CancellationToken ct)
@@ -84,6 +86,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os fornecedores</exception>
     [HttpGet("supplier")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllSupplierForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(WideEventContext wide, CancellationToken ct)
@@ -113,6 +116,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os clientes</exception>
     [HttpGet("customer")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCustomerForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(WideEventContext wide, CancellationToken ct)
@@ -142,6 +146,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os produtos</exception>
     [HttpGet("product")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(WideEventContext wide, CancellationToken ct)
@@ -171,6 +176,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os funcionários</exception>
     [HttpGet("employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(WideEventContext wide, CancellationToken ct)

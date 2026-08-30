@@ -23,10 +23,13 @@ public class StateController(StateService stateService) : ControllerBase
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Lista de estados</returns>
     /// <response code="200">Lista de estados retornada com sucesso</response>
+    /// <response code="400">Requisição inválida</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os estados</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllStateResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, CancellationToken ct)
