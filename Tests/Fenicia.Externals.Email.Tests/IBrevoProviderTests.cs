@@ -1,6 +1,5 @@
+using AwesomeAssertions;
 using Fenicia.Externals.Email;
-
-using FluentAssertions;
 
 namespace Fenicia.Externals.Email.Tests;
 

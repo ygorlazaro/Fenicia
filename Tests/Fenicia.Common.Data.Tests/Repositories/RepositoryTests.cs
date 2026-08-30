@@ -1,13 +1,10 @@
+using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Data.Tests.Contexts;
 using Fenicia.Common.Data.Tests.Models;
 using Fenicia.Common.Tests;
-
-using FluentAssertions;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Tests.Repositories;

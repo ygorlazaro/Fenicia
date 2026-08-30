@@ -1,9 +1,6 @@
 using System.Security.Claims;
-
+using AwesomeAssertions;
 using Fenicia.Common.API.Middlewares;
-
-using FluentAssertions;
-
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.API.Tests.Middlewares;

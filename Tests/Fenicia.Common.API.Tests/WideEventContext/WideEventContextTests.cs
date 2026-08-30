@@ -1,8 +1,6 @@
 using System.Diagnostics;
-
+using AwesomeAssertions;
 using Fenicia.Common.API;
-
-using FluentAssertions;
 
 namespace Fenicia.Common.API.Tests.WideEventContext;
 

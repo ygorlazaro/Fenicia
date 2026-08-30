@@ -5,12 +5,12 @@ echo "Running tests and coverage check..."
 
 rm -rf /tmp/coverage-husky
 
-dotnet test Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj \
+dotnet test Tests/Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj \
   --configuration Release \
   --collect:"XPlat Code Coverage;Format=Cobertura" \
   --results-directory /tmp/coverage-husky-auth
 
-dotnet test Fenicia.Module.Projects.Tests/Fenicia.Module.Projects.Tests.csproj \
+dotnet test Tests/Fenicia.Module.Projects.Tests/Fenicia.Module.Projects.Tests.csproj \
   --configuration Release \
   --collect:"XPlat Code Coverage;Format=Cobertura" \
   --results-directory /tmp/coverage-husky-projects

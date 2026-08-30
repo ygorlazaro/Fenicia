@@ -4,9 +4,6 @@ using System.Text.Json.Serialization;
 using Fenicia.Common.Data;
 using Fenicia.Common.Localization;
 
-using FluentValidation;
-using FluentValidation.AspNetCore;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -50,8 +47,6 @@ public static class FeniciaControllersExtensions
 });
 
         builder.Services.AddOpenApi();
-
-        builder.Services.AddFluentValidationAutoValidation().AddValidatorsFromAssemblyContaining<BaseModel>();
 
         return builder;
     }

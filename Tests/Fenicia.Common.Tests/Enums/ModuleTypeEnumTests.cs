@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using Fenicia.Common.Enums.Auth;
-using FluentAssertions;
 
 namespace Fenicia.Common.Tests.Enums;
 
