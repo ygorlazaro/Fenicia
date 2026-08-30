@@ -14,7 +14,7 @@ public class CustomerRepository(DefaultContext context) : Repository<CustomerMod
             .Include(c => c.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
-            .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
     public async Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
@@ -24,7 +24,6 @@ public class CustomerRepository(DefaultContext context) : Repository<CustomerMod
             .Include(c => c.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
-            .Where(e => e.Deleted == null)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(ct);

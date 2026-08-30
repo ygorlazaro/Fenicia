@@ -193,17 +193,7 @@ public class SupplierService(
 
     public async Task DeleteAsync(DeleteSupplierCommand command, Guid companyId, CancellationToken ct)
     {
-        var supplier = await supplierRepository.GetByIdAsync(command.Id, ct);
-
-        if (supplier is null)
-        {
-            return;
-        }
-
-        supplier.Deleted = DateTime.Now;
-        supplier.CompanyId = companyId;
-
-        await supplierRepository.UpdateAsync(supplier.Id, supplier, ct);
+        await supplierRepository.DeleteAsync(command.Id, ct);
     }
 
     public async Task<SupplierPerformanceResponse> GetPerformanceAsync(GetSupplierPerformanceQuery query, CancellationToken ct)
@@ -315,7 +305,7 @@ public class SupplierService(
     {
         var idList = ids.ToList();
         var suppliers = await supplierRepository.Query()
-            .Where(s => idList.Contains(s.Id) && s.Deleted == null)
+            .Where(s => idList.Contains(s.Id))
             .Include(s => s.Person)
                 .ThenInclude(p => p.PersonAddresses)
                     .ThenInclude(pa => pa.Address)

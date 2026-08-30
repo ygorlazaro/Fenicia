@@ -15,7 +15,7 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
             .Include(e => e.Position)
-            .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
     public async Task<IEnumerable<EmployeeModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
@@ -26,7 +26,6 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
             .Include(e => e.Position)
-            .Where(e => e.Deleted == null)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(ct);
@@ -35,7 +34,7 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
     public async Task<IEnumerable<EmployeeModel>> GetByPositionIdAsync(Guid positionId, int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(e => e.PositionId == positionId && e.Deleted == null)
+                .Where(e => e.PositionId == positionId)
             .Include(e => e.Person)
             .Include(e => e.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)

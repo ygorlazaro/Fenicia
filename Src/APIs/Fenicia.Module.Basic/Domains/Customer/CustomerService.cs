@@ -133,16 +133,7 @@ public class CustomerService(
 
     public async Task DeleteAsync(DeleteCustomerCommand command, CancellationToken ct)
     {
-        var customer = await customerRepository.GetByIdAsync(command.Id, ct);
-
-        if (customer is null)
-        {
-            return;
-        }
-
-        customer.Deleted = DateTime.UtcNow;
-
-        await customerRepository.UpdateAsync(command.Id, customer, ct);
+        await customerRepository.DeleteAsync(command.Id, ct);
     }
 
     public async Task<CustomerInsightsResponse> GetInsightsAsync(GetCustomerInsightsQuery query, CancellationToken ct)

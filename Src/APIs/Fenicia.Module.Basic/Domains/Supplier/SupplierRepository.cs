@@ -12,8 +12,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
     public async Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(e => e.Deleted == null)
-            .Include(s => s.Person)
+                .Include(s => s.Person)
             .Include(s => s.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
@@ -25,8 +24,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
     public async Task<SupplierModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(e => e.Deleted == null)
-            .Include(s => s.Person)
+                .Include(s => s.Person)
             .Include(s => s.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
@@ -37,7 +35,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
     {
         var ids = supplierIds.ToList();
         return await DbSet
-            .Where(s => ids.Contains(s.Id) && s.Deleted == null)
+            .Where(s => ids.Contains(s.Id))
             .Include(s => s.Person)
             .ToDictionaryAsync(s => s.Id, s => s.Person.Name, ct);
     }

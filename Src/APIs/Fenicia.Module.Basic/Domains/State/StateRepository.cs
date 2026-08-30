@@ -10,8 +10,7 @@ public class StateRepository(DefaultContext context) : Repository<StateModel>(co
     public async Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct = default)
     {
         return await DbSet
-                .Where(e => e.Deleted == null)
-            .OrderBy(s => s.Uf)
+                .OrderBy(s => s.Uf)
             .ToListAsync(ct);
     }
 }

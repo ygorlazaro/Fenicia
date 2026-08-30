@@ -65,16 +65,6 @@ public class PositionService(PositionRepository positionRepository)
 
     public async Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken ct)
     {
-        var position = await positionRepository.GetByIdAsync(command.Id, ct);
-
-        if (position is null)
-        {
-            return;
-        }
-
-        position.Deleted = DateTime.Now;
-        position.CompanyId = companyId;
-
-        await positionRepository.UpdateAsync(command.Id, position, ct);
+        await positionRepository.DeleteAsync(command.Id, ct);
     }
 }

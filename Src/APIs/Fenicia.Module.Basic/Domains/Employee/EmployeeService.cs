@@ -137,16 +137,7 @@ public class EmployeeService(
 
     public async Task DeleteAsync(DeleteEmployeeCommand command, CancellationToken ct)
     {
-        var employee = await employeeRepository.GetByIdAsync(command.Id, ct);
-
-        if (employee is null)
-        {
-            return;
-        }
-
-        employee.Deleted = DateTime.UtcNow;
-
-        await employeeRepository.UpdateAsync(command.Id, employee, ct);
+        await employeeRepository.DeleteAsync(command.Id, ct);
     }
 
     public async Task<EmployeePerformanceResponse> GetPerformanceAsync(GetEmployeePerformanceQuery query, CancellationToken ct)

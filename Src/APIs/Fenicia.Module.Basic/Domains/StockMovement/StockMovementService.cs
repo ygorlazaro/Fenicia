@@ -120,7 +120,7 @@ public class StockMovementService(
         var startDate = DateTime.UtcNow.AddDays(-days);
         return await stockMovementRepository.Query()
             .Include(m => m.Product)
-            .Where(m => m.SupplierId.HasValue && m.Date >= startDate && m.Deleted == null)
+            .Where(m => m.SupplierId.HasValue && m.Date >= startDate)
             .OrderByDescending(m => m.Date)
             .Take(topLimit)
             .ToListAsync(ct);
