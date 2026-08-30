@@ -31,6 +31,7 @@ public class StockMovementController(StockMovementService stockMovementService) 
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetStockMovementResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync(WideEventContext wide, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
@@ -136,6 +137,7 @@ public class StockMovementController(StockMovementService stockMovementService) 
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("dashboard")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockMovementDashboardResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(WideEventContext wide, [FromQuery] int days = 30, [FromQuery] int topLimit = 10, CancellationToken ct = default)

@@ -29,10 +29,13 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Lista paginada de clientes</returns>
     /// <response code="200">Lista de clientes retornada com sucesso</response>
+    /// <response code="400">ID inválido</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os clientes</exception>
     [HttpGet]
     [ProducesResponseType(typeof(Pagination<List<GetAllCustomerResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
@@ -52,11 +55,14 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Dados do cliente</returns>
     /// <response code="200">Cliente encontrado</response>
+    /// <response code="400">ID inválido</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="404">Cliente não encontrado</response>
     /// <response code="500">Erro interno do servidor</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o cliente</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(GetCustomerByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -142,7 +148,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<NoContentResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -161,9 +167,13 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Insights de clientes</returns>
     /// <response code="200">Insights retornados com sucesso</response>
+    /// <response code="400">Parâmetros inválidos</response>
     /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os insights</exception>
     [HttpGet("insights")]
     [ProducesResponseType(typeof(CustomerInsightsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, [FromQuery] int riskThresholdDays = 60, CancellationToken ct = default)
