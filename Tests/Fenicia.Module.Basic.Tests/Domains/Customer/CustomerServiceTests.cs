@@ -6,9 +6,14 @@ using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
-using Fenicia.Module.Basic.Domains.Dashboard;
+using Fenicia.Module.Basic.Domains.Order;
+using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.Person;
 using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Tests.Domains.Customer;
 
 using FluentAssertions;
@@ -20,7 +25,6 @@ namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 public class CustomerServiceTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly DashboardService _dashboardService;
     private readonly Faker _faker;
     private readonly CustomerService _service;
 
@@ -28,13 +32,15 @@ public class CustomerServiceTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
-        _dashboardService = new DashboardService(new DashboardRepository(_db));
+        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryRepository(_db), new SupplierRepository(_db), new OrderDetailRepository(_db), new StockMovementRepository(_db));
+        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService(new StockMovementRepository(_db), productService));
         _service = new CustomerService(
             new CustomerRepository(_db),
             new PersonService(new PersonRepository(_db)),
             new AddressService(new AddressRepository(_db)),
             new PersonAddressService(new PersonAddressRepository(_db)),
-            _dashboardService);
+            orderService,
+            productService);
         _faker = new Faker();
     }
 

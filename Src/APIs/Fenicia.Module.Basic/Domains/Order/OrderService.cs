@@ -214,6 +214,106 @@ public class OrderService(
         return await orderRepository.CountAsync(ct);
     }
 
+    public async Task<decimal> GetTotalRevenueAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetTotalRevenueAsync(ct);
+    }
+
+    public async Task<decimal> GetTotalCostAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetTotalCostAsync(ct);
+    }
+
+    public async Task<int> GetTotalOrdersCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetTotalOrdersCountAsync(ct);
+    }
+
+    public async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetOrderDatesAsync(ct);
+    }
+
+    public async Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetOrderWeeksAsync(ct);
+    }
+
+    public async Task<decimal> GetTodayRevenueAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetTodayRevenueAsync(ct);
+    }
+
+    public async Task<int> GetTodayOrdersCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetTodayOrdersCountAsync(ct);
+    }
+
+    public async Task<decimal> GetWeekRevenueAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetWeekRevenueAsync(ct);
+    }
+
+    public async Task<int> GetWeekOrdersCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetWeekOrdersCountAsync(ct);
+    }
+
+    public async Task<decimal> GetMonthRevenueAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetMonthRevenueAsync(ct);
+    }
+
+    public async Task<int> GetMonthOrdersCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetMonthOrdersCountAsync(ct);
+    }
+
+    public async Task<decimal> GetLastMonthRevenueAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetLastMonthRevenueAsync(ct);
+    }
+
+    public async Task<decimal> GetPendingAmountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetPendingAmountAsync(ct);
+    }
+
+    public async Task<int> GetPendingOrdersCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetPendingOrdersCountAsync(ct);
+    }
+
+    public async Task<decimal> GetApprovedAmountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetApprovedAmountAsync(ct);
+    }
+
+    public async Task<int> GetApprovedOrdersCountAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetApprovedOrdersCountAsync(ct);
+    }
+
+    public async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
+    {
+        return await orderRepository.GetRecentOrdersAsync(topLimit, ct);
+    }
+
+    public async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetTopCustomerOrdersAsync(ct);
+    }
+
+    public async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken ct)
+    {
+        return await orderRepository.GetAtRiskOrdersAsync(ct);
+    }
+
+    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    {
+        return await orderRepository.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
+    }
+
     private static decimal CalculateMedian(List<decimal> values)
     {
         var count = values.Count;

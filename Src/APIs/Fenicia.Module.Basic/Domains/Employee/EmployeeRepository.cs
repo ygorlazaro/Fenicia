@@ -45,4 +45,15 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
             .Take(perPage)
             .ToListAsync(ct);
     }
+
+    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct = default)
+    {
+        return await DbSet
+            .Include(e => e.Person)
+            .Include(e => e.Person.PersonAddresses)
+                .ThenInclude(pa => pa.Address)
+                    .ThenInclude(a => a.State)
+            .Include(e => e.Position)
+            .ToListAsync(ct);
+    }
 }
