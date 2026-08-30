@@ -20,7 +20,7 @@ public partial class DefaultContext : DbContext
     }
 
     public DefaultContext()
-        : base(new DbContextOptions<DefaultContext>())
+        : base(new DbContextOptionsBuilder<DefaultContext>().Options)
     {
         _companyContext = new CompanyContext(new HttpContextAccessor());
     }
