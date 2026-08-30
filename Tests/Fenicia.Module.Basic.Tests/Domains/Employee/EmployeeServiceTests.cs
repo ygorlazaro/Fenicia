@@ -36,8 +36,11 @@ public class EmployeeServiceTests : IDisposable
         var orderRepository = new OrderRepository(_db);
         var orderDetailRepository = new OrderDetailRepository(_db);
         var stockMovementRepository = new StockMovementRepository(_db);
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), new SupplierRepository(_db), orderDetailRepository, stockMovementRepository);
-        var orderService = new OrderService(orderRepository, new OrderDetailService(orderDetailRepository), new StockMovementService(stockMovementRepository, productService));
+        var orderDetailService = new OrderDetailService(orderDetailRepository);
+        var dummyStockMovementService = new StockMovementService();
+        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), orderDetailService, dummyStockMovementService);
+        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
+        var orderService = new OrderService(orderRepository, orderDetailService, stockMovementService);
         _service = new EmployeeService(
             new EmployeeRepository(_db),
             new PersonService(new PersonRepository(_db)),

@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.StockMovement;
@@ -25,12 +26,14 @@ public class StockMovementServiceTests : IDisposable
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         var stockMovementRepository = new StockMovementRepository(_db);
+        var orderDetailService = new OrderDetailService(new OrderDetailRepository(_db));
+        var dummyStockMovementService = new StockMovementService();
         var productService = new ProductService(
             new ProductRepository(_db),
             new ProductCategoryService(new ProductCategoryRepository(_db)),
-            new SupplierRepository(_db),
-            new OrderDetailRepository(_db),
-            stockMovementRepository);
+            orderDetailService,
+            dummyStockMovementService);
+        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
         _service = new StockMovementService(stockMovementRepository, productService);
         _faker = new Faker();
     }
