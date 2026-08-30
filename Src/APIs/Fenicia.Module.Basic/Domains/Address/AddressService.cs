@@ -4,7 +4,7 @@ using Fenicia.Module.Basic.Domains.Address.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public class AddressService(AddressRepository addressRepository)
+public class AddressService(IAddressRepository addressRepository)
 {
     public async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken ct)
     {

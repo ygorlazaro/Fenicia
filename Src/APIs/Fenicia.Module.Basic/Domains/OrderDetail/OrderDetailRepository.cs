@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public class OrderDetailRepository(DefaultContext context) : Repository<OrderDetailModel>(context)
+public class OrderDetailRepository(DefaultContext context) : Repository<OrderDetailModel>(context), IOrderDetailRepository
 {
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
     {

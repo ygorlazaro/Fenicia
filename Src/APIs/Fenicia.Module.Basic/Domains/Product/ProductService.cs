@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.Product;
 
 public class ProductService(
-    ProductRepository productRepository,
+    IProductRepository productRepository,
     ProductCategoryService productCategoryService,
     OrderDetailService orderDetailService,
     StockMovementService stockMovementService)

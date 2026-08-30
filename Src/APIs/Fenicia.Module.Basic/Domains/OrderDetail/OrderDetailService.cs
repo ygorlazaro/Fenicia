@@ -4,13 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public class OrderDetailService(OrderDetailRepository orderDetailRepository)
+public class OrderDetailService(IOrderDetailRepository orderDetailRepository)
 {
-    public OrderDetailService()
-        : this(null!)
-    {
-    }
-
     public async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(GetOrderDetailsByOrderIdQuery query, CancellationToken ct)
     {
         var details = await orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);

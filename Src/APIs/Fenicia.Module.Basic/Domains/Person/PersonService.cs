@@ -3,13 +3,8 @@ using Fenicia.Module.Basic.Domains.Person;
 
 namespace Fenicia.Module.Basic.Domains.Person;
 
-public class PersonService(PersonRepository personRepository)
+public class PersonService(IPersonRepository personRepository)
 {
-    public PersonService()
-        : this(null!)
-    {
-    }
-
     public async Task<PersonModel> InsertAsync(PersonModel person, Guid companyId, CancellationToken ct)
     {
         person.CompanyId = companyId;

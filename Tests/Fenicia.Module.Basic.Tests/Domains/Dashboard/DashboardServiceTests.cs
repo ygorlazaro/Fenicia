@@ -1,3 +1,4 @@
+using Moq;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
@@ -42,10 +43,10 @@ public class DashboardServiceTests : IDisposable
         var addressRepository = new AddressRepository(_db);
         var personAddressRepository = new PersonAddressRepository(_db);
         var orderDetailService = new OrderDetailService(orderDetailRepository);
-        var dummyStockMovementService = new StockMovementService();
+        var dummyStockMovementService = new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object);
         var productService = new ProductService(productRepository, new ProductCategoryService(productCategoryRepository), orderDetailService, dummyStockMovementService);
-        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
-        var orderService = new OrderService(orderRepository, new OrderDetailService(orderDetailRepository), new StockMovementService(stockMovementRepository, productService));
+        var stockMovementService = new StockMovementService(stockMovementRepository, new Mock<IProductRepository>().Object);
+        var orderService = new OrderService(orderRepository, new OrderDetailService(orderDetailRepository), new StockMovementService(stockMovementRepository, new Mock<IProductRepository>().Object));
         var employeeService = new EmployeeService(employeeRepository, new PersonService(personRepository), new AddressService(addressRepository), new PersonAddressService(personAddressRepository), orderService);
         _service = new DashboardService(orderService, productService, employeeService);
         _faker = new Faker();

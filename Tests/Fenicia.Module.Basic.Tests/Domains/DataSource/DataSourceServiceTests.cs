@@ -1,3 +1,4 @@
+using Moq;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
@@ -37,9 +38,9 @@ public class DataSourceServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
         var orderDetailService = new OrderDetailService(new OrderDetailRepository(_db));
-        var dummyStockMovementService = new StockMovementService();
+        var dummyStockMovementService = new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object);
         var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), orderDetailService, dummyStockMovementService);
-        var stockMovementService = new StockMovementService(new StockMovementRepository(_db), productService);
+        var stockMovementService = new StockMovementService(new StockMovementRepository(_db), new Mock<IProductRepository>().Object);
         var orderService = new OrderService(new OrderRepository(_db), orderDetailService, stockMovementService);
         _customerService = new CustomerService(new CustomerRepository(_db), new PersonService(new PersonRepository(_db)), new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)), orderService, productService);
         _employeeService = new EmployeeService(new EmployeeRepository(_db), new PersonService(new PersonRepository(_db)), new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)), orderService);

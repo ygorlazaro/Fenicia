@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public class ProductCategoryService(ProductCategoryRepository productCategoryRepository)
+public class ProductCategoryService(IProductCategoryRepository productCategoryRepository)
 {
-    public ProductCategoryService()
-        : this(null!)
-    {
-    }
-
     public async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(GetAllProductCategoryQuery query, CancellationToken ct)
     {
         var total = await productCategoryRepository.CountAsync(ct);

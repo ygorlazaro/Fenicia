@@ -1,3 +1,4 @@
+using Moq;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
@@ -34,9 +35,9 @@ public class EmployeeServiceTests : IDisposable
         var orderDetailRepository = new OrderDetailRepository(_db);
         var stockMovementRepository = new StockMovementRepository(_db);
         var orderDetailService = new OrderDetailService(orderDetailRepository);
-        var dummyStockMovementService = new StockMovementService();
+        var dummyStockMovementService = new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object);
         var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), orderDetailService, dummyStockMovementService);
-        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
+        var stockMovementService = new StockMovementService(stockMovementRepository, new Mock<IProductRepository>().Object);
         var orderService = new OrderService(orderRepository, orderDetailService, stockMovementService);
         _service = new EmployeeService(
             new EmployeeRepository(_db),

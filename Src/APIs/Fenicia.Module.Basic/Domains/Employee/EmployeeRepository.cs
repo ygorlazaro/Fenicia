@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
-public class EmployeeRepository(DefaultContext context) : Repository<EmployeeModel>(context)
+public class EmployeeRepository(DefaultContext context) : Repository<EmployeeModel>(context), IEmployeeRepository
 {
     public async Task<EmployeeModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
     {

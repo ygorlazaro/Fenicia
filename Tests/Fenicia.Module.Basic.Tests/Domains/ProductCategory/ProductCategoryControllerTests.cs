@@ -3,17 +3,13 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
-using Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
@@ -21,27 +17,41 @@ namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 public class ProductCategoryControllerTests : IDisposable
 {
     private readonly ProductCategoryController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly TestCompanyContext _companyContext;
+    private readonly Mock<ProductCategoryService> _mockService;
 
     public ProductCategoryControllerTests()
     {
-        _companyContext = new TestCompanyContext();
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, _companyContext);
-        var service = new ProductCategoryService(new ProductCategoryRepository(_db));
+        _mockService = new Mock<ProductCategoryService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProductCategoryController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProductCategoryController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        SetupServiceMocks();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProductCategoryQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>(new List<GetAllProductCategoryResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetProductCategoryByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken ct) => new GetProductCategoryByIdResponse(q.Id, "Test Category"));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddProductCategoryCommand cmd, Guid companyId, CancellationToken ct) => new AddProductCategoryResponse(cmd.Id, cmd.Name));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid companyId, CancellationToken ct) => new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
@@ -62,15 +72,12 @@ public class ProductCategoryControllerTests : IDisposable
     public async Task PatchAsync_WhenCategoryExists_ReturnsOk()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
-        _db.BasicProductCategories.Add(category);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateProductCategoryCommand(category.Id, "Updated Name");
+        var categoryId = Guid.NewGuid();
+        var command = new UpdateProductCategoryCommand(categoryId, "Updated Name");
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.PatchAsync(command, category.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, categoryId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -83,6 +90,9 @@ public class ProductCategoryControllerTests : IDisposable
         var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "Updated Name");
         var wide = new WideEventContext();
 
+        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateProductCategoryCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProductCategoryResponse?)null);
+
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -94,14 +104,10 @@ public class ProductCategoryControllerTests : IDisposable
     public async Task DeleteAsync_WhenCategoryExists_ReturnsNoContent()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
-        _db.BasicProductCategories.Add(category);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.DeleteAsync(category.Id, wide, CancellationToken.None);
+        var result = await _controller.DeleteAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
@@ -124,14 +130,11 @@ public class ProductCategoryControllerTests : IDisposable
     public async Task GetByIdAsync_WhenCategoryExists_ReturnsOk()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
-        _db.BasicProductCategories.Add(category);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
+        var categoryId = Guid.NewGuid();
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetByIdAsync(category.Id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(categoryId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -142,6 +145,9 @@ public class ProductCategoryControllerTests : IDisposable
     {
         // Arrange
         var wide = new WideEventContext();
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetProductCategoryByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProductCategoryByIdResponse?)null);
 
         // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);

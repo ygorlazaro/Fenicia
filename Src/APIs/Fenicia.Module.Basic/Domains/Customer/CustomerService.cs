@@ -14,7 +14,7 @@ using Fenicia.Module.Basic.Domains.Product;
 namespace Fenicia.Module.Basic.Domains.Customer;
 
 public class CustomerService(
-    CustomerRepository customerRepository,
+    ICustomerRepository customerRepository,
     PersonService personService,
     AddressService addressService,
     PersonAddressService personAddressService,

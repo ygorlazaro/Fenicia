@@ -3,24 +3,14 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.Person;
-using Fenicia.Module.Basic.Domains.PersonAddress;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
-using Fenicia.Module.Basic.Tests.Domains.Supplier;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
@@ -28,32 +18,41 @@ namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 public class SupplierControllerTests : IDisposable
 {
     private readonly SupplierController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly TestCompanyContext _companyContext;
+    private readonly Mock<SupplierService> _mockService;
 
     public SupplierControllerTests()
     {
-        _companyContext = new TestCompanyContext();
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, _companyContext);
-        var orderDetailRepository = new OrderDetailRepository(_db);
-        var dummyStockMovementService = new StockMovementService();
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), new OrderDetailService(orderDetailRepository), dummyStockMovementService);
-        var stockMovementRepository = new StockMovementRepository(_db);
-        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
-        var service = new SupplierService(new SupplierRepository(_db), productService, stockMovementService, new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)));
+        _mockService = new Mock<SupplierService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new SupplierController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new SupplierController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        SetupServiceMocks();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllSupplierQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllSupplierResponse>>(new List<GetAllSupplierResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetSupplierByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetSupplierByIdQuery q, CancellationToken ct) => new GetSupplierByIdResponse(q.Id, Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddSupplierCommand cmd, Guid companyId, CancellationToken ct) => new AddSupplierResponse(cmd.Id, cmd.Cnpj));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateSupplierCommand cmd, Guid companyId, CancellationToken ct) => new UpdateSupplierResponse(cmd.Id, cmd.Cnpj));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
@@ -74,17 +73,12 @@ public class SupplierControllerTests : IDisposable
     public async Task PatchAsync_WhenSupplierExists_ReturnsOk()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Company.CompanyName(), CompanyId = _companyContext.CompanyId };
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPeople.Add(person);
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateSupplierCommand(supplier.Id, _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var supplierId = Guid.NewGuid();
+        var command = new UpdateSupplierCommand(supplierId, _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.PatchAsync(command, supplier.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, supplierId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -97,6 +91,9 @@ public class SupplierControllerTests : IDisposable
         var command = new UpdateSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
         var wide = new WideEventContext();
 
+        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateSupplierCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateSupplierResponse?)null);
+
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -108,16 +105,10 @@ public class SupplierControllerTests : IDisposable
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Company.CompanyName(), CompanyId = _companyContext.CompanyId };
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPeople.Add(person);
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.DeleteAsync(supplier.Id, wide, CancellationToken.None);
+        var result = await _controller.DeleteAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
@@ -140,16 +131,11 @@ public class SupplierControllerTests : IDisposable
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOk()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Company.CompanyName(), CompanyId = _companyContext.CompanyId };
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPeople.Add(person);
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
+        var supplierId = Guid.NewGuid();
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetByIdAsync(supplier.Id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(supplierId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -160,6 +146,9 @@ public class SupplierControllerTests : IDisposable
     {
         // Arrange
         var wide = new WideEventContext();
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetSupplierByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetSupplierByIdResponse?)null);
 
         // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);

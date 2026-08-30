@@ -3,21 +3,15 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementService(
-    StockMovementRepository stockMovementRepository,
-    ProductService productService)
+    IStockMovementRepository stockMovementRepository,
+    IProductRepository productRepository)
 {
-    public StockMovementService()
-        : this(null!, null!)
-    {
-    }
-
     public async Task<List<GetStockMovementResponse>> GetAsync(GetStockMovementQuery query, CancellationToken ct)
     {
         var startDate = query.StartDate ?? DateTime.MinValue;
@@ -47,7 +41,7 @@ public class StockMovementService(
 
         await stockMovementRepository.InsertAsync(stockMovement, ct);
 
-        var product = await productService.GetByIdAsync(new GetProductByIdQuery(command.ProductId), ct);
+        var product = await productRepository.GetByIdAsync(command.ProductId, ct);
 
         if (product is not null)
         {
@@ -58,17 +52,8 @@ public class StockMovementService(
                 _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
             };
 
-            var updateCommand = new UpdateProductCommand(
-                product.Id,
-                product.Name,
-                Description: product.Description,
-                CostPrice: product.CostPrice,
-                SalesPrice: product.SalesPrice,
-                Quantity: (double)newQuantity,
-                CategoryId: product.CategoryId,
-                SupplierId: product.SupplierId);
-
-            await productService.UpdateAsync(updateCommand, companyId, ct);
+            product.Quantity = (double)newQuantity;
+            await productRepository.UpdateAsync(product.Id, product, ct);
         }
 
         return stockMovement.MapToAddStockMovementResponse();
@@ -169,20 +154,21 @@ public class StockMovementService(
     {
         var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
-        var products = await productService.GetAllAsync(new GetAllProductQuery(1, 10000), ct);
-        var productList = products.Data.Where(p => p.Quantity > 0).ToList();
+        var products = await productRepository.GetAllWithDetailsAsync(1, 10000, ct);
+        var productList = products.Where(p => p.Quantity > 0).ToList();
 
         var request = from p in productList
                       join m in productOutMovements on p.Id equals m.ProductId into gj
                       from m in gj.DefaultIfEmpty()
                       let totalSold = m != null ? m.TotalSold ?? 0 : 0
                       let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
+                      let categoryName = p.Category != null ? p.Category.Name : null
                       orderby turnoverRate descending
                       select new
                       {
                           p.Id,
                           p.Name,
-                          CategoryName = p.CategoryName,
+                          CategoryName = categoryName,
                           p.Quantity,
                           totalSold,
                           turnoverRate
