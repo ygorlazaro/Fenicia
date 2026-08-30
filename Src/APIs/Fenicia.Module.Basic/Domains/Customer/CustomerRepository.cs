@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
-public class CustomerRepository(DefaultContext context) : Repository<CustomerModel>(context)
+public class CustomerRepository(DefaultContext context) : Repository<CustomerModel>(context), ICustomerRepository
 {
     public async Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
     {

@@ -1,3 +1,4 @@
+using Moq;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
@@ -8,6 +9,7 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +27,7 @@ public class OrderServiceTests : IDisposable
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         var repository = new OrderRepository(_db);
-        _service = new OrderService(repository, new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService());
+        _service = new OrderService(repository, new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object));
         _faker = new Faker();
     }
 

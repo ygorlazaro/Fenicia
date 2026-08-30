@@ -3,27 +3,13 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
-using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.Person;
-using Fenicia.Module.Basic.Domains.PersonAddress;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Supplier;
-using Fenicia.Module.Basic.Tests.Domains.Employee;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
@@ -31,49 +17,48 @@ namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 public class EmployeeControllerTests : IDisposable
 {
     private readonly EmployeeController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly TestCompanyContext _companyContext;
+    private readonly Mock<EmployeeService> _mockService;
 
     public EmployeeControllerTests()
     {
-        _companyContext = new TestCompanyContext();
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, _companyContext);
-        var employeeRepository = new EmployeeRepository(_db);
-        var personRepository = new PersonRepository(_db);
-        var addressRepository = new AddressRepository(_db);
-        var personAddressRepository = new PersonAddressRepository(_db);
-        var orderDetailRepository = new OrderDetailRepository(_db);
-        var stockMovementRepository = new StockMovementRepository(_db);
-        var orderDetailService = new OrderDetailService(orderDetailRepository);
-        var dummyStockMovementService = new StockMovementService();
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), orderDetailService, dummyStockMovementService);
-        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
-        var orderService = new OrderService(new OrderRepository(_db), orderDetailService, stockMovementService);
-        var service = new EmployeeService(employeeRepository, new PersonService(personRepository), new AddressService(addressRepository), new PersonAddressService(personAddressRepository), orderService);
+        _mockService = new Mock<EmployeeService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new EmployeeController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new EmployeeController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        SetupServiceMocks();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllEmployeeQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllEmployeeResponse>>(new List<GetAllEmployeeResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetEmployeeByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken ct) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new AddEmployeeCommand(Guid.NewGuid(), position.Id, _faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new AddEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
 
         // Act
@@ -87,19 +72,12 @@ public class EmployeeControllerTests : IDisposable
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOk()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = position.Id, PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        _db.BasicPeople.Add(person);
-        _db.BasicEmployees.Add(employee);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employee.Id, position.Id, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var employeeId = Guid.NewGuid();
+        var command = new UpdateEmployeeCommand(employeeId, Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.PatchAsync(command, employee.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, employeeId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -112,6 +90,9 @@ public class EmployeeControllerTests : IDisposable
         var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
 
+        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateEmployeeCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateEmployeeResponse?)null);
+
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -123,18 +104,10 @@ public class EmployeeControllerTests : IDisposable
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = position.Id, PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        _db.BasicPeople.Add(person);
-        _db.BasicEmployees.Add(employee);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.DeleteAsync(employee.Id, wide, CancellationToken.None);
+        var result = await _controller.DeleteAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
@@ -157,18 +130,11 @@ public class EmployeeControllerTests : IDisposable
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOk()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = position.Id, PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        _db.BasicPeople.Add(person);
-        _db.BasicEmployees.Add(employee);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
+        var employeeId = Guid.NewGuid();
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetByIdAsync(employee.Id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(employeeId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -179,6 +145,9 @@ public class EmployeeControllerTests : IDisposable
     {
         // Arrange
         var wide = new WideEventContext();
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetEmployeeByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetEmployeeByIdResponse?)null);
 
         // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);

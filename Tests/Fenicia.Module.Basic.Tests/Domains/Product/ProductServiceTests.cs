@@ -9,6 +9,7 @@ using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
@@ -23,8 +24,11 @@ public class ProductServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
-        var repository = new ProductRepository(_db);
-        _service = new ProductService(repository, new ProductCategoryService(new ProductCategoryRepository(_db)), new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService());
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductCategoryService = new Mock<ProductCategoryService>(new Mock<IProductCategoryRepository>().Object);
+        var mockOrderDetailService = new Mock<OrderDetailService>(new Mock<IOrderDetailRepository>().Object);
+        var mockStockMovementService = new Mock<StockMovementService>(new Mock<IStockMovementRepository>().Object, null!);
+        _service = new ProductService(mockProductRepository.Object, mockProductCategoryService.Object, mockOrderDetailService.Object, mockStockMovementService.Object);
         _faker = new Faker();
     }
 

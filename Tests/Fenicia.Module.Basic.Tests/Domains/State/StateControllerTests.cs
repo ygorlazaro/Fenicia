@@ -4,16 +4,11 @@ using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.State.DTOs;
-using Fenicia.Module.Basic.Tests.Domains.State;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.State;
@@ -21,25 +16,29 @@ namespace Fenicia.Module.Basic.Tests.Domains.State;
 public class StateControllerTests : IDisposable
 {
     private readonly StateController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<StateService> _mockService;
 
     public StateControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, new TestCompanyContext());
-        var service = new StateService(new StateRepository(_db));
+        _mockService = new Mock<StateService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new StateController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new StateController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        SetupServiceMocks();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllStateQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GetAllStateResponse>());
     }
 
     [Fact]

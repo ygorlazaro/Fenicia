@@ -1,3 +1,4 @@
+using Moq;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
@@ -28,14 +29,14 @@ public class StockMovementServiceTests : IDisposable
         _db = new DefaultContext(options, companyContext);
         var stockMovementRepository = new StockMovementRepository(_db);
         var orderDetailService = new OrderDetailService(new OrderDetailRepository(_db));
-        var dummyStockMovementService = new StockMovementService();
+        var dummyStockMovementService = new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object);
         var productService = new ProductService(
             new ProductRepository(_db),
             new ProductCategoryService(new ProductCategoryRepository(_db)),
             orderDetailService,
             dummyStockMovementService);
-        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
-        _service = new StockMovementService(stockMovementRepository, productService);
+        var stockMovementService = new StockMovementService(stockMovementRepository, new Mock<IProductRepository>().Object);
+        _service = new StockMovementService(stockMovementRepository, new Mock<IProductRepository>().Object);
         _faker = new Faker();
     }
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-public class ProductRepository(DefaultContext context) : Repository<ProductModel>(context)
+public class ProductRepository(DefaultContext context) : Repository<ProductModel>(context), IProductRepository
 {
     public async Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {

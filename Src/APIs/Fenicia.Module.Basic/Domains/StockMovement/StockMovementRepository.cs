@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
-public class StockMovementRepository(DefaultContext context) : Repository<StockMovementModel>(context)
+public class StockMovementRepository(DefaultContext context) : Repository<StockMovementModel>(context), IStockMovementRepository
 {
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {

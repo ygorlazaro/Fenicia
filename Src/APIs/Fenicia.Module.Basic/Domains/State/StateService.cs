@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateService(StateRepository stateRepository)
+public class StateService(IStateRepository stateRepository)
 {
-    public StateService()
-        : this(null!)
-    {
-    }
-
     public async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken ct)
     {
         var states = await stateRepository.GetAllOrderedAsync(ct);

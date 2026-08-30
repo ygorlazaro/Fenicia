@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
-public class SupplierRepository(DefaultContext context) : Repository<SupplierModel>(context)
+public class SupplierRepository(DefaultContext context) : Repository<SupplierModel>(context), ISupplierRepository
 {
     public async Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {

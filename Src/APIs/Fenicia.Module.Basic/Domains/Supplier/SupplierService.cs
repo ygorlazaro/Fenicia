@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierService(
-    SupplierRepository supplierRepository,
+    ISupplierRepository supplierRepository,
     ProductService productService,
     StockMovementService stockMovementService,
     AddressService addressService,

@@ -3,19 +3,13 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Person;
-using Fenicia.Module.Basic.Domains.PersonAddress;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
-using Fenicia.Module.Basic.Tests.Domains.Position;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
@@ -23,27 +17,41 @@ namespace Fenicia.Module.Basic.Tests.Domains.Position;
 public class PositionControllerTests : IDisposable
 {
     private readonly PositionController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly TestCompanyContext _companyContext;
+    private readonly Mock<PositionService> _mockService;
 
     public PositionControllerTests()
     {
-        _companyContext = new TestCompanyContext();
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, _companyContext);
-        var service = new PositionService(new PositionRepository(_db));
+        _mockService = new Mock<PositionService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new PositionController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new PositionController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        SetupServiceMocks();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllPositionQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllPositionResponse>>(new List<GetAllPositionResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetPositionByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken ct) => new GetPositionByIdResponse(q.Id, "Test Position"));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddPositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddPositionCommand cmd, Guid companyId, CancellationToken ct) => new AddPositionResponse(cmd.Id, cmd.Name));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdatePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdatePositionCommand cmd, Guid companyId, CancellationToken ct) => new UpdatePositionResponse(cmd.Id, cmd.Name));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeletePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
@@ -64,15 +72,12 @@ public class PositionControllerTests : IDisposable
     public async Task PatchAsync_WhenPositionExists_ReturnsOk()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Test Position", CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdatePositionCommand(position.Id, "Updated Name");
+        var positionId = Guid.NewGuid();
+        var command = new UpdatePositionCommand(positionId, "Updated Name");
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.PatchAsync(command, position.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, positionId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -85,6 +90,9 @@ public class PositionControllerTests : IDisposable
         var command = new UpdatePositionCommand(Guid.NewGuid(), "Updated Name");
         var wide = new WideEventContext();
 
+        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdatePositionCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdatePositionResponse?)null);
+
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -96,14 +104,10 @@ public class PositionControllerTests : IDisposable
     public async Task DeleteAsync_WhenPositionExists_ReturnsNoContent()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Test Position", CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.DeleteAsync(position.Id, wide, CancellationToken.None);
+        var result = await _controller.DeleteAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
@@ -126,14 +130,11 @@ public class PositionControllerTests : IDisposable
     public async Task GetByIdAsync_WhenPositionExists_ReturnsOk()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Test Position", CompanyId = _companyContext.CompanyId };
-        _db.BasicPositions.Add(position);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
+        var positionId = Guid.NewGuid();
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetByIdAsync(position.Id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(positionId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -144,6 +145,9 @@ public class PositionControllerTests : IDisposable
     {
         // Arrange
         var wide = new WideEventContext();
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetPositionByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetPositionByIdResponse?)null);
 
         // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);

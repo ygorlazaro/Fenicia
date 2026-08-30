@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.Employee;
 
 public class EmployeeService(
-    EmployeeRepository employeeRepository,
+    IEmployeeRepository employeeRepository,
     PersonService personService,
     AddressService addressService,
     PersonAddressService personAddressService,

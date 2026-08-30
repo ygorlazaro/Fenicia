@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateRepository(DefaultContext context) : Repository<StateModel>(context)
+public class StateRepository(DefaultContext context) : Repository<StateModel>(context), IStateRepository
 {
     public async Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct = default)
     {

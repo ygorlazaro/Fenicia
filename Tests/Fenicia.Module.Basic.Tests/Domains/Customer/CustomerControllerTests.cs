@@ -3,25 +3,13 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
-using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.Person;
-using Fenicia.Module.Basic.Domains.PersonAddress;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Tests.Domains.Customer;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
@@ -29,33 +17,41 @@ namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 public class CustomerControllerTests : IDisposable
 {
     private readonly CustomerController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly TestCompanyContext _companyContext;
+    private readonly Mock<CustomerService> _mockService;
 
     public CustomerControllerTests()
     {
-        _companyContext = new TestCompanyContext();
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, _companyContext);
-        var orderDetailRepository = new OrderDetailRepository(_db);
-        var dummyStockMovementService = new StockMovementService();
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), new OrderDetailService(orderDetailRepository), dummyStockMovementService);
-        var stockMovementRepository = new StockMovementRepository(_db);
-        var stockMovementService = new StockMovementService(stockMovementRepository, productService);
-        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(orderDetailRepository), stockMovementService);
-        var service = new CustomerService(new CustomerRepository(_db), new PersonService(new PersonRepository(_db)), new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)), orderService, productService);
+        _mockService = new Mock<CustomerService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new CustomerController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new CustomerController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        SetupServiceMocks();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllCustomerQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllCustomerResponse>>(new List<GetAllCustomerResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetCustomerByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetCustomerByIdQuery q, CancellationToken ct) => new GetCustomerByIdResponse(q.Id, Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddCustomerCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddCustomerCommand cmd, Guid companyId, CancellationToken ct) => new AddCustomerResponse(Guid.NewGuid(), Guid.NewGuid()));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCustomerCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateCustomerCommand cmd, Guid companyId, CancellationToken ct) => new UpdateCustomerResponse(cmd.Id, Guid.NewGuid()));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteCustomerCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
@@ -76,17 +72,12 @@ public class CustomerControllerTests : IDisposable
     public async Task PatchAsync_WhenCustomerExists_ReturnsOk()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
-        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPeople.Add(person);
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateCustomerCommand(customer.Id, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var customerId = Guid.NewGuid();
+        var command = new UpdateCustomerCommand(customerId, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.PatchAsync(command, customer.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, customerId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -99,6 +90,9 @@ public class CustomerControllerTests : IDisposable
         var command = new UpdateCustomerCommand(Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
 
+        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateCustomerCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateCustomerResponse?)null);
+
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -110,16 +104,10 @@ public class CustomerControllerTests : IDisposable
     public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
-        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPeople.Add(person);
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.DeleteAsync(customer.Id, wide, CancellationToken.None);
+        var result = await _controller.DeleteAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
@@ -142,16 +130,11 @@ public class CustomerControllerTests : IDisposable
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOk()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
-        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
-        _db.BasicPeople.Add(person);
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
+        var customerId = Guid.NewGuid();
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetByIdAsync(customer.Id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(customerId, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -162,6 +145,9 @@ public class CustomerControllerTests : IDisposable
     {
         // Arrange
         var wide = new WideEventContext();
+
+        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetCustomerByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetCustomerByIdResponse?)null);
 
         // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderService(
-    OrderRepository orderRepository,
+    IOrderRepository orderRepository,
     OrderDetailService orderDetailService,
     StockMovementService stockMovementService)
 {
