@@ -1,53 +1,53 @@
 # CLAUDE.md
 
-Este arquivo documenta o padrão de arquitetura e convenções do projeto Fenicia. Sempre siga estas regras ao modificar ou adicionar código.
+This file documents the architecture pattern and conventions of the Fenicia project. Always follow these rules when modifying or adding code.
 
-## 1. Remoção do MediatR
+## 1. MediatR Removal
 
-O projeto não usa mais MediatR. Todos os handlers foram removidos e substituídos por services.
+The project no longer uses MediatR. All handlers have been removed and replaced by services.
 
-- **NÃO** adicione referências ao pacote `MediatR`
-- **NÃO** crie classes que implementem `IRequest`, `IRequestHandler`, ou usem `ISender`/`IMediator`
-- **NÃO** crie pastas `Handlers/`
+- **DO NOT** add references to the `MediatR` package
+- **DO NOT** create classes that implement `IRequest`, `IRequestHandler`, or use `ISender`/`IMediator`
+- **DO NOT** create `Handlers/` folders
 
-## 2. Estrutura de Domínio
+## 2. Domain Structure
 
-Cada domínio dentro de `Domains/` deve seguir esta estrutura:
+Each domain within `Domains/` must follow this structure:
 
 ```
-Domains/NomeDoDominio/
-├── DTOs/                    # Todos os DTOs na raiz, SEM subpastas
-│   ├── AddNomeCommand.cs
-│   ├── AddNomeResponse.cs
-│   ├── DeleteNomeCommand.cs
-│   ├── GetAllNomeQuery.cs
-│   ├── GetAllNomeResponse.cs
-│   ├── GetNomeByIdQuery.cs
-│   ├── GetNomeByIdResponse.cs
-│   ├── UpdateNomeCommand.cs
-│   ├── UpdateNomeResponse.cs
-│   └── ... (outros DTOs)
-├── NomeController.cs        # Controller na raiz do domínio (se existir)
-└── NomeService.cs           # Service na raiz do domínio, AO LADO do controller
+Domains/DomainName/
+├── DTOs/                    # All DTOs at root, NO subfolders
+│   ├── AddNameCommand.cs
+│   ├── AddNameResponse.cs
+│   ├── DeleteNameCommand.cs
+│   ├── GetAllNameQuery.cs
+│   ├── GetAllNameResponse.cs
+│   ├── GetNameByIdQuery.cs
+│   ├── GetNameByIdResponse.cs
+│   ├── UpdateNameCommand.cs
+│   ├── UpdateNameResponse.cs
+│   └── ... (other DTOs)
+├── NameController.cs        # Controller at domain root (if exists)
+└── NameService.cs           # Service at domain root, NEXT TO the controller
 ```
 
-### Regras:
-- **DTOs**: todos os arquivos ficam na raiz de `DTOs/`, sem subpastas `Commands/`, `Queries/`, `Responses/`
-- **Services**: ficam na raiz do domínio, ao lado do controller
-- **Controllers**: são opcionais. Quando existirem, ficam na raiz do domínio. Quando não existirem, o domínio terá apenas `DTOs/`, services e repositories.
-- **NÃO** criar pastas como `Add/`, `Delete/`, `GetAll/`, `GetById/`, `Update/`, `Handlers/`, `Services/` dentro do domínio
-- **Controllers** podem acessar apenas services e inserções de libs externas quando necessário (logs, por exemplo). Nunca acessar outros tipos de entidades ou repositories diretamente.
+### Rules:
+- **DTOs**: all files stay at the root of `DTOs/`, without subfolders `Commands/`, `Queries/`, `Responses/`
+- **Services**: stay at the domain root, next to the controller
+- **Controllers**: are optional. When they exist, they stay at the domain root. When they don't exist, the domain will have only `DTOs/`, services and repositories.
+- **DO NOT** create folders like `Add/`, `Delete/`, `GetAll/`, `GetById/`, `Update/`, `Handlers/`, `Services/` inside the domain
+- **Controllers** can access only services and external library integrations when necessary (logs, for example). Never access other entity types or repositories directly.
 
-### Rotas RESTful
-Seguir princípios RESTful nas rotas:
-- **NÃO** usar verbos na URL (ex: `refreshtoken/validate`, `refreshtoken/invalidate`)
-- Usar apenas o nome do recurso/entidade no **singular** (ex: `refreshtoken`, `role`, `user`)
-- Usar métodos HTTP apropriados: `GET` (leitura), `POST` (criação), `PATCH` (atualização parcial), `DELETE` (remoção)
-- Exemplo correto: `PATCH /refreshtokens/{id}` em vez de `POST /refreshtoken/invalidate`
+### RESTful Routes
+Follow RESTful principles on routes:
+- **DO NOT** use verbs in the URL (ex: `refreshtoken/validate`, `refreshtoken/invalidate`)
+- Use only the resource/entity name in **singular** (ex: `refreshtoken`, `role`, `user`)
+- Use appropriate HTTP methods: `GET` (read), `POST` (create), `PATCH` (partial update), `DELETE` (remove)
+- Correct example: `PATCH /refreshtokens/{id}` instead of `POST /refreshtoken/invalidate`
 
-## 3. Padrão de Repository
+## 3. Repository Pattern
 
-Services **NÃO** podem acessar `DbContext` diretamente. Toda comunicação com banco deve ser feita através de repositories.
+Services **CANNOT** access `DbContext` directly. All communication with the database must be done through repositories.
 
 ```csharp
 namespace Fenicia.Common.Data.Repositories;
@@ -194,20 +194,20 @@ public class Repository<T> : IRepository<T> where T : BaseModel
 }
 ```
 
-### Regras:
-- Todos os métodos são `async`
-- Todos recebem `CancellationToken` como último parâmetro
-- Métodos de escrita retornam `Task<T>` ou `Task<T?>`
-- Delete retorna `Task<int>` com quantidade de registros afetados
-- `SaveChangesAsync` é usado como transação; não chamar `SaveChangesAsync` fora do repository
-- Sempre filtrar por `Deleted == null` nas queries
-- Repositories retornam apenas entidades ou primitivos, nunca DTOs ou Responses
-- `Context` é público para permitir acesso cross-assembly
-- **Um domínio NÃO pode acessar o repository de outro domínio diretamente.** Se precisar de dados/externa, use a **service** desse domínio, não o repository.
+### Rules:
+- All methods are `async`
+- All receive `CancellationToken` as the last parameter
+- Write methods return `Task<T>` or `Task<T?>`
+- Delete returns `Task<int>` with the count of affected records
+- `SaveChangesAsync` is used as a transaction; do not call `SaveChangesAsync` outside the repository
+- Always filter by `Deleted == null` in queries
+- Repositories return only entities or primitives, never DTOs or Responses
+- `Context` is public to allow cross-assembly access
+- **A domain CANNOT access another domain's repository directly.** If it needs data/external access, use that domain's **service**, not the repository.
 
-## 4. Padrão de Service
+## 4. Service Pattern
 
-Services recebem `IRepository<T>` via construtor e expõem métodos públicos assíncronos.
+Services receive `IRepository<T>` via constructor and expose public async methods.
 
 ```csharp
 using Fenicia.Common.Data.Repositories;
@@ -255,17 +255,17 @@ public class ProjectService(IRepository<ProjectModel> repository)
 }
 ```
 
-### Regras:
-- Métodos devem ser `public async Task<...>`
-- Usar `CancellationToken` como último parâmetro
-- Services não acessam `DbContext` diretamente
-- Usar `record` para DTOs
-- Services de escrita devem receber `CompanyId` quando a entidade herda de `BaseCompanyModel`
-- `CompanyId` nunca deve vir do command/query; sempre do token
+### Rules:
+- Methods must be `public async Task<...>`
+- Use `CancellationToken` as the last parameter
+- Services cannot access `DbContext` directly
+- Use `record` for DTOs
+- Write services must receive `CompanyId` when the entity inherits from `BaseCompanyModel`
+- `CompanyId` must never come from the command/query; always from the token
 
-## 5. Padrão de Controller
+## 5. Controller Pattern
 
-Controllers injetam services diretamente via construtor, sem `ISender` ou handlers.
+Controllers inject services directly via constructor, without `ISender` or handlers.
 
 ```csharp
 using System.Net.Mime;
@@ -330,39 +330,39 @@ public class ProjectController(ProjectService projectService) : ControllerBase
 }
 ```
 
-### Regras:
-- Injetar apenas services, nunca handlers ou `ISender`
-- Usar `ClaimReader.UserId(User).ToString()` para obter o usuário autenticado
-- Usar `WideEventContext` para passar `UserId`
-- Retornos padrão: `Ok()`, `NotFound()`, `NoContent()`, `Created()`, `Forbid()`
-- Passar `CompanyId` para services de escrita quando a entidade herda de `BaseCompanyModel`
+### Rules:
+- Inject only services, never handlers or `ISender`
+- Use `ClaimReader.UserId(User).ToString()` to get the authenticated user
+- Use `WideEventContext` to pass `UserId`
+- Standard returns: `Ok()`, `NotFound()`, `NoContent()`, `Created()`, `Forbid()`
+- Pass `CompanyId` to write services when the entity inherits from `BaseCompanyModel`
 
-### Documentação OpenAPI (XML Comments)
+### OpenAPI Documentation (XML Comments)
 
-Todas as actions dos controllers devem possuir **XML documentation comments** para documentar a API via OpenAPI/Swagger. Esta é a **única exceção** à regra de não obrigatoriedade de XML comments no projeto.
+All controller actions must have **XML documentation comments** to document the API via OpenAPI/Swagger. This is the **only exception** to the rule of not requiring XML comments in the project.
 
-Cada action deve documentar:
+Each action must document:
 
-- **Descrição** do que o endpoint faz
-- **Parâmetros** de rota, query string e body (com exemplos de payload)
-- **Resposta** de sucesso (com exemplo de response)
-- **Status codes** possíveis de retorno
-- **Exceções** que podem ocorrer (levantadas pela controller, service ou repository)
+- **Description** of what the endpoint does
+- **Parameters** for route, query string and body (with payload examples)
+- **Success response** (with response example)
+- Possible **Status codes** returned
+- **Exceptions** that may occur (raised by the controller, service or repository)
 
-Para documentar exceções corretamente, analise todo o fluxo: **Controller → Service → Repository**, identificando possíveis erros em cada camada.
+To document exceptions correctly, analyze the entire flow: **Controller → Service → Repository**, identifying possible errors at each layer.
 
 ```csharp
 /// <summary>
-/// Obtém um usuário pelo ID.
+/// Gets a user by ID.
 /// </summary>
-/// <param name="id">ID do usuário</param>
-/// <param name="wide">Contexto de eventos wide</param>
-/// <param name="ct">Token de cancelamento</param>
-/// <returns>Dados do usuário</returns>
-/// <response code="200">Usuário encontrado</response>
-/// <response code="404">Usuário não encontrado</response>
-/// <response code="400">ID inválido</response>
-/// <response code="500">Erro interno do servidor</response>
+/// <param name="id">User ID</param>
+/// <param name="wide">Wide event context</param>
+/// <param name="ct">Cancellation token</param>
+/// <returns>User data</returns>
+/// <response code="200">User found</response>
+/// <response code="404">User not found</response>
+/// <response code="400">Invalid ID</response>
+/// <response code="500">Internal server error</response>
 [HttpGet("{id:guid}")]
 public async Task<ActionResult<GetUserByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
 {
@@ -370,7 +370,7 @@ public async Task<ActionResult<GetUserByIdResponse>> GetByIdAsync([FromRoute] Gu
 }
 ```
 
-Todas as actions devem ter **obrigatoriamente** o atributo `[ProducesResponseType]` para cada status code possível de retorno, garantindo documentação precisa no Swagger/OpenAPI.
+All actions must **mandatorily** have the `[ProducesResponseType]` attribute for each possible return status code, ensuring precise documentation in Swagger/OpenAPI.
 
 ```csharp
 [HttpGet("{id:guid}")]
@@ -381,9 +381,9 @@ Todas as actions devem ter **obrigatoriamente** o atributo `[ProducesResponseTyp
 public async Task<ActionResult<GetUserByIdResponse>> GetByIdAsync(...)
 ```
 
-## 7. Padrão de DTOs
+## 7. DTO Pattern
 
-Todos os DTOs são `record` e ficam na raiz de `DTOs/`.
+All DTOs are `record` and stay at the root of `DTOs/`.
 
 ```csharp
 // Commands
@@ -399,17 +399,17 @@ namespace Fenicia.Module.Projects.Domains.Project.DTOs;
 public record AddProjectResponse(Guid Id, string Title, string? Description, string Status, DateTime? StartDate, DateTime? EndDate, Guid Owner, Guid CompanyId);
 ```
 
-### Regras:
-- Todos na pasta `DTOs/` raiz, sem subpastas
+### Rules:
+- All in the root `DTOs/` folder, without subfolders
 - Namespace: `Fenicia.Module.Projects.Domains.Project.DTOs`
-- Usar `record` sempre
-- Commands são inputs de escrita (POST, PATCH, DELETE)
-- Queries são inputs de leitura (GET)
-- Responses são outputs
+- Always use `record`
+- Commands are write inputs (POST, PATCH, DELETE)
+- Queries are read inputs (GET)
+- Responses are outputs
 
-## 8. Padrão de Testes
+## 8. Test Pattern
 
-Seguir o padrão dos testes de `Fenicia.Auth.Tests` e `Fenicia.Module.Projects.Tests`.
+Follow the pattern of `Fenicia.Auth.Tests` and `Fenicia.Module.Projects.Tests`.
 
 ### Service Tests:
 ```csharp
@@ -520,73 +520,84 @@ public class ProjectControllerTests : IDisposable
 }
 ```
 
-### Regras:
-- Service tests instanciam o service diretamente com `new Service(db)`
-- Controller tests instanciam o service e injetam no controller
-- Usar `Faker` do Bogus para dados de teste
-- Usar `DefaultContext` com banco in-memory
-- Sempre incluir `using System.Security.Claims` nos controller tests
-- Sempre configurar `mockHttpContext.Setup(x => x.User).Returns(...)` para tests que usam `ClaimReader`
-- **Todo código novo ou refatoração deve incluir testes unitários correspondentes.**
-- **Toda Service, Provider, Repository e Controller precisa ter testes unitários correspondentes.**
-- **Um arquivo de teste por classe testada.** Não criar múltiplos arquivos de teste para a mesma classe de produção.
+### Rules:
+- Service tests instantiate the service directly with `new Service(db)`
+- Controller tests instantiate the service and inject it into the controller
+- Use `Faker` from Bogus for test data
+- Use `DefaultContext` with in-memory database
+- Always include `using System.Security.Claims` in controller tests
+- Always configure `mockHttpContext.Setup(x => x.User).Returns(...)` for tests that use `ClaimReader`
+- **All new or refactored code must include corresponding unit tests.**
+- **Every Service, Provider, Repository and Controller needs corresponding unit tests.**
+- **One test file per tested class.** Do not create multiple test files for the same production class.
 
-## 9. Convenções Gerais
+### Mocking Dependencies
 
-- **Namespaces**: sempre usar o namespace completo do domínio
+- Use **Moq** to mock constructor dependencies in tests.
+- Prefer generating mock data with **Bogus** whenever possible, instead of hardcoding values.
+- Example:
+  ```csharp
+  var mockRepo = new Mock<IRepository<ProductModel>>();
+  mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(new ProductModel { Id = Guid.NewGuid(), Name = faker.Commerce.ProductName() });
+  ```
+
+## 9. General Conventions
+
+- **Namespaces**: always use the full domain namespace
   - Controllers: `Fenicia.Module.Projects.Domains.Project`
   - Services: `Fenicia.Module.Projects.Domains.Project`
   - DTOs: `Fenicia.Module.Projects.Domains.Project.DTOs`
-- **Usings**: sempre incluir `Fenicia.Common.API` em controllers para acessar `ClaimReader`
-- **CancellationToken**: sempre incluir como último parâmetro em métodos assíncronos
-- **Nullable reference types**: habilitado nos projetos
-- **Record types**: usar `record` para DTOs e commands
-- **Primary constructors**: usar para services (ex: `public class ProjectService(DefaultContext db)`)
-- **Campos privados**: usar `_camelCase` (ex: `private readonly DefaultContext _db;`)
- - **Métodos async**: sempre terminam com `Async` (ex: `GetAsync`)
- - **LINQ**: usar sintaxe LINQ query expression sempre que possível ao invés de lambda expressions
- - **Mapeamento**: usar Mapperly para transformação entre entidades e DTOs/responses
- - **Testes obrigatórios**: todo código novo ou refatoração deve incluir testes unitários correspondentes
- - **Domain isolation**: um domínio NÃO pode acessar repository de outro domínio diretamente; use a service do domínio correspondente
- - **XML comments**: não obrigatórios
-- **Usings desnecessários**: não obrigatória remoção
-- **Migrations**: excluídas das regras de estilo
+- **Usings**: always include `Fenicia.Common.API` in controllers to access `ClaimReader`
+- **CancellationToken**: always include as the last parameter in async methods
+- **Nullable reference types**: enabled in projects
+- **Record types**: use `record` for DTOs and commands
+- **Primary constructors**: use for services (ex: `public class ProjectService(DefaultContext db)`)
+- **Private fields**: use `_camelCase` (ex: `private readonly DefaultContext _db;`)
+  - **Async methods**: always end with `Async` (ex: `GetAsync`)
+  - **LINQ**: use LINQ query expression syntax whenever possible instead of lambda expressions
+  - **Mapping**: use Mapperly for transformation between entities and DTOs/responses
+  - **Mandatory tests**: all new or refactored code must include corresponding unit tests
+  - **Domain isolation**: a domain CANNOT access another domain's repository directly; use the corresponding domain's service
+  - **XML comments**: not required
+- **Unnecessary usings**: removal not required
+- **Migrations**: excluded from style rules
 
-## 10. Regras de Estilo (StyleCop/EditorConfig)
+## 10. Style Rules (StyleCop/EditorConfig)
 
-O projeto usa regras rigorosas de estilo definidas no `.editorconfig`. Antes de commitar, garanta que o build não tem erros de StyleCop.
+The project uses strict style rules defined in `.editorconfig`. Before committing, ensure the build has no StyleCop errors.
 
-### Regras obrigatórias:
-- **SA1201**: ordem de membros (campos > construtores > propriedades > eventos > métodos)
-- **SA1202**: ordem por visibilidade (public > internal > protected > private)
-- **SA1203**: campos `const` antes de campos não-`const`
-- **SA1214**: campos `static readonly` antes de campos de instância
-- **SA1208**: `using` de `System.*` antes dos demais
-- **SA1210**: `using` em ordem alfabética
-- **SA1211**: `using` estáticos depois dos normais
-- **SA1503/SA1519**: chaves obrigatórias mesmo em blocos de uma linha
-- **IDE0130**: namespace deve bater com estrutura de pastas
-- **CA1852**: classes internas não devem ser herdadas a menos que projetadas para isso
-- **CA1031**: não capturar `Exception` genérica sem tratamento específico
-- **CA2201**: não lançar `Exception` ou `SystemException` diretamente
+### Mandatory Rules:
+- **SA1201**: member order (fields > constructors > properties > events > methods)
+- **SA1202**: order by visibility (public > internal > protected > private)
+- **SA1203**: `const` fields before non-`const` fields
+- **SA1214**: `static readonly` fields before instance fields
+- **SA1208**: `System.*` usings before others
+- **SA1210**: usings in alphabetical order
+- **SA1211**: static usings after normal usings
+- **SA1503/SA1519**: braces required even in one-line blocks
+- **IDE0130**: namespace must match folder structure
+- **CA1852**: internal classes should not be inherited unless designed for it
+- **CA1031**: do not catch generic `Exception` without specific handling
+- **CA2201**: do not throw `Exception` or `SystemException` directly
 
-### Exceções:
-- **Migrations**: arquivos em `Migrations/` estão excluídos das regras acima
-- **SA0001/IDE0005**: desabilitados globalmente (não exigem documentação XML nem remoção de usings)
+### Exceptions:
+- **Migrations**: files in `Migrations/` are excluded from the above rules
+- **SA0001/IDE0005**: globally disabled (do not require XML documentation nor removal of usings)
 
-## 11. O que NÃO fazer
+## 11. What NOT to do
 
-- ❌ Criar pastas `Handlers/`
-- ❌ Criar subpastas em `DTOs/` (`Commands/`, `Queries/`, `Responses/`)
-- ❌ Criar pastas `Services/` dentro de domínios
-- ❌ Usar `MediatR` ou `ISender`
-- ❌ Implementar `IRequest` ou `IRequestHandler`
-- ❌ Injetar handlers em controllers
-- ❌ Usar `MediatR` nos testes (mockar services diretamente)
-- ❌ Services acessarem `DbContext` diretamente
-- ❌ Repositories retornarem DTOs ou Responses
-- ❌ Lançar `Exception` genérica (usar tipos específicos)
-- ❌ Capturar `Exception` genérica sem tratamento específico
-- ❌ Omitir chaves em blocos `if`/`for`/`while`
-- ❌ Usar `this.` em métodos de instância
-- ❌ Esquecer de incluir `CancellationToken` como último parâmetro em métodos async
+- ❌ Create `Handlers/` folders
+- ❌ Create subfolders in `DTOs/` (`Commands/`, `Queries/`, `Responses/`)
+- ❌ Create `Services/` folders inside domains
+- ❌ Use `MediatR` or `ISender`
+- ❌ Implement `IRequest` or `IRequestHandler`
+- ❌ Inject handlers in controllers
+- ❌ Use `MediatR` in tests (mock services directly)
+- ❌ Services accessing `DbContext` directly
+- ❌ Repositories returning DTOs or Responses
+- ❌ Throw generic `Exception` (use specific types)
+- ❌ Catch generic `Exception` without specific handling
+- ❌ Omit braces in `if`/`for`/`while` blocks
+- ❌ Use `this.` in instance methods
+- ❌ Forget to include `CancellationToken` as the last parameter in async methods
