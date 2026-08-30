@@ -17,7 +17,7 @@ public class PositionService(PositionRepository positionRepository)
         var total = await positionRepository.CountAsync(ct);
 
         var positions = await positionRepository.Query()
-            .Select(p => new GetAllPositionResponse(p.Id, p.Name))
+            .Select(p => p.MapToGetAllPositionResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);
@@ -29,7 +29,7 @@ public class PositionService(PositionRepository positionRepository)
     {
         var position = await positionRepository.GetByIdAsync(query.Id, ct);
 
-        return position is null ? null : new GetPositionByIdResponse(position.Id, position.Name);
+        return position is null ? null : position.MapToGetPositionByIdResponse();
     }
 
     public async Task<AddPositionResponse> AddAsync(AddPositionCommand command, Guid companyId, CancellationToken ct)
@@ -43,7 +43,7 @@ public class PositionService(PositionRepository positionRepository)
 
         await positionRepository.InsertAsync(position, ct);
 
-        return new AddPositionResponse(position.Id, position.Name);
+        return position.MapToAddPositionResponse();
     }
 
     public async Task<UpdatePositionResponse?> UpdateAsync(UpdatePositionCommand command, Guid companyId, CancellationToken ct)
@@ -60,7 +60,7 @@ public class PositionService(PositionRepository positionRepository)
 
         await positionRepository.UpdateAsync(command.Id, position, ct);
 
-        return new UpdatePositionResponse(position.Id, position.Name);
+        return position.MapToUpdatePositionResponse();
     }
 
     public async Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken ct)

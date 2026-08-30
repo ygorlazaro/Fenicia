@@ -21,14 +21,7 @@ public class DashboardService(
         var accountsReceivable = await CalculateAccountsReceivableAsync(ct);
         var dailySales = await CalculateDailySalesSummaryAsync(ct);
 
-        return new FinancialDashboardResponse
-        {
-            Kpi = kpi,
-            RevenueVsCost = revenueVsCost,
-            ProfitMarginTrend = profitMarginTrend,
-            AccountsReceivable = accountsReceivable,
-            DailySales = dailySales
-        };
+        return DashboardMapper.MapToFinancialDashboardResponse(kpi, revenueVsCost, profitMarginTrend, accountsReceivable, dailySales);
     }
 
     public async Task<decimal> GetTotalRevenueAsync(CancellationToken ct)

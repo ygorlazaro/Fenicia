@@ -24,22 +24,7 @@ public class StockMovementService(
         var endDate = query.EndDate ?? DateTime.MaxValue;
         var movements = await stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PerPage, ct);
 
-        return [.. movements.Select(m => new GetStockMovementResponse(
-            m.Id,
-            m.ProductId,
-            m.Product.Name,
-            m.Quantity,
-            m.Date,
-            m.Price,
-            m.Type,
-            m.CustomerId,
-            m.Customer != null && m.Customer.Person != null ? m.Customer.Person.Name : null,
-            m.SupplierId,
-            m.Supplier != null && m.Supplier.Person != null ? m.Supplier.Person.Name : null,
-            m.EmployeeId,
-            m.Employee != null && m.Employee.Person != null ? m.Employee.Person.Name : null,
-            m.OrderId,
-            m.Reason))];
+        return [.. movements.Select(m => m.MapToGetStockMovementResponse())];
     }
 
     public async Task<AddStockMovementResponse> AddAsync(AddStockMovementCommand command, Guid companyId, CancellationToken ct)
@@ -86,7 +71,7 @@ public class StockMovementService(
             await productService.UpdateAsync(updateCommand, companyId, ct);
         }
 
-        return new AddStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
+        return stockMovement.MapToAddStockMovementResponse();
     }
 
     public async Task<UpdateStockMovementResponse?> UpdateAsync(UpdateStockMovementCommand command, Guid companyId, CancellationToken ct)
@@ -112,7 +97,7 @@ public class StockMovementService(
 
         await stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, ct);
 
-        return new UpdateStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
+        return stockMovement.MapToUpdateStockMovementResponse();
     }
 
     public async Task<List<StockMovementModel>> GetRecentWithProductAsync(int days, int topLimit, CancellationToken ct)

@@ -25,7 +25,7 @@ public class InventoryService(
         var totalSalesPrice = await productService.GetTotalSalesPriceAsync(ct);
         var totalQuantity = await productService.GetTotalQuantityAsync(ct);
 
-        var inventoryDetailResponses = products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category.Name)).ToList();
+        var inventoryDetailResponses = products.Select(p => p.MapToInventoryDetailResponse()).ToList();
 
         return new InventoryResponse
         {
@@ -46,7 +46,7 @@ public class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category.Name))],
+            Items = [.. products.Select(p => p.MapToInventoryDetailResponse())],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -63,7 +63,7 @@ public class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category.Name))],
+            Items = [.. products.Select(p => p.MapToInventoryDetailResponse())],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -84,7 +84,7 @@ public class InventoryService(
 
         return new InventoryDashboardResponse
         {
-            LowStockItems = [.. lowStockItems.Select(p => new InventoryDashboardItemResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category.Name))],
+            LowStockItems = [.. lowStockItems.Select(p => p.MapToInventoryDashboardItemResponse())],
             TotalCustomers = totalCustomers,
             TotalEmployees = totalEmployees,
             TotalCostValue = totalCostValue,

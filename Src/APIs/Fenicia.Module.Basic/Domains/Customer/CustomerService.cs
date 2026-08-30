@@ -131,7 +131,7 @@ public class CustomerService(
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
 
-    public async Task DeleteAsync(DeleteCustomerCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteCustomerCommand command, Guid companyId, CancellationToken ct)
     {
         await customerRepository.DeleteAsync(command.Id, ct);
     }

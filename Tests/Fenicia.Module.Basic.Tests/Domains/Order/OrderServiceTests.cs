@@ -86,7 +86,7 @@ public class OrderServiceTests : IDisposable
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        await _service.DeleteAsync(new DeleteOrderCommand(order.Id), CancellationToken.None);
+        await _service.DeleteAsync(new DeleteOrderCommand(order.Id), Guid.NewGuid(), CancellationToken.None);
 
         var deletedOrder = await _db.BasicOrders.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == order.Id);
         Assert.NotNull(deletedOrder);
