@@ -78,16 +78,6 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
 
     public async Task DeleteAsync(DeleteProductCategoryCommand command, Guid companyId, CancellationToken ct)
     {
-        var category = await productCategoryRepository.GetByIdAsync(command.Id, ct);
-
-        if (category is null)
-        {
-            return;
-        }
-
-        category.Deleted = DateTime.Now;
-        category.CompanyId = companyId;
-
-        await productCategoryRepository.UpdateAsync(command.Id, category, ct);
+        await productCategoryRepository.DeleteAsync(command.Id, ct);
     }
 }

@@ -10,7 +10,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(m => m.Date >= startDate && m.Date <= endDate && m.Deleted == null)
+                .Where(m => m.Date >= startDate && m.Date <= endDate)
             .ToListAsync(ct);
     }
 
@@ -18,7 +18,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
     {
         var ids = productIds.ToList();
         return await DbSet
-            .Where(m => ids.Contains(m.ProductId) && m.Deleted == null)
+            .Where(m => ids.Contains(m.ProductId))
             .GroupBy(m => m.ProductId)
             .Select(g => new
             {
@@ -31,7 +31,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
     public async Task<IEnumerable<StockMovementModel>> GetWithDetailsAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(m => m.Date >= startDate && m.Date <= endDate && m.Deleted == null)
+                .Where(m => m.Date >= startDate && m.Date <= endDate)
             .Include(m => m.Product).ThenInclude(p => p.Category)
             .Include(m => m.Customer!).ThenInclude(c => c.Person)
             .Include(m => m.Supplier!).ThenInclude(s => s.Person)
@@ -44,7 +44,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
     public async Task<IEnumerable<StockMovementModel>> GetWithDetailsForDashboardAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(m => m.Date >= startDate && m.Date <= endDate && m.Deleted == null)
+                .Where(m => m.Date >= startDate && m.Date <= endDate)
             .Include(m => m.Product).ThenInclude(p => p.Category)
             .Include(m => m.Customer!).ThenInclude(c => c.Person)
             .Include(m => m.Supplier!).ThenInclude(s => s.Person)
@@ -54,7 +54,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(m => m.Date >= startDate && m.Deleted == null)
+                .Where(m => m.Date >= startDate)
             .ToListAsync(ct);
     }
 }

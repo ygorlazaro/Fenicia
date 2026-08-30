@@ -235,17 +235,7 @@ public class ProductService(
 
     public async Task DeleteAsync(DeleteProductCommand command, Guid companyId, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(command.Id, ct);
-
-        if (product is null)
-        {
-            return;
-        }
-
-        product.Deleted = DateTime.Now;
-        product.CompanyId = companyId;
-
-        await productRepository.UpdateAsync(product.Id, product, ct);
+        await productRepository.DeleteAsync(command.Id, ct);
     }
 
     public async Task<ProductPerformanceResponse> GetPerformanceAsync(GetProductPerformanceQuery query, CancellationToken ct)
@@ -290,14 +280,13 @@ public class ProductService(
     {
         return await productRepository.Query()
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null)
-            .Where(p => p.Deleted == null)
             .ToListAsync(ct);
     }
 
     public async Task<List<ProductModel>> GetAllForStatsAsync(CancellationToken ct)
     {
         return await productRepository.Query()
-            .Where(p => p.SupplierId.HasValue && p.Deleted == null)
+            .Where(p => p.SupplierId.HasValue)
             .ToListAsync(ct);
     }
 

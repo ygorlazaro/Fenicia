@@ -65,13 +65,13 @@ public class Repository<T> : IRepository<T>
             return 0;
         }
 
-        entity.Deleted = DateTime.UtcNow;
+        Context.Entry(entity).State = EntityState.Deleted;
         return await SaveChangesAsync(ct);
     }
 
     public async Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
     {
-        var entities = await DbSet.Where(e => ids.Contains(e.Id) && e.Deleted == null).ToListAsync(ct);
+        var entities = await DbSet.Where(e => ids.Contains(e.Id)).ToListAsync(ct);
         if (entities.Count == 0)
         {
             return 0;
@@ -79,7 +79,7 @@ public class Repository<T> : IRepository<T>
 
         foreach (var entity in entities)
         {
-            entity.Deleted = DateTime.UtcNow;
+            Context.Entry(entity).State = EntityState.Deleted;
         }
 
         return await SaveChangesAsync(ct);

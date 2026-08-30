@@ -11,7 +11,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     {
         return await DbSet
                 .Include(d => d.Product)
-                .Where(d => d.OrderId == orderId && d.Deleted == null)
+                .Where(d => d.OrderId == orderId)
             .ToListAsync(ct);
     }
 
@@ -19,7 +19,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     {
         var ids = orderIds.ToList();
         return await DbSet
-            .Where(d => ids.Contains(d.OrderId) && d.Deleted == null)
+            .Where(d => ids.Contains(d.OrderId))
             .GroupBy(d => d.OrderId)
             .Select(g => new { OrderId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(k => k.OrderId, v => v.Count, ct);
@@ -29,7 +29,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     {
         var ids = orderIds.ToList();
         return await DbSet
-            .Where(d => ids.Contains(d.OrderId) && d.Deleted == null)
+            .Where(d => ids.Contains(d.OrderId))
             .GroupBy(d => d.OrderId)
             .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
             .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
@@ -39,14 +39,14 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
     {
         return await DbSet
                 .Include(d => d.Order)
-            .Where(d => d.Order.SaleDate >= startDate && d.Order.SaleDate <= endDate && d.Deleted == null)
+            .Where(d => d.Order.SaleDate >= startDate && d.Order.SaleDate <= endDate)
             .ToListAsync(ct);
     }
 
     public async Task<IEnumerable<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(d => d.Order.SaleDate >= startDate && d.Deleted == null)
+                .Where(d => d.Order.SaleDate >= startDate)
             .Include(d => d.Order)
             .ToListAsync(ct);
     }

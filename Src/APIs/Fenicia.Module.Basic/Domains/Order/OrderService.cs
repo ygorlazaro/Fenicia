@@ -177,13 +177,7 @@ public class OrderService(
 
     public async Task DeleteAsync(DeleteOrderCommand command, CancellationToken ct)
     {
-        var order = await orderRepository.GetByIdAsync(command.Id, ct);
-
-        if (order is not null)
-        {
-            order.Deleted = DateTime.UtcNow;
-            await orderRepository.UpdateAsync(command.Id, order, ct);
-        }
+        await orderRepository.DeleteAsync(command.Id, ct);
     }
 
     public async Task<OrderAnalyticsResponse> GetAnalyticsAsync(GetOrderAnalyticsQuery query, CancellationToken ct)
