@@ -36,7 +36,9 @@ public class ProductServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenProductsExist_ReturnsPaginationWithProducts()
     {
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        _db.BasicProductCategories.Add(category);
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal(), CategoryId = category.Id };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -49,7 +51,9 @@ public class ProductServiceTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenProductExists_ReturnsProduct()
     {
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        _db.BasicProductCategories.Add(category);
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal(), CategoryId = category.Id };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 

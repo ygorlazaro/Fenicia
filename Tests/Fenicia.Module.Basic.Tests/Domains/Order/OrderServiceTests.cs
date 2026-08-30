@@ -37,7 +37,11 @@ public class OrderServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenOrdersExist_ReturnsPaginationWithOrders()
     {
-        var order = new OrderModel { Id = Guid.NewGuid(), SaleDate = DateTime.UtcNow, TotalAmount = _faker.Random.Decimal() };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _db.BasicPeople.Add(person);
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id };
+        _db.BasicCustomers.Add(customer);
+        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.Replace("ORD-########"), SaleDate = DateTime.UtcNow, TotalAmount = _faker.Random.Decimal(), CustomerId = customer.Id };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -50,7 +54,11 @@ public class OrderServiceTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenOrderExists_ReturnsOrder()
     {
-        var order = new OrderModel { Id = Guid.NewGuid(), SaleDate = DateTime.UtcNow, TotalAmount = _faker.Random.Decimal() };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _db.BasicPeople.Add(person);
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id };
+        _db.BasicCustomers.Add(customer);
+        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.Replace("ORD-########"), UserId = Guid.NewGuid(), CustomerId = customer.Id, TotalAmount = _faker.Random.Decimal(), DiscountAmount = _faker.Random.Decimal(), TotalQuantity = _faker.Random.Int(), SaleDate = _faker.Date.Recent(), Status = OrderStatus.Pending, PaymentMethod = PaymentMethod.Cash };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -82,7 +90,7 @@ public class OrderServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenOrderExists_SoftDeletesOrder()
     {
-        var order = new OrderModel { Id = Guid.NewGuid(), SaleDate = DateTime.UtcNow, TotalAmount = _faker.Random.Decimal() };
+        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.Replace("ORD-########"), SaleDate = DateTime.UtcNow, TotalAmount = _faker.Random.Decimal() };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 

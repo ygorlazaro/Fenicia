@@ -54,7 +54,9 @@ public class SupplierServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenSuppliersExist_ReturnsPaginationWithSuppliers()
     {
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _db.BasicPeople.Add(person);
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id };
         _db.BasicSuppliers.Add(supplier);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -67,7 +69,9 @@ public class SupplierServiceTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsSupplier()
     {
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _db.BasicPeople.Add(person);
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id };
         _db.BasicSuppliers.Add(supplier);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -99,7 +103,9 @@ public class SupplierServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_WhenSupplierExists_UpdatesSupplier()
     {
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _db.BasicPeople.Add(person);
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id };
         _db.BasicSuppliers.Add(supplier);
         await _db.SaveChangesAsync(CancellationToken.None);
 

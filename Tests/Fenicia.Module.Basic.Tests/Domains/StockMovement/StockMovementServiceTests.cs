@@ -47,9 +47,11 @@ public class StockMovementServiceTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenMovementsExist_ReturnsMovements()
     {
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = Guid.NewGuid() };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        _db.BasicProductCategories.Add(category);
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
         _db.BasicProducts.Add(product);
-        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = product.Id, Quantity = 5, Date = DateTime.UtcNow, Price = 100, Type = StockMovementType.In, CompanyId = Guid.NewGuid() };
+        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = product.Id, Quantity = 5, Date = DateTime.UtcNow, Price = 100, Type = StockMovementType.In, CompanyId = _db.CurrentCompanyId ?? Guid.Empty };
         _db.BasicStockMovements.Add(movement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -62,7 +64,9 @@ public class StockMovementServiceTests : IDisposable
     [Fact]
     public async Task AddAsync_WhenValid_InsertsMovementAndUpdatesProductQuantity()
     {
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = Guid.NewGuid() };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        _db.BasicProductCategories.Add(category);
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -81,7 +85,7 @@ public class StockMovementServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_WhenMovementExists_UpdatesMovement()
     {
-        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = 5, Date = DateTime.UtcNow, Type = StockMovementType.In, CompanyId = Guid.NewGuid() };
+        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = 5, Date = DateTime.UtcNow, Price = 100, Type = StockMovementType.In, CompanyId = _db.CurrentCompanyId ?? Guid.Empty };
         _db.BasicStockMovements.Add(movement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -96,9 +100,11 @@ public class StockMovementServiceTests : IDisposable
     [Fact]
     public async Task GetDashboardAsync_WhenDataExists_ReturnsDashboard()
     {
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = Guid.NewGuid() };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        _db.BasicProductCategories.Add(category);
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
         _db.BasicProducts.Add(product);
-        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = product.Id, Quantity = 5, Date = DateTime.UtcNow.AddDays(-1), Type = StockMovementType.In, CompanyId = Guid.NewGuid() };
+        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = product.Id, Quantity = 5, Date = DateTime.UtcNow.AddDays(-1), Price = 100, Type = StockMovementType.In, CompanyId = _db.CurrentCompanyId ?? Guid.Empty };
         _db.BasicStockMovements.Add(movement);
         await _db.SaveChangesAsync(CancellationToken.None);
 

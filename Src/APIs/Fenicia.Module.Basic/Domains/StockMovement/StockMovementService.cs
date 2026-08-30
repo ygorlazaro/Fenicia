@@ -175,7 +175,7 @@ public class StockMovementService(
         var request = from p in productList
                       join m in productOutMovements on p.Id equals m.ProductId into gj
                       from m in gj.DefaultIfEmpty()
-                      let totalSold = m.TotalSold ?? 0
+                      let totalSold = m != null ? m.TotalSold ?? 0 : 0
                       let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
                       orderby turnoverRate descending
                       select new
