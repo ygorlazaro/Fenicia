@@ -124,7 +124,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     /// <response code="403">Acesso negado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

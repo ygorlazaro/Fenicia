@@ -84,6 +84,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(typeof(AddCustomerResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddCustomerResponse>> PostAsync([FromBody] AddCustomerCommand command, WideEventContext wide, CancellationToken ct)
     {
@@ -112,6 +113,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateCustomerResponse>> PatchAsync([FromBody] UpdateCustomerCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
@@ -138,6 +140,8 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<NoContentResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
@@ -161,6 +165,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [HttpGet("insights")]
     [ProducesResponseType(typeof(CustomerInsightsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, [FromQuery] int riskThresholdDays = 60, CancellationToken ct = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
