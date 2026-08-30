@@ -32,8 +32,11 @@ public class CustomerServiceTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), new SupplierRepository(_db), new OrderDetailRepository(_db), new StockMovementRepository(_db));
-        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService(new StockMovementRepository(_db), productService));
+        var orderDetailService = new OrderDetailService(new OrderDetailRepository(_db));
+        var dummyStockMovementService = new StockMovementService();
+        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), orderDetailService, dummyStockMovementService);
+        var stockMovementService = new StockMovementService(new StockMovementRepository(_db), productService);
+        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(new OrderDetailRepository(_db)), stockMovementService);
         _service = new CustomerService(
             new CustomerRepository(_db),
             new PersonService(new PersonRepository(_db)),
