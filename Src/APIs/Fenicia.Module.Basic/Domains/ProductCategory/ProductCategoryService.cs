@@ -67,6 +67,15 @@ public class ProductCategoryService(ProductCategoryRepository productCategoryRep
         return new UpdateProductCategoryResponse(category.Id, category.Name);
     }
 
+    public async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var idList = ids.ToList();
+        return await productCategoryRepository.Query()
+            .Where(pc => idList.Contains(pc.Id))
+            .Select(pc => new GetProductCategoryByIdResponse(pc.Id, pc.Name))
+            .ToListAsync(ct);
+    }
+
     public async Task DeleteAsync(DeleteProductCategoryCommand command, Guid companyId, CancellationToken ct)
     {
         var category = await productCategoryRepository.GetByIdAsync(command.Id, ct);

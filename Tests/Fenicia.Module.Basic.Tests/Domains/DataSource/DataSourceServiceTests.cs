@@ -39,14 +39,14 @@ public class DataSourceServiceTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
-        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService(new StockMovementRepository(_db), new ProductService(new ProductRepository(_db), new ProductCategoryRepository(_db), new SupplierRepository(_db), new OrderDetailRepository(_db), new StockMovementRepository(_db))));
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryRepository(_db), new SupplierRepository(_db), new OrderDetailRepository(_db), new StockMovementRepository(_db));
+        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(new OrderDetailRepository(_db)), new StockMovementService(new StockMovementRepository(_db), new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), new SupplierRepository(_db), new OrderDetailRepository(_db), new StockMovementRepository(_db))));
+        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), new SupplierRepository(_db), new OrderDetailRepository(_db), new StockMovementRepository(_db));
         _customerService = new CustomerService(new CustomerRepository(_db), new PersonService(new PersonRepository(_db)), new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)), orderService, productService);
         _employeeService = new EmployeeService(new EmployeeRepository(_db), new PersonService(new PersonRepository(_db)), new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)), orderService);
         _positionService = new PositionService(new PositionRepository(_db));
         _productCategoryService = new ProductCategoryService(new ProductCategoryRepository(_db));
         _productService = productService;
-        _supplierService = new SupplierService(new SupplierRepository(_db));
+        _supplierService = new SupplierService(new SupplierRepository(_db), productService, new StockMovementService(new StockMovementRepository(_db), productService), new AddressService(new AddressRepository(_db)), new PersonAddressService(new PersonAddressRepository(_db)));
         _service = new Fenicia.Module.Basic.Domains.DataSource.DataSourceService(_customerService, _employeeService, _positionService, _productCategoryService, _productService, _supplierService);
         _faker = new Faker();
     }

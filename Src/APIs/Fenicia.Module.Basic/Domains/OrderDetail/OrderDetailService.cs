@@ -1,4 +1,6 @@
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
@@ -24,5 +26,17 @@ public class OrderDetailService(OrderDetailRepository orderDetailRepository)
     public async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
     {
         return await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
+    }
+
+    public async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        var result = await orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
+        return result.ToList();
+    }
+
+    public async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        var result = await orderDetailRepository.GetByDateRangeAsync(startDate, ct);
+        return result.ToList();
     }
 }

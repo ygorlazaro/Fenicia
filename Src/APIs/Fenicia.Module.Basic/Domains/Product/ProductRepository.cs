@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product;
@@ -133,19 +132,6 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
     public async Task<decimal> GetTotalSalesValueAsync(CancellationToken ct = default)
     {
         return await DbSet.SumAsync(p => p.SalesPrice * (decimal)p.Quantity, ct);
-    }
-
-    public async Task<List<CategoryBreakdownResponse>> GetCategoryBreakdownAsync(CancellationToken ct = default)
-    {
-        return await DbSet
-                .GroupBy(p => new { p.CategoryId, CategoryName = p.Category.Name })
-            .Select(g => new CategoryBreakdownResponse(
-                g.Key.CategoryId,
-                g.Key.CategoryName,
-                g.Sum(p => (decimal)(p.CostPrice ?? 0) * (decimal)p.Quantity),
-                g.Sum(p => p.SalesPrice * (decimal)p.Quantity),
-                g.Sum(p => p.Quantity)))
-            .ToListAsync(ct);
     }
 
     public async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct = default)
