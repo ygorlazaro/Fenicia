@@ -24,11 +24,11 @@ public class ProductServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
-        var mockProductRepository = new Mock<IProductRepository>();
+        var productRepository = new ProductRepository(_db);
         var mockProductCategoryService = new Mock<ProductCategoryService>(new Mock<IProductCategoryRepository>().Object);
         var mockOrderDetailService = new Mock<OrderDetailService>(new Mock<IOrderDetailRepository>().Object);
         var mockStockMovementService = new Mock<StockMovementService>(new Mock<IStockMovementRepository>().Object, null!);
-        _service = new ProductService(mockProductRepository.Object, mockProductCategoryService.Object, mockOrderDetailService.Object, mockStockMovementService.Object);
+        _service = new ProductService(productRepository, mockProductCategoryService.Object, mockOrderDetailService.Object, mockStockMovementService.Object);
         _faker = new Faker();
     }
 

@@ -38,21 +38,6 @@ public class OrderControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllOrderQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllOrderResponse>>(new List<GetAllOrderResponse>(), 0, 1, 10));
-
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetOrderByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetOrderByIdQuery q, CancellationToken ct) => new GetOrderByIdResponse(q.Id, "ORD-123", Guid.NewGuid(), Guid.NewGuid(), "Customer", 100, 0, 1, DateTime.UtcNow, "Pending", PaymentMethod.Cash, null));
-
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((CreateOrderCommand cmd, Guid companyId, CancellationToken ct) => new CreateOrderResponse(Guid.NewGuid(), "ORD-123", Guid.NewGuid(), Guid.NewGuid(), 100, 0, 1, DateTime.UtcNow, OrderStatus.Pending, PaymentMethod.Cash, null, Guid.NewGuid()));
-
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-    }
-
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
@@ -121,6 +106,21 @@ public class OrderControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllOrderQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllOrderResponse>>(new List<GetAllOrderResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetOrderByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetOrderByIdQuery q, CancellationToken ct) => new GetOrderByIdResponse(q.Id, "ORD-123", Guid.NewGuid(), Guid.NewGuid(), "Customer", 100, 0, 1, DateTime.UtcNow, "Pending", PaymentMethod.Cash, null));
+
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CreateOrderCommand cmd, Guid companyId, CancellationToken ct) => new CreateOrderResponse(Guid.NewGuid(), "ORD-123", Guid.NewGuid(), Guid.NewGuid(), 100, 0, 1, DateTime.UtcNow, OrderStatus.Pending, PaymentMethod.Cash, null, Guid.NewGuid()));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     private void SetupUserClaims(Guid userId)

@@ -35,12 +35,6 @@ public class StateControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllStateQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetAllStateResponse>());
-    }
-
     [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsOk()
     {
@@ -52,6 +46,12 @@ public class StateControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllStateQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GetAllStateResponse>());
     }
 
     private void SetupUserClaims(Guid userId)

@@ -5,11 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateService(IStateRepository stateRepository)
+public class StateService
 {
-    public async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken ct)
+    private readonly IStateRepository _stateRepository;
+
+    public StateService()
+        : this(null!)
     {
-        var states = await stateRepository.GetAllOrderedAsync(ct);
+    }
+
+    public StateService(IStateRepository stateRepository)
+    {
+        _stateRepository = stateRepository;
+    }
+
+    public virtual async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken ct)
+    {
+        var states = await _stateRepository.GetAllOrderedAsync(ct);
 
         return [.. states.Select(s => s.MapToGetAllStateResponse())];
     }

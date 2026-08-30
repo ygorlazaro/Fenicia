@@ -178,3 +178,6 @@ dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1633.severity = none
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.IDE0005.severity = none
+
+[**/Fenicia.Module.Basic/Domains/**/*Service.cs]
+csharp_style_prefer_primary_constructors = true:none

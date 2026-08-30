@@ -37,21 +37,6 @@ public class StockMovementControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetAsync(It.IsAny<GetStockMovementQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetStockMovementResponse>());
-
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddStockMovementCommand cmd, Guid companyId, CancellationToken ct) => new AddStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
-
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateStockMovementCommand cmd, Guid companyId, CancellationToken ct) => new UpdateStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
-
-        _mockService.Setup(s => s.GetDashboardAsync(It.IsAny<GetStockMovementDashboardQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockMovementDashboardResponse());
-    }
-
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
@@ -122,6 +107,21 @@ public class StockMovementControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAsync(It.IsAny<GetStockMovementQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GetStockMovementResponse>());
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddStockMovementCommand cmd, Guid companyId, CancellationToken ct) => new AddStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateStockMovementCommand cmd, Guid companyId, CancellationToken ct) => new UpdateStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
+
+        _mockService.Setup(s => s.GetDashboardAsync(It.IsAny<GetStockMovementDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StockMovementDashboardResponse());
     }
 
     private void SetupUserClaims(Guid userId)

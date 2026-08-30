@@ -35,21 +35,6 @@ public class InventoryControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetDashboardAsync(It.IsAny<GetInventoryDashboardQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new InventoryDashboardResponse());
-
-        _mockService.Setup(s => s.GetHealthAsync(It.IsAny<GetInventoryHealthQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new InventoryHealthResponse());
-
-        _mockService.Setup(s => s.GetAsync(It.IsAny<GetInventoryQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new InventoryResponse());
-
-        _mockService.Setup(s => s.GetByProductAsync(It.IsAny<GetInventoryByProductQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new InventoryResponse());
-    }
-
     [Fact]
     public async Task GetInventoryDashboardAsync_ReturnsOk()
     {
@@ -100,6 +85,21 @@ public class InventoryControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetDashboardAsync(It.IsAny<GetInventoryDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new InventoryDashboardResponse());
+
+        _mockService.Setup(s => s.GetHealthAsync(It.IsAny<GetInventoryHealthQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new InventoryHealthResponse());
+
+        _mockService.Setup(s => s.GetAsync(It.IsAny<GetInventoryQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new InventoryResponse());
+
+        _mockService.Setup(s => s.GetByProductAsync(It.IsAny<GetInventoryByProductQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new InventoryResponse());
     }
 
     private void SetupUserClaims(Guid userId)

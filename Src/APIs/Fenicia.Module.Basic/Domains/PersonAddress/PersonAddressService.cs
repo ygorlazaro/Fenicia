@@ -2,11 +2,23 @@ using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
 
-public class PersonAddressService(IPersonAddressRepository personAddressRepository)
+public class PersonAddressService
 {
-    public async Task<PersonAddressModel> InsertAsync(PersonAddressModel personAddress, Guid companyId, CancellationToken ct)
+    private readonly IPersonAddressRepository _personAddressRepository;
+
+    public PersonAddressService()
+        : this(null!)
+    {
+    }
+
+    public PersonAddressService(IPersonAddressRepository personAddressRepository)
+    {
+        _personAddressRepository = personAddressRepository;
+    }
+
+    public virtual async Task<PersonAddressModel> InsertAsync(PersonAddressModel personAddress, Guid companyId, CancellationToken ct)
     {
         personAddress.CompanyId = companyId;
-        return await personAddressRepository.InsertAsync(personAddress, ct);
+        return await _personAddressRepository.InsertAsync(personAddress, ct);
     }
 }
