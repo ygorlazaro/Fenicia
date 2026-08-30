@@ -98,7 +98,7 @@ public class InventoryService(
 
     public async Task<InventoryHealthResponse> GetHealthAsync(GetInventoryHealthQuery query, CancellationToken ct)
     {
-        var stockMovements = await stockMovementService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), ct);
+        var stockMovements = await stockMovementService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), DateTime.MaxValue, ct);
         var orderDetails = await orderDetailService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), ct);
 
         var (overstockProducts, overstockAlert) = await GetOverstockProductsAsync(query, orderDetails, ct);

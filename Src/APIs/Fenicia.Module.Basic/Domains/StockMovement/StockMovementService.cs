@@ -154,12 +154,6 @@ public class StockMovementService(
         return result.ToList();
     }
 
-    public async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
-    {
-        var result = await stockMovementRepository.GetByDateRangeAsync(startDate, ct);
-        return result.ToList();
-    }
-
     public async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct = default)
     {
         return await stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, ct);
