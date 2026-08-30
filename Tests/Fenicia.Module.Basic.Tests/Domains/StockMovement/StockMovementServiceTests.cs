@@ -27,7 +27,7 @@ public class StockMovementServiceTests : IDisposable
         var stockMovementRepository = new StockMovementRepository(_db);
         var productService = new ProductService(
             new ProductRepository(_db),
-            new ProductCategoryRepository(_db),
+            new ProductCategoryService(new ProductCategoryRepository(_db)),
             new SupplierRepository(_db),
             new OrderDetailRepository(_db),
             stockMovementRepository);

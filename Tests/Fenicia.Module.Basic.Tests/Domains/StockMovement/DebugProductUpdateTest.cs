@@ -44,7 +44,7 @@ public class DebugProductUpdateTest : IDisposable
 
         var productService = new ProductService(
             new ProductRepository(_db),
-            new ProductCategoryRepository(_db),
+            new ProductCategoryService(new ProductCategoryRepository(_db)),
             new SupplierRepository(_db),
             new OrderDetailRepository(_db),
             new StockMovementRepository(_db));

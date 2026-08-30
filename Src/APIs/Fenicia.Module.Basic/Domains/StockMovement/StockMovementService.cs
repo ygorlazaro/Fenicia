@@ -115,6 +115,17 @@ public class StockMovementService(
         return new UpdateStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
     }
 
+    public async Task<List<StockMovementModel>> GetRecentWithProductAsync(int days, int topLimit, CancellationToken ct)
+    {
+        var startDate = DateTime.UtcNow.AddDays(-days);
+        return await stockMovementRepository.Query()
+            .Include(m => m.Product)
+            .Where(m => m.SupplierId.HasValue && m.Date >= startDate && m.Deleted == null)
+            .OrderByDescending(m => m.Date)
+            .Take(topLimit)
+            .ToListAsync(ct);
+    }
+
     public async Task<StockMovementDashboardResponse> GetDashboardAsync(GetStockMovementDashboardQuery query, CancellationToken ct)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
@@ -135,6 +146,23 @@ public class StockMovementService(
             TopMovedProducts = topMovedProducts,
             TurnoverRates = turnoverRates
         };
+    }
+
+    public async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        var result = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, ct);
+        return result.ToList();
+    }
+
+    public async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        var result = await stockMovementRepository.GetByDateRangeAsync(startDate, ct);
+        return result.ToList();
+    }
+
+    public async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct = default)
+    {
+        return await stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, ct);
     }
 
     private async Task<List<StockMovementHistoryResponse>> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements, CancellationToken ct)

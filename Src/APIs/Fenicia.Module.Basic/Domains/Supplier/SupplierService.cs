@@ -1,14 +1,24 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Module.Basic.Domains.Inventory.DTOs;
+using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
-public class SupplierService(SupplierRepository supplierRepository)
+public class SupplierService(
+    SupplierRepository supplierRepository,
+    ProductService productService,
+    StockMovementService stockMovementService,
+    AddressService addressService,
+    PersonAddressService personAddressService)
 {
     public async Task<Pagination<List<GetAllSupplierResponse>>> GetAllAsync(GetAllSupplierQuery query, CancellationToken ct)
     {
@@ -75,23 +85,22 @@ public class SupplierService(SupplierRepository supplierRepository)
             CompanyId = companyId
         };
 
-        AddressModel? address = null;
+        Guid? addressId = null;
 
         if (command.Address != null)
         {
-            address = new AddressModel
-            {
-                Id = Guid.NewGuid(),
-                Street = command.Address.Street,
-                Number = command.Address.Number,
-                Complement = command.Address.Complement,
-                Neighborhood = command.Address.Neighborhood,
-                ZipCode = command.Address.ZipCode,
-                StateId = command.Address.StateId,
-                City = command.Address.City,
-                Country = command.Address.Country
-            };
-            supplierRepository.Context.AuthAddresses.Add(address);
+            var addressCommand = new AddressCommand(
+                command.Address.Street,
+                command.Address.Number,
+                command.Address.Complement,
+                command.Address.Neighborhood,
+                command.Address.ZipCode,
+                command.Address.StateId,
+                command.Address.City,
+                command.Address.Country);
+
+            var addressResponse = await addressService.AddAsync(addressCommand, ct);
+            addressId = addressResponse.Id;
         }
 
         var supplier = new SupplierModel
@@ -103,16 +112,16 @@ public class SupplierService(SupplierRepository supplierRepository)
             CompanyId = companyId
         };
 
-        if (address != null)
+        if (addressId.HasValue)
         {
             var personAddress = new PersonAddressModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = person.Id,
-                AddressId = address.Id,
+                AddressId = addressId.Value,
                 CompanyId = companyId
             };
-            supplierRepository.Context.BasicPersonAddresses.Add(personAddress);
+            await personAddressService.InsertAsync(personAddress, companyId, ct);
         }
 
         await supplierRepository.InsertAsync(supplier, ct);
@@ -154,28 +163,26 @@ public class SupplierService(SupplierRepository supplierRepository)
             }
             else
             {
-                var newAddress = new AddressModel
-                {
-                    Id = Guid.NewGuid(),
-                    Street = command.Address.Street,
-                    Number = command.Address.Number,
-                    Complement = command.Address.Complement,
-                    Neighborhood = command.Address.Neighborhood,
-                    ZipCode = command.Address.ZipCode,
-                    StateId = command.Address.StateId,
-                    City = command.Address.City,
-                    Country = command.Address.Country
-                };
-                supplierRepository.Context.AuthAddresses.Add(newAddress);
+                var addressCommand = new AddressCommand(
+                    command.Address.Street,
+                    command.Address.Number,
+                    command.Address.Complement,
+                    command.Address.Neighborhood,
+                    command.Address.ZipCode,
+                    command.Address.StateId,
+                    command.Address.City,
+                    command.Address.Country);
+
+                var addressResponse = await addressService.AddAsync(addressCommand, ct);
 
                 var newPersonAddress = new PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = supplier.PersonId,
-                    AddressId = newAddress.Id,
+                    AddressId = addressResponse.Id,
                     CompanyId = companyId
                 };
-                supplierRepository.Context.BasicPersonAddresses.Add(newPersonAddress);
+                await personAddressService.InsertAsync(newPersonAddress, companyId, ct);
             }
         }
 
@@ -201,16 +208,16 @@ public class SupplierService(SupplierRepository supplierRepository)
 
     public async Task<SupplierPerformanceResponse> GetPerformanceAsync(GetSupplierPerformanceQuery query, CancellationToken ct)
     {
-        var productStats = await supplierRepository.GetProductStatsAsync(ct);
+        var productStats = await GetProductStatsAsync(ct);
 
         var supplierIds = productStats.Select(ps => ps.SupplierId).ToList();
         var supplierNames = await supplierRepository.GetSupplierNamesAsync(supplierIds, ct);
 
         var productsPerSupplier = productStats.Where(ps => supplierNames.ContainsKey(ps.SupplierId)).Select(ps => new SupplierProductCountResponse(ps.SupplierId, supplierNames[ps.SupplierId], ps.ProductCount, ps.TotalStockValue, ps.TotalRevenue)).OrderByDescending(x => x.TotalStockValue).Take(query.TopLimit).ToList();
 
-        var recentStockMovements = await supplierRepository.GetRecentStockMovementsAsync(query.Days, query.TopLimit, ct);
+        var recentStockMovements = await GetRecentStockMovementsAsync(query.Days, query.TopLimit, ct);
 
-        var productsWithMultipleSuppliers = await supplierRepository.GetCostComparisonAsync(query.TopLimit, ct);
+        var productsWithMultipleSuppliers = await GetCostComparisonAsync(query.TopLimit, ct);
 
         var summary = new SupplierSummaryResponse
         {
@@ -234,5 +241,115 @@ public class SupplierService(SupplierRepository supplierRepository)
     public async Task<int> GetCountAsync(CancellationToken ct)
     {
         return await supplierRepository.CountAsync(ct);
+    }
+
+    public async Task<List<SupplierProductCountResponse>> GetProductStatsAsync(CancellationToken ct)
+    {
+        var products = await productService.GetAllForStatsAsync(ct);
+        var productList = products.ToList();
+
+        return productList
+            .GroupBy(p => p.SupplierId!.Value)
+            .Select(g => new SupplierProductCountResponse(
+                g.Key,
+                string.Empty,
+                g.Count(),
+                g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity),
+                g.Sum(p => p.SalesPrice * (decimal)p.Quantity)))
+            .ToList();
+    }
+
+    public async Task<List<SupplierStockMovementResponse>> GetRecentStockMovementsAsync(int days, int topLimit, CancellationToken ct)
+    {
+        var movements = await stockMovementService.GetRecentWithProductAsync(days, topLimit, ct);
+        var movementList = movements.ToList();
+
+        return movementList.Select(m => new SupplierStockMovementResponse(
+            m.Id,
+            m.ProductId,
+            m.Product.Name,
+            m.Quantity,
+            m.Price ?? 0,
+            m.Date!.Value,
+            m.Type.ToString())).ToList();
+    }
+
+    public async Task<List<SupplierCostComparisonResponse>> GetCostComparisonAsync(int topLimit, CancellationToken ct)
+    {
+        var products = await productService.GetAllWithSupplierAsync(ct);
+        var productList = products.Where(p => p.SupplierId.HasValue).ToList();
+
+        return productList
+            .GroupBy(p => p.Name)
+            .Where(g => g.Count() > 1)
+            .Select(g => new SupplierCostComparisonResponse(
+                g.Key,
+                g.Select(p => new ProductSupplierPriceResponse(
+                    p.SupplierId!.Value,
+                    p.Supplier!.Person.Name,
+                    p.CostPrice ?? 0,
+                    p.SalesPrice,
+                    p.SalesPrice > 0 ? (p.SalesPrice - (p.CostPrice ?? 0)) / p.SalesPrice * 100 : 0)).ToList()))
+            .Take(topLimit)
+            .ToList();
+    }
+
+    public async Task<List<SupplierBreakdownResponse>> GetSupplierBreakdownAsync(CancellationToken ct)
+    {
+        var products = await productService.GetAllWithSupplierAsync(ct);
+        var productList = products.Where(p => p.SupplierId.HasValue).ToList();
+
+        return productList
+            .GroupBy(p => new { SupplierId = p.SupplierId!.Value, SupplierName = p.Supplier!.Person.Name })
+            .Select(g => new SupplierBreakdownResponse(
+                g.Key.SupplierId,
+                g.Key.SupplierName,
+                g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity),
+                g.Sum(p => p.SalesPrice * (decimal)p.Quantity),
+                g.Sum(p => p.Quantity)))
+            .OrderByDescending(s => s.TotalSalesValue)
+            .ToList();
+    }
+
+    public async Task<List<GetSupplierByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var idList = ids.ToList();
+        var suppliers = await supplierRepository.Query()
+            .Where(s => idList.Contains(s.Id) && s.Deleted == null)
+            .Include(s => s.Person)
+                .ThenInclude(p => p.PersonAddresses)
+                    .ThenInclude(pa => pa.Address)
+            .ToListAsync(ct);
+
+        return suppliers.Select(s =>
+        {
+            var personAddress = s.Person.PersonAddresses.FirstOrDefault();
+            var address = personAddress?.Address;
+
+            AddressResponse? addressResponse = null;
+            if (address != null)
+            {
+                addressResponse = new AddressResponse(
+                    address.Id,
+                    address.Street,
+                    address.Number,
+                    address.Complement,
+                    address.Neighborhood,
+                    address.ZipCode!,
+                    address.StateId,
+                    address.State?.Name,
+                    address.City,
+                    address.Country);
+            }
+
+            return new GetSupplierByIdResponse(
+                s.Id,
+                s.PersonId,
+                s.Person.Name,
+                s.Person.Email,
+                s.Person.PhoneNumber,
+                s.Person.Document,
+                addressResponse);
+        }).ToList();
     }
 }

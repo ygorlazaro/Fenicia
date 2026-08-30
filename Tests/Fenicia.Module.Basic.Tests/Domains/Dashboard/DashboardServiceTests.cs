@@ -44,7 +44,7 @@ public class DashboardServiceTests : IDisposable
         var personRepository = new PersonRepository(_db);
         var addressRepository = new AddressRepository(_db);
         var personAddressRepository = new PersonAddressRepository(_db);
-        var productService = new ProductService(productRepository, productCategoryRepository, supplierRepository, orderDetailRepository, stockMovementRepository);
+        var productService = new ProductService(productRepository, new ProductCategoryService(productCategoryRepository), new SupplierRepository(_db), orderDetailRepository, stockMovementRepository);
         var orderService = new OrderService(orderRepository, new OrderDetailService(orderDetailRepository), new StockMovementService(stockMovementRepository, productService));
         var employeeService = new EmployeeService(employeeRepository, new PersonService(personRepository), new AddressService(addressRepository), new PersonAddressService(personAddressRepository), orderService);
         _service = new DashboardService(orderService, productService, employeeService);
