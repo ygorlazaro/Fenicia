@@ -4,9 +4,21 @@ using Fenicia.Module.Basic.Domains.Address.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public class AddressService(IAddressRepository addressRepository)
+public class AddressService
 {
-    public async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken ct)
+    private readonly IAddressRepository _addressRepository;
+
+    public AddressService()
+        : this(null!)
+    {
+    }
+
+    public AddressService(IAddressRepository addressRepository)
+    {
+        _addressRepository = addressRepository;
+    }
+
+    public virtual async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken ct)
     {
         var address = new AddressModel
         {
@@ -21,12 +33,12 @@ public class AddressService(IAddressRepository addressRepository)
             Country = command.Country
         };
 
-        var created = await addressRepository.InsertAsync(address, ct);
+        var created = await _addressRepository.InsertAsync(address, ct);
 
         return created.MapToAddressResponse();
     }
 
-    public async Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken ct)
+    public virtual async Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken ct)
     {
         var address = new AddressModel
         {
@@ -41,14 +53,14 @@ public class AddressService(IAddressRepository addressRepository)
             Country = command.Country
         };
 
-        var updated = await addressRepository.UpdateAsync(id, address, ct);
+        var updated = await _addressRepository.UpdateAsync(id, address, ct);
 
         return updated?.MapToAddressResponse();
     }
 
-    public async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken ct)
+    public virtual async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var address = await addressRepository.GetByIdAsync(id, ct);
+        var address = await _addressRepository.GetByIdAsync(id, ct);
 
         return address?.MapToAddressResponse();
     }

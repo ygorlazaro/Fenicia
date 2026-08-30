@@ -4,34 +4,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public class OrderDetailService(IOrderDetailRepository orderDetailRepository)
+public class OrderDetailService
 {
-    public async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(GetOrderDetailsByOrderIdQuery query, CancellationToken ct)
+    private readonly IOrderDetailRepository _orderDetailRepository;
+
+    public OrderDetailService()
+        : this(null!)
     {
-        var details = await orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);
+    }
+
+    public OrderDetailService(IOrderDetailRepository orderDetailRepository)
+    {
+        _orderDetailRepository = orderDetailRepository;
+    }
+
+    public virtual async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(GetOrderDetailsByOrderIdQuery query, CancellationToken ct)
+    {
+        var details = await _orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);
 
         return details.Select(d => d.MapToGetOrderDetailsByOrderIdResponse()).ToList();
     }
 
-    public async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
+    public virtual async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
     {
-        return await orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, ct);
+        return await _orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, ct);
     }
 
-    public async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
+    public virtual async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
     {
-        return await orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
+        return await _orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
     }
 
-    public async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public virtual async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
-        var result = await orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
+        var result = await _orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
         return result.ToList();
     }
 
-    public async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    public virtual async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
     {
-        var result = await orderDetailRepository.GetByDateRangeAsync(startDate, ct);
+        var result = await _orderDetailRepository.GetByDateRangeAsync(startDate, ct);
         return result.ToList();
     }
 }

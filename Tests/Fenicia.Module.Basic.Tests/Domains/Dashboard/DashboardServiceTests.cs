@@ -1,4 +1,3 @@
-using Moq;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
@@ -19,6 +18,7 @@ using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Tests.Domains.Dashboard;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;
 

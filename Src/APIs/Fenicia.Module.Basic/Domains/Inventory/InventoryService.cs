@@ -9,21 +9,43 @@ using Fenicia.Module.Basic.Domains.Supplier;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
-public class InventoryService(
-    ProductService productService,
-    StockMovementService stockMovementService,
-    OrderDetailService orderDetailService,
-    CustomerService customerService,
-    EmployeeService employeeService,
-    SupplierService supplierService)
+public class InventoryService
 {
-    public async Task<InventoryResponse> GetAsync(GetInventoryQuery query, CancellationToken ct)
-    {
-        var products = await productService.GetAllWithCategoryAsync(query.Page, query.PerPage, ct);
+    private readonly ProductService _productService;
+    private readonly StockMovementService _stockMovementService;
+    private readonly OrderDetailService _orderDetailService;
+    private readonly CustomerService _customerService;
+    private readonly EmployeeService _employeeService;
+    private readonly SupplierService _supplierService;
 
-        var totalCostPrice = await productService.GetTotalCostPriceAsync(ct);
-        var totalSalesPrice = await productService.GetTotalSalesPriceAsync(ct);
-        var totalQuantity = await productService.GetTotalQuantityAsync(ct);
+    public InventoryService()
+        : this(null!, null!, null!, null!, null!, null!)
+    {
+    }
+
+    public InventoryService(
+        ProductService productService,
+        StockMovementService stockMovementService,
+        OrderDetailService orderDetailService,
+        CustomerService customerService,
+        EmployeeService employeeService,
+        SupplierService supplierService)
+    {
+        _productService = productService;
+        _stockMovementService = stockMovementService;
+        _orderDetailService = orderDetailService;
+        _customerService = customerService;
+        _employeeService = employeeService;
+        _supplierService = supplierService;
+    }
+
+    public virtual async Task<InventoryResponse> GetAsync(GetInventoryQuery query, CancellationToken ct)
+    {
+        var products = await _productService.GetAllWithCategoryAsync(query.Page, query.PerPage, ct);
+
+        var totalCostPrice = await _productService.GetTotalCostPriceAsync(ct);
+        var totalSalesPrice = await _productService.GetTotalSalesPriceAsync(ct);
+        var totalQuantity = await _productService.GetTotalQuantityAsync(ct);
 
         var inventoryDetailResponses = products.Select(p => p.MapToInventoryDetailResponse()).ToList();
 
@@ -36,13 +58,13 @@ public class InventoryService(
         };
     }
 
-    public async Task<InventoryResponse> GetByCategoryAsync(GetInventoryByCategoryQuery query, CancellationToken ct)
+    public virtual async Task<InventoryResponse> GetByCategoryAsync(GetInventoryByCategoryQuery query, CancellationToken ct)
     {
-        var products = await productService.GetByCategoryWithCategoryAsync(query.CategoryId, query.Page, query.PerPage, ct);
+        var products = await _productService.GetByCategoryWithCategoryAsync(query.CategoryId, query.Page, query.PerPage, ct);
 
-        var totalCostPrice = await productService.GetTotalCostPriceByCategoryAsync(query.CategoryId, ct);
-        var totalSalesPrice = await productService.GetTotalSalesPriceByCategoryAsync(query.CategoryId, ct);
-        var totalQuantity = await productService.GetTotalQuantityByCategoryAsync(query.CategoryId, ct);
+        var totalCostPrice = await _productService.GetTotalCostPriceByCategoryAsync(query.CategoryId, ct);
+        var totalSalesPrice = await _productService.GetTotalSalesPriceByCategoryAsync(query.CategoryId, ct);
+        var totalQuantity = await _productService.GetTotalQuantityByCategoryAsync(query.CategoryId, ct);
 
         return new InventoryResponse
         {
@@ -53,13 +75,13 @@ public class InventoryService(
         };
     }
 
-    public async Task<InventoryResponse> GetByProductAsync(GetInventoryByProductQuery query, CancellationToken ct)
+    public virtual async Task<InventoryResponse> GetByProductAsync(GetInventoryByProductQuery query, CancellationToken ct)
     {
-        var products = await productService.GetByIdWithCategoryAsync(query.ProductId, query.Page, query.PerPage, ct);
+        var products = await _productService.GetByIdWithCategoryAsync(query.ProductId, query.Page, query.PerPage, ct);
 
-        var totalCostPrice = await productService.GetTotalCostPriceByProductAsync(query.ProductId, ct);
-        var totalSalesPrice = await productService.GetTotalSalesPriceByProductAsync(query.ProductId, ct);
-        var totalQuantity = await productService.GetTotalQuantityByProductAsync(query.ProductId, ct);
+        var totalCostPrice = await _productService.GetTotalCostPriceByProductAsync(query.ProductId, ct);
+        var totalSalesPrice = await _productService.GetTotalSalesPriceByProductAsync(query.ProductId, ct);
+        var totalQuantity = await _productService.GetTotalQuantityByProductAsync(query.ProductId, ct);
 
         return new InventoryResponse
         {
@@ -70,17 +92,17 @@ public class InventoryService(
         };
     }
 
-    public async Task<InventoryDashboardResponse> GetDashboardAsync(GetInventoryDashboardQuery query, CancellationToken ct)
+    public virtual async Task<InventoryDashboardResponse> GetDashboardAsync(GetInventoryDashboardQuery query, CancellationToken ct)
     {
-        var lowStockItems = await productService.GetLowStockAsync(ct);
-        var totalCustomers = await customerService.GetCountAsync(ct);
-        var totalEmployees = await employeeService.GetTotalEmployeesAsync(ct);
-        var totalCostValue = await productService.GetTotalCostValueAsync(ct);
-        var totalSalesValue = await productService.GetTotalSalesValueAsync(ct);
-        var totalQuantity = await productService.GetTotalQuantityAsync(ct);
+        var lowStockItems = await _productService.GetLowStockAsync(ct);
+        var totalCustomers = await _customerService.GetCountAsync(ct);
+        var totalEmployees = await _employeeService.GetTotalEmployeesAsync(ct);
+        var totalCostValue = await _productService.GetTotalCostValueAsync(ct);
+        var totalSalesValue = await _productService.GetTotalSalesValueAsync(ct);
+        var totalQuantity = await _productService.GetTotalQuantityAsync(ct);
         var profitPotential = totalSalesValue - totalCostValue;
-        var categoryBreakdown = await productService.GetCategoryBreakdownAsync(ct);
-        var supplierBreakdown = await supplierService.GetSupplierBreakdownAsync(ct);
+        var categoryBreakdown = await _productService.GetCategoryBreakdownAsync(ct);
+        var supplierBreakdown = await _supplierService.GetSupplierBreakdownAsync(ct);
 
         return new InventoryDashboardResponse
         {
@@ -96,10 +118,10 @@ public class InventoryService(
         };
     }
 
-    public async Task<InventoryHealthResponse> GetHealthAsync(GetInventoryHealthQuery query, CancellationToken ct)
+    public virtual async Task<InventoryHealthResponse> GetHealthAsync(GetInventoryHealthQuery query, CancellationToken ct)
     {
-        var stockMovements = await stockMovementService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), DateTime.MaxValue, ct);
-        var orderDetails = await orderDetailService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), ct);
+        var stockMovements = await _stockMovementService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), DateTime.MaxValue, ct);
+        var orderDetails = await _orderDetailService.GetByDateRangeAsync(DateTime.UtcNow.AddDays(-query.ZeroMovementDays), ct);
 
         var (overstockProducts, overstockAlert) = await GetOverstockProductsAsync(query, orderDetails, ct);
         var (activeProductIds, zeroMovementProducts) = await GetActiveProductIdsAsync(stockMovements, orderDetails, ct);
@@ -121,10 +143,10 @@ public class InventoryService(
         var orderProductIds = orderDetails.Select(d => d.ProductId).Distinct().ToList();
         var activeProductIds = movementProductIds.Union(orderProductIds).ToHashSet();
 
-        var candidateProducts = await productService.GetZeroMovementCandidatesAsync(activeProductIds, ct);
+        var candidateProducts = await _productService.GetZeroMovementCandidatesAsync(activeProductIds, ct);
 
         var candidateIds = candidateProducts.Select(p => p.Id).ToList();
-        var lastMovements = await stockMovementService.GetLastMovementsByProductIdsAsync(candidateIds, ct);
+        var lastMovements = await _stockMovementService.GetLastMovementsByProductIdsAsync(candidateIds, ct);
 
         var now = DateTime.UtcNow;
         var ancient = now.AddYears(-100);
@@ -159,18 +181,18 @@ public class InventoryService(
 
         var productSales = productSalesRaw.ToDictionary(x => x.ProductId, x => x.TotalSales / (query.ZeroMovementDays / 30.0));
 
-        var allProductsWithStock = await productService.GetOverstockCandidatesAsync(ct);
+        var allProductsWithStock = await _productService.GetOverstockCandidatesAsync(ct);
 
         var overstockProducts = allProductsWithStock.Where(p => productSales.ContainsKey(p.Id)).Select(p =>
-    {
-        var avgMonthlySales = productSales[p.Id];
-        var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
-        var excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity);
-        var excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0);
-        return excessValue > 0
-            ? new OverstockProductResponse(p.Id, p.Name, p.Category.Name, p.Quantity, recommendedQuantity, excessValue, p.CostPrice ?? 0)
-            : null;
-    }).Where(x => x != null).OrderByDescending(x => x!.ExcessValue).Cast<OverstockProductResponse>().ToList();
+        {
+            var avgMonthlySales = productSales[p.Id];
+            var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
+            var excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity);
+            var excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0);
+            return excessValue > 0
+                ? new OverstockProductResponse(p.Id, p.Name, p.Category.Name, p.Quantity, recommendedQuantity, excessValue, p.CostPrice ?? 0)
+                : null;
+        }).Where(x => x != null).OrderByDescending(x => x!.ExcessValue).Cast<OverstockProductResponse>().ToList();
         var overstockAlert = new OverstockAlertResponse
         {
             TotalOverstockProducts = overstockProducts.Count,
@@ -181,9 +203,9 @@ public class InventoryService(
         return (overstockProducts, overstockAlert);
     }
 
-    private async Task<InventoryHealthSummaryResponse> GetInventoryHealthSummaryAsync(IEnumerable<Guid> activeProductIds, List<OverstockProductResponse> overstockProducts, IEnumerable<ZeroMovementProductResponse> zeroMovementProducts, decimal totalStockValue, CancellationToken ct)
+    private async Task<InventoryHealthSummaryResponse> GetInventoryHealthSummaryAsync(IEnumerable<Guid> activeProductIds, List<OverstockProductResponse> overstockProducts, List<ZeroMovementProductResponse> zeroMovementProducts, decimal totalStockValue, CancellationToken ct)
     {
-        var totalProducts = await productService.CountAsync(p => p.Quantity > 0, ct);
+        var totalProducts = await _productService.CountAsync(p => p.Quantity > 0, ct);
         var totalZeroMovementProducts = zeroMovementProducts.Count();
         var overstockCount = overstockProducts.Count;
 
@@ -191,7 +213,7 @@ public class InventoryService(
         var zeroMovementPercentage = totalProducts > 0 ? (decimal)totalZeroMovementProducts / totalProducts * 100 : 0;
 
         var stockedActiveIds = activeProductIds.Where(id => !overstockProducts.Any(op => op.ProductId == id)).ToHashSet();
-        var healthyProducts = await productService.CountAsync(p => p.Quantity > 0 && stockedActiveIds.Contains(p.Id), ct);
+        var healthyProducts = await _productService.CountAsync(p => p.Quantity > 0 && stockedActiveIds.Contains(p.Id), ct);
 
         var summary = new InventoryHealthSummaryResponse
         {
@@ -208,7 +230,7 @@ public class InventoryService(
 
     private async Task<(List<StockValueByCategoryResponse> StockValueByCategories, decimal TotalStockValue)> GetStockValueByCategoryAsync(CancellationToken ct)
     {
-        var productsByCategory = await productService.GetStockValueByCategoryAsync(ct);
+        var productsByCategory = await _productService.GetStockValueByCategoryAsync(ct);
 
         var grouped = productsByCategory
             .GroupBy(p => new { p.CategoryId, p.CategoryName })

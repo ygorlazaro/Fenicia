@@ -5,13 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-public class PositionService(IPositionRepository positionRepository)
+public class PositionService
 {
-    public async Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(GetAllPositionQuery query, CancellationToken ct)
-    {
-        var total = await positionRepository.CountAsync(ct);
+    private readonly IPositionRepository _positionRepository;
 
-        var positions = await positionRepository.Query()
+    public PositionService()
+        : this(null!)
+    {
+    }
+
+    public PositionService(IPositionRepository positionRepository)
+    {
+        _positionRepository = positionRepository;
+    }
+
+    public virtual async Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(GetAllPositionQuery query, CancellationToken ct)
+    {
+        var total = await _positionRepository.CountAsync(ct);
+
+        var positions = await _positionRepository.Query()
             .Select(p => p.MapToGetAllPositionResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
@@ -20,14 +32,14 @@ public class PositionService(IPositionRepository positionRepository)
         return new Pagination<List<GetAllPositionResponse>>(positions, total, query.Page, query.PerPage);
     }
 
-    public async Task<GetPositionByIdResponse?> GetByIdAsync(GetPositionByIdQuery query, CancellationToken ct)
+    public virtual async Task<GetPositionByIdResponse?> GetByIdAsync(GetPositionByIdQuery query, CancellationToken ct)
     {
-        var position = await positionRepository.GetByIdAsync(query.Id, ct);
+        var position = await _positionRepository.GetByIdAsync(query.Id, ct);
 
         return position is null ? null : position.MapToGetPositionByIdResponse();
     }
 
-    public async Task<AddPositionResponse> AddAsync(AddPositionCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<AddPositionResponse> AddAsync(AddPositionCommand command, Guid companyId, CancellationToken ct)
     {
         var position = new PositionModel
         {
@@ -36,14 +48,14 @@ public class PositionService(IPositionRepository positionRepository)
             CompanyId = companyId
         };
 
-        await positionRepository.InsertAsync(position, ct);
+        await _positionRepository.InsertAsync(position, ct);
 
         return position.MapToAddPositionResponse();
     }
 
-    public async Task<UpdatePositionResponse?> UpdateAsync(UpdatePositionCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<UpdatePositionResponse?> UpdateAsync(UpdatePositionCommand command, Guid companyId, CancellationToken ct)
     {
-        var position = await positionRepository.GetByIdAsync(command.Id, ct);
+        var position = await _positionRepository.GetByIdAsync(command.Id, ct);
 
         if (position is null)
         {
@@ -53,13 +65,13 @@ public class PositionService(IPositionRepository positionRepository)
         position.Name = command.Name;
         position.CompanyId = companyId;
 
-        await positionRepository.UpdateAsync(command.Id, position, ct);
+        await _positionRepository.UpdateAsync(command.Id, position, ct);
 
         return position.MapToUpdatePositionResponse();
     }
 
-    public async Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken ct)
     {
-        await positionRepository.DeleteAsync(command.Id, ct);
+        await _positionRepository.DeleteAsync(command.Id, ct);
     }
 }

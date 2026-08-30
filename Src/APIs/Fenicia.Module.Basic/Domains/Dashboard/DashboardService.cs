@@ -8,12 +8,28 @@ using Fenicia.Module.Basic.Domains.Product;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
-public class DashboardService(
-    OrderService orderService,
-    ProductService productService,
-    EmployeeService employeeService)
+public class DashboardService
 {
-    public async Task<FinancialDashboardResponse> GetFinancialDashboardAsync(GetFinancialDashboardQuery query, CancellationToken ct)
+    private readonly OrderService _orderService;
+    private readonly ProductService _productService;
+    private readonly EmployeeService _employeeService;
+
+    public DashboardService()
+        : this(null!, null!, null!)
+    {
+    }
+
+    public DashboardService(
+        OrderService orderService,
+        ProductService productService,
+        EmployeeService employeeService)
+    {
+        _orderService = orderService;
+        _productService = productService;
+        _employeeService = employeeService;
+    }
+
+    public virtual async Task<FinancialDashboardResponse> GetFinancialDashboardAsync(GetFinancialDashboardQuery query, CancellationToken ct)
     {
         var kpi = await CalculateKpiSummaryAsync(ct);
         var revenueVsCost = await CalculateRevenueVsCostAsync(ct);
@@ -24,54 +40,54 @@ public class DashboardService(
         return DashboardMapper.MapToFinancialDashboardResponse(kpi, revenueVsCost, profitMarginTrend, accountsReceivable, dailySales);
     }
 
-    public async Task<decimal> GetTotalRevenueAsync(CancellationToken ct)
+    public virtual async Task<decimal> GetTotalRevenueAsync(CancellationToken ct)
     {
-        return await orderService.GetTotalRevenueAsync(ct);
+        return await _orderService.GetTotalRevenueAsync(ct);
     }
 
-    public async Task<decimal> GetTotalCostAsync(CancellationToken ct)
+    public virtual async Task<decimal> GetTotalCostAsync(CancellationToken ct)
     {
-        return await orderService.GetTotalCostAsync(ct);
+        return await _orderService.GetTotalCostAsync(ct);
     }
 
-    public async Task<int> GetTotalOrdersAsync(CancellationToken ct)
+    public virtual async Task<int> GetTotalOrdersAsync(CancellationToken ct)
     {
-        return await orderService.GetTotalOrdersCountAsync(ct);
+        return await _orderService.GetTotalOrdersCountAsync(ct);
     }
 
-    public async Task<int> GetTotalProductsAsync(CancellationToken ct)
+    public virtual async Task<int> GetTotalProductsAsync(CancellationToken ct)
     {
-        return await productService.GetTotalProductsAsync(ct);
+        return await _productService.GetTotalProductsAsync(ct);
     }
 
-    public async Task<int> GetTotalEmployeesAsync(CancellationToken ct)
+    public virtual async Task<int> GetTotalEmployeesAsync(CancellationToken ct)
     {
-        return await employeeService.GetTotalEmployeesAsync(ct);
+        return await _employeeService.GetTotalEmployeesAsync(ct);
     }
 
-    public async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
+    public virtual async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
     {
-        return await orderService.GetRecentOrdersAsync(topLimit, ct);
+        return await _orderService.GetRecentOrdersAsync(topLimit, ct);
     }
 
-    public async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken ct)
+    public virtual async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken ct)
     {
-        return await orderService.GetTopCustomerOrdersAsync(ct);
+        return await _orderService.GetTopCustomerOrdersAsync(ct);
     }
 
-    public async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken ct)
+    public virtual async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken ct)
     {
-        return await orderService.GetAtRiskOrdersAsync(ct);
+        return await _orderService.GetAtRiskOrdersAsync(ct);
     }
 
-    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    public virtual async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
-        return await orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
+        return await _orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
     }
 
-    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct)
+    public virtual async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct)
     {
-        return await employeeService.GetAllEmployeesAsync(ct);
+        return await _employeeService.GetAllEmployeesAsync(ct);
     }
 
     private static int GetWeekNumber(DateTime date)
@@ -91,19 +107,19 @@ public class DashboardService(
         var lastMonthStart = monthStart.AddMonths(-1);
         var lastMonthEnd = monthStart.AddDays(-1);
 
-        var todayRevenue = await orderService.GetTodayRevenueAsync(ct);
-        var weekRevenue = await orderService.GetWeekRevenueAsync(ct);
-        var monthRevenue = await orderService.GetMonthRevenueAsync(ct);
-        var lastMonthRevenue = await orderService.GetLastMonthRevenueAsync(ct);
+        var todayRevenue = await _orderService.GetTodayRevenueAsync(ct);
+        var weekRevenue = await _orderService.GetWeekRevenueAsync(ct);
+        var monthRevenue = await _orderService.GetMonthRevenueAsync(ct);
+        var lastMonthRevenue = await _orderService.GetLastMonthRevenueAsync(ct);
 
         var dailySales = new DailySalesSummaryResponse
         {
             TodayRevenue = todayRevenue,
-            TodayOrders = await orderService.GetTodayOrdersCountAsync(ct),
+            TodayOrders = await _orderService.GetTodayOrdersCountAsync(ct),
             WeekRevenue = weekRevenue,
-            WeekOrders = await orderService.GetWeekOrdersCountAsync(ct),
+            WeekOrders = await _orderService.GetWeekOrdersCountAsync(ct),
             MonthRevenue = monthRevenue,
-            MonthOrders = await orderService.GetMonthOrdersCountAsync(ct),
+            MonthOrders = await _orderService.GetMonthOrdersCountAsync(ct),
             PreviousMonthRevenue = lastMonthRevenue,
             GrowthPercentage = lastMonthRevenue > 0 ? (monthRevenue - lastMonthRevenue) / lastMonthRevenue * 100 : 0
         };
@@ -114,10 +130,10 @@ public class DashboardService(
     {
         var accountsReceivable = new AccountsReceivableResponse
         {
-            TotalPending = await orderService.GetPendingAmountAsync(ct),
-            PendingOrdersCount = await orderService.GetPendingOrdersCountAsync(ct),
-            TotalApproved = await orderService.GetApprovedAmountAsync(ct),
-            ApprovedOrdersCount = await orderService.GetApprovedOrdersCountAsync(ct)
+            TotalPending = await _orderService.GetPendingAmountAsync(ct),
+            PendingOrdersCount = await _orderService.GetPendingOrdersCountAsync(ct),
+            TotalApproved = await _orderService.GetApprovedAmountAsync(ct),
+            ApprovedOrdersCount = await _orderService.GetApprovedOrdersCountAsync(ct)
         };
 
         return accountsReceivable;
@@ -125,8 +141,8 @@ public class DashboardService(
 
     private async Task<List<ProfitMarginTrendResponse>> CalculateProfitMarginTrendAsync(CancellationToken ct)
     {
-        var weeks = await orderService.GetOrderWeeksAsync(ct);
-        var orders = await orderService.GetTopCustomerOrdersAsync(ct);
+        var weeks = await _orderService.GetOrderWeeksAsync(ct);
+        var orders = await _orderService.GetTopCustomerOrdersAsync(ct);
 
         var response = new List<ProfitMarginTrendResponse>();
 
@@ -156,15 +172,15 @@ public class DashboardService(
 
     private async Task<List<RevenueVsCostResponse>> CalculateRevenueVsCostAsync(CancellationToken ct)
     {
-        var dates = await orderService.GetOrderDatesAsync(ct);
+        var dates = await _orderService.GetOrderDatesAsync(ct);
 
         var response = new List<RevenueVsCostResponse>();
 
         foreach (var date in dates)
         {
             var key = date.ToString("yyyy MMMM dd");
-            var revenue = await orderService.GetTotalRevenueAsync(ct);
-            var cost = await orderService.GetTotalCostAsync(ct);
+            var revenue = await _orderService.GetTotalRevenueAsync(ct);
+            var cost = await _orderService.GetTotalCostAsync(ct);
             var profit = revenue - cost;
 
             response.Add(new RevenueVsCostResponse(key, date, revenue, cost, profit));
@@ -175,12 +191,12 @@ public class DashboardService(
 
     private async Task<KpiSummaryResponse> CalculateKpiSummaryAsync(CancellationToken ct)
     {
-        var totalRevenue = await orderService.GetTotalRevenueAsync(ct);
-        var totalCost = await orderService.GetTotalCostAsync(ct);
+        var totalRevenue = await _orderService.GetTotalRevenueAsync(ct);
+        var totalCost = await _orderService.GetTotalCostAsync(ct);
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
-        var totalOrders = await orderService.GetTotalOrdersCountAsync(ct);
-        var totalProducts = await productService.GetTotalProductsAsync(ct);
+        var totalOrders = await _orderService.GetTotalOrdersCountAsync(ct);
+        var totalProducts = await _productService.GetTotalProductsAsync(ct);
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
         var kpi = new KpiSummaryResponse

@@ -35,15 +35,6 @@ public class DataSourceControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetPositionsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetAllPositionForDataSourceResponse>());
-
-        _mockService.Setup(s => s.GetProductCategoriesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetAllProductCategoryForDataSourceResponse>());
-    }
-
     [Fact]
     public async Task GetPositionsAsync_ReturnsOk()
     {
@@ -68,6 +59,15 @@ public class DataSourceControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetPositionsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GetAllPositionForDataSourceResponse>());
+
+        _mockService.Setup(s => s.GetProductCategoriesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GetAllProductCategoryForDataSourceResponse>());
     }
 
     private void SetupUserClaims(Guid userId)

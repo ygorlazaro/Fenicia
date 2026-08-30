@@ -36,24 +36,6 @@ public class EmployeeControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllEmployeeQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllEmployeeResponse>>(new List<GetAllEmployeeResponse>(), 0, 1, 10));
-
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetEmployeeByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken ct) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
-
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
-
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
-
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-    }
-
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
@@ -154,6 +136,24 @@ public class EmployeeControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllEmployeeQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllEmployeeResponse>>(new List<GetAllEmployeeResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetEmployeeByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken ct) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     private void SetupUserClaims(Guid userId)

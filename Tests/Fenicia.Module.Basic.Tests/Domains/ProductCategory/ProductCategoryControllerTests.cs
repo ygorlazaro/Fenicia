@@ -36,24 +36,6 @@ public class ProductCategoryControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProductCategoryQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>(new List<GetAllProductCategoryResponse>(), 0, 1, 10));
-
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetProductCategoryByIdQuery>(q => q.Id == It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken ct) => new GetProductCategoryByIdResponse(q.Id, "Test Category"));
-
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddProductCategoryCommand cmd, Guid companyId, CancellationToken ct) => new AddProductCategoryResponse(cmd.Id, cmd.Name));
-
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid companyId, CancellationToken ct) => new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
-
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-    }
-
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
@@ -154,6 +136,24 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProductCategoryQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>(new List<GetAllProductCategoryResponse>(), 0, 1, 10));
+
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken ct) => new GetProductCategoryByIdResponse(q.Id, "Test Category"));
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddProductCategoryCommand cmd, Guid companyId, CancellationToken ct) => new AddProductCategoryResponse(cmd.Id, cmd.Name));
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid companyId, CancellationToken ct) => new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
+
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     private void SetupUserClaims(Guid userId)

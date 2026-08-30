@@ -35,12 +35,6 @@ public class DashboardControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void SetupServiceMocks()
-    {
-        _mockService.Setup(s => s.GetFinancialDashboardAsync(It.IsAny<GetFinancialDashboardQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FinancialDashboardResponse());
-    }
-
     [Fact]
     public async Task GetFinancialDashboardAsync_ReturnsOk()
     {
@@ -52,6 +46,12 @@ public class DashboardControllerTests : IDisposable
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    private void SetupServiceMocks()
+    {
+        _mockService.Setup(s => s.GetFinancialDashboardAsync(It.IsAny<GetFinancialDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FinancialDashboardResponse());
     }
 
     private void SetupUserClaims(Guid userId)
