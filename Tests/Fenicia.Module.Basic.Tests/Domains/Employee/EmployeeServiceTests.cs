@@ -5,11 +5,16 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Customer;
-using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
+using Fenicia.Module.Basic.Domains.Order;
+using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.Person;
 using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Tests.Domains.Employee;
 
 using FluentAssertions;
@@ -28,12 +33,17 @@ public class EmployeeServiceTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
+        var orderRepository = new OrderRepository(_db);
+        var orderDetailRepository = new OrderDetailRepository(_db);
+        var stockMovementRepository = new StockMovementRepository(_db);
+        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryRepository(_db), new SupplierRepository(_db), orderDetailRepository, stockMovementRepository);
+        var orderService = new OrderService(orderRepository, new OrderDetailService(orderDetailRepository), new StockMovementService(stockMovementRepository, productService));
         _service = new EmployeeService(
             new EmployeeRepository(_db),
             new PersonService(new PersonRepository(_db)),
             new AddressService(new AddressRepository(_db)),
             new PersonAddressService(new PersonAddressRepository(_db)),
-            new DashboardService(new DashboardRepository(_db)));
+            orderService);
         _faker = new Faker();
     }
 

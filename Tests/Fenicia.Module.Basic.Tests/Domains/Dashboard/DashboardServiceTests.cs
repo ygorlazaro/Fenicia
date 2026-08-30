@@ -3,8 +3,19 @@ using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Module.Basic.Domains.Address;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
+using Fenicia.Module.Basic.Domains.Employee;
+using Fenicia.Module.Basic.Domains.Order;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Person;
+using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Tests.Domains.Dashboard;
 
 using FluentAssertions;
@@ -23,7 +34,20 @@ public class DashboardServiceTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
-        _service = new DashboardService(new DashboardRepository(_db));
+        var orderRepository = new OrderRepository(_db);
+        var orderDetailRepository = new OrderDetailRepository(_db);
+        var stockMovementRepository = new StockMovementRepository(_db);
+        var productRepository = new ProductRepository(_db);
+        var productCategoryRepository = new ProductCategoryRepository(_db);
+        var supplierRepository = new SupplierRepository(_db);
+        var employeeRepository = new EmployeeRepository(_db);
+        var personRepository = new PersonRepository(_db);
+        var addressRepository = new AddressRepository(_db);
+        var personAddressRepository = new PersonAddressRepository(_db);
+        var productService = new ProductService(productRepository, productCategoryRepository, supplierRepository, orderDetailRepository, stockMovementRepository);
+        var orderService = new OrderService(orderRepository, new OrderDetailService(orderDetailRepository), new StockMovementService(stockMovementRepository, productService));
+        var employeeService = new EmployeeService(employeeRepository, new PersonService(personRepository), new AddressService(addressRepository), new PersonAddressService(personAddressRepository), orderService);
+        _service = new DashboardService(orderService, productService, employeeService);
         _faker = new Faker();
     }
 

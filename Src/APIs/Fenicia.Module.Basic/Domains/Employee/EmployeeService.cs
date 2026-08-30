@@ -4,9 +4,9 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
-using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
+using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Person;
 using Fenicia.Module.Basic.Domains.PersonAddress;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +18,7 @@ public class EmployeeService(
     PersonService personService,
     AddressService addressService,
     PersonAddressService personAddressService,
-    DashboardService dashboardService)
+    OrderService orderService)
 {
     public async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken ct)
     {
@@ -154,8 +154,8 @@ public class EmployeeService(
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-query.Days);
 
-        var orders = await dashboardService.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
-        var employees = await dashboardService.GetAllEmployeesAsync(ct);
+        var orders = await orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, ct);
+        var employees = await GetAllEmployeesAsync(ct);
 
         var summary = await GetEmployeePerformanceSummaryAsync(orders, employees, ct);
         var salesByEmployee = GetSalesByEmployeeAsync(orders, employees);
@@ -172,6 +172,16 @@ public class EmployeeService(
     }
 
     public async Task<int> GetCountAsync(CancellationToken ct)
+    {
+        return await employeeRepository.CountAsync(ct);
+    }
+
+    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct)
+    {
+        return await employeeRepository.GetAllEmployeesAsync(ct);
+    }
+
+    public async Task<int> GetTotalEmployeesAsync(CancellationToken ct)
     {
         return await employeeRepository.CountAsync(ct);
     }

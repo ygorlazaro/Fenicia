@@ -287,6 +287,11 @@ public class ProductService(
         return await productRepository.CountAsync(ct);
     }
 
+    public async Task<int> GetTotalProductsAsync(CancellationToken ct)
+    {
+        return await productRepository.CountAsync(ct);
+    }
+
     private async Task<List<NeverSoldProductResponse>> GetNeverSoldProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, IEnumerable<StockMovementModel> stockMovements, CancellationToken ct)
     {
         var orderDetailList = orderDetails.ToList();

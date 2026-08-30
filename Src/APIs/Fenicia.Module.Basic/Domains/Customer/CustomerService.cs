@@ -5,10 +5,11 @@ using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
-using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Person;
 using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Product;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
@@ -17,7 +18,8 @@ public class CustomerService(
     PersonService personService,
     AddressService addressService,
     PersonAddressService personAddressService,
-    DashboardService dashboardService)
+    OrderService orderService,
+    ProductService productService)
 {
     public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken ct)
     {
@@ -167,7 +169,7 @@ public class CustomerService(
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(GetCustomerInsightsQuery query, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
-        var orders = await dashboardService.GetAtRiskOrdersAsync(ct);
+        var orders = await orderService.GetAtRiskOrdersAsync(ct);
 
         var response = orders.GroupBy(o => o.CustomerId).Select(g =>
         {
@@ -183,7 +185,7 @@ public class CustomerService(
 
     private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
     {
-        var orders = await dashboardService.GetRecentOrdersAsync(topLimit, ct);
+        var orders = await orderService.GetRecentOrdersAsync(topLimit, ct);
 
         var response = orders.Take(topLimit).Select(o => new CustomerRecentOrdersResponse(o.Id, o.CustomerId, o.Customer.Person.Name, o.TotalAmount, o.SaleDate, o.Status.ToString(), o.Details.Sum(d => (int)d.Quantity))).ToList();
 
@@ -192,7 +194,7 @@ public class CustomerService(
 
     private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(int topLimit, CancellationToken ct)
     {
-        var orders = await dashboardService.GetTopCustomerOrdersAsync(ct);
+        var orders = await orderService.GetTopCustomerOrdersAsync(ct);
 
         var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g => new CustomerOrderHistoryResponse(g.Key.CustomerId, g.Key.CustomerName, g.Count(), g.Sum(o => o.TotalAmount), g.Sum(o => o.Details.Sum(d => (int)d.Quantity)), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate), g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent).Take(topLimit).ToList();
 
@@ -202,10 +204,10 @@ public class CustomerService(
     private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken ct)
     {
         var totalCustomers = await customerRepository.CountAsync(ct);
-        var totalOrders = await dashboardService.GetTotalOrdersAsync(ct);
-        var totalRevenue = await dashboardService.GetTotalRevenueAsync(ct);
-        var totalProducts = await dashboardService.GetTotalProductsAsync(ct);
-        var totalCost = await dashboardService.GetTotalCostAsync(ct);
+        var totalOrders = await orderService.GetTotalOrdersCountAsync(ct);
+        var totalRevenue = await orderService.GetTotalRevenueAsync(ct);
+        var totalProducts = await productService.GetTotalProductsAsync(ct);
+        var totalCost = await orderService.GetTotalCostAsync(ct);
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
