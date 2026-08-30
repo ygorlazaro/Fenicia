@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -57,9 +58,14 @@ public class DashboardControllerTests : IDisposable
     [Fact]
     public async Task GetFinancialDashboardAsync_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetFinancialDashboardAsync(wide, 90, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     private void SetupUserClaims(Guid userId)

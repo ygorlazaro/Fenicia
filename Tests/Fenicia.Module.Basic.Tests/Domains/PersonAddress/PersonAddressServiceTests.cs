@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -32,16 +33,19 @@ public class PersonAddressServiceTests : IDisposable
     [Fact]
     public async Task InsertAsync_WhenValid_SetsCompanyIdAndInserts()
     {
+        // Arrange
         var personAddress = new PersonAddressModel
         {
             PersonId = Guid.NewGuid(),
             AddressId = Guid.NewGuid()
         };
 
+        // Act
         var result = await _service.InsertAsync(personAddress, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(_db.CurrentCompanyId, result.CompanyId);
-        Assert.NotEqual(Guid.Empty, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result.CompanyId.Should().Be(_db.CurrentCompanyId ?? Guid.Empty);
+        result.Id.Should().NotBeEmpty();
     }
 }

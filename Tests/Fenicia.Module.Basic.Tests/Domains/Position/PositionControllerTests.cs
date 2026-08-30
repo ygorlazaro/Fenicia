@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -46,31 +47,109 @@ public class PositionControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenPositionsExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var command = new AddPositionCommand(Guid.NewGuid(), _faker.Commerce.Department());
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenPositionExists_ReturnsOk()
+    public async Task PatchAsync_WhenPositionExists_ReturnsOk()
     {
+        // Arrange
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Test Position", CompanyId = _companyContext.CompanyId };
+        _db.BasicPositions.Add(position);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdatePositionCommand(position.Id, "Updated Name");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, position.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenPositionDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdatePositionCommand(Guid.NewGuid(), "Updated Name");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenPositionExists_ReturnsNoContent()
+    {
+        // Arrange
         var position = new PositionModel { Id = Guid.NewGuid(), Name = "Test Position", CompanyId = _companyContext.CompanyId };
         _db.BasicPositions.Add(position);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.DeleteAsync(position.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenPositionsExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenPositionExists_ReturnsOk()
+    {
+        // Arrange
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Test Position", CompanyId = _companyContext.CompanyId };
+        _db.BasicPositions.Add(position);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(position.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenPositionDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)

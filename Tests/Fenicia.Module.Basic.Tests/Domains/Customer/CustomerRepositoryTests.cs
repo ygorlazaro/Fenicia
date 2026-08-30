@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -31,131 +32,163 @@ public class CustomerRepositoryTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ReturnsAllCustomers()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetAllAsync(ct: CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsCustomer()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.GetByIdAsync(customer.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(customer.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(customer.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCustomerDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _repository.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task InsertAsync_WhenCustomerIsValid_InsertsCustomer()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
 
+        // Act
         var result = await _repository.InsertAsync(customer, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.NotEqual(default(DateTime), result.Created);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
+        result.Created.Should().NotBe(default(DateTime));
     }
 
     [Fact]
     public async Task UpdateAsync_WhenCustomerExists_UpdatesCustomer()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.UpdateAsync(customer.Id, customer, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(customer.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(customer.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenCustomerDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
 
+        // Act
         var result = await _repository.UpdateAsync(customer.Id, customer, CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenCustomerExists_SoftDeletesCustomer()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.DeleteAsync(customer.Id, CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
         var deletedCustomer = await _db.BasicCustomers.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == customer.Id);
-        Assert.NotNull(deletedCustomer);
-        Assert.NotNull(deletedCustomer.Deleted);
+        deletedCustomer.Should().NotBeNull();
+        deletedCustomer!.Deleted.Should().NotBeNull();
     }
 
     [Fact]
     public async Task CountAsync_ReturnsCorrectCount()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.CountAsync(CancellationToken.None);
 
-        Assert.Equal(1, result);
+        // Assert
+        result.Should().Be(1);
     }
 
     [Fact]
     public async Task FindAsync_ReturnsMatchingCustomers()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.FindAsync(c => c.Id == customer.Id, CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task AnyAsync_WhenCustomerExists_ReturnsTrue()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.AnyAsync(c => c.Id == customer.Id, CancellationToken.None);
 
-        Assert.True(result);
+        // Assert
+        result.Should().BeTrue();
     }
 
     [Fact]
     public async Task Query_ReturnsQueryable()
     {
+        // Arrange
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicCustomers.Add(customer);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _repository.Query().Where(c => c.Id == customer.Id).ToListAsync(CancellationToken.None);
 
-        Assert.Single(result);
+        // Assert
+        result.Should().HaveCount(1);
     }
 }

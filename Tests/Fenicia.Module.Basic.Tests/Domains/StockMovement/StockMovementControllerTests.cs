@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -50,19 +51,81 @@ public class StockMovementControllerTests : IDisposable
     }
 
     [Fact]
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
+    {
+        // Arrange
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = 100, Quantity = 10, CategoryId = category.Id };
+        _db.BasicProductCategories.Add(category);
+        _db.BasicProducts.Add(product);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new AddStockMovementCommand(Guid.NewGuid(), 5.0, DateTime.UtcNow, 100, StockMovementType.In, product.Id, null, null, null, null, "Test");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenMovementExists_ReturnsOk()
+    {
+        // Arrange
+        var movement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = 5, Date = DateTime.UtcNow, Price = 100, Type = StockMovementType.In };
+        _db.BasicStockMovements.Add(movement);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateStockMovementCommand(movement.Id, Quantity: 10.0, Date: DateTime.UtcNow, Price: 100, Type: StockMovementType.Out, ProductId: movement.ProductId, CustomerId: null, SupplierId: null, EmployeeId: null, OrderId: null, Reason: "Updated");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(movement.Id, command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenMovementDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdateStockMovementCommand(Guid.NewGuid(), Quantity: 10.0, Date: DateTime.UtcNow, Price: 100, Type: StockMovementType.Out, ProductId: Guid.NewGuid(), CustomerId: null, SupplierId: null, EmployeeId: null, OrderId: null, Reason: "Updated");
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(Guid.NewGuid(), command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
     public async Task GetAsync_WhenStockMovementsExist_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetAsync(wide, null, null, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetDashboardAsync_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetDashboardAsync(wide, 30, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     private void SetupUserClaims(Guid userId)

@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -62,17 +63,40 @@ public class InventoryServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task GetDashboardAsync_WhenDataExists_ReturnsDashboard()
+    {
+        // Arrange
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = Guid.NewGuid() };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), CategoryId = category.Id, Quantity = 10, SalesPrice = _faker.Random.Decimal(), CostPrice = _faker.Random.Decimal() };
+        _db.BasicProductCategories.Add(category);
+        _db.BasicProducts.Add(product);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await _service.GetDashboardAsync(new GetInventoryDashboardQuery(), CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.TotalQuantity.Should().BeGreaterThanOrEqualTo(0);
+        result.CategoryBreakdown.Should().NotBeNull();
+        result.SupplierBreakdown.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task GetHealthAsync_WhenDataExists_ReturnsHealth()
     {
+        // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = Guid.NewGuid() };
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), CategoryId = category.Id, Quantity = 10, SalesPrice = _faker.Random.Decimal() };
         _db.BasicProductCategories.Add(category);
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetHealthAsync(new GetInventoryHealthQuery(90, 3.0), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotNull(result.Summary);
+        // Assert
+        result.Should().NotBeNull();
+        result.Summary.Should().NotBeNull();
     }
 }

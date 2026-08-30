@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -52,16 +53,57 @@ public class ProductControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenProductsExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var command = new AddProductCommand(Id: Guid.NewGuid(), Name: _faker.Commerce.ProductName(), SalesPrice: _faker.Random.Decimal());
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenProductExists_ReturnsOk()
+    public async Task PatchAsync_WhenProductExists_ReturnsOk()
     {
+        // Arrange
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), CategoryId = category.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicProductCategories.Add(category);
+        _db.BasicProducts.Add(product);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateProductCommand(product.Id, Name: "Updated Name", SalesPrice: _faker.Random.Decimal());
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, product.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenProductDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdateProductCommand(Id: Guid.NewGuid(), Name: "Updated Name", SalesPrice: _faker.Random.Decimal());
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenProductExists_ReturnsNoContent()
+    {
+        // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
         var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), CategoryId = category.Id, CompanyId = _companyContext.CompanyId };
         _db.BasicProductCategories.Add(category);
@@ -69,16 +111,57 @@ public class ProductControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.DeleteAsync(product.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenProductsExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenProductExists_ReturnsOk()
+    {
+        // Arrange
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), CategoryId = category.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicProductCategories.Add(category);
+        _db.BasicProducts.Add(product);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(product.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)

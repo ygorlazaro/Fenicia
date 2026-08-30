@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -37,6 +38,7 @@ public class OrderServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenOrdersExist_ReturnsPaginationWithOrders()
     {
+        // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
         _db.BasicPeople.Add(person);
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id };
@@ -45,15 +47,18 @@ public class OrderServiceTests : IDisposable
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetAllAsync(new GetAllOrderQuery(1, 10), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Single(result.Data);
+        // Assert
+        result.Should().NotBeNull();
+        result.Data.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenOrderExists_ReturnsOrder()
     {
+        // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
         _db.BasicPeople.Add(person);
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id };
@@ -62,50 +67,62 @@ public class OrderServiceTests : IDisposable
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetByIdAsync(new GetOrderByIdQuery(order.Id), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(order.Id, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(order.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenOrderDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _service.GetByIdAsync(new GetOrderByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        Assert.Null(result);
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]
     public async Task AddAsync_WhenCommandIsValid_CreatesOrder()
     {
+        // Arrange
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, OrderStatus.Pending, [], PaymentMethod.Cash);
 
+        // Act
         var result = await _service.CreateAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().NotBeEmpty();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenOrderExists_SoftDeletesOrder()
     {
+        // Arrange
         var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.Replace("ORD-########"), SaleDate = DateTime.UtcNow, TotalAmount = _faker.Random.Decimal() };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         await _service.DeleteAsync(new DeleteOrderCommand(order.Id), Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         var deletedOrder = await _db.BasicOrders.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == order.Id);
-        Assert.NotNull(deletedOrder);
-        Assert.NotNull(deletedOrder.Deleted);
+        deletedOrder.Should().NotBeNull();
+        deletedOrder!.Deleted.Should().NotBeNull();
     }
 
     [Fact]
     public async Task GetAnalyticsAsync_ReturnsAnalytics()
     {
+        // Act
         var result = await _service.GetAnalyticsAsync(new GetOrderAnalyticsQuery(90, 10), CancellationToken.None);
 
-        Assert.NotNull(result);
+        // Assert
+        result.Should().NotBeNull();
     }
 }

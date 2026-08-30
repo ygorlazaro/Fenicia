@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -65,16 +66,63 @@ public class EmployeeControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenEmployeesExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
+        _db.BasicPositions.Add(position);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new AddEmployeeCommand(Guid.NewGuid(), position.Id, _faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOk()
+    public async Task PatchAsync_WhenEmployeeExists_ReturnsOk()
     {
+        // Arrange
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
+        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = position.Id, PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicPositions.Add(position);
+        _db.BasicPeople.Add(person);
+        _db.BasicEmployees.Add(employee);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateEmployeeCommand(employee.Id, position.Id, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, employee.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
+    {
+        // Arrange
         var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
         var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = position.Id, PersonId = person.Id, CompanyId = _companyContext.CompanyId };
@@ -84,16 +132,59 @@ public class EmployeeControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.DeleteAsync(employee.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenEmployeesExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOk()
+    {
+        // Arrange
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = _faker.Name.JobTitle(), CompanyId = _companyContext.CompanyId };
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Name.FullName(), CompanyId = _companyContext.CompanyId };
+        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = position.Id, PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicPositions.Add(position);
+        _db.BasicPeople.Add(person);
+        _db.BasicEmployees.Add(employee);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(employee.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)

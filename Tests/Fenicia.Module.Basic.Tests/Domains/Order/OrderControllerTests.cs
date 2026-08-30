@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AwesomeAssertions;
 using Bogus;
 
 using Fenicia.Common.API;
@@ -59,16 +60,35 @@ public class OrderControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenOrdersExist_ReturnsOk()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, CompanyId = _companyContext.CompanyId };
+        _db.BasicPeople.Add(person);
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        _db.BasicCustomers.Add(customer);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = _companyContext.CompanyId };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), CategoryId = category.Id, CompanyId = _companyContext.CompanyId, SalesPrice = 100, Quantity = 10 };
+        _db.BasicProductCategories.Add(category);
+        _db.BasicProducts.Add(product);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new CreateOrderCommand(Guid.NewGuid(), customer.Id, DateTime.UtcNow, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 100, 2)], PaymentMethod.Cash);
         var wide = new WideEventContext();
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenOrderExists_ReturnsOk()
+    public async Task DeleteAsync_WhenOrderExists_ReturnsNoContent()
     {
+        // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, CompanyId = _companyContext.CompanyId };
         _db.BasicPeople.Add(person);
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
@@ -77,24 +97,60 @@ public class OrderControllerTests : IDisposable
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var repo = new OrderRepository(_db);
-        var found = await repo.GetByIdWithDetailsAsync(order.Id, CancellationToken.None);
-        Assert.NotNull(found);
+        var wide = new WideEventContext();
 
-        var serviceResult = await _service.GetByIdAsync(new GetOrderByIdQuery(order.Id), CancellationToken.None);
-        Assert.NotNull(serviceResult);
+        // Act
+        var result = await _controller.DeleteAsync(order.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenOrdersExist_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenOrderExists_ReturnsOk()
+    {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, CompanyId = _companyContext.CompanyId };
+        _db.BasicPeople.Add(person);
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, CompanyId = _companyContext.CompanyId };
+        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.Replace("ORD-########"), UserId = Guid.NewGuid(), CustomerId = customer.Id, TotalAmount = _faker.Random.Decimal(), DiscountAmount = _faker.Random.Decimal(), TotalQuantity = _faker.Random.Int(), SaleDate = _faker.Date.Recent(), Status = OrderStatus.Pending, PaymentMethod = PaymentMethod.Cash, CompanyId = _companyContext.CompanyId };
+        _db.BasicCustomers.Add(customer);
+        _db.BasicOrders.Add(order);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(order.Id, wide, CancellationToken.None);
-        Assert.IsType<OkObjectResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenOrderDoesNotExist_ReturnsNotFound()
     {
+        // Arrange
         var wide = new WideEventContext();
+
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result.Result);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     private void SetupUserClaims(Guid userId)

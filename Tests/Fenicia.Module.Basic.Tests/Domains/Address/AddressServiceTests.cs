@@ -32,10 +32,13 @@ public class AddressServiceTests : IDisposable
     [Fact]
     public async Task AddAsync_WhenCommandIsValid_CreatesAddressAndReturnsResponse()
     {
+        // Arrange
         var command = new AddressCommand(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), _faker.Address.SecondaryAddress(), _faker.Address.City(), "84140955", Guid.NewGuid(), _faker.Address.City(), _faker.Address.Country());
 
+        // Act
         var result = await _service.AddAsync(command, CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
         result.Street.Should().Be(command.Street);
@@ -51,6 +54,7 @@ public class AddressServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_WhenAddressExists_UpdatesAddressAndReturnsResponse()
     {
+        // Arrange
         var address = new AddressModel
         {
             Street = _faker.Address.StreetAddress(),
@@ -67,8 +71,10 @@ public class AddressServiceTests : IDisposable
 
         var command = new AddressCommand("Updated Street", "Updated Number", "Updated Complement", "Updated Neighborhood", "12345678", Guid.NewGuid(), "Updated City", "Updated Country");
 
+        // Act
         var result = await _service.UpdateAsync(address.Id, command, CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(address.Id);
         result.Street.Should().Be("Updated Street");
@@ -78,16 +84,20 @@ public class AddressServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_WhenAddressDoesNotExist_ReturnsNull()
     {
+        // Arrange
         var command = new AddressCommand("Updated Street", "Updated Number", "Updated Complement", "Updated Neighborhood", "12345678", Guid.NewGuid(), "Updated City", "Updated Country");
 
+        // Act
         var result = await _service.UpdateAsync(Guid.NewGuid(), command, CancellationToken.None);
 
+        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenAddressExists_ReturnsResponse()
     {
+        // Arrange
         var address = new AddressModel
         {
             Street = _faker.Address.StreetAddress(),
@@ -102,8 +112,10 @@ public class AddressServiceTests : IDisposable
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetByIdAsync(address.Id, CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(address.Id);
         result.Street.Should().Be(address.Street);
@@ -112,8 +124,10 @@ public class AddressServiceTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenAddressDoesNotExist_ReturnsNull()
     {
+        // Act
         var result = await _service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         result.Should().BeNull();
     }
 }
