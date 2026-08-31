@@ -6,15 +6,15 @@ namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
 public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository)
 {
-    public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken ct)
+    public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken cancellationToken = default)
     {
-        var assignees = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var assignees = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. assignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId))];
     }
 
-    public async Task<GetProjectTaskAssigneeByIdResponse?> GetByIdAsync(GetProjectTaskAssigneeByIdQuery query, CancellationToken ct)
+    public async Task<GetProjectTaskAssigneeByIdResponse?> GetByIdAsync(GetProjectTaskAssigneeByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var assignee = await repository.GetByIdAsync(query.Id, ct);
+        var assignee = await repository.GetByIdAsync(query.Id, cancellationToken);
 
         return assignee switch
         {
@@ -23,7 +23,7 @@ public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository
         };
     }
 
-    public async Task<AddProjectTaskAssigneeResponse> AddAsync(AddProjectTaskAssigneeCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddProjectTaskAssigneeResponse> AddAsync(AddProjectTaskAssigneeCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var assignee = new TaskAssigneeModel
         {
@@ -35,11 +35,11 @@ public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(assignee, ct);
+        var created = await repository.InsertAsync(assignee, cancellationToken);
         return new AddProjectTaskAssigneeResponse(created.Id, created.TaskId, created.UserId, created.Role.ToString(), created.AssignedAt, created.CompanyId);
     }
 
-    public async Task<UpdateProjectTaskAssigneeResponse?> UpdateAsync(UpdateProjectTaskAssigneeCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateProjectTaskAssigneeResponse?> UpdateAsync(UpdateProjectTaskAssigneeCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var assignee = new TaskAssigneeModel
         {
@@ -51,12 +51,12 @@ public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository
             CompanyId = companyId
         };
 
-        var updated = await repository.UpdateAsync(command.Id, assignee, ct);
+        var updated = await repository.UpdateAsync(command.Id, assignee, cancellationToken);
         return updated is null ? null : new UpdateProjectTaskAssigneeResponse(updated.Id, updated.TaskId, updated.UserId, updated.Role.ToString(), updated.AssignedAt, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectTaskAssigneeCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProjectTaskAssigneeCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

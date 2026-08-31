@@ -7,25 +7,25 @@ namespace Fenicia.Auth.Domains.UserRole;
 
 public class UserRoleRepository(DefaultContext context) : Repository<UserRoleModel>(context)
 {
-    public async Task<List<UserRoleModel>> GetCompaniesByUserAsync(Guid userId, CancellationToken ct)
+    public async Task<List<UserRoleModel>> GetCompaniesByUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Where(ur => ur.UserId == userId)
             .Include(ur => ur.Role)
             .Include(ur => ur.Company)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<UserRoleModel>> GetUserCompaniesAsync(Guid userId, CancellationToken ct)
+    public async Task<List<UserRoleModel>> GetUserCompaniesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Where(ur => ur.UserId == userId)
             .Include(ur => ur.Role)
             .Include(ur => ur.Company)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken ct)
+    public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Where(ur => ur.UserId == userId && ur.Company.IsActive)
@@ -33,33 +33,33 @@ public class UserRoleRepository(DefaultContext context) : Repository<UserRoleMod
             .Include(ur => ur.Company)
             .Skip((page - 1) * perPage)
             .Take(perPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> CountUserRolesAsync(Guid userId, CancellationToken ct)
+    public async Task<int> CountUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await DbSet.CountAsync(ur => ur.UserId == userId && ur.Company.IsActive, ct);
+        return await DbSet.CountAsync(ur => ur.UserId == userId && ur.Company.IsActive, cancellationToken);
     }
 
-    public async Task<UserRoleModel?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken ct)
-    {
-        return await DbSet
-            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, ct);
-    }
-
-    public async Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken ct)
+    public async Task<UserRoleModel?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == "Admin", ct);
+            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, cancellationToken);
     }
 
-    public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct)
+    public async Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
     {
-        return await DbSet.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, ct);
+        return await DbSet
+            .AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == "Admin", cancellationToken);
     }
 
-    public async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
+    public async Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
     {
-        return await DbSet.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == role, ct);
+        return await DbSet.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, cancellationToken);
+    }
+
+    public async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == role, cancellationToken);
     }
 }

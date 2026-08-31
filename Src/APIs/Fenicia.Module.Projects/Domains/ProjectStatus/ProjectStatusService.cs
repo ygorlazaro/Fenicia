@@ -5,19 +5,19 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
 public class ProjectStatusService(ProjectStatusRepository repository)
 {
-    public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(GetAllProjectStatusQuery query, CancellationToken ct)
+    public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(GetAllProjectStatusQuery query, CancellationToken cancellationToken = default)
     {
-        var statuses = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var statuses = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. statuses.Select(s => new GetAllProjectStatusResponse(s.Id, s.ProjectId, s.Name, s.Color, s.Order, s.IsFinal, s.CompanyId))];
     }
 
-    public async Task<GetProjectStatusByIdResponse?> GetByIdAsync(GetProjectStatusByIdQuery query, CancellationToken ct)
+    public async Task<GetProjectStatusByIdResponse?> GetByIdAsync(GetProjectStatusByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var status = await repository.GetByIdAsync(query.Id, ct);
+        var status = await repository.GetByIdAsync(query.Id, cancellationToken);
         return status is null ? null : new GetProjectStatusByIdResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId);
     }
 
-    public async Task<AddProjectStatusResponse> AddAsync(AddProjectStatusCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddProjectStatusResponse> AddAsync(AddProjectStatusCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var status = new ProjectStatusModel
         {
@@ -30,11 +30,11 @@ public class ProjectStatusService(ProjectStatusRepository repository)
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(status, ct);
+        var created = await repository.InsertAsync(status, cancellationToken);
         return new AddProjectStatusResponse(created.Id, created.ProjectId, created.Name, created.Color, created.Order, created.IsFinal, created.CompanyId);
     }
 
-    public async Task<UpdateProjectStatusResponse?> UpdateAsync(UpdateProjectStatusCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateProjectStatusResponse?> UpdateAsync(UpdateProjectStatusCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var status = new ProjectStatusModel
         {
@@ -47,12 +47,12 @@ public class ProjectStatusService(ProjectStatusRepository repository)
             CompanyId = companyId
         };
 
-        var updated = await repository.UpdateAsync(command.Id, status, ct);
+        var updated = await repository.UpdateAsync(command.Id, status, cancellationToken);
         return updated is null ? null : new UpdateProjectStatusResponse(updated.Id, updated.ProjectId, updated.Name, updated.Color, updated.Order, updated.IsFinal, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectStatusCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProjectStatusCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

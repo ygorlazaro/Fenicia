@@ -24,7 +24,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of project attachments</returns>
     /// <response code="200">List of project attachments returned successfully</response>
     /// <response code="400">Invalid pagination parameters</response>
@@ -35,11 +35,11 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectAttachmentResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectAttachmentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectAttachmentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachments = await projectAttachmentService.GetAllAsync(new GetAllProjectAttachmentQuery(page, perPage), ct);
+        var projectAttachments = await projectAttachmentService.GetAllAsync(new GetAllProjectAttachmentQuery(page, perPage), cancellationToken);
 
         return Ok(projectAttachments);
     }
@@ -49,7 +49,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     /// </summary>
     /// <param name="id">Project attachment ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Project attachment data</returns>
     /// <response code="200">Project attachment found</response>
     /// <response code="400">Invalid ID</response>
@@ -62,11 +62,11 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectAttachmentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetProjectAttachmentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await projectAttachmentService.GetByIdAsync(new GetProjectAttachmentByIdQuery(id), ct);
+        var projectAttachment = await projectAttachmentService.GetByIdAsync(new GetProjectAttachmentByIdQuery(id), cancellationToken);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
@@ -76,7 +76,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     /// </summary>
     /// <param name="command">Project attachment data</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created project attachment</returns>
     /// <response code="201">Project attachment created successfully</response>
     /// <response code="400">Invalid payload</response>
@@ -91,11 +91,11 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectAttachmentResponse>> PostAsync([FromBody] AddProjectAttachmentCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddProjectAttachmentResponse>> PostAsync([FromBody] AddProjectAttachmentCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await projectAttachmentService.AddAsync(command, ClaimReader.UserId(User), ct);
+        var projectAttachment = await projectAttachmentService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, projectAttachment);
     }
@@ -106,7 +106,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     /// <param name="command">Updated project attachment data</param>
     /// <param name="id">Project attachment ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Updated project attachment</returns>
     /// <response code="200">Project attachment updated successfully</response>
     /// <response code="400">Invalid payload</response>
@@ -123,11 +123,11 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectAttachmentResponse>> PatchAsync([FromBody] UpdateProjectAttachmentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateProjectAttachmentResponse>> PatchAsync([FromBody] UpdateProjectAttachmentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await projectAttachmentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
+        var projectAttachment = await projectAttachmentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
@@ -137,7 +137,7 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     /// </summary>
     /// <param name="id">Project attachment ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <response code="204">Project attachment deleted successfully</response>
     /// <response code="401">User not authenticated</response>
     /// <response code="403">User not authorized to delete project attachments</response>
@@ -148,11 +148,11 @@ public class ProjectAttachmentController(ProjectAttachmentService projectAttachm
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await projectAttachmentService.DeleteAsync(new DeleteProjectAttachmentCommand(id), ct);
+        await projectAttachmentService.DeleteAsync(new DeleteProjectAttachmentCommand(id), cancellationToken);
 
         return NoContent();
     }

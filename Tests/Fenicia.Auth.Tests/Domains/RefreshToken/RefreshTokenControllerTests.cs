@@ -83,9 +83,9 @@ public class RefreshTokenControllerTests : IDisposable
     public async Task PostAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.PostAsync(wide, ct);
+        await _controller.PostAsync(wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -94,9 +94,9 @@ public class RefreshTokenControllerTests : IDisposable
     public async Task GetAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.GetAsync("some_token", wide, ct);
+        await _controller.GetAsync("some_token", wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -106,9 +106,9 @@ public class RefreshTokenControllerTests : IDisposable
     {
         var command = new UpdateRefreshTokenCommand(true);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.PatchAsync("some_token", command, wide, ct);
+        await _controller.PatchAsync("some_token", command, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }

@@ -19,7 +19,7 @@ public class RegisterController(RegisterService registerService) : ControllerBas
     /// </summary>
     /// <param name="request">Dados do usuário (e-mail, senha, nome, empresa)</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do usuário e empresa criados</returns>
     /// <response code="201">Usuário criado com sucesso</response>
     /// <response code="400">E-mail já existe, empresa já existe ou dados inválidos</response>
@@ -29,13 +29,13 @@ public class RegisterController(RegisterService registerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<RegisterResponse>> CreateNewUserAsync(RegisterCommand request, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<RegisterResponse>> CreateNewUserAsync(RegisterCommand request, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = request.Email;
 
-            var userResponse = await registerService.CreateAsync(request, ct);
+            var userResponse = await registerService.CreateAsync(request, cancellationToken);
 
             return Created(string.Empty, userResponse);
         }

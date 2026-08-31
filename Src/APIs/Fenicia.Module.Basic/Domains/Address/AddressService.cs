@@ -18,7 +18,7 @@ public class AddressService
         _addressRepository = addressRepository;
     }
 
-    public virtual async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken ct)
+    public virtual async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken cancellationToken = default)
     {
         var address = new AddressModel
         {
@@ -33,12 +33,12 @@ public class AddressService
             Country = command.Country
         };
 
-        var created = await _addressRepository.InsertAsync(address, ct);
+        var created = await _addressRepository.InsertAsync(address, cancellationToken);
 
         return created.MapToAddressResponse();
     }
 
-    public virtual async Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken ct)
+    public virtual async Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken cancellationToken = default)
     {
         var address = new AddressModel
         {
@@ -53,14 +53,14 @@ public class AddressService
             Country = command.Country
         };
 
-        var updated = await _addressRepository.UpdateAsync(id, address, ct);
+        var updated = await _addressRepository.UpdateAsync(id, address, cancellationToken);
 
         return updated?.MapToAddressResponse();
     }
 
-    public virtual async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken ct)
+    public virtual async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var address = await _addressRepository.GetByIdAsync(id, ct);
+        var address = await _addressRepository.GetByIdAsync(id, cancellationToken);
 
         return address?.MapToAddressResponse();
     }

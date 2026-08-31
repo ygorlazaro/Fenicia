@@ -7,7 +7,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
 public class ProjectTaskRepository(DefaultContext context) : Repository<ProjectTaskModel>(context)
 {
-    public async Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct)
+    public async Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Include(pt => pt.Attachments)
@@ -15,6 +15,6 @@ public class ProjectTaskRepository(DefaultContext context) : Repository<ProjectT
             .Include(pt => pt.Subtasks)
             .Include(pt => pt.Assignees)
                 .ThenInclude(a => a.User)
-            .FirstOrDefaultAsync(e => e.Id == id, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 }

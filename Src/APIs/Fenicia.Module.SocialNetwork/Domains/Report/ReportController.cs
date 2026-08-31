@@ -20,7 +20,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// </summary>
     /// <param name="command">Report data. Example: <c>{ "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description": "This feed contains spam content" }</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The created report details.</returns>
     /// <response code="201">Report created successfully. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333", "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description": "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }</c></response>
     /// <response code="400">Invalid request body supplied.</response>
@@ -37,11 +37,11 @@ public class ReportController(ReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddReportResponse>> PostAsync([FromBody] AddReportCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddReportResponse>> PostAsync([FromBody] AddReportCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var report = await reportService.AddAsync(command, ClaimReader.UserId(User), ct);
+        var report = await reportService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, report);
     }
@@ -52,7 +52,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <param name="id">The unique identifier of the report to update. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="command">The new status. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "status": "Approved" }</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The updated report status, or null if not found.</returns>
     /// <response code="200">Report status updated successfully. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "status": "Approved" }</c></response>
     /// <response code="400">Invalid status value supplied. Status must be Approved or Denied.</response>
@@ -72,11 +72,11 @@ public class ReportController(ReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateReportResponse>> PatchStatusAsync([FromRoute] Guid id, [FromBody] UpdateReportStatusCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateReportResponse>> PatchStatusAsync([FromRoute] Guid id, [FromBody] UpdateReportStatusCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await reportService.UpdateStatusAsync(command with { Id = id }, ct);
+        var result = await reportService.UpdateStatusAsync(command with { Id = id }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -87,7 +87,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>A list of reports for the requested page.</returns>
     /// <response code="200">Reports retrieved successfully. Example: <c>[{ "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333", "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description": "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }]</c></response>
     /// <response code="400">Invalid pagination parameters supplied.</response>
@@ -103,11 +103,11 @@ public class ReportController(ReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllReportResponse>>> GetAllAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllReportResponse>>> GetAllAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var reports = await reportService.GetAllAsync(new GetAllReportQuery(page, perPage), ct);
+        var reports = await reportService.GetAllAsync(new GetAllReportQuery(page, perPage), cancellationToken);
 
         return Ok(reports);
     }
@@ -117,7 +117,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the report. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The report details, or null if not found.</returns>
     /// <response code="200">Report found. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333", "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description": "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }</c></response>
     /// <response code="400">Invalid ID format supplied.</response>
@@ -132,11 +132,11 @@ public class ReportController(ReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetReportByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetReportByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var report = await reportService.GetByIdAsync(new GetReportByIdQuery(id), ct);
+        var report = await reportService.GetByIdAsync(new GetReportByIdQuery(id), cancellationToken);
 
         return report is null ? NotFound() : Ok(report);
     }

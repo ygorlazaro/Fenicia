@@ -66,9 +66,9 @@ public class ModuleControllerTests : IDisposable
     {
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -111,9 +111,9 @@ public class ModuleControllerTests : IDisposable
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -156,9 +156,9 @@ public class ModuleControllerTests : IDisposable
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -200,9 +200,9 @@ public class ModuleControllerTests : IDisposable
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -221,9 +221,9 @@ public class ModuleControllerTests : IDisposable
     {
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.GetAllModulesAsync(query, wide, ct);
+        await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
         Assert.Equal("Guest", wide.UserId);
     }
@@ -250,9 +250,9 @@ public class ModuleControllerTests : IDisposable
 
         var query = new PaginationQuery(2, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAllModulesAsync(query, wide, ct);
+        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);

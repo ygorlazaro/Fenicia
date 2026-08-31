@@ -19,9 +19,9 @@ public class StateService
         _stateRepository = stateRepository;
     }
 
-    public virtual async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken ct)
+    public virtual async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken cancellationToken = default)
     {
-        var states = await _stateRepository.GetAllOrderedAsync(ct);
+        var states = await _stateRepository.GetAllOrderedAsync(cancellationToken);
 
         return [.. states.Select(s => s.MapToGetAllStateResponse())];
     }

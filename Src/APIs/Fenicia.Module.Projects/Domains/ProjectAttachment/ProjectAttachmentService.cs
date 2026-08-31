@@ -5,15 +5,15 @@ namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 
 public class ProjectAttachmentService(ProjectAttachmentRepository repository)
 {
-    public async Task<List<GetAllProjectAttachmentResponse>> GetAllAsync(GetAllProjectAttachmentQuery query, CancellationToken ct)
+    public async Task<List<GetAllProjectAttachmentResponse>> GetAllAsync(GetAllProjectAttachmentQuery query, CancellationToken cancellationToken = default)
     {
-        var attachments = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var attachments = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. attachments.Select(p => new GetAllProjectAttachmentResponse(p.Id, p.TaskId, p.FileName, p.FileUrl, p.FileSize, p.UploadedBy, p.CompanyId))];
     }
 
-    public async Task<GetProjectAttachmentByIdResponse?> GetByIdAsync(GetProjectAttachmentByIdQuery query, CancellationToken ct)
+    public async Task<GetProjectAttachmentByIdResponse?> GetByIdAsync(GetProjectAttachmentByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var projectAttachment = await repository.GetByIdAsync(query.Id, ct);
+        var projectAttachment = await repository.GetByIdAsync(query.Id, cancellationToken);
 
         return projectAttachment switch
         {
@@ -22,7 +22,7 @@ public class ProjectAttachmentService(ProjectAttachmentRepository repository)
         };
     }
 
-    public async Task<AddProjectAttachmentResponse> AddAsync(AddProjectAttachmentCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddProjectAttachmentResponse> AddAsync(AddProjectAttachmentCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var projectAttachment = new AttachmentModel
         {
@@ -36,11 +36,11 @@ public class ProjectAttachmentService(ProjectAttachmentRepository repository)
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(projectAttachment, ct);
+        var created = await repository.InsertAsync(projectAttachment, cancellationToken);
         return new AddProjectAttachmentResponse(created.Id, created.TaskId, created.FileName, created.FileUrl, created.FileSize, created.UploadedBy, created.CompanyId);
     }
 
-    public async Task<UpdateProjectAttachmentResponse?> UpdateAsync(UpdateProjectAttachmentCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateProjectAttachmentResponse?> UpdateAsync(UpdateProjectAttachmentCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var projectAttachment = new AttachmentModel
         {
@@ -53,12 +53,12 @@ public class ProjectAttachmentService(ProjectAttachmentRepository repository)
             CompanyId = companyId
         };
 
-        var updated = await repository.UpdateAsync(command.Id, projectAttachment, ct);
+        var updated = await repository.UpdateAsync(command.Id, projectAttachment, cancellationToken);
         return updated is null ? null : new UpdateProjectAttachmentResponse(updated.Id, updated.TaskId, updated.FileName, updated.FileUrl, updated.FileSize, updated.UploadedBy, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectAttachmentCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProjectAttachmentCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

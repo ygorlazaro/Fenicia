@@ -79,7 +79,7 @@ public class LikeRepositoryTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _repository.GetByFeedAsync(feedId, ct: CancellationToken.None);
+        var result = await _repository.GetByFeedAsync(feedId, cancellationToken: CancellationToken.None);
 
         // Assert
         result.Should().HaveCount(1);

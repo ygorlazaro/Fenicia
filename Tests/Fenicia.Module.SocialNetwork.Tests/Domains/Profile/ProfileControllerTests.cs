@@ -97,10 +97,10 @@ public class ProfileControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProfileByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetProfileByIdQuery q, CancellationToken ct) => new GetProfileByIdResponse(q.Id, Guid.NewGuid(), "Bio", null, null, null, null, null));
+            .ReturnsAsync((GetProfileByIdQuery q, CancellationToken cancellationToken) => new GetProfileByIdResponse(q.Id, Guid.NewGuid(), "Bio", null, null, null, null, null));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProfileCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateProfileCommand cmd, Guid userId, CancellationToken ct) => new UpdateProfileResponse(cmd.Id, userId, cmd.Bio, cmd.ImageUrl, cmd.Website, cmd.Location, cmd.Phone, cmd.BirthDate));
+            .ReturnsAsync((UpdateProfileCommand cmd, Guid userId, CancellationToken cancellationToken) => new UpdateProfileResponse(cmd.Id, userId, cmd.Bio, cmd.ImageUrl, cmd.Website, cmd.Location, cmd.Phone, cmd.BirthDate));
     }
 
     private void SetupUserClaims(Guid userId)

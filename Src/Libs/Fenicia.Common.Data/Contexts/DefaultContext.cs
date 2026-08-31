@@ -27,7 +27,7 @@ public partial class DefaultContext : DbContext
 
     public Guid? CurrentCompanyId => _companyContext.CompanyId;
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         foreach (var item in ChangeTracker.Entries())
         {

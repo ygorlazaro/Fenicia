@@ -24,7 +24,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of project task assignees</returns>
     /// <response code="200">List of project task assignees returned successfully</response>
     /// <response code="400">Invalid pagination parameters</response>
@@ -35,11 +35,11 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectTaskAssigneeResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectTaskAssigneeResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectTaskAssigneeResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignees = await projectTaskAssigneeService.GetAllAsync(new GetAllProjectTaskAssigneeQuery(page, perPage), ct);
+        var assignees = await projectTaskAssigneeService.GetAllAsync(new GetAllProjectTaskAssigneeQuery(page, perPage), cancellationToken);
 
         return Ok(assignees);
     }
@@ -49,7 +49,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     /// </summary>
     /// <param name="id">Project task assignee ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Project task assignee data</returns>
     /// <response code="200">Project task assignee found</response>
     /// <response code="400">Invalid ID</response>
@@ -62,11 +62,11 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectTaskAssigneeByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetProjectTaskAssigneeByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.GetByIdAsync(new GetProjectTaskAssigneeByIdQuery(id), ct);
+        var assignee = await projectTaskAssigneeService.GetByIdAsync(new GetProjectTaskAssigneeByIdQuery(id), cancellationToken);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }
@@ -76,7 +76,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     /// </summary>
     /// <param name="command">Project task assignee data</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created project task assignee</returns>
     /// <response code="201">Project task assignee created successfully</response>
     /// <response code="400">Invalid payload</response>
@@ -91,11 +91,11 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectTaskAssigneeResponse>> PostAsync([FromBody] AddProjectTaskAssigneeCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddProjectTaskAssigneeResponse>> PostAsync([FromBody] AddProjectTaskAssigneeCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.AddAsync(command, ClaimReader.UserId(User), ct);
+        var assignee = await projectTaskAssigneeService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, assignee);
     }
@@ -106,7 +106,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     /// <param name="command">Updated project task assignee data</param>
     /// <param name="id">Project task assignee ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Updated project task assignee</returns>
     /// <response code="200">Project task assignee updated successfully</response>
     /// <response code="400">Invalid payload</response>
@@ -123,11 +123,11 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectTaskAssigneeResponse>> PatchAsync([FromBody] UpdateProjectTaskAssigneeCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateProjectTaskAssigneeResponse>> PatchAsync([FromBody] UpdateProjectTaskAssigneeCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
+        var assignee = await projectTaskAssigneeService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }
@@ -137,7 +137,7 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     /// </summary>
     /// <param name="id">Project task assignee ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <response code="204">Project task assignee deleted successfully</response>
     /// <response code="401">User not authenticated</response>
     /// <response code="403">User not authorized to delete project task assignees</response>
@@ -148,11 +148,11 @@ public class ProjectTaskAssigneeController(ProjectTaskAssigneeService projectTas
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await projectTaskAssigneeService.DeleteAsync(new DeleteProjectTaskAssigneeCommand(id), ct);
+        await projectTaskAssigneeService.DeleteAsync(new DeleteProjectTaskAssigneeCommand(id), cancellationToken);
 
         return NoContent();
     }

@@ -24,7 +24,7 @@ public class ProfileController(ProfileService profileService) : ControllerBase
     /// </summary>
     /// <param name="id">ID do perfil</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do perfil</returns>
     /// <response code="200">Perfil encontrado</response>
     /// <response code="400">ID inválido</response>
@@ -38,11 +38,11 @@ public class ProfileController(ProfileService profileService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProfileByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetProfileByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var profile = await profileService.GetByIdAsync(new GetProfileByIdQuery(id), ct);
+        var profile = await profileService.GetByIdAsync(new GetProfileByIdQuery(id), cancellationToken);
 
         return profile is null ? NotFound() : Ok(profile);
     }
@@ -51,7 +51,7 @@ public class ProfileController(ProfileService profileService) : ControllerBase
     /// Obtém o perfil do usuário autenticado.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do perfil</returns>
     /// <response code="200">Perfil encontrado</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -63,11 +63,11 @@ public class ProfileController(ProfileService profileService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProfileByIdResponse>> GetAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetProfileByIdResponse>> GetAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var profile = await profileService.GetByIdAsync(new GetProfileByIdQuery(ClaimReader.UserId(User)), ct);
+        var profile = await profileService.GetByIdAsync(new GetProfileByIdQuery(ClaimReader.UserId(User)), cancellationToken);
 
         return profile is null ? NotFound() : Ok(profile);
     }
@@ -78,7 +78,7 @@ public class ProfileController(ProfileService profileService) : ControllerBase
     /// <param name="id">ID do perfil</param>
     /// <param name="command">Dados atualizados do perfil</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Perfil atualizado</returns>
     /// <response code="200">Perfil atualizado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
@@ -91,11 +91,11 @@ public class ProfileController(ProfileService profileService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProfileResponse>> PatchAsync([FromBody] UpdateProfileCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateProfileResponse>> PatchAsync([FromBody] UpdateProfileCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var profile = await profileService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
+        var profile = await profileService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
 
         return profile switch
         {

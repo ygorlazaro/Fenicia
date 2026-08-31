@@ -34,7 +34,7 @@ public class CompanyController(CompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -77,7 +77,7 @@ public class CompanyController(CompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyRequest request, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyRequest request, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {

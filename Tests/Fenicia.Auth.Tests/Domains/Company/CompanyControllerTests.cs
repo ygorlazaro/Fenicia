@@ -68,9 +68,9 @@ public class CompanyControllerTests : IDisposable
     {
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetByLoggedUser(query, wide, ct);
+        var result = await _controller.GetByLoggedUser(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -129,9 +129,9 @@ public class CompanyControllerTests : IDisposable
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetByLoggedUser(query, wide, ct);
+        var result = await _controller.GetByLoggedUser(query, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -152,9 +152,9 @@ public class CompanyControllerTests : IDisposable
     {
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.GetByLoggedUser(query, wide, ct);
+        await _controller.GetByLoggedUser(query, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -165,7 +165,7 @@ public class CompanyControllerTests : IDisposable
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var company = new CompanyModel
         {
@@ -205,7 +205,7 @@ public class CompanyControllerTests : IDisposable
 
         var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        var result = await _controller.PatchAsync(companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(companyId, request, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -215,7 +215,7 @@ public class CompanyControllerTests : IDisposable
         Assert.Equal(204, noContentResult.StatusCode);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
 
-        var updatedCompany = await _db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
+        var updatedCompany = await _db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, cancellationToken);
         Assert.NotNull(updatedCompany);
         Assert.Equal(request.Name, updatedCompany.Name);
     }
@@ -225,11 +225,11 @@ public class CompanyControllerTests : IDisposable
     {
         var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        var result = await _controller.PatchAsync(companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(companyId, request, wide, cancellationToken);
 
         Assert.IsType<NotFoundObjectResult>(result);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
@@ -241,7 +241,7 @@ public class CompanyControllerTests : IDisposable
         var companyId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var company = new CompanyModel
         {
@@ -281,7 +281,7 @@ public class CompanyControllerTests : IDisposable
 
         var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        var result = await _controller.PatchAsync(companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(companyId, request, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
@@ -293,7 +293,7 @@ public class CompanyControllerTests : IDisposable
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var company = new CompanyModel
         {
@@ -333,7 +333,7 @@ public class CompanyControllerTests : IDisposable
 
         var request = new UpdateCompanyRequest(_faker.Company.CompanyName());
 
-        await _controller.PatchAsync(companyId, request, wide, ct);
+        await _controller.PatchAsync(companyId, request, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }

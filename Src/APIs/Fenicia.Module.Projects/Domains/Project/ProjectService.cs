@@ -6,15 +6,15 @@ namespace Fenicia.Module.Projects.Domains.Project;
 
 public class ProjectService(ProjectRepository repository)
 {
-    public async Task<List<GetAllProjectResponse>> GetAllAsync(GetAllProjectQuery query, CancellationToken ct)
+    public async Task<List<GetAllProjectResponse>> GetAllAsync(GetAllProjectQuery query, CancellationToken cancellationToken = default)
     {
-        var projects = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var projects = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. projects.Select(p => new GetAllProjectResponse(p.Id, p.Title, p.Description, p.Status.ToString(), p.StartDate, p.EndDate, p.Owner, p.CompanyId))];
     }
 
-    public async Task<GetProjectByIdResponse?> GetByIdAsync(GetProjectByIdQuery query, CancellationToken ct)
+    public async Task<GetProjectByIdResponse?> GetByIdAsync(GetProjectByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var project = await repository.GetByIdWithRelationsAsync(query.Id, ct);
+        var project = await repository.GetByIdWithRelationsAsync(query.Id, cancellationToken);
 
         return project switch
         {
@@ -23,7 +23,7 @@ public class ProjectService(ProjectRepository repository)
         };
     }
 
-    public async Task<AddProjectResponse> AddAsync(AddProjectCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddProjectResponse> AddAsync(AddProjectCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var project = new ProjectModel
         {
@@ -37,11 +37,11 @@ public class ProjectService(ProjectRepository repository)
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(project, ct);
+        var created = await repository.InsertAsync(project, cancellationToken);
         return new AddProjectResponse(created.Id, created.Title, created.Description, created.Status.ToString(), created.StartDate, created.EndDate, created.Owner, created.CompanyId);
     }
 
-    public async Task<UpdateProjectResponse?> UpdateAsync(UpdateProjectCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateProjectResponse?> UpdateAsync(UpdateProjectCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var project = new ProjectModel
         {
@@ -55,12 +55,12 @@ public class ProjectService(ProjectRepository repository)
             CompanyId = companyId
         };
 
-        var updated = await repository.UpdateAsync(command.Id, project, ct);
+        var updated = await repository.UpdateAsync(command.Id, project, cancellationToken);
         return updated is null ? null : new UpdateProjectResponse(updated.Id, updated.Title, updated.Description, updated.Status.ToString(), updated.StartDate, updated.EndDate, updated.Owner, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProjectCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

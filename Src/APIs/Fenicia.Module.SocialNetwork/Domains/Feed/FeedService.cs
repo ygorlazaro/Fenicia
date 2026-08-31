@@ -5,15 +5,15 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public class FeedService(FeedRepository repository)
 {
-    public async Task<List<GetAllFeedResponse>> GetAllAsync(GetAllFeedQuery query, CancellationToken ct)
+    public async Task<List<GetAllFeedResponse>> GetAllAsync(GetAllFeedQuery query, CancellationToken cancellationToken = default)
     {
-        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. feeds.Select(f => new GetAllFeedResponse(f.Id, f.Date, f.Text, f.UserId, f.CompanyId, f.Comments.Count, f.Likes.Count, f.Shares.Count))];
     }
 
-    public async Task<GetFeedByIdResponse?> GetByIdAsync(GetFeedByIdQuery query, CancellationToken ct)
+    public async Task<GetFeedByIdResponse?> GetByIdAsync(GetFeedByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var feed = await repository.GetByIdWithRelationsAsync(query.Id, ct);
+        var feed = await repository.GetByIdWithRelationsAsync(query.Id, cancellationToken);
 
         return feed switch
         {
@@ -22,7 +22,7 @@ public class FeedService(FeedRepository repository)
         };
     }
 
-    public async Task<AddFeedResponse> AddAsync(AddFeedCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddFeedResponse> AddAsync(AddFeedCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var model = new FeedModel
         {
@@ -33,13 +33,13 @@ public class FeedService(FeedRepository repository)
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(model, ct);
+        var created = await repository.InsertAsync(model, cancellationToken);
         return new AddFeedResponse(created.Id, created.Date, created.Text, created.UserId, created.CompanyId);
     }
 
-    public async Task<UpdateFeedResponse?> UpdateAsync(UpdateFeedCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateFeedResponse?> UpdateAsync(UpdateFeedCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var existing = await repository.GetByIdAsync(command.Id, ct);
+        var existing = await repository.GetByIdAsync(command.Id, cancellationToken);
         if (existing is null)
         {
             return null;
@@ -49,12 +49,12 @@ public class FeedService(FeedRepository repository)
         existing.Text = command.Text;
         existing.CompanyId = companyId;
 
-        var updated = await repository.UpdateAsync(command.Id, existing, ct);
+        var updated = await repository.UpdateAsync(command.Id, existing, cancellationToken);
         return updated is null ? null : new UpdateFeedResponse(updated.Id, updated.Date, updated.Text, updated.UserId, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteFeedCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteFeedCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

@@ -20,7 +20,7 @@ public class InventoryController(InventoryService inventoryService) : Controller
     /// </summary>
     /// <param name="productId">ID do produto</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do inventário do produto</returns>
     /// <response code="200">Inventário retornado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -30,13 +30,13 @@ public class InventoryController(InventoryService inventoryService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync([FromRoute] Guid productId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync([FromRoute] Guid productId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetByProductAsync(new GetInventoryByProductQuery(productId), ct);
+            var inventory = await inventoryService.GetByProductAsync(new GetInventoryByProductQuery(productId), cancellationToken);
 
             return Ok(inventory);
         }
@@ -51,7 +51,7 @@ public class InventoryController(InventoryService inventoryService) : Controller
     /// </summary>
     /// <param name="categoryId">ID da categoria</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do inventário da categoria</returns>
     /// <response code="200">Inventário retornado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -61,13 +61,13 @@ public class InventoryController(InventoryService inventoryService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetByCategoryAsync(new GetInventoryByCategoryQuery(categoryId), ct);
+            var inventory = await inventoryService.GetByCategoryAsync(new GetInventoryByCategoryQuery(categoryId), cancellationToken);
 
             return Ok(inventory);
         }
@@ -83,7 +83,7 @@ public class InventoryController(InventoryService inventoryService) : Controller
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do inventário</returns>
     /// <response code="200">Inventário retornado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -93,13 +93,13 @@ public class InventoryController(InventoryService inventoryService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetAsync(new GetInventoryQuery(page, perPage), ct);
+            var inventory = await inventoryService.GetAsync(new GetInventoryQuery(page, perPage), cancellationToken);
 
             return Ok(inventory);
         }
@@ -113,7 +113,7 @@ public class InventoryController(InventoryService inventoryService) : Controller
     /// Obtém o dashboard do inventário.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do dashboard do inventário</returns>
     /// <response code="200">Dashboard retornado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -123,13 +123,13 @@ public class InventoryController(InventoryService inventoryService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryDashboardResponse>> GetInventoryDashboardAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<InventoryDashboardResponse>> GetInventoryDashboardAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await inventoryService.GetDashboardAsync(new GetInventoryDashboardQuery(), ct);
+            var dashboard = await inventoryService.GetDashboardAsync(new GetInventoryDashboardQuery(), cancellationToken);
 
             return Ok(dashboard);
         }
@@ -145,7 +145,7 @@ public class InventoryController(InventoryService inventoryService) : Controller
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="zeroMovementDays">Dias sem movimento para considerar produto parado</param>
     /// <param name="overstockMultiplier">Multiplicador para identificar excesso de estoque</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados de saúde do inventário</returns>
     /// <response code="200">Saúde do inventário retornada com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -155,13 +155,13 @@ public class InventoryController(InventoryService inventoryService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryHealthResponse>> GetInventoryHealthAsync(WideEventContext wide, [FromQuery] int zeroMovementDays = 90, [FromQuery] double overstockMultiplier = 3.0, CancellationToken ct)
+    public async Task<ActionResult<InventoryHealthResponse>> GetInventoryHealthAsync(WideEventContext wide, [FromQuery] int zeroMovementDays = 90, [FromQuery] double overstockMultiplier = 3.0, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var health = await inventoryService.GetHealthAsync(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
+            var health = await inventoryService.GetHealthAsync(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), cancellationToken);
 
             return Ok(health);
         }

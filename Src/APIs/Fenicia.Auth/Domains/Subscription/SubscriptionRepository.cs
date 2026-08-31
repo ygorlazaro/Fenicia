@@ -8,7 +8,7 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionRepository(DefaultContext context) : Repository<SubscriptionModel>(context)
 {
-    public async Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(Guid userId, CancellationToken ct)
+    public async Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
 
@@ -16,10 +16,10 @@ public class SubscriptionRepository(DefaultContext context) : Repository<Subscri
             .Where(s => s.Company.UsersRoles.Any(ur => ur.UserId == userId))
             .Where(s => s.Status == SubscriptionStatus.Active && now >= s.StartDate && now <= s.EndDate)
             .Distinct()
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ModuleModel>> GetSubscriptionModulesAsync(Guid subscriptionId, CancellationToken ct)
+    public async Task<List<ModuleModel>> GetSubscriptionModulesAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
 
@@ -29,6 +29,6 @@ public class SubscriptionRepository(DefaultContext context) : Repository<Subscri
             .Where(sc => sc.IsActive && now >= sc.StartDate && now <= sc.EndDate)
             .Select(sc => sc.Module)
             .Distinct()
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

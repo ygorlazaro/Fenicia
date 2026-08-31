@@ -24,7 +24,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of project statuses</returns>
     /// <response code="200">List of project statuses returned successfully</response>
     /// <response code="400">Invalid pagination parameters</response>
@@ -35,11 +35,11 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectStatusResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var statuses = await projectStatusService.GetAllAsync(new GetAllProjectStatusQuery(page, perPage), ct);
+        var statuses = await projectStatusService.GetAllAsync(new GetAllProjectStatusQuery(page, perPage), cancellationToken);
 
         return Ok(statuses);
     }
@@ -49,7 +49,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     /// </summary>
     /// <param name="id">Project status ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Project status data</returns>
     /// <response code="200">Project status found</response>
     /// <response code="400">Invalid ID</response>
@@ -62,11 +62,11 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.GetByIdAsync(new GetProjectStatusByIdQuery(id), ct);
+        var status = await projectStatusService.GetByIdAsync(new GetProjectStatusByIdQuery(id), cancellationToken);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -76,7 +76,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     /// </summary>
     /// <param name="command">Project status data</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created project status</returns>
     /// <response code="201">Project status created successfully</response>
     /// <response code="400">Invalid payload</response>
@@ -91,11 +91,11 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectStatusResponse>> PostAsync([FromBody] AddProjectStatusCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddProjectStatusResponse>> PostAsync([FromBody] AddProjectStatusCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.AddAsync(command, ClaimReader.UserId(User), ct);
+        var status = await projectStatusService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, status);
     }
@@ -106,7 +106,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     /// <param name="command">Updated project status data</param>
     /// <param name="id">Project status ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Updated project status</returns>
     /// <response code="200">Project status updated successfully</response>
     /// <response code="400">Invalid payload</response>
@@ -123,11 +123,11 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectStatusResponse>> PatchAsync([FromBody] UpdateProjectStatusCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateProjectStatusResponse>> PatchAsync([FromBody] UpdateProjectStatusCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
+        var status = await projectStatusService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -137,7 +137,7 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     /// </summary>
     /// <param name="id">Project status ID</param>
     /// <param name="wide">Wide event context</param>
-    /// <param name="ct">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <response code="204">Project status deleted successfully</response>
     /// <response code="401">User not authenticated</response>
     /// <response code="403">User not authorized to delete project statuses</response>
@@ -148,11 +148,11 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await projectStatusService.DeleteAsync(new DeleteProjectStatusCommand(id), ct);
+        await projectStatusService.DeleteAsync(new DeleteProjectStatusCommand(id), cancellationToken);
 
         return NoContent();
     }

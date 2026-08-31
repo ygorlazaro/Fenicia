@@ -80,7 +80,7 @@ public class BlockControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.BlockAsync(It.IsAny<BlockCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((BlockCommand cmd, Guid userId, CancellationToken ct) => new AddBlockResponse(Guid.NewGuid(), userId, cmd.BlockedUserId, DateTime.UtcNow, null, true));
+            .ReturnsAsync((BlockCommand cmd, Guid userId, CancellationToken cancellationToken) => new AddBlockResponse(Guid.NewGuid(), userId, cmd.BlockedUserId, DateTime.UtcNow, null, true));
 
         _mockService.Setup(s => s.GetBlockedAsync(It.IsAny<GetBlockedQuery>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Pagination<List<GetBlockedResponse>>(new List<GetBlockedResponse>(), 0, 1, 10));

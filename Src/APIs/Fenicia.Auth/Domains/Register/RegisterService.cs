@@ -6,10 +6,10 @@ namespace Fenicia.Auth.Domains.Register;
 
 public class RegisterService(UserService userService)
 {
-    public async Task<RegisterResponse> CreateAsync(RegisterCommand request, CancellationToken ct)
+    public async Task<RegisterResponse> CreateAsync(RegisterCommand request, CancellationToken cancellationToken = default)
     {
         var command = new CreateNewUserCommand(request.Email, request.Password, request.Name, request.Company);
-        var user = await userService.CreateNewAsync(command, ct);
+        var user = await userService.CreateNewAsync(command, cancellationToken);
 
         return user.MapToRegisterResponse();
     }

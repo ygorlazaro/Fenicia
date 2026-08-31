@@ -19,7 +19,7 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
     /// Gera um novo refresh token para o usuário autenticado.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Token de atualização gerado</returns>
     /// <response code="201">Refresh token gerado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -29,13 +29,13 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<GenerateRefreshTokenResponse>> PostAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GenerateRefreshTokenResponse>> PostAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
             var userId = ClaimReader.UserId(User);
-            var token = await refreshTokenService.GenerateAsync(userId, ct);
+            var token = await refreshTokenService.GenerateAsync(userId, cancellationToken);
 
             return new CreatedResult(string.Empty, new GenerateRefreshTokenResponse(token, DateTime.UtcNow.AddDays(7)));
         }
@@ -50,7 +50,7 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da validação com dados do token</returns>
     /// <response code="200">Token válido</response>
     /// <response code="400">Refresh token inválido ou nulo</response>
@@ -62,15 +62,15 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ValidateTokenResponse>> GetAsync([FromRoute] string token, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<ValidateTokenResponse>> GetAsync([FromRoute] string token, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var isValid = await refreshTokenService.ValidateAsync(userId, token, ct);
-            var tokenData = await refreshTokenService.GetAsync(token, ct);
+            var isValid = await refreshTokenService.ValidateAsync(userId, token, cancellationToken);
+            var tokenData = await refreshTokenService.GetAsync(token, cancellationToken);
 
             if (tokenData is null)
             {
@@ -95,7 +95,7 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
     /// <param name="token">Valor do refresh token</param>
     /// <param name="command">Comando com o refresh token a ser invalidado</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se invalidado com sucesso</returns>
     /// <response code="204">Refresh token invalidado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -106,13 +106,13 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PatchAsync([FromRoute] string token, [FromBody] UpdateRefreshTokenCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync([FromRoute] string token, [FromBody] UpdateRefreshTokenCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await refreshTokenService.UpdateAsync(token, command.IsActive, ct);
+            await refreshTokenService.UpdateAsync(token, command.IsActive, cancellationToken);
 
             return NoContent();
         }

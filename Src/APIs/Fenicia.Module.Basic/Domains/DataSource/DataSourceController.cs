@@ -19,7 +19,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// Obtém a lista de cargos para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de cargos</returns>
     /// <response code="200">Lista de cargos retornada com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -29,13 +29,13 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await dataSourceService.GetPositionsAsync(ct);
+            var positions = await dataSourceService.GetPositionsAsync(cancellationToken);
 
             return Ok(positions);
         }
@@ -49,7 +49,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// Obtém a lista de categorias de produtos para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de categorias de produtos</returns>
     /// <response code="200">Lista de categorias retornada com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -59,13 +59,13 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var categories = await dataSourceService.GetProductCategoriesAsync(ct);
+            var categories = await dataSourceService.GetProductCategoriesAsync(cancellationToken);
 
             return Ok(categories);
         }
@@ -79,7 +79,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// Obtém a lista de fornecedores para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de fornecedores</returns>
     /// <response code="200">Lista de fornecedores retornada com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -89,13 +89,13 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await dataSourceService.GetSuppliersAsync(ct);
+            var suppliers = await dataSourceService.GetSuppliersAsync(cancellationToken);
 
             return Ok(suppliers);
         }
@@ -109,7 +109,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// Obtém a lista de clientes para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de clientes</returns>
     /// <response code="200">Lista de clientes retornada com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -119,13 +119,13 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customers = await dataSourceService.GetCustomersAsync(ct);
+            var customers = await dataSourceService.GetCustomersAsync(cancellationToken);
 
             return Ok(customers);
         }
@@ -139,7 +139,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// Obtém a lista de produtos para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de produtos</returns>
     /// <response code="200">Lista de produtos retornada com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -149,13 +149,13 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await dataSourceService.GetProductsAsync(ct);
+            var products = await dataSourceService.GetProductsAsync(cancellationToken);
 
             return Ok(products);
         }
@@ -169,7 +169,7 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     /// Obtém a lista de funcionários para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de funcionários</returns>
     /// <response code="200">Lista de funcionários retornada com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -179,13 +179,13 @@ public class DataSourceController(DataSourceService dataSourceService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await dataSourceService.GetEmployeesAsync(ct);
+            var employees = await dataSourceService.GetEmployeesAsync(cancellationToken);
 
             return Ok(employees);
         }

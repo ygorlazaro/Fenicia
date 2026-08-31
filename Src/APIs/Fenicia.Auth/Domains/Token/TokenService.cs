@@ -21,15 +21,15 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
     {
     }
 
-    public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken ct)
+    public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken cancellationToken = default)
     {
         var attempts = ValidateAttempts(query);
-        var user = await userService.FirstByEmailOrDefaultAsync(query.Email, ct);
+        var user = await userService.FirstByEmailOrDefaultAsync(query.Email, cancellationToken);
 
         if (user is null)
         {
-            await loginAttemptService.IncrementAsync(query.Email, ct);
-            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
+            await loginAttemptService.IncrementAsync(query.Email, cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
         }
@@ -38,13 +38,13 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
 
         if (isValidPassword)
         {
-            await loginAttemptService.ResetAsync(query.Email, ct);
+            await loginAttemptService.ResetAsync(query.Email, cancellationToken);
 
             return new GenerateTokenResponse(user.Id, user.Name, user.Email);
         }
 
-        await loginAttemptService.IncrementAsync(query.Email, ct);
-        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
+        await loginAttemptService.IncrementAsync(query.Email, cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
     }

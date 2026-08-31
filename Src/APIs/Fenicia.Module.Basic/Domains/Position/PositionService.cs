@@ -19,27 +19,27 @@ public class PositionService
         _positionRepository = positionRepository;
     }
 
-    public virtual async Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(GetAllPositionQuery query, CancellationToken ct)
+    public virtual async Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(GetAllPositionQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _positionRepository.CountAsync(ct);
+        var total = await _positionRepository.CountAsync(cancellationToken);
 
         var positions = await _positionRepository.Query()
             .Select(p => p.MapToGetAllPositionResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
 
         return new Pagination<List<GetAllPositionResponse>>(positions, total, query.Page, query.PerPage);
     }
 
-    public virtual async Task<GetPositionByIdResponse?> GetByIdAsync(GetPositionByIdQuery query, CancellationToken ct)
+    public virtual async Task<GetPositionByIdResponse?> GetByIdAsync(GetPositionByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var position = await _positionRepository.GetByIdAsync(query.Id, ct);
+        var position = await _positionRepository.GetByIdAsync(query.Id, cancellationToken);
 
         return position is null ? null : position.MapToGetPositionByIdResponse();
     }
 
-    public virtual async Task<AddPositionResponse> AddAsync(AddPositionCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<AddPositionResponse> AddAsync(AddPositionCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var position = new PositionModel
         {
@@ -48,14 +48,14 @@ public class PositionService
             CompanyId = companyId
         };
 
-        await _positionRepository.InsertAsync(position, ct);
+        await _positionRepository.InsertAsync(position, cancellationToken);
 
         return position.MapToAddPositionResponse();
     }
 
-    public virtual async Task<UpdatePositionResponse?> UpdateAsync(UpdatePositionCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<UpdatePositionResponse?> UpdateAsync(UpdatePositionCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var position = await _positionRepository.GetByIdAsync(command.Id, ct);
+        var position = await _positionRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (position is null)
         {
@@ -65,13 +65,13 @@ public class PositionService
         position.Name = command.Name;
         position.CompanyId = companyId;
 
-        await _positionRepository.UpdateAsync(command.Id, position, ct);
+        await _positionRepository.UpdateAsync(command.Id, position, cancellationToken);
 
         return position.MapToUpdatePositionResponse();
     }
 
-    public virtual async Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _positionRepository.DeleteAsync(command.Id, ct);
+        await _positionRepository.DeleteAsync(command.Id, cancellationToken);
     }
 }

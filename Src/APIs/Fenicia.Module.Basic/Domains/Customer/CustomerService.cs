@@ -43,27 +43,27 @@ public class CustomerService
         _productService = productService;
     }
 
-    public virtual async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken ct)
+    public virtual async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _customerRepository.CountAsync(ct);
+        var total = await _customerRepository.CountAsync(cancellationToken);
 
-        var customers = await _customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, ct);
+        var customers = await _customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
 
         var response = customers.Select(c => c.MapToGetAllCustomerResponse()).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
     }
 
-    public virtual async Task<List<GetAllCustomerForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllCustomerForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken cancellationToken = default)
     {
-        var customers = await _customerRepository.GetAllWithDetailsAsync(ct: ct);
+        var customers = await _customerRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
         return [.. customers.Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name))];
     }
 
-    public virtual async Task<GetCustomerByIdResponse?> GetByIdAsync(GetCustomerByIdQuery query, CancellationToken ct)
+    public virtual async Task<GetCustomerByIdResponse?> GetByIdAsync(GetCustomerByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var customer = await _customerRepository.GetByIdWithDetailsAsync(query.Id, ct);
+        var customer = await _customerRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
         if (customer == null)
         {
@@ -73,7 +73,7 @@ public class CustomerService
         return customer.MapToGetCustomerByIdResponse();
     }
 
-    public virtual async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<AddCustomerResponse> AddAsync(AddCustomerCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var person = new PersonModel
         {
@@ -87,7 +87,7 @@ public class CustomerService
         if (command.Address != null)
         {
             var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
-            var createdAddress = await _addressService.AddAsync(addressCommand, ct);
+            var createdAddress = await _addressService.AddAsync(addressCommand, cancellationToken);
 
             var personAddress = new PersonAddressModel
             {
@@ -95,7 +95,7 @@ public class CustomerService
                 PersonId = person.Id,
                 AddressId = createdAddress.Id
             };
-            await _personAddressService.InsertAsync(personAddress, companyId, ct);
+            await _personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
         }
 
         var customer = new CustomerModel
@@ -104,15 +104,15 @@ public class CustomerService
             PersonId = person.Id
         };
 
-        await _personService.InsertAsync(person, companyId, ct);
-        var created = await _customerRepository.InsertAsync(customer, ct);
+        await _personService.InsertAsync(person, companyId, cancellationToken);
+        var created = await _customerRepository.InsertAsync(customer, cancellationToken);
 
         return new AddCustomerResponse(created.Id, person.Id);
     }
 
-    public virtual async Task<UpdateCustomerResponse?> UpdateAsync(UpdateCustomerCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<UpdateCustomerResponse?> UpdateAsync(UpdateCustomerCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var customer = await _customerRepository.GetByIdWithDetailsAsync(command.Id, ct);
+        var customer = await _customerRepository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
 
         if (customer is null)
         {
@@ -131,12 +131,12 @@ public class CustomerService
             if (existingPersonAddress?.Address != null)
             {
                 var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
-                await _addressService.UpdateAsync(existingPersonAddress.Address.Id, addressCommand, ct);
+                await _addressService.UpdateAsync(existingPersonAddress.Address.Id, addressCommand, cancellationToken);
             }
             else
             {
                 var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
-                var createdAddress = await _addressService.AddAsync(addressCommand, ct);
+                var createdAddress = await _addressService.AddAsync(addressCommand, cancellationToken);
 
                 var newPersonAddress = new PersonAddressModel
                 {
@@ -144,26 +144,26 @@ public class CustomerService
                     PersonId = customer.PersonId,
                     AddressId = createdAddress.Id
                 };
-                await _personAddressService.InsertAsync(newPersonAddress, companyId, ct);
+                await _personAddressService.InsertAsync(newPersonAddress, companyId, cancellationToken);
             }
         }
 
-        await _personService.UpdateAsync(customer.Person.Id, customer.Person, companyId, ct);
-        var updated = await _customerRepository.UpdateAsync(command.Id, customer, ct) ?? throw new ItemNotExistsException();
+        await _personService.UpdateAsync(customer.Person.Id, customer.Person, companyId, cancellationToken);
+        var updated = await _customerRepository.UpdateAsync(command.Id, customer, cancellationToken) ?? throw new ItemNotExistsException();
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
 
-    public virtual async Task DeleteAsync(DeleteCustomerCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task DeleteAsync(DeleteCustomerCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _customerRepository.DeleteAsync(command.Id, ct);
+        await _customerRepository.DeleteAsync(command.Id, cancellationToken);
     }
 
-    public virtual async Task<CustomerInsightsResponse> GetInsightsAsync(GetCustomerInsightsQuery query, CancellationToken ct)
+    public virtual async Task<CustomerInsightsResponse> GetInsightsAsync(GetCustomerInsightsQuery query, CancellationToken cancellationToken = default)
     {
-        var summary = await GetSummaryAsync(ct);
-        var topCustomers = await GetTopCustomersAsync(query.TopLimit, ct);
-        var recentOrders = await GetRecentOrdersAsync(query.TopLimit, ct);
-        var atRiskCustomers = await GetAtRiskCustomersAsync(query, ct);
+        var summary = await GetSummaryAsync(cancellationToken);
+        var topCustomers = await GetTopCustomersAsync(query.TopLimit, cancellationToken);
+        var recentOrders = await GetRecentOrdersAsync(query.TopLimit, cancellationToken);
+        var atRiskCustomers = await GetAtRiskCustomersAsync(query, cancellationToken);
 
         return new CustomerInsightsResponse
         {
@@ -174,15 +174,15 @@ public class CustomerService
         };
     }
 
-    public virtual async Task<int> GetCountAsync(CancellationToken ct)
+    public virtual async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _customerRepository.CountAsync(ct);
+        return await _customerRepository.CountAsync(cancellationToken);
     }
 
-    private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(GetCustomerInsightsQuery query, CancellationToken ct)
+    private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(GetCustomerInsightsQuery query, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        var orders = await _orderService.GetAtRiskOrdersAsync(ct);
+        var orders = await _orderService.GetAtRiskOrdersAsync(cancellationToken);
 
         var response = orders.GroupBy(o => o.CustomerId).Select(g =>
         {
@@ -196,31 +196,31 @@ public class CustomerService
         return response;
     }
 
-    private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
+    private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(int topLimit, CancellationToken cancellationToken = default)
     {
-        var orders = await _orderService.GetRecentOrdersAsync(topLimit, ct);
+        var orders = await _orderService.GetRecentOrdersAsync(topLimit, cancellationToken);
 
         var response = orders.Take(topLimit).Select(o => new CustomerRecentOrdersResponse(o.Id, o.CustomerId, o.Customer.Person.Name, o.TotalAmount, o.SaleDate, o.Status.ToString(), o.Details.Sum(d => (int)d.Quantity))).ToList();
 
         return response;
     }
 
-    private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(int topLimit, CancellationToken ct)
+    private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(int topLimit, CancellationToken cancellationToken = default)
     {
-        var orders = await _orderService.GetTopCustomerOrdersAsync(ct);
+        var orders = await _orderService.GetTopCustomerOrdersAsync(cancellationToken);
 
         var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g => new CustomerOrderHistoryResponse(g.Key.CustomerId, g.Key.CustomerName, g.Count(), g.Sum(o => o.TotalAmount), g.Sum(o => o.Details.Sum(d => (int)d.Quantity)), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate), g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent).Take(topLimit).ToList();
 
         return response;
     }
 
-    private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken ct)
+    private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken cancellationToken = default)
     {
-        var totalCustomers = await _customerRepository.CountAsync(ct);
-        var totalOrders = await _orderService.GetTotalOrdersCountAsync(ct);
-        var totalRevenue = await _orderService.GetTotalRevenueAsync(ct);
-        var totalProducts = await _productService.GetTotalProductsAsync(ct);
-        var totalCost = await _orderService.GetTotalCostAsync(ct);
+        var totalCustomers = await _customerRepository.CountAsync(cancellationToken);
+        var totalOrders = await _orderService.GetTotalOrdersCountAsync(cancellationToken);
+        var totalRevenue = await _orderService.GetTotalRevenueAsync(cancellationToken);
+        var totalProducts = await _productService.GetTotalProductsAsync(cancellationToken);
+        var totalCost = await _orderService.GetTotalCostAsync(cancellationToken);
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;

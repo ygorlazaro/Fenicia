@@ -20,7 +20,7 @@ public class StateController(StateService stateService) : ControllerBase
     /// Obtém a lista de estados.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de estados</returns>
     /// <response code="200">Lista de estados retornada com sucesso</response>
     /// <response code="400">Requisição inválida</response>
@@ -32,13 +32,13 @@ public class StateController(StateService stateService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var states = await stateService.GetAllAsync(new GetAllStateQuery(), ct);
+            var states = await stateService.GetAllAsync(new GetAllStateQuery(), cancellationToken);
 
             return Ok(states);
         }

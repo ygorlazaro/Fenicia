@@ -6,15 +6,15 @@ namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
 public class ProjectTaskService(ProjectTaskRepository repository)
 {
-    public async Task<List<GetAllProjectTaskResponse>> GetAllAsync(GetAllProjectTaskQuery query, CancellationToken ct)
+    public async Task<List<GetAllProjectTaskResponse>> GetAllAsync(GetAllProjectTaskQuery query, CancellationToken cancellationToken = default)
     {
-        var tasks = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var tasks = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. tasks.Select(pt => new GetAllProjectTaskResponse(pt.Id, pt.ProjectId, pt.StatusId, pt.Title, pt.Description, pt.Priority.ToString(), pt.Type.ToString(), pt.Order, pt.EstimatePoints, pt.DueDate, pt.CreatedBy, pt.CompanyId))];
     }
 
-    public async Task<GetProjectTaskByIdResponse?> GetByIdAsync(GetProjectTaskByIdQuery query, CancellationToken ct)
+    public async Task<GetProjectTaskByIdResponse?> GetByIdAsync(GetProjectTaskByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var projectTask = await repository.GetByIdWithRelationsAsync(query.Id, ct);
+        var projectTask = await repository.GetByIdWithRelationsAsync(query.Id, cancellationToken);
 
         return projectTask switch
         {
@@ -23,7 +23,7 @@ public class ProjectTaskService(ProjectTaskRepository repository)
         };
     }
 
-    public async Task<AddProjectTaskResponse> AddAsync(AddProjectTaskCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddProjectTaskResponse> AddAsync(AddProjectTaskCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var projectTask = new ProjectTaskModel
         {
@@ -41,11 +41,11 @@ public class ProjectTaskService(ProjectTaskRepository repository)
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(projectTask, ct);
+        var created = await repository.InsertAsync(projectTask, cancellationToken);
         return new AddProjectTaskResponse(created.Id, created.ProjectId, created.StatusId, created.Title, created.Description, created.Priority.ToString(), created.Type.ToString(), created.Order, created.EstimatePoints, created.DueDate, created.CreatedBy, created.CompanyId);
     }
 
-    public async Task<UpdateProjectTaskResponse?> UpdateAsync(UpdateProjectTaskCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateProjectTaskResponse?> UpdateAsync(UpdateProjectTaskCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var projectTask = new ProjectTaskModel
         {
@@ -63,12 +63,12 @@ public class ProjectTaskService(ProjectTaskRepository repository)
             CompanyId = companyId
         };
 
-        var updated = await repository.UpdateAsync(command.Id, projectTask, ct);
+        var updated = await repository.UpdateAsync(command.Id, projectTask, cancellationToken);
         return updated is null ? null : new UpdateProjectTaskResponse(updated.Id, updated.ProjectId, updated.StatusId, updated.Title, updated.Description, updated.Priority.ToString(), updated.Type.ToString(), updated.Order, updated.EstimatePoints, updated.DueDate, updated.CreatedBy, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectTaskCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProjectTaskCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

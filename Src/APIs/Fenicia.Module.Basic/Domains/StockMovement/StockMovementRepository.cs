@@ -7,14 +7,14 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementRepository(DefaultContext context) : Repository<StockMovementModel>(context), IStockMovementRepository
 {
-    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct)
+    public async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default)
     {
         var ids = productIds.ToList();
         return await DbSet
@@ -25,10 +25,10 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
                 ProductId = g.Key,
                 LastDate = g.OrderByDescending(m => m.Date).Select(m => m.Date).FirstOrDefault()
             })
-            .ToDictionaryAsync(k => k.ProductId, v => v.LastDate, ct);
+            .ToDictionaryAsync(k => k.ProductId, v => v.LastDate, cancellationToken);
     }
 
-    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10, CancellationToken ct)
+    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate)
@@ -38,23 +38,23 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
             .Include(m => m.Employee!).ThenInclude(e => e.Person)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsForDashboardAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsForDashboardAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate)
             .Include(m => m.Product).ThenInclude(p => p.Category)
             .Include(m => m.Customer!).ThenInclude(c => c.Person)
             .Include(m => m.Supplier!).ThenInclude(s => s.Person)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct)
+    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

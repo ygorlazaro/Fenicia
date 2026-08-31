@@ -9,16 +9,16 @@ public class ProfileService(IProfileRepository profileRepository)
     {
     }
 
-    public virtual async Task<GetProfileByIdResponse?> GetByIdAsync(GetProfileByIdQuery query, CancellationToken ct)
+    public virtual async Task<GetProfileByIdResponse?> GetByIdAsync(GetProfileByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var profile = await profileRepository.GetByIdAsync(query.Id, ct);
+        var profile = await profileRepository.GetByIdAsync(query.Id, cancellationToken);
 
         return profile is null ? null : new GetProfileByIdResponse(profile.Id, profile.UserId, profile.Bio, profile.ImageUrl, profile.Website, profile.Location, profile.Phone, profile.BirthDate);
     }
 
-    public virtual async Task<UpdateProfileResponse?> UpdateAsync(UpdateProfileCommand command, Guid userId, CancellationToken ct)
+    public virtual async Task<UpdateProfileResponse?> UpdateAsync(UpdateProfileCommand command, Guid userId, CancellationToken cancellationToken = default)
     {
-        var profile = await profileRepository.GetByIdAsync(command.Id, ct);
+        var profile = await profileRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (profile is null)
         {
@@ -32,7 +32,7 @@ public class ProfileService(IProfileRepository profileRepository)
         profile.Phone = command.Phone;
         profile.BirthDate = command.BirthDate;
 
-        await profileRepository.UpdateAsync(command.Id, profile, ct);
+        await profileRepository.UpdateAsync(command.Id, profile, cancellationToken);
 
         return new UpdateProfileResponse(profile.Id, profile.UserId, profile.Bio, profile.ImageUrl, profile.Website, profile.Location, profile.Phone, profile.BirthDate);
     }

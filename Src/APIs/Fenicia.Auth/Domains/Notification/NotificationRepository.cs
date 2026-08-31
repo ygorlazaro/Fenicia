@@ -8,7 +8,7 @@ namespace Fenicia.Auth.Domains.Notification;
 
 public class NotificationRepository(DefaultContext context) : Repository<NotificationModel>(context)
 {
-    public async Task<Pagination<List<NotificationModel>>> GetAllWithPaginationAsync(int page, int perPage, CancellationToken cancellationToken)
+    public async Task<Pagination<List<NotificationModel>>> GetAllWithPaginationAsync(int page, int perPage, CancellationToken cancellationToken = default)
     {
         var query = from n in DbSet
                     orderby n.Date descending

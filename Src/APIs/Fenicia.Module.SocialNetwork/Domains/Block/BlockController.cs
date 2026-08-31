@@ -24,7 +24,7 @@ public class BlockController(BlockService blockService) : ControllerBase
     /// </summary>
     /// <param name="command">Dados do usuário a ser bloqueado</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Bloqueio criado ou reativado</returns>
     /// <response code="201">Bloqueio criado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
@@ -38,11 +38,11 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddBlockResponse>> BlockAsync([FromBody] BlockCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddBlockResponse>> BlockAsync([FromBody] BlockCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var block = await blockService.BlockAsync(command, ClaimReader.UserId(User), ct);
+        var block = await blockService.BlockAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, block);
     }
@@ -52,7 +52,7 @@ public class BlockController(BlockService blockService) : ControllerBase
     /// </summary>
     /// <param name="blockedUserId">ID do usuário a ser desbloqueado</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <response code="204">Bloqueio removido com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="403">Usuário não autorizado a desbloquear</response>
@@ -64,11 +64,11 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> UnblockAsync([FromRoute] Guid blockedUserId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> UnblockAsync([FromRoute] Guid blockedUserId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await blockService.UnblockAsync(new UnblockCommand(blockedUserId), ClaimReader.UserId(User), ct);
+        await blockService.UnblockAsync(new UnblockCommand(blockedUserId), ClaimReader.UserId(User), cancellationToken);
 
         return NoContent();
     }
@@ -80,7 +80,7 @@ public class BlockController(BlockService blockService) : ControllerBase
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de usuários bloqueados</returns>
     /// <response code="200">Lista de usuários bloqueados retornada com sucesso</response>
     /// <response code="400">ID inválido</response>
@@ -92,11 +92,11 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetBlockedResponse>>>> GetBlockedAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetBlockedResponse>>>> GetBlockedAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await blockService.GetBlockedAsync(new GetBlockedQuery(page, perPage), userId, ct);
+        var result = await blockService.GetBlockedAsync(new GetBlockedQuery(page, perPage), userId, cancellationToken);
 
         return Ok(result);
     }
@@ -107,7 +107,7 @@ public class BlockController(BlockService blockService) : ControllerBase
     /// <param name="userId">ID do usuário</param>
     /// <param name="blockedUserId">ID do usuário bloqueado</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Verdadeiro se está bloqueando</returns>
     /// <response code="200">Verificação realizada com sucesso</response>
     /// <response code="400">ID inválido</response>
@@ -119,11 +119,11 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<bool>> IsBlockedAsync([FromRoute] Guid userId, [FromRoute] Guid blockedUserId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<bool>> IsBlockedAsync([FromRoute] Guid userId, [FromRoute] Guid blockedUserId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await blockService.IsBlockedAsync(new IsBlockedQuery(blockedUserId), userId, ct);
+        var result = await blockService.IsBlockedAsync(new IsBlockedQuery(blockedUserId), userId, cancellationToken);
 
         return Ok(result);
     }

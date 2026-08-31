@@ -21,7 +21,7 @@ public class TokenController(TokenService tokenService) : ControllerBase
     /// </summary>
     /// <param name="request">Query com e-mail e senha</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Token JWT e refresh token</returns>
     /// <response code="201">Token gerado com sucesso</response>
     /// <response code="400">E-mail ou senha inválidos, senha vazia ou muitas tentativas</response>
@@ -34,15 +34,15 @@ public class TokenController(TokenService tokenService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<TokenResponse>> PostAsync(GenerateTokenQuery request, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<TokenResponse>> PostAsync(GenerateTokenQuery request, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = request.Email;
 
-            var userResponse = await tokenService.GenerateAsync(request, ct);
+            var userResponse = await tokenService.GenerateAsync(request, cancellationToken);
 
-            return await PopulateTokenAsync(userResponse, ct);
+            return await PopulateTokenAsync(userResponse, cancellationToken);
         }
         catch (PermissionDeniedException ex)
         {
@@ -62,7 +62,7 @@ public class TokenController(TokenService tokenService) : ControllerBase
         }
     }
 
-    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(GenerateTokenResponse user, CancellationToken ct)
+    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(GenerateTokenResponse user, CancellationToken cancellationToken = default)
     {
         var token = tokenService.GenerateString(user);
         var response = token.MapToTokenResponse(string.Empty, user);

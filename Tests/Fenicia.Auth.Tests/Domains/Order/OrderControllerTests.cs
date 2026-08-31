@@ -79,13 +79,13 @@ public class OrderControllerTests : IDisposable
     public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ReturnsForbid()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
         var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
         var headers = new Headers { CompanyId = _testCompanyId };
 
-        var result = await _controller.CreateNewOrderAsync(command, headers, wide, ct);
+        var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -94,7 +94,7 @@ public class OrderControllerTests : IDisposable
     public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ThrowsItemNotExistsException()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -129,7 +129,7 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
         var headers = new Headers { CompanyId = _testCompanyId };
 
-        var result = await _controller.CreateNewOrderAsync(command, headers, wide, ct);
+        var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
         Assert.IsType<NotFoundObjectResult>(result.Result);
     }
@@ -138,7 +138,7 @@ public class OrderControllerTests : IDisposable
     public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsOkWithOrder()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
         var module = new ModuleModel
@@ -183,7 +183,7 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
         var headers = new Headers { CompanyId = _testCompanyId };
 
-        var result = await _controller.CreateNewOrderAsync(command, headers, wide, ct);
+        var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
@@ -198,7 +198,7 @@ public class OrderControllerTests : IDisposable
         Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
 
-        var createdOrder = await _db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
+        var createdOrder = await _db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, cancellationToken);
         Assert.NotNull(createdOrder);
 
         Assert.Equal(_testUserId, createdOrder.UserId);
@@ -209,7 +209,7 @@ public class OrderControllerTests : IDisposable
     public async Task CreateNewOrderAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
         var module = new ModuleModel
@@ -254,7 +254,7 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
         var headers = new Headers { CompanyId = _testCompanyId };
 
-        await _controller.CreateNewOrderAsync(command, headers, wide, ct);
+        await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }

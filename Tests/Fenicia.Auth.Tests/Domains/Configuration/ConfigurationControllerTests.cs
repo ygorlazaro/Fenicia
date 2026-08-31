@@ -51,10 +51,10 @@ public class ConfigurationControllerTests : IDisposable
     public async Task GetAsync_WhenUserHasNoConfigurations_ReturnsOkWithEmptyList()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var companyId = _db.CurrentCompanyId ?? Guid.Empty;
 
-        var result = await _controller.GetAsync(companyId, wide, ct);
+        var result = await _controller.GetAsync(companyId, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -96,9 +96,9 @@ public class ConfigurationControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAsync(companyId, wide, ct);
+        var result = await _controller.GetAsync(companyId, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -141,9 +141,9 @@ public class ConfigurationControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAsync(companyId, wide, ct);
+        var result = await _controller.GetAsync(companyId, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -163,10 +163,10 @@ public class ConfigurationControllerTests : IDisposable
     public async Task GetAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var companyId = _db.CurrentCompanyId ?? Guid.Empty;
 
-        await _controller.GetAsync(companyId, wide, ct);
+        await _controller.GetAsync(companyId, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -175,11 +175,11 @@ public class ConfigurationControllerTests : IDisposable
     public async Task PatchAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -208,11 +208,11 @@ public class ConfigurationControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -229,11 +229,11 @@ public class ConfigurationControllerTests : IDisposable
     {
         var companyId = _db.CurrentCompanyId ?? Guid.Empty;
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -250,11 +250,11 @@ public class ConfigurationControllerTests : IDisposable
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, ct);
+        await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
