@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 
 public record AddProductCategoryCommand(
 
-    Guid Id,
+    [Required] Guid Id,
 
-    string Name);
+    [Required][MaxLength(200)] string Name);

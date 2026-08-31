@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.Token.DTOs;
 
-public record TokenResponse(string AccessToken, string RefreshToken, UserResponse User);
+public record TokenResponse([Required][MaxLength(200)] string AccessToken, [Required][MaxLength(200)] string RefreshToken, UserResponse User);

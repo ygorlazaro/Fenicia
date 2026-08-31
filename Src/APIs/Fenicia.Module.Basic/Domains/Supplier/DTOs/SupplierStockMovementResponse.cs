@@ -1,17 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.DTOs;
 
 public record SupplierStockMovementResponse(
 
-    Guid MovementId,
+    [Required] Guid MovementId,
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
-    string ProductName,
+    [Required][MaxLength(200)] string ProductName,
 
     double Quantity,
 
     decimal Price,
 
-    DateTime Date,
+    [Required] DateTime Date,
 
-    string MovementType);
+    [Required][MaxLength(200)] string MovementType);

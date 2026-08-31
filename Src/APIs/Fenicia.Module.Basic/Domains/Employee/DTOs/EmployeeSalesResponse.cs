@@ -1,12 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Employee.DTOs;
 
 public record EmployeeSalesResponse(
 
-    Guid EmployeeId,
+    [Required] Guid EmployeeId,
 
-    string EmployeeName,
+    [Required][MaxLength(200)] string EmployeeName,
 
-    string PositionName,
+    [Required][MaxLength(200)] string PositionName,
 
     decimal TotalSales,
 

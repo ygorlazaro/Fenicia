@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Inventory.DTOs;
 
 public record CategoryBreakdownResponse(
 
-    Guid CategoryId,
+    [Required] Guid CategoryId,
 
-    string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
 
     decimal TotalCostValue,
 

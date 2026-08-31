@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
 
-public record UnfollowCommand(Guid TargetUserId);
+public record UnfollowCommand(
+    [Required] Guid TargetUserId);

@@ -1,3 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Report.DTOs;
 
-public record UpdateReportResponse(Guid Id, string Status);
+public record UpdateReportResponse(
+    [Required] Guid Id,
+    [Required][MaxLength(200)] string Status);

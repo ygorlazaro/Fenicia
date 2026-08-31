@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 public record MonthlyInOutResponse(
 
-    string Month,
+    [Required][MaxLength(200)] string Month,
 
     double TotalIn,
 

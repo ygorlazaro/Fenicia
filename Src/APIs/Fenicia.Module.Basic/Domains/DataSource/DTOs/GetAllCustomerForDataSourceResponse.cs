@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.DataSource.DTOs;
 
-public record GetAllCustomerForDataSourceResponse(Guid Id, string Name);
+public record GetAllCustomerForDataSourceResponse([Required] Guid Id, [Required][MaxLength(200)] string Name);

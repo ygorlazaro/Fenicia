@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.DTOs;
 
 public record ProductSupplierPriceResponse(
 
-    Guid SupplierId,
+    [Required] Guid SupplierId,
 
-    string SupplierName,
+    [Required][MaxLength(200)] string SupplierName,
 
     decimal CostPrice,
 

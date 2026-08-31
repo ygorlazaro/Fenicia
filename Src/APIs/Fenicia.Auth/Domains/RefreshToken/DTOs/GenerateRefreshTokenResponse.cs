@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.RefreshToken.DTOs;
 
-public record GenerateRefreshTokenResponse(string Token, DateTime ExpirationDate);
+public record GenerateRefreshTokenResponse([Required][MaxLength(200)] string Token, [Required] DateTime ExpirationDate);

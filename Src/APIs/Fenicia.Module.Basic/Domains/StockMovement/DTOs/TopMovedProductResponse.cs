@@ -1,12 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 public record TopMovedProductResponse(
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
-    string ProductName,
+    [Required][MaxLength(200)] string ProductName,
 
-    string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
 
     double TotalMoved,
 

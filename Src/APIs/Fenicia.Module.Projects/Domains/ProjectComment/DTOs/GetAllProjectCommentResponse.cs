@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 
-public record GetAllProjectCommentResponse(Guid Id, Guid TaskId, Guid UserId, string Content, Guid CompanyId);
+public record GetAllProjectCommentResponse([Required] Guid Id, [Required] Guid TaskId, [Required] Guid UserId, [Required][MaxLength(200)] string Content, [Required] Guid CompanyId);

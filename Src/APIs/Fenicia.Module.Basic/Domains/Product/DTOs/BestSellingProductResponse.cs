@@ -1,12 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record BestSellingProductResponse(
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
-    string ProductName,
+    [Required][MaxLength(200)] string ProductName,
 
-    string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
 
     double TotalQuantitySold,
 

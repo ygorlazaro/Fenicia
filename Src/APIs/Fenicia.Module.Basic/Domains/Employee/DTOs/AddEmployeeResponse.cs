@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Employee.DTOs;
 
-public record AddEmployeeResponse(Guid Id, Guid PositionId, Guid PersonId);
+public record AddEmployeeResponse([Required] Guid Id, [Required] Guid PositionId, [Required] Guid PersonId);

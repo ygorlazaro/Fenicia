@@ -1,12 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Inventory.DTOs;
 
 public record ZeroMovementProductResponse(
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
-    string ProductName,
+    [Required][MaxLength(200)] string ProductName,
 
-    string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
 
     string? SupplierName,
 

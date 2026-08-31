@@ -1,9 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Employee.DTOs;
 
 public record UpdateEmployeeCommand(
-    Guid Id,
-    Guid PositionId,
-    string Name,
+    [Required] Guid Id,
+    [Required] Guid PositionId,
+    [Required][MaxLength(200)] string Name,
     string? Email,
     string? Document,
     string? PhoneNumber,

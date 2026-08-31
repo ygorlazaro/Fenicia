@@ -1,3 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
 
-public record GetFollowersResponse(Guid Id, Guid UserId, DateTime FollowDate);
+public record GetFollowersResponse(
+    [Required] Guid Id,
+    [Required] Guid UserId,
+    [Required] DateTime FollowDate);

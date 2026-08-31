@@ -1,3 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
 
-public record AddFriendshipResponse(Guid Id, Guid UserId, Guid TargetUserId, DateTime FollowDate, bool IsActive);
+public record AddFriendshipResponse(
+    [Required] Guid Id,
+    [Required] Guid UserId,
+    [Required] Guid TargetUserId,
+    [Required] DateTime FollowDate,
+    bool IsActive);

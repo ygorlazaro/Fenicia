@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.Configuration.DTOs;
 
 public record GetConfigurationQuery(
-    Guid UserId,
-    Guid CompanyId);
+    [Required] Guid UserId,
+    [Required] Guid CompanyId);

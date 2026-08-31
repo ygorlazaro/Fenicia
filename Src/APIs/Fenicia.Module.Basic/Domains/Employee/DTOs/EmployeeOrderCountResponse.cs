@@ -1,17 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Employee.DTOs;
 
 public record EmployeeOrderCountResponse(
 
-    Guid EmployeeId,
+    [Required] Guid EmployeeId,
 
-    string EmployeeName,
+    [Required][MaxLength(200)] string EmployeeName,
 
-    string PositionName,
+    [Required][MaxLength(200)] string PositionName,
 
     int OrderCount,
 
     decimal TotalValue,
 
-    DateTime FirstOrderDate,
+    [Required] DateTime FirstOrderDate,
 
-    DateTime LastOrderDate);
+    [Required] DateTime LastOrderDate);

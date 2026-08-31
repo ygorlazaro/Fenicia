@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.DTOs;
 
 public record SupplierProductCountResponse(
 
-    Guid SupplierId,
+    [Required] Guid SupplierId,
 
-    string SupplierName,
+    [Required][MaxLength(200)] string SupplierName,
 
     int ProductCount,
 

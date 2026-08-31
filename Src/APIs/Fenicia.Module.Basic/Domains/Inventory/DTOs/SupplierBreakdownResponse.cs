@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Inventory.DTOs;
 
 public record SupplierBreakdownResponse(
 
-    Guid SupplierId,
+    [Required] Guid SupplierId,
 
-    string SupplierName,
+    [Required][MaxLength(200)] string SupplierName,
 
     decimal TotalCostValue,
 
