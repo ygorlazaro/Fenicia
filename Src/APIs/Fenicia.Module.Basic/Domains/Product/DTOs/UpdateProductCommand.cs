@@ -1,19 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record UpdateProductCommand(
     Guid Id,
-    string Name,
-    string? SKU = null,
-    string? Barcode = null,
-    string? Description = null,
+    [Required][MaxLength(50)] string Name,
+    [MaxLength(50)] string? SKU = null,
+    [MaxLength(50)] string? Barcode = null,
+    [MaxLength(1000)] string? Description = null,
     decimal? CostPrice = null,
-    decimal SalesPrice = 0,
-    double Quantity = 0,
+    [Required] decimal SalesPrice = 0,
+    [Required] double Quantity = 0,
     int? MinStockLevel = null,
     int? MaxStockLevel = null,
-    string? ImageUrl = null,
+    [MaxLength(500)] string? ImageUrl = null,
     decimal? Weight = null,
-    string? Dimensions = null,
-    string? UnitOfMeasure = null,
-    Guid CategoryId = default,
+    [MaxLength(50)] string? Dimensions = null,
+    [MaxLength(20)] string? UnitOfMeasure = null,
+    [Required] Guid CategoryId = default,
     Guid? SupplierId = null);
