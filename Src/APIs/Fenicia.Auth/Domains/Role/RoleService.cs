@@ -6,27 +6,27 @@ namespace Fenicia.Auth.Domains.Role;
 
 public class RoleService(RoleRepository repository)
 {
-    public async Task<GetAdminRoleResponse?> GetAdminAsync(CancellationToken ct)
+    public async Task<GetAdminRoleResponse?> GetAdminAsync(CancellationToken cancellationToken = default)
     {
-        var role = await repository.GetByNameAsync("Admin", ct);
+        var role = await repository.GetByNameAsync("Admin", cancellationToken);
 
         return role is null ? null : role.MapToGetAdminRoleResponse();
     }
 
-    public async Task<RoleModel?> GetRoleAsync(string roleName, CancellationToken ct)
+    public async Task<RoleModel?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByNameAsync(roleName, ct);
+        return await repository.GetByNameAsync(roleName, cancellationToken);
     }
 
-    public async Task<RoleModel?> GetByIdAsync(Guid roleId, CancellationToken ct)
+    public async Task<RoleModel?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByIdAsync(roleId, ct);
+        return await repository.GetByIdAsync(roleId, cancellationToken);
     }
 
-    public async Task<List<RoleModel>> GetRolesByIdsAsync(List<Guid> roleIds, CancellationToken ct)
+    public async Task<List<RoleModel>> GetRolesByIdsAsync(List<Guid> roleIds, CancellationToken cancellationToken = default)
     {
         return await repository.Query()
             .Where(r => roleIds.Contains(r.Id))
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

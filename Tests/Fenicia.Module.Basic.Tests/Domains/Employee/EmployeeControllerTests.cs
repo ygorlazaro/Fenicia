@@ -144,13 +144,13 @@ public class EmployeeControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllEmployeeResponse>>(new List<GetAllEmployeeResponse>(), 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetEmployeeByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken ct) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken cancellationToken) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+            .ReturnsAsync((AddEmployeeCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid companyId, CancellationToken ct) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
+            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

@@ -144,13 +144,13 @@ public class PositionControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllPositionResponse>>(new List<GetAllPositionResponse>(), 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetPositionByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken ct) => new GetPositionByIdResponse(q.Id, "Test Position"));
+            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken cancellationToken) => new GetPositionByIdResponse(q.Id, "Test Position"));
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddPositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddPositionCommand cmd, Guid companyId, CancellationToken ct) => new AddPositionResponse(cmd.Id, cmd.Name));
+            .ReturnsAsync((AddPositionCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddPositionResponse(cmd.Id, cmd.Name));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdatePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdatePositionCommand cmd, Guid companyId, CancellationToken ct) => new UpdatePositionResponse(cmd.Id, cmd.Name));
+            .ReturnsAsync((UpdatePositionCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdatePositionResponse(cmd.Id, cmd.Name));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeletePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

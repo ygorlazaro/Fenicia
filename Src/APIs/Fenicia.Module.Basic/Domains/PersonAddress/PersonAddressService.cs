@@ -16,9 +16,9 @@ public class PersonAddressService
         _personAddressRepository = personAddressRepository;
     }
 
-    public virtual async Task<PersonAddressModel> InsertAsync(PersonAddressModel personAddress, Guid companyId, CancellationToken ct)
+    public virtual async Task<PersonAddressModel> InsertAsync(PersonAddressModel personAddress, Guid companyId, CancellationToken cancellationToken = default)
     {
         personAddress.CompanyId = companyId;
-        return await _personAddressRepository.InsertAsync(personAddress, ct);
+        return await _personAddressRepository.InsertAsync(personAddress, cancellationToken);
     }
 }

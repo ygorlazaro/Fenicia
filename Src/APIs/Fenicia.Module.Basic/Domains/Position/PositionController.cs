@@ -22,7 +22,7 @@ public class PositionController(PositionService positionService) : ControllerBas
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de posições</returns>
     /// <response code="200">Lista de posições retornada com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -32,13 +32,13 @@ public class PositionController(PositionService positionService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await positionService.GetAllAsync(new GetAllPositionQuery(page, perPage), ct);
+            var positions = await positionService.GetAllAsync(new GetAllPositionQuery(page, perPage), cancellationToken);
 
             return Ok(positions);
         }
@@ -53,7 +53,7 @@ public class PositionController(PositionService positionService) : ControllerBas
     /// </summary>
     /// <param name="id">ID da posição</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da posição</returns>
     /// <response code="200">Posição encontrada</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -65,13 +65,13 @@ public class PositionController(PositionService positionService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await positionService.GetByIdAsync(new GetPositionByIdQuery(id), ct);
+            var position = await positionService.GetByIdAsync(new GetPositionByIdQuery(id), cancellationToken);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -86,7 +86,7 @@ public class PositionController(PositionService positionService) : ControllerBas
     /// </summary>
     /// <param name="command">Dados da posição a ser criada</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Posição criada</returns>
     /// <response code="201">Posição criada com sucesso</response>
     /// <response code="400">Dados inválidos</response>
@@ -98,14 +98,14 @@ public class PositionController(PositionService positionService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddPositionResponse>> PostAsync([FromBody] AddPositionCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddPositionResponse>> PostAsync([FromBody] AddPositionCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            var position = await positionService.AddAsync(command, companyId, ct);
+            var position = await positionService.AddAsync(command, companyId, cancellationToken);
 
             return new CreatedResult(string.Empty, position);
         }
@@ -121,7 +121,7 @@ public class PositionController(PositionService positionService) : ControllerBas
     /// <param name="command">Dados atualizados da posição</param>
     /// <param name="id">ID da posição</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Posição atualizada</returns>
     /// <response code="200">Posição atualizada com sucesso</response>
     /// <response code="400">Dados inválidos</response>
@@ -135,14 +135,14 @@ public class PositionController(PositionService positionService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdatePositionResponse>> PatchAsync([FromBody] UpdatePositionCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdatePositionResponse>> PatchAsync([FromBody] UpdatePositionCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            var position = await positionService.UpdateAsync(command with { Id = id }, companyId, ct);
+            var position = await positionService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -157,7 +157,7 @@ public class PositionController(PositionService positionService) : ControllerBas
     /// </summary>
     /// <param name="id">ID da posição</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <response code="204">Posição removida com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="403">Acesso negado</response>
@@ -167,14 +167,14 @@ public class PositionController(PositionService positionService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            await positionService.DeleteAsync(new DeletePositionCommand(id), companyId, ct);
+            await positionService.DeleteAsync(new DeletePositionCommand(id), companyId, cancellationToken);
 
             return NoContent();
         }

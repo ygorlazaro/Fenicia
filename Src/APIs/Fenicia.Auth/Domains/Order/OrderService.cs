@@ -11,11 +11,11 @@ namespace Fenicia.Auth.Domains.Order;
 
 public class OrderService(ModuleService moduleService, OrderRepository orderRepository, SubscriptionService subscriptionService, UserRoleService userRoleService)
 {
-    public async Task<CreateNewOrderResponse?> CreateAsync(CreateNewOrderCommand command, CancellationToken ct)
+    public async Task<CreateNewOrderResponse?> CreateAsync(CreateNewOrderCommand command, CancellationToken cancellationToken = default)
     {
-        await ValidateUserAsync(command, ct);
+        await ValidateUserAsync(command, cancellationToken);
 
-        var modules = await PopulateModules(command.Modules, ct);
+        var modules = await PopulateModules(command.Modules, cancellationToken);
 
         if (modules.Count == 0)
         {
@@ -23,10 +23,10 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
         }
 
         var order = PersistOrderAsync(command, modules);
-        await orderRepository.InsertAsync(order, ct);
+        await orderRepository.InsertAsync(order, cancellationToken);
 
         LoadCreditsAsync(command.CompanyId, order);
-        await subscriptionService.CreateSubscriptionAsync(order.Subscription!, ct);
+        await subscriptionService.CreateSubscriptionAsync(order.Subscription!, cancellationToken);
 
         return order.MapToCreateNewOrderResponse();
     }
@@ -61,9 +61,9 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
         return order;
     }
 
-    private async Task ValidateUserAsync(CreateNewOrderCommand command, CancellationToken ct)
+    private async Task ValidateUserAsync(CreateNewOrderCommand command, CancellationToken cancellationToken = default)
     {
-        var existingUser = await userRoleService.AnyIdAndCompanyAsync(command.UserId, command.CompanyId, ct);
+        var existingUser = await userRoleService.AnyIdAndCompanyAsync(command.UserId, command.CompanyId, cancellationToken);
 
         if (!existingUser)
         {
@@ -71,18 +71,18 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
         }
     }
 
-    private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
+    private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken cancellationToken = default)
     {
         try
         {
-            var modules = await GetModulesToOrderAsync(request.Distinct(), ct);
+            var modules = await GetModulesToOrderAsync(request.Distinct(), cancellationToken);
 
             if (modules.Any(m => m.Type == ModuleType.Basic))
             {
                 return modules;
             }
 
-            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, ct);
+            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
 
             return basicModule switch
             {
@@ -100,14 +100,14 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
         }
     }
 
-    private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
+    private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken cancellationToken = default)
     {
-        return await moduleService.GetModulesByIdsAsync(request, ct);
+        return await moduleService.GetModulesByIdsAsync(request, cancellationToken);
     }
 
-    private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
+    private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken cancellationToken = default)
     {
-        return await moduleService.GetModuleByTypeAsync(moduleType, ct);
+        return await moduleService.GetModuleByTypeAsync(moduleType, cancellationToken);
     }
 
     private void LoadCreditsAsync(Guid companyId, OrderModel order)

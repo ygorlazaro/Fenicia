@@ -69,7 +69,7 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_WhenUserExists_ReturnsOkWithUserProfile()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -146,7 +146,7 @@ public class SubscriptionControllerTests : IDisposable
         _db.AuthSubscriptionCredits.Add(subscriptionCredit);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -175,12 +175,12 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_WhenUserDoesNotExist_ReturnsNotFound()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var nonExistentUserId = Guid.NewGuid();
         SetupUserClaims(nonExistentUserId);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
@@ -191,7 +191,7 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_WhenUserHasNoCompanies_ReturnsOkWithEmptyCompanies()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -204,7 +204,7 @@ public class SubscriptionControllerTests : IDisposable
         _db.AuthUsers.Add(user);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -221,7 +221,7 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_WhenUserHasNoSubscriptions_ReturnsOkWithEmptySubscriptions()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -264,7 +264,7 @@ public class SubscriptionControllerTests : IDisposable
         _db.AuthUserRoles.Add(userRole);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -281,7 +281,7 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_WhenUserHasMultipleCompaniesAndSubscriptions_ReturnsOkWithAllData()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -403,7 +403,7 @@ public class SubscriptionControllerTests : IDisposable
         _db.AuthSubscriptionCredits.Add(subscriptionCredit2);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -420,7 +420,7 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -433,7 +433,7 @@ public class SubscriptionControllerTests : IDisposable
         _db.AuthUsers.Add(user);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
@@ -444,7 +444,7 @@ public class SubscriptionControllerTests : IDisposable
     public async Task GetUserProfile_WhenSubscriptionHasInactiveCredits_ReturnsSubscriptionWithOnlyActiveModules()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
         {
@@ -542,7 +542,7 @@ public class SubscriptionControllerTests : IDisposable
         _db.AuthSubscriptionCredits.Add(inactiveCredit);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserProfile(wide, ct);
+        var result = await _controller.GetUserProfile(wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);

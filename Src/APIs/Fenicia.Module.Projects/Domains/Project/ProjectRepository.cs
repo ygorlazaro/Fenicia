@@ -7,11 +7,11 @@ namespace Fenicia.Module.Projects.Domains.Project;
 
 public class ProjectRepository(DefaultContext context) : Repository<ProjectModel>(context)
 {
-    public async Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct)
+    public async Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Include(p => p.Statuses)
             .Include(p => p.Tasks)
-            .FirstOrDefaultAsync(e => e.Id == id, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 }

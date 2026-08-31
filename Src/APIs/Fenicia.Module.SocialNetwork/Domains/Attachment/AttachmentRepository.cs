@@ -7,12 +7,12 @@ namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
 public class AttachmentRepository(DefaultContext context) : Repository<AttachmentModel>(context)
 {
-    public async Task<IEnumerable<AttachmentModel>> GetByCommentAsync(int page, int perPage, Guid commentId, CancellationToken ct)
+    public async Task<IEnumerable<AttachmentModel>> GetByCommentAsync(int page, int perPage, Guid commentId, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Where(e => e.CommentId == commentId)
             .Skip((page - 1) * perPage)
             .Take(perPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

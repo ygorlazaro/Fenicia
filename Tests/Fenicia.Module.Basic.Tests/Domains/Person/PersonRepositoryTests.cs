@@ -38,7 +38,7 @@ public class PersonRepositoryTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _repository.GetAllAsync(ct: CancellationToken.None);
+        var result = await _repository.GetAllAsync(cancellationToken: CancellationToken.None);
 
         // Assert
         result.Should().HaveCount(1);

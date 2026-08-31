@@ -22,7 +22,7 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>A list of feeds for the requested page.</returns>
     /// <response code="200">Feeds retrieved successfully.</response>
     /// <response code="400">Invalid pagination parameters supplied.</response>
@@ -34,11 +34,11 @@ public class FeedController(FeedService feedService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllFeedResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllFeedResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllFeedResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await feedService.GetAllAsync(new GetAllFeedQuery(page, perPage), ct);
+        var result = await feedService.GetAllAsync(new GetAllFeedQuery(page, perPage), cancellationToken);
 
         return Ok(result);
     }
@@ -48,7 +48,7 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the feed. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The feed details, or null if not found.</returns>
     /// <response code="200">Feed found.</response>
     /// <response code="400">Invalid ID format supplied.</response>
@@ -62,11 +62,11 @@ public class FeedController(FeedService feedService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetFeedByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetFeedByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await feedService.GetByIdAsync(new GetFeedByIdQuery(id), ct);
+        var result = await feedService.GetByIdAsync(new GetFeedByIdQuery(id), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -76,7 +76,7 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// </summary>
     /// <param name="command">The feed data to create. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "date": "2024-01-15T00:00:00Z", "text": "Hello world", "userId": "22222222-2222-2222-2222-222222222222" }</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The created feed details.</returns>
     /// <response code="201">Feed created successfully.</response>
     /// <response code="400">Invalid request body supplied.</response>
@@ -92,11 +92,11 @@ public class FeedController(FeedService feedService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddFeedResponse>> PostAsync([FromBody] AddFeedCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddFeedResponse>> PostAsync([FromBody] AddFeedCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await feedService.AddAsync(command, ClaimReader.UserId(User), ct);
+        var result = await feedService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, result);
     }
@@ -107,7 +107,7 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// <param name="command">The feed data to update. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "date": "2024-01-15T00:00:00Z", "text": "Updated text" }</c></param>
     /// <param name="id">The unique identifier of the feed to update. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The updated feed details, or null if the feed was not found.</returns>
     /// <response code="200">Feed updated successfully.</response>
     /// <response code="400">Invalid request body supplied.</response>
@@ -125,11 +125,11 @@ public class FeedController(FeedService feedService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateFeedResponse>> PatchAsync([FromBody] UpdateFeedCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateFeedResponse>> PatchAsync([FromBody] UpdateFeedCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await feedService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
+        var result = await feedService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -139,7 +139,7 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the feed to delete. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>No content.</returns>
     /// <response code="204">Feed deleted successfully.</response>
     /// <response code="401">Unauthorized - authentication is required.</response>
@@ -152,11 +152,11 @@ public class FeedController(FeedService feedService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await feedService.DeleteAsync(new DeleteFeedCommand(id), ct);
+        await feedService.DeleteAsync(new DeleteFeedCommand(id), cancellationToken);
 
         return NoContent();
     }

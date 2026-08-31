@@ -24,7 +24,7 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// </summary>
     /// <param name="command">Dados do usuário a ser seguido</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Amizade criada ou reativada</returns>
     /// <response code="201">Amizade criada com sucesso</response>
     /// <response code="400">Dados inválidos</response>
@@ -38,11 +38,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddFriendshipResponse>> FollowAsync([FromBody] FollowCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddFriendshipResponse>> FollowAsync([FromBody] FollowCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var friendship = await friendshipService.FollowAsync(command, ClaimReader.UserId(User), ct);
+        var friendship = await friendshipService.FollowAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, friendship);
     }
@@ -52,7 +52,7 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// </summary>
     /// <param name="targetUserId">ID do usuário a deixar de seguir</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <response code="204">Amizade removida com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
@@ -63,11 +63,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> UnfollowAsync([FromRoute] Guid targetUserId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> UnfollowAsync([FromRoute] Guid targetUserId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await friendshipService.UnfollowAsync(new UnfollowCommand(targetUserId), ClaimReader.UserId(User), ct);
+        await friendshipService.UnfollowAsync(new UnfollowCommand(targetUserId), ClaimReader.UserId(User), cancellationToken);
 
         return NoContent();
     }
@@ -79,7 +79,7 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de seguidores</returns>
     /// <response code="200">Lista de seguidores retornada com sucesso</response>
     /// <response code="400">ID inválido</response>
@@ -91,11 +91,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollowersAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollowersAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await friendshipService.GetFollowersAsync(new GetFollowersQuery(page, perPage), userId, ct);
+        var result = await friendshipService.GetFollowersAsync(new GetFollowersQuery(page, perPage), userId, cancellationToken);
 
         return Ok(result);
     }
@@ -107,7 +107,7 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de usuários seguidos</returns>
     /// <response code="200">Lista de usuários seguidos retornada com sucesso</response>
     /// <response code="400">ID inválido</response>
@@ -119,11 +119,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollowingAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollowingAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await friendshipService.GetFollowingAsync(new GetFollowingQuery(page, perPage), userId, ct);
+        var result = await friendshipService.GetFollowingAsync(new GetFollowingQuery(page, perPage), userId, cancellationToken);
 
         return Ok(result);
     }
@@ -134,7 +134,7 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// <param name="userId">ID do usuário</param>
     /// <param name="targetUserId">ID do usuário alvo</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Verdadeiro se está seguindo</returns>
     /// <response code="200">Verificação realizada com sucesso</response>
     /// <response code="400">ID inválido</response>
@@ -146,11 +146,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<bool>> IsFollowingAsync([FromRoute] Guid userId, [FromRoute] Guid targetUserId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<bool>> IsFollowingAsync([FromRoute] Guid userId, [FromRoute] Guid targetUserId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await friendshipService.IsFollowingAsync(new IsFollowingQuery(targetUserId), userId, ct);
+        var result = await friendshipService.IsFollowingAsync(new IsFollowingQuery(targetUserId), userId, cancellationToken);
 
         return Ok(result);
     }

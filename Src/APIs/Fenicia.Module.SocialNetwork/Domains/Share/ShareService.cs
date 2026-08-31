@@ -5,7 +5,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
 public class ShareService(ShareRepository repository)
 {
-    public async Task<AddShareResponse> ShareAsync(ShareCommand command, Guid companyId, Guid userId, CancellationToken ct)
+    public async Task<AddShareResponse> ShareAsync(ShareCommand command, Guid companyId, Guid userId, CancellationToken cancellationToken = default)
     {
         var model = new ShareModel
         {
@@ -17,13 +17,13 @@ public class ShareService(ShareRepository repository)
             ShareDate = DateTime.UtcNow
         };
 
-        var created = await repository.InsertAsync(model, ct);
+        var created = await repository.InsertAsync(model, cancellationToken);
         return new AddShareResponse(created.Id, created.OriginalFeedId, created.Text, created.CompanyId, created.UserId, created.ShareDate);
     }
 
-    public async Task<List<GetSharesResponse>> GetSharesByFeedAsync(GetSharesByFeedQuery query, Guid feedId, CancellationToken ct)
+    public async Task<List<GetSharesResponse>> GetSharesByFeedAsync(GetSharesByFeedQuery query, Guid feedId, CancellationToken cancellationToken = default)
     {
-        var shares = await repository.GetSharesByFeedAsync(query.Page, query.PerPage, feedId, ct);
+        var shares = await repository.GetSharesByFeedAsync(query.Page, query.PerPage, feedId, cancellationToken);
         return [.. shares.Select(s => new GetSharesResponse(s.Id, s.OriginalFeedId, s.Text, s.CompanyId, s.UserId, s.ShareDate))];
     }
 }

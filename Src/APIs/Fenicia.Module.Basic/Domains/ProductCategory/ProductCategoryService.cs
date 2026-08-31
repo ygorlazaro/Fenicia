@@ -19,27 +19,27 @@ public class ProductCategoryService
         _productCategoryRepository = productCategoryRepository;
     }
 
-    public virtual async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(GetAllProductCategoryQuery query, CancellationToken ct)
+    public virtual async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(GetAllProductCategoryQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _productCategoryRepository.CountAsync(ct);
+        var total = await _productCategoryRepository.CountAsync(cancellationToken);
 
         var categories = await _productCategoryRepository.Query()
             .Select(pc => pc.MapToGetAllProductCategoryResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
 
         return new Pagination<List<GetAllProductCategoryResponse>>(categories, total, query.Page, query.PerPage);
     }
 
-    public virtual async Task<GetProductCategoryByIdResponse?> GetByIdAsync(GetProductCategoryByIdQuery query, CancellationToken ct)
+    public virtual async Task<GetProductCategoryByIdResponse?> GetByIdAsync(GetProductCategoryByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var category = await _productCategoryRepository.GetByIdAsync(query.Id, ct);
+        var category = await _productCategoryRepository.GetByIdAsync(query.Id, cancellationToken);
 
         return category is null ? null : category.MapToGetProductCategoryByIdResponse();
     }
 
-    public virtual async Task<AddProductCategoryResponse> AddAsync(AddProductCategoryCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<AddProductCategoryResponse> AddAsync(AddProductCategoryCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var category = new ProductCategoryModel
         {
@@ -48,14 +48,14 @@ public class ProductCategoryService
             CompanyId = companyId
         };
 
-        await _productCategoryRepository.InsertAsync(category, ct);
+        await _productCategoryRepository.InsertAsync(category, cancellationToken);
 
         return category.MapToAddProductCategoryResponse();
     }
 
-    public virtual async Task<UpdateProductCategoryResponse?> UpdateAsync(UpdateProductCategoryCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<UpdateProductCategoryResponse?> UpdateAsync(UpdateProductCategoryCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var category = await _productCategoryRepository.GetByIdAsync(command.Id, ct);
+        var category = await _productCategoryRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (category is null)
         {
@@ -65,22 +65,22 @@ public class ProductCategoryService
         category.Name = command.Name;
         category.CompanyId = companyId;
 
-        await _productCategoryRepository.UpdateAsync(command.Id, category, ct);
+        await _productCategoryRepository.UpdateAsync(command.Id, category, cancellationToken);
 
         return category.MapToUpdateProductCategoryResponse();
     }
 
-    public virtual async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct)
+    public virtual async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
         var idList = ids.ToList();
         return await _productCategoryRepository.Query()
             .Where(pc => idList.Contains(pc.Id))
             .Select(pc => pc.MapToGetProductCategoryByIdResponse())
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(DeleteProductCategoryCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task DeleteAsync(DeleteProductCategoryCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _productCategoryRepository.DeleteAsync(command.Id, ct);
+        await _productCategoryRepository.DeleteAsync(command.Id, cancellationToken);
     }
 }

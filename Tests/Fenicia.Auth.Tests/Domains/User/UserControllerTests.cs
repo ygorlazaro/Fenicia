@@ -72,9 +72,9 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -93,7 +93,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var otherUser = new UserModel
         {
@@ -106,7 +106,7 @@ public class UserControllerTests
         await _userRepository.InsertAsync(otherUser, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -119,7 +119,7 @@ public class UserControllerTests
         var adminRoleId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var adminRole = new RoleModel
         {
@@ -148,7 +148,7 @@ public class UserControllerTests
         await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -162,7 +162,7 @@ public class UserControllerTests
         var adminRoleId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var adminRole = new RoleModel
         {
@@ -191,7 +191,7 @@ public class UserControllerTests
         await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -256,9 +256,9 @@ public class UserControllerTests
 
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -278,9 +278,9 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.GetUserModulesAsync(_testUserId, headers, wide, ct);
+        await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -289,9 +289,9 @@ public class UserControllerTests
     public async Task GetUserCompanyAsync_WhenUserHasNoCompanies_ReturnsOkWithEmptyList()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, ct);
+        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -346,9 +346,9 @@ public class UserControllerTests
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, ct);
+        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -367,9 +367,9 @@ public class UserControllerTests
     public async Task GetUserCompanyAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-        await _controller.GetUserCompanyAsync(_testUserId, wide, ct);
+        await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -379,7 +379,7 @@ public class UserControllerTests
     {
         var otherUserId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var otherUser = new UserModel
         {
@@ -392,7 +392,7 @@ public class UserControllerTests
         await _userRepository.InsertAsync(otherUser, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -404,7 +404,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var adminRole = new RoleModel
         {
@@ -442,7 +442,7 @@ public class UserControllerTests
         await _userRoleRepository.InsertAsync(otherUserRole, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -454,7 +454,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var otherUser = new UserModel
         {
@@ -467,7 +467,7 @@ public class UserControllerTests
         await _userRepository.InsertAsync(otherUser, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -480,7 +480,7 @@ public class UserControllerTests
         var adminRoleId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var adminRole = new RoleModel
         {
@@ -509,7 +509,7 @@ public class UserControllerTests
         await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, ct);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -519,7 +519,7 @@ public class UserControllerTests
     {
         var otherUserId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var otherUser = new UserModel
         {
@@ -532,7 +532,7 @@ public class UserControllerTests
         await _userRepository.InsertAsync(otherUser, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -544,7 +544,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var adminRole = new RoleModel
         {
@@ -582,7 +582,7 @@ public class UserControllerTests
         await _userRoleRepository.InsertAsync(otherUserRole, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, ct);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -634,7 +634,7 @@ public class UserControllerTests
         await _userRepository.InsertAsync(user, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetAsync(CancellationToken.None);
+        var result = await _controller.GetAsync(1, 10, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result);

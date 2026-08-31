@@ -7,17 +7,17 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 
 public class CustomerRepository(DefaultContext context) : Repository<CustomerModel>(context), ICustomerRepository
 {
-    public async Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct)
+    public async Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Include(c => c.Person)
             .Include(c => c.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)
                     .ThenInclude(a => a.State)
-            .FirstOrDefaultAsync(e => e.Id == id, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct)
+    public async Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Include(c => c.Person)
@@ -26,6 +26,6 @@ public class CustomerRepository(DefaultContext context) : Repository<CustomerMod
                     .ThenInclude(a => a.State)
             .Skip((page - 1) * perPage)
             .Take(perPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

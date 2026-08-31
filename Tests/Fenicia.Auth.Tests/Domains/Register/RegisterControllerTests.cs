@@ -61,14 +61,14 @@ public class RegisterControllerTests : IDisposable
     public async Task CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         var wide = new Common.API.WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("existing@example.com", "password123", "Test User", company);
 
         await _userRepository.InsertAsync(new UserModel { Email = request.Email, Name = "Existing User", Password = "password" }, CancellationToken.None);
         _db.SaveChanges();
 
-        var result = await _controller.CreateNewUserAsync(request, wide, ct);
+        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -77,14 +77,14 @@ public class RegisterControllerTests : IDisposable
     public async Task CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
         var wide = new Common.API.WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
         await _companyRepository.InsertAsync(new CompanyModel { Cnpj = company.Cnpj, Name = "Existing Company" }, CancellationToken.None);
         _db.SaveChanges();
 
-        var result = await _controller.CreateNewUserAsync(request, wide, ct);
+        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -93,14 +93,14 @@ public class RegisterControllerTests : IDisposable
     public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ReturnsBadRequest()
     {
         var wide = new Common.API.WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
         _db.AuthRoles.Remove(_db.AuthRoles.First());
         _db.SaveChanges();
 
-        var result = await _controller.CreateNewUserAsync(request, wide, ct);
+        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -109,11 +109,11 @@ public class RegisterControllerTests : IDisposable
     public async Task CreateNewUserAsync_WhenValidRequest_ReturnsCreatedWithUser()
     {
         var wide = new Common.API.WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        var result = await _controller.CreateNewUserAsync(request, wide, ct);
+        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
         var createdResult = Assert.IsType<CreatedResult>(result.Result);
         var response = Assert.IsType<RegisterResponse>(createdResult.Value);
@@ -123,14 +123,14 @@ public class RegisterControllerTests : IDisposable
         Assert.Equal(company.Name, response.Company.Name);
         Assert.Equal(request.Email, wide.UserId);
 
-        var createdUser = await _db.AuthUsers.FirstOrDefaultAsync(u => u.Email == request.Email, ct);
+        var createdUser = await _db.AuthUsers.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
         Assert.NotNull(createdUser);
         Assert.NotEqual(request.Password, createdUser.Password);
 
-        var createdCompany = await _db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == company.Cnpj, ct);
+        var createdCompany = await _db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == company.Cnpj, cancellationToken);
         Assert.NotNull(createdCompany);
 
-        var userRole = await _db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
+        var userRole = await _db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, cancellationToken);
         Assert.NotNull(userRole);
         Assert.Equal(_adminRoleId, userRole.RoleId);
     }
@@ -139,11 +139,11 @@ public class RegisterControllerTests : IDisposable
     public async Task CreateNewUserAsync_SetsWideEventContextUserId()
     {
         var wide = new Common.API.WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        await _controller.CreateNewUserAsync(request, wide, ct);
+        await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
         Assert.Equal(request.Email, wide.UserId);
     }

@@ -40,37 +40,37 @@ public class DataSourceService
         _supplierService = supplierService;
     }
 
-    public virtual async Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(CancellationToken cancellationToken = default)
     {
-        return await _customerService.GetAllForDataSourceAsync(ct);
+        return await _customerService.GetAllForDataSourceAsync(cancellationToken);
     }
 
-    public virtual async Task<List<GetAllEmployeeForDataSourceResponse>> GetEmployeesAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllEmployeeForDataSourceResponse>> GetEmployeesAsync(CancellationToken cancellationToken = default)
     {
-        return await _employeeService.GetAllForDataSourceAsync(ct);
+        return await _employeeService.GetAllForDataSourceAsync(cancellationToken);
     }
 
-    public virtual async Task<List<GetAllPositionForDataSourceResponse>> GetPositionsAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllPositionForDataSourceResponse>> GetPositionsAsync(CancellationToken cancellationToken = default)
     {
-        var positions = await _positionService.GetAllAsync(new GetAllPositionQuery(1, int.MaxValue), ct);
+        var positions = await _positionService.GetAllAsync(new GetAllPositionQuery(1, int.MaxValue), cancellationToken);
 
         return [.. positions.Data.Select(p => p.MapToDataSourceResponse())];
     }
 
-    public virtual async Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(CancellationToken cancellationToken = default)
     {
-        var categories = await _productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(1, int.MaxValue), ct);
+        var categories = await _productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(1, int.MaxValue), cancellationToken);
 
         return [.. categories.Data.Select(pc => pc.MapToDataSourceResponse())];
     }
 
-    public virtual async Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(CancellationToken cancellationToken = default)
     {
-        return await _productService.GetAllForDataSourceAsync(ct);
+        return await _productService.GetAllForDataSourceAsync(cancellationToken);
     }
 
-    public virtual async Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(CancellationToken ct)
+    public virtual async Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(CancellationToken cancellationToken = default)
     {
-        return await _supplierService.GetAllForDataSourceAsync(ct);
+        return await _supplierService.GetAllForDataSourceAsync(cancellationToken);
     }
 }

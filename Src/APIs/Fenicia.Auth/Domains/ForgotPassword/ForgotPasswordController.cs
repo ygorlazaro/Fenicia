@@ -29,7 +29,7 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PostAsync([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -65,7 +65,7 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PatchAsync([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {

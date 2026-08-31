@@ -5,15 +5,15 @@ namespace Fenicia.Module.Projects.Domains.ProjectComment;
 
 public class ProjectCommentService(ProjectCommentRepository repository)
 {
-    public async Task<List<GetAllProjectCommentResponse>> GetAllAsync(GetAllProjectCommentQuery query, CancellationToken ct)
+    public async Task<List<GetAllProjectCommentResponse>> GetAllAsync(GetAllProjectCommentQuery query, CancellationToken cancellationToken = default)
     {
-        var comments = await repository.GetAllAsync(query.Page, query.PerPage, ct);
+        var comments = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return [.. comments.Select(pc => new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId))];
     }
 
-    public async Task<GetProjectCommentByIdResponse?> GetByIdAsync(GetProjectCommentByIdQuery query, CancellationToken ct)
+    public async Task<GetProjectCommentByIdResponse?> GetByIdAsync(GetProjectCommentByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var projectComment = await repository.GetByIdAsync(query.Id, ct);
+        var projectComment = await repository.GetByIdAsync(query.Id, cancellationToken);
 
         return projectComment switch
         {
@@ -22,7 +22,7 @@ public class ProjectCommentService(ProjectCommentRepository repository)
         };
     }
 
-    public async Task<AddProjectCommentResponse> AddAsync(AddProjectCommentCommand command, Guid companyId, CancellationToken ct)
+    public async Task<AddProjectCommentResponse> AddAsync(AddProjectCommentCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var projectComment = new ProjectCommentModel
         {
@@ -33,13 +33,13 @@ public class ProjectCommentService(ProjectCommentRepository repository)
             CompanyId = companyId
         };
 
-        var created = await repository.InsertAsync(projectComment, ct);
+        var created = await repository.InsertAsync(projectComment, cancellationToken);
         return new AddProjectCommentResponse(created.Id, created.TaskId, created.UserId, created.Content, created.CompanyId);
     }
 
-    public async Task<UpdateProjectCommentResponse?> UpdateAsync(UpdateProjectCommentCommand command, Guid companyId, CancellationToken ct)
+    public async Task<UpdateProjectCommentResponse?> UpdateAsync(UpdateProjectCommentCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var existing = await repository.GetByIdAsync(command.Id, ct);
+        var existing = await repository.GetByIdAsync(command.Id, cancellationToken);
         if (existing is null)
         {
             return null;
@@ -48,12 +48,12 @@ public class ProjectCommentService(ProjectCommentRepository repository)
         existing.Content = command.Content;
         existing.CompanyId = companyId;
 
-        var updated = await repository.UpdateAsync(command.Id, existing, ct);
+        var updated = await repository.UpdateAsync(command.Id, existing, cancellationToken);
         return updated is null ? null : new UpdateProjectCommentResponse(updated.Id, updated.TaskId, updated.UserId, updated.Content, updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectCommentCommand command, CancellationToken ct)
+    public async Task DeleteAsync(DeleteProjectCommentCommand command, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, ct);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

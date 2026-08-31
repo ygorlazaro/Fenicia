@@ -12,10 +12,10 @@ public class BlockService(IBlockRepository blockRepository)
     {
     }
 
-    public virtual async Task<AddBlockResponse> BlockAsync(BlockCommand command, Guid userId, CancellationToken ct)
+    public virtual async Task<AddBlockResponse> BlockAsync(BlockCommand command, Guid userId, CancellationToken cancellationToken = default)
     {
         var existing = await blockRepository.FindAsync(
-            b => b.UserId == userId && b.BlockedUserId == command.BlockedUserId, ct);
+            b => b.UserId == userId && b.BlockedUserId == command.BlockedUserId, cancellationToken);
 
         var block = existing.FirstOrDefault();
         if (block is not null)
@@ -28,7 +28,7 @@ public class BlockService(IBlockRepository blockRepository)
             block.IsActive = true;
             block.BlockDate = DateTime.UtcNow;
             block.Reason = null;
-            await blockRepository.UpdateAsync(block.Id, block, ct);
+            await blockRepository.UpdateAsync(block.Id, block, cancellationToken);
             return new AddBlockResponse(block.Id, block.UserId, block.BlockedUserId, block.BlockDate, block.Reason, block.IsActive);
         }
 
@@ -40,41 +40,41 @@ public class BlockService(IBlockRepository blockRepository)
             IsActive = true
         };
 
-        var created = await blockRepository.InsertAsync(newBlock, ct);
+        var created = await blockRepository.InsertAsync(newBlock, cancellationToken);
         return new AddBlockResponse(created.Id, created.UserId, created.BlockedUserId, created.BlockDate, created.Reason, created.IsActive);
     }
 
-    public virtual async Task UnblockAsync(UnblockCommand command, Guid userId, CancellationToken ct)
+    public virtual async Task UnblockAsync(UnblockCommand command, Guid userId, CancellationToken cancellationToken = default)
     {
         var existing = await blockRepository.FindAsync(
-            b => b.UserId == userId && b.BlockedUserId == command.BlockedUserId && b.IsActive, ct);
+            b => b.UserId == userId && b.BlockedUserId == command.BlockedUserId && b.IsActive, cancellationToken);
 
         var block = existing.FirstOrDefault();
         if (block is not null)
         {
             block.IsActive = false;
-            await blockRepository.UpdateAsync(block.Id, block, ct);
+            await blockRepository.UpdateAsync(block.Id, block, cancellationToken);
         }
     }
 
-    public virtual async Task<Pagination<List<GetBlockedResponse>>> GetBlockedAsync(GetBlockedQuery query, Guid userId, CancellationToken ct)
+    public virtual async Task<Pagination<List<GetBlockedResponse>>> GetBlockedAsync(GetBlockedQuery query, Guid userId, CancellationToken cancellationToken = default)
     {
-        var total = await blockRepository.CountAsync(b => b.UserId == userId && b.IsActive, ct);
+        var total = await blockRepository.CountAsync(b => b.UserId == userId && b.IsActive, cancellationToken);
 
         var blocks = await blockRepository.Query()
             .Where(b => b.UserId == userId && b.IsActive)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
 
         var response = blocks.Select(b => new GetBlockedResponse(b.Id, b.BlockedUserId, b.BlockDate, b.Reason)).ToList();
 
         return new Pagination<List<GetBlockedResponse>>(response, total, query.Page, query.PerPage);
     }
 
-    public virtual async Task<bool> IsBlockedAsync(IsBlockedQuery query, Guid userId, CancellationToken ct)
+    public virtual async Task<bool> IsBlockedAsync(IsBlockedQuery query, Guid userId, CancellationToken cancellationToken = default)
     {
         return await blockRepository.AnyAsync(
-            b => b.UserId == userId && b.BlockedUserId == query.BlockedUserId && b.IsActive, ct);
+            b => b.UserId == userId && b.BlockedUserId == query.BlockedUserId && b.IsActive, cancellationToken);
     }
 }

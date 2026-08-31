@@ -7,17 +7,17 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
 public class ProjectStatusRepository(DefaultContext context) : Repository<ProjectStatusModel>(context)
 {
-    public async Task<IEnumerable<ProjectStatusModel>> GetAllByCompanyAsync(Guid companyId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<ProjectStatusModel>> GetAllByCompanyAsync(Guid companyId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
     {
         return await DbSet
                 .Where(e => e.CompanyId == companyId)
             .Skip((page - 1) * perPage)
             .Take(perPage)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<ProjectStatusModel?> GetByIdAndCompanyAsync(Guid id, Guid companyId, CancellationToken ct)
+    public async Task<ProjectStatusModel?> GetByIdAndCompanyAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(e => e.Id == id && e.CompanyId == companyId, ct);
+        return await DbSet.FirstOrDefaultAsync(e => e.Id == id && e.CompanyId == companyId, cancellationToken);
     }
 }

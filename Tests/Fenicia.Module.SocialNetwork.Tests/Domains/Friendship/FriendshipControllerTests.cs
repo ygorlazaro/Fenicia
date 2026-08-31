@@ -90,7 +90,7 @@ public class FriendshipControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.FollowAsync(It.IsAny<FollowCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((FollowCommand cmd, Guid userId, CancellationToken ct) => new AddFriendshipResponse(Guid.NewGuid(), userId, cmd.TargetUserId, DateTime.UtcNow, true));
+            .ReturnsAsync((FollowCommand cmd, Guid userId, CancellationToken cancellationToken) => new AddFriendshipResponse(Guid.NewGuid(), userId, cmd.TargetUserId, DateTime.UtcNow, true));
 
         _mockService.Setup(s => s.GetFollowersAsync(It.IsAny<GetFollowersQuery>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Pagination<List<GetFollowersResponse>>(new List<GetFollowersResponse>(), 0, 1, 10));

@@ -23,7 +23,7 @@ public class CommentController(CommentService commentService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>A list of comments for the requested feed.</returns>
     /// <response code="200">Comments retrieved successfully.</response>
     /// <response code="400">Invalid pagination parameters supplied.</response>
@@ -35,11 +35,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCommentResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllCommentResponse>>> GetByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<List<GetAllCommentResponse>>> GetByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.GetAllByFeedAsync(new GetAllCommentByFeedQuery(page, perPage, feedId), feedId, ct);
+        var result = await commentService.GetAllByFeedAsync(new GetAllCommentByFeedQuery(page, perPage, feedId), feedId, cancellationToken);
 
         return Ok(result);
     }
@@ -49,7 +49,7 @@ public class CommentController(CommentService commentService) : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the comment. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The comment details, or null if not found.</returns>
     /// <response code="200">Comment found.</response>
     /// <response code="400">Invalid ID format supplied.</response>
@@ -63,11 +63,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetCommentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetCommentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.GetByIdAsync(new GetCommentByIdQuery(id), ct);
+        var result = await commentService.GetByIdAsync(new GetCommentByIdQuery(id), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -77,7 +77,7 @@ public class CommentController(CommentService commentService) : ControllerBase
     /// </summary>
     /// <param name="command">The comment data to create. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "userId": "22222222-2222-2222-2222-222222222222", "feedId": "33333333-3333-3333-3333-333333333333", "parentCommentId": null, "text": "Great post!" }</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The created comment details.</returns>
     /// <response code="201">Comment created successfully.</response>
     /// <response code="400">Invalid request body supplied.</response>
@@ -92,11 +92,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddCommentResponse>> PostAsync([FromBody] AddCommentCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddCommentResponse>> PostAsync([FromBody] AddCommentCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.AddAsync(command, ClaimReader.UserId(User), ClaimReader.UserId(User), ct);
+        var result = await commentService.AddAsync(command, ClaimReader.UserId(User), ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, result);
     }
@@ -107,7 +107,7 @@ public class CommentController(CommentService commentService) : ControllerBase
     /// <param name="command">The comment data to update. Example: <c>{ "id": "11111111-1111-1111-1111-111111111111", "text": "Updated comment text" }</c></param>
     /// <param name="id">The unique identifier of the comment to update. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>The updated comment details, or null if the comment was not found or the user is not the owner.</returns>
     /// <response code="200">Comment updated successfully.</response>
     /// <response code="400">Invalid request body supplied.</response>
@@ -125,11 +125,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateCommentResponse>> PatchAsync([FromBody] UpdateCommentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateCommentResponse>> PatchAsync([FromBody] UpdateCommentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), ct);
+        var result = await commentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -139,7 +139,7 @@ public class CommentController(CommentService commentService) : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the comment to delete. Example: <c>11111111-1111-1111-1111-111111111111</c></param>
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>No content.</returns>
     /// <response code="204">Comment deleted successfully.</response>
     /// <response code="401">Unauthorized - authentication is required.</response>
@@ -152,11 +152,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await commentService.DeleteAsync(new DeleteCommentCommand(id), ClaimReader.UserId(User), ct);
+        await commentService.DeleteAsync(new DeleteCommentCommand(id), ClaimReader.UserId(User), cancellationToken);
 
         return NoContent();
     }
@@ -168,7 +168,7 @@ public class CommentController(CommentService commentService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
-    /// <param name="ct">Cancellation token to cancel the request.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>A list of replies for the requested parent comment.</returns>
     /// <response code="200">Replies retrieved successfully.</response>
     /// <response code="400">Invalid pagination parameters supplied.</response>
@@ -180,11 +180,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetRepliesResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetRepliesResponse>>> GetRepliesAsync([FromRoute] Guid parentCommentId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
+    public async Task<ActionResult<List<GetRepliesResponse>>> GetRepliesAsync([FromRoute] Guid parentCommentId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.GetRepliesAsync(new GetRepliesQuery(page, perPage, parentCommentId), ct);
+        var result = await commentService.GetRepliesAsync(new GetRepliesQuery(page, perPage, parentCommentId), cancellationToken);
 
         return Ok(result);
     }

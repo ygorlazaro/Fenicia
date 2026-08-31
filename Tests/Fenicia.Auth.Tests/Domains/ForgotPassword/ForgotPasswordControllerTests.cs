@@ -67,7 +67,7 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PostAsync_WhenUserExists_ReturnsCreated()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
         var user = new UserModel
@@ -83,12 +83,12 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(email);
 
-        var result = await _controller.PostAsync(command, wide, ct);
+        var result = await _controller.PostAsync(command, wide, cancellationToken);
 
         Assert.IsType<CreatedResult>(result);
         Assert.Equal(command.Email, wide.UserId);
 
-        var forgotPasswordRecord = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, ct);
+        var forgotPasswordRecord = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, cancellationToken);
         Assert.NotNull(forgotPasswordRecord);
         Assert.True(forgotPasswordRecord.IsActive);
         Assert.NotNull(forgotPasswordRecord.Code);
@@ -99,11 +99,11 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PostAsync_WhenUserDoesNotExist_ReturnsBadRequest()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var command = new AddForgotPasswordCommand(_faker.Internet.Email());
 
-        var result = await _controller.PostAsync(command, wide, ct);
+        var result = await _controller.PostAsync(command, wide, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -112,7 +112,7 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PostAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
         var user = new UserModel
@@ -128,7 +128,7 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(email);
 
-        await _controller.PostAsync(command, wide, ct);
+        await _controller.PostAsync(command, wide, cancellationToken);
 
         Assert.Equal(command.Email, wide.UserId);
     }
@@ -137,7 +137,7 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PatchAsync_WhenValidCode_ResetsPasswordSuccessfully()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
         var newPassword = _faker.Internet.Password();
 
@@ -166,16 +166,16 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var result = await _controller.PatchAsync(command, wide, ct);
+        var result = await _controller.PatchAsync(command, wide, cancellationToken);
 
         Assert.IsType<NoContentResult>(result);
 
         Assert.Equal(command.Email, wide.UserId);
 
-        var updatedUser = await _userRepository.Query().FirstOrDefaultAsync(u => u.Id == user.Id, ct);
+        var updatedUser = await _userRepository.Query().FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
         Assert.NotNull(updatedUser);
 
-        var updatedForgotPassword = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, ct);
+        var updatedForgotPassword = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, cancellationToken);
         Assert.NotNull(updatedForgotPassword);
         Assert.False(updatedForgotPassword.IsActive);
     }
@@ -184,7 +184,7 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PatchAsync_WhenInvalidCode_ReturnsBadRequest()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
         var user = new UserModel
@@ -200,7 +200,7 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, _faker.Internet.Password(), "INVALID");
 
-        var result = await _controller.PatchAsync(command, wide, ct);
+        var result = await _controller.PatchAsync(command, wide, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -209,11 +209,11 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PatchAsync_WhenUserDoesNotExist_ReturnsBadRequest()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
         var command = new ResetPasswordCommand(_faker.Internet.Email(), _faker.Internet.Password(), _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
-        var result = await _controller.PatchAsync(command, wide, ct);
+        var result = await _controller.PatchAsync(command, wide, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -222,7 +222,7 @@ public class ForgotPasswordControllerTests : IDisposable
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
         var wide = new WideEventContext();
-        var ct = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
         var newPassword = _faker.Internet.Password();
 
@@ -251,7 +251,7 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        await _controller.PatchAsync(command, wide, ct);
+        await _controller.PatchAsync(command, wide, cancellationToken);
 
         Assert.Equal(command.Email, wide.UserId);
     }

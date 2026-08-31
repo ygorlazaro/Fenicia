@@ -9,7 +9,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public class ForgotPasswordService(ForgotPasswordRepository repository, UserService userService, SecurityService securityService)
 {
-    public async Task AddAsync(AddForgotPasswordCommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(AddForgotPasswordCommand command, CancellationToken cancellationToken = default)
     {
         var user = await userService.FirstByEmailOrDefaultAsync(command.Email, cancellationToken) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
@@ -26,7 +26,7 @@ public class ForgotPasswordService(ForgotPasswordRepository repository, UserServ
         await repository.InsertAsync(forgotPasswordModel, cancellationToken);
     }
 
-    public async Task ResetAsync(ResetPasswordCommand command, CancellationToken cancellationToken)
+    public async Task ResetAsync(ResetPasswordCommand command, CancellationToken cancellationToken = default)
     {
         var user = await userService.FirstByEmailOrDefaultAsync(command.Email, cancellationToken) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var currentCode = await repository.GetActiveByUserIdAndCodeAsync(user.Id, command.Code, cancellationToken) ?? throw new InvalidDataException(ExceptionMessages.InvalidForgotPasswordCode);

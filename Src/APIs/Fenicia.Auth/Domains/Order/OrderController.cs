@@ -21,7 +21,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     /// <param name="request">Comando com lista de IDs de módulos</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do pedido criado</returns>
     /// <response code="201">Pedido criado com sucesso</response>
     /// <response code="400">Requisição inválida (ex: módulos não encontrados)</response>
@@ -37,7 +37,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(CreateNewOrderCommand request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(CreateNewOrderCommand request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -46,7 +46,7 @@ public class OrderController(OrderService orderService) : ControllerBase
             var userId = ClaimReader.UserId(User);
             var companyId = headers.CompanyId;
             var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
-            var order = await orderService.CreateAsync(command, ct);
+            var order = await orderService.CreateAsync(command, cancellationToken);
 
             return order switch
             {

@@ -18,32 +18,32 @@ public class OrderDetailService
         _orderDetailRepository = orderDetailRepository;
     }
 
-    public virtual async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(GetOrderDetailsByOrderIdQuery query, CancellationToken ct)
+    public virtual async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(GetOrderDetailsByOrderIdQuery query, CancellationToken cancellationToken = default)
     {
-        var details = await _orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);
+        var details = await _orderDetailRepository.GetByOrderIdAsync(query.OrderId, cancellationToken);
 
         return [.. details.Select(d => d.MapToGetOrderDetailsByOrderIdResponse())];
     }
 
-    public virtual async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
+    public virtual async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken cancellationToken = default)
     {
-        return await _orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, ct);
+        return await _orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
     }
 
-    public virtual async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
+    public virtual async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken cancellationToken = default)
     {
-        return await _orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
+        return await _orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
     }
 
-    public virtual async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    public virtual async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
-        var result = await _orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
+        var result = await _orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
         return [.. result];
     }
 
-    public virtual async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct)
+    public virtual async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken cancellationToken = default)
     {
-        var result = await _orderDetailRepository.GetByDateRangeAsync(startDate, ct);
+        var result = await _orderDetailRepository.GetByDateRangeAsync(startDate, cancellationToken);
         return [.. result];
     }
 }

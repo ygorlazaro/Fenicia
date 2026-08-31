@@ -26,16 +26,16 @@ public class StockMovementService
         _productRepository = productRepository;
     }
 
-    public virtual async Task<List<GetStockMovementResponse>> GetAsync(GetStockMovementQuery query, CancellationToken ct)
+    public virtual async Task<List<GetStockMovementResponse>> GetAsync(GetStockMovementQuery query, CancellationToken cancellationToken = default)
     {
         var startDate = query.StartDate ?? DateTime.MinValue;
         var endDate = query.EndDate ?? DateTime.MaxValue;
-        var movements = await _stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PerPage, ct);
+        var movements = await _stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PerPage, cancellationToken);
 
         return [.. movements.Select(m => m.MapToGetStockMovementResponse())];
     }
 
-    public virtual async Task<AddStockMovementResponse> AddAsync(AddStockMovementCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<AddStockMovementResponse> AddAsync(AddStockMovementCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var stockMovement = new StockMovementModel
         {
@@ -53,9 +53,9 @@ public class StockMovementService
             CompanyId = companyId
         };
 
-        await _stockMovementRepository.InsertAsync(stockMovement, ct);
+        await _stockMovementRepository.InsertAsync(stockMovement, cancellationToken);
 
-        var product = await _productRepository.GetByIdAsync(command.ProductId, ct);
+        var product = await _productRepository.GetByIdAsync(command.ProductId, cancellationToken);
 
         if (product is not null)
         {
@@ -67,15 +67,15 @@ public class StockMovementService
             };
 
             product.Quantity = (double)newQuantity;
-            await _productRepository.UpdateAsync(product.Id, product, ct);
+            await _productRepository.UpdateAsync(product.Id, product, cancellationToken);
         }
 
         return stockMovement.MapToAddStockMovementResponse();
     }
 
-    public virtual async Task<UpdateStockMovementResponse?> UpdateAsync(UpdateStockMovementCommand command, Guid companyId, CancellationToken ct)
+    public virtual async Task<UpdateStockMovementResponse?> UpdateAsync(UpdateStockMovementCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var stockMovement = await _stockMovementRepository.GetByIdAsync(command.Id, ct);
+        var stockMovement = await _stockMovementRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (stockMovement is null)
         {
@@ -94,12 +94,12 @@ public class StockMovementService
         stockMovement.Reason = command.Reason;
         stockMovement.CompanyId = companyId;
 
-        await _stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, ct);
+        await _stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, cancellationToken);
 
         return stockMovement.MapToUpdateStockMovementResponse();
     }
 
-    public virtual async Task<List<StockMovementModel>> GetRecentWithProductAsync(int days, int topLimit, CancellationToken ct)
+    public virtual async Task<List<StockMovementModel>> GetRecentWithProductAsync(int days, int topLimit, CancellationToken cancellationToken = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-days);
         return await _stockMovementRepository.Query()
@@ -107,21 +107,21 @@ public class StockMovementService
             .Where(m => m.SupplierId.HasValue && m.Date >= startDate)
             .OrderByDescending(m => m.Date)
             .Take(topLimit)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<StockMovementDashboardResponse> GetDashboardAsync(GetStockMovementDashboardQuery query, CancellationToken ct)
+    public virtual async Task<StockMovementDashboardResponse> GetDashboardAsync(GetStockMovementDashboardQuery query, CancellationToken cancellationToken = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var movements = await _stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, ct);
+        var movements = await _stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
         var movementList = movements.ToList();
 
-        var history = await GetStockMovementHistoryAsync(movementList, ct);
+        var history = await GetStockMovementHistoryAsync(movementList, cancellationToken);
         var monthlyInOut = GetMonthlyInOut(movementList);
-        var topMovedProducts = await GetTopMovedProductAsync(query, movementList, ct);
-        var turnoverRates = await GetStockTurnoverAsync(query, movementList, ct);
+        var topMovedProducts = await GetTopMovedProductAsync(query, movementList, cancellationToken);
+        var turnoverRates = await GetStockTurnoverAsync(query, movementList, cancellationToken);
 
         return new StockMovementDashboardResponse
         {
@@ -132,18 +132,18 @@ public class StockMovementService
         };
     }
 
-    public virtual async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+    public virtual async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
-        var result = await _stockMovementRepository.GetByDateRangeAsync(startDate, endDate, ct);
+        var result = await _stockMovementRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         return [.. result];
     }
 
-    public virtual async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct)
+    public virtual async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default)
     {
-        return await _stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, ct);
+        return await _stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
     }
 
-    private async Task<List<StockMovementHistoryResponse>> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements, CancellationToken ct)
+    private async Task<List<StockMovementHistoryResponse>> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
     {
         var movementList = movements.ToList();
 
@@ -164,11 +164,11 @@ public class StockMovementService
         return [.. request];
     }
 
-    private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken ct)
+    private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
     {
         var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
-        var products = await _productRepository.GetAllWithDetailsAsync(1, 10000, ct);
+        var products = await _productRepository.GetAllWithDetailsAsync(1, 10000, cancellationToken);
         var productList = products.Where(p => p.Quantity > 0).ToList();
 
         var request = from p in productList
@@ -193,7 +193,7 @@ public class StockMovementService
         return [.. data.Select(x => new StockTurnoverResponse(x.Id, x.Name, x.CategoryName, x.Quantity, x.totalSold, x.turnoverRate, ClassifyTurnover(x.turnoverRate)))];
     }
 
-    private async Task<List<TopMovedProductResponse>> GetTopMovedProductAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken ct)
+    private async Task<List<TopMovedProductResponse>> GetTopMovedProductAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
     {
         var movementList = movements.ToList();
 

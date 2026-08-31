@@ -30,7 +30,7 @@ public class ConfigurationController(ConfigurationService configurationService) 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid companyId, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid companyId, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -69,7 +69,7 @@ public class ConfigurationController(ConfigurationService configurationService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromQuery] Guid companyId, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromQuery] Guid companyId, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken cancellationToken = default)
     {
         try
         {

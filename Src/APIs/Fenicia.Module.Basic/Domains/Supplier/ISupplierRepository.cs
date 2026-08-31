@@ -7,9 +7,9 @@ public interface ISupplierRepository : IRepository<SupplierModel>
 {
     IQueryable<SupplierModel> Query();
 
-    Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct);
+    Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
 
-    Task<SupplierModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct);
+    Task<SupplierModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<Dictionary<Guid, string>> GetSupplierNamesAsync(IEnumerable<Guid> supplierIds, CancellationToken ct);
+    Task<Dictionary<Guid, string>> GetSupplierNamesAsync(IEnumerable<Guid> supplierIds, CancellationToken cancellationToken = default);
 }

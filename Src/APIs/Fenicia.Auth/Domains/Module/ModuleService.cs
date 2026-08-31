@@ -9,7 +9,7 @@ namespace Fenicia.Auth.Domains.Module;
 
 public class ModuleService(ModuleRepository repository, UserRoleService userRoleService, SubscriptionService subscriptionService)
 {
-    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken cancellationToken)
+    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken cancellationToken = default)
     {
         var modules = await repository.GetAllActiveAsync(page, perPage, cancellationToken);
         var total = await repository.CountAllActiveAsync(cancellationToken);
@@ -17,7 +17,7 @@ public class ModuleService(ModuleRepository repository, UserRoleService userRole
         return new Pagination<List<GetModuleResponse>>([.. modules.Select(m => m.MapToGetModuleResponse())], total, page, perPage);
     }
 
-    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken)
+    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken = default)
     {
         var userRole = await userRoleService.GetUserRoleAsync(userId, companyId, cancellationToken);
 
@@ -45,12 +45,12 @@ public class ModuleService(ModuleRepository repository, UserRoleService userRole
         return [.. modulesResult.Select(m => m.MapToGetUserModulesResponse())];
     }
 
-    public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)
+    public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
         return await repository.GetByIdsAsync(ids, cancellationToken);
     }
 
-    public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken)
+    public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)
     {
         return await repository.GetByTypeAsync(type, cancellationToken);
     }

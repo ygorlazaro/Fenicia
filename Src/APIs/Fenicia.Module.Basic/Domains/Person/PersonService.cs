@@ -17,20 +17,20 @@ public class PersonService
         _personRepository = personRepository;
     }
 
-    public virtual async Task<PersonModel> InsertAsync(PersonModel person, Guid companyId, CancellationToken ct)
+    public virtual async Task<PersonModel> InsertAsync(PersonModel person, Guid companyId, CancellationToken cancellationToken = default)
     {
         person.CompanyId = companyId;
-        return await _personRepository.InsertAsync(person, ct);
+        return await _personRepository.InsertAsync(person, cancellationToken);
     }
 
-    public virtual async Task<PersonModel?> UpdateAsync(Guid id, PersonModel person, Guid companyId, CancellationToken ct)
+    public virtual async Task<PersonModel?> UpdateAsync(Guid id, PersonModel person, Guid companyId, CancellationToken cancellationToken = default)
     {
         person.CompanyId = companyId;
-        return await _personRepository.UpdateAsync(id, person, ct);
+        return await _personRepository.UpdateAsync(id, person, cancellationToken);
     }
 
-    public virtual async Task<PersonModel?> GetByIdAsync(Guid id, CancellationToken ct)
+    public virtual async Task<PersonModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _personRepository.GetByIdAsync(id, ct);
+        return await _personRepository.GetByIdAsync(id, cancellationToken);
     }
 }

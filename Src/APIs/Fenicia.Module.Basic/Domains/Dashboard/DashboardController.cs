@@ -20,7 +20,7 @@ public class DashboardController(DashboardService dashboardService) : Controller
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dashboard financeiro completo</returns>
     /// <response code="200">Dashboard financeiro retornado com sucesso</response>
     /// <response code="401">Usuário não autorizado</response>
@@ -30,13 +30,13 @@ public class DashboardController(DashboardService dashboardService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(WideEventContext wide, [FromQuery] int days = 90, CancellationToken ct)
+    public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(WideEventContext wide, [FromQuery] int days = 90, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await dashboardService.GetFinancialDashboardAsync(new GetFinancialDashboardQuery(days), ct);
+            var dashboard = await dashboardService.GetFinancialDashboardAsync(new GetFinancialDashboardQuery(days), cancellationToken);
 
             return Ok(dashboard);
         }

@@ -6,21 +6,21 @@ namespace Fenicia.Auth.Domains.Notification;
 
 public class NotificationService(NotificationRepository repository)
 {
-    public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken)
+    public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
     {
         var result = await repository.GetAllWithPaginationAsync(page, perPage, cancellationToken);
 
         return new Pagination<List<GetAllNotificationsResponse>>([.. result.Data.Select(n => n.MapToGetAllNotificationsResponse())], result.Total, page, perPage);
     }
 
-    public async Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var notification = await repository.GetByIdAsync(id, cancellationToken);
 
         return notification is null ? null : notification.MapToGetNotificationByIdResponse();
     }
 
-    public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, Guid companyId, CancellationToken cancellationToken)
+    public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var notification = new NotificationModel
         {
@@ -37,7 +37,7 @@ public class NotificationService(NotificationRepository repository)
         return new AddNotificationResponse(created.Id);
     }
 
-    public async Task<UpdateNotificationResponse?> UpdateAsync(UpdateNotificationCommand command, Guid companyId, CancellationToken cancellationToken)
+    public async Task<UpdateNotificationResponse?> UpdateAsync(UpdateNotificationCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var notification = await repository.GetByIdAsync(command.Id, cancellationToken);
 
@@ -62,7 +62,7 @@ public class NotificationService(NotificationRepository repository)
         return new UpdateNotificationResponse(notification.Id);
     }
 
-    public async Task<bool> DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default)
     {
         var notification = await repository.GetByIdAsync(id, cancellationToken);
 
