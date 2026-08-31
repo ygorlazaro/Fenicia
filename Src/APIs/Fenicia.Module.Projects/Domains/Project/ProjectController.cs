@@ -22,6 +22,8 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
+    /// <param name="query">Advanced query string for filtering. Example: <c>title[*]Alpha,status[=]Planned</c></param>
+    /// <param name="sort">Sort fields. Example: <c>title,-startDate</c></param>
     /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>A list of projects for the requested page.</returns>
     /// <response code="200">Projects retrieved successfully. Example: <c>[{ "id": "11111111-1111-1111-1111-111111111111", "title": "Project Alpha", "description": "A sample project", "status": "Planned", "startDate": "2024-01-15T00:00:00Z", "endDate": "2024-12-31T00:00:00Z", "owner": "22222222-2222-2222-2222-222222222222", "companyId": "33333333-3333-3333-3333-333333333333" }]</c></response>
@@ -34,11 +36,11 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProjectResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projects = await projectService.GetAllAsync(new GetAllProjectQuery(page, perPage), cancellationToken);
+        var projects = await projectService.GetAllAsync(new GetAllProjectQuery(page, perPage, query, sort), cancellationToken);
 
         return Ok(projects);
     }
