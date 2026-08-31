@@ -8,7 +8,7 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionRepository(DefaultContext context) : Repository<SubscriptionModel>(context)
 {
-    public async Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(Guid userId, CancellationToken ct = default)
+    public async Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(Guid userId, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
 
@@ -19,7 +19,7 @@ public class SubscriptionRepository(DefaultContext context) : Repository<Subscri
             .ToListAsync(ct);
     }
 
-    public async Task<List<ModuleModel>> GetSubscriptionModulesAsync(Guid subscriptionId, CancellationToken ct = default)
+    public async Task<List<ModuleModel>> GetSubscriptionModulesAsync(Guid subscriptionId, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
 

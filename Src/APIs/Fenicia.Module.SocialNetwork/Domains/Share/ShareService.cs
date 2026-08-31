@@ -24,6 +24,6 @@ public class ShareService(ShareRepository repository)
     public async Task<List<GetSharesResponse>> GetSharesByFeedAsync(GetSharesByFeedQuery query, Guid feedId, CancellationToken ct)
     {
         var shares = await repository.GetSharesByFeedAsync(query.Page, query.PerPage, feedId, ct);
-        return shares.Select(s => new GetSharesResponse(s.Id, s.OriginalFeedId, s.Text, s.CompanyId, s.UserId, s.ShareDate)).ToList();
+        return [.. shares.Select(s => new GetSharesResponse(s.Id, s.OriginalFeedId, s.Text, s.CompanyId, s.UserId, s.ShareDate))];
     }
 }

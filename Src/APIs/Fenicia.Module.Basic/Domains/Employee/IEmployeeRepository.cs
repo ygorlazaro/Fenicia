@@ -5,11 +5,11 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 
 public interface IEmployeeRepository : IRepository<EmployeeModel>
 {
-    Task<EmployeeModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);
+    Task<EmployeeModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct);
 
-    Task<IEnumerable<EmployeeModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default);
+    Task<IEnumerable<EmployeeModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct);
 
-    Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct = default);
+    Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct);
 
-    Task<IEnumerable<EmployeeModel>> GetByPositionIdAsync(Guid positionId, int page = 1, int perPage = 10, CancellationToken ct = default);
+    Task<IEnumerable<EmployeeModel>> GetByPositionIdAsync(Guid positionId, int page = 1, int perPage = 10, CancellationToken ct);
 }

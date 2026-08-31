@@ -7,7 +7,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
 public class ShareRepository(DefaultContext context) : Repository<ShareModel>(context)
 {
-    public async Task<IEnumerable<ShareModel>> GetSharesByFeedAsync(int page, int perPage, Guid feedId, CancellationToken ct = default)
+    public async Task<IEnumerable<ShareModel>> GetSharesByFeedAsync(int page, int perPage, Guid feedId, CancellationToken ct)
     {
         return await DbSet
                 .Where(e => e.OriginalFeedId == feedId && e.Deleted == null)

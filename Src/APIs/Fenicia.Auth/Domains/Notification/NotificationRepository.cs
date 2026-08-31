@@ -8,14 +8,14 @@ namespace Fenicia.Auth.Domains.Notification;
 
 public class NotificationRepository(DefaultContext context) : Repository<NotificationModel>(context)
 {
-    public async Task<Pagination<List<NotificationModel>>> GetAllWithPaginationAsync(int page, int perPage, CancellationToken ct = default)
+    public async Task<Pagination<List<NotificationModel>>> GetAllWithPaginationAsync(int page, int perPage, CancellationToken cancellationToken)
     {
         var query = from n in DbSet
                     orderby n.Date descending
                     select n;
 
-        var total = await query.CountAsync(ct);
-        var items = await query.Skip((page - 1) * perPage).Take(perPage).ToListAsync(ct);
+        var total = await query.CountAsync(cancellationToken);
+        var items = await query.Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
 
         return new Pagination<List<NotificationModel>>(items, total, page, perPage);
     }

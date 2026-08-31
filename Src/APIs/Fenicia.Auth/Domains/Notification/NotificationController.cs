@@ -21,7 +21,7 @@ public class NotificationController(NotificationService notificationService) : C
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="perPage">Quantidade de itens por página (padrão: 10)</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de notificações</returns>
     /// <response code="200">Notificações encontradas</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -30,12 +30,12 @@ public class NotificationController(NotificationService notificationService) : C
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllNotificationsResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllNotificationsResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<Pagination<List<GetAllNotificationsResponse>>>> GetAsync(WideEventContext wide, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int perPage = 10)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notifications = await notificationService.GetAllAsync(page, perPage, ct);
+            var notifications = await notificationService.GetAllAsync(page, perPage, cancellationToken);
             return Ok(notifications);
         }
         catch (UnauthorizedAccessException ex)
@@ -49,7 +49,7 @@ public class NotificationController(NotificationService notificationService) : C
     /// </summary>
     /// <param name="id">ID da notificação</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação</returns>
     /// <response code="200">Notificação encontrada</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -60,12 +60,12 @@ public class NotificationController(NotificationService notificationService) : C
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetNotificationByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetNotificationByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await notificationService.GetByIdAsync(id, ct);
+            var notification = await notificationService.GetByIdAsync(id, cancellationToken);
             return notification is null ? NotFound() : Ok(notification);
         }
         catch (UnauthorizedAccessException ex)
@@ -80,7 +80,7 @@ public class NotificationController(NotificationService notificationService) : C
     /// <param name="command">Dados da notificação (título, descrição, data, imagem)</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação criada</returns>
     /// <response code="201">Notificação criada com sucesso</response>
     /// <response code="400">Requisição inválida</response>
@@ -91,12 +91,12 @@ public class NotificationController(NotificationService notificationService) : C
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddNotificationResponse>> PostAsync([FromBody] AddNotificationCommand command, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddNotificationResponse>> PostAsync([FromBody] AddNotificationCommand command, [FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await notificationService.AddAsync(command, headers.CompanyId, ct);
+            var notification = await notificationService.AddAsync(command, headers.CompanyId, cancellationToken);
             return new CreatedResult(string.Empty, notification);
         }
         catch (UnauthorizedAccessException ex)

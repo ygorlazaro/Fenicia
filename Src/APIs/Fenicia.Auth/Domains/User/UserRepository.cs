@@ -7,12 +7,12 @@ namespace Fenicia.Auth.Domains.User;
 
 public class UserRepository(DefaultContext context) : Repository<UserModel>(context)
 {
-    public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken ct = default)
+    public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken ct)
     {
         return await DbSet.FirstOrDefaultAsync(u => u.Email == email && u.Deleted == null, ct);
     }
 
-    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default)
+    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct)
     {
         return await DbSet.AnyAsync(u => u.Email == email && u.Deleted == null, ct);
     }

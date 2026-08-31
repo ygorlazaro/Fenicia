@@ -30,7 +30,7 @@ public class DashboardController(DashboardService dashboardService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(WideEventContext wide, [FromQuery] int days = 90, CancellationToken ct = default)
+    public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(WideEventContext wide, [FromQuery] int days = 90, CancellationToken ct)
     {
         try
         {

@@ -8,7 +8,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
     private const string _redisPrefix = "refresh_token:";
     private readonly IDatabase _redisDb = redis.GetDatabase();
 
-    public async Task AddAsync(RefreshTokenModel token, CancellationToken ct = default)
+    public async Task AddAsync(RefreshTokenModel token, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(token);
 
@@ -18,7 +18,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         await _redisDb.StringSetAsync(key, value, token.ExpirationDate, When.Always, CommandFlags.None);
     }
 
-    public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken ct = default)
+    public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -47,7 +47,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         }
     }
 
-    public async Task UpdateAsync(RefreshTokenModel token, CancellationToken ct = default)
+    public async Task UpdateAsync(RefreshTokenModel token, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(token);
 

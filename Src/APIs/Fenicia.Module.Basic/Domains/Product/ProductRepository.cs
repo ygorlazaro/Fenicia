@@ -7,7 +7,7 @@ namespace Fenicia.Module.Basic.Domains.Product;
 
 public class ProductRepository(DefaultContext context) : Repository<ProductModel>(context), IProductRepository
 {
-    public async Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Include(p => p.Category)
@@ -17,7 +17,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<ProductModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
+    public async Task<ProductModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct)
     {
         return await DbSet
                 .Include(p => p.Category)
@@ -25,7 +25,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
-    public async Task<IEnumerable<ProductModel>> GetByCategoryIdAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductModel>> GetByCategoryIdAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Where(p => p.CategoryId == categoryId)
@@ -35,7 +35,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Include(p => p.Category)
@@ -45,7 +45,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Where(p => p.CategoryId == categoryId)
@@ -56,7 +56,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Where(p => p.Id == productId)
@@ -67,7 +67,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<List<ProductModel>> GetLowStockAsync(CancellationToken ct = default)
+    public async Task<List<ProductModel>> GetLowStockAsync(CancellationToken ct)
     {
         return await DbSet
                 .Include(p => p.Category)
@@ -76,62 +76,62 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<decimal> GetTotalCostPriceAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTotalCostPriceAsync(CancellationToken ct)
     {
         return await DbSet.SumAsync(p => p.CostPrice ?? 0, ct);
     }
 
-    public async Task<decimal> GetTotalSalesPriceAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTotalSalesPriceAsync(CancellationToken ct)
     {
         return await DbSet.SumAsync(p => p.SalesPrice, ct);
     }
 
-    public async Task<int> GetTotalQuantityAsync(CancellationToken ct = default)
+    public async Task<int> GetTotalQuantityAsync(CancellationToken ct)
     {
         return (int)await DbSet.SumAsync(p => (double)p.Quantity, ct);
     }
 
-    public async Task<decimal> GetTotalCostPriceByCategoryAsync(Guid categoryId, CancellationToken ct = default)
+    public async Task<decimal> GetTotalCostPriceByCategoryAsync(Guid categoryId, CancellationToken ct)
     {
         return await DbSet.Where(p => p.CategoryId == categoryId).SumAsync(p => p.CostPrice ?? 0, ct);
     }
 
-    public async Task<decimal> GetTotalSalesPriceByCategoryAsync(Guid categoryId, CancellationToken ct = default)
+    public async Task<decimal> GetTotalSalesPriceByCategoryAsync(Guid categoryId, CancellationToken ct)
     {
         return await DbSet.Where(p => p.CategoryId == categoryId).SumAsync(p => p.SalesPrice, ct);
     }
 
-    public async Task<int> GetTotalQuantityByCategoryAsync(Guid categoryId, CancellationToken ct = default)
+    public async Task<int> GetTotalQuantityByCategoryAsync(Guid categoryId, CancellationToken ct)
     {
         return (int)await DbSet.Where(p => p.CategoryId == categoryId).SumAsync(p => (double)p.Quantity, ct);
     }
 
-    public async Task<decimal> GetTotalCostPriceByProductAsync(Guid productId, CancellationToken ct = default)
+    public async Task<decimal> GetTotalCostPriceByProductAsync(Guid productId, CancellationToken ct)
     {
         return await DbSet.Where(p => p.Id == productId).SumAsync(p => p.CostPrice ?? 0, ct);
     }
 
-    public async Task<decimal> GetTotalSalesPriceByProductAsync(Guid productId, CancellationToken ct = default)
+    public async Task<decimal> GetTotalSalesPriceByProductAsync(Guid productId, CancellationToken ct)
     {
         return await DbSet.Where(p => p.Id == productId).SumAsync(p => p.SalesPrice, ct);
     }
 
-    public async Task<int> GetTotalQuantityByProductAsync(Guid productId, CancellationToken ct = default)
+    public async Task<int> GetTotalQuantityByProductAsync(Guid productId, CancellationToken ct)
     {
         return (int)await DbSet.Where(p => p.Id == productId).SumAsync(p => (double)p.Quantity, ct);
     }
 
-    public async Task<decimal> GetTotalCostValueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTotalCostValueAsync(CancellationToken ct)
     {
         return await DbSet.SumAsync(p => (p.CostPrice ?? 0) * (decimal)p.Quantity, ct);
     }
 
-    public async Task<decimal> GetTotalSalesValueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTotalSalesValueAsync(CancellationToken ct)
     {
         return await DbSet.SumAsync(p => p.SalesPrice * (decimal)p.Quantity, ct);
     }
 
-    public async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct = default)
+    public async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct)
     {
         var activeIds = activeProductIds as HashSet<Guid> ?? [.. activeProductIds];
         return await DbSet
@@ -142,7 +142,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken ct = default)
+    public async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken ct)
     {
         return await DbSet
                 .Where(p => p.Quantity > 0)
@@ -152,7 +152,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(ct);
     }
 
-    public async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken ct = default)
+    public async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken ct)
     {
         return await DbSet
                 .Where(p => p.Quantity > 0)

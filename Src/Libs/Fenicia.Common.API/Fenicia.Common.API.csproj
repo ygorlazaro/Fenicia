@@ -5,6 +5,10 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Fenicia.Common.API</AssemblyName>
         <RootNamespace>Fenicia.Common.API</RootNamespace>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>all</AnalysisMode>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />

@@ -19,7 +19,7 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
     /// </summary>
     /// <param name="reset">Comando com o e-mail do usuário</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (201) se o código foi gerado com sucesso</returns>
     /// <response code="201">Código de recuperação gerado e enviado</response>
     /// <response code="400">E-mail não encontrado ou inválido</response>
@@ -29,7 +29,7 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PostAsync([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken ct)
+    public async Task<IActionResult> PostAsync([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken cancellationToken)
     {
         try
         {
@@ -40,7 +40,7 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
 
             var command = new AddForgotPasswordCommand(reset.Email, ipAddress, userAgent);
 
-            await forgotPasswordService.AddAsync(command, ct);
+            await forgotPasswordService.AddAsync(command, cancellationToken);
 
             return Created();
         }
@@ -55,7 +55,7 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
     /// </summary>
     /// <param name="request">Comando com e-mail, nova senha e código de recuperação</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se a senha foi redefinida com sucesso</returns>
     /// <response code="204">Senha redefinida com sucesso</response>
     /// <response code="400">Código inválido, e-mail não encontrado ou senha inválida</response>
@@ -65,13 +65,13 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PatchAsync([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken cancellationToken)
     {
         try
         {
             wide.UserId = request.Email;
 
-            await forgotPasswordService.ResetAsync(request, ct);
+            await forgotPasswordService.ResetAsync(request, cancellationToken);
 
             return NoContent();
         }

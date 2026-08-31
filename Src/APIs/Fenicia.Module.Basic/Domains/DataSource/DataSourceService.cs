@@ -54,14 +54,14 @@ public class DataSourceService
     {
         var positions = await _positionService.GetAllAsync(new GetAllPositionQuery(1, int.MaxValue), ct);
 
-        return positions.Data.Select(p => p.MapToDataSourceResponse()).ToList();
+        return [.. positions.Data.Select(p => p.MapToDataSourceResponse())];
     }
 
     public virtual async Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(CancellationToken ct)
     {
         var categories = await _productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(1, int.MaxValue), ct);
 
-        return categories.Data.Select(pc => pc.MapToDataSourceResponse()).ToList();
+        return [.. categories.Data.Select(pc => pc.MapToDataSourceResponse())];
     }
 
     public virtual async Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(CancellationToken ct)

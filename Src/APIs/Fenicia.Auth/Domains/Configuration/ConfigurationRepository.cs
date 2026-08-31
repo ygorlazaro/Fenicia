@@ -8,20 +8,20 @@ namespace Fenicia.Auth.Domains.Configuration;
 
 public class ConfigurationRepository(DefaultContext context) : Repository<ConfigurationModel>(context)
 {
-    public async Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(Guid userId, Guid companyId, ConfigType configType, CancellationToken ct = default)
+    public async Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(Guid userId, Guid companyId, ConfigType configType, CancellationToken cancellationToken)
     {
         return await DbSet.FirstOrDefaultAsync(
             c => c.UserId == userId && c.CompanyId == companyId && c.ConfigType == configType,
-            ct);
+            cancellationToken);
     }
 
-    public async Task<List<ConfigurationModel>> GetByUserAndCompanyAsync(Guid userId, Guid companyId, CancellationToken ct = default)
+    public async Task<List<ConfigurationModel>> GetByUserAndCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
         var query = from c in DbSet
                     where c.UserId == userId && c.CompanyId == companyId
                     orderby c.ConfigType
                     select c;
 
-        return await query.ToListAsync(ct);
+        return await query.ToListAsync(cancellationToken);
     }
 }

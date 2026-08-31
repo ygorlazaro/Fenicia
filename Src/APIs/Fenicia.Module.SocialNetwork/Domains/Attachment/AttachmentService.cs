@@ -30,6 +30,6 @@ public class AttachmentService(AttachmentRepository repository)
     public async Task<List<GetAttachmentResponse>> GetByCommentAsync(GetAttachmentsByCommentQuery query, Guid commentId, CancellationToken ct)
     {
         var attachments = await repository.GetByCommentAsync(query.Page, query.PerPage, commentId, ct);
-        return attachments.Select(a => new GetAttachmentResponse(a.Id, a.Url, a.FileType, a.FileSize, a.CommentId, a.UploadDate)).ToList();
+        return [.. attachments.Select(a => new GetAttachmentResponse(a.Id, a.Url, a.FileType, a.FileSize, a.CommentId, a.UploadDate))];
     }
 }

@@ -9,7 +9,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierRepository(DefaultContext context) : Repository<SupplierModel>(context), ISupplierRepository
 {
-    public async Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Include(s => s.Person)
@@ -21,7 +21,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
             .ToListAsync(ct);
     }
 
-    public async Task<SupplierModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
+    public async Task<SupplierModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct)
     {
         return await DbSet
                 .Include(s => s.Person)
@@ -31,7 +31,7 @@ public class SupplierRepository(DefaultContext context) : Repository<SupplierMod
             .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
-    public async Task<Dictionary<Guid, string>> GetSupplierNamesAsync(IEnumerable<Guid> supplierIds, CancellationToken ct = default)
+    public async Task<Dictionary<Guid, string>> GetSupplierNamesAsync(IEnumerable<Guid> supplierIds, CancellationToken ct)
     {
         var ids = supplierIds.ToList();
         return await DbSet

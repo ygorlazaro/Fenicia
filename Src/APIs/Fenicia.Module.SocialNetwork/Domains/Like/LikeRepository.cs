@@ -7,13 +7,13 @@ namespace Fenicia.Module.SocialNetwork.Domains.Like;
 
 public class LikeRepository(DefaultContext context) : Repository<LikeModel>(context)
 {
-    public async Task<LikeModel?> GetByUserAndFeedAsync(Guid userId, Guid feedId, CancellationToken ct = default)
+    public async Task<LikeModel?> GetByUserAndFeedAsync(Guid userId, Guid feedId, CancellationToken ct)
     {
         return await DbSet
             .FirstOrDefaultAsync(e => e.UserId == userId && e.FeedId == feedId && e.Deleted == null, ct);
     }
 
-    public async Task<IEnumerable<LikeModel>> GetByFeedAsync(Guid feedId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<LikeModel>> GetByFeedAsync(Guid feedId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
             .Where(e => e.FeedId == feedId && e.Deleted == null)

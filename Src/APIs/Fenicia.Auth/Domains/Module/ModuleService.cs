@@ -9,30 +9,30 @@ namespace Fenicia.Auth.Domains.Module;
 
 public class ModuleService(ModuleRepository repository, UserRoleService userRoleService, SubscriptionService subscriptionService)
 {
-    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken ct)
+    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken cancellationToken)
     {
-        var modules = await repository.GetAllActiveAsync(page, perPage, ct);
-        var total = await repository.CountAllActiveAsync(ct);
+        var modules = await repository.GetAllActiveAsync(page, perPage, cancellationToken);
+        var total = await repository.CountAllActiveAsync(cancellationToken);
 
-        return new Pagination<List<GetModuleResponse>>(modules.Select(m => m.MapToGetModuleResponse()).ToList(), total, page, perPage);
+        return new Pagination<List<GetModuleResponse>>([.. modules.Select(m => m.MapToGetModuleResponse())], total, page, perPage);
     }
 
-    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken ct)
+    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken)
     {
-        var userRole = await userRoleService.GetUserRoleAsync(userId, companyId, ct);
+        var userRole = await userRoleService.GetUserRoleAsync(userId, companyId, cancellationToken);
 
         if (userRole is null)
         {
             return [];
         }
 
-        var companySubscriptions = await subscriptionService.GetActiveSubscriptionsByCompanyAsync(companyId, ct);
+        var companySubscriptions = await subscriptionService.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
 
         var moduleIds = new HashSet<Guid>();
 
         foreach (var subscription in companySubscriptions)
         {
-            var modules = await subscriptionService.GetActiveModulesForSubscriptionAsync(subscription.Id, ct);
+            var modules = await subscriptionService.GetActiveModulesForSubscriptionAsync(subscription.Id, cancellationToken);
 
             foreach (var module in modules)
             {
@@ -40,18 +40,18 @@ public class ModuleService(ModuleRepository repository, UserRoleService userRole
             }
         }
 
-        var modulesResult = await repository.GetByIdsAsync(moduleIds, ct);
+        var modulesResult = await repository.GetByIdsAsync(moduleIds, cancellationToken);
 
-        return modulesResult.Select(m => m.MapToGetUserModulesResponse()).ToList();
+        return [.. modulesResult.Select(m => m.MapToGetUserModulesResponse())];
     }
 
-    public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct)
+    public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)
     {
-        return await repository.GetByIdsAsync(ids, ct);
+        return await repository.GetByIdsAsync(ids, cancellationToken);
     }
 
-    public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken ct)
+    public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken)
     {
-        return await repository.GetByTypeAsync(type, ct);
+        return await repository.GetByTypeAsync(type, cancellationToken);
     }
 }

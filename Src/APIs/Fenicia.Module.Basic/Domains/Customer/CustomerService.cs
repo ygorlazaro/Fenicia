@@ -58,7 +58,7 @@ public class CustomerService
     {
         var customers = await _customerRepository.GetAllWithDetailsAsync(ct: ct);
 
-        return customers.Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name)).ToList();
+        return [.. customers.Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name))];
     }
 
     public virtual async Task<GetCustomerByIdResponse?> GetByIdAsync(GetCustomerByIdQuery query, CancellationToken ct)

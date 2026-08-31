@@ -22,7 +22,7 @@ public class OrderDetailService
     {
         var details = await _orderDetailRepository.GetByOrderIdAsync(query.OrderId, ct);
 
-        return details.Select(d => d.MapToGetOrderDetailsByOrderIdResponse()).ToList();
+        return [.. details.Select(d => d.MapToGetOrderDetailsByOrderIdResponse())];
     }
 
     public virtual async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
@@ -35,15 +35,15 @@ public class OrderDetailService
         return await _orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, ct);
     }
 
-    public virtual async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public virtual async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         var result = await _orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, ct);
-        return result.ToList();
+        return [.. result];
     }
 
-    public virtual async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    public virtual async Task<List<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct)
     {
         var result = await _orderDetailRepository.GetByDateRangeAsync(startDate, ct);
-        return result.ToList();
+        return [.. result];
     }
 }

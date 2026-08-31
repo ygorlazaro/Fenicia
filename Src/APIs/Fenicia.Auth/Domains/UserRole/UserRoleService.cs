@@ -10,14 +10,14 @@ public class UserRoleService(UserRoleRepository userRoleRepository)
     {
         var userRoles = await userRoleRepository.GetCompaniesByUserAsync(userId, ct);
 
-        return userRoles.Select(ur => ur.MapToUserRoleResponse()).ToList();
+        return [.. userRoles.Select(ur => ur.MapToUserRoleResponse())];
     }
 
     public async Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(Guid userId, CancellationToken ct)
     {
         var userRoles = await userRoleRepository.GetUserCompaniesAsync(userId, ct);
 
-        return userRoles.Select(ur => ur.MapToGetUserCompaniesResponse()).ToList();
+        return [.. userRoles.Select(ur => ur.MapToGetUserCompaniesResponse())];
     }
 
     public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken ct)

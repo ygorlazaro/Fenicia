@@ -91,7 +91,7 @@ public class LikeController(LikeService likeService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetLikesResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetLikesResponse>>> GetLikesByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetLikesResponse>>> GetLikesByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 

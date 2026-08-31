@@ -37,7 +37,7 @@ public class UserService(
 
         var users = await request.Skip((page - 1) * perPage).Take(perPage).ToListAsync(ct);
 
-        return new Pagination<List<UserListItemResponse>>(users.Select(u => u.MapToUserListItemResponse()).ToList(), totalCount, page, perPage);
+        return new Pagination<List<UserListItemResponse>>([.. users.Select(u => u.MapToUserListItemResponse())], totalCount, page, perPage);
     }
 
     public async Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken ct)
@@ -218,7 +218,7 @@ public class UserService(
             CompanyId = r.CompanyId
         });
 
-        await userRoleService.InsertRangeAsync(userRoles.ToList(), ct);
+        await userRoleService.InsertRangeAsync([.. userRoles], ct);
     }
 
     private async Task ValidateCompanies(IEnumerable<Guid> companies, CancellationToken ct)

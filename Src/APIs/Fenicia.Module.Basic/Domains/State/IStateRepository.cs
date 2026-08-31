@@ -5,5 +5,5 @@ namespace Fenicia.Module.Basic.Domains.State;
 
 public interface IStateRepository : IRepository<StateModel>
 {
-    Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct = default);
+    Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct);
 }

@@ -3,8 +3,11 @@ namespace Fenicia.Common;
 public class Pagination<T>(T data, int total, int page, int perPage)
 {
     public Pagination(T data, int total, PaginationQuery query)
-        : this(data, total, query.Page, query.PerPage)
+        : this(data, total, 0, 0)
     {
+        ArgumentNullException.ThrowIfNull(query);
+        Page = query.Page;
+        PerPage = query.PerPage;
     }
 
     public T Data { get; set; } = data;

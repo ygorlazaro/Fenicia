@@ -55,7 +55,7 @@ public class SupplierService
     {
         var suppliers = await _supplierRepository.GetAllWithDetailsAsync(ct: ct);
 
-        return suppliers.Select(s => new GetAllSupplierForDataSourceResponse(s.Id, s.Person.Name)).ToList();
+        return [.. suppliers.Select(s => new GetAllSupplierForDataSourceResponse(s.Id, s.Person.Name))];
     }
 
     public virtual async Task<GetSupplierByIdResponse?> GetByIdAsync(GetSupplierByIdQuery query, CancellationToken ct)
@@ -234,15 +234,14 @@ public class SupplierService
         var products = await _productService.GetAllForStatsAsync(ct);
         var productList = products.ToList();
 
-        return productList
+        return [.. productList
             .GroupBy(p => p.SupplierId!.Value)
             .Select(g => new SupplierProductCountResponse(
                 g.Key,
                 string.Empty,
                 g.Count(),
                 g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity),
-                g.Sum(p => p.SalesPrice * (decimal)p.Quantity)))
-            .ToList();
+                g.Sum(p => p.SalesPrice * (decimal)p.Quantity)))];
     }
 
     public virtual async Task<List<SupplierStockMovementResponse>> GetRecentStockMovementsAsync(int days, int topLimit, CancellationToken ct)
@@ -250,14 +249,14 @@ public class SupplierService
         var movements = await _stockMovementService.GetRecentWithProductAsync(days, topLimit, ct);
         var movementList = movements.ToList();
 
-        return movementList.Select(m => new SupplierStockMovementResponse(
+        return [.. movementList.Select(m => new SupplierStockMovementResponse(
             m.Id,
             m.ProductId,
             m.Product.Name,
             m.Quantity,
             m.Price ?? 0,
             m.Date!.Value,
-            m.Type.ToString())).ToList();
+            m.Type.ToString()))];
     }
 
     public virtual async Task<List<SupplierCostComparisonResponse>> GetCostComparisonAsync(int topLimit, CancellationToken ct)
@@ -265,19 +264,18 @@ public class SupplierService
         var products = await _productService.GetAllWithSupplierAsync(ct);
         var productList = products.Where(p => p.SupplierId.HasValue).ToList();
 
-        return productList
+        return [.. productList
             .GroupBy(p => p.Name)
             .Where(g => g.Count() > 1)
             .Select(g => new SupplierCostComparisonResponse(
                 g.Key,
-                g.Select(p => new ProductSupplierPriceResponse(
+                [.. g.Select(p => new ProductSupplierPriceResponse(
                     p.SupplierId!.Value,
                     p.Supplier!.Person.Name,
                     p.CostPrice ?? 0,
                     p.SalesPrice,
-                    p.SalesPrice > 0 ? (p.SalesPrice - (p.CostPrice ?? 0)) / p.SalesPrice * 100 : 0)).ToList()))
-            .Take(topLimit)
-            .ToList();
+                    p.SalesPrice > 0 ? (p.SalesPrice - (p.CostPrice ?? 0)) / p.SalesPrice * 100 : 0))]))
+            .Take(topLimit)];
     }
 
     public virtual async Task<List<SupplierBreakdownResponse>> GetSupplierBreakdownAsync(CancellationToken ct)
@@ -285,7 +283,7 @@ public class SupplierService
         var products = await _productService.GetAllWithSupplierAsync(ct);
         var productList = products.Where(p => p.SupplierId.HasValue).ToList();
 
-        return productList
+        return [.. productList
             .GroupBy(p => new { SupplierId = p.SupplierId!.Value, SupplierName = p.Supplier!.Person.Name })
             .Select(g => new SupplierBreakdownResponse(
                 g.Key.SupplierId,
@@ -293,11 +291,10 @@ public class SupplierService
                 g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity),
                 g.Sum(p => p.SalesPrice * (decimal)p.Quantity),
                 g.Sum(p => p.Quantity)))
-            .OrderByDescending(s => s.TotalSalesValue)
-            .ToList();
+            .OrderByDescending(s => s.TotalSalesValue)];
     }
 
-    public virtual async Task<List<GetSupplierByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    public virtual async Task<List<GetSupplierByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct)
     {
         var idList = ids.ToList();
         var suppliers = await _supplierRepository.Query()
@@ -307,7 +304,7 @@ public class SupplierService
                     .ThenInclude(pa => pa.Address)
             .ToListAsync(ct);
 
-        return suppliers.Select(s =>
+        return [.. suppliers.Select(s =>
         {
             var personAddress = s.Person.PersonAddresses.FirstOrDefault();
             var address = personAddress?.Address;
@@ -336,6 +333,6 @@ public class SupplierService
                 s.Person.PhoneNumber,
                 s.Person.Document,
                 addressResponse);
-        }).ToList();
+        })];
     }
 }
