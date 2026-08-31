@@ -72,7 +72,7 @@ public class ProductService
         return product.MapToGetProductByIdResponse();
     }
 
-    public virtual async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(GetProductsByCategoryIdQuery query, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public virtual async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(GetProductsByCategoryIdQuery query, int page = 1, int perPage = 10, CancellationToken ct)
     {
         var products = await _productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, ct);
 
@@ -208,7 +208,7 @@ public class ProductService
             .ToListAsync(ct);
     }
 
-    public virtual async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public virtual async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await _productRepository.GetAllWithCategoryAsync(page, perPage, ct);
     }
@@ -228,7 +228,7 @@ public class ProductService
         return await _productRepository.GetTotalQuantityAsync(ct);
     }
 
-    public virtual async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public virtual async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await _productRepository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, ct);
     }
@@ -248,7 +248,7 @@ public class ProductService
         return await _productRepository.GetTotalQuantityByCategoryAsync(categoryId, ct);
     }
 
-    public virtual async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public virtual async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await _productRepository.GetByIdWithCategoryAsync(productId, page, perPage, ct);
     }
@@ -268,7 +268,7 @@ public class ProductService
         return await _productRepository.GetTotalQuantityByProductAsync(productId, ct);
     }
 
-    public virtual async Task<List<ProductModel>> GetLowStockAsync(CancellationToken ct = default)
+    public virtual async Task<List<ProductModel>> GetLowStockAsync(CancellationToken ct)
     {
         return await _productRepository.GetLowStockAsync(ct);
     }
@@ -283,22 +283,22 @@ public class ProductService
         return await _productRepository.GetTotalSalesValueAsync(ct);
     }
 
-    public virtual async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct = default)
+    public virtual async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken ct)
     {
         return await _productRepository.GetZeroMovementCandidatesAsync(activeProductIds, ct);
     }
 
-    public virtual async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken ct = default)
+    public virtual async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken ct)
     {
         return await _productRepository.GetOverstockCandidatesAsync(ct);
     }
 
-    public virtual async Task<int> CountAsync(Expression<Func<ProductModel, bool>> predicate, CancellationToken ct = default)
+    public virtual async Task<int> CountAsync(Expression<Func<ProductModel, bool>> predicate, CancellationToken ct)
     {
         return await _productRepository.CountAsync(predicate, ct);
     }
 
-    public virtual async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken ct = default)
+    public virtual async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken ct)
     {
         return await _productRepository.GetStockValueByCategoryAsync(ct);
     }

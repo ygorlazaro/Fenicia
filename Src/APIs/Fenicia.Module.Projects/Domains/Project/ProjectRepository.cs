@@ -7,7 +7,7 @@ namespace Fenicia.Module.Projects.Domains.Project;
 
 public class ProjectRepository(DefaultContext context) : Repository<ProjectModel>(context)
 {
-    public async Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct = default)
+    public async Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct)
     {
         return await DbSet
                 .Include(p => p.Statuses)

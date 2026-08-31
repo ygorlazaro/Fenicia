@@ -7,11 +7,11 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public class ForgotPasswordRepository(DefaultContext context) : Repository<ForgotPasswordModel>(context)
 {
-    public async Task<ForgotPasswordModel?> GetActiveByUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct = default)
+    public async Task<ForgotPasswordModel?> GetActiveByUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
         return await DbSet.FirstOrDefaultAsync(
             fp => fp.UserId == userId && fp.Code == code && fp.IsActive && fp.ExpirationDate >= now,
-            ct);
+            cancellationToken);
     }
 }

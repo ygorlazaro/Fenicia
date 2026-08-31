@@ -7,14 +7,14 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementRepository(DefaultContext context) : Repository<StockMovementModel>(context), IStockMovementRepository
 {
-    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate)
             .ToListAsync(ct);
     }
 
-    public async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct = default)
+    public async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct)
     {
         var ids = productIds.ToList();
         return await DbSet
@@ -28,7 +28,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
             .ToDictionaryAsync(k => k.ProductId, v => v.LastDate, ct);
     }
 
-    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10, CancellationToken ct)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate)
@@ -41,7 +41,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsForDashboardAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public async Task<IEnumerable<StockMovementModel>> GetWithDetailsForDashboardAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate && m.Date <= endDate)
@@ -51,7 +51,7 @@ public class StockMovementRepository(DefaultContext context) : Repository<StockM
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct)
     {
         return await DbSet
                 .Where(m => m.Date >= startDate)

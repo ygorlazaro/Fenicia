@@ -7,7 +7,7 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 
 public class EmployeeRepository(DefaultContext context) : Repository<EmployeeModel>(context), IEmployeeRepository
 {
-    public async Task<EmployeeModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
+    public async Task<EmployeeModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct)
     {
         return await DbSet
                 .Include(e => e.Person)
@@ -18,7 +18,7 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
             .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<EmployeeModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Include(e => e.Person)
@@ -31,7 +31,7 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetByPositionIdAsync(Guid positionId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<EmployeeModel>> GetByPositionIdAsync(Guid positionId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .Where(e => e.PositionId == positionId)
@@ -45,7 +45,7 @@ public class EmployeeRepository(DefaultContext context) : Repository<EmployeeMod
             .ToListAsync(ct);
     }
 
-    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct = default)
+    public async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken ct)
     {
         return await DbSet
             .Include(e => e.Person)

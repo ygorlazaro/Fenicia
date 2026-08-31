@@ -7,7 +7,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
 public class CommentRepository(DefaultContext context) : Repository<CommentModel>(context)
 {
-    public async Task<IEnumerable<CommentModel>> GetByFeedAsync(Guid feedId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<CommentModel>> GetByFeedAsync(Guid feedId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
             .Where(c => c.FeedId == feedId && c.ParentCommentId == null)
@@ -17,7 +17,7 @@ public class CommentRepository(DefaultContext context) : Repository<CommentModel
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<CommentModel>> GetRepliesAsync(Guid parentCommentId, int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<CommentModel>> GetRepliesAsync(Guid parentCommentId, int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
             .Where(c => c.ParentCommentId == parentCommentId)

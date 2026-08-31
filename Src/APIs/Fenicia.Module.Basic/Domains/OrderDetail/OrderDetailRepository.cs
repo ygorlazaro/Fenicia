@@ -7,7 +7,7 @@ namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
 public class OrderDetailRepository(DefaultContext context) : Repository<OrderDetailModel>(context), IOrderDetailRepository
 {
-    public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
+    public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
     {
         return await DbSet
                 .Include(d => d.Product)
@@ -15,7 +15,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
             .ToListAsync(ct);
     }
 
-    public async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct = default)
+    public async Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
     {
         var ids = orderIds.ToList();
         return await DbSet
@@ -25,7 +25,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
             .ToDictionaryAsync(k => k.OrderId, v => v.Count, ct);
     }
 
-    public async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct = default)
+    public async Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(IEnumerable<Guid> orderIds, CancellationToken ct)
     {
         var ids = orderIds.ToList();
         return await DbSet
@@ -35,7 +35,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
             .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
     }
 
-    public async Task<IEnumerable<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public async Task<IEnumerable<OrderDetailModel>> GetByOrderDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         return await DbSet
                 .Include(d => d.Order)
@@ -43,7 +43,7 @@ public class OrderDetailRepository(DefaultContext context) : Repository<OrderDet
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct = default)
+    public async Task<IEnumerable<OrderDetailModel>> GetByDateRangeAsync(DateTime startDate, CancellationToken ct)
     {
         return await DbSet
                 .Where(d => d.Order.SaleDate >= startDate)

@@ -132,13 +132,13 @@ public class StockMovementService
         };
     }
 
-    public virtual async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public virtual async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         var result = await _stockMovementRepository.GetByDateRangeAsync(startDate, endDate, ct);
-        return result.ToList();
+        return [.. result];
     }
 
-    public virtual async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct = default)
+    public virtual async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct)
     {
         return await _stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, ct);
     }

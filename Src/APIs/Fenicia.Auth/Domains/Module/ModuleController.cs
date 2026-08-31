@@ -20,7 +20,7 @@ public class ModuleController(ModuleService service) : ControllerBase
     /// </summary>
     /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de módulos</returns>
     /// <response code="200">Lista de módulos retornada com sucesso</response>
     /// <response code="500">Erro interno do servidor</response>
@@ -28,11 +28,11 @@ public class ModuleController(ModuleService service) : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<GetModuleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
     {
         wide.UserId = "Guest";
 
-        var modules = await service.GetAllModulesAsync(query.Page, query.PerPage, ct);
+        var modules = await service.GetAllModulesAsync(query.Page, query.PerPage, cancellationToken);
 
         return Ok(modules);
     }

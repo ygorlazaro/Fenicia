@@ -7,7 +7,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
 public class AttachmentRepository(DefaultContext context) : Repository<AttachmentModel>(context)
 {
-    public async Task<IEnumerable<AttachmentModel>> GetByCommentAsync(int page, int perPage, Guid commentId, CancellationToken ct = default)
+    public async Task<IEnumerable<AttachmentModel>> GetByCommentAsync(int page, int perPage, Guid commentId, CancellationToken ct)
     {
         return await DbSet
                 .Where(e => e.CommentId == commentId && e.Deleted == null)

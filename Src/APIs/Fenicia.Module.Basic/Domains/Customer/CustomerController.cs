@@ -38,7 +38,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -176,7 +176,7 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, [FromQuery] int riskThresholdDays = 60, CancellationToken ct = default)
+    public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, [FromQuery] int riskThresholdDays = 60, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 

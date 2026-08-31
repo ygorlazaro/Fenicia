@@ -6,7 +6,18 @@
       "type": "dotnet",
       "command": "dotnet build",
       "args": [
-        "${workspaceRoot}/Fenicia.Auth/Fenicia.Auth.csproj",
+        "${workspaceRoot}/Src/APIs/Fenicia.Auth/Fenicia.Auth.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-basic",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.Basic/Fenicia.Module.Basic.csproj",
         "-c",
         "Debug"
       ],
@@ -17,59 +28,122 @@
       "type": "dotnet",
       "command": "dotnet build",
       "args": [
-        "${workspaceRoot}/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj",
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj",
         "-c",
         "Debug"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "docker-build-all",
-      "type": "shell",
-      "command": "docker-compose -f Docker/docker-compose.yml build",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": []
+      "label": "build-accounting",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.Accounting/Fenicia.Module.Accounting.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-      "label": "docker-up",
-      "type": "shell",
-      "command": "docker-compose -f Docker/docker-compose.yml up -d",
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      },
-      "problemMatcher": []
+      "label": "build-contracts",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.Contracts/Fenicia.Module.Contracts.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-      "label": "docker-down",
-      "type": "shell",
-      "command": "docker-compose -f Docker/docker-compose.yml down",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "problemMatcher": []
+      "label": "build-customersupport",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-      "label": "docker-logs",
-      "type": "shell",
-      "command": "docker-compose -f Docker/docker-compose.yml logs -f",
-      "problemMatcher": []
+      "label": "build-ecommerce",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.Ecommerce/Fenicia.Module.Ecommerce.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-      "label": "docker-restart-auth",
-      "type": "shell",
-      "command": "docker restart fenicia-auth",
-      "problemMatcher": []
+      "label": "build-hr",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.HR/Fenicia.Module.HR.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-      "label": "docker-restart-projects",
-      "type": "shell",
-      "command": "docker restart fenicia-module-projects",
-      "problemMatcher": []
+      "label": "build-performanceevaluation",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-pos",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.POS/Fenicia.Module.POS.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-plus",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.Plus/Fenicia.Module.Plus.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-socialnetwork",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Src/APIs/Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "npm: dev",
+      "type": "npm",
+      "script": "dev",
+      "path": "Src/Front",
+      "problemMatcher": {
+        "background": {
+          "activeOnStart": true,
+          "endsPattern": "ready in"
+        }
+      }
     }
   ]
 }

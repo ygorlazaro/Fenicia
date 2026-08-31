@@ -7,7 +7,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
 public class ProjectTaskRepository(DefaultContext context) : Repository<ProjectTaskModel>(context)
 {
-    public async Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct = default)
+    public async Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct)
     {
         return await DbSet
                 .Include(pt => pt.Attachments)

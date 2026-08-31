@@ -70,7 +70,7 @@ public class ProductCategoryService
         return category.MapToUpdateProductCategoryResponse();
     }
 
-    public virtual async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    public virtual async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct)
     {
         var idList = ids.ToList();
         return await _productCategoryRepository.Query()

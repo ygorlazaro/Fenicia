@@ -7,7 +7,7 @@ namespace Fenicia.Module.Basic.Domains.State;
 
 public class StateRepository(DefaultContext context) : Repository<StateModel>(context), IStateRepository
 {
-    public async Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct = default)
+    public async Task<List<StateModel>> GetAllOrderedAsync(CancellationToken ct)
     {
         return await DbSet
                 .OrderBy(s => s.Uf)

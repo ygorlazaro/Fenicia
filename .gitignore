@@ -16,5 +16,6 @@ Fenicia.Auth.Tests/TestResults/*
 fenicia-web/.env
 fenicia-web/.env.local
 fenicia-web/.env.production
+Src/Front/.env.local
 Docker/.env
 Fenicia.Module.Basic.Tests/TestResults/*

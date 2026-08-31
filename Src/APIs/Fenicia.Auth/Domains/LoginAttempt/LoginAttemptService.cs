@@ -17,7 +17,7 @@ public class LoginAttemptService(IConnectionMultiplexer redis)
         return value.HasValue ? (int)value : 0;
     }
 
-    public async Task IncrementAsync(string email, CancellationToken ct = default)
+    public async Task IncrementAsync(string email, CancellationToken cancellationToken)
     {
         var key = GetKey(email);
         var current = _redisDb.StringGet(key);
@@ -27,7 +27,7 @@ public class LoginAttemptService(IConnectionMultiplexer redis)
         await _redisDb.StringSetAsync(key, newValue, TimeSpan.FromMinutes(_expirationMinutes), When.Always, CommandFlags.None);
     }
 
-    public Task ResetAsync(string email, CancellationToken ct = default)
+    public Task ResetAsync(string email, CancellationToken cancellationToken)
     {
         _redisDb.KeyDelete(GetKey(email));
         return Task.CompletedTask;

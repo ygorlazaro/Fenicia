@@ -9,25 +9,25 @@ namespace Fenicia.Auth.Domains.Company;
 
 public class CompanyService(CompanyRepository repository, UserRoleService userRoleService)
 {
-    public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(Guid userId, int page, int perPage, CancellationToken ct)
+    public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken)
     {
         if (perPage <= 0)
         {
             throw new InvalidRequestException(ExceptionMessages.UserNotAssociatedWithActiveCompanies);
         }
 
-        var userRoles = await userRoleService.GetUserRolesAsync(userId, page, perPage, ct);
-        var total = await userRoleService.CountUserRolesAsync(userId, ct);
+        var userRoles = await userRoleService.GetUserRolesAsync(userId, page, perPage, cancellationToken);
+        var total = await userRoleService.CountUserRolesAsync(userId, cancellationToken);
 
         var result = userRoles.Select(ur => ur.MapToGetCompaniesByUserResponse());
 
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
     }
 
-    public async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken ct)
+    public async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken cancellationToken)
     {
-        var company = await repository.AnyActiveAsync(companyId, ct) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
-        var isAdmin = await userRoleService.IsAdminAsync(userId, companyId, ct);
+        var company = await repository.AnyActiveAsync(companyId, cancellationToken) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
+        var isAdmin = await userRoleService.IsAdminAsync(userId, companyId, cancellationToken);
 
         if (!isAdmin)
         {
@@ -35,21 +35,21 @@ public class CompanyService(CompanyRepository repository, UserRoleService userRo
         }
 
         company.Name = name;
-        await repository.UpdateAsync(company.Id, company, ct);
+        await repository.UpdateAsync(company.Id, company, cancellationToken);
     }
 
-    public async Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken ct)
+    public async Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken)
     {
-        return await repository.GetByIdAsync(companyId, ct);
+        return await repository.GetByIdAsync(companyId, cancellationToken);
     }
 
-    public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken ct)
+    public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken)
     {
-        return await repository.GetByCnpjAsync(cnpj, ct);
+        return await repository.GetByCnpjAsync(cnpj, cancellationToken);
     }
 
-    public async Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken ct)
+    public async Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken cancellationToken)
     {
-        return await repository.InsertAsync(company, ct);
+        return await repository.InsertAsync(company, cancellationToken);
     }
 }

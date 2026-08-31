@@ -48,6 +48,9 @@ public class Program
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") != "true")
         {
+            app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.Run();
         }
     }

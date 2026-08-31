@@ -21,7 +21,7 @@ public class CompanyController(CompanyService service) : ControllerBase
     /// </summary>
     /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de empresas do usuário</returns>
     /// <response code="200">Empresas encontradas para o usuário</response>
     /// <response code="400">Requisição inválida (ex: perPage menor ou igual a zero)</response>
@@ -34,14 +34,14 @@ public class CompanyController(CompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var result = await service.GetCompaniesByUserAsync(userId, query.Page, query.PerPage, ct);
+            var result = await service.GetCompaniesByUserAsync(userId, query.Page, query.PerPage, cancellationToken);
 
             return Ok(result);
         }
@@ -61,7 +61,7 @@ public class CompanyController(CompanyService service) : ControllerBase
     /// <param name="id">ID da empresa</param>
     /// <param name="request">Dados de atualização da empresa (nome)</param>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="ct">Token de cancelamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se atualizado com sucesso</returns>
     /// <response code="204">Empresa atualizada com sucesso</response>
     /// <response code="400">Requisição inválida</response>
@@ -77,14 +77,14 @@ public class CompanyController(CompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyRequest request, WideEventContext wide, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyRequest request, WideEventContext wide, CancellationToken cancellationToken)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            await service.UpdateAsync(id, userId, request.Name, ct);
+            await service.UpdateAsync(id, userId, request.Name, cancellationToken);
 
             return NoContent();
         }

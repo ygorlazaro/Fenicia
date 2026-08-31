@@ -17,10 +17,10 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: cd fenicia-web && npm ci
-      - run: cd fenicia-web && npm run type-check
-      - run: cd fenicia-web && npm run lint
-      - run: cd fenicia-web && npm run build
+      - run: cd Src/Front && npm ci
+      - run: cd Src/Front && npm run type-check
+      - run: cd Src/Front && npm run lint
+      - run: cd Src/Front && npm run build
 
   build:
     needs: build-web

@@ -46,7 +46,7 @@ public class ReportService(ReportRepository repository)
     public async Task<List<GetAllReportResponse>> GetAllAsync(GetAllReportQuery query, CancellationToken ct)
     {
         var reports = await repository.GetAllAsync(query.Page, query.PerPage, ct);
-        return reports.Select(r => new GetAllReportResponse(r.Id, r.ReporterId, r.TargetId, r.TargetType, r.Reason, r.Description, r.Status.ToString(), r.ReportDate)).ToList();
+        return [.. reports.Select(r => new GetAllReportResponse(r.Id, r.ReporterId, r.TargetId, r.TargetType, r.Reason, r.Description, r.Status.ToString(), r.ReportDate))];
     }
 
     public async Task<GetReportByIdResponse?> GetByIdAsync(GetReportByIdQuery query, CancellationToken ct)

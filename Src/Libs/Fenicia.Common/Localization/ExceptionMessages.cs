@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Resources;
 
 namespace Fenicia.Common.Localization;
@@ -64,27 +65,37 @@ public static class ExceptionMessages
 
     public static string UserWithIdNotFound(string userId)
     {
-        return string.Format(GetString("UserWithIdNotFound"), userId);
+#pragma warning disable CA1863
+        return string.Format(CultureInfo.InvariantCulture, GetString("UserWithIdNotFound"), userId);
+#pragma warning restore CA1863
     }
 
     public static string CompanyNotFoundById(string companyId)
     {
-        return string.Format(GetString("CompanyNotFound"), companyId);
+#pragma warning disable CA1863
+        return string.Format(CultureInfo.InvariantCulture, GetString("CompanyNotFound"), companyId);
+#pragma warning restore CA1863
     }
 
     public static string RoleNotFoundById(string roleId)
     {
-        return string.Format(GetString("RoleNotFound"), roleId);
+#pragma warning disable CA1863
+        return string.Format(CultureInfo.InvariantCulture, GetString("RoleNotFound"), roleId);
+#pragma warning restore CA1863
     }
 
     public static string GetStringWithFormat(string key, params object[] args)
     {
         var format = GetString(key);
+#pragma warning disable CA1305
         return string.Format(format, args);
+#pragma warning restore CA1305
     }
 
     private static string GetString(string name)
     {
-        return _resourceMapper.GetString(name) ?? name;
+#pragma warning disable CA1304
+        return _resourceMapper.GetString(name, CultureInfo.InvariantCulture) ?? name;
+#pragma warning restore CA1304
     }
 }

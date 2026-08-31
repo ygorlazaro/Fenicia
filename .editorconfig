@@ -146,6 +146,42 @@ dotnet_diagnostic.SA1602.severity = none
 # Default severity for analyzer diagnostics with category 'StyleCop.CSharp.DocumentationRules'
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = none
 
+# Suppress noisy CA rules that conflict with EF Core or existing patterns
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1062.severity = none
+dotnet_diagnostic.CA2227.severity = none
+dotnet_diagnostic.CA1002.severity = none
+dotnet_diagnostic.CA1056.severity = none
+dotnet_diagnostic.CA1805.severity = none
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1510.severity = none
+dotnet_diagnostic.CA1873.severity = none
+dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1724.severity = none
+dotnet_diagnostic.CA2000.severity = none
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1052.severity = none
+dotnet_diagnostic.CA1829.severity = none
+dotnet_diagnostic.CA1860.severity = none
+dotnet_diagnostic.CA2208.severity = none
+dotnet_diagnostic.CA1311.severity = none
+dotnet_diagnostic.CA1304.severity = none
+dotnet_diagnostic.CA2008.severity = none
+dotnet_diagnostic.CA1849.severity = none
+dotnet_diagnostic.CA1308.severity = none
+dotnet_diagnostic.CA2234.severity = none
+dotnet_diagnostic.CA1063.severity = none
+dotnet_diagnostic.CA1816.severity = none
+dotnet_diagnostic.CA1001.severity = none
+dotnet_diagnostic.CA1041.severity = none
+dotnet_diagnostic.CA1812.severity = none
+dotnet_diagnostic.CA1515.severity = none
+dotnet_diagnostic.CA1707.severity = none
+
 [**/Migrations/**/*.cs]
 dotnet_diagnostic.SA1201.severity = none
 dotnet_diagnostic.SA1202.severity = none

@@ -1,6 +1,8 @@
 using System.Text;
 
+using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
+using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
@@ -77,6 +79,7 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
+        builder.AddFeniciaCors();
 
         var app = builder.Build();
 
@@ -87,6 +90,7 @@ public class Program
         }
 
         app.UseAuthentication();
+        app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
         app.UseAuthorization();
 
         app.UseWhen(o => o.Request.Path.StartsWithSegments("/customersupport"), appBuilder => appBuilder.UseModuleRequirement("customersupport"));

@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Domains.RefreshToken;
 
 public class RefreshTokenService(IRefreshTokenRepository repository)
 {
-    public virtual async Task<string> GenerateAsync(Guid userId, CancellationToken ct = default)
+    public virtual async Task<string> GenerateAsync(Guid userId, CancellationToken ct)
     {
         var randomNumber = new byte[32];
 
@@ -21,7 +21,7 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
         return refreshToken.Token;
     }
 
-    public virtual async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken ct = default)
+    public virtual async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -31,7 +31,7 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
         return await repository.GetAsync(token, ct);
     }
 
-    public virtual async Task<RefreshTokenModel> UpdateAsync(string token, bool isActive, CancellationToken ct = default)
+    public virtual async Task<RefreshTokenModel> UpdateAsync(string token, bool isActive, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -51,7 +51,7 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
         return updated;
     }
 
-    public virtual async Task InvalidateAsync(string refreshToken, CancellationToken ct = default)
+    public virtual async Task InvalidateAsync(string refreshToken, CancellationToken ct)
     {
         if (refreshToken is null)
         {
@@ -69,7 +69,7 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
         await repository.UpdateAsync(updatedToken, ct);
     }
 
-    public virtual async Task<bool> ValidateAsync(Guid userId, string refreshToken, CancellationToken ct = default)
+    public virtual async Task<bool> ValidateAsync(Guid userId, string refreshToken, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {

@@ -55,7 +55,7 @@ public class EmployeeService
     {
         var employees = await _employeeRepository.GetAllWithDetailsAsync(ct: ct);
 
-        return employees.Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.Person.Name)).ToList();
+        return [.. employees.Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.Person.Name))];
     }
 
     public virtual async Task<GetEmployeeByIdResponse?> GetByIdAsync(GetEmployeeByIdQuery query, CancellationToken ct)

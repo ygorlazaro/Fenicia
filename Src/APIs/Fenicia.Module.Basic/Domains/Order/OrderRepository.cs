@@ -8,7 +8,7 @@ namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderRepository(DefaultContext context) : Repository<OrderModel>(context), IOrderRepository
 {
-    public async Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
+    public async Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct)
     {
         return await DbSet
                 .Include(o => o.Customer).ThenInclude(c => c.Person)
@@ -16,7 +16,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
-    public async Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .OrderByDescending(o => o.SaleDate)
@@ -25,7 +25,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(ct);
     }
 
-    public async Task<List<Guid>> GetRecentOrderIdsAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
+    public async Task<List<Guid>> GetRecentOrderIdsAsync(int page = 1, int perPage = 10, CancellationToken ct)
     {
         return await DbSet
                 .OrderByDescending(o => o.SaleDate)
@@ -35,7 +35,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public async Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         return await DbSet
                 .Include(o => o.Customer).ThenInclude(c => c.Person)
@@ -44,22 +44,22 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(ct);
     }
 
-    public async Task<decimal> GetTotalRevenueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTotalRevenueAsync(CancellationToken ct)
     {
         return await DbSet.SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<decimal> GetTotalCostAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTotalCostAsync(CancellationToken ct)
     {
         return await DbSet.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct);
     }
 
-    public async Task<int> GetTotalOrdersCountAsync(CancellationToken ct = default)
+    public async Task<int> GetTotalOrdersCountAsync(CancellationToken ct)
     {
         return await DbSet.CountAsync(ct);
     }
 
-    public async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken ct = default)
+    public async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken ct)
     {
         return await DbSet
             .OrderBy(o => o.SaleDate)
@@ -68,7 +68,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(ct);
     }
 
-    public async Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken ct = default)
+    public async Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken ct)
     {
         var dates = await DbSet
             .OrderBy(o => o.SaleDate)
@@ -89,7 +89,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
         return weekStarts;
     }
 
-    public async Task<decimal> GetTodayRevenueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetTodayRevenueAsync(CancellationToken ct)
     {
         var today = DateTime.UtcNow.Date;
         return await DbSet
@@ -97,13 +97,13 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<int> GetTodayOrdersCountAsync(CancellationToken ct = default)
+    public async Task<int> GetTodayOrdersCountAsync(CancellationToken ct)
     {
         var today = DateTime.UtcNow.Date;
         return await DbSet.CountAsync(o => o.SaleDate.Date == today, ct);
     }
 
-    public async Task<decimal> GetWeekRevenueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetWeekRevenueAsync(CancellationToken ct)
     {
         var weekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
         return await DbSet
@@ -111,13 +111,13 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<int> GetWeekOrdersCountAsync(CancellationToken ct = default)
+    public async Task<int> GetWeekOrdersCountAsync(CancellationToken ct)
     {
         var weekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
         return await DbSet.CountAsync(o => o.SaleDate.Date >= weekStart, ct);
     }
 
-    public async Task<decimal> GetMonthRevenueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetMonthRevenueAsync(CancellationToken ct)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
         return await DbSet
@@ -125,13 +125,13 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<int> GetMonthOrdersCountAsync(CancellationToken ct = default)
+    public async Task<int> GetMonthOrdersCountAsync(CancellationToken ct)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
         return await DbSet.CountAsync(o => o.SaleDate.Date >= monthStart, ct);
     }
 
-    public async Task<decimal> GetLastMonthRevenueAsync(CancellationToken ct = default)
+    public async Task<decimal> GetLastMonthRevenueAsync(CancellationToken ct)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
         var lastMonthStart = monthStart.AddMonths(-1);
@@ -141,31 +141,31 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<decimal> GetPendingAmountAsync(CancellationToken ct = default)
+    public async Task<decimal> GetPendingAmountAsync(CancellationToken ct)
     {
         return await DbSet
             .Where(o => o.Status == OrderStatus.Pending)
             .SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<int> GetPendingOrdersCountAsync(CancellationToken ct = default)
+    public async Task<int> GetPendingOrdersCountAsync(CancellationToken ct)
     {
         return await DbSet.CountAsync(o => o.Status == OrderStatus.Pending, ct);
     }
 
-    public async Task<decimal> GetApprovedAmountAsync(CancellationToken ct = default)
+    public async Task<decimal> GetApprovedAmountAsync(CancellationToken ct)
     {
         return await DbSet
             .Where(o => o.Status == OrderStatus.Approved)
             .SumAsync(o => o.TotalAmount, ct);
     }
 
-    public async Task<int> GetApprovedOrdersCountAsync(CancellationToken ct = default)
+    public async Task<int> GetApprovedOrdersCountAsync(CancellationToken ct)
     {
         return await DbSet.CountAsync(o => o.Status == OrderStatus.Approved, ct);
     }
 
-    public async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken ct = default)
+    public async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
     {
         return await DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
@@ -175,7 +175,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(ct);
     }
 
-    public async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken ct = default)
+    public async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken ct)
     {
         return await DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
@@ -183,14 +183,14 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(ct);
     }
 
-    public async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken ct = default)
+    public async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken ct)
     {
         return await DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
             .ToListAsync(ct);
     }
 
-    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         return await DbSet
             .Include(o => o.Employee).ThenInclude(e => e!.Person)
