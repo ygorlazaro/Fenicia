@@ -59,13 +59,11 @@ public class BlockService(IBlockRepository blockRepository)
 
     public virtual async Task<Pagination<List<GetBlockedResponse>>> GetBlockedAsync(GetBlockedQuery query, Guid userId, CancellationToken cancellationToken = default)
     {
-        var total = await blockRepository.CountAsync(b => b.UserId == userId && b.IsActive, cancellationToken);
-
-        var blocks = await blockRepository.Query()
-            .Where(b => b.UserId == userId && b.IsActive)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(cancellationToken);
+        var baseQuery = blockRepository.Query().Where(b => b.UserId == userId && b.IsActive);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var total = await filteredQuery.CountAsync(cancellationToken);
+        var blocks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
 
         var response = blocks.Select(b => new GetBlockedResponse(b.Id, b.BlockedUserId, b.BlockDate, b.Reason)).ToList();
 

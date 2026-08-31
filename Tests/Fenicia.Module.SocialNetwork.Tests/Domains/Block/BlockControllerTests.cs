@@ -62,7 +62,7 @@ public class BlockControllerTests : IDisposable
     {
         var wide = new WideEventContext();
 
-        var result = await _controller.GetBlockedAsync(Guid.NewGuid(), wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetBlockedAsync(Guid.NewGuid(), wide, 1, 10, null, null, CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
     }

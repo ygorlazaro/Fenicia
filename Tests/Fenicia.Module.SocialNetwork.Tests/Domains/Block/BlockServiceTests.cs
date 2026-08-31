@@ -137,7 +137,7 @@ public class BlockServiceTests : IDisposable
         _db.SocialNetworkBlocks.Add(blocked);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetBlockedAsync(new GetBlockedQuery(1, 10), userId, CancellationToken.None);
+        var result = await _service.GetBlockedAsync(new GetBlockedQuery(1, 10, null, null), userId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(1);

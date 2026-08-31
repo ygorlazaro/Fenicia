@@ -34,11 +34,11 @@ public class FeedController(FeedService feedService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllFeedResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllFeedResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllFeedResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await feedService.GetAllAsync(new GetAllFeedQuery(page, perPage), cancellationToken);
+        var result = await feedService.GetAllAsync(new GetAllFeedQuery(page, perPage, query, sort), cancellationToken);
 
         return Ok(result);
     }

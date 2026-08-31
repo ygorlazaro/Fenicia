@@ -22,6 +22,8 @@ public class OrderController(OrderService orderService) : ControllerBase
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query">Filtros avançados. Example: <c>customerName[*]alpha</c></param>
+    /// <param name="sort">Ordenação. Example: <c>-saleDate</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de pedidos</returns>
     /// <response code="200">Lista de pedidos retornada com sucesso</response>
@@ -32,13 +34,13 @@ public class OrderController(OrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var orders = await orderService.GetAllAsync(new GetAllOrderQuery(page, perPage), cancellationToken);
+            var orders = await orderService.GetAllAsync(new GetAllOrderQuery(page, perPage, query, sort), cancellationToken);
 
             return Ok(orders);
         }
@@ -148,14 +150,14 @@ public class OrderController(OrderService orderService) : ControllerBase
     }
 
     /// <summary>
-    /// Obtém métricas analíticas dos pedidos.
+    /// Obtém uma lista paginada de pedidos.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="days">Período em dias para análise</param>
-    /// <param name="topCustomersLimit">Limite de clientes no top</param>
+    /// <param name="days">Período em dias</param>
+    /// <param name="topCustomersLimit">Limite de clientes top</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Métricas analíticas dos pedidos</returns>
-    /// <response code="200">Análise retornada com sucesso</response>
+    /// <returns>Análise de pedidos</returns>
+    /// <response code="200">Lista de pedidos retornada com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("analytics")]

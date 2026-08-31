@@ -634,7 +634,7 @@ public class UserControllerTests
         await _userRepository.InsertAsync(user, CancellationToken.None);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _controller.GetAsync(1, 10, CancellationToken.None);
+        var result = await _controller.GetAsync(1, 10, null, null, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result);

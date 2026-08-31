@@ -20,6 +20,8 @@ public class StateController(StateService stateService) : ControllerBase
     /// Obtém a lista de estados.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="query">Filtros avançados. Example: <c>uf[=]SP</c></param>
+    /// <param name="sort">Ordenação. Example: <c>uf</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de estados</returns>
     /// <response code="200">Lista de estados retornada com sucesso</response>
@@ -32,13 +34,13 @@ public class StateController(StateService stateService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var states = await stateService.GetAllAsync(new GetAllStateQuery(), cancellationToken);
+            var states = await stateService.GetAllAsync(new GetAllStateQuery(1, 10, query, sort), cancellationToken);
 
             return Ok(states);
         }

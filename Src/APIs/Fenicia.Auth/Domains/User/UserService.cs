@@ -27,18 +27,18 @@ public class UserService(
     {
     }
 
-    public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(GetAllUsersQuery query, CancellationToken cancellationToken = default)
     {
-        var request = from u in userRepository.Query()
-                      orderby u.Name
-                      select u;
+        var baseQuery = userRepository.Query().OrderBy(u => u.Name);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
 
-        var totalCountTask = request.CountAsync(cancellationToken);
-        var usersTask = request.Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
+        var totalCountTask = filteredQuery.CountAsync(cancellationToken);
+        var usersTask = filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
 
         await Task.WhenAll(totalCountTask, usersTask);
 
-        return new Pagination<List<UserListItemResponse>>([.. usersTask.Result.Select(u => u.MapToUserListItemResponse())], totalCountTask.Result, page, perPage);
+        return new Pagination<List<UserListItemResponse>>([.. usersTask.Result.Select(u => u.MapToUserListItemResponse())], totalCountTask.Result, query.Page, query.PerPage);
     }
 
     public async Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)

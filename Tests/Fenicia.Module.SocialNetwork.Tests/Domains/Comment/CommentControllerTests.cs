@@ -64,7 +64,7 @@ public class CommentControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.GetByFeedAsync(feedId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetByFeedAsync(feedId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -82,7 +82,7 @@ public class CommentControllerTests : IDisposable
         var feedId = Guid.NewGuid();
 
         // Act
-        var result = await _controller.GetByFeedAsync(feedId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetByFeedAsync(feedId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -251,7 +251,7 @@ public class CommentControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.GetRepliesAsync(parentCommentId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetRepliesAsync(parentCommentId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

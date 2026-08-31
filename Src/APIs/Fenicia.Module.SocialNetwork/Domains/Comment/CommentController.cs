@@ -35,11 +35,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCommentResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllCommentResponse>>> GetByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllCommentResponse>>> GetByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.GetAllByFeedAsync(new GetAllCommentByFeedQuery(page, perPage, feedId), feedId, cancellationToken);
+        var result = await commentService.GetAllByFeedAsync(new GetAllCommentByFeedQuery(page, perPage, feedId, query, sort), feedId, cancellationToken);
 
         return Ok(result);
     }
@@ -180,11 +180,11 @@ public class CommentController(CommentService commentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetRepliesResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetRepliesResponse>>> GetRepliesAsync([FromRoute] Guid parentCommentId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetRepliesResponse>>> GetRepliesAsync([FromRoute] Guid parentCommentId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await commentService.GetRepliesAsync(new GetRepliesQuery(page, perPage, parentCommentId), cancellationToken);
+        var result = await commentService.GetRepliesAsync(new GetRepliesQuery(page, perPage, parentCommentId, query, sort), cancellationToken);
 
         return Ok(result);
     }

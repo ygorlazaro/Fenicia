@@ -55,7 +55,7 @@ public class NotificationControllerTests : IDisposable
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAsync(wide, query.Page, query.PerPage, CancellationToken.None);
+        var result = await _controller.GetAsync(wide, query.Page, query.PerPage, null, null, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -68,7 +68,7 @@ public class NotificationControllerTests : IDisposable
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        await _controller.GetAsync(wide, query.Page, query.PerPage, CancellationToken.None);
+        await _controller.GetAsync(wide, query.Page, query.PerPage, null, null, CancellationToken.None);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }

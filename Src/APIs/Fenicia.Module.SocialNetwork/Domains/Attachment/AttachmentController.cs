@@ -88,11 +88,11 @@ public class AttachmentController(AttachmentService attachmentService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAttachmentResponse>>> GetByCommentAsync([FromRoute] Guid commentId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAttachmentResponse>>> GetByCommentAsync([FromRoute] Guid commentId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var attachments = await attachmentService.GetByCommentAsync(new GetAttachmentsByCommentQuery(page, perPage), commentId, cancellationToken);
+        var attachments = await attachmentService.GetByCommentAsync(new GetAttachmentsByCommentQuery(page, perPage, query, sort), commentId, cancellationToken);
 
         return Ok(attachments);
     }

@@ -42,9 +42,21 @@ public class SupplierService
 
     public virtual async Task<Pagination<List<GetAllSupplierResponse>>> GetAllAsync(GetAllSupplierQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _supplierRepository.CountAsync(cancellationToken);
+        var baseQuery = _supplierRepository.Query()
+            .Include(s => s.Person)
+            .Include(s => s.Person.PersonAddresses)
+                .ThenInclude(pa => pa.Address)
+                    .ThenInclude(a => a.State);
 
-        var suppliers = await _supplierRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var suppliers = await filteredQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
 
         var response = suppliers.Select(s => s.MapToGetAllSupplierResponse()).ToList();
 

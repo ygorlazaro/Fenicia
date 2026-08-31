@@ -5,8 +5,6 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public interface ISupplierRepository : IRepository<SupplierModel>
 {
-    IQueryable<SupplierModel> Query();
-
     Task<List<SupplierModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
 
     Task<SupplierModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);

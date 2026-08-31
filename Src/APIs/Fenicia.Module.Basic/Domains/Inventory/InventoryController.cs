@@ -83,6 +83,8 @@ public class InventoryController(InventoryService inventoryService) : Controller
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
+    /// <param name="sort">Ordenação. Example: <c>name</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do inventário</returns>
     /// <response code="200">Inventário retornado com sucesso</response>
@@ -93,13 +95,13 @@ public class InventoryController(InventoryService inventoryService) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetAsync(new GetInventoryQuery(page, perPage), cancellationToken);
+            var inventory = await inventoryService.GetAsync(new GetInventoryQuery(page, perPage, query, sort), cancellationToken);
 
             return Ok(inventory);
         }
@@ -140,14 +142,14 @@ public class InventoryController(InventoryService inventoryService) : Controller
     }
 
     /// <summary>
-    /// Obtém a saúde do inventário.
+    /// Obtém o inventário completo.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="zeroMovementDays">Dias sem movimento para considerar produto parado</param>
-    /// <param name="overstockMultiplier">Multiplicador para identificar excesso de estoque</param>
+    /// <param name="zeroMovementDays">Dias sem movimentação</param>
+    /// <param name="overstockMultiplier">Multiplicador de overstock</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados de saúde do inventário</returns>
-    /// <response code="200">Saúde do inventário retornada com sucesso</response>
+    /// <returns>Dados do inventário</returns>
+    /// <response code="200">Inventário retornado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("health")]

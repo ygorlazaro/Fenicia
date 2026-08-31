@@ -283,7 +283,7 @@ public class CommentServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetRepliesAsync(new GetRepliesQuery(1, 10, parentCommentId), CancellationToken.None);
+        var result = await _service.GetRepliesAsync(new GetRepliesQuery(1, 10, parentCommentId, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

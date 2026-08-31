@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
@@ -7,7 +9,10 @@ public class ProjectStatusService(ProjectStatusRepository repository)
 {
     public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(GetAllProjectStatusQuery query, CancellationToken cancellationToken = default)
     {
-        var statuses = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var statuses = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. statuses.Select(s => new GetAllProjectStatusResponse(s.Id, s.ProjectId, s.Name, s.Color, s.Order, s.IsFinal, s.CompanyId))];
     }
 

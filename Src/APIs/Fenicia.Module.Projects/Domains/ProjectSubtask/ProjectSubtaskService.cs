@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 
@@ -7,7 +9,10 @@ public class ProjectSubtaskService(ProjectSubtaskRepository repository)
 {
     public async Task<List<GetAllProjectSubtaskResponse>> GetAllAsync(GetAllProjectSubtaskQuery query, CancellationToken cancellationToken = default)
     {
-        var subtasks = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var subtasks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. subtasks.Select(ps => new GetAllProjectSubtaskResponse(ps.Id, ps.TaskId, ps.Title, ps.IsCompleted, ps.Order, ps.CompletedAt, ps.CompanyId))];
     }
 

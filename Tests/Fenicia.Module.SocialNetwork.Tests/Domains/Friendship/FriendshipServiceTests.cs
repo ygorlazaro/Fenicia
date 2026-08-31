@@ -137,7 +137,7 @@ public class FriendshipServiceTests : IDisposable
         _db.SocialNetworkFriendships.Add(follower);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetFollowersAsync(new GetFollowersQuery(1, 10), targetUserId, CancellationToken.None);
+        var result = await _service.GetFollowersAsync(new GetFollowersQuery(1, 10, null, null), targetUserId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(1);
@@ -158,7 +158,7 @@ public class FriendshipServiceTests : IDisposable
         _db.SocialNetworkFriendships.Add(following);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetFollowingAsync(new GetFollowingQuery(1, 10), userId, CancellationToken.None);
+        var result = await _service.GetFollowingAsync(new GetFollowingQuery(1, 10, null, null), userId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(1);

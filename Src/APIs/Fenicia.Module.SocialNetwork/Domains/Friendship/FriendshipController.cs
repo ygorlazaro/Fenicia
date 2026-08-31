@@ -91,11 +91,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollowersAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollowersAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await friendshipService.GetFollowersAsync(new GetFollowersQuery(page, perPage), userId, cancellationToken);
+        var result = await friendshipService.GetFollowersAsync(new GetFollowersQuery(page, perPage, query, sort), userId, cancellationToken);
 
         return Ok(result);
     }
@@ -119,11 +119,11 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollowingAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollowingAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await friendshipService.GetFollowingAsync(new GetFollowingQuery(page, perPage), userId, cancellationToken);
+        var result = await friendshipService.GetFollowingAsync(new GetFollowingQuery(page, perPage, query, sort), userId, cancellationToken);
 
         return Ok(result);
     }

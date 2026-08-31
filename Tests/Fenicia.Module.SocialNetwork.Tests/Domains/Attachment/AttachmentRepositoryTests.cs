@@ -10,6 +10,7 @@ namespace Fenicia.Module.SocialNetwork.Tests.Domains.Attachment;
 
 public class AttachmentRepositoryTests : IDisposable
 {
+    private static readonly string[] _fileTypes = ["jpg", "png", "pdf", "docx"];
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly AttachmentRepository _repository;
@@ -39,7 +40,7 @@ public class AttachmentRepositoryTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = Guid.NewGuid(),
             CompanyId = _companyId
@@ -62,7 +63,7 @@ public class AttachmentRepositoryTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = Guid.NewGuid(),
             CompanyId = _companyId
@@ -96,7 +97,7 @@ public class AttachmentRepositoryTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = Guid.NewGuid(),
             CompanyId = _companyId
@@ -119,7 +120,7 @@ public class AttachmentRepositoryTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = Guid.NewGuid(),
             CompanyId = _companyId
@@ -146,7 +147,7 @@ public class AttachmentRepositoryTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = commentId,
             CompanyId = _companyId

@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetworkModels;
 using Fenicia.Module.SocialNetwork.Domains.Feed.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
@@ -7,7 +9,10 @@ public class FeedService(FeedRepository repository)
 {
     public async Task<List<GetAllFeedResponse>> GetAllAsync(GetAllFeedQuery query, CancellationToken cancellationToken = default)
     {
-        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query().OrderByDescending(f => f.Date);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var feeds = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. feeds.Select(f => new GetAllFeedResponse(f.Id, f.Date, f.Text, f.UserId, f.CompanyId, f.Comments.Count, f.Likes.Count, f.Shares.Count))];
     }
 

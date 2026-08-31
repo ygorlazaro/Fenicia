@@ -1,5 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.State.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,14 @@ public class StateService
 
     public virtual async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken cancellationToken = default)
     {
-        var states = await _stateRepository.GetAllOrderedAsync(cancellationToken);
+        var baseQuery = _stateRepository.Query();
+
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var states = await filteredQuery
+            .OrderBy(s => s.Uf)
+            .ToListAsync(cancellationToken);
 
         return [.. states.Select(s => s.MapToGetAllStateResponse())];
     }

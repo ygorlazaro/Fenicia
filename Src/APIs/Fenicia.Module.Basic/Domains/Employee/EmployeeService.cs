@@ -1,6 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
@@ -42,9 +43,22 @@ public class EmployeeService
 
     public virtual async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _employeeRepository.CountAsync(cancellationToken);
+        var baseQuery = _employeeRepository.Query()
+            .Include(e => e.Person)
+            .Include(e => e.Person.PersonAddresses)
+                .ThenInclude(pa => pa.Address)
+                    .ThenInclude(a => a.State)
+            .Include(e => e.Position);
 
-        var employees = await _employeeRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var employees = await filteredQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
 
         var response = employees.Select(e => e.MapToGetAllEmployeeResponse()).ToList();
 

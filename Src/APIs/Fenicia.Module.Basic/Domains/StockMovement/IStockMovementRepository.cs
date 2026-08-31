@@ -5,8 +5,6 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public interface IStockMovementRepository : IRepository<StockMovementModel>
 {
-    IQueryable<StockMovementModel> Query();
-
     Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 
     Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default);

@@ -21,6 +21,8 @@ public class NotificationController(NotificationService notificationService) : C
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="perPage">Quantidade de itens por página (padrão: 10)</param>
+    /// <param name="query">Filtros avançados. Example: <c>title[*]alpha</c></param>
+    /// <param name="sort">Ordenação. Example: <c>-date</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de notificações</returns>
     /// <response code="200">Notificações encontradas</response>
@@ -30,12 +32,12 @@ public class NotificationController(NotificationService notificationService) : C
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllNotificationsResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllNotificationsResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllNotificationsResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notifications = await notificationService.GetAllAsync(page, perPage, cancellationToken);
+            var notifications = await notificationService.GetAllAsync(new GetAllNotificationsQuery(page, perPage, query, sort), cancellationToken);
             return Ok(notifications);
         }
         catch (UnauthorizedAccessException ex)

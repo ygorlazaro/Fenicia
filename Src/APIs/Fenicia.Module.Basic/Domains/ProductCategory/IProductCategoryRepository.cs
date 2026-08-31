@@ -5,5 +5,4 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
 public interface IProductCategoryRepository : IRepository<ProductCategoryModel>
 {
-    IQueryable<ProductCategoryModel> Query();
 }

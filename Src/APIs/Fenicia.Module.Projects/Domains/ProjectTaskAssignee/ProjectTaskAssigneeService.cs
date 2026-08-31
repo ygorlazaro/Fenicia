@@ -1,6 +1,8 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
@@ -8,7 +10,10 @@ public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository
 {
     public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken cancellationToken = default)
     {
-        var assignees = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var assignees = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. assignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId))];
     }
 

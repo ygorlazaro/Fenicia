@@ -1,11 +1,14 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.Supplier;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
@@ -41,7 +44,7 @@ public class InventoryService
 
     public virtual async Task<InventoryResponse> GetAsync(GetInventoryQuery query, CancellationToken cancellationToken = default)
     {
-        var products = await _productService.GetAllWithCategoryAsync(query.Page, query.PerPage, cancellationToken);
+        var products = await _productService.GetAllWithCategoryAsync(new GetAllProductQuery(query.Page, query.PerPage, query.Query, query.Sort), cancellationToken);
 
         var totalCostPrice = await _productService.GetTotalCostPriceAsync(cancellationToken);
         var totalSalesPrice = await _productService.GetTotalSalesPriceAsync(cancellationToken);

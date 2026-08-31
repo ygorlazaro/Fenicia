@@ -5,8 +5,6 @@ namespace Fenicia.Module.Basic.Domains.Order;
 
 public interface IOrderRepository : IRepository<OrderModel>
 {
-    IQueryable<OrderModel> Query();
-
     Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);

@@ -42,7 +42,7 @@ public class StateControllerTests : IDisposable
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetAllAsync(wide, CancellationToken.None);
+        var result = await _controller.GetAllAsync(wide, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

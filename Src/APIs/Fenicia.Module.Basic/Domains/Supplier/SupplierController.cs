@@ -21,6 +21,8 @@ public class SupplierController(SupplierService supplierService) : ControllerBas
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
+    /// <param name="sort">Ordenação. Example: <c>name</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de fornecedores</returns>
     /// <response code="200">Lista de fornecedores retornada com sucesso</response>
@@ -31,13 +33,13 @@ public class SupplierController(SupplierService supplierService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllSupplierResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllSupplierResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await supplierService.GetAllAsync(new GetAllSupplierQuery(page, perPage), cancellationToken);
+            var suppliers = await supplierService.GetAllAsync(new GetAllSupplierQuery(page, perPage, query, sort), cancellationToken);
 
             return Ok(suppliers);
         }
@@ -182,13 +184,13 @@ public class SupplierController(SupplierService supplierService) : ControllerBas
     }
 
     /// <summary>
-    /// Obtém métricas de desempenho dos fornecedores.
+    /// Obtém o desempenho de fornecedores.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="days">Período em dias para análise</param>
-    /// <param name="topLimit">Limite de registros no top</param>
+    /// <param name="days">Período em dias</param>
+    /// <param name="topLimit">Limite de top fornecedores</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Métricas de desempenho dos fornecedores</returns>
+    /// <returns>Dados de desempenho de fornecedores</returns>
     /// <response code="200">Desempenho retornado com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>

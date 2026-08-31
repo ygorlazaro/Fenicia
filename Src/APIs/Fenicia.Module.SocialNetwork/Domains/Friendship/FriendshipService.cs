@@ -58,13 +58,12 @@ public class FriendshipService(IFriendshipRepository friendshipRepository)
 
     public virtual async Task<Pagination<List<GetFollowersResponse>>> GetFollowersAsync(GetFollowersQuery query, Guid targetUserId, CancellationToken cancellationToken = default)
     {
-        var total = await friendshipRepository.CountAsync(f => f.TargetUserId == targetUserId && f.IsActive, cancellationToken);
+        var baseQuery = friendshipRepository.Query().Where(f => f.TargetUserId == targetUserId && f.IsActive);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var total = await filteredQuery.CountAsync(cancellationToken);
 
-        var friendships = await friendshipRepository.Query()
-            .Where(f => f.TargetUserId == targetUserId && f.IsActive)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(cancellationToken);
+        var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
 
         var response = friendships.Select(f => new GetFollowersResponse(f.Id, f.UserId, f.FollowDate)).ToList();
 
@@ -73,13 +72,12 @@ public class FriendshipService(IFriendshipRepository friendshipRepository)
 
     public virtual async Task<Pagination<List<GetFollowingResponse>>> GetFollowingAsync(GetFollowingQuery query, Guid userId, CancellationToken cancellationToken = default)
     {
-        var total = await friendshipRepository.CountAsync(f => f.UserId == userId && f.IsActive, cancellationToken);
+        var baseQuery = friendshipRepository.Query().Where(f => f.UserId == userId && f.IsActive);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var total = await filteredQuery.CountAsync(cancellationToken);
 
-        var friendships = await friendshipRepository.Query()
-            .Where(f => f.UserId == userId && f.IsActive)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(cancellationToken);
+        var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
 
         var response = friendships.Select(f => new GetFollowingResponse(f.Id, f.TargetUserId, f.FollowDate)).ToList();
 

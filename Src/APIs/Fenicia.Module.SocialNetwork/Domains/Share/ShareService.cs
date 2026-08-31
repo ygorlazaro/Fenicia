@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetworkModels;
 using Fenicia.Module.SocialNetwork.Domains.Share.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
@@ -23,7 +25,10 @@ public class ShareService(ShareRepository repository)
 
     public async Task<List<GetSharesResponse>> GetSharesByFeedAsync(GetSharesByFeedQuery query, Guid feedId, CancellationToken cancellationToken = default)
     {
-        var shares = await repository.GetSharesByFeedAsync(query.Page, query.PerPage, feedId, cancellationToken);
+        var baseQuery = repository.Query().Where(s => s.OriginalFeedId == feedId);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var shares = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. shares.Select(s => new GetSharesResponse(s.Id, s.OriginalFeedId, s.Text, s.CompanyId, s.UserId, s.ShareDate))];
     }
 }
