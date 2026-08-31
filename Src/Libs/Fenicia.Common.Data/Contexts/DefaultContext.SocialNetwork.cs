@@ -10,5 +10,19 @@ public partial class DefaultContext
 {
     public DbSet<FeedModel> SocialNetworkFeeds { get; set; }
 
-    public DbSet<FollowerModel> SocialNetworkFollowers { get; set; }
+    public DbSet<ProfileModel> SocialNetworkProfiles { get; set; }
+
+    public DbSet<FriendshipModel> SocialNetworkFriendships { get; set; }
+
+    public DbSet<BlockModel> SocialNetworkBlocks { get; set; }
+
+    public DbSet<CommentModel> SocialNetworkComments { get; set; }
+
+    public DbSet<LikeModel> SocialNetworkLikes { get; set; }
+
+    public DbSet<AttachmentModel> SocialNetworkAttachments { get; set; }
+
+    public DbSet<ShareModel> SocialNetworkShares { get; set; }
+
+    public DbSet<ReportModel> SocialNetworkReports { get; set; }
 }

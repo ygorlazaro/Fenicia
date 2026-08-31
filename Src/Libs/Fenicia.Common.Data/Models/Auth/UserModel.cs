@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Fenicia.Common.Data.Models.ProjectModels;
-using Fenicia.Common.Data.Models.SocialNetworkModels;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -33,12 +32,6 @@ public class UserModel : BaseModel
 
     [MaxLength(48)]
     public string? ImageUrl { get; set; }
-
-    [InverseProperty(nameof(FollowerModel.Follower))]
-    public List<FollowerModel> Followers { get; set; } = [];
-
-    [InverseProperty(nameof(FollowerModel.UserModel))]
-    public List<FollowerModel> Following { get; set; } = [];
 
     public List<TaskAssigneeModel> TaskAssignees { get; set; } = [];
 
