@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.Notification.DTOs;
 
 public record AddNotificationCommand(
-    string Title,
-    string Description,
+    [Required] string Title,
+    [Required] string Description,
     DateTime? Date,
     string? ImageUrl);
