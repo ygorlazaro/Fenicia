@@ -10,7 +10,7 @@ public class ShareRepository(DefaultContext context) : Repository<ShareModel>(co
     public async Task<IEnumerable<ShareModel>> GetSharesByFeedAsync(int page, int perPage, Guid feedId, CancellationToken ct)
     {
         return await DbSet
-                .Where(e => e.OriginalFeedId == feedId && e.Deleted == null)
+                .Where(e => e.OriginalFeedId == feedId)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(ct);

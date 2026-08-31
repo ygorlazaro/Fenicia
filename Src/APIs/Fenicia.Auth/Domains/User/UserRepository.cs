@@ -9,11 +9,11 @@ public class UserRepository(DefaultContext context) : Repository<UserModel>(cont
 {
     public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken ct)
     {
-        return await DbSet.FirstOrDefaultAsync(u => u.Email == email && u.Deleted == null, ct);
+        return await DbSet.FirstOrDefaultAsync(u => u.Email == email, ct);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct)
     {
-        return await DbSet.AnyAsync(u => u.Email == email && u.Deleted == null, ct);
+        return await DbSet.AnyAsync(u => u.Email == email, ct);
     }
 }

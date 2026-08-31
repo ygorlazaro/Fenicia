@@ -15,6 +15,6 @@ public class ProjectTaskRepository(DefaultContext context) : Repository<ProjectT
             .Include(pt => pt.Subtasks)
             .Include(pt => pt.Assignees)
                 .ThenInclude(a => a.User)
-            .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 }

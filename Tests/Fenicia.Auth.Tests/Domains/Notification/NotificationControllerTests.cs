@@ -55,7 +55,7 @@ public class NotificationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetAsync(wide, query.Page, query.PerPage, ct);
+        var result = await _controller.GetAsync(wide, CancellationToken.None, query.Page, query.PerPage);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -68,7 +68,7 @@ public class NotificationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        await _controller.GetAsync(wide, query.Page, query.PerPage, ct);
+        await _controller.GetAsync(wide, CancellationToken.None, query.Page, query.PerPage);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -83,7 +83,7 @@ public class NotificationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetByIdAsync(id, wide, ct);
+        var result = await _controller.GetByIdAsync(id, wide, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -95,7 +95,7 @@ public class NotificationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, ct);
+        var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);

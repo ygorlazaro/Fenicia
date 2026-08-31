@@ -68,7 +68,7 @@ public class LoginAttemptServiceTests : IDisposable
     {
         var email = _faker.Internet.Email();
 
-        await _service.IncrementAsync(email);
+        await _service.IncrementAsync(email, CancellationToken.None);
 
         _redisDbMock.Verify(
             x => x.StringSetAsync(
@@ -87,7 +87,7 @@ public class LoginAttemptServiceTests : IDisposable
 
         _redisDbMock.Setup(x => x.StringGet(It.IsAny<RedisKey>())).Returns((RedisValue)3);
 
-        await _service.IncrementAsync(email);
+        await _service.IncrementAsync(email, CancellationToken.None);
 
         _redisDbMock.Verify(
             x => x.StringSetAsync(
@@ -102,7 +102,7 @@ public class LoginAttemptServiceTests : IDisposable
     [Fact]
     public async Task IncrementAsync_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.IncrementAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.IncrementAsync(null!, CancellationToken.None));
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class LoginAttemptServiceTests : IDisposable
         var email = _faker.Internet.Email();
         var key = $"login-attempt:{email.ToLowerInvariant()}";
 
-        await _service.ResetAsync(email);
+        await _service.ResetAsync(email, CancellationToken.None);
 
         _redisDbMock.Verify(x => x.KeyDelete(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>()), Times.Once);
     }
@@ -119,7 +119,7 @@ public class LoginAttemptServiceTests : IDisposable
     [Fact]
     public async Task ResetAsync_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.ResetAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.ResetAsync(null!, CancellationToken.None));
     }
 
     public void Dispose()
