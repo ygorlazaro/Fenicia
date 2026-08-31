@@ -1,9 +1,13 @@
 using System.Security.Claims;
+
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
+using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,16 +48,151 @@ public class ProjectSubtaskControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenSubtasksExist_ReturnsOk()
     {
+        // Arrange
         var wide = new WideEventContext();
+        var subtask = new ProjectSubtaskModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            Title = _faker.Lorem.Sentence(),
+            IsCompleted = false,
+            Order = 1,
+            CompletedAt = null,
+            CompanyId = _companyId
+        };
+        _db.ProjectSubtasks.Add(subtask);
+        await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
 
-        Assert.IsType<OkObjectResult>(result.Result);
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenSubtaskExists_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+        var subtask = new ProjectSubtaskModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            Title = _faker.Lorem.Sentence(),
+            IsCompleted = false,
+            Order = 1,
+            CompletedAt = null,
+            CompanyId = _companyId
+        };
+        _db.ProjectSubtasks.Add(subtask);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await _controller.GetByIdAsync(subtask.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenSubtaskDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+
+        // Act
+        var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task PostAsync_WhenCommandIsValid_CreatesSubtask()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence(), false, 1, null);
+
+        // Act
+        var result = await _controller.PostAsync(command, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<CreatedResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenSubtaskExists_ReturnsOk()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+        var subtask = new ProjectSubtaskModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            Title = _faker.Lorem.Sentence(),
+            IsCompleted = false,
+            Order = 1,
+            CompletedAt = null,
+            CompanyId = _companyId
+        };
+        _db.ProjectSubtasks.Add(subtask);
+        await _db.SaveChangesAsync(CancellationToken.None);
+        var command = new UpdateProjectSubtaskCommand(subtask.Id, Guid.NewGuid(), "Updated Title", true, 2, DateTime.UtcNow);
+
+        // Act
+        var result = await _controller.PatchAsync(command, subtask.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_WhenSubtaskDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+        var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "Updated Title", true, 2, DateTime.UtcNow);
+
+        // Act
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenSubtaskExists_DeletesSubtask()
+    {
+        // Arrange
+        var wide = new WideEventContext();
+        var subtask = new ProjectSubtaskModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            Title = _faker.Lorem.Sentence(),
+            IsCompleted = false,
+            Order = 1,
+            CompletedAt = null,
+            CompanyId = _companyId
+        };
+        _db.ProjectSubtasks.Add(subtask);
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await _controller.DeleteAsync(subtask.Id, wide, CancellationToken.None);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+        var deletedSubtask = await _db.ProjectSubtasks.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == subtask.Id);
+        deletedSubtask.Should().NotBeNull();
+        deletedSubtask!.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)
     {
-        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, userId.ToString()) };
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
         _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);

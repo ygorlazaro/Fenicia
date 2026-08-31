@@ -36,18 +36,17 @@ public class OrderServiceTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _userRoleService = new UserRoleService(_userRoleRepository);
         var moduleRepository = new ModuleRepository(_db);
-        var moduleService = new ModuleService(moduleRepository);
-        var orderRepository = new OrderRepository(_db);
         var subscriptionRepository = new SubscriptionRepository(_db);
         var userRepository = new UserRepository(_db);
-        var userRoleRepository = new UserRoleRepository(_db);
         var roleRepository = new RoleRepository(_db);
         var companyRepository = new CompanyRepository(_db);
-        var userRoleService = new UserRoleService(userRoleRepository);
+        var userRoleService = new UserRoleService(_userRoleRepository);
         var roleService = new RoleService(roleRepository);
         var companyService = new CompanyService(companyRepository, userRoleService);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, userService);
+        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService()), userRoleService);
+        var moduleService = new ModuleService(moduleRepository, userRoleService, subscriptionService);
+        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var orderRepository = new OrderRepository(_db);
         _service = new OrderService(moduleService, orderRepository, subscriptionService, _userRoleService);
         _faker = new Faker();
     }

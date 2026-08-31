@@ -78,6 +78,7 @@ public class NotificationController(NotificationService notificationService) : C
     /// Cria uma nova notificação.
     /// </summary>
     /// <param name="command">Dados da notificação (título, descrição, data, imagem)</param>
+    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Dados da notificação criada</returns>
@@ -90,12 +91,12 @@ public class NotificationController(NotificationService notificationService) : C
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddNotificationResponse>> PostAsync([FromBody] AddNotificationCommand command, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<AddNotificationResponse>> PostAsync([FromBody] AddNotificationCommand command, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await notificationService.AddAsync(command, ct);
+            var notification = await notificationService.AddAsync(command, headers.CompanyId, ct);
             return new CreatedResult(string.Empty, notification);
         }
         catch (UnauthorizedAccessException ex)
@@ -109,6 +110,7 @@ public class NotificationController(NotificationService notificationService) : C
     /// </summary>
     /// <param name="command">Dados atualizados da notificação (título, descrição, data, imagem, lida)</param>
     /// <param name="id">ID da notificação</param>
+    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Dados da notificação atualizada</returns>
@@ -123,12 +125,12 @@ public class NotificationController(NotificationService notificationService) : C
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateNotificationResponse>> PatchAsync([FromBody] UpdateNotificationCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UpdateNotificationResponse>> PatchAsync([FromBody] UpdateNotificationCommand command, [FromRoute] Guid id, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            var notification = await notificationService.UpdateAsync(command with { Id = id }, ct);
+            var notification = await notificationService.UpdateAsync(command with { Id = id }, headers.CompanyId, ct);
             return notification switch
             {
                 null => NotFound(),
@@ -145,6 +147,7 @@ public class NotificationController(NotificationService notificationService) : C
     /// Remove uma notificação (soft delete).
     /// </summary>
     /// <param name="id">ID da notificação</param>
+    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se removida com sucesso</returns>
@@ -154,12 +157,12 @@ public class NotificationController(NotificationService notificationService) : C
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            await notificationService.DeleteAsync(id, ct);
+            await notificationService.DeleteAsync(id, headers.CompanyId, ct);
             return NoContent();
         }
         catch (UnauthorizedAccessException ex)

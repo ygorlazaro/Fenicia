@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
@@ -36,13 +37,16 @@ public class GetProjectStatusByIdServiceTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenStatusExists_ReturnsStatus()
     {
+        // Arrange
         var status = new ProjectStatusModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), Color = "#FF0000", CompanyId = _companyId };
         _db.ProjectStatuses.Add(status);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var result = await _service.GetByIdAsync(new GetProjectStatusByIdQuery(status.Id), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(status.Name, result.Name);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Name.Should().Be(status.Name);
     }
 }

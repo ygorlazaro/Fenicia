@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Tests;
@@ -35,12 +36,15 @@ public class AddProjectStatusServiceTests : IDisposable
     [Fact]
     public async Task AddAsync_WhenValid_ReturnsCreatedStatus()
     {
+        // Arrange
         var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.Commerce.Categories(1).First(), "#FF0000", 1, false);
 
+        // Act
         var result = await _service.AddAsync(command, _companyId, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(command.Name, result.Name);
-        Assert.Equal(_companyId, result.CompanyId);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Name.Should().Be(command.Name);
+        result.CompanyId.Should().Be(_companyId);
     }
 }

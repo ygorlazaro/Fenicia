@@ -42,9 +42,7 @@ public class UserServiceTests : IDisposable
         var userRoleService = new UserRoleService(_userRoleRepository);
         var roleService = new RoleService(_roleRepository);
         var companyService = new CompanyService(_companyRepository, userRoleService);
-        var moduleRepository = new ModuleRepository(_db);
-        var moduleService = new ModuleService(moduleRepository);
-        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new TestSecurityService(), moduleService);
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new TestSecurityService());
         _faker = new Faker();
 
         _adminRoleId = Guid.NewGuid();

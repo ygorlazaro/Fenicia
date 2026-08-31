@@ -1,7 +1,13 @@
 using Bogus;
 
+using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.DTOs;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -30,10 +36,14 @@ public class ModuleControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
+        var userRoleRepository = new UserRoleRepository(_db);
+        var userRoleService = new UserRoleService(userRoleRepository);
+        var subscriptionRepository = new SubscriptionRepository(_db);
+        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserService(new UserRepository(_db), userRoleService, new RoleService(new RoleRepository(_db)), new CompanyService(new CompanyRepository(_db), userRoleService), new SecurityService()), userRoleService);
         var services = new ServiceCollection();
         services.AddSingleton(_db);
         services.AddLogging();
-        services.AddSingleton(new ModuleService(new ModuleRepository(_db)));
+        services.AddSingleton(new ModuleService(new ModuleRepository(_db), userRoleService, subscriptionService));
 
         var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<ModuleService>();

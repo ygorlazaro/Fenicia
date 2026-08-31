@@ -72,4 +72,9 @@ public class UserRoleService(UserRoleRepository userRoleRepository)
             .Where(x => x.UserId == userId)
             .ToListAsync(ct);
     }
+
+    public async Task<List<UserRoleModel>> GetUserRoleModelsByUserAsync(Guid userId, CancellationToken ct)
+    {
+        return await userRoleRepository.GetCompaniesByUserAsync(userId, ct);
+    }
 }

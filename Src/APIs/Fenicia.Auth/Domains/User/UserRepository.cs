@@ -16,13 +16,4 @@ public class UserRepository(DefaultContext context) : Repository<UserModel>(cont
     {
         return await DbSet.AnyAsync(u => u.Email == email && u.Deleted == null, ct);
     }
-
-    public async Task<List<UserRoleModel>> GetCompaniesAsync(Guid userId, CancellationToken ct = default)
-    {
-        return await Context.AuthUserRoles
-            .Where(ur => ur.UserId == userId && ur.Deleted == null)
-            .Include(ur => ur.Role)
-            .Include(ur => ur.Company)
-            .ToListAsync(ct);
-    }
 }

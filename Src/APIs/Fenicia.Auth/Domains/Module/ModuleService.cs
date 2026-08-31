@@ -1,11 +1,13 @@
 using Fenicia.Auth.Domains.Module.DTOs;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public class ModuleService(ModuleRepository repository)
+public class ModuleService(ModuleRepository repository, UserRoleService userRoleService, SubscriptionService subscriptionService)
 {
     public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken ct)
     {
@@ -17,9 +19,30 @@ public class ModuleService(ModuleRepository repository)
 
     public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken ct)
     {
-        var modules = await repository.GetUserModulesAsync(companyId, userId, ct);
+        var userRole = await userRoleService.GetUserRoleAsync(userId, companyId, ct);
 
-        return modules.Select(m => m.MapToGetUserModulesResponse()).ToList();
+        if (userRole is null)
+        {
+            return [];
+        }
+
+        var companySubscriptions = await subscriptionService.GetActiveSubscriptionsByCompanyAsync(companyId, ct);
+
+        var moduleIds = new HashSet<Guid>();
+
+        foreach (var subscription in companySubscriptions)
+        {
+            var modules = await subscriptionService.GetActiveModulesForSubscriptionAsync(subscription.Id, ct);
+
+            foreach (var module in modules)
+            {
+                moduleIds.Add(module.Id);
+            }
+        }
+
+        var modulesResult = await repository.GetByIdsAsync(moduleIds, ct);
+
+        return modulesResult.Select(m => m.MapToGetUserModulesResponse()).ToList();
     }
 
     public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct)

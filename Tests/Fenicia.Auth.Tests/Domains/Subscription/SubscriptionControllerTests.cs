@@ -49,10 +49,9 @@ public class SubscriptionControllerTests : IDisposable
         var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
         var companyService = new CompanyService(companyRepository, userRoleService);
-        var moduleRepository = new ModuleRepository(_db);
-        var moduleService = new ModuleService(moduleRepository);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, userService);
+        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var subscriptionService = new SubscriptionService(subscriptionRepository, userService, userRoleService);
+        var moduleService = new ModuleService(new ModuleRepository(_db), userRoleService, subscriptionService);
         _controller = new SubscriptionController(subscriptionService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);

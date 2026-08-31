@@ -177,9 +177,9 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", _db.CurrentCompanyId ?? Guid.Empty);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -210,9 +210,9 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", companyId);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -231,9 +231,9 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", companyId);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -252,9 +252,9 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", _db.CurrentCompanyId ?? Guid.Empty);
+        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        await _controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
+        await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, ct);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }

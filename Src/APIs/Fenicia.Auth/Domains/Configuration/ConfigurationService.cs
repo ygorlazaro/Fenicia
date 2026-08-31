@@ -12,10 +12,10 @@ public class ConfigurationService(ConfigurationRepository repository)
         return [.. configurations.Select(c => c.MapToGetConfigurationResponse())];
     }
 
-    public async Task UpsertAsync(UpsertConfigurationCommand command, CancellationToken ct)
+    public async Task UpsertAsync(UpsertConfigurationCommand command, Guid companyId, CancellationToken ct)
     {
         var configuration = await repository.GetByUserCompanyAndTypeAsync(
-            command.UserId, command.CompanyId, command.ConfigType, ct);
+            command.UserId, companyId, command.ConfigType, ct);
 
         if (configuration is null)
         {
@@ -23,7 +23,7 @@ public class ConfigurationService(ConfigurationRepository repository)
             {
                 Id = command.Id ?? Guid.NewGuid(),
                 UserId = command.UserId,
-                CompanyId = command.CompanyId,
+                CompanyId = companyId,
                 ConfigType = command.ConfigType,
                 Value = command.Value
             };

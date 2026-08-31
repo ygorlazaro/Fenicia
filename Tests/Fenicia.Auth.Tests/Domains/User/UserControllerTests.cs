@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.UserRole;
@@ -48,14 +49,18 @@ public class UserControllerTests
         var userRoleService = new UserRoleService(_userRoleRepository);
         var roleService = new RoleService(_roleRepository);
         var companyService = new CompanyService(_companyRepository, userRoleService);
-        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService(), new ModuleService(new ModuleRepository(_db)));
+        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var moduleRepository = new ModuleRepository(_db);
+        var subscriptionRepository = new SubscriptionRepository(_db);
+        var subscriptionService = new SubscriptionService(subscriptionRepository, _userService, userRoleService);
+        var moduleService = new ModuleService(moduleRepository, userRoleService, subscriptionService);
         _testUserId = Guid.NewGuid();
 
         _mockHttpContext = new Mock<HttpContext>();
         var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(_mockHttpContext.Object);
 
-        _controller = new UserController(_userService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new UserController(_userService, moduleService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
         _faker = new Faker();

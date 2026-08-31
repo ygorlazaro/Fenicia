@@ -1,6 +1,12 @@
 using Bogus;
 
+using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -21,7 +27,17 @@ public class ModuleServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new ModuleService(new ModuleRepository(_db));
+        var userRoleRepository = new UserRoleRepository(_db);
+        var userRoleService = new UserRoleService(userRoleRepository);
+        var userRepository = new UserRepository(_db);
+        var roleRepository = new RoleRepository(_db);
+        var companyRepository = new CompanyRepository(_db);
+        var roleService = new RoleService(roleRepository);
+        var companyService = new CompanyService(companyRepository, userRoleService);
+        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
+        var subscriptionRepository = new SubscriptionRepository(_db);
+        var subscriptionService = new SubscriptionService(subscriptionRepository, userService, userRoleService);
+        _service = new ModuleService(new ModuleRepository(_db), userRoleService, subscriptionService);
         _faker = new Faker();
     }
 

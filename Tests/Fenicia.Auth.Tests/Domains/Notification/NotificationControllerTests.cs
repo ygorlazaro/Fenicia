@@ -107,8 +107,9 @@ public class NotificationControllerTests : IDisposable
         var command = new AddNotificationCommand("Test Title", "Test Desc", DateTime.UtcNow, "img.png");
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.PostAsync(command, wide, ct);
+        var result = await _controller.PostAsync(command, headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
@@ -124,8 +125,9 @@ public class NotificationControllerTests : IDisposable
         var command = new UpdateNotificationCommand(id, "New Title", "New Desc", null, "img.png", true);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.PatchAsync(command, id, wide, ct);
+        var result = await _controller.PatchAsync(command, id, headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -141,8 +143,9 @@ public class NotificationControllerTests : IDisposable
         var command = new UpdateNotificationCommand(id, "T", "D", null, null, true);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.PatchAsync(command, id, wide, ct);
+        var result = await _controller.PatchAsync(command, id, headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -154,8 +157,9 @@ public class NotificationControllerTests : IDisposable
         var command = new UpdateNotificationCommand(Guid.NewGuid(), "Title", "Desc", null, null, null);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, ct);
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), headers, wide, ct);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
@@ -170,8 +174,9 @@ public class NotificationControllerTests : IDisposable
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.DeleteAsync(id, wide, ct);
+        var result = await _controller.DeleteAsync(id, headers, wide, ct);
 
         Assert.IsType<NoContentResult>(result);
     }

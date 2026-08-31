@@ -31,7 +31,7 @@ public class NotificationServiceTests : IDisposable
     {
         var command = new AddNotificationCommand("Test", "Desc", DateTime.UtcNow, "img.png");
 
-        var result = await _service.AddAsync(command, CancellationToken.None);
+        var result = await _service.AddAsync(command, _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
 
         Assert.NotNull(result);
         var notification = await _db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == result.Id);
@@ -82,7 +82,7 @@ public class NotificationServiceTests : IDisposable
         _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow });
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.DeleteAsync(id, CancellationToken.None);
+        var result = await _service.DeleteAsync(id, _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
 
         Assert.True(result);
     }
@@ -90,7 +90,7 @@ public class NotificationServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_ShouldReturnFalse_WhenNotificationNotExists()
     {
-        var result = await _service.DeleteAsync(Guid.NewGuid(), CancellationToken.None);
+        var result = await _service.DeleteAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
         Assert.False(result);
     }
 
@@ -101,7 +101,7 @@ public class NotificationServiceTests : IDisposable
         _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "Old", Description = "D", Date = DateTime.UtcNow, Read = false });
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "New", "D2", null, "img2.png", true), CancellationToken.None);
+        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "New", "D2", null, "img2.png", true), _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
 
         Assert.NotNull(result);
         var notification = await _db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == id);
@@ -116,7 +116,7 @@ public class NotificationServiceTests : IDisposable
         _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false });
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "T", "D", null, null, true), CancellationToken.None);
+        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "T", "D", null, null, true), _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
 
         Assert.NotNull(result);
         var notification = await _db.AuthNotifications.FirstOrDefaultAsync(n => n.Id == id);
@@ -126,7 +126,7 @@ public class NotificationServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_ShouldReturnNull_WhenNotExists()
     {
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), CancellationToken.None);
+        var result = await _service.UpdateAsync(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
         Assert.Null(result);
     }
 }

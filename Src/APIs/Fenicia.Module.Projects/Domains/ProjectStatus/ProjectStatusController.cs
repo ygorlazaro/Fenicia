@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
+/// <summary>
+/// Manages project status operations.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -15,8 +18,22 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectStatusController(ProjectStatusService projectStatusService) : ControllerBase
 {
+    /// <summary>
+    /// Gets a paginated list of project statuses.
+    /// </summary>
+    /// <param name="wide">Wide event context</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Paginated list of project statuses</returns>
+    /// <response code="200">List of project statuses returned successfully</response>
+    /// <response code="400">Invalid pagination parameters</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
+    /// <exception cref="UnauthorizedAccessException">User not authorized to access project statuses</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectStatusResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
@@ -27,8 +44,22 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
         return Ok(statuses);
     }
 
+    /// <summary>
+    /// Gets a project status by ID.
+    /// </summary>
+    /// <param name="id">Project status ID</param>
+    /// <param name="wide">Wide event context</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Project status data</returns>
+    /// <response code="200">Project status found</response>
+    /// <response code="400">Invalid ID</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">Project status not found</response>
+    /// <response code="500">Internal server error</response>
+    /// <exception cref="UnauthorizedAccessException">User not authorized to access the project status</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProjectStatusByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
@@ -40,6 +71,19 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
         return status is null ? NotFound() : Ok(status);
     }
 
+    /// <summary>
+    /// Creates a new project status.
+    /// </summary>
+    /// <param name="command">Project status data</param>
+    /// <param name="wide">Wide event context</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Created project status</returns>
+    /// <response code="201">Project status created successfully</response>
+    /// <response code="400">Invalid payload</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User not authorized to create project statuses</response>
+    /// <response code="500">Internal server error</response>
+    /// <exception cref="UnauthorizedAccessException">User not authorized to create project statuses</exception>
     [HttpPost]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProjectStatusResponse))]
@@ -56,6 +100,21 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
         return new CreatedResult(string.Empty, status);
     }
 
+    /// <summary>
+    /// Updates an existing project status.
+    /// </summary>
+    /// <param name="command">Updated project status data</param>
+    /// <param name="id">Project status ID</param>
+    /// <param name="wide">Wide event context</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Updated project status</returns>
+    /// <response code="200">Project status updated successfully</response>
+    /// <response code="400">Invalid payload</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User not authorized to update project statuses</response>
+    /// <response code="404">Project status not found</response>
+    /// <response code="500">Internal server error</response>
+    /// <exception cref="UnauthorizedAccessException">User not authorized to update project statuses</exception>
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProjectStatusResponse))]
@@ -73,6 +132,17 @@ public class ProjectStatusController(ProjectStatusService projectStatusService) 
         return status is null ? NotFound() : Ok(status);
     }
 
+    /// <summary>
+    /// Deletes a project status.
+    /// </summary>
+    /// <param name="id">Project status ID</param>
+    /// <param name="wide">Wide event context</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <response code="204">Project status deleted successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User not authorized to delete project statuses</response>
+    /// <response code="500">Internal server error</response>
+    /// <exception cref="UnauthorizedAccessException">User not authorized to delete project statuses</exception>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
