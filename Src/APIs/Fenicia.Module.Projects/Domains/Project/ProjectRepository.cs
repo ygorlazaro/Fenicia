@@ -12,6 +12,6 @@ public class ProjectRepository(DefaultContext context) : Repository<ProjectModel
         return await DbSet
                 .Include(p => p.Statuses)
             .Include(p => p.Tasks)
-            .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 }

@@ -10,7 +10,7 @@ public class CompanyRepository(DefaultContext context) : Repository<CompanyModel
 {
     public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken)
     {
-        return await DbSet.FirstOrDefaultAsync(c => c.Cnpj == cnpj && c.Deleted == null, cancellationToken);
+        return await DbSet.FirstOrDefaultAsync(c => c.Cnpj == cnpj, cancellationToken);
     }
 
     public async Task<CompanyModel?> AnyActiveAsync(Guid companyId, CancellationToken cancellationToken)

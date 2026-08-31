@@ -10,7 +10,7 @@ public class AttachmentRepository(DefaultContext context) : Repository<Attachmen
     public async Task<IEnumerable<AttachmentModel>> GetByCommentAsync(int page, int perPage, Guid commentId, CancellationToken ct)
     {
         return await DbSet
-                .Where(e => e.CommentId == commentId && e.Deleted == null)
+                .Where(e => e.CommentId == commentId)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(ct);

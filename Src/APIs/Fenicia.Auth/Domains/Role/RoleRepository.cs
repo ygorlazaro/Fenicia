@@ -9,6 +9,6 @@ public class RoleRepository(DefaultContext context) : Repository<RoleModel>(cont
 {
     public async Task<RoleModel?> GetByNameAsync(string name, CancellationToken ct)
     {
-        return await DbSet.FirstOrDefaultAsync(r => r.Name == name && r.Deleted == null, ct);
+        return await DbSet.FirstOrDefaultAsync(r => r.Name == name, ct);
     }
 }

@@ -22,6 +22,6 @@ public class FeedRepository(DefaultContext context) : Repository<FeedModel>(cont
             .Include(f => f.Comments)
             .Include(f => f.Likes)
             .Include(f => f.Shares)
-            .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 }

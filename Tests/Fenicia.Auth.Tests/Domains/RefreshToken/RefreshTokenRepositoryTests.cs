@@ -24,7 +24,7 @@ public class RefreshTokenRepositoryTests : IDisposable
     {
         var token = new RefreshTokenModel("test_token", DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
-        await _repository.AddAsync(token);
+        await _repository.AddAsync(token, CancellationToken.None);
 
         _redisDbMock.Verify(
             x => x.StringSetAsync(
@@ -45,7 +45,7 @@ public class RefreshTokenRepositoryTests : IDisposable
 
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == $"refresh_token:{token}"), CommandFlags.None)).ReturnsAsync(redisValue);
 
-        var result = await _repository.GetAsync(token);
+        var result = await _repository.GetAsync(token, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(token, result.Token);
@@ -56,7 +56,7 @@ public class RefreshTokenRepositoryTests : IDisposable
     {
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), CommandFlags.None)).ReturnsAsync(RedisValue.Null);
 
-        var result = await _repository.GetAsync("non_existent_token");
+        var result = await _repository.GetAsync("non_existent_token", CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -66,7 +66,7 @@ public class RefreshTokenRepositoryTests : IDisposable
     {
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), CommandFlags.None)).ReturnsAsync(RedisValue.Null);
 
-        var result = await _repository.GetAsync(string.Empty);
+        var result = await _repository.GetAsync(string.Empty, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -80,7 +80,7 @@ public class RefreshTokenRepositoryTests : IDisposable
 
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), CommandFlags.None)).ReturnsAsync(RedisValue.Null);
 
-        await _repository.UpdateAsync(updatedTokenModel);
+        await _repository.UpdateAsync(updatedTokenModel, CancellationToken.None);
 
         _redisDbMock.Verify(
             x => x.StringSetAsync(

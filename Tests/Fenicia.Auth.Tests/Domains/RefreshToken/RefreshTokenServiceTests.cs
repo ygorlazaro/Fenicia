@@ -30,7 +30,7 @@ public class RefreshTokenServiceTests : IDisposable
         var userId = Guid.NewGuid();
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
 
-        var result = await service.GenerateAsync(userId);
+        var result = await service.GenerateAsync(userId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotEmpty(result);
@@ -43,9 +43,9 @@ public class RefreshTokenServiceTests : IDisposable
         var userId = Guid.NewGuid();
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
 
-        var token1 = await service.GenerateAsync(userId);
-        var token2 = await service.GenerateAsync(userId);
-        var token3 = await service.GenerateAsync(userId);
+        var token1 = await service.GenerateAsync(userId, CancellationToken.None);
+        var token2 = await service.GenerateAsync(userId, CancellationToken.None);
+        var token3 = await service.GenerateAsync(userId, CancellationToken.None);
 
         Assert.NotEqual(token1, token2);
         Assert.NotEqual(token2, token3);
@@ -59,8 +59,8 @@ public class RefreshTokenServiceTests : IDisposable
         var userId2 = Guid.NewGuid();
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
 
-        var token1 = await service.GenerateAsync(userId1);
-        var token2 = await service.GenerateAsync(userId2);
+        var token1 = await service.GenerateAsync(userId1, CancellationToken.None);
+        var token2 = await service.GenerateAsync(userId2, CancellationToken.None);
 
         Assert.NotEqual(token1, token2);
     }
@@ -74,7 +74,7 @@ public class RefreshTokenServiceTests : IDisposable
 
         for (var i = 0; i < 10; i++)
         {
-            tokens.Add(await service.GenerateAsync(userId));
+            tokens.Add(await service.GenerateAsync(userId, CancellationToken.None));
         }
 
         var distinctTokens = tokens.Distinct().ToList();
@@ -97,7 +97,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         var updatedValue = JsonSerializer.Serialize(tokenResponse with { IsActive = false });
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Once);
@@ -111,7 +111,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Never);
     }
@@ -122,7 +122,7 @@ public class RefreshTokenServiceTests : IDisposable
         string? refreshToken = null;
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.InvalidateAsync(refreshToken!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.InvalidateAsync(refreshToken!, CancellationToken.None));
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Never);
     }
@@ -154,7 +154,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         var updatedValue = JsonSerializer.Serialize(tokenResponse with { IsActive = false });
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Once);
@@ -176,7 +176,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         var updatedValue = JsonSerializer.Serialize(tokenResponse with { IsActive = false });
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Once);
@@ -198,7 +198,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         var updatedToken = tokenResponse with { IsActive = false };
         var updatedValue = JsonSerializer.Serialize(updatedToken);
@@ -215,7 +215,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Never);
     }
@@ -236,8 +236,8 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.SetupSequence(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult).ReturnsAsync(RedisValue.Null);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         var updatedValue = JsonSerializer.Serialize(tokenResponse with { IsActive = false });
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Once);
@@ -259,7 +259,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Once);
     }
@@ -274,7 +274,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
     }
 
     [Fact]
@@ -287,7 +287,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await service.InvalidateAsync(refreshToken);
+        await service.InvalidateAsync(refreshToken, CancellationToken.None);
 
         _redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<Expiration>(), It.IsAny<ValueCondition>(), It.IsAny<CommandFlags>()), Times.Never);
     }
@@ -307,7 +307,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.True(result);
     }
@@ -322,7 +322,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -342,7 +342,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -362,7 +362,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -383,7 +383,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -395,7 +395,7 @@ public class RefreshTokenServiceTests : IDisposable
         var query = new ValidateTokenQuery(userId, null!);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.ValidateAsync(query.UserId, query.RefreshToken));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.ValidateAsync(query.UserId, query.RefreshToken, CancellationToken.None));
     }
 
     [Fact]
@@ -413,7 +413,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.True(result);
     }
@@ -433,7 +433,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -450,7 +450,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -462,7 +462,7 @@ public class RefreshTokenServiceTests : IDisposable
         var query = new ValidateTokenQuery(userId, "   ");
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.ValidateAsync(query.UserId, query.RefreshToken));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await service.ValidateAsync(query.UserId, query.RefreshToken, CancellationToken.None));
     }
 
     [Fact]
@@ -476,7 +476,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }
@@ -493,7 +493,7 @@ public class RefreshTokenServiceTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var service = new RefreshTokenService(new RefreshTokenRepository(_redisMock.Object));
-        var result = await service.ValidateAsync(userId, refreshToken);
+        var result = await service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
         Assert.False(result);
     }

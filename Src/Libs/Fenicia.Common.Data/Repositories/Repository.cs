@@ -24,7 +24,7 @@ public class Repository<T> : IRepository<T>
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken ct = default)
     {
         return await DbSet
-                .Where(e => e.Deleted == null)
+                .Where(e => true)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(ct);
@@ -32,7 +32,7 @@ public class Repository<T> : IRepository<T>
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await DbSet.FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, ct);
+        return await DbSet.FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
     public async Task<T> InsertAsync(T model, CancellationToken ct = default)
