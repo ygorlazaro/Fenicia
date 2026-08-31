@@ -1,0 +1,153 @@
+```mermaid
+erDiagram
+    UserModel ||--o| ProfileModel : "has"
+    UserModel ||--o{ FriendshipModel : "follows (User)"
+    UserModel ||--o{ FriendshipModel : "followed_by (TargetUser)"
+    UserModel ||--o{ BlockModel : "blocks (User)"
+    UserModel ||--o{ BlockModel : "blocked_by (BlockedUser)"
+    UserModel ||--o{ FeedModel : "creates"
+    UserModel ||--o{ CommentModel : "writes"
+    UserModel ||--o{ LikeModel : "likes"
+    UserModel ||--o{ ReportModel : "files"
+    UserModel ||--o{ ShareModel : "shares"
+
+    FeedModel ||--o{ CommentModel : "has"
+    FeedModel ||--o{ LikeModel : "has"
+    FeedModel ||--o{ ShareModel : "original_of"
+
+    CommentModel ||--o{ CommentModel : "replies_to (parent)"
+    CommentModel ||--o{ LikeModel : "has"
+    CommentModel ||--o{ AttachmentModel : "has"
+
+    AttachmentModel }o--|| CommentModel : "attached_to"
+
+    ShareModel }o--|| FeedModel : "shares"
+
+    ReportModel }o--|| FeedModel : "targets"
+    ReportModel }o--|| CommentModel : "targets"
+    ReportModel }o--|| UserModel : "targets"
+
+    ProfileModel {
+        Guid Id PK
+        Guid UserId UK
+        string Bio "MaxLength 160"
+        string ImageUrl "MaxLength 48"
+        string Website "MaxLength 120"
+        string Location "MaxLength 64"
+        string Phone "MaxLength 24"
+        DateTime? BirthDate
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    FriendshipModel {
+        Guid Id PK
+        Guid UserId
+        Guid TargetUserId
+        DateTime FollowDate
+        bool IsActive
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    BlockModel {
+        Guid Id PK
+        Guid UserId
+        Guid BlockedUserId
+        string Reason "MaxLength 256"
+        DateTime BlockDate
+        bool IsActive
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    FeedModel {
+        Guid Id PK
+        Guid CompanyId
+        DateTime Date
+        string Text "MaxLength 512"
+        Guid UserId
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    CommentModel {
+        Guid Id PK
+        Guid CompanyId
+        Guid UserId
+        Guid FeedId
+        Guid? ParentCommentId
+        string Text "MaxLength 1024"
+        DateTime CommentDate
+        DateTime? UpdatedDate
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    LikeModel {
+        Guid Id PK
+        Guid CompanyId
+        Guid UserId
+        Guid FeedId
+        DateTime LikeDate
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    AttachmentModel {
+        Guid Id PK
+        Guid CompanyId
+        string Url "MaxLength 512"
+        string FileType "MaxLength 64"
+        long FileSize
+        Guid? FeedId "NULL"
+        Guid CommentId
+        DateTime UploadDate
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    ShareModel {
+        Guid Id PK
+        Guid CompanyId
+        Guid UserId
+        Guid OriginalFeedId
+        string Text "MaxLength 512"
+        DateTime ShareDate
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    ReportModel {
+        Guid Id PK
+        Guid ReporterId
+        Guid TargetId
+        string TargetType "Feed, Comment, User"
+        string Reason "MaxLength 64"
+        string Description "MaxLength 512"
+        EnumStatus Status "Pending, Approved, Denied"
+        DateTime ReportDate
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+
+    UserModel {
+        Guid Id PK
+        string Email
+        string Password
+        string Name
+        string ImageUrl "MaxLength 48"
+        DateTime Created
+        DateTime? Updated
+        DateTime? Deleted
+    }
+```

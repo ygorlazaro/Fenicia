@@ -1874,56 +1874,6 @@ partial class OrderNumber
                 b.ToTable("feeds", "social_network");
             });
 
-        modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetworkModels.FollowerModel", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CompanyId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("company_id");
-
-                b.Property<DateTime>("Created")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("created");
-
-                b.Property<DateTime?>("Deleted")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("deleted");
-
-                b.Property<DateTime>("FollowDate")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("follow_date");
-
-                b.Property<Guid>("FollowerId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("follower_id");
-
-                b.Property<bool>("IsActive")
-                    .HasColumnType("boolean")
-                    .HasColumnName("is_active");
-
-                b.Property<DateTime?>("Updated")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("updated");
-
-                b.Property<Guid>("UserId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("user_id");
-
-                b.HasKey("Id")
-                    .HasName("pk_followers");
-
-                b.HasIndex("FollowerId")
-                    .HasDatabaseName("ix_followers_follower_id");
-
-                b.HasIndex("UserId")
-                    .HasDatabaseName("ix_followers_user_id");
-
-                b.ToTable("followers", "social_network");
-            });
 
         modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.AddressModel", b =>
             {
@@ -2401,26 +2351,6 @@ partial class OrderNumber
                 b.Navigation("UserModel");
             });
 
-        modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetworkModels.FollowerModel", b =>
-            {
-                b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "Follower")
-                    .WithMany("Followers")
-                    .HasForeignKey("FollowerId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_followers_users_follower_id");
-
-                b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "UserModel")
-                    .WithMany("Following")
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_followers_users_user_id");
-
-                b.Navigation("Follower");
-
-                b.Navigation("UserModel");
-            });
 
         modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.CompanyModel", b =>
             {
