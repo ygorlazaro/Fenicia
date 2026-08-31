@@ -40,7 +40,7 @@ Press **Ctrl+C** to stop all services cleanly.
 | fenicia-module-pos | 5022 |
 | fenicia-module-plus | 5024 |
 | fenicia-module-socialnetwork | 5026 |
-| fenicia-web (frontend, Vite dev) | 5173 |
+| Src/Front (frontend, Vite dev) | 5173 |
 
 ## Frontend Environment Variables
 
