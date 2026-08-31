@@ -15,11 +15,11 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "editor.wordWrap": "off",
-  "prettier.configPath": "fenicia-web/.prettierrc.json",
+  "prettier.configPath": "Src/Front/.prettierrc.json",
   "eslint.useFlatConfig": true,
   "eslint.workingDirectories": [
     {
-      "directory": "fenicia-web",
+      "directory": "Src/Front",
       "changeProcessCWD": true,
     },
   ],

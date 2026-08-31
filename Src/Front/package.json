@@ -18,9 +18,6 @@
         "lint": "eslint . --ext ts,tsx",
         "lint:fix": "eslint . --ext ts,tsx --fix",
         "format": "prettier --write .",
-        "hooks:install": "sh -c 'cd .. && npx --prefix fenicia-web husky .husky'",
-        "hooks:precommit": "lint-staged --config .lintstagedrc.json",
-        "prepare": "npm run hooks:install",
         "serve": "vite preview",
         "start": "vite",
         "type-check": "tsc --noEmit --skipLibCheck"

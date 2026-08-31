@@ -18,7 +18,7 @@ Fenicia is a modular, multi-tenant SaaS platform for administrative ERP, client 
 
 - **Auth Service**: Central login, JWT, permissions, `companyId`, and active modules
 - **Independent Modules**: Each is a REST microservice (Basic, POS, HR, Accounting, Projects, etc.) sharing a single PostgreSQL database per environment, with row-level tenant isolation via `CompanyId`
-- **Frontend**: Vue.js + TypeScript (`fenicia-web`)
+- **Frontend**: React + TypeScript + Vite (`Src/Front`)
 
 ![Macro Architecture](docs/architecture-diagram.svg)
 
@@ -43,7 +43,7 @@ Fenicia.sln
 ├── Fenicia.Module.CustomerSupport/  # Customer support module
 ├── Fenicia.Module.PerformanceEvaluation/ # Performance evaluation module
 ├── Fenicia.Module.Plus/             # Additional features module
-├── fenicia-web/                     # Frontend (Vue.js + TypeScript)
+├── Src/Front/                     # Frontend (React + TypeScript + Vite)
 └── Docker/                          # Dockerfiles and docker-compose for all services
 ```
 
@@ -55,7 +55,7 @@ Fenicia.sln
 - **Database**: PostgreSQL
 - **ORM**: EF Core with global query filters for multi-tenancy
 - **Authentication**: Centralized JWT with `company_id` claim
-- **Frontend**: Vue.js + TypeScript + Vite
+- **Frontend**: React + TypeScript + Vite
 - **Containerization**: Docker + Docker Compose
 - **Observability**: Serilog, Seq, HealthChecks
 - **CI/CD**: GitHub Actions
