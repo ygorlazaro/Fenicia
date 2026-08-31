@@ -11,6 +11,7 @@ namespace Fenicia.Module.SocialNetwork.Tests.Domains.Attachment;
 
 public class AttachmentServiceTests : IDisposable
 {
+    private static readonly string[] _fileTypes = ["jpg", "png", "pdf", "docx"];
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly AttachmentService _service;
@@ -36,7 +37,7 @@ public class AttachmentServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesAttachment()
     {
         // Arrange
-        var command = new AddAttachmentCommand(Guid.NewGuid(), _faker.Internet.Url(), _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }), _faker.Random.Long(1, 1000), Guid.NewGuid());
+        var command = new AddAttachmentCommand(Guid.NewGuid(), _faker.Internet.Url(), _faker.Random.ArrayElement(_fileTypes), _faker.Random.Long(1, 1000), Guid.NewGuid());
 
         // Act
         var result = await _service.AddAsync(command, _companyId, Guid.NewGuid(), CancellationToken.None);
@@ -59,7 +60,7 @@ public class AttachmentServiceTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = Guid.NewGuid(),
             CompanyId = _companyId
@@ -98,7 +99,7 @@ public class AttachmentServiceTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = commentId,
             CompanyId = _companyId
@@ -107,7 +108,7 @@ public class AttachmentServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetByCommentAsync(new GetAttachmentsByCommentQuery(1, 10), commentId, CancellationToken.None);
+        var result = await _service.GetByCommentAsync(new GetAttachmentsByCommentQuery(1, 10, null, null), commentId, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -123,7 +124,7 @@ public class AttachmentServiceTests : IDisposable
         var commentId = Guid.NewGuid();
 
         // Act
-        var result = await _service.GetByCommentAsync(new GetAttachmentsByCommentQuery(1, 10), commentId, CancellationToken.None);
+        var result = await _service.GetByCommentAsync(new GetAttachmentsByCommentQuery(1, 10, null, null), commentId, CancellationToken.None);
 
         // Assert
         result.Should().BeEmpty();

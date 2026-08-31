@@ -22,6 +22,8 @@ public class PositionController(PositionService positionService) : ControllerBas
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query">Consulta avançada para filtros</param>
+    /// <param name="sort">Ordenação</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de posições</returns>
     /// <response code="200">Lista de posições retornada com sucesso</response>
@@ -32,13 +34,13 @@ public class PositionController(PositionService positionService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await positionService.GetAllAsync(new GetAllPositionQuery(page, perPage), cancellationToken);
+            var positions = await positionService.GetAllAsync(new GetAllPositionQuery(page, perPage, query, sort), cancellationToken);
 
             return Ok(positions);
         }

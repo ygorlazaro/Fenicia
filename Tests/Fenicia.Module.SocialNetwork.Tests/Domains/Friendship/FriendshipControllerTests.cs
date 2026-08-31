@@ -62,7 +62,7 @@ public class FriendshipControllerTests : IDisposable
     {
         var wide = new WideEventContext();
 
-        var result = await _controller.GetFollowersAsync(Guid.NewGuid(), wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetFollowersAsync(Guid.NewGuid(), wide, 1, 10, null, null, CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
     }
@@ -72,7 +72,7 @@ public class FriendshipControllerTests : IDisposable
     {
         var wide = new WideEventContext();
 
-        var result = await _controller.GetFollowingAsync(Guid.NewGuid(), wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetFollowingAsync(Guid.NewGuid(), wide, 1, 10, null, null, CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
     }

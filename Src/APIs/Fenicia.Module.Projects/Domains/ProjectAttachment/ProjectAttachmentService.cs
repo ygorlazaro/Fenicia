@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 
@@ -7,7 +9,10 @@ public class ProjectAttachmentService(ProjectAttachmentRepository repository)
 {
     public async Task<List<GetAllProjectAttachmentResponse>> GetAllAsync(GetAllProjectAttachmentQuery query, CancellationToken cancellationToken = default)
     {
-        var attachments = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var attachments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. attachments.Select(p => new GetAllProjectAttachmentResponse(p.Id, p.TaskId, p.FileName, p.FileUrl, p.FileSize, p.UploadedBy, p.CompanyId))];
     }
 

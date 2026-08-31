@@ -24,6 +24,8 @@ public class ProjectCommentController(ProjectCommentService projectCommentServic
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
+    /// <param name="query">Advanced query string for filtering. Example: <c>content[*]alpha</c></param>
+    /// <param name="sort">Sort fields. Example: <c>-createdAt</c></param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of project comments</returns>
     /// <response code="200">List of project comments returned successfully</response>
@@ -35,11 +37,11 @@ public class ProjectCommentController(ProjectCommentService projectCommentServic
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectCommentResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComments = await projectCommentService.GetAllAsync(new GetAllProjectCommentQuery(page, perPage), cancellationToken);
+        var projectComments = await projectCommentService.GetAllAsync(new GetAllProjectCommentQuery(page, perPage, query, sort), cancellationToken);
 
         return Ok(projectComments);
     }

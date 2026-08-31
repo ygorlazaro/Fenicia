@@ -5,8 +5,6 @@ namespace Fenicia.Module.Basic.Domains.Product;
 
 public interface IProductRepository : IRepository<ProductModel>
 {
-    IQueryable<ProductModel> Query();
-
     Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
 
     Task<ProductModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);

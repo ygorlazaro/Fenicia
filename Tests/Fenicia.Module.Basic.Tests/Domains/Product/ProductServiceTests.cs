@@ -49,7 +49,7 @@ public class ProductServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProductQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProductQuery(1, 10, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

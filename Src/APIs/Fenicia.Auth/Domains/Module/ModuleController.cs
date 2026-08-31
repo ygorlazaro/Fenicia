@@ -18,7 +18,7 @@ public class ModuleController(ModuleService service) : ControllerBase
     /// <summary>
     /// Obtém todos os módulos ativos com paginação (endpoint anônimo).
     /// </summary>
-    /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
+    /// <param name="query">Parâmetros de paginação, filtro e ordenação</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de módulos</returns>
@@ -32,7 +32,7 @@ public class ModuleController(ModuleService service) : ControllerBase
     {
         wide.UserId = "Guest";
 
-        var modules = await service.GetAllModulesAsync(query.Page, query.PerPage, cancellationToken);
+        var modules = await service.GetAllModulesAsync(query, cancellationToken);
 
         return Ok(modules);
     }

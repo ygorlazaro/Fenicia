@@ -48,7 +48,7 @@ public class FeedServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllFeedQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllFeedQuery(1, 10, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -67,7 +67,7 @@ public class FeedServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllFeedQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllFeedQuery(1, 10, null, null), CancellationToken.None);
 
         // Assert
         result.Should().HaveCount(3);

@@ -75,7 +75,7 @@ public class EmployeeServiceTests : IDisposable
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllAsync(new GetAllEmployeeQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllEmployeeQuery(1, 10, null, null), CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(1);

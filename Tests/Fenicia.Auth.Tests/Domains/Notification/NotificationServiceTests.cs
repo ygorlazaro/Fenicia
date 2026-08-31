@@ -49,7 +49,7 @@ public class NotificationServiceTests : IDisposable
 
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllNotificationsQuery(1, 10), CancellationToken.None);
 
         Assert.Equal(5, result.Total);
         Assert.Equal(5, result.Data.Count);

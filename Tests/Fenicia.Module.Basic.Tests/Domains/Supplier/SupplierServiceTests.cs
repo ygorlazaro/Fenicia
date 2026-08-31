@@ -64,7 +64,7 @@ public class SupplierServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllSupplierQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllSupplierQuery(1, 10, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

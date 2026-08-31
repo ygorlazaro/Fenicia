@@ -21,9 +21,14 @@ public class PositionService
 
     public virtual async Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(GetAllPositionQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _positionRepository.CountAsync(cancellationToken);
+        var baseQuery = _positionRepository.Query();
 
-        var positions = await _positionRepository.Query()
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var positions = await filteredQuery
             .Select(p => p.MapToGetAllPositionResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)

@@ -7,6 +7,7 @@ using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -74,7 +75,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.AddRange(module1, module2);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
@@ -109,7 +110,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.AddRange(authModule, basicModule);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -143,7 +144,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.AddRange(activeModule, inactiveModule);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -170,7 +171,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.AddRange(modules);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(2, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(2, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
@@ -183,7 +184,7 @@ public class ModuleServiceTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsEmptyPagination()
     {
-        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result.Data);
@@ -206,7 +207,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.Add(module);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(10, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(10, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result.Data);
@@ -249,7 +250,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.AddRange(module1, module2, module3);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(3, result.Data.Count);
@@ -277,7 +278,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.Add(module);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(1, 20, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 20), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(1, result.Page);
@@ -307,7 +308,7 @@ public class ModuleServiceTests : IDisposable
         _db.AuthModules.Add(module);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllModulesAsync(1, 10, CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotEmpty(result.Data);

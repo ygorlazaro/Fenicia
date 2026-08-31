@@ -1,6 +1,8 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
@@ -8,7 +10,10 @@ public class ProjectTaskService(ProjectTaskRepository repository)
 {
     public async Task<List<GetAllProjectTaskResponse>> GetAllAsync(GetAllProjectTaskQuery query, CancellationToken cancellationToken = default)
     {
-        var tasks = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var tasks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. tasks.Select(pt => new GetAllProjectTaskResponse(pt.Id, pt.ProjectId, pt.StatusId, pt.Title, pt.Description, pt.Priority.ToString(), pt.Type.ToString(), pt.Order, pt.EstimatePoints, pt.DueDate, pt.CreatedBy, pt.CompanyId))];
     }
 

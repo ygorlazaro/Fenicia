@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetworkModels;
 using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
@@ -7,7 +9,10 @@ public class CommentService(CommentRepository repository)
 {
     public async Task<List<GetAllCommentResponse>> GetAllByFeedAsync(GetAllCommentByFeedQuery query, Guid feedId, CancellationToken cancellationToken = default)
     {
-        var comments = await repository.GetByFeedAsync(feedId, query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query().Where(c => c.FeedId == feedId && c.ParentCommentId == null).OrderBy(c => c.CommentDate);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var comments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. comments.Select(c => new GetAllCommentResponse(c.Id, c.UserId, c.FeedId, c.ParentCommentId, c.Text, c.CommentDate, c.UpdatedDate))];
     }
 
@@ -76,7 +81,10 @@ public class CommentService(CommentRepository repository)
 
     public async Task<List<GetRepliesResponse>> GetRepliesAsync(GetRepliesQuery query, CancellationToken cancellationToken = default)
     {
-        var replies = await repository.GetRepliesAsync(query.ParentCommentId, query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query().Where(c => c.ParentCommentId == query.ParentCommentId).OrderBy(c => c.CommentDate);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var replies = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. replies.Select(r => new GetRepliesResponse(r.Id, r.UserId, r.FeedId, r.ParentCommentId, r.Text, r.CommentDate, r.UpdatedDate))];
     }
 }

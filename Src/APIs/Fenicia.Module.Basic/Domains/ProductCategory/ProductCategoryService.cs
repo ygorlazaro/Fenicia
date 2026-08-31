@@ -21,9 +21,14 @@ public class ProductCategoryService
 
     public virtual async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(GetAllProductCategoryQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _productCategoryRepository.CountAsync(cancellationToken);
+        var baseQuery = _productCategoryRepository.Query();
 
-        var categories = await _productCategoryRepository.Query()
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var categories = await filteredQuery
             .Select(pc => pc.MapToGetAllProductCategoryResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)

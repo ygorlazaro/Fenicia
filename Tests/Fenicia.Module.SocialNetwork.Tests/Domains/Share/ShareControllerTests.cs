@@ -80,7 +80,7 @@ public class ShareControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.GetSharesByFeedAsync(feedId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetSharesByFeedAsync(feedId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -98,7 +98,7 @@ public class ShareControllerTests : IDisposable
         var feedId = Guid.NewGuid();
 
         // Act
-        var result = await _controller.GetSharesByFeedAsync(feedId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetSharesByFeedAsync(feedId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

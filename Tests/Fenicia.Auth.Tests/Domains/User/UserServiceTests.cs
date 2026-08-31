@@ -884,7 +884,7 @@ public class UserServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenNoParameters_ReturnsFirstPageWithDefaultPerPage()
     {
-        var result = await _userService.GetAllAsync(1, 10, CancellationToken.None);
+        var result = await _userService.GetAllAsync(new GetAllUsersQuery(1, 10), CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -898,7 +898,7 @@ public class UserServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenPageSpecified_ReturnsCorrectPage()
     {
-        var result = await _userService.GetAllAsync(2, 5, CancellationToken.None);
+        var result = await _userService.GetAllAsync(new GetAllUsersQuery(2, 5), CancellationToken.None);
 
         Assert.NotNull(result);
 
@@ -910,7 +910,7 @@ public class UserServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_UsersAreOrderedAlphabeticallyByName()
     {
-        var result = await _userService.GetAllAsync(1, 15, CancellationToken.None);
+        var result = await _userService.GetAllAsync(new GetAllUsersQuery(1, 15), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(result.Data.Select(u => u.Name).OrderBy(n => n), result.Data.Select(u => u.Name));
@@ -919,7 +919,7 @@ public class UserServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenLastPage_HasNextIsFalse()
     {
-        var result = await _userService.GetAllAsync(2, 10, CancellationToken.None);
+        var result = await _userService.GetAllAsync(new GetAllUsersQuery(2, 10), CancellationToken.None);
 
         Assert.NotNull(result);
 

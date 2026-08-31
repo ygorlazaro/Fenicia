@@ -1,6 +1,8 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetworkModels;
 using Fenicia.Common.Enums.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Report.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Report;
 
@@ -45,7 +47,10 @@ public class ReportService(ReportRepository repository)
 
     public async Task<List<GetAllReportResponse>> GetAllAsync(GetAllReportQuery query, CancellationToken cancellationToken = default)
     {
-        var reports = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var reports = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. reports.Select(r => new GetAllReportResponse(r.Id, r.ReporterId, r.TargetId, r.TargetType, r.Reason, r.Description, r.Status.ToString(), r.ReportDate))];
     }
 

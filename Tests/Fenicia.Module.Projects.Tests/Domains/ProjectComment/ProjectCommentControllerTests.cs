@@ -61,7 +61,7 @@ public class ProjectCommentControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.GetAsync(wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetAsync(wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

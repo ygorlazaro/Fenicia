@@ -91,11 +91,11 @@ public class LikeController(LikeService likeService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetLikesResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetLikesResponse>>> GetLikesByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetLikesResponse>>> GetLikesByFeedAsync([FromRoute] Guid feedId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await likeService.GetLikesByFeedAsync(new GetLikesByFeedQuery(page, perPage, feedId), cancellationToken);
+        var result = await likeService.GetLikesByFeedAsync(new GetLikesByFeedQuery(page, perPage, feedId, query, sort), cancellationToken);
 
         return Ok(result);
     }

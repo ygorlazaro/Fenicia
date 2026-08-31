@@ -136,7 +136,7 @@ public class LikeServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetLikesByFeedAsync(new GetLikesByFeedQuery(1, 10, feedId), CancellationToken.None);
+        var result = await _service.GetLikesByFeedAsync(new GetLikesByFeedQuery(1, 10, feedId, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

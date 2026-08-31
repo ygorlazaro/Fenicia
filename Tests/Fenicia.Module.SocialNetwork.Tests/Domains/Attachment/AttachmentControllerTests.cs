@@ -17,6 +17,7 @@ namespace Fenicia.Module.SocialNetwork.Tests.Domains.Attachment;
 
 public class AttachmentControllerTests : IDisposable
 {
+    private static readonly string[] _fileTypes = ["jpg", "png", "pdf", "docx"];
     private readonly AttachmentController _controller;
     private readonly DefaultContext _db;
     private readonly Faker _faker;
@@ -49,7 +50,7 @@ public class AttachmentControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new AddAttachmentCommand(Guid.NewGuid(), _faker.Internet.Url(), _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }), _faker.Random.Long(1, 1000), Guid.NewGuid());
+        var command = new AddAttachmentCommand(Guid.NewGuid(), _faker.Internet.Url(), _faker.Random.ArrayElement(_fileTypes), _faker.Random.Long(1, 1000), Guid.NewGuid());
         var wide = new WideEventContext();
 
         // Act
@@ -72,7 +73,7 @@ public class AttachmentControllerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = Guid.NewGuid(),
             CompanyId = _companyId
@@ -110,7 +111,7 @@ public class AttachmentControllerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Url = _faker.Internet.Url(),
-            FileType = _faker.Random.ArrayElement(new[] { "jpg", "png", "pdf", "docx" }),
+            FileType = _faker.Random.ArrayElement(_fileTypes),
             FileSize = _faker.Random.Long(1, 1000),
             CommentId = commentId,
             CompanyId = _companyId
@@ -119,7 +120,7 @@ public class AttachmentControllerTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.GetByCommentAsync(commentId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetByCommentAsync(commentId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
@@ -137,7 +138,7 @@ public class AttachmentControllerTests : IDisposable
         var commentId = Guid.NewGuid();
 
         // Act
-        var result = await _controller.GetByCommentAsync(commentId, wide, 1, 10, CancellationToken.None);
+        var result = await _controller.GetByCommentAsync(commentId, wide, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

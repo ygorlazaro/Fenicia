@@ -26,6 +26,8 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query">Consulta avançada para filtros</param>
+    /// <param name="sort">Ordenação</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de clientes</returns>
     /// <response code="200">Lista de clientes retornada com sucesso</response>
@@ -38,11 +40,11 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customers = await customerService.GetAllAsync(new GetAllCustomerQuery(page, perPage), cancellationToken);
+        var customers = await customerService.GetAllAsync(new GetAllCustomerQuery(page, perPage, query, sort), cancellationToken);
 
         return Ok(customers);
     }

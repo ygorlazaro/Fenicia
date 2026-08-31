@@ -24,6 +24,8 @@ public class ProjectSubtaskController(ProjectSubtaskService projectSubtaskServic
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
+    /// <param name="query">Advanced query string for filtering. Example: <c>title[*]alpha</c></param>
+    /// <param name="sort">Sort fields. Example: <c>order</c></param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of project subtasks</returns>
     /// <response code="200">List of project subtasks returned successfully</response>
@@ -35,11 +37,11 @@ public class ProjectSubtaskController(ProjectSubtaskService projectSubtaskServic
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectSubtaskResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectSubtaskResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProjectSubtaskResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtasks = await projectSubtaskService.GetAllAsync(new GetAllProjectSubtaskQuery(page, perPage), cancellationToken);
+        var projectSubtasks = await projectSubtaskService.GetAllAsync(new GetAllProjectSubtaskQuery(page, perPage, query, sort), cancellationToken);
 
         return Ok(projectSubtasks);
     }

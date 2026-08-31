@@ -7,7 +7,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Block;
 
 public interface IBlockRepository : IRepository<BlockModel>
 {
-    IQueryable<BlockModel> Query();
+    new IQueryable<BlockModel> Query();
 }
 
 public class BlockRepository(DefaultContext context) : Repository<BlockModel>(context), IBlockRepository

@@ -26,4 +26,6 @@ public interface IRepository<T>
     Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    IQueryable<T> Query();
 }

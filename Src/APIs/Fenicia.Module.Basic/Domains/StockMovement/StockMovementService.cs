@@ -30,7 +30,21 @@ public class StockMovementService
     {
         var startDate = query.StartDate ?? DateTime.MinValue;
         var endDate = query.EndDate ?? DateTime.MaxValue;
-        var movements = await _stockMovementRepository.GetWithDetailsAsync(startDate, endDate, query.Page, query.PerPage, cancellationToken);
+
+        var baseQuery = _stockMovementRepository.Query()
+            .Include(m => m.Product).ThenInclude(p => p.Category)
+            .Include(m => m.Customer!).ThenInclude(c => c.Person)
+            .Include(m => m.Supplier!).ThenInclude(s => s.Person)
+            .Include(m => m.Employee!).ThenInclude(e => e.Person)
+            .Where(m => m.Date >= startDate && m.Date <= endDate);
+
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var movements = await filteredQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
 
         return [.. movements.Select(m => m.MapToGetStockMovementResponse())];
     }

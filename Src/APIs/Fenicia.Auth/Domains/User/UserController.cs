@@ -92,9 +92,11 @@ public class UserController(UserService userService, ModuleService moduleService
     /// <summary>
     /// Obtém todos os usuários com paginação.
     /// </summary>
-    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="pageSize">Quantidade de itens por página (padrão: 10)</param>
+    /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
+    /// <param name="sort">Ordenação. Example: <c>name</c></param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de usuários</returns>
     /// <response code="200">Lista de usuários retornada com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
@@ -103,9 +105,9 @@ public class UserController(UserService userService, ModuleService moduleService
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
-        var result = await userService.GetAllAsync(page, pageSize, cancellationToken);
+        var result = await userService.GetAllAsync(new GetAllUsersQuery(page, pageSize, query, sort), cancellationToken);
 
         return Ok(result);
     }

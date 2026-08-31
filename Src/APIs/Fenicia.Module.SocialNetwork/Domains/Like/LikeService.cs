@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetworkModels;
 using Fenicia.Module.SocialNetwork.Domains.Like.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Like;
 
@@ -36,7 +38,10 @@ public class LikeService(LikeRepository repository)
 
     public async Task<List<GetLikesResponse>> GetLikesByFeedAsync(GetLikesByFeedQuery query, CancellationToken cancellationToken = default)
     {
-        var likes = await repository.GetByFeedAsync(query.FeedId, query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query().Where(l => l.FeedId == query.FeedId).OrderByDescending(l => l.LikeDate);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var likes = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. likes.Select(l => new GetLikesResponse(l.Id, l.UserId, l.FeedId, l.LikeDate))];
     }
 

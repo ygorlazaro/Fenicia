@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment;
 
@@ -7,7 +9,10 @@ public class ProjectCommentService(ProjectCommentRepository repository)
 {
     public async Task<List<GetAllProjectCommentResponse>> GetAllAsync(GetAllProjectCommentQuery query, CancellationToken cancellationToken = default)
     {
-        var comments = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var baseQuery = repository.Query();
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var comments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
         return [.. comments.Select(pc => new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId))];
     }
 

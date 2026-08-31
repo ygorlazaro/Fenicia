@@ -41,9 +41,19 @@ public class ProductService
 
     public virtual async Task<Pagination<List<GetAllProductResponse>>> GetAllAsync(GetAllProductQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _productRepository.CountAsync(cancellationToken);
+        var baseQuery = _productRepository.Query()
+            .Include(p => p.Category)
+            .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
 
-        var products = await _productRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var products = await filteredQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
 
         var response = products.Select(p => p.MapToGetAllProductResponse()).ToList();
 
@@ -208,9 +218,19 @@ public class ProductService
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(GetAllProductQuery query, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetAllWithCategoryAsync(page, perPage, cancellationToken);
+        var baseQuery = _productRepository.Query()
+            .Include(p => p.Category);
+
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        return await filteredQuery
+            .OrderBy(p => p.Quantity)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalCostPriceAsync(CancellationToken cancellationToken = default)

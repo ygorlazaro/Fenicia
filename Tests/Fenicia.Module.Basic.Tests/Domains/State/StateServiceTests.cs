@@ -40,7 +40,7 @@ public class StateServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllStateQuery(), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllStateQuery(1, 10, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -51,7 +51,7 @@ public class StateServiceTests : IDisposable
     public async Task GetAllAsync_WhenNoStatesExist_ReturnsEmptyList()
     {
         // Act
-        var result = await _service.GetAllAsync(new GetAllStateQuery(), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllStateQuery(1, 10, null, null), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

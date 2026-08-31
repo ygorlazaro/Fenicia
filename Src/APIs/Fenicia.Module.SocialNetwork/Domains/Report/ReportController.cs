@@ -103,11 +103,11 @@ public class ReportController(ReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllReportResponse>>> GetAllAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllReportResponse>>> GetAllAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var reports = await reportService.GetAllAsync(new GetAllReportQuery(page, perPage), cancellationToken);
+        var reports = await reportService.GetAllAsync(new GetAllReportQuery(page, perPage, query, sort), cancellationToken);
 
         return Ok(reports);
     }

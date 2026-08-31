@@ -4,19 +4,25 @@ using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module;
 
 public class ModuleService(ModuleRepository repository, UserRoleService userRoleService, SubscriptionService subscriptionService)
 {
-    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        var modulesTask = repository.GetAllActiveAsync(page, perPage, cancellationToken);
-        var totalTask = repository.CountAllActiveAsync(cancellationToken);
+        var baseQuery = repository.Query().Where(m => m.Type != ModuleType.Auth && m.IsActive);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var orderedQuery = filteredQuery.OrderBy(m => m.SortOrder);
 
-        await Task.WhenAll(modulesTask, totalTask);
+        var totalTask = orderedQuery.CountAsync(cancellationToken);
+        var modulesTask = orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
 
-        return new Pagination<List<GetModuleResponse>>([.. modulesTask.Result.Select(m => m.MapToGetModuleResponse())], totalTask.Result, page, perPage);
+        await Task.WhenAll(totalTask, modulesTask);
+
+        return new Pagination<List<GetModuleResponse>>([.. modulesTask.Result.Select(m => m.MapToGetModuleResponse())], totalTask.Result, query.Page, query.PerPage);
     }
 
     public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken = default)

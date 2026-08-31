@@ -32,9 +32,20 @@ public class OrderService
 
     public virtual async Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(GetAllOrderQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _orderRepository.CountAsync(cancellationToken);
+        var baseQuery = _orderRepository.Query()
+            .Include(o => o.Customer).ThenInclude(c => c.Person);
 
-        var orderIds = await _orderRepository.GetRecentOrderIdsAsync(query.Page, query.PerPage, cancellationToken);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var orderIds = await filteredQuery
+            .OrderByDescending(o => o.SaleDate)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .Select(o => o.Id)
+            .ToListAsync(cancellationToken);
 
         var detailCounts = await _orderDetailService.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
 

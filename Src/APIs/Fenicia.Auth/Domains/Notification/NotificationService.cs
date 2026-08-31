@@ -1,16 +1,24 @@
 using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification;
 
 public class NotificationService(NotificationRepository repository)
 {
-    public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(GetAllNotificationsQuery query, CancellationToken cancellationToken = default)
     {
-        var result = await repository.GetAllWithPaginationAsync(page, perPage, cancellationToken);
+        var baseQuery = repository.Query().OrderByDescending(n => n.Date);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
 
-        return new Pagination<List<GetAllNotificationsResponse>>([.. result.Data.Select(n => n.MapToGetAllNotificationsResponse())], result.Total, page, perPage);
+        var totalTask = filteredQuery.CountAsync(cancellationToken);
+        var itemsTask = filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
+
+        await Task.WhenAll(totalTask, itemsTask);
+
+        return new Pagination<List<GetAllNotificationsResponse>>([.. itemsTask.Result.Select(n => n.MapToGetAllNotificationsResponse())], totalTask.Result, query.Page, query.PerPage);
     }
 
     public async Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)

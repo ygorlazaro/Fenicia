@@ -10,6 +10,7 @@ using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Person;
 using Fenicia.Module.Basic.Domains.PersonAddress;
 using Fenicia.Module.Basic.Domains.Product;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
@@ -45,9 +46,21 @@ public class CustomerService
 
     public virtual async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(GetAllCustomerQuery query, CancellationToken cancellationToken = default)
     {
-        var total = await _customerRepository.CountAsync(cancellationToken);
+        var baseQuery = _customerRepository.Query()
+            .Include(c => c.Person)
+            .Include(c => c.Person.PersonAddresses)
+                .ThenInclude(pa => pa.Address)
+                    .ThenInclude(a => a.State);
 
-        var customers = await _customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var filters = AdvancedQueryParser.Parse(query.Query);
+        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var customers = await filteredQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
 
         var response = customers.Select(c => c.MapToGetAllCustomerResponse()).ToList();
 
