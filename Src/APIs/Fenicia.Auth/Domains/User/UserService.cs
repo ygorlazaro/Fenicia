@@ -33,11 +33,12 @@ public class UserService(
                       orderby u.Name
                       select u;
 
-        var totalCount = await request.CountAsync(cancellationToken);
+        var totalCountTask = request.CountAsync(cancellationToken);
+        var usersTask = request.Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
 
-        var users = await request.Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
+        await Task.WhenAll(totalCountTask, usersTask);
 
-        return new Pagination<List<UserListItemResponse>>([.. users.Select(u => u.MapToUserListItemResponse())], totalCount, page, perPage);
+        return new Pagination<List<UserListItemResponse>>([.. usersTask.Result.Select(u => u.MapToUserListItemResponse())], totalCountTask.Result, page, perPage);
     }
 
     public async Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)

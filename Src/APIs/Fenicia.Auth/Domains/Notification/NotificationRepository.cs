@@ -14,9 +14,11 @@ public class NotificationRepository(DefaultContext context) : Repository<Notific
                     orderby n.Date descending
                     select n;
 
-        var total = await query.CountAsync(cancellationToken);
-        var items = await query.Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
+        var totalTask = query.CountAsync(cancellationToken);
+        var itemsTask = query.Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
 
-        return new Pagination<List<NotificationModel>>(items, total, page, perPage);
+        await Task.WhenAll(totalTask, itemsTask);
+
+        return new Pagination<List<NotificationModel>>(itemsTask.Result, totalTask.Result, page, perPage);
     }
 }
