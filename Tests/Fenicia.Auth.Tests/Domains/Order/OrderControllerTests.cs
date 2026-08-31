@@ -48,18 +48,16 @@ public class OrderControllerTests : IDisposable
         _userRoleRepository = new UserRoleRepository(_db);
         _userRoleService = new UserRoleService(_userRoleRepository);
         var moduleRepository = new ModuleRepository(_db);
-        var moduleService = new ModuleService(moduleRepository);
         var orderRepository = new OrderRepository(_db);
         var subscriptionRepository = new SubscriptionRepository(_db);
         var userRepository = new UserRepository(_db);
-        var userRoleRepository = new UserRoleRepository(_db);
         var roleRepository = new RoleRepository(_db);
         var companyRepository = new CompanyRepository(_db);
-        var userRoleService = new UserRoleService(userRoleRepository);
         var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository, userRoleService);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService(), moduleService);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, userService);
+        var companyService = new CompanyService(companyRepository, _userRoleService);
+        var userService = new UserService(userRepository, _userRoleService, roleService, companyService, new SecurityService());
+        var subscriptionService = new SubscriptionService(subscriptionRepository, userService, _userRoleService);
+        var moduleService = new ModuleService(moduleRepository, _userRoleService, subscriptionService);
         var orderService = new OrderService(moduleService, orderRepository, subscriptionService, _userRoleService);
 
         _mockHttpContext = new Mock<HttpContext>();

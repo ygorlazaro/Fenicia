@@ -225,9 +225,9 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task UpsertAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
-        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", _db.CurrentCompanyId ?? Guid.Empty);
+        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        await _service.UpsertAsync(command, CancellationToken.None);
+        await _service.UpsertAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
         var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language);
 
@@ -242,12 +242,12 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task UpsertAsync_WithSameUserAndTypeButDifferentCompany_CreatesSeparateConfigurations()
     {
-        var config1 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", _db.CurrentCompanyId ?? Guid.NewGuid());
+        var config1 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var config2 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Timezone, "dark", _db.CurrentCompanyId ?? Guid.NewGuid());
+        var config2 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Timezone, "dark");
 
-        await _service.UpsertAsync(config1, CancellationToken.None);
-        await _service.UpsertAsync(config2, CancellationToken.None);
+        await _service.UpsertAsync(config1, _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
+        await _service.UpsertAsync(config2, _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
 
         var configurations = await _db.AuthConfigurations.Where(c => c.UserId == _testUserId).ToListAsync(CancellationToken.None);
 
@@ -271,9 +271,9 @@ public class ConfigurationServiceTests : IDisposable
         _db.AuthConfigurations.Add(existingConfig);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en", companyId);
+        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en");
 
-        await _service.UpsertAsync(command, CancellationToken.None);
+        await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
         var updatedConfig = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.Id == originalId);
 
@@ -288,15 +288,15 @@ public class ConfigurationServiceTests : IDisposable
     {
         var companyId = _db.CurrentCompanyId ?? Guid.Empty;
 
-        var command1 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR", companyId);
+        var command1 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var command2 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en", companyId);
+        var command2 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en");
 
-        var command3 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "es", companyId);
+        var command3 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "es");
 
-        await _service.UpsertAsync(command1, CancellationToken.None);
-        await _service.UpsertAsync(command2, CancellationToken.None);
-        await _service.UpsertAsync(command3, CancellationToken.None);
+        await _service.UpsertAsync(command1, companyId, CancellationToken.None);
+        await _service.UpsertAsync(command2, companyId, CancellationToken.None);
+        await _service.UpsertAsync(command3, companyId, CancellationToken.None);
 
         var configurations = await _db.AuthConfigurations.Where(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId).ToListAsync(CancellationToken.None);
 
@@ -307,9 +307,9 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task UpsertAsync_WithEmptyValue_SavesEmptyString()
     {
-        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, string.Empty, _db.CurrentCompanyId ?? Guid.Empty);
+        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, string.Empty);
 
-        await _service.UpsertAsync(command, CancellationToken.None);
+        await _service.UpsertAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
         var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language);
 
@@ -321,9 +321,9 @@ public class ConfigurationServiceTests : IDisposable
     public async Task UpsertAsync_WithLongValue_SavesSuccessfully()
     {
         var longValue = _faker.Lorem.Paragraphs(10);
-        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, longValue, _db.CurrentCompanyId ?? Guid.Empty);
+        var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, longValue);
 
-        await _service.UpsertAsync(command, CancellationToken.None);
+        await _service.UpsertAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
 
         var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language);
 

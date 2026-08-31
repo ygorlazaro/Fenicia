@@ -51,7 +51,8 @@ public class ConfigurationController(ConfigurationService configurationService) 
     /// Cria ou atualiza uma configuração (upsert) para o usuário autenticado.
     /// </summary>
     /// <param name="id">ID da configuração (usado para atualização)</param>
-    /// <param name="request">Dados da configuração (tipo, valor, empresa)</param>
+    /// <param name="companyId">ID da empresa</param>
+    /// <param name="request">Dados da configuração (tipo, valor)</param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="ct">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se criada/atualizada com sucesso</returns>
@@ -68,7 +69,7 @@ public class ConfigurationController(ConfigurationService configurationService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromQuery] Guid companyId, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken ct)
     {
         try
         {
@@ -76,7 +77,7 @@ public class ConfigurationController(ConfigurationService configurationService) 
             wide.UserId = userId.ToString();
 
             var command = request with { UserId = userId, Id = id };
-            await configurationService.UpsertAsync(command, ct);
+            await configurationService.UpsertAsync(command, companyId, ct);
 
             return NoContent();
         }

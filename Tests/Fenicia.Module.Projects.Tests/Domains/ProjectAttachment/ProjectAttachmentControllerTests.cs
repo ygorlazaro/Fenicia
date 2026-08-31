@@ -5,33 +5,33 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Tests;
-using Fenicia.Module.Projects.Domains.ProjectComment;
-using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectAttachment;
+using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
+namespace Fenicia.Module.Projects.Tests.Domains.ProjectAttachment;
 
-public class ProjectCommentControllerTests : IDisposable
+public class ProjectAttachmentControllerTests : IDisposable
 {
-    private readonly ProjectCommentController _controller;
+    private readonly ProjectAttachmentController _controller;
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
     private readonly Guid _companyId;
 
-    public ProjectCommentControllerTests()
+    public ProjectAttachmentControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
-        var repository = new ProjectCommentRepository(_db);
-        var service = new ProjectCommentService(repository);
+        var repository = new ProjectAttachmentRepository(_db);
+        var service = new ProjectAttachmentService(repository);
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProjectCommentController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProjectAttachmentController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _testUserId = Guid.NewGuid();
         _companyId = companyContext.CompanyId;
         SetupUserClaims(_testUserId);
@@ -45,19 +45,21 @@ public class ProjectCommentControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAsync_WhenCommentsExist_ReturnsOk()
+    public async Task GetAsync_WhenAttachmentsExist_ReturnsOk()
     {
         // Arrange
         var wide = new WideEventContext();
-        var comment = new ProjectCommentModel
+        var attachment = new AttachmentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            UserId = _testUserId,
-            Content = _faker.Lorem.Sentence(),
+            FileName = _faker.System.FileName(),
+            FileUrl = _faker.Internet.Url(),
+            FileSize = _faker.Random.Long(1, 1000),
+            UploadedBy = Guid.NewGuid(),
             CompanyId = _companyId
         };
-        _db.ProjectComments.Add(comment);
+        _db.ProjectAttachments.Add(attachment);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -68,30 +70,32 @@ public class ProjectCommentControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenCommentExists_ReturnsOk()
+    public async Task GetByIdAsync_WhenAttachmentExists_ReturnsOk()
     {
         // Arrange
         var wide = new WideEventContext();
-        var comment = new ProjectCommentModel
+        var attachment = new AttachmentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            UserId = _testUserId,
-            Content = _faker.Lorem.Sentence(),
+            FileName = _faker.System.FileName(),
+            FileUrl = _faker.Internet.Url(),
+            FileSize = _faker.Random.Long(1, 1000),
+            UploadedBy = Guid.NewGuid(),
             CompanyId = _companyId
         };
-        _db.ProjectComments.Add(comment);
+        _db.ProjectAttachments.Add(attachment);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.GetByIdAsync(comment.Id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(attachment.Id, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenCommentDoesNotExist_ReturnsNotFound()
+    public async Task GetByIdAsync_WhenAttachmentDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -104,11 +108,11 @@ public class ProjectCommentControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task PostAsync_WhenCommandIsValid_CreatesComment()
+    public async Task PostAsync_WhenCommandIsValid_CreatesAttachment()
     {
         // Arrange
         var wide = new WideEventContext();
-        var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), _testUserId, _faker.Lorem.Sentence());
+        var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.System.FileName(), _faker.Internet.Url(), _faker.Random.Long(1, 1000), Guid.NewGuid(), "application/pdf");
 
         // Act
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -118,35 +122,37 @@ public class ProjectCommentControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task PatchAsync_WhenCommentExists_UpdatesComment()
+    public async Task PatchAsync_WhenAttachmentExists_ReturnsOk()
     {
         // Arrange
         var wide = new WideEventContext();
-        var comment = new ProjectCommentModel
+        var attachment = new AttachmentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            UserId = _testUserId,
-            Content = _faker.Lorem.Sentence(),
+            FileName = _faker.System.FileName(),
+            FileUrl = _faker.Internet.Url(),
+            FileSize = _faker.Random.Long(1, 1000),
+            UploadedBy = Guid.NewGuid(),
             CompanyId = _companyId
         };
-        _db.ProjectComments.Add(comment);
+        _db.ProjectAttachments.Add(attachment);
         await _db.SaveChangesAsync(CancellationToken.None);
-        var command = new UpdateProjectCommentCommand(comment.Id, _faker.Lorem.Sentence());
+        var command = new UpdateProjectAttachmentCommand(attachment.Id, attachment.TaskId, _faker.System.FileName(), _faker.Internet.Url(), _faker.Random.Long(1, 1000), Guid.NewGuid());
 
         // Act
-        var result = await _controller.PatchAsync(command, comment.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, attachment.Id, wide, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
-    public async Task PatchAsync_WhenCommentDoesNotExist_ReturnsNotFound()
+    public async Task PatchAsync_WhenAttachmentDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         var wide = new WideEventContext();
-        var command = new UpdateProjectCommentCommand(Guid.NewGuid(), _faker.Lorem.Sentence());
+        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.System.FileName(), _faker.Internet.Url(), _faker.Random.Long(1, 1000), Guid.NewGuid());
 
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
@@ -156,29 +162,28 @@ public class ProjectCommentControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenCommentExists_DeletesComment()
+    public async Task DeleteAsync_WhenAttachmentExists_ReturnsNoContent()
     {
         // Arrange
         var wide = new WideEventContext();
-        var comment = new ProjectCommentModel
+        var attachment = new AttachmentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            UserId = _testUserId,
-            Content = _faker.Lorem.Sentence(),
+            FileName = _faker.System.FileName(),
+            FileUrl = _faker.Internet.Url(),
+            FileSize = _faker.Random.Long(1, 1000),
+            UploadedBy = Guid.NewGuid(),
             CompanyId = _companyId
         };
-        _db.ProjectComments.Add(comment);
+        _db.ProjectAttachments.Add(attachment);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _controller.DeleteAsync(comment.Id, wide, CancellationToken.None);
+        var result = await _controller.DeleteAsync(attachment.Id, wide, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
-        var deletedComment = await _db.ProjectComments.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == comment.Id);
-        deletedComment.Should().NotBeNull();
-        deletedComment!.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)

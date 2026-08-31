@@ -20,7 +20,7 @@ public class NotificationService(NotificationRepository repository)
         return notification is null ? null : notification.MapToGetNotificationByIdResponse();
     }
 
-    public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, CancellationToken ct)
+    public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, Guid companyId, CancellationToken ct)
     {
         var notification = new NotificationModel
         {
@@ -28,7 +28,8 @@ public class NotificationService(NotificationRepository repository)
             Description = command.Description,
             Date = command.Date ?? DateTime.UtcNow,
             ImageUrl = command.ImageUrl,
-            Read = false
+            Read = false,
+            CompanyId = companyId
         };
 
         var created = await repository.InsertAsync(notification, ct);
@@ -36,7 +37,7 @@ public class NotificationService(NotificationRepository repository)
         return new AddNotificationResponse(created.Id);
     }
 
-    public async Task<UpdateNotificationResponse?> UpdateAsync(UpdateNotificationCommand command, CancellationToken ct)
+    public async Task<UpdateNotificationResponse?> UpdateAsync(UpdateNotificationCommand command, Guid companyId, CancellationToken ct)
     {
         var notification = await repository.GetByIdAsync(command.Id, ct);
 
@@ -49,6 +50,7 @@ public class NotificationService(NotificationRepository repository)
         notification.Description = command.Description;
         notification.Date = command.Date ?? notification.Date;
         notification.ImageUrl = command.ImageUrl;
+        notification.CompanyId = companyId;
 
         if (command.IsRead.HasValue)
         {
@@ -60,7 +62,7 @@ public class NotificationService(NotificationRepository repository)
         return new UpdateNotificationResponse(notification.Id);
     }
 
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
+    public async Task<bool> DeleteAsync(Guid id, Guid companyId, CancellationToken ct)
     {
         var notification = await repository.GetByIdAsync(id, ct);
 
@@ -70,6 +72,7 @@ public class NotificationService(NotificationRepository repository)
         }
 
         notification.Deleted = DateTime.UtcNow;
+        notification.CompanyId = companyId;
         await repository.UpdateAsync(notification.Id, notification, ct);
 
         return true;

@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
@@ -36,14 +37,17 @@ public class DeleteProjectStatusServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenStatusExists_SetsDeletedDate()
     {
+        // Arrange
         var status = new ProjectStatusModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), Color = "#FF0000", CompanyId = _companyId };
         _db.ProjectStatuses.Add(status);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         await _service.DeleteAsync(new DeleteProjectStatusCommand(status.Id), CancellationToken.None);
 
+        // Assert
         var deletedStatus = await _db.ProjectStatuses.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == status.Id);
-        Assert.NotNull(deletedStatus);
-        Assert.NotNull(deletedStatus.Deleted);
+        deletedStatus.Should().NotBeNull();
+        deletedStatus!.Deleted.Should().NotBeNull();
     }
 }

@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
@@ -36,14 +37,17 @@ public class UpdateProjectStatusServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_WhenStatusExists_ReturnsUpdatedStatus()
     {
+        // Arrange
         var status = new ProjectStatusModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), Color = "#FF0000", CompanyId = _companyId };
         _db.ProjectStatuses.Add(status);
         await _db.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var command = new UpdateProjectStatusCommand(status.Id, Guid.NewGuid(), _faker.Commerce.Categories(1).First(), "#00FF00", 2, true);
         var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(command.Name, result.Name);
+        // Assert
+        result.Should().NotBeNull();
+        result!.Name.Should().Be(command.Name);
     }
 }

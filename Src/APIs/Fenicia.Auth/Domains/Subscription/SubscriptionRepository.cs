@@ -8,13 +8,6 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionRepository(DefaultContext context) : Repository<SubscriptionModel>(context)
 {
-    public async Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, CancellationToken ct = default)
-    {
-        return await Context.AuthUserRoles
-            .Where(ur => ur.UserId == userId)
-            .ToListAsync(ct);
-    }
-
     public async Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(Guid userId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
