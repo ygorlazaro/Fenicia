@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
 
-public record DeleteProjectAttachmentCommand(Guid Id);
+public record DeleteProjectAttachmentCommand([Required] Guid Id);

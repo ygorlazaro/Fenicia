@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
 
 public record GetOrderDetailsByOrderIdResponse(
-    Guid Id,
-    Guid OrderId,
-    Guid ProductId,
-    string ProductName,
+    [Required] Guid Id,
+    [Required] Guid OrderId,
+    [Required] Guid ProductId,
+    [Required][MaxLength(200)] string ProductName,
     decimal Price,
     decimal DiscountAmount,
     double Quantity,

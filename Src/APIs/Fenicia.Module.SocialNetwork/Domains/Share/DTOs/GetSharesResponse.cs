@@ -1,3 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Share.DTOs;
 
-public record GetSharesResponse(Guid Id, Guid OriginalFeedId, string? Text, Guid CompanyId, Guid UserId, DateTime ShareDate);
+public record GetSharesResponse(
+    [Required] Guid Id,
+    [Required] Guid OriginalFeedId,
+    [MaxLength(200)] string? Text,
+    [Required] Guid CompanyId,
+    [Required] Guid UserId,
+    [Required] DateTime ShareDate);

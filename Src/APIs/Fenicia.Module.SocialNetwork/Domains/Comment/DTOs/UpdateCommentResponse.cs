@@ -1,3 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
 
-public record UpdateCommentResponse(Guid Id, Guid UserId, Guid FeedId, Guid? ParentCommentId, string Text, DateTime CommentDate, DateTime? UpdatedDate, Guid CompanyId);
+public record UpdateCommentResponse(
+    [Required] Guid Id,
+    [Required] Guid UserId,
+    [Required] Guid FeedId,
+    Guid? ParentCommentId,
+    [Required][MaxLength(200)] string Text,
+    [Required] DateTime CommentDate,
+    DateTime? UpdatedDate,
+    [Required] Guid CompanyId);

@@ -1,3 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
 
-public record UpdateProfileResponse(Guid Id, Guid UserId, string? Bio, string? ImageUrl, string? Website, string? Location, string? Phone, DateTime? BirthDate);
+public record UpdateProfileResponse(
+    [Required] Guid Id,
+    [Required] Guid UserId,
+    [MaxLength(200)] string? Bio,
+    [MaxLength(200)] string? ImageUrl,
+    [MaxLength(200)] string? Website,
+    [MaxLength(200)] string? Location,
+    [MaxLength(200)] string? Phone,
+    DateTime? BirthDate);

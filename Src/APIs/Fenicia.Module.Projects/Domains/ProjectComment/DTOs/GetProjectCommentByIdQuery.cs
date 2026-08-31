@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 
-public record GetProjectCommentByIdQuery(Guid Id);
+public record GetProjectCommentByIdQuery([Required] Guid Id);

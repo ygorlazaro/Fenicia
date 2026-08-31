@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Order.DTOs;
 
 public record OrderDetailCommand(
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
     decimal Price,
 

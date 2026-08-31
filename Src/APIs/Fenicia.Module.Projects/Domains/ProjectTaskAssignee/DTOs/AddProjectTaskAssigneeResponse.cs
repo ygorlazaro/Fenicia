@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
 
-public record AddProjectTaskAssigneeResponse(Guid Id, Guid TaskId, Guid UserId, string Role, DateTime AssignedAt, Guid CompanyId);
+public record AddProjectTaskAssigneeResponse([Required] Guid Id, [Required] Guid TaskId, [Required] Guid UserId, [Required][MaxLength(200)] string Role, [Required] DateTime AssignedAt, [Required] Guid CompanyId);

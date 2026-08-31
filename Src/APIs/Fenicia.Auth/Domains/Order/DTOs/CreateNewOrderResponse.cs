@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.Order.DTOs;
 
-public record CreateNewOrderResponse(Guid OrderId);
+public record CreateNewOrderResponse([Required] Guid OrderId);

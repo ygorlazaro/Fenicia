@@ -1,20 +1,22 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 public record StockMovementHistoryResponse(
 
-    Guid Id,
+    [Required] Guid Id,
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
-    string ProductName,
+    [Required][MaxLength(200)] string ProductName,
 
     double Quantity,
 
-    DateTime Date,
+    [Required] DateTime Date,
 
     decimal Price,
 
-    string Type,
+    [Required][MaxLength(200)] string Type,
 
     string? Reason,
 

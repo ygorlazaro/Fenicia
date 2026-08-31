@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 
-public record AddProjectCommentCommand(Guid Id, Guid TaskId, Guid UserId, string Content);
+public record AddProjectCommentCommand([Required] Guid Id, [Required] Guid TaskId, [Required] Guid UserId, [Required][MaxLength(200)] string Content);

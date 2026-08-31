@@ -1,18 +1,19 @@
+using System.ComponentModel.DataAnnotations;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Order.DTOs;
 
 public record CreateOrderResponse(
-    Guid Id,
-    string OrderNumber,
-    Guid UserId,
-    Guid CustomerId,
+    [Required] Guid Id,
+    [Required][MaxLength(200)] string OrderNumber,
+    [Required] Guid UserId,
+    [Required] Guid CustomerId,
     decimal TotalAmount,
     decimal DiscountAmount,
     int TotalQuantity,
-    DateTime SaleDate,
-    OrderStatus Status,
-    PaymentMethod PaymentMethod,
+    [Required] DateTime SaleDate,
+    [Required] OrderStatus Status,
+    [Required] PaymentMethod PaymentMethod,
     string? Notes = null,
     Guid? EmployeeId = null);

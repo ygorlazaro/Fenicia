@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record GetAllProductResponse(
-    Guid Id,
-    string Name,
+    [Required] Guid Id,
+    [Required][MaxLength(200)] string Name,
     string? SKU,
     string? Barcode,
     string? Description,
@@ -15,8 +17,8 @@ public record GetAllProductResponse(
     decimal? Weight,
     string? Dimensions,
     string? UnitOfMeasure,
-    Guid CategoryId,
-    string CategoryName,
+    [Required] Guid CategoryId,
+    [Required][MaxLength(200)] string CategoryName,
     Guid? SupplierId,
     string? SupplierName,
     bool IsActive);

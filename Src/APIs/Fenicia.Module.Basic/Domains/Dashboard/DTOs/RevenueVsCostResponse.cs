@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 
 public record RevenueVsCostResponse(
 
-    string Period,
+    [Required][MaxLength(200)] string Period,
 
-    DateTime Date,
+    [Required] DateTime Date,
 
     decimal Revenue,
 

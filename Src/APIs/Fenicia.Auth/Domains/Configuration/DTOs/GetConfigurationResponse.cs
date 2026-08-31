@@ -1,15 +1,16 @@
+using System.ComponentModel.DataAnnotations;
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Configuration.DTOs;
 
 public record GetConfigurationResponse(
 
-    Guid Id,
+    [Required] Guid Id,
 
-    Guid UserId,
+    [Required] Guid UserId,
 
-    Guid CompanyId,
+    [Required] Guid CompanyId,
 
-    ConfigType ConfigType,
+    [Required] ConfigType ConfigType,
 
-    string Value);
+    [Required][MaxLength(200)] string Value);

@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record AddProductCommand(
-    Guid Id,
-    string Name,
+    [Required] Guid Id,
+    [Required][MaxLength(200)] string Name,
     string? SKU = null,
     string? Barcode = null,
     string? Description = null,
@@ -15,5 +17,5 @@ public record AddProductCommand(
     decimal? Weight = null,
     string? Dimensions = null,
     string? UnitOfMeasure = null,
-    Guid CategoryId = default,
+    [Required] Guid CategoryId = default,
     Guid? SupplierId = null);

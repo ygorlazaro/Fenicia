@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
 
-public record AddProjectTaskCommand(Guid Id, Guid ProjectId, Guid StatusId, string Title, string? Description, string Priority, string Type, int Order, int? EstimatePoints, DateTime? DueDate, Guid CreatedBy);
+public record AddProjectTaskCommand([Required] Guid Id, [Required] Guid ProjectId, [Required] Guid StatusId, [Required][MaxLength(200)] string Title, [MaxLength(200)] string? Description, [Required][MaxLength(200)] string Priority, [Required][MaxLength(200)] string Type, int Order, int? EstimatePoints, DateTime? DueDate, [Required] Guid CreatedBy);

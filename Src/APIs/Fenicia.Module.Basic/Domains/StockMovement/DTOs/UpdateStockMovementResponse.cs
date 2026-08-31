@@ -1,12 +1,13 @@
+using System.ComponentModel.DataAnnotations;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 public record UpdateStockMovementResponse(
 
-    Guid Id,
+    [Required] Guid Id,
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
     double Quantity,
 
@@ -14,7 +15,7 @@ public record UpdateStockMovementResponse(
 
     decimal? Price,
 
-    StockMovementType Type,
+    [Required] StockMovementType Type,
 
     Guid? CustomerId,
 

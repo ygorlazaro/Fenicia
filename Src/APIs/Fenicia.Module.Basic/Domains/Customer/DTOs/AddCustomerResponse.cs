@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Customer.DTOs;
 
-public record AddCustomerResponse(Guid Id, Guid PersonId);
+public record AddCustomerResponse([Required] Guid Id, [Required] Guid PersonId);

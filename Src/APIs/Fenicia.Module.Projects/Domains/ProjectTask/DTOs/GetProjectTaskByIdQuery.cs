@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
 
-public record GetProjectTaskByIdQuery(Guid Id);
+public record GetProjectTaskByIdQuery([Required] Guid Id);

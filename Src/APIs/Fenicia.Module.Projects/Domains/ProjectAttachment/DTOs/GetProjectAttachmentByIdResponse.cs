@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
 
-public record GetProjectAttachmentByIdResponse(Guid Id, Guid TaskId, string FileName, string FileUrl, long FileSize, Guid UploadedBy, Guid CompanyId);
+public record GetProjectAttachmentByIdResponse([Required] Guid Id, [Required] Guid TaskId, [Required][MaxLength(200)] string FileName, [Required][MaxLength(200)] string FileUrl, long FileSize, [Required] Guid UploadedBy, [Required] Guid CompanyId);

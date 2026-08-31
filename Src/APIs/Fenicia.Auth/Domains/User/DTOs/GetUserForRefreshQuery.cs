@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.User.DTOs;
 
-public record GetUserForRefreshQuery(Guid UserId);
+public record GetUserForRefreshQuery([Required] Guid UserId);

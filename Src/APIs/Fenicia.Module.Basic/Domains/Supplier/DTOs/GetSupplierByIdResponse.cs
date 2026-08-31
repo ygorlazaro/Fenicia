@@ -1,19 +1,20 @@
+using System.ComponentModel.DataAnnotations;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.DTOs;
 
 public record GetSupplierByIdResponse(
 
-Guid Id,
+[Required] Guid Id,
 
-Guid PersonId,
+[Required] Guid PersonId,
 
-string Name,
+[Required][MaxLength(200)] string Name,
 
-string? Email,
+[MaxLength(200)] string? Email,
 
-string? PhoneNumber,
+[MaxLength(200)] string? PhoneNumber,
 
-string? Document,
+[MaxLength(200)] string? Document,
 
 AddressResponse? Address);

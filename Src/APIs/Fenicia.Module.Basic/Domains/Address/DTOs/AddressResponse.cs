@@ -1,13 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Address.DTOs;
 
 public record AddressResponse(
-    Guid Id,
-    string Street,
-    string Number,
+    [Required] Guid Id,
+    [Required][MaxLength(200)] string Street,
+    [Required][MaxLength(200)] string Number,
     string? Complement,
     string? Neighborhood,
-    string ZipCode,
-    Guid StateId,
+    [Required][MaxLength(200)] string ZipCode,
+    [Required] Guid StateId,
     string? StateName,
-    string City,
+    [Required][MaxLength(200)] string City,
     string? Country);

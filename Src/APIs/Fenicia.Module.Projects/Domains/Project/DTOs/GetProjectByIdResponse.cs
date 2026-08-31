@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.Project.DTOs;
 
-public record GetProjectByIdResponse(Guid Id, string Title, string? Description, string Status, DateTime? StartDate, DateTime? EndDate, Guid Owner, Guid CompanyId, List<ProjectStatusResponse> Statuses, List<ProjectTaskResponse> Tasks);
+public record GetProjectByIdResponse([Required] Guid Id, [Required][MaxLength(200)] string Title, [MaxLength(200)] string? Description, [Required][MaxLength(200)] string Status, DateTime? StartDate, DateTime? EndDate, [Required] Guid Owner, [Required] Guid CompanyId, List<ProjectStatusResponse> Statuses, List<ProjectTaskResponse> Tasks);

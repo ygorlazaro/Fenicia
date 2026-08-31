@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Inventory.DTOs;
 
 public record InventoryDetailResponse(
 
-    Guid Id,
+    [Required] Guid Id,
 
-    string Name,
+    [Required][MaxLength(200)] string Name,
 
     double Quantity,
 
@@ -12,6 +14,6 @@ public record InventoryDetailResponse(
 
     decimal SalesPrice,
 
-    Guid CategoryId,
+    [Required] Guid CategoryId,
 
-    string CategoryName);
+    [Required][MaxLength(200)] string CategoryName);

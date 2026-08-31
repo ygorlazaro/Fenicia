@@ -1,15 +1,16 @@
+using System.ComponentModel.DataAnnotations;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Order.DTOs;
 
 public record CreateOrderCommand(
-    Guid UserId,
-    Guid CustomerId,
-    DateTime SaleDate,
-    OrderStatus Status,
+    [Required] Guid UserId,
+    [Required] Guid CustomerId,
+    [Required] DateTime SaleDate,
+    [Required] OrderStatus Status,
     List<OrderDetailCommand> Details,
-    PaymentMethod PaymentMethod,
+    [Required] PaymentMethod PaymentMethod,
     Guid? EmployeeId = null,
     string? Notes = null,
     decimal DiscountAmount = 0);

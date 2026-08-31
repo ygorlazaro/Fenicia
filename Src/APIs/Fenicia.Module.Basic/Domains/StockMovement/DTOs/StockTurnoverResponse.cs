@@ -1,12 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 
 public record StockTurnoverResponse(
 
-    Guid ProductId,
+    [Required] Guid ProductId,
 
-    string ProductName,
+    [Required][MaxLength(200)] string ProductName,
 
-    string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
 
     double CurrentStock,
 
@@ -14,4 +16,4 @@ public record StockTurnoverResponse(
 
     double TurnoverRate,
 
-    string TurnoverClassification);
+    [Required][MaxLength(200)] string TurnoverClassification);

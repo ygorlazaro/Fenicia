@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
 
-public record GetProjectAttachmentByIdQuery(Guid Id);
+public record GetProjectAttachmentByIdQuery([Required] Guid Id);

@@ -1,17 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.DTOs;
 
 public record UpdateSupplierCommand(
 
-Guid Id,
+[Required] Guid Id,
 
-string Name,
+[Required][MaxLength(200)] string Name,
 
-string? Email,
+[MaxLength(200)] string? Email,
 
-string? Document,
+[MaxLength(200)] string? Document,
 
-string? PhoneNumber,
+[MaxLength(200)] string? PhoneNumber,
 
-string? Cnpj,
+[MaxLength(200)] string? Cnpj,
 
 AddressDTO? Address);

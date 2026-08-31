@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Auth.Domains.Notification.DTOs;
 
-public record UpdateNotificationResponse(Guid Id);
+public record UpdateNotificationResponse([Required] Guid Id);
