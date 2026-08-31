@@ -11,10 +11,12 @@ public class ModuleService(ModuleRepository repository, UserRoleService userRole
 {
     public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(int page, int perPage, CancellationToken cancellationToken = default)
     {
-        var modules = await repository.GetAllActiveAsync(page, perPage, cancellationToken);
-        var total = await repository.CountAllActiveAsync(cancellationToken);
+        var modulesTask = repository.GetAllActiveAsync(page, perPage, cancellationToken);
+        var totalTask = repository.CountAllActiveAsync(cancellationToken);
 
-        return new Pagination<List<GetModuleResponse>>([.. modules.Select(m => m.MapToGetModuleResponse())], total, page, perPage);
+        await Task.WhenAll(modulesTask, totalTask);
+
+        return new Pagination<List<GetModuleResponse>>([.. modulesTask.Result.Select(m => m.MapToGetModuleResponse())], totalTask.Result, page, perPage);
     }
 
     public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken = default)
