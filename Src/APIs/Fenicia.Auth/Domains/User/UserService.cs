@@ -1,12 +1,10 @@
-using System.Linq;
-
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Module.DTOs;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Company.Interfaces;
+using Fenicia.Auth.Domains.Role.Interfaces;
+using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Auth.Domains.User.DTOs;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.DTOs;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -16,11 +14,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Domains.User;
 
 public class UserService(
-    UserRepository userRepository,
-    UserRoleService userRoleService,
-    RoleService roleService,
-    CompanyService companyService,
-    SecurityService securityService)
+    IUserRepository userRepository,
+    IUserRoleService userRoleService,
+    IRoleService roleService,
+    ICompanyService companyService,
+    ISecurityService securityService) : IUserService
 {
     public UserService()
         : this(null!, null!, null!, null!, null!)
@@ -45,19 +43,14 @@ public class UserService(
     {
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
 
-        return user is null ? null : user.MapToGetUserByIdResponse();
+        return user?.MapToGetUserByIdResponse();
     }
 
     public async Task<GetByEmailResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var user = await userRepository.GetByEmailAsync(email, cancellationToken);
 
-        if (user is null)
-        {
-            return null;
-        }
-
-        return user.MapToGetByEmailResponse();
+        return user?.MapToGetByEmailResponse();
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
@@ -228,7 +221,7 @@ public class UserService(
 
         foreach (var companyId in distinct)
         {
-            var exists = await companyService.GetByIdAsync(companyId, cancellationToken) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
+            _ = await companyService.GetByIdAsync(companyId, cancellationToken) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
         }
     }
 
@@ -238,7 +231,7 @@ public class UserService(
 
         foreach (var roleId in distinct)
         {
-            var exists = await roleService.GetByIdAsync(roleId, cancellationToken) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
+            _ = await roleService.GetByIdAsync(roleId, cancellationToken) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
         }
     }
 
@@ -367,7 +360,9 @@ public class UserService(
         {
             false => command.Name,
             _ => user.Name
-        };
+        }
+
+        ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(command.Email))
         {

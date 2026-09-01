@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public class SubscriptionRepository(DefaultContext context) : Repository<SubscriptionModel>(context)
+public class SubscriptionRepository(DefaultContext context) : Repository<SubscriptionModel>(context), ISubscriptionRepository
 {
     public async Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(Guid userId, CancellationToken cancellationToken = default)
     {

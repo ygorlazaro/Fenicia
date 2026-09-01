@@ -1,10 +1,11 @@
 using System.Security.Cryptography;
+using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public class RefreshTokenService(IRefreshTokenRepository repository)
+public class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshTokenService
 {
     public virtual async Task<string> GenerateAsync(Guid userId, CancellationToken cancellationToken = default)
     {
@@ -23,12 +24,7 @@ public class RefreshTokenService(IRefreshTokenRepository repository)
 
     public virtual async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            return null;
-        }
-
-        return await repository.GetAsync(token, cancellationToken);
+        return string.IsNullOrWhiteSpace(token) ? null : await repository.GetAsync(token, cancellationToken);
     }
 
     public virtual async Task<RefreshTokenModel> UpdateAsync(string token, bool isActive, CancellationToken cancellationToken = default)

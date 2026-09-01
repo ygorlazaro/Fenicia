@@ -1,6 +1,7 @@
 using Fenicia.Auth.Domains.Module.DTOs;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Module.Interfaces;
+using Fenicia.Auth.Domains.Subscription.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public class ModuleService(ModuleRepository repository, UserRoleService userRoleService, SubscriptionService subscriptionService)
+public class ModuleService(IModuleRepository repository, IUserRoleService userRoleService, ISubscriptionService subscriptionService) : IModuleService
 {
     public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {

@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Company.DTOs;
+using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
@@ -14,7 +15,7 @@ namespace Fenicia.Auth.Domains.Company;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController(CompanyService service) : ControllerBase
+public class CompanyController(ICompanyService service) : ControllerBase
 {
     /// <summary>
     /// Obtém as empresas associadas ao usuário autenticado com paginação.

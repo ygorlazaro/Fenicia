@@ -33,7 +33,7 @@ public static partial class OrderMapper
             order.OrderNumber,
             order.UserId,
             order.CustomerId,
-            order.Customer?.Person?.Name ?? "Unknown",
+            order.Customer.Person.Name,
             order.TotalAmount,
             order.DiscountAmount,
             order.TotalQuantity,

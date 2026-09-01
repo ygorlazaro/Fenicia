@@ -1,15 +1,17 @@
-using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.Order.DTOs;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Order.Interfaces;
+using Fenicia.Auth.Domains.Subscription.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public class OrderService(ModuleService moduleService, OrderRepository orderRepository, SubscriptionService subscriptionService, UserRoleService userRoleService)
+public class OrderService(IModuleService moduleService, IRepository<OrderModel> orderRepository, ISubscriptionService subscriptionService, IUserRoleService userRoleService) : IOrderService
 {
     public async Task<CreateNewOrderResponse?> CreateAsync(CreateNewOrderCommand command, CancellationToken cancellationToken = default)
     {
@@ -36,7 +38,32 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
         return $"AO-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
     }
 
-    private OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
+    private static void LoadCreditsAsync(Guid companyId, OrderModel order)
+    {
+        var credits = order.Details.Select(d => new SubscriptionCreditModel
+            {
+                ModuleId = d.ModuleId,
+                IsActive = true,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(1),
+                OrderDetailId = d.Id
+            })
+            .ToList();
+
+        var subscription = new SubscriptionModel
+        {
+            Status = SubscriptionStatus.Active,
+            CompanyId = companyId,
+            StartDate = DateTime.UtcNow,
+            EndDate = DateTime.UtcNow.AddMonths(1),
+            OrderId = order.Id,
+            Credits = credits
+        };
+
+        order.Subscription = subscription;
+    }
+
+    private static OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
     {
         var totalAmount = modules.Sum(m => m.Price);
         var orderNumber = GenerateOrderNumber();
@@ -108,30 +135,5 @@ public class OrderService(ModuleService moduleService, OrderRepository orderRepo
     private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken cancellationToken = default)
     {
         return await moduleService.GetModuleByTypeAsync(moduleType, cancellationToken);
-    }
-
-    private void LoadCreditsAsync(Guid companyId, OrderModel order)
-    {
-        var credits = order.Details.Select(d => new SubscriptionCreditModel
-        {
-            ModuleId = d.ModuleId,
-            IsActive = true,
-            StartDate = DateTime.UtcNow,
-            EndDate = DateTime.UtcNow.AddMonths(1),
-            OrderDetailId = d.Id
-        })
-            .ToList();
-
-        var subscription = new SubscriptionModel
-        {
-            Status = SubscriptionStatus.Active,
-            CompanyId = companyId,
-            StartDate = DateTime.UtcNow,
-            EndDate = DateTime.UtcNow.AddMonths(1),
-            OrderId = order.Id,
-            Credits = credits
-        };
-
-        order.Subscription = subscription;
     }
 }

@@ -17,7 +17,7 @@ public class ProjectTaskModel : BaseCompanyModel
     public string Title { get; set; } = null!;
 
     [MaxLength(4096)]
-    public string? Description { get; set; } = null!;
+    public string? Description { get; set; } = null;
 
     public EnumTaskPriority Priority { get; set; } = EnumTaskPriority.Medium;
 
@@ -25,9 +25,9 @@ public class ProjectTaskModel : BaseCompanyModel
 
     public int Order { get; set; } = 0;
 
-    public int? EstimatePoints { get; set; } = null!;
+    public int? EstimatePoints { get; set; } = null;
 
-    public DateTime? DueDate { get; set; } = null!;
+    public DateTime? DueDate { get; set; } = null;
 
     public Guid CreatedBy { get; set; } = Guid.Empty;
 

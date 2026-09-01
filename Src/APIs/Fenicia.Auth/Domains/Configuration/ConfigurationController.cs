@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Configuration.DTOs;
+using Fenicia.Auth.Domains.Configuration.Interfaces;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace Fenicia.Auth.Domains.Configuration;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ConfigurationController(ConfigurationService configurationService) : ControllerBase
+public class ConfigurationController(IConfigurationService configurationService) : ControllerBase
 {
     /// <summary>
     /// Obtém todas as configurações de um usuário para uma empresa.

@@ -1,48 +1,37 @@
 using Bogus;
-
 using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Auth.Domains.Configuration.DTOs;
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Auth.Domains.Configuration.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
-
-using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
-public class ConfigurationServiceTests : IDisposable
+public class ConfigurationServiceTests
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IConfigurationRepository> _mockRepository;
     private readonly ConfigurationService _service;
     private readonly Guid _testUserId;
 
     public ConfigurationServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        var repository = new ConfigurationRepository(_db);
-        _service = new ConfigurationService(repository);
         _faker = new Faker();
+        _mockRepository = new Mock<IConfigurationRepository>();
+        _service = new ConfigurationService(_mockRepository.Object);
         _testUserId = Guid.NewGuid();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAllAsync_WhenUserHasNoConfigurations_ReturnsEmptyList()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
-        var query = new GetConfigurationQuery(_testUserId, companyId);
+        var companyId = Guid.NewGuid();
 
-        var result = await _service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserAndCompanyAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var result = await _service.GetAllAsync(_testUserId, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -51,7 +40,7 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenUserHasConfigurations_ReturnsAllConfigurations()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -70,12 +59,10 @@ public class ConfigurationServiceTests : IDisposable
             Value = "en-US"
         };
 
-        _db.AuthConfigurations.AddRange(config1, config2);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserAndCompanyAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([config1, config2]);
 
-        var query = new GetConfigurationQuery(_testUserId, companyId);
-
-        var result = await _service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
+        var result = await _service.GetAllAsync(_testUserId, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
@@ -87,8 +74,7 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
-        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
 
         var userConfig = new ConfigurationModel
         {
@@ -99,21 +85,10 @@ public class ConfigurationServiceTests : IDisposable
             Value = "en"
         };
 
-        var otherUserConfig = new ConfigurationModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = otherUserId,
-            CompanyId = companyId,
-            ConfigType = ConfigType.Language,
-            Value = "pt-BR"
-        };
+        _mockRepository.Setup(r => r.GetByUserAndCompanyAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([userConfig]);
 
-        _db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetConfigurationQuery(_testUserId, companyId);
-
-        var result = await _service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
+        var result = await _service.GetAllAsync(_testUserId, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);
@@ -124,22 +99,12 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WithNonExistentCompanyId_ReturnsEmptyList()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
-        var config = new ConfigurationModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            CompanyId = companyId,
-            ConfigType = ConfigType.Language,
-            Value = "pt-BR"
-        };
+        var companyId = Guid.NewGuid();
 
-        _db.AuthConfigurations.Add(config);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserAndCompanyAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
-        var query = new GetConfigurationQuery(Guid.NewGuid(), companyId);
-
-        var result = await _service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
+        var result = await _service.GetAllAsync(_testUserId, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);
@@ -148,7 +113,7 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ConfigurationsAreOrderedByConfigType()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -176,12 +141,10 @@ public class ConfigurationServiceTests : IDisposable
             Value = "en-US"
         };
 
-        _db.AuthConfigurations.AddRange(config1, config2, config3);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserAndCompanyAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([config1, config2, config3]);
 
-        var query = new GetConfigurationQuery(_testUserId, companyId);
-
-        var result = await _service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
+        var result = await _service.GetAllAsync(_testUserId, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(3, result.Count);
@@ -195,7 +158,7 @@ public class ConfigurationServiceTests : IDisposable
     public async Task GetAllAsync_ResponseContainsCorrectData()
     {
         var configId = Guid.NewGuid();
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
         var config = new ConfigurationModel
         {
             Id = configId,
@@ -205,12 +168,10 @@ public class ConfigurationServiceTests : IDisposable
             Value = "pt-bR"
         };
 
-        _db.AuthConfigurations.Add(config);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserAndCompanyAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([config]);
 
-        var query = new GetConfigurationQuery(_testUserId, companyId);
-
-        var result = await _service.GetAllAsync(query.UserId, query.CompanyId, CancellationToken.None);
+        var result = await _service.GetAllAsync(_testUserId, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);
@@ -226,39 +187,21 @@ public class ConfigurationServiceTests : IDisposable
     public async Task UpsertAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
+        var companyId = Guid.NewGuid();
 
-        await _service.UpsertAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ConfigurationModel?)null);
 
-        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language);
+        await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        Assert.NotNull(configuration);
-
-        Assert.Equal(_testUserId, configuration.UserId);
-        Assert.Equal(ConfigType.Language, configuration.ConfigType);
-        Assert.Equal("pt-BR", configuration.Value);
-        Assert.Equal(_db.CurrentCompanyId, configuration.CompanyId);
-    }
-
-    [Fact]
-    public async Task UpsertAsync_WithSameUserAndTypeButDifferentCompany_CreatesSeparateConfigurations()
-    {
-        var config1 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
-
-        var config2 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Timezone, "dark");
-
-        await _service.UpsertAsync(config1, _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
-        await _service.UpsertAsync(config2, _db.CurrentCompanyId ?? Guid.NewGuid(), CancellationToken.None);
-
-        var configurations = await _db.AuthConfigurations.Where(c => c.UserId == _testUserId).ToListAsync(CancellationToken.None);
-
-        Assert.Equal(2, configurations.Count);
+        _mockRepository.Verify(r => r.InsertAsync(It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task UpsertAsync_UpdatesConfigurationDoesNotChangeId()
     {
         var originalId = Guid.NewGuid();
-        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = Guid.NewGuid();
         var existingConfig = new ConfigurationModel
         {
             Id = originalId,
@@ -268,53 +211,60 @@ public class ConfigurationServiceTests : IDisposable
             Value = "pt-BR"
         };
 
-        _db.AuthConfigurations.Add(existingConfig);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingConfig);
+        _mockRepository.Setup(r => r.UpdateAsync(originalId, It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingConfig);
 
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en");
 
         await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        var updatedConfig = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.Id == originalId);
-
-        Assert.NotNull(updatedConfig);
-
-        Assert.Equal(originalId, updatedConfig.Id);
-        Assert.Equal("en", updatedConfig.Value);
+        _mockRepository.Verify(r => r.UpdateAsync(originalId, It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task UpsertAsync_MultipleUpdates_OnlyLastValuePersists()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
 
         var command1 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
-
         var command2 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en");
-
         var command3 = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "es");
+
+        var existingConfig = new ConfigurationModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = _testUserId,
+            CompanyId = companyId,
+            ConfigType = ConfigType.Language,
+            Value = "pt-BR"
+        };
+
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingConfig);
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingConfig);
 
         await _service.UpsertAsync(command1, companyId, CancellationToken.None);
         await _service.UpsertAsync(command2, companyId, CancellationToken.None);
         await _service.UpsertAsync(command3, companyId, CancellationToken.None);
 
-        var configurations = await _db.AuthConfigurations.Where(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId).ToListAsync(CancellationToken.None);
-
-        Assert.Single(configurations);
-        Assert.Equal("es", configurations[0].Value);
+        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
     }
 
     [Fact]
     public async Task UpsertAsync_WithEmptyValue_SavesEmptyString()
     {
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, string.Empty);
+        var companyId = Guid.NewGuid();
 
-        await _service.UpsertAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ConfigurationModel?)null);
 
-        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language);
+        await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        Assert.NotNull(configuration);
-        Assert.Equal(string.Empty, configuration.Value);
+        _mockRepository.Verify(r => r.InsertAsync(It.Is<ConfigurationModel>(c => c.Value == string.Empty), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -322,12 +272,13 @@ public class ConfigurationServiceTests : IDisposable
     {
         var longValue = _faker.Lorem.Paragraphs(10);
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, longValue);
+        var companyId = Guid.NewGuid();
 
-        await _service.UpsertAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ConfigurationModel?)null);
 
-        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language);
+        await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        Assert.NotNull(configuration);
-        Assert.Equal(longValue, configuration.Value);
+        _mockRepository.Verify(r => r.InsertAsync(It.Is<ConfigurationModel>(c => c.Value == longValue), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -1,7 +1,7 @@
 using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.Register.DTOs;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Register;
@@ -11,7 +11,7 @@ public class RegisterServiceTests
     [Fact]
     public async Task CreateAsync_WhenCommandIsValid_ReturnsRegisterResponse()
     {
-        var mockUserService = new Mock<UserService>(MockBehavior.Strict);
+        var mockUserService = new Mock<IUserService>(MockBehavior.Strict);
         var command = new RegisterCommand(
             "test@example.com",
             "password123",
@@ -44,7 +44,7 @@ public class RegisterServiceTests
     [Fact]
     public async Task CreateAsync_WhenUserServiceThrows_PropagatesException()
     {
-        var mockUserService = new Mock<UserService>(MockBehavior.Strict);
+        var mockUserService = new Mock<IUserService>(MockBehavior.Strict);
         var command = new RegisterCommand(
             "test@example.com",
             "password123",

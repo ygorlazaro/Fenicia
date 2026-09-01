@@ -1,9 +1,10 @@
 using Fenicia.Auth.Domains.Configuration.DTOs;
+using Fenicia.Auth.Domains.Configuration.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationService(ConfigurationRepository repository)
+public class ConfigurationService(IConfigurationRepository repository) : IConfigurationService
 {
     public async Task<List<GetConfigurationResponse>> GetAllAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
     {

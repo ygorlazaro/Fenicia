@@ -4,6 +4,4 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public class ProductCategoryRepository(DefaultContext context) : Repository<ProductCategoryModel>(context), IProductCategoryRepository
-{
-}
+public class ProductCategoryRepository(DefaultContext context) : Repository<ProductCategoryModel>(context), IProductCategoryRepository;

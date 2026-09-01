@@ -1,10 +1,11 @@
 using Fenicia.Auth.Domains.UserRole.DTOs;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public class UserRoleService(UserRoleRepository userRoleRepository)
+public class UserRoleService(IUserRoleRepository userRoleRepository) : IUserRoleService
 {
     public async Task<List<UserRoleResponse>> GetCompaniesByUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {

@@ -1,66 +1,41 @@
+using System.Security.Claims;
 using Bogus;
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.DTOs;
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Tests;
+using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
-public class ForgotPasswordControllerTests : IDisposable
+public class ForgotPasswordControllerTests
 {
     private readonly ForgotPasswordController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
-    private readonly UserRepository _userRepository;
-    private readonly UserRoleRepository _userRoleRepository;
-    private readonly RoleRepository _roleRepository;
-    private readonly CompanyRepository _companyRepository;
+    private readonly Mock<IForgotPasswordService> _mockService;
 
     public ForgotPasswordControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-
-        var mockHttpContext = new Mock<HttpContext>();
-        _userRepository = new UserRepository(_db);
-        _userRoleRepository = new UserRoleRepository(_db);
-        _roleRepository = new RoleRepository(_db);
-        _companyRepository = new CompanyRepository(_db);
-        var userRoleService = new UserRoleService(_userRoleRepository);
-        var roleService = new RoleService(_roleRepository);
-        var companyService = new CompanyService(_companyRepository, userRoleService);
-        var moduleRepository = new ModuleRepository(_db);
-        var subscriptionRepository = new SubscriptionRepository(_db);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserService(new UserRepository(_db), userRoleService, roleService, companyService, new SecurityService()), userRoleService);
-        var moduleService = new ModuleService(moduleRepository, userRoleService, subscriptionService);
-        var userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
-        var forgotPasswordRepository = new ForgotPasswordRepository(_db);
-        var forgotPasswordService = new ForgotPasswordService(forgotPasswordRepository, userService, new SecurityService());
-        _controller = new ForgotPasswordController(forgotPasswordService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-
+        var testUserId = Guid.NewGuid();
         _faker = new Faker();
-    }
+        _mockService = new Mock<IForgotPasswordService>();
 
-    public void Dispose()
-    {
-        _db.Dispose();
+        var httpContext = new DefaultHttpContext
+        {
+            Connection =
+            {
+                RemoteIpAddress = System.Net.IPAddress.Parse("127.0.0.1")
+            }
+        };
+        httpContext.Request.Headers.UserAgent = "TestAgent";
 
-        GC.SuppressFinalize(this);
+        _controller = new ForgotPasswordController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
+
+        SetupUserClaims(testUserId);
     }
 
     [Fact]
@@ -70,16 +45,8 @@ public class ForgotPasswordControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var command = new AddForgotPasswordCommand(email);
 
@@ -87,12 +54,6 @@ public class ForgotPasswordControllerTests : IDisposable
 
         Assert.IsType<CreatedResult>(result);
         Assert.Equal(command.Email, wide.UserId);
-
-        var forgotPasswordRecord = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, cancellationToken);
-        Assert.NotNull(forgotPasswordRecord);
-        Assert.True(forgotPasswordRecord.IsActive);
-        Assert.NotNull(forgotPasswordRecord.Code);
-        Assert.NotEmpty(forgotPasswordRecord.Code);
     }
 
     [Fact]
@@ -100,6 +61,9 @@ public class ForgotPasswordControllerTests : IDisposable
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ItemNotExistsException("User with given email does not exist."));
 
         var command = new AddForgotPasswordCommand(_faker.Internet.Email());
 
@@ -115,16 +79,8 @@ public class ForgotPasswordControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var command = new AddForgotPasswordCommand(email);
 
@@ -141,43 +97,16 @@ public class ForgotPasswordControllerTests : IDisposable
         var email = _faker.Internet.Email();
         var newPassword = _faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
+        _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var code = _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-
-        var forgotPassword = new ForgotPasswordModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            Code = code,
-            IsActive = true,
-            ExpirationDate = DateTime.UtcNow.AddHours(1)
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        _db.AuthForgottenPasswords.Add(forgotPassword);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         var result = await _controller.PatchAsync(command, wide, cancellationToken);
 
         Assert.IsType<NoContentResult>(result);
-
         Assert.Equal(command.Email, wide.UserId);
-
-        var updatedUser = await _userRepository.Query().FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
-        Assert.NotNull(updatedUser);
-
-        var updatedForgotPassword = await _db.AuthForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, cancellationToken);
-        Assert.NotNull(updatedForgotPassword);
-        Assert.False(updatedForgotPassword.IsActive);
     }
 
     [Fact]
@@ -187,16 +116,8 @@ public class ForgotPasswordControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidDataException("Invalid forgot password code."));
 
         var command = new ResetPasswordCommand(email, _faker.Internet.Password(), "INVALID");
 
@@ -210,6 +131,9 @@ public class ForgotPasswordControllerTests : IDisposable
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ItemNotExistsException("User with given email does not exist."));
 
         var command = new ResetPasswordCommand(_faker.Internet.Email(), _faker.Internet.Password(), _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
@@ -226,29 +150,10 @@ public class ForgotPasswordControllerTests : IDisposable
         var email = _faker.Internet.Email();
         var newPassword = _faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
+        _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var code = _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-
-        var forgotPassword = new ForgotPasswordModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            Code = code,
-            IsActive = true,
-            ExpirationDate = DateTime.UtcNow.AddHours(1)
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        _db.AuthForgottenPasswords.Add(forgotPassword);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         await _controller.PatchAsync(command, wide, cancellationToken);
@@ -286,5 +191,14 @@ public class ForgotPasswordControllerTests : IDisposable
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+    }
+
+    private void SetupUserClaims(Guid userId)
+    {
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

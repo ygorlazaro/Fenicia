@@ -2,49 +2,32 @@ using System.Security.Claims;
 
 using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.DTOs;
+using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
 
-public class RefreshTokenControllerTests : IDisposable
+public class RefreshTokenControllerTests
 {
     private readonly RefreshTokenController _controller;
-    private readonly DefaultContext _db;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
 
     public RefreshTokenControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
         _testUserId = Guid.NewGuid();
         _mockHttpContext = new Mock<HttpContext>();
+        var mockService = new Mock<IRefreshTokenService>();
 
-        var redisMock = new Mock<StackExchange.Redis.IConnectionMultiplexer>();
-        var redisDbMock = new Mock<StackExchange.Redis.IDatabase>();
-        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(redisDbMock.Object);
-
-        var service = new RefreshTokenService(new RefreshTokenRepository(redisMock.Object));
-        _controller = new RefreshTokenController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new RefreshTokenController(mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 
     [Fact]

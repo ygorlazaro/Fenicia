@@ -45,7 +45,16 @@ Follow RESTful principles on routes:
 - Use appropriate HTTP methods: `GET` (read), `POST` (create), `PATCH` (partial update), `DELETE` (remove)
 - Correct example: `PATCH /refreshtokens/{id}` instead of `POST /refreshtoken/invalidate`
 
-## 3. Repository Pattern
+## 3. Interfaces
+
+Every `XService` class must have a corresponding `IXService` interface.
+Every `XRepository` class that adds methods beyond the generic `IRepository<T>` must have a corresponding `IXRepository : IRepository<TModel>` interface declaring those extra methods.
+
+- Interfaces live in `Domains/<DomainName>/Interfaces/`, one file per interface, named exactly after the class they abstract (`IAttachmentRepository.cs` for `AttachmentRepository`, `ICompanyService.cs` for `CompanyService`).
+- Constructors — of services depending on other services, of services depending on specialized repositories, and of controllers depending on services — must take the **interface** type, never the concrete class.
+  - The one exception that stays as-is: `IRepository<T>` itself, already interface-based, injected directly with no per-entity wrapper needed unless that entity's repository adds extra methods.
+
+## 4. Repository Pattern
 
 Services **CANNOT** access `DbContext` directly. All communication with the database must be done through repositories.
 
@@ -204,8 +213,9 @@ public class Repository<T> : IRepository<T> where T : BaseModel
 - Repositories return only entities or primitives, never DTOs or Responses
 - `Context` is public to allow cross-assembly access
 - **A domain CANNOT access another domain's repository directly.** If it needs data/external access, use that domain's **service**, not the repository.
+- When a repository subclass adds domain-specific methods (e.g. `AttachmentRepository.GetByCommentAsync`), declare an interface for it and register that interface in DI, not the concrete type. Any service consuming those extra methods must depend on the interface.
 
-## 4. Service Pattern
+## 5. Service Pattern
 
 Services receive `IRepository<T>` via constructor and expose public async methods.
 
@@ -262,8 +272,9 @@ public class ProjectService(IRepository<ProjectModel> repository)
 - Use `record` for DTOs
 - Write services must receive `CompanyId` when the entity inherits from `BaseCompanyModel`
 - `CompanyId` must never come from the command/query; always from the token
+- When Service A depends on Service B, Service A's constructor must take `IServiceB`, not `ServiceB`.
 
-## 5. Controller Pattern
+## 6. Controller Pattern
 
 Controllers inject services directly via constructor, without `ISender` or handlers.
 
@@ -283,7 +294,7 @@ namespace Fenicia.Module.Projects.Domains.Project;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectController(ProjectService projectService) : ControllerBase
+public class ProjectController(IProjectService projectService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<GetAllProjectResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
@@ -414,47 +425,44 @@ Follow the pattern of `Fenicia.Auth.Tests` and `Fenicia.Module.Projects.Tests`.
 ### Service Tests:
 ```csharp
 using Bogus;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project;
+using Moq;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
 
 public class GetAllProjectServiceTests : IDisposable
 {
-    private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly ProjectService service;
+    private readonly Mock<IProjectRepository> mockRepository;
 
     public GetAllProjectServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        service = new ProjectService(db);
+        mockRepository = new Mock<IProjectRepository>();
+        service = new ProjectService(mockRepository.Object);
         faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAllAsync_WhenProjectsExist_ReturnsPaginationWithProjects()
     {
-        // Arrange
-        var project = new ProjectModel { Id = Guid.NewGuid(), Title = faker.Commerce.Categories(1).First(), CompanyId = Guid.NewGuid() };
-        db.Projects.Add(project);
-        await db.SaveChangesAsync(CancellationToken.None);
+        var projects = new List<ProjectModel>
+        {
+            new() { Id = Guid.NewGuid(), Title = faker.Commerce.Categories(1).First(), CompanyId = Guid.NewGuid() }
+        };
 
-        // Act
+        mockRepository.Setup(r => r.GetAllAsync(1, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(projects);
+
         var result = await service.GetAllAsync(new GetAllProjectQuery(1, 10), CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
     }
@@ -467,15 +475,12 @@ using System.Security.Claims;
 using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
@@ -483,48 +488,44 @@ namespace Fenicia.Module.Projects.Tests.Domains.Project;
 public class ProjectControllerTests : IDisposable
 {
     private readonly ProjectController controller;
-    private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Mock<IProjectService> mockService;
 
     public ProjectControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        db = new DefaultContext(options, companyContext);
-        var service = new ProjectService(db);
+        mockService = new Mock<IProjectService>();
         mockHttpContext = new Mock<HttpContext>();
-        controller = new ProjectController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ProjectController(mockService.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         faker = new Faker();
     }
 
     public void Dispose()
     {
-        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAsync_WhenProjectsExist_ReturnsOk()
     {
-        // Arrange
         var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) };
         mockHttpContext.Setup(x => x.User).Returns(new ClaimsPrincipal(new ClaimsIdentity(claims)));
         
-        // Act
+        mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GetAllProjectResponse>());
+
         var result = await controller.GetAsync(null, 1, 10, CancellationToken.None);
         
-        // Assert
         Assert.IsType<OkObjectResult>(result.Result);
     }
 }
 ```
 
 ### Rules:
-- Service tests instantiate the service directly with `new Service(db)`
-- Controller tests instantiate the service and inject it into the controller
+- **Repository tests**: unchanged. These are the one place a real `DefaultContext` with `UseInMemoryDatabase` is correct — the point of a repository test is verifying real EF Core query/persistence behavior.
+- **Service tests**: constructor dependencies (repositories, other services) must be Moq mocks against their interfaces. Never construct a real repository, never construct a real dependent service, never spin up a `DefaultContext`, inside a Service test.
+- **Controller tests**: same rule — mock `IXService` via Moq, inject the mock into the controller. Never construct a real service or `DefaultContext` inside a Controller test.
 - Use `Faker` from Bogus for test data
-- Use `DefaultContext` with in-memory database
 - Always include `using System.Security.Claims` in controller tests
 - Always configure `mockHttpContext.Setup(x => x.User).Returns(...)` for tests that use `ClaimReader`
 - **All new or refactored code must include corresponding unit tests.**
@@ -601,3 +602,7 @@ The project uses strict style rules defined in `.editorconfig`. Before committin
 - ❌ Omit braces in `if`/`for`/`while` blocks
 - ❌ Use `this.` in instance methods
 - ❌ Forget to include `CancellationToken` as the last parameter in async methods
+- ❌ Service tests instantiating a real repository, a real dependent service, or a real `DefaultContext`
+- ❌ Controller tests instantiating a real service or `DefaultContext`
+- ❌ A `XService`/`XRepository` (with extra methods) without a matching interface in `Domains/<Name>/Interfaces/`
+- ❌ Injecting a concrete `XService`/specialized `XRepository` class instead of its interface, anywhere

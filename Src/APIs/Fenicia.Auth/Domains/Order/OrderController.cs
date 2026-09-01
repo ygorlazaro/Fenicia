@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Order.DTOs;
+using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Auth.Domains.Order;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(OrderService orderService) : ControllerBase
+public class OrderController(IOrderService orderService) : ControllerBase
 {
     /// <summary>
     /// Cria um novo pedido com os módulos informados.
@@ -64,7 +65,7 @@ public class OrderController(OrderService orderService) : ControllerBase
         }
         catch (ItemNotExistsException ex)
         {
-            return NotFound(new { Message = ex.Message });
+            return NotFound(new { ex.Message });
         }
     }
 }

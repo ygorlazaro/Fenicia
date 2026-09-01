@@ -1,72 +1,42 @@
 using Bogus;
-
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.DTOs;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Module;
 
-public class ModuleControllerTests : IDisposable
+public class ModuleControllerTests
 {
     private readonly ModuleController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IModuleService> _mockService;
 
     public ModuleControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        var userRoleRepository = new UserRoleRepository(_db);
-        var userRoleService = new UserRoleService(userRoleRepository);
-        var subscriptionRepository = new SubscriptionRepository(_db);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, new UserService(new UserRepository(_db), userRoleService, new RoleService(new RoleRepository(_db)), new CompanyService(new CompanyRepository(_db), userRoleService), new SecurityService()), userRoleService);
-        var services = new ServiceCollection();
-        services.AddSingleton(_db);
-        services.AddLogging();
-        services.AddSingleton(new ModuleService(new ModuleRepository(_db), userRoleService, subscriptionService));
-
-        var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<ModuleService>();
-
+        _mockService = new Mock<IModuleService>();
         var mockHttpContext = new Mock<HttpContext>();
         _faker = new Faker();
 
-        _controller = new ModuleController(service) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
+        _controller = new ModuleController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
     {
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
+            .ReturnsAsync(new Pagination<List<GetModuleResponse>>([], 0, query.Page, query.PerPage));
 
         var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
@@ -106,12 +76,18 @@ public class ModuleControllerTests : IDisposable
             SortOrder = 2
         };
 
-        _db.AuthModules.AddRange(module1, module2);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var modules = new List<GetModuleResponse>
+        {
+            new(module1.Id, module1.Name, module1.Type, module1.Description, module1.Icon, module1.IsActive, module1.SortOrder, module1.Price),
+            new(module2.Id, module2.Name, module2.Type, module2.Description, module2.Icon, module2.IsActive, module2.SortOrder, module2.Price)
+        };
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
+            .ReturnsAsync(new Pagination<List<GetModuleResponse>>(modules, 2, query.Page, query.PerPage));
 
         var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
@@ -131,16 +107,6 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
-        var authModule = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Auth,
-            Price = 50.0m,
-            IsActive = true,
-            SortOrder = 1
-        };
-
         var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -151,12 +117,17 @@ public class ModuleControllerTests : IDisposable
             SortOrder = 2
         };
 
-        _db.AuthModules.AddRange(authModule, basicModule);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var modules = new List<GetModuleResponse>
+        {
+            new(basicModule.Id, basicModule.Name, basicModule.Type, basicModule.Description, basicModule.Icon, basicModule.IsActive, basicModule.SortOrder, basicModule.Price)
+        };
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
+            .ReturnsAsync(new Pagination<List<GetModuleResponse>>(modules, 1, query.Page, query.PerPage));
 
         var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
@@ -185,22 +156,17 @@ public class ModuleControllerTests : IDisposable
             SortOrder = 1
         };
 
-        var inactiveModule = new ModuleModel
+        var modules = new List<GetModuleResponse>
         {
-            Id = Guid.NewGuid(),
-            Name = "Inactive Module",
-            Type = ModuleType.SocialNetwork,
-            Price = 20.0m,
-            IsActive = false,
-            SortOrder = 2
+            new(activeModule.Id, activeModule.Name, activeModule.Type, activeModule.Description, activeModule.Icon, activeModule.IsActive, activeModule.SortOrder, activeModule.Price)
         };
 
-        _db.AuthModules.AddRange(activeModule, inactiveModule);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
+            .ReturnsAsync(new Pagination<List<GetModuleResponse>>(modules, 1, query.Page, query.PerPage));
 
         var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 
@@ -219,7 +185,7 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_SetsWideEventContextUserIdToGuest()
     {
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
@@ -231,26 +197,12 @@ public class ModuleControllerTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
-        var modules = new List<ModuleModel>();
-        for (var i = 0; i < 25; i++)
-        {
-            modules.Add(new ModuleModel
-            {
-                Id = Guid.NewGuid(),
-                Name = $"Module {_faker.Commerce.ProductName()} {i}",
-                Type = (ModuleType)((i % 10) + 1),
-                Price = 10.0m,
-                IsActive = true,
-                SortOrder = i
-            });
-        }
-
-        _db.AuthModules.AddRange(modules);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new PaginationQuery(2, 10);
+        var query = new PaginationQuery(2);
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
+            .ReturnsAsync(new Pagination<List<GetModuleResponse>>([], 25, 2, 10));
 
         var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
 

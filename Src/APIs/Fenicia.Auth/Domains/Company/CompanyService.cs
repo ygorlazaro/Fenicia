@@ -1,5 +1,6 @@
 using Fenicia.Auth.Domains.Company.DTOs;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Company.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -7,9 +8,9 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyService(CompanyRepository repository, UserRoleService userRoleService)
+public class CompanyService(ICompanyRepository repository, IUserRoleService userRoleService) : ICompanyService
 {
-    public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken = default)
+    public virtual async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken = default)
     {
         if (perPage <= 0)
         {
@@ -24,7 +25,7 @@ public class CompanyService(CompanyRepository repository, UserRoleService userRo
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
     }
 
-    public async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken cancellationToken = default)
+    public virtual async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken cancellationToken = default)
     {
         var company = await repository.AnyActiveAsync(companyId, cancellationToken) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
         var isAdmin = await userRoleService.IsAdminAsync(userId, companyId, cancellationToken);

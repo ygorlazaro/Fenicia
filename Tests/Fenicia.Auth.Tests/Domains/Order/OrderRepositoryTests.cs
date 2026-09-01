@@ -1,6 +1,3 @@
-using Bogus;
-using Bogus.Extensions.Brazil;
-
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -14,7 +11,6 @@ namespace Fenicia.Auth.Tests.Domains.Order;
 public class OrderRepositoryTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly OrderRepository _repository;
 
     public OrderRepositoryTests()
@@ -23,7 +19,6 @@ public class OrderRepositoryTests : IDisposable
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new OrderRepository(_db);
-        _faker = new Faker();
     }
 
     public void Dispose()
@@ -120,8 +115,9 @@ public class OrderRepositoryTests : IDisposable
 
         var results = await _repository.GetAllAsync(1, 10, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Equal(order1.Id, results.First().Id);
+        var orderModels = results as OrderModel[] ?? [];
+        Assert.Single(orderModels);
+        Assert.Equal(order1.Id, orderModels.First().Id);
     }
 
     [Fact]

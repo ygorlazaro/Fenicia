@@ -1,8 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;

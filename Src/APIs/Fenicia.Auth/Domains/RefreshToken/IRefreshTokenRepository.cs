@@ -1,5 +1,3 @@
-using StackExchange.Redis;
-
 namespace Fenicia.Auth.Domains.RefreshToken;
 
 public interface IRefreshTokenRepository

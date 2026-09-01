@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Auth.Domains.Notification;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -12,7 +10,6 @@ namespace Fenicia.Auth.Tests.Domains.Notification;
 public class NotificationRepositoryTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly NotificationRepository _repository;
 
     public NotificationRepositoryTests()
@@ -21,7 +18,6 @@ public class NotificationRepositoryTests : IDisposable
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new NotificationRepository(_db);
-        _faker = new Faker();
     }
 
     public void Dispose()

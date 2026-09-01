@@ -1,17 +1,10 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
-
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Tests.Domains.Security;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 

@@ -1,12 +1,12 @@
+using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
-using Fenicia.Common.Enums.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyRepository(DefaultContext context) : Repository<CompanyModel>(context)
+public class CompanyRepository(DefaultContext context) : Repository<CompanyModel>(context), ICompanyRepository
 {
     public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
     {

@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.ForgotPassword.DTOs;
+using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -12,7 +13,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 [AllowAnonymous]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
-public class ForgotPasswordController(ForgotPasswordService forgotPasswordService) : ControllerBase
+public class ForgotPasswordController(IForgotPasswordService forgotPasswordService) : ControllerBase
 {
     /// <summary>
     /// Inicia o fluxo de recuperação de senha enviando um código para o e-mail informado.
@@ -35,8 +36,8 @@ public class ForgotPasswordController(ForgotPasswordService forgotPasswordServic
         {
             wide.UserId = reset.Email;
 
-            var ipAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString();
-            var userAgent = HttpContext?.Request?.Headers.UserAgent.ToString();
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
 
             var command = new AddForgotPasswordCommand(reset.Email, ipAddress, userAgent);
 

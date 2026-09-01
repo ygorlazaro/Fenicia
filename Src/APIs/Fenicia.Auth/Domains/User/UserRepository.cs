@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User;
 
-public class UserRepository(DefaultContext context) : Repository<UserModel>(context)
+public class UserRepository(DefaultContext context) : Repository<UserModel>(context), IUserRepository
 {
     public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {

@@ -1,9 +1,10 @@
+using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Security;
 
-public class SecurityService
+public class SecurityService : ISecurityService
 {
     public string Hash(string original)
     {

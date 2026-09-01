@@ -4,27 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Repositories;
 
-public class Repository<T> : IRepository<T>
+public class Repository<T>(DefaultContext context) : IRepository<T>
     where T : BaseModel
 {
-    public Repository(DefaultContext context)
-    {
-        DbSet = context.Set<T>();
-        Context = context;
-    }
+    public DefaultContext Context { get; set; } = context;
 
-    public Repository()
-    {
-    }
-
-    public DefaultContext Context { get; set; } = null!;
-
-    protected DbSet<T> DbSet { get; set; } = null!;
+    protected DbSet<T> DbSet { get; set; } = context.Set<T>();
 
     public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
     {
         return await DbSet
-                .Where(e => true)
+            .Where(e => e.Deleted == null)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(cancellationToken);
@@ -32,7 +22,7 @@ public class Repository<T> : IRepository<T>
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return await DbSet.FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, cancellationToken);
     }
 
     public async Task<T> InsertAsync(T model, CancellationToken cancellationToken = default)
@@ -65,13 +55,13 @@ public class Repository<T> : IRepository<T>
             return 0;
         }
 
-        Context.Entry(entity).State = EntityState.Deleted;
+        entity.Deleted = DateTime.UtcNow;
         return await SaveChangesAsync(cancellationToken);
     }
 
     public async Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
-        var entities = await DbSet.Where(e => ids.Contains(e.Id)).ToListAsync(cancellationToken);
+        var entities = await DbSet.Where(e => ids.Contains(e.Id) && e.Deleted == null).ToListAsync(cancellationToken);
         if (entities.Count == 0)
         {
             return 0;
@@ -79,7 +69,7 @@ public class Repository<T> : IRepository<T>
 
         foreach (var entity in entities)
         {
-            Context.Entry(entity).State = EntityState.Deleted;
+            entity.Deleted = DateTime.UtcNow;
         }
 
         return await SaveChangesAsync(cancellationToken);
@@ -87,12 +77,13 @@ public class Repository<T> : IRepository<T>
 
     public async Task InsertRangeAsync(IEnumerable<T> models, CancellationToken cancellationToken = default)
     {
-        foreach (var model in models)
+        var baseModels = models as T[] ?? [];
+        foreach (var model in baseModels)
         {
             model.Created = DateTime.UtcNow;
         }
 
-        await DbSet.AddRangeAsync(models, cancellationToken);
+        await DbSet.AddRangeAsync(baseModels, cancellationToken);
         await SaveChangesAsync(cancellationToken);
     }
 

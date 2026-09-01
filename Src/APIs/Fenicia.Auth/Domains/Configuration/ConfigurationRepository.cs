@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Configuration.Interfaces;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationRepository(DefaultContext context) : Repository<ConfigurationModel>(context)
+public class ConfigurationRepository(DefaultContext context) : Repository<ConfigurationModel>(context), IConfigurationRepository
 {
     public async Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(Guid userId, Guid companyId, ConfigType configType, CancellationToken cancellationToken = default)
     {

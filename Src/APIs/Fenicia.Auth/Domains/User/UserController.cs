@@ -1,8 +1,8 @@
 using System.Net.Mime;
-
-using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.DTOs;
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
@@ -17,7 +17,7 @@ namespace Fenicia.Auth.Domains.User;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class UserController(UserService userService, ModuleService moduleService) : ControllerBase
+public class UserController(IUserService userService, IModuleService moduleService) : ControllerBase
 {
     /// <summary>
     /// Obtém os módulos de um usuário para uma empresa.

@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs;
+using Fenicia.Auth.Domains.Token.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -18,14 +19,14 @@ public class TokenControllerTests
 {
     private readonly TokenController _controller;
     private readonly Faker _faker = new();
-    private readonly Mock<TokenService> _tokenServiceMock;
+    private readonly Mock<ITokenService> _tokenServiceMock;
 
     public TokenControllerTests()
     {
         var redisMock = new Mock<IConnectionMultiplexer>();
         redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(new Mock<IDatabase>().Object);
 
-        _tokenServiceMock = new Mock<TokenService>(null!, null!, null!, null!) { CallBase = true };
+        _tokenServiceMock = new Mock<ITokenService>(MockBehavior.Strict) { CallBase = true };
 
         _controller = new TokenController(_tokenServiceMock.Object);
     }

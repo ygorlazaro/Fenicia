@@ -13,7 +13,7 @@ public static partial class OrderDetailMapper
             detail.Id,
             detail.OrderId,
             detail.ProductId,
-            detail.Product?.Name ?? string.Empty,
+            detail.Product.Name,
             detail.Price,
             detail.DiscountAmount,
             detail.Quantity,

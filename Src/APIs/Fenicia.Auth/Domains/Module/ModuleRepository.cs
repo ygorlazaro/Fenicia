@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public class ModuleRepository(DefaultContext context) : Repository<ModuleModel>(context)
+public class ModuleRepository(DefaultContext context) : Repository<ModuleModel>(context), IModuleRepository
 {
     public async Task<List<ModuleModel>> GetAllActiveAsync(int page, int perPage, CancellationToken cancellationToken = default)
     {

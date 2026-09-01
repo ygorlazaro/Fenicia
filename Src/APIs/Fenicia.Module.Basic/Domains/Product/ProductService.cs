@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Linq.Expressions;
 
 using Fenicia.Common;
@@ -10,38 +9,24 @@ using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-public class ProductService
+public class ProductService(
+    IProductRepository productRepository,
+    ProductCategoryService productCategoryService,
+    OrderDetailService orderDetailService,
+    StockMovementService stockMovementService)
 {
-    private readonly IProductRepository _productRepository;
-    private readonly ProductCategoryService _productCategoryService;
-    private readonly OrderDetailService _orderDetailService;
-    private readonly StockMovementService _stockMovementService;
-
     public ProductService()
         : this(null!, null!, null!, null!)
     {
     }
 
-    public ProductService(
-        IProductRepository productRepository,
-        ProductCategoryService productCategoryService,
-        OrderDetailService orderDetailService,
-        StockMovementService stockMovementService)
-    {
-        _productRepository = productRepository;
-        _productCategoryService = productCategoryService;
-        _orderDetailService = orderDetailService;
-        _stockMovementService = stockMovementService;
-    }
-
     public virtual async Task<Pagination<List<GetAllProductResponse>>> GetAllAsync(GetAllProductQuery query, CancellationToken cancellationToken = default)
     {
-        var baseQuery = _productRepository.Query()
+        var baseQuery = productRepository.Query()
             .Include(p => p.Category)
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
 
@@ -62,7 +47,7 @@ public class ProductService
 
     public virtual async Task<List<GetAllProductForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken cancellationToken = default)
     {
-        var products = await _productRepository.Query()
+        var products = await productRepository.Query()
             .OrderBy(p => p.Name)
             .Select(p => new GetAllProductForDataSourceResponse(p.Id, p.Name))
             .ToListAsync(cancellationToken);
@@ -72,19 +57,14 @@ public class ProductService
 
     public virtual async Task<GetProductByIdResponse?> GetByIdAsync(GetProductByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var product = await _productRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var product = await productRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        if (product is null)
-        {
-            return null;
-        }
-
-        return product.MapToGetProductByIdResponse();
+        return product?.MapToGetProductByIdResponse();
     }
 
     public virtual async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(GetProductsByCategoryIdQuery query, int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
     {
-        var products = await _productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, cancellationToken);
+        var products = await productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, cancellationToken);
 
         return [.. products.Select(p => p.MapToGetProductsByCategoryIdResponse())];
     }
@@ -113,20 +93,20 @@ public class ProductService
             CompanyId = companyId
         };
 
-        await _productRepository.InsertAsync(product, cancellationToken);
+        await productRepository.InsertAsync(product, cancellationToken);
 
-        var insertedProduct = await _productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
+        var insertedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
 
-        var category = await _productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), cancellationToken);
+        var category = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), cancellationToken);
 
-        var supplierName = insertedProduct?.Supplier?.Person?.Name;
+        var supplierName = insertedProduct?.Supplier?.Person.Name;
 
         return product.MapToAddProductResponse(category?.Name ?? string.Empty, supplierName);
     }
 
     public virtual async Task<UpdateProductResponse?> UpdateAsync(UpdateProductCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var product = await _productRepository.GetByIdAsync(command.Id, cancellationToken);
+        var product = await productRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (product is null)
         {
@@ -150,20 +130,20 @@ public class ProductService
         product.SupplierId = command.SupplierId;
         product.CompanyId = companyId;
 
-        await _productRepository.UpdateAsync(product.Id, product, cancellationToken);
+        await productRepository.UpdateAsync(product.Id, product, cancellationToken);
 
-        var updatedProduct = await _productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
+        var updatedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
 
-        var category = await _productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), cancellationToken);
+        var category = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(product.CategoryId), cancellationToken);
 
-        var supplierName = updatedProduct?.Supplier?.Person?.Name;
+        var supplierName = updatedProduct?.Supplier?.Person.Name;
 
         return product.MapToUpdateProductResponse(category?.Name ?? string.Empty, supplierName);
     }
 
     public virtual async Task DeleteAsync(DeleteProductCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _productRepository.DeleteAsync(command.Id, cancellationToken);
+        await productRepository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public virtual async Task<ProductPerformanceResponse> GetPerformanceAsync(GetProductPerformanceQuery query, CancellationToken cancellationToken = default)
@@ -171,19 +151,19 @@ public class ProductService
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var products = await _productRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var products = await productRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
         var productList = products.ToList();
 
-        var orderDetails = await _orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
+        var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
         var orderDetailList = orderDetails.ToList();
 
-        var stockMovements = await _stockMovementService.GetByDateRangeAsync(startDate, endDate, cancellationToken);
+        var stockMovements = await stockMovementService.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         var stockMovementList = stockMovements.ToList();
 
         var bestSellingProducts = await GetBestSellingProductAsync(query, orderDetailList, cancellationToken);
-        var worstSellingProducts = await GetWorstSellingProductAsync(query, orderDetailList, productList, cancellationToken);
-        var profitMargins = await GetProfitMarginsListAsync(productList, cancellationToken);
-        var neverSoldProducts = await GetNeverSoldProductAsync(query, orderDetailList, productList, stockMovementList, cancellationToken);
+        var worstSellingProducts = GetWorstSellingProduct(query, orderDetailList, productList);
+        var profitMargins = GetProfitMarginsList(productList);
+        var neverSoldProducts = GetNeverSoldProduct(query, orderDetailList, productList, stockMovementList);
 
         return new ProductPerformanceResponse
         {
@@ -196,31 +176,31 @@ public class ProductService
 
     public virtual async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.CountAsync(cancellationToken);
+        return await productRepository.CountAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetTotalProductsAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.CountAsync(cancellationToken);
+        return await productRepository.CountAsync(cancellationToken);
     }
 
     public virtual async Task<List<ProductModel>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.Query()
+        return await productRepository.Query()
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null)
             .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<List<ProductModel>> GetAllForStatsAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.Query()
+        return await productRepository.Query()
             .Where(p => p.SupplierId.HasValue)
             .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(GetAllProductQuery query, CancellationToken cancellationToken = default)
     {
-        var baseQuery = _productRepository.Query()
+        var baseQuery = productRepository.Query()
             .Include(p => p.Category);
 
         var filters = AdvancedQueryParser.Parse(query.Query);
@@ -235,148 +215,120 @@ public class ProductService
 
     public virtual async Task<decimal> GetTotalCostPriceAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalCostPriceAsync(cancellationToken);
+        return await productRepository.GetTotalCostPriceAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalSalesPriceAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalSalesPriceAsync(cancellationToken);
+        return await productRepository.GetTotalSalesPriceAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetTotalQuantityAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalQuantityAsync(cancellationToken);
+        return await productRepository.GetTotalQuantityAsync(cancellationToken);
     }
 
     public virtual async Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, cancellationToken);
+        return await productRepository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalCostPriceByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalCostPriceByCategoryAsync(categoryId, cancellationToken);
+        return await productRepository.GetTotalCostPriceByCategoryAsync(categoryId, cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalSalesPriceByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalSalesPriceByCategoryAsync(categoryId, cancellationToken);
+        return await productRepository.GetTotalSalesPriceByCategoryAsync(categoryId, cancellationToken);
     }
 
     public virtual async Task<int> GetTotalQuantityByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalQuantityByCategoryAsync(categoryId, cancellationToken);
+        return await productRepository.GetTotalQuantityByCategoryAsync(categoryId, cancellationToken);
     }
 
     public virtual async Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetByIdWithCategoryAsync(productId, page, perPage, cancellationToken);
+        return await productRepository.GetByIdWithCategoryAsync(productId, page, perPage, cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalCostPriceByProductAsync(Guid productId, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalCostPriceByProductAsync(productId, cancellationToken);
+        return await productRepository.GetTotalCostPriceByProductAsync(productId, cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalSalesPriceByProductAsync(Guid productId, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalSalesPriceByProductAsync(productId, cancellationToken);
+        return await productRepository.GetTotalSalesPriceByProductAsync(productId, cancellationToken);
     }
 
     public virtual async Task<int> GetTotalQuantityByProductAsync(Guid productId, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalQuantityByProductAsync(productId, cancellationToken);
+        return await productRepository.GetTotalQuantityByProductAsync(productId, cancellationToken);
     }
 
     public virtual async Task<List<ProductModel>> GetLowStockAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetLowStockAsync(cancellationToken);
+        return await productRepository.GetLowStockAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalCostValueAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalCostValueAsync(cancellationToken);
+        return await productRepository.GetTotalCostValueAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalSalesValueAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetTotalSalesValueAsync(cancellationToken);
+        return await productRepository.GetTotalSalesValueAsync(cancellationToken);
     }
 
     public virtual async Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetZeroMovementCandidatesAsync(activeProductIds, cancellationToken);
+        return await productRepository.GetZeroMovementCandidatesAsync(activeProductIds, cancellationToken);
     }
 
     public virtual async Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetOverstockCandidatesAsync(cancellationToken);
+        return await productRepository.GetOverstockCandidatesAsync(cancellationToken);
     }
 
     public virtual async Task<int> CountAsync(Expression<Func<ProductModel, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _productRepository.CountAsync(predicate, cancellationToken);
+        return await productRepository.CountAsync(predicate, cancellationToken);
     }
 
     public virtual async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.GetStockValueByCategoryAsync(cancellationToken);
+        return await productRepository.GetStockValueByCategoryAsync(cancellationToken);
     }
 
     public virtual async Task<List<CategoryBreakdownResponse>> GetCategoryBreakdownAsync(CancellationToken cancellationToken = default)
     {
-        return await _productRepository.Query()
+        return await productRepository.Query()
                 .GroupBy(p => new { p.CategoryId, CategoryName = p.Category.Name })
             .Select(g => new CategoryBreakdownResponse(
                 g.Key.CategoryId,
                 g.Key.CategoryName,
-                g.Sum(p => (decimal)(p.CostPrice ?? 0) * (decimal)p.Quantity),
+                g.Sum(p => (p.CostPrice ?? 0) * (decimal)p.Quantity),
                 g.Sum(p => p.SalesPrice * (decimal)p.Quantity),
                 g.Sum(p => p.Quantity)))
             .ToListAsync(cancellationToken);
     }
 
-    private async Task<List<NeverSoldProductResponse>> GetNeverSoldProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, IEnumerable<StockMovementModel> stockMovements, CancellationToken cancellationToken = default)
+    private static string ClassifyMargin(double margin)
     {
-        var orderDetailList = orderDetails.ToList();
-        var productList = products.ToList();
-        var stockMovementList = stockMovements.ToList();
-
-        var queryable = from p in productList
-                        where p.Quantity > 0
-                        where !orderDetailList.Any(d => d.ProductId == p.Id)
-                        let lastMovementDate = stockMovementList.Where(m => m.ProductId == p.Id).OrderByDescending(m => m.Date).Select(m => m.Date).FirstOrDefault()
-                        orderby (p.CostPrice ?? 0) * (decimal)p.Quantity descending
-                        select new NeverSoldProductResponse(p.Id, p.Name, p.Category.Name, p.Supplier != null ? p.Supplier.Person.Name : null, p.Quantity, (p.CostPrice ?? 0) * (decimal)p.Quantity, lastMovementDate);
-
-        return [.. queryable.Take(query.TopLimit)];
+        return margin switch
+        {
+            >= 50 => "Excellent",
+            >= 30 => "Good",
+            >= 15 => "Average",
+            >= 5 => "Low",
+            _ => "Very Low"
+        };
     }
 
-    private async Task<List<ProfitMarginResponse>> GetProfitMarginsListAsync(IEnumerable<ProductModel> products, CancellationToken cancellationToken = default)
-    {
-        var productList = products.ToList();
-
-        var rawMargins = (from p in productList
-                          where p.SalesPrice > 0
-                          let costPrice = p.CostPrice ?? 0m
-                          let margin = (p.SalesPrice - costPrice) / p.SalesPrice * 100m
-                          orderby margin descending
-                          select new
-                          {
-                              p.Id,
-                              p.Name,
-                              CategoryName = p.Category.Name,
-                              costPrice,
-                              p.SalesPrice,
-                              margin
-                          }).ToList();
-
-        var profitMargins = rawMargins.Select(p => new ProfitMarginResponse(p.Id, p.Name, p.CategoryName, p.costPrice, p.SalesPrice, p.margin, ClassifyMargin((double)p.margin))).ToList();
-
-        return profitMargins;
-    }
-
-    private async Task<List<WorstSellingProductResponse>> GetWorstSellingProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, CancellationToken cancellationToken = default)
+    private static List<WorstSellingProductResponse> GetWorstSellingProduct(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products)
     {
         var orderDetailList = orderDetails.ToList();
         var productList = products.ToList();
@@ -390,16 +342,56 @@ public class ProductService
             CategoryName = p.Category.Name,
             p.Quantity,
             StockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity,
-            SupplierName = p.Supplier != null ? p.Supplier.Person.Name : null
+            SupplierName = p.Supplier?.Person.Name
         }).ToDictionary(p => p.Id, p => p);
 
         var worstSellingProducts = productDetails.Values.Select(p =>
-    {
-        var sale = salesStats.FirstOrDefault(s => s.ProductId == p.Id);
-        return new WorstSellingProductResponse(p.Id, p.Name, p.CategoryName, sale != null ? sale.QuantitySold : 0, sale != null ? sale.Revenue : 0m, sale != null ? sale.OrderCount : 0, p.Quantity, p.StockValue);
-    }).OrderBy(p => p.TotalQuantitySold).ThenByDescending(p => p.CurrentStock).Take(query.TopLimit).ToList();
+        {
+            var sale = salesStats.FirstOrDefault(s => s.ProductId == p.Id);
+            return new WorstSellingProductResponse(p.Id, p.Name, p.CategoryName, sale?.QuantitySold ?? 0, sale?.Revenue ?? 0m, sale?.OrderCount ?? 0, p.Quantity, p.StockValue);
+        }).OrderBy(p => p.TotalQuantitySold).ThenByDescending(p => p.CurrentStock).Take(query.TopLimit).ToList();
 
         return worstSellingProducts;
+    }
+
+    private static List<NeverSoldProductResponse> GetNeverSoldProduct(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, IEnumerable<ProductModel> products, IEnumerable<StockMovementModel> stockMovements)
+    {
+        var orderDetailList = orderDetails.ToList();
+        var productList = products.ToList();
+        var stockMovementList = stockMovements.ToList();
+
+        var queryable = from p in productList
+                        where p.Quantity > 0
+                        where orderDetailList.All(d => d.ProductId != p.Id)
+                        let lastMovementDate = stockMovementList.Where(m => m.ProductId == p.Id).OrderByDescending(m => m.Date).Select(m => m.Date).FirstOrDefault()
+                        orderby (p.CostPrice ?? 0) * (decimal)p.Quantity descending
+                        select new NeverSoldProductResponse(p.Id, p.Name, p.Category.Name, p.Supplier?.Person.Name, p.Quantity, (p.CostPrice ?? 0) * (decimal)p.Quantity, lastMovementDate);
+
+        return [.. queryable.Take(query.TopLimit)];
+    }
+
+    private static List<ProfitMarginResponse> GetProfitMarginsList(IEnumerable<ProductModel> products)
+    {
+        var productList = products.ToList();
+
+        var rawMargins = (from p in productList
+            where p.SalesPrice > 0
+            let costPrice = p.CostPrice ?? 0m
+            let margin = (p.SalesPrice - costPrice) / p.SalesPrice * 100m
+            orderby margin descending
+            select new
+            {
+                p.Id,
+                p.Name,
+                CategoryName = p.Category.Name,
+                costPrice,
+                p.SalesPrice,
+                margin
+            }).ToList();
+
+        var profitMargins = rawMargins.Select(p => new ProfitMarginResponse(p.Id, p.Name, p.CategoryName, p.costPrice, p.SalesPrice, p.margin, ClassifyMargin((double)p.margin))).ToList();
+
+        return profitMargins;
     }
 
     private async Task<List<BestSellingProductResponse>> GetBestSellingProductAsync(GetProductPerformanceQuery query, IEnumerable<OrderDetailModel> orderDetails, CancellationToken cancellationToken = default)
@@ -416,7 +408,7 @@ public class ProductService
         }).OrderByDescending(x => x.TotalQuantitySold).Take(query.TopLimit).ToList();
 
         var productIds = salesStats.Select(s => s.ProductId).ToList();
-        var products = await _productRepository.Query()
+        var products = await productRepository.Query()
             .Include(p => p.Category)
             .Where(p => productIds.Contains(p.Id))
             .Select(p => new { p.Id, ProductName = p.Name, CategoryName = p.Category.Name })
@@ -429,17 +421,5 @@ public class ProductService
     }).ToList();
 
         return bestSellingProducts;
-    }
-
-    private string ClassifyMargin(double margin)
-    {
-        return margin switch
-        {
-            >= 50 => "Excellent",
-            >= 30 => "Good",
-            >= 15 => "Average",
-            >= 5 => "Low",
-            _ => "Very Low"
-        };
     }
 }

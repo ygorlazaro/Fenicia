@@ -1,7 +1,3 @@
-using Bogus;
-using Bogus.Extensions.Brazil;
-
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -15,7 +11,6 @@ namespace Fenicia.Auth.Tests.Domains.Configuration;
 public class ConfigurationRepositoryTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly ConfigurationRepository _repository;
     private readonly Guid _testUserId;
 
@@ -25,7 +20,6 @@ public class ConfigurationRepositoryTests : IDisposable
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new ConfigurationRepository(_db);
-        _faker = new Faker();
         _testUserId = Guid.NewGuid();
     }
 

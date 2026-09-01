@@ -4,6 +4,4 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public class OrderRepository(DefaultContext context) : Repository<OrderModel>(context)
-{
-}
+public class OrderRepository(DefaultContext context) : Repository<OrderModel>(context);

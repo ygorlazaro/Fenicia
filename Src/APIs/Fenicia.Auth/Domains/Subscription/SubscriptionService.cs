@@ -1,13 +1,14 @@
 using Fenicia.Auth.Domains.Subscription.DTOs;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Subscription.Interfaces;
+using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public class SubscriptionService(SubscriptionRepository subscriptionRepository, UserService userService, UserRoleService userRoleService)
+public class SubscriptionService(ISubscriptionRepository subscriptionRepository, IUserService userService, IUserRoleService userRoleService) : ISubscriptionService
 {
     public async Task<GetUserProfileResponse?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken = default)
     {
@@ -36,14 +37,11 @@ public class SubscriptionService(SubscriptionRepository subscriptionRepository, 
         return new GetUserProfileResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
     }
 
-    public async Task<SubscriptionModel> CreateSubscriptionAsync(SubscriptionModel subscription, CancellationToken cancellationToken = default)
+    public async Task CreateSubscriptionAsync(
+        SubscriptionModel subscription,
+        CancellationToken cancellationToken = default)
     {
-        return await subscriptionRepository.InsertAsync(subscription, cancellationToken);
-    }
-
-    public async Task<List<SubscriptionModel>> GetActiveSubscriptionsForUserAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        return await subscriptionRepository.GetUserSubscriptionsAsync(userId, cancellationToken);
+        await subscriptionRepository.InsertAsync(subscription, cancellationToken);
     }
 
     public async Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default)

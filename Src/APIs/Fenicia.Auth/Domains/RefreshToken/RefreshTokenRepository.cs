@@ -15,7 +15,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         var key = _redisPrefix + token.Token;
         var value = JsonSerializer.Serialize(token);
 
-        await _redisDb.StringSetAsync(key, value, token.ExpirationDate, When.Always, CommandFlags.None);
+        await _redisDb.StringSetAsync(key, value, token.ExpirationDate, When.Always);
     }
 
     public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
@@ -28,14 +28,9 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         try
         {
             var key = _redisPrefix + token;
-            var value = await _redisDb.StringGetAsync(key, CommandFlags.None);
+            var value = await _redisDb.StringGetAsync(key);
 
-            if (value.IsNullOrEmpty)
-            {
-                return null;
-            }
-
-            return JsonSerializer.Deserialize<RefreshTokenModel>(value.ToString());
+            return value.IsNullOrEmpty ? null : JsonSerializer.Deserialize<RefreshTokenModel>(value.ToString());
         }
         catch (RedisException)
         {
@@ -54,6 +49,6 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         var key = _redisPrefix + token.Token;
         var value = JsonSerializer.Serialize(token);
 
-        await _redisDb.StringSetAsync(key, value, token.ExpirationDate, When.Always, CommandFlags.None);
+        await _redisDb.StringSetAsync(key, value, token.ExpirationDate, When.Always);
     }
 }

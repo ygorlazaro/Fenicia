@@ -1,5 +1,4 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
@@ -13,36 +12,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
-public class SupplierService
+public class SupplierService(
+    ISupplierRepository supplierRepository,
+    ProductService productService,
+    StockMovementService stockMovementService,
+    AddressService addressService,
+    PersonAddressService personAddressService)
 {
-    private readonly ISupplierRepository _supplierRepository;
-    private readonly ProductService _productService;
-    private readonly StockMovementService _stockMovementService;
-    private readonly AddressService _addressService;
-    private readonly PersonAddressService _personAddressService;
-
     public SupplierService()
         : this(null!, null!, null!, null!, null!)
     {
     }
 
-    public SupplierService(
-        ISupplierRepository supplierRepository,
-        ProductService productService,
-        StockMovementService stockMovementService,
-        AddressService addressService,
-        PersonAddressService personAddressService)
-    {
-        _supplierRepository = supplierRepository;
-        _productService = productService;
-        _stockMovementService = stockMovementService;
-        _addressService = addressService;
-        _personAddressService = personAddressService;
-    }
-
     public virtual async Task<Pagination<List<GetAllSupplierResponse>>> GetAllAsync(GetAllSupplierQuery query, CancellationToken cancellationToken = default)
     {
-        var baseQuery = _supplierRepository.Query()
+        var baseQuery = supplierRepository.Query()
             .Include(s => s.Person)
             .Include(s => s.Person.PersonAddresses)
                 .ThenInclude(pa => pa.Address)
@@ -65,21 +49,16 @@ public class SupplierService
 
     public virtual async Task<List<GetAllSupplierForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken cancellationToken = default)
     {
-        var suppliers = await _supplierRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var suppliers = await supplierRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
         return [.. suppliers.Select(s => new GetAllSupplierForDataSourceResponse(s.Id, s.Person.Name))];
     }
 
     public virtual async Task<GetSupplierByIdResponse?> GetByIdAsync(GetSupplierByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var supplier = await _supplierRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var supplier = await supplierRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        if (supplier is null)
-        {
-            return null;
-        }
-
-        return supplier.MapToGetSupplierByIdResponse();
+        return supplier?.MapToGetSupplierByIdResponse();
     }
 
     public virtual async Task<AddSupplierResponse> AddAsync(AddSupplierCommand command, Guid companyId, CancellationToken cancellationToken = default)
@@ -108,7 +87,7 @@ public class SupplierService
                 command.Address.City,
                 command.Address.Country);
 
-            var addressResponse = await _addressService.AddAsync(addressCommand, cancellationToken);
+            var addressResponse = await addressService.AddAsync(addressCommand, cancellationToken);
             addressId = addressResponse.Id;
         }
 
@@ -130,17 +109,17 @@ public class SupplierService
                 AddressId = addressId.Value,
                 CompanyId = companyId
             };
-            await _personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
         }
 
-        await _supplierRepository.InsertAsync(supplier, cancellationToken);
+        await supplierRepository.InsertAsync(supplier, cancellationToken);
 
         return supplier.MapToAddSupplierResponse();
     }
 
     public virtual async Task<UpdateSupplierResponse?> UpdateAsync(UpdateSupplierCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var supplier = await _supplierRepository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
+        var supplier = await supplierRepository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
 
         if (supplier is null)
         {
@@ -181,7 +160,7 @@ public class SupplierService
                     command.Address.City,
                     command.Address.Country);
 
-                var addressResponse = await _addressService.AddAsync(addressCommand, cancellationToken);
+                var addressResponse = await addressService.AddAsync(addressCommand, cancellationToken);
 
                 var newPersonAddress = new PersonAddressModel
                 {
@@ -190,18 +169,18 @@ public class SupplierService
                     AddressId = addressResponse.Id,
                     CompanyId = companyId
                 };
-                await _personAddressService.InsertAsync(newPersonAddress, companyId, cancellationToken);
+                await personAddressService.InsertAsync(newPersonAddress, companyId, cancellationToken);
             }
         }
 
-        await _supplierRepository.UpdateAsync(supplier.Id, supplier, cancellationToken);
+        await supplierRepository.UpdateAsync(supplier.Id, supplier, cancellationToken);
 
         return supplier.MapToUpdateSupplierResponse();
     }
 
     public virtual async Task DeleteAsync(DeleteSupplierCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _supplierRepository.DeleteAsync(command.Id, cancellationToken);
+        await supplierRepository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public virtual async Task<SupplierPerformanceResponse> GetPerformanceAsync(GetSupplierPerformanceQuery query, CancellationToken cancellationToken = default)
@@ -209,7 +188,7 @@ public class SupplierService
         var productStats = await GetProductStatsAsync(cancellationToken);
 
         var supplierIds = productStats.Select(ps => ps.SupplierId).ToList();
-        var supplierNames = await _supplierRepository.GetSupplierNamesAsync(supplierIds, cancellationToken);
+        var supplierNames = await supplierRepository.GetSupplierNamesAsync(supplierIds, cancellationToken);
 
         var productsPerSupplier = productStats.Where(ps => supplierNames.ContainsKey(ps.SupplierId)).Select(ps => new SupplierProductCountResponse(ps.SupplierId, supplierNames[ps.SupplierId], ps.ProductCount, ps.TotalStockValue, ps.TotalRevenue)).OrderByDescending(x => x.TotalStockValue).Take(query.TopLimit).ToList();
 
@@ -238,12 +217,12 @@ public class SupplierService
 
     public virtual async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _supplierRepository.CountAsync(cancellationToken);
+        return await supplierRepository.CountAsync(cancellationToken);
     }
 
     public virtual async Task<List<SupplierProductCountResponse>> GetProductStatsAsync(CancellationToken cancellationToken = default)
     {
-        var products = await _productService.GetAllForStatsAsync(cancellationToken);
+        var products = await productService.GetAllForStatsAsync(cancellationToken);
         var productList = products.ToList();
 
         return [.. productList
@@ -258,7 +237,7 @@ public class SupplierService
 
     public virtual async Task<List<SupplierStockMovementResponse>> GetRecentStockMovementsAsync(int days, int topLimit, CancellationToken cancellationToken = default)
     {
-        var movements = await _stockMovementService.GetRecentWithProductAsync(days, topLimit, cancellationToken);
+        var movements = await stockMovementService.GetRecentWithProductAsync(days, topLimit, cancellationToken);
         var movementList = movements.ToList();
 
         return [.. movementList.Select(m => new SupplierStockMovementResponse(
@@ -273,7 +252,7 @@ public class SupplierService
 
     public virtual async Task<List<SupplierCostComparisonResponse>> GetCostComparisonAsync(int topLimit, CancellationToken cancellationToken = default)
     {
-        var products = await _productService.GetAllWithSupplierAsync(cancellationToken);
+        var products = await productService.GetAllWithSupplierAsync(cancellationToken);
         var productList = products.Where(p => p.SupplierId.HasValue).ToList();
 
         return [.. productList
@@ -292,7 +271,7 @@ public class SupplierService
 
     public virtual async Task<List<SupplierBreakdownResponse>> GetSupplierBreakdownAsync(CancellationToken cancellationToken = default)
     {
-        var products = await _productService.GetAllWithSupplierAsync(cancellationToken);
+        var products = await productService.GetAllWithSupplierAsync(cancellationToken);
         var productList = products.Where(p => p.SupplierId.HasValue).ToList();
 
         return [.. productList
@@ -309,7 +288,7 @@ public class SupplierService
     public virtual async Task<List<GetSupplierByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
         var idList = ids.ToList();
-        var suppliers = await _supplierRepository.Query()
+        var suppliers = await supplierRepository.Query()
             .Where(s => idList.Contains(s.Id))
             .Include(s => s.Person)
                 .ThenInclude(p => p.PersonAddresses)
@@ -332,7 +311,7 @@ public class SupplierService
                     address.Neighborhood,
                     address.ZipCode!,
                     address.StateId,
-                    address.State?.Name,
+                    address.State.Name,
                     address.City,
                     address.Country);
             }

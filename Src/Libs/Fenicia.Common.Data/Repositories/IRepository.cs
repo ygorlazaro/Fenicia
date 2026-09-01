@@ -27,5 +27,7 @@ public interface IRepository<T>
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
+    Task InsertRangeAsync(IEnumerable<T> models, CancellationToken cancellationToken = default);
+
     IQueryable<T> Query();
 }

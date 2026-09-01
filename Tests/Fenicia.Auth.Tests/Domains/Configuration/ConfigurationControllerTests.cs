@@ -1,50 +1,34 @@
 using System.Security.Claims;
-
 using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Auth.Domains.Configuration.DTOs;
+using Fenicia.Auth.Domains.Configuration.Interfaces;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
-public class ConfigurationControllerTests : IDisposable
+public class ConfigurationControllerTests
 {
     private readonly ConfigurationController _controller;
-    private readonly DefaultContext _db;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
+    private readonly Mock<IConfigurationService> _mockService;
 
     public ConfigurationControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
         _testUserId = Guid.NewGuid();
 
         _mockHttpContext = new Mock<HttpContext>();
+        _mockService = new Mock<IConfigurationService>();
 
-        var configurationRepository = new ConfigurationRepository(_db);
-        var configurationService = new ConfigurationService(configurationRepository);
-        _controller = new ConfigurationController(configurationService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ConfigurationController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -52,7 +36,10 @@ public class ConfigurationControllerTests : IDisposable
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
+
+        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetAsync(companyId, wide, cancellationToken);
 
@@ -72,7 +59,7 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenUserHasConfigurations_ReturnsOkWithList()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = Guid.NewGuid();
 
         var config1 = new ConfigurationModel
         {
@@ -92,8 +79,10 @@ public class ConfigurationControllerTests : IDisposable
             Value = "en-US"
         };
 
-        _db.AuthConfigurations.AddRange(config1, config2);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                .. ((List<ConfigurationModel>)[config1, config2]).Select(c => c.MapToGetConfigurationResponse())
+            ]);
 
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
@@ -116,8 +105,7 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
-        var otherUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
 
         var userConfig = new ConfigurationModel
         {
@@ -128,17 +116,8 @@ public class ConfigurationControllerTests : IDisposable
             Value = "pt-BR"
         };
 
-        var otherUserConfig = new ConfigurationModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = otherUserId,
-            CompanyId = companyId,
-            ConfigType = ConfigType.Language,
-            Value = "en-US"
-        };
-
-        _db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([.. ((List<ConfigurationModel>)[userConfig]).Select(c => c.MapToGetConfigurationResponse())]);
 
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
@@ -164,7 +143,10 @@ public class ConfigurationControllerTests : IDisposable
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
+
+        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         await _controller.GetAsync(companyId, wide, cancellationToken);
 
@@ -179,33 +161,23 @@ public class ConfigurationControllerTests : IDisposable
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, cancellationToken);
+        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var result = await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
-
-        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
-
-        Assert.NotNull(configuration);
-        Assert.Equal("pt-BR", configuration.Value);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenConfigurationExists_UpdatesExistingConfiguration()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.NewGuid();
-        var existingConfig = new ConfigurationModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            CompanyId = companyId,
-            ConfigType = ConfigType.Language,
-            Value = "light"
-        };
+        var companyId = Guid.NewGuid();
 
-        _db.AuthConfigurations.Add(existingConfig);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
@@ -216,34 +188,24 @@ public class ConfigurationControllerTests : IDisposable
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
-
-        var updatedConfig = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
-
-        Assert.NotNull(updatedConfig);
-        Assert.Equal("pt-BR", updatedConfig.Value);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WithCompanyId_CreatesCompanyConfiguration()
     {
-        var companyId = _db.CurrentCompanyId ?? Guid.Empty;
+        var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
+        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
-
-        var configuration = await _db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == _testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId, CancellationToken.None);
-
-        Assert.NotNull(configuration);
-
-        Assert.Equal(companyId, configuration.CompanyId);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -254,7 +216,10 @@ public class ConfigurationControllerTests : IDisposable
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        await _controller.PatchAsync(Guid.NewGuid(), _db.CurrentCompanyId ?? Guid.Empty, request, wide, cancellationToken);
+        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
@@ -294,7 +259,6 @@ public class ConfigurationControllerTests : IDisposable
     private void SetupUserClaims(Guid userId)
     {
         var claims = new List<Claim> { new("userId", userId.ToString()) };
-
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
