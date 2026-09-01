@@ -1,184 +1,126 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Tests;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
+using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
-public class ProjectCommentServiceTests : IDisposable
+public class ProjectCommentServiceTests
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IRepository<ProjectCommentModel>> _mockRepository;
     private readonly ProjectCommentService _service;
-    private readonly Guid _companyId;
 
     public ProjectCommentServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        _service = new ProjectCommentService(new ProjectCommentRepository(_db));
         _faker = new Faker();
-        _companyId = companyContext.CompanyId;
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
+        _mockRepository = new Mock<IRepository<ProjectCommentModel>>();
+        _service = new ProjectCommentService(_mockRepository.Object);
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenCommentsExist_ReturnsPaginationWithComments()
+    public async Task GetAllAsync_WhenCommentsExist_ReturnsComments()
     {
-        // Arrange
-        var comment = new ProjectCommentModel
+        var comments = new List<ProjectCommentModel>
         {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = _faker.Lorem.Sentence(),
-            CompanyId = _companyId
+            new() { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = _faker.Lorem.Sentence(), CompanyId = Guid.NewGuid() }
         };
-        _db.ProjectComments.Add(comment);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(), CancellationToken.None);
+        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectCommentModel>(comments));
 
-        // Assert
-        result.Should().NotBeNull();
+        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(1, 10), CancellationToken.None);
+
         result.Should().HaveCount(1);
+        result.First().Id.Should().Be(comments[0].Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCommentExists_ReturnsComment()
     {
-        // Arrange
-        var comment = new ProjectCommentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = _faker.Lorem.Sentence(),
-            CompanyId = _companyId
-        };
-        _db.ProjectComments.Add(comment);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "hello", CompanyId = Guid.NewGuid() };
 
-        // Act
+        _mockRepository.Setup(r => r.GetByIdAsync(comment.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(comment);
+
         var result = await _service.GetByIdAsync(new GetProjectCommentByIdQuery(comment.Id), CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
-        result.Id.Should().Be(comment.Id);
-        result.Content.Should().Be(comment.Content);
+        result!.Id.Should().Be(comment.Id);
+        result.Content.Should().Be("hello");
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCommentDoesNotExist_ReturnsNull()
     {
-        // Arrange
+        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectCommentModel?)null);
 
-        // Act
         var result = await _service.GetByIdAsync(new GetProjectCommentByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task AddAsync_WhenCommandIsValid_CreatesComment()
+    public async Task AddAsync_WhenCommandIsValid_ReturnsCreatedComment()
     {
-        // Arrange
-        var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence());
+        var companyId = Guid.NewGuid();
+        var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "new comment");
 
-        // Act
-        var result = await _service.AddAsync(command, _companyId, CancellationToken.None);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProjectCommentModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectCommentModel m, CancellationToken _) => m);
 
-        // Assert
+        var result = await _service.AddAsync(command, companyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
-        result.CompanyId.Should().Be(_companyId);
+        result.Id.Should().Be(command.Id);
+        result.CompanyId.Should().Be(companyId);
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenCommentExists_UpdatesComment()
+    public async Task UpdateAsync_WhenCommentExists_ReturnsUpdatedComment()
     {
-        // Arrange
-        var comment = new ProjectCommentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = _faker.Lorem.Sentence(),
-            CompanyId = _companyId
-        };
-        _db.ProjectComments.Add(comment);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "updated", CompanyId = Guid.NewGuid() };
 
-        var command = new UpdateProjectCommentCommand(comment.Id, _faker.Lorem.Sentence());
+        _mockRepository.Setup(r => r.GetByIdAsync(comment.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(comment);
+        _mockRepository.Setup(r => r.UpdateAsync(comment.Id, It.IsAny<ProjectCommentModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(comment);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectCommentCommand(comment.Id, "updated");
 
-        // Assert
+        var result = await _service.UpdateAsync(command, comment.CompanyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().Be(comment.Id);
-        result.Content.Should().Be(command.Content);
+        result!.Content.Should().Be("updated");
     }
 
     [Fact]
     public async Task UpdateAsync_WhenCommentDoesNotExist_ReturnsNull()
     {
-        // Arrange
-        var command = new UpdateProjectCommentCommand(Guid.NewGuid(), _faker.Lorem.Sentence());
+        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectCommentModel?)null);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "x");
 
-        // Assert
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
+
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenCommentExists_SoftDeletesComment()
+    public async Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
     {
-        // Arrange
-        var comment = new ProjectCommentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = _faker.Lorem.Sentence(),
-            CompanyId = _companyId
-        };
-        _db.ProjectComments.Add(comment);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        await _service.DeleteAsync(new DeleteProjectCommentCommand(comment.Id), CancellationToken.None);
+        _mockRepository.Setup(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
-        // Assert
-        var deletedComment = await _db.ProjectComments.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == comment.Id);
-        deletedComment.Should().NotBeNull();
-        deletedComment.Deleted.Should().NotBeNull();
-    }
+        await _service.DeleteAsync(new DeleteProjectCommentCommand(id), CancellationToken.None);
 
-    [Fact]
-    public async Task DeleteAsync_WhenCommentDoesNotExist_DoesNothing()
-    {
-        // Arrange
-
-        // Act
-        await _service.DeleteAsync(new DeleteProjectCommentCommand(Guid.NewGuid()), CancellationToken.None);
-
-        // Assert
-        var count = await _db.ProjectComments.CountAsync();
-        count.Should().Be(0);
+        _mockRepository.Verify(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

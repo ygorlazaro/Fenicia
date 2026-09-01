@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectTask;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectTaskController(ProjectTaskService projectTaskService) : ControllerBase
+public class ProjectTaskController(IProjectTaskService projectTaskService) : ControllerBase
 {
     /// <summary>
     /// Gets a paginated list of project tasks.

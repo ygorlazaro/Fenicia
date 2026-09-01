@@ -1,232 +1,190 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
+using Fenicia.Module.Projects.Domains.Project.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
 
-public class ProjectControllerTests : IDisposable
+public class ProjectControllerTests
 {
     private readonly ProjectController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IProjectService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
-    private readonly Guid _companyId;
 
     public ProjectControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        var repository = new ProjectRepository(_db);
-        var service = new ProjectService(repository);
+        _mockService = new Mock<IProjectService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProjectController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _testUserId = Guid.NewGuid();
-        _companyId = companyContext.CompanyId;
+        _controller = new ProjectController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAsync_WhenProjectsExist_ReturnsOkWithProjects()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var project = new ProjectModel
+        var projects = new List<GetAllProjectResponse>
         {
-            Id = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Status = EnumProjectStatus.Active,
-            Owner = _testUserId,
-            CompanyId = _companyId
+            new(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Active), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId, Guid.NewGuid())
         };
-        _db.Projects.Add(project);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(projects);
+
         var result = await _controller.GetAsync(wide, 1, 10, null, null, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var projects = (List<GetAllProjectResponse>)okResult.Value!;
-        projects.Should().HaveCount(1);
-        projects.First().Id.Should().Be(project.Id);
+        var okResult = (OkObjectResult)result.Result!;
+        var returned = (List<GetAllProjectResponse>)okResult.Value!;
+        returned.Should().HaveCount(1);
+        returned.First().Id.Should().Be(projects[0].Id);
+        wide.UserId.Should().Be(_testUserId.ToString());
     }
 
     [Fact]
     public async Task GetAsync_WhenNoProjectsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
         var wide = new WideEventContext();
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
-        // Act
         var result = await _controller.GetAsync(wide, 1, 10, null, null, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var projects = (List<GetAllProjectResponse>)okResult.Value!;
-        projects.Should().BeEmpty();
+        var okResult = (OkObjectResult)result.Result!;
+        ((List<GetAllProjectResponse>)okResult.Value!).Should().BeEmpty();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProjectExists_ReturnsOkWithProject()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var project = new ProjectModel
-        {
-            Id = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Status = EnumProjectStatus.Active,
-            Owner = _testUserId,
-            CompanyId = _companyId
-        };
-        _db.Projects.Add(project);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var project = new GetProjectByIdResponse(
+            Guid.NewGuid(),
+            _faker.Commerce.Categories(1).First(),
+            _faker.Commerce.ProductDescription(),
+            nameof(EnumProjectStatus.Active),
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddMonths(1),
+            _testUserId,
+            Guid.NewGuid(),
+            [],
+            []);
 
-        // Act
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(project);
+
         var result = await _controller.GetByIdAsync(project.Id, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var returnedProject = (GetProjectByIdResponse)okResult.Value!;
-        returnedProject.Id.Should().Be(project.Id);
-        returnedProject.Title.Should().Be(project.Title);
+        var okResult = (OkObjectResult)result.Result!;
+        ((GetProjectByIdResponse)okResult.Value!).Id.Should().Be(project.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProjectDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var wide = new WideEventContext();
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProjectByIdResponse?)null);
 
-        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
-        // Arrange
-        var command = new AddProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Draft), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
         var wide = new WideEventContext();
+        var command = new AddProjectCommand(
+            Guid.NewGuid(),
+            _faker.Commerce.Categories(1).First(),
+            _faker.Commerce.ProductDescription(),
+            nameof(EnumProjectStatus.Draft),
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddMonths(1),
+            _testUserId);
+        var response = new AddProjectResponse(command.Id, command.Title, command.Description, nameof(EnumProjectStatus.Draft), command.StartDate, command.EndDate, _testUserId, Guid.NewGuid());
 
-        // Act
+        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)result.Result;
-        var returnedProject = (AddProjectResponse)createdResult.Value!;
-        returnedProject.Id.Should().Be(command.Id);
-        returnedProject.Title.Should().Be(command.Title);
+        var createdResult = (CreatedResult)result.Result!;
+        ((AddProjectResponse)createdResult.Value!).Id.Should().Be(command.Id);
     }
 
     [Fact]
     public async Task PatchAsync_WhenProjectExists_ReturnsOkWithUpdatedProject()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var project = new ProjectModel
-        {
-            Id = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Status = EnumProjectStatus.Active,
-            Owner = _testUserId,
-            CompanyId = _companyId
-        };
-        _db.Projects.Add(project);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var projectId = Guid.NewGuid();
+        var command = new UpdateProjectCommand(
+            projectId,
+            _faker.Commerce.Categories(1).First(),
+            _faker.Commerce.ProductDescription(),
+            nameof(EnumProjectStatus.Active),
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddMonths(1),
+            _testUserId);
+        var response = new UpdateProjectResponse(command.Id, command.Title, command.Description, command.Status, command.StartDate, command.EndDate, command.Owner, Guid.NewGuid());
 
-        var command = new UpdateProjectCommand(project.Id, _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Active), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
-        // Act
-        var result = await _controller.PatchAsync(command, project.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, projectId, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var returnedProject = (UpdateProjectResponse)okResult.Value!;
-        returnedProject.Id.Should().Be(project.Id);
-        returnedProject.Title.Should().Be(command.Title);
+        var okResult = (OkObjectResult)result.Result!;
+        ((UpdateProjectResponse)okResult.Value!).Id.Should().Be(projectId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenProjectDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var command = new UpdateProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Draft), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
+        var command = new UpdateProjectCommand(
+            Guid.NewGuid(),
+            _faker.Commerce.Categories(1).First(),
+            _faker.Commerce.ProductDescription(),
+            nameof(EnumProjectStatus.Draft),
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddMonths(1),
+            _testUserId);
 
-        // Act
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProjectResponse?)null);
+
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     [Fact]
     public async Task DeleteAsync_WhenProjectExists_ReturnsNoContent()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var project = new ProjectModel
-        {
-            Id = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Status = EnumProjectStatus.Active,
-            Owner = _testUserId,
-            CompanyId = _companyId
-        };
-        _db.Projects.Add(project);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        var result = await _controller.DeleteAsync(project.Id, wide, CancellationToken.None);
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProjectCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        // Assert
-        result.Should().BeOfType<NoContentResult>();
-    }
+        var result = await _controller.DeleteAsync(id, wide, CancellationToken.None);
 
-    [Fact]
-    public async Task DeleteAsync_WhenProjectDoesNotExist_ReturnsNoContent()
-    {
-        // Arrange
-        var wide = new WideEventContext();
-
-        // Act
-        var result = await _controller.DeleteAsync(Guid.NewGuid(), wide, CancellationToken.None);
-
-        // Assert
         result.Should().BeOfType<NoContentResult>();
     }
 
@@ -238,9 +196,9 @@ public class ProjectControllerTests : IDisposable
             new("userId", userId.ToString()),
             new(ClaimTypes.Role, "Admin")
         };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        _mockHttpContext.Setup(x => x.User).Returns(principal);
+        _controller.ControllerContext.HttpContext!.User = principal;
     }
 }

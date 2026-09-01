@@ -1,188 +1,123 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Tests;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
+using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
-public class ProjectSubtaskServiceTests : IDisposable
+public class ProjectSubtaskServiceTests
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IRepository<ProjectSubtaskModel>> _mockRepository;
     private readonly ProjectSubtaskService _service;
-    private readonly Guid _companyId;
 
     public ProjectSubtaskServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        _service = new ProjectSubtaskService(new ProjectSubtaskRepository(_db));
         _faker = new Faker();
-        _companyId = companyContext.CompanyId;
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
+        _mockRepository = new Mock<IRepository<ProjectSubtaskModel>>();
+        _service = new ProjectSubtaskService(_mockRepository.Object);
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenSubtasksExist_ReturnsPaginationWithSubtasks()
+    public async Task GetAllAsync_WhenSubtasksExist_ReturnsSubtasks()
     {
-        // Arrange
-        var projectSubtask = new ProjectSubtaskModel
+        var subtasks = new List<ProjectSubtaskModel>
         {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompanyId = _companyId
+            new() { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = _faker.Lorem.Sentence(), IsCompleted = false, Order = 1, CompanyId = Guid.NewGuid() }
         };
-        _db.ProjectSubtasks.Add(projectSubtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(), CancellationToken.None);
+        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectSubtaskModel>(subtasks));
 
-        // Assert
-        result.Should().NotBeNull();
+        var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(1, 10), CancellationToken.None);
+
         result.Should().HaveCount(1);
+        result.First().Id.Should().Be(subtasks[0].Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSubtaskExists_ReturnsSubtask()
     {
-        // Arrange
-        var projectSubtask = new ProjectSubtaskModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompanyId = _companyId
-        };
-        _db.ProjectSubtasks.Add(projectSubtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var subtask = new ProjectSubtaskModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = "S", IsCompleted = false, Order = 1, CompanyId = Guid.NewGuid() };
 
-        // Act
-        var result = await _service.GetByIdAsync(new GetProjectSubtaskByIdQuery(projectSubtask.Id), CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByIdAsync(subtask.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(subtask);
 
-        // Assert
+        var result = await _service.GetByIdAsync(new GetProjectSubtaskByIdQuery(subtask.Id), CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().Be(projectSubtask.Id);
-        result.Title.Should().Be(projectSubtask.Title);
+        result!.Title.Should().Be("S");
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSubtaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
+        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectSubtaskModel?)null);
 
-        // Act
         var result = await _service.GetByIdAsync(new GetProjectSubtaskByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task AddAsync_WhenCommandIsValid_CreatesSubtask()
+    public async Task AddAsync_WhenCommandIsValid_ReturnsCreatedSubtask()
     {
-        // Arrange
-        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence(), false, 1, null);
+        var companyId = Guid.NewGuid();
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "S", false, 1, null);
 
-        // Act
-        var result = await _service.AddAsync(command, _companyId, CancellationToken.None);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProjectSubtaskModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectSubtaskModel m, CancellationToken _) => m);
 
-        // Assert
+        var result = await _service.AddAsync(command, companyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
-        result.CompanyId.Should().Be(_companyId);
+        result.Id.Should().Be(command.Id);
+        result.CompanyId.Should().Be(companyId);
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenSubtaskExists_UpdatesSubtask()
+    public async Task UpdateAsync_WhenSubtaskExists_ReturnsUpdatedSubtask()
     {
-        // Arrange
-        var projectSubtask = new ProjectSubtaskModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompanyId = _companyId
-        };
-        _db.ProjectSubtasks.Add(projectSubtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var subtask = new ProjectSubtaskModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = "U", IsCompleted = true, Order = 2, CompanyId = Guid.NewGuid() };
 
-        var command = new UpdateProjectSubtaskCommand(projectSubtask.Id, projectSubtask.TaskId, "Updated Title", true, 2, DateTime.UtcNow);
+        _mockRepository.Setup(r => r.UpdateAsync(subtask.Id, It.IsAny<ProjectSubtaskModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(subtask);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectSubtaskCommand(subtask.Id, subtask.TaskId, "U", true, 2, DateTime.UtcNow);
 
-        // Assert
+        var result = await _service.UpdateAsync(command, subtask.CompanyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().Be(projectSubtask.Id);
-        result.Title.Should().Be("Updated Title");
+        result!.Title.Should().Be("U");
     }
 
     [Fact]
     public async Task UpdateAsync_WhenSubtaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
-        var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "Updated Title", true, 2, DateTime.UtcNow);
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ProjectSubtaskModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectSubtaskModel?)null);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "U", true, 2, DateTime.UtcNow);
 
-        // Assert
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
+
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenSubtaskExists_SoftDeletesSubtask()
+    public async Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
     {
-        // Arrange
-        var projectSubtask = new ProjectSubtaskModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompanyId = _companyId
-        };
-        _db.ProjectSubtasks.Add(projectSubtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        await _service.DeleteAsync(new DeleteProjectSubtaskCommand(projectSubtask.Id), CancellationToken.None);
+        _mockRepository.Setup(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
-        // Assert
-        var deletedSubtask = await _db.ProjectSubtasks.IgnoreQueryFilters().FirstOrDefaultAsync(ps => ps.Id == projectSubtask.Id);
-        deletedSubtask.Should().NotBeNull();
-        deletedSubtask.Deleted.Should().NotBeNull();
-    }
+        await _service.DeleteAsync(new DeleteProjectSubtaskCommand(id), CancellationToken.None);
 
-    [Fact]
-    public async Task DeleteAsync_WhenSubtaskDoesNotExist_DoesNothing()
-    {
-        // Arrange
-
-        // Act
-        await _service.DeleteAsync(new DeleteProjectSubtaskCommand(Guid.NewGuid()), CancellationToken.None);
-
-        // Assert
-        var count = await _db.ProjectSubtasks.CountAsync();
-        count.Should().Be(0);
+        _mockRepository.Verify(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

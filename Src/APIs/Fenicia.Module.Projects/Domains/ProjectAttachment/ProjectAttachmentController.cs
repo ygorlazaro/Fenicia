@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectAttachmentController(ProjectAttachmentService projectAttachmentService) : ControllerBase
+public class ProjectAttachmentController(IProjectAttachmentService projectAttachmentService) : ControllerBase
 {
     /// <summary>
     /// Gets a paginated list of project attachments.

@@ -1,11 +1,13 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 
-public class ProjectSubtaskService(ProjectSubtaskRepository repository)
+public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository) : IProjectSubtaskService
 {
     public async Task<List<GetAllProjectSubtaskResponse>> GetAllAsync(GetAllProjectSubtaskQuery query, CancellationToken cancellationToken = default)
     {

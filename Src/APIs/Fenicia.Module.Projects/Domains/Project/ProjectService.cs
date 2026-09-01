@@ -2,11 +2,12 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
+using Fenicia.Module.Projects.Domains.Project.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Project;
 
-public class ProjectService(ProjectRepository repository)
+public class ProjectService(IProjectRepository repository) : IProjectService
 {
     public async Task<List<GetAllProjectResponse>> GetAllAsync(GetAllProjectQuery query, CancellationToken cancellationToken = default)
     {

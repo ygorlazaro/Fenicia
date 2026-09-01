@@ -1,11 +1,13 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment;
 
-public class ProjectCommentService(ProjectCommentRepository repository)
+public class ProjectCommentService(IRepository<ProjectCommentModel> repository) : IProjectCommentService
 {
     public async Task<List<GetAllProjectCommentResponse>> GetAllAsync(GetAllProjectCommentQuery query, CancellationToken cancellationToken = default)
     {

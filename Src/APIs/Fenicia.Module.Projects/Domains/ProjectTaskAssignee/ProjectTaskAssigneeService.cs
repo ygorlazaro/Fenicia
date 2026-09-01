@@ -1,12 +1,14 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
-public class ProjectTaskAssigneeService(ProjectTaskAssigneeRepository repository)
+public class ProjectTaskAssigneeService(IRepository<TaskAssigneeModel> repository) : IProjectTaskAssigneeService
 {
     public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken cancellationToken = default)
     {

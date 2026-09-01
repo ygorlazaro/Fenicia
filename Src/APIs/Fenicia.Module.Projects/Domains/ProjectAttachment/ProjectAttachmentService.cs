@@ -1,11 +1,13 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 
-public class ProjectAttachmentService(ProjectAttachmentRepository repository)
+public class ProjectAttachmentService(IRepository<AttachmentModel> repository) : IProjectAttachmentService
 {
     public async Task<List<GetAllProjectAttachmentResponse>> GetAllAsync(GetAllProjectAttachmentQuery query, CancellationToken cancellationToken = default)
     {
