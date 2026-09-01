@@ -159,6 +159,6 @@ public class ProjectTaskControllerTests
         var identity = new ClaimsIdentity(claims, "Test");
         var principal = new ClaimsPrincipal(identity);
         _mockHttpContext.Setup(x => x.User).Returns(principal);
-        _controller.ControllerContext.HttpContext!.User = principal;
+        _controller.ControllerContext.HttpContext.User = principal;
     }
 }

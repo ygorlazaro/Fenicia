@@ -1,24 +1,20 @@
 using AwesomeAssertions;
-using Bogus;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
 public class ProjectTaskAssigneeServiceTests
 {
-    private readonly Faker _faker;
     private readonly Mock<IRepository<TaskAssigneeModel>> _mockRepository;
     private readonly ProjectTaskAssigneeService _service;
 
     public ProjectTaskAssigneeServiceTests()
     {
-        _faker = new Faker();
         _mockRepository = new Mock<IRepository<TaskAssigneeModel>>();
         _service = new ProjectTaskAssigneeService(_mockRepository.Object);
     }
@@ -33,7 +29,7 @@ public class ProjectTaskAssigneeServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<TaskAssigneeModel>(assignees));
 
-        var result = await _service.GetAllAsync(new GetAllProjectTaskAssigneeQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectTaskAssigneeQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(assignees[0].Id);
@@ -50,7 +46,7 @@ public class ProjectTaskAssigneeServiceTests
         var result = await _service.GetByIdAsync(new GetProjectTaskAssigneeByIdQuery(assignee.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(assignee.Id);
+        result.Id.Should().Be(assignee.Id);
     }
 
     [Fact]
@@ -93,7 +89,7 @@ public class ProjectTaskAssigneeServiceTests
         var result = await _service.UpdateAsync(command, assignee.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Role.Should().Be("Contributor");
+        result.Role.Should().Be("Contributor");
     }
 
     [Fact]

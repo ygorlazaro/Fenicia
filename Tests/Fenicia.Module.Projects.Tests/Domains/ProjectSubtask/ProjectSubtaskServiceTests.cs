@@ -4,7 +4,6 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
@@ -32,7 +31,7 @@ public class ProjectSubtaskServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectSubtaskModel>(subtasks));
 
-        var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(subtasks[0].Id);
@@ -49,7 +48,7 @@ public class ProjectSubtaskServiceTests
         var result = await _service.GetByIdAsync(new GetProjectSubtaskByIdQuery(subtask.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Title.Should().Be("S");
+        result.Title.Should().Be("S");
     }
 
     [Fact]
@@ -92,7 +91,7 @@ public class ProjectSubtaskServiceTests
         var result = await _service.UpdateAsync(command, subtask.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Title.Should().Be("U");
+        result.Title.Should().Be("U");
     }
 
     [Fact]
