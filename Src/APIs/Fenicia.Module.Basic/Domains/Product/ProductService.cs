@@ -4,20 +4,21 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
-using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
-using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
 public class ProductService(
     IProductRepository productRepository,
-    ProductCategoryService productCategoryService,
-    OrderDetailService orderDetailService,
-    StockMovementService stockMovementService)
+    IProductCategoryService productCategoryService,
+    IOrderDetailService orderDetailService,
+    IStockMovementService stockMovementService) : IProductService
 {
     public ProductService()
         : this(null!, null!, null!, null!)

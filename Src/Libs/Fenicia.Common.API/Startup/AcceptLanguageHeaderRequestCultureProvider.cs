@@ -27,24 +27,26 @@ public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
         foreach (var language in languages)
         {
             var cultureName = language.Split(';').FirstOrDefault()?.Trim();
-            if (!string.IsNullOrEmpty(cultureName))
+            if (string.IsNullOrEmpty(cultureName))
             {
-                try
-                {
-                    requestedCultures.Add(new CultureInfo(cultureName));
-                }
-                catch (CultureNotFoundException)
-                {
-                }
+                continue;
+            }
+
+            try
+            {
+                requestedCultures.Add(new CultureInfo(cultureName));
+            }
+            catch (CultureNotFoundException)
+            {
             }
         }
 
-        if (requestedCultures.Count > 0)
+        if (requestedCultures.Count <= 0)
         {
-            var result = new ProviderCultureResult(requestedCultures[0].Name);
-            return Task.FromResult<ProviderCultureResult?>(result);
+            return Task.FromResult<ProviderCultureResult?>(null);
         }
 
-        return Task.FromResult<ProviderCultureResult?>(null);
+        var result = new ProviderCultureResult(requestedCultures[0].Name);
+        return Task.FromResult<ProviderCultureResult?>(result);
     }
 }

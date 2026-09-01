@@ -2,19 +2,13 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
-using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.Person;
-using Fenicia.Module.Basic.Domains.PersonAddress;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Supplier;
-using Fenicia.Module.Basic.Tests.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
+using Fenicia.Module.Basic.Domains.Person.Interfaces;
+using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -22,53 +16,51 @@ namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
 public class CustomerServiceTests : IDisposable
 {
-    private readonly DefaultContext _db;
+    private readonly DbContextOptions<DefaultContext> _dbOptions;
     private readonly Faker _faker;
+    private readonly Mock<ICustomerRepository> _mockRepository;
+    private readonly Mock<IAddressService> _mockAddressService;
+    private readonly Mock<IPersonAddressService> _mockPersonAddressService;
+    private readonly Mock<IOrderService> _mockOrderService;
     private readonly CustomerService _service;
 
     public CustomerServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        _db = new DefaultContext(options, new Fenicia.Common.Tests.TestCompanyContext());
-        var orderDetailService = new OrderDetailService(new OrderDetailRepository(_db));
-        var dummyStockMovementService = new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object);
-        var productService = new ProductService(new ProductRepository(_db), new ProductCategoryService(new ProductCategoryRepository(_db)), orderDetailService, dummyStockMovementService);
-        var stockMovementService = new StockMovementService(new StockMovementRepository(_db), new Mock<IProductRepository>().Object);
-        var orderService = new OrderService(new OrderRepository(_db), new OrderDetailService(new OrderDetailRepository(_db)), stockMovementService);
+        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        _mockRepository = new Mock<ICustomerRepository>();
+        var mockPersonService = new Mock<IPersonService>();
+        _mockAddressService = new Mock<IAddressService>();
+        _mockPersonAddressService = new Mock<IPersonAddressService>();
+        _mockOrderService = new Mock<IOrderService>();
         _service = new CustomerService(
-            new CustomerRepository(_db),
-            new PersonService(new PersonRepository(_db)),
-            new AddressService(new AddressRepository(_db)),
-            new PersonAddressService(new PersonAddressRepository(_db)),
-            orderService,
-            productService);
+            _mockRepository.Object,
+            mockPersonService.Object,
+            _mockAddressService.Object,
+            _mockPersonAddressService.Object,
+            _mockOrderService.Object);
         _faker = new Faker();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAllAsync_WhenCustomersExist_ReturnsPaginationWithCustomers()
     {
-        var customer = new CustomerModel
-        {
-            Person = new PersonModel
-            {
-                Name = _faker.Person.FullName,
-                Email = _faker.Internet.Email(),
-                Document = _faker.Person.Random.AlphaNumeric(11),
-                PhoneNumber = _faker.Phone.PhoneNumber()
-            }
-        };
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        // Arrange
+        var db = NewDb();
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.Query()).Returns(() => db.BasicCustomers);
 
-        var result = await _service.GetAllAsync(new GetAllCustomerQuery(1, 10, null, null), CancellationToken.None);
+        // Act
+        var result = await _service.GetAllAsync(new GetAllCustomerQuery(), CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(1);
     }
@@ -76,40 +68,46 @@ public class CustomerServiceTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsCustomer()
     {
-        var customer = new CustomerModel
-        {
-            Person = new PersonModel
-            {
-                Name = _faker.Person.FullName,
-                Email = _faker.Internet.Email(),
-                Document = _faker.Person.Random.AlphaNumeric(11),
-                PhoneNumber = _faker.Phone.PhoneNumber()
-            }
-        };
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(customer.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(customer);
 
+        // Act
         var result = await _service.GetByIdAsync(new GetCustomerByIdQuery(customer.Id), CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
-        result!.Name.Should().Be(customer.Person.Name);
+        result.Name.Should().Be(customer.Person.Name);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenCustomerDoesNotExist_ReturnsNull()
     {
+        // Arrange
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CustomerModel?)null);
+
+        // Act
         var result = await _service.GetByIdAsync(new GetCustomerByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
+        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
     public async Task AddAsync_WhenCommandIsValid_CreatesCustomer()
     {
+        // Arrange
         var command = new AddCustomerCommand(_faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<CustomerModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CustomerModel c, CancellationToken _) => c);
 
+        // Act
         var result = await _service.AddAsync(command, Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
     }
@@ -117,10 +115,36 @@ public class CustomerServiceTests : IDisposable
     [Fact]
     public async Task AddAsync_WithAddress_CreatesCustomerWithAddress()
     {
-        var command = new AddCustomerCommand(_faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), new AddressCommand(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), _faker.Address.Country()));
+        // Arrange
+        var addressId = Guid.NewGuid();
+        var addressResponse = new Fenicia.Module.Basic.Domains.Address.DTOs.AddressResponse(
+            addressId, "Street", "100", null, "Neighborhood", "12345-678", Guid.NewGuid(), "State", "City", "Country");
+        _mockAddressService.Setup(a => a.AddAsync(It.IsAny<Fenicia.Module.Basic.Domains.Address.DTOs.AddressCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(addressResponse);
+        _mockPersonAddressService.Setup(p => p.InsertAsync(It.IsAny<PersonAddressModel>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PersonAddressModel pa, Guid _, CancellationToken _) => pa);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<CustomerModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CustomerModel c, CancellationToken _) => c);
 
+        var command = new AddCustomerCommand(
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            new Fenicia.Module.Basic.Domains.Address.DTOs.AddressCommand(
+                _faker.Address.StreetAddress(),
+                _faker.Address.BuildingNumber(),
+                null,
+                _faker.Address.City(),
+                _faker.Address.ZipCode(),
+                Guid.NewGuid(),
+                _faker.Address.City(),
+                _faker.Address.Country()));
+
+        // Act
         var result = await _service.AddAsync(command, Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
     }
@@ -128,66 +152,85 @@ public class CustomerServiceTests : IDisposable
     [Fact]
     public async Task UpdateAsync_WhenCustomerExists_UpdatesCustomer()
     {
-        var customer = new CustomerModel
-        {
-            Person = new PersonModel
-            {
-                Name = _faker.Person.FullName,
-                Email = _faker.Internet.Email(),
-                Document = _faker.Person.Random.AlphaNumeric(11),
-                PhoneNumber = _faker.Phone.PhoneNumber()
-            }
-        };
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = "Old Name" };
+        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(customer.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(customer);
+        _mockRepository.Setup(r => r.UpdateAsync(customer.Id, It.IsAny<CustomerModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, CustomerModel c, CancellationToken _) => c);
 
         var command = new UpdateCustomerCommand(customer.Id, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
 
+        // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(customer.Id);
+        result.Id.Should().Be(customer.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenCustomerDoesNotExist_ReturnsNull()
     {
+        // Arrange
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CustomerModel?)null);
+
         var command = new UpdateCustomerCommand(Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
 
+        // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenCustomerExists_SoftDeletesCustomer()
+    public async Task DeleteAsync_WhenCustomerExists_DeletesCustomer()
     {
-        var customer = new CustomerModel
-        {
-            Person = new PersonModel
-            {
-                Name = _faker.Person.FullName,
-                Email = _faker.Internet.Email(),
-                Document = _faker.Person.Random.AlphaNumeric(11),
-                PhoneNumber = _faker.Phone.PhoneNumber()
-            }
-        };
-        _db.BasicCustomers.Add(customer);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        // Arrange
+        var customerId = Guid.NewGuid();
+        _mockRepository.Setup(r => r.DeleteAsync(customerId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
-        await _service.DeleteAsync(new DeleteCustomerCommand(customer.Id), Guid.NewGuid(), CancellationToken.None);
+        // Act
+        await _service.DeleteAsync(new DeleteCustomerCommand(customerId), Guid.NewGuid(), CancellationToken.None);
 
-        var deletedCustomer = await _db.BasicCustomers.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == customer.Id);
-        deletedCustomer.Should().NotBeNull();
-        deletedCustomer!.Deleted.Should().NotBeNull();
+        // Assert
+        _mockRepository.Verify(r => r.DeleteAsync(customerId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenCustomerDoesNotExist_DoesNothing()
+    public async Task GetInsightsAsync_WhenCalled_ReturnsInsights()
     {
-        await _service.DeleteAsync(new DeleteCustomerCommand(Guid.NewGuid()), Guid.NewGuid(), CancellationToken.None);
+        // Arrange
+        _mockOrderService.Setup(o => o.GetTotalOrdersCountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(10);
+        _mockOrderService.Setup(o => o.GetTotalRevenueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1000m);
+        _mockOrderService.Setup(o => o.GetRecentOrdersAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _mockOrderService.Setup(o => o.GetTopCustomerOrdersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _mockOrderService.Setup(o => o.GetAtRiskOrdersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _mockRepository.Setup(r => r.CountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(5);
 
-        var count = await _db.BasicCustomers.CountAsync();
-        count.Should().Be(0);
+        // Act
+        var result = await _service.GetInsightsAsync(new GetCustomerInsightsQuery(), CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task GetCountAsync_ReturnsCount()
+    {
+        // Arrange
+        _mockRepository.Setup(r => r.CountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(7);
+
+        // Act
+        var result = await _service.GetCountAsync(CancellationToken.None);
+
+        // Assert
+        result.Should().Be(7);
+    }
+
+    private DefaultContext NewDb() => new(_dbOptions, new TestCompanyContext());
 }

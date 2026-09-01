@@ -1,9 +1,10 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
+using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public class OrderDetailService(IOrderDetailRepository orderDetailRepository)
+public class OrderDetailService(IOrderDetailRepository orderDetailRepository) : IOrderDetailService
 {
     public OrderDetailService()
         : this(null!)

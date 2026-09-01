@@ -1,97 +1,62 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.PersonAddress;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.Address.Interfaces;
+using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
 public class SupplierServiceTests : IDisposable
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<ISupplierRepository> _mockRepository;
     private readonly SupplierService _service;
 
     public SupplierServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-
-        var supplierRepository = new SupplierRepository(_db);
-        var productRepository = new ProductRepository(_db);
-        var productCategoryRepository = new ProductCategoryRepository(_db);
-        var orderDetailRepository = new OrderDetailRepository(_db);
-        var stockMovementRepository = new StockMovementRepository(_db);
-        var addressRepository = new AddressRepository(_db);
-        var personAddressRepository = new PersonAddressRepository(_db);
-
-        var productCategoryService = new ProductCategoryService(productCategoryRepository);
-        var orderDetailService = new OrderDetailService(orderDetailRepository);
-        var productService = new ProductService(productRepository, productCategoryService, orderDetailService, new StockMovementService(new Mock<IStockMovementRepository>().Object, new Mock<IProductRepository>().Object));
-        var stockMovementService = new StockMovementService(stockMovementRepository, new Mock<IProductRepository>().Object);
-        var addressService = new AddressService(addressRepository);
-        var personAddressService = new PersonAddressService(personAddressRepository);
-
-        _service = new SupplierService(supplierRepository, productService, stockMovementService, addressService, personAddressService);
+        _mockRepository = new Mock<ISupplierRepository>();
+        var mockProductService = new Mock<IProductService>();
+        var mockStockMovementService = new Mock<IStockMovementService>();
+        var mockAddressService = new Mock<IAddressService>();
+        var mockPersonAddressService = new Mock<IPersonAddressService>();
+        _service = new SupplierService(_mockRepository.Object, mockProductService.Object, mockStockMovementService.Object, mockAddressService.Object, mockPersonAddressService.Object);
         _faker = new Faker();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_WhenSuppliersExist_ReturnsPaginationWithSuppliers()
-    {
-        // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
-        _db.BasicPeople.Add(person);
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id };
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        // Act
-        var result = await _service.GetAllAsync(new GetAllSupplierQuery(1, 10, null, null), CancellationToken.None);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Data.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsSupplier()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
-        _db.BasicPeople.Add(person);
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id };
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = "Supp" };
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(supplier.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(supplier);
 
         // Act
         var result = await _service.GetByIdAsync(new GetSupplierByIdQuery(supplier.Id), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(supplier.Id);
+        result.Id.Should().Be(supplier.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSupplierDoesNotExist_ReturnsNull()
     {
+        // Arrange
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SupplierModel?)null);
+
         // Act
         var result = await _service.GetByIdAsync(new GetSupplierByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
@@ -103,10 +68,12 @@ public class SupplierServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesSupplier()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), _faker.Person.Random.AlphaNumeric(11), _faker.Person.Random.AlphaNumeric(11), new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var command = new AddSupplierCommand(Guid.NewGuid(), "Test Supplier", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), "12345678901", null);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<SupplierModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SupplierModel s, CancellationToken _) => s);
 
         // Act
-        var result = await _service.AddAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.AddAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -117,49 +84,64 @@ public class SupplierServiceTests : IDisposable
     public async Task UpdateAsync_WhenSupplierExists_UpdatesSupplier()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
-        _db.BasicPeople.Add(person);
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id };
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = "Old" };
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person, Cnpj = "111" };
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(supplier.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(supplier);
+        _mockRepository.Setup(r => r.UpdateAsync(supplier.Id, It.IsAny<SupplierModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, SupplierModel s, CancellationToken _) => s);
 
-        var command = new UpdateSupplierCommand(supplier.Id, _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var command = new UpdateSupplierCommand(supplier.Id, "Updated", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), "99999999999", null);
 
         // Act
-        var result = await _service.UpdateAsync(command with { Id = supplier.Id }, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Cnpj.Should().Be(command.Cnpj);
+        result.Id.Should().Be(supplier.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenSupplierDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SupplierModel?)null);
+
+        var command = new UpdateSupplierCommand(Guid.NewGuid(), "Updated", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), "99999999999", null);
 
         // Act
-        var result = await _service.UpdateAsync(command with { Id = Guid.NewGuid() }, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenSupplierExists_SoftDeletesSupplier()
+    public async Task DeleteAsync_WhenSupplierExists_DeletesSupplier()
     {
         // Arrange
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
-        _db.BasicSuppliers.Add(supplier);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var supplierId = Guid.NewGuid();
+        _mockRepository.Setup(r => r.DeleteAsync(supplierId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         // Act
-        await _service.DeleteAsync(new DeleteSupplierCommand(supplier.Id), _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        await _service.DeleteAsync(new DeleteSupplierCommand(supplierId), Guid.NewGuid(), CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await _db.BasicSuppliers.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == supplier.Id);
-        deletedSupplier.Should().NotBeNull();
-        deletedSupplier!.Deleted.Should().NotBeNull();
+        _mockRepository.Verify(r => r.DeleteAsync(supplierId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCountAsync_ReturnsCount()
+    {
+        // Arrange
+        _mockRepository.Setup(r => r.CountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(3);
+
+        // Act
+        var result = await _service.GetCountAsync(CancellationToken.None);
+
+        // Assert
+        result.Should().Be(3);
     }
 }

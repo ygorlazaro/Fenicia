@@ -3,16 +3,17 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
+using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderService(
     IOrderRepository orderRepository,
-    OrderDetailService orderDetailService,
-    StockMovementService stockMovementService)
+    IOrderDetailService orderDetailService,
+    IStockMovementService stockMovementService) : IOrderService
 {
     public OrderService()
         : this(null!, null!, null!)

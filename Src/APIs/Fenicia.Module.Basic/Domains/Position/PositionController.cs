@@ -3,7 +3,7 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
-
+using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class PositionController(PositionService positionService) : ControllerBase
+public class PositionController(IPositionService positionService) : ControllerBase
 {
     /// <summary>
     /// Obtém uma lista paginada de posições.

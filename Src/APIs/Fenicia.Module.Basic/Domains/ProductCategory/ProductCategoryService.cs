@@ -1,11 +1,12 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
+using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public class ProductCategoryService(IProductCategoryRepository productCategoryRepository)
+public class ProductCategoryService(IProductCategoryRepository productCategoryRepository) : IProductCategoryService
 {
     public ProductCategoryService()
         : this(null!)

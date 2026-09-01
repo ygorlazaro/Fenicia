@@ -2,7 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-
+using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DataSourceController(DataSourceService dataSourceService) : ControllerBase
+public class DataSourceController(IDataSourceService dataSourceService) : ControllerBase
 {
     /// <summary>
     /// Obtém a lista de cargos para datasource.

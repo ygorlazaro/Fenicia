@@ -17,7 +17,7 @@ public class ItemNotExistsExceptionTests
     [Fact]
     public void Constructor_WithCustomMessage_ShouldUseCustomMessage()
     {
-        var customMessage = "Custom item not found message";
+        const string customMessage = "Custom item not found message";
         var exception = new ItemNotExistsException(customMessage);
 
         exception.Message.Should().Be(customMessage);

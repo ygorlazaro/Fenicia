@@ -52,7 +52,7 @@ public class RepositoryTests : IDisposable
         var result = await _repository.GetByIdAsync(entity.Id, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be(entity.Name);
+        result.Name.Should().Be(entity.Name);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class RepositoryTests : IDisposable
         var result = await _repository.UpdateAsync(entity.Id, updated, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Updated");
+        result.Name.Should().Be("Updated");
         result.Updated.Should().NotBeNull();
     }
 
@@ -112,7 +112,7 @@ public class RepositoryTests : IDisposable
         result.Should().Be(1);
         var deleted = await _db.TestEntities.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == entity.Id);
         deleted.Should().NotBeNull();
-        deleted!.Deleted.Should().NotBeNull();
+        deleted.Deleted.Should().NotBeNull();
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class RepositoryTests : IDisposable
         _db.TestEntities.Add(entity2);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _repository.DeleteAsync(new[] { entity1.Id, entity2.Id }, CancellationToken.None);
+        var result = await _repository.DeleteAsync([entity1.Id, entity2.Id], CancellationToken.None);
 
         result.Should().Be(2);
         (await _db.TestEntities.IgnoreQueryFilters().CountAsync(e => e.Deleted != null)).Should().Be(2);

@@ -1,5 +1,4 @@
-using Fenicia.Common.Data.Models.ProjectModels;
-
+using Fenicia.Common.Data.Models.Project;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Contexts;

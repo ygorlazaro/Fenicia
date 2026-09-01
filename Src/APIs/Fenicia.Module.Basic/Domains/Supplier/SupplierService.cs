@@ -1,23 +1,24 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-using Fenicia.Module.Basic.Domains.PersonAddress;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.StockMovement;
+using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
+using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierService(
     ISupplierRepository supplierRepository,
-    ProductService productService,
-    StockMovementService stockMovementService,
-    AddressService addressService,
-    PersonAddressService personAddressService)
+    IProductService productService,
+    IStockMovementService stockMovementService,
+    IAddressService addressService,
+    IPersonAddressService personAddressService) : ISupplierService
 {
     public SupplierService()
         : this(null!, null!, null!, null!, null!)

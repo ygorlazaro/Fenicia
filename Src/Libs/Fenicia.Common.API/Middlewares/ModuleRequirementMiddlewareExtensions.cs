@@ -4,8 +4,8 @@ namespace Fenicia.Common.API.Middlewares;
 
 public static class ModuleRequirementMiddlewareExtensions
 {
-    public static IApplicationBuilder UseModuleRequirement(this IApplicationBuilder builder, string moduleName)
+    public static void UseModuleRequirement(this IApplicationBuilder builder, string moduleName)
     {
-        return builder.UseMiddleware<ModuleRequirementMiddleware>(moduleName);
+        builder.UseMiddleware<ModuleRequirementMiddleware>(moduleName);
     }
 }

@@ -27,7 +27,6 @@ public class AttachmentController(AttachmentService attachmentService) : Control
     /// <response code="401">Unauthorized - authentication is required.</response>
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database insert.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while inserting the attachment.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddAttachmentResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -38,7 +37,7 @@ public class AttachmentController(AttachmentService attachmentService) : Control
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var attachment = await attachmentService.AddAsync(command, ClaimReader.UserId(User), ClaimReader.UserId(User), cancellationToken);
+        var attachment = await attachmentService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
         return new CreatedResult(string.Empty, attachment);
     }
@@ -54,7 +53,6 @@ public class AttachmentController(AttachmentService attachmentService) : Control
     /// <response code="401">Unauthorized - authentication is required.</response>
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database delete.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while deleting the attachment.</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -63,7 +61,7 @@ public class AttachmentController(AttachmentService attachmentService) : Control
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await attachmentService.DeleteAsync(new DeleteAttachmentCommand(id), ClaimReader.UserId(User), cancellationToken);
+        await attachmentService.DeleteAsync(new DeleteAttachmentCommand(id), cancellationToken);
 
         return NoContent();
     }
@@ -75,14 +73,15 @@ public class AttachmentController(AttachmentService attachmentService) : Control
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
+    /// <param name="sort"></param>
     /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
+    /// <param name="query"></param>
     /// <returns>A list of attachments for the requested comment.</returns>
     /// <response code="200">Attachments retrieved successfully. Example: <c>[{ "id": "11111111-1111-1111-1111-111111111111", "url": "https://example.com/file.pdf", "fileType": "pdf", "fileSize": 1024, "commentId": "22222222-2222-2222-2222-222222222222", "uploadDate": "2024-01-15T00:00:00Z" }]</c></response>
     /// <response code="400">Invalid pagination parameters supplied.</response>
     /// <response code="401">Unauthorized - authentication is required.</response>
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database query.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while querying attachments.</exception>
     [HttpGet("comment/{commentId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAttachmentResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

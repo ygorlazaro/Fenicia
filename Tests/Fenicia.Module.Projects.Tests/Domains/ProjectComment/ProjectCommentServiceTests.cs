@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
@@ -48,7 +48,7 @@ public class ProjectCommentServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -75,7 +75,7 @@ public class ProjectCommentServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(comment.Id);
+        result.Id.Should().Be(comment.Id);
         result.Content.Should().Be(comment.Content);
     }
 
@@ -128,7 +128,7 @@ public class ProjectCommentServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(comment.Id);
+        result.Id.Should().Be(comment.Id);
         result.Content.Should().Be(command.Content);
     }
 
@@ -166,7 +166,7 @@ public class ProjectCommentServiceTests : IDisposable
         // Assert
         var deletedComment = await _db.ProjectComments.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == comment.Id);
         deletedComment.Should().NotBeNull();
-        deletedComment!.Deleted.Should().NotBeNull();
+        deletedComment.Deleted.Should().NotBeNull();
     }
 
     [Fact]

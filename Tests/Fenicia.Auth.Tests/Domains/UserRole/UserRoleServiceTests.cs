@@ -460,8 +460,20 @@ public class UserRoleServiceTests
             Company = company1
         };
 
+        var userRole2 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId2,
+            CompanyId = company2.Id,
+            RoleId = roleId,
+            Role = role,
+            Company = company2
+        };
+
         _mockRepository.Setup(r => r.GetUserCompaniesAsync(userId1, It.IsAny<CancellationToken>()))
             .ReturnsAsync([userRole1]);
+        _mockRepository.Setup(r => r.GetUserCompaniesAsync(userId2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([userRole2]);
 
         var result1 = await _service.GetUserCompaniesAsync(userId1, CancellationToken.None);
         var result2 = await _service.GetUserCompaniesAsync(userId2, CancellationToken.None);

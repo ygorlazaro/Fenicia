@@ -17,7 +17,7 @@ public class PermissionDeniedExceptionTests
     [Fact]
     public void Constructor_WithCustomMessage_ShouldUseCustomMessage()
     {
-        var customMessage = "Custom permission denied message";
+        const string customMessage = "Custom permission denied message";
         var exception = new PermissionDeniedException(customMessage);
 
         exception.Message.Should().Be(customMessage);

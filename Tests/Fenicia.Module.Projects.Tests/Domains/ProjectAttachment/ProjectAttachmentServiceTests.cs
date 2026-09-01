@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
@@ -50,7 +50,7 @@ public class ProjectAttachmentServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -79,7 +79,7 @@ public class ProjectAttachmentServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(attachment.Id);
+        result.Id.Should().Be(attachment.Id);
         result.FileName.Should().Be(attachment.FileName);
     }
 
@@ -133,7 +133,7 @@ public class ProjectAttachmentServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(attachment.Id);
+        result.Id.Should().Be(attachment.Id);
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class ProjectAttachmentServiceTests : IDisposable
         // Assert
         var deletedAttachment = await _db.ProjectAttachments.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == attachment.Id);
         deletedAttachment.Should().NotBeNull();
-        deletedAttachment!.Deleted.Should().NotBeNull();
+        deletedAttachment.Deleted.Should().NotBeNull();
     }
 
     [Fact]

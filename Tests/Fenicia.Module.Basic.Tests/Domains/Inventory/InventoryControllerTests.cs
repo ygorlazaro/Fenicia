@@ -1,12 +1,11 @@
 using System.Security.Claims;
 
 using AwesomeAssertions;
-using Bogus;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-
+using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,16 +15,14 @@ namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 public class InventoryControllerTests : IDisposable
 {
     private readonly InventoryController _controller;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<InventoryService> _mockService;
+    private readonly Mock<IInventoryService> _mockService;
 
     public InventoryControllerTests()
     {
-        _mockService = new Mock<InventoryService>();
+        _mockService = new Mock<IInventoryService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new InventoryController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }

@@ -2,7 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
-
+using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DashboardController(DashboardService dashboardService) : ControllerBase
+public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
     /// <summary>
     /// Obtém o dashboard financeiro com KPIs, receita vs custo, margem de lucro, contas a receber e vendas diárias.

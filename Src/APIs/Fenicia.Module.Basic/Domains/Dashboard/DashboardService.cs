@@ -2,16 +2,17 @@ using System.Globalization;
 
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
-using Fenicia.Module.Basic.Domains.Employee;
-using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
+using Fenicia.Module.Basic.Domains.Employee.Interfaces;
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
 public class DashboardService(
-    OrderService orderService,
-    ProductService productService,
-    EmployeeService employeeService)
+    IOrderService orderService,
+    IProductService productService,
+    IEmployeeService employeeService) : IDashboardService
 {
     public DashboardService()
         : this(null!, null!, null!)

@@ -7,7 +7,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
-
+using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -19,11 +19,11 @@ public class PositionControllerTests : IDisposable
     private readonly PositionController _controller;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<PositionService> _mockService;
+    private readonly Mock<IPositionService> _mockService;
 
     public PositionControllerTests()
     {
-        _mockService = new Mock<PositionService>();
+        _mockService = new Mock<IPositionService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new PositionController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
@@ -141,16 +141,16 @@ public class PositionControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllPositionQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllPositionResponse>>(new List<GetAllPositionResponse>(), 0, 1, 10));
+            .ReturnsAsync(new Pagination<List<GetAllPositionResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetPositionByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken cancellationToken) => new GetPositionByIdResponse(q.Id, "Test Position"));
+            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken _) => new GetPositionByIdResponse(q.Id, "Test Position"));
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddPositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddPositionCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddPositionResponse(cmd.Id, cmd.Name));
+            .ReturnsAsync((AddPositionCommand cmd, Guid _, CancellationToken _) => new AddPositionResponse(cmd.Id, cmd.Name));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdatePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdatePositionCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdatePositionResponse(cmd.Id, cmd.Name));
+            .ReturnsAsync((UpdatePositionCommand cmd, Guid _, CancellationToken _) => new UpdatePositionResponse(cmd.Id, cmd.Name));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeletePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

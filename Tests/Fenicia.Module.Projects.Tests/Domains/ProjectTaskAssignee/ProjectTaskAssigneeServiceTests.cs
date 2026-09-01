@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
@@ -50,7 +50,7 @@ public class ProjectTaskAssigneeServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectTaskAssigneeQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectTaskAssigneeQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -78,7 +78,7 @@ public class ProjectTaskAssigneeServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(assignee.Id);
+        result.Id.Should().Be(assignee.Id);
         result.TaskId.Should().Be(assignee.TaskId);
     }
 
@@ -132,7 +132,7 @@ public class ProjectTaskAssigneeServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(assignee.Id);
+        result.Id.Should().Be(assignee.Id);
         result.Role.Should().Be("Contributor");
     }
 
@@ -171,7 +171,7 @@ public class ProjectTaskAssigneeServiceTests : IDisposable
         // Assert
         var deletedAssignee = await _db.ProjectTaskAssignees.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == assignee.Id);
         deletedAssignee.Should().NotBeNull();
-        deletedAssignee!.Deleted.Should().NotBeNull();
+        deletedAssignee.Deleted.Should().NotBeNull();
     }
 
     [Fact]

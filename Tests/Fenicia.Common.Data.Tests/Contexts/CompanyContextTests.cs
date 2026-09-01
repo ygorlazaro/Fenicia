@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using AwesomeAssertions;
-using Fenicia.Common.Data;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Moq;
 
 namespace Fenicia.Common.Data.Tests.Contexts;
@@ -20,11 +18,12 @@ public class CompanyContextTests
     [Fact]
     public void CompanyId_ShouldReturnEmpty_WhenClaimIsInvalidGuid()
     {
-        var httpContext = new DefaultHttpContext();
-        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var httpContext = new DefaultHttpContext
         {
-            new Claim("company_id", "not-a-guid")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("company_id", "not-a-guid")
+            ]))
+        };
 
         var companyContext = CreateCompanyContext(httpContext);
 
@@ -46,11 +45,12 @@ public class CompanyContextTests
     public void CompanyId_ShouldReturnClaimValue_WhenJwtClaimExists()
     {
         var companyId = Guid.NewGuid();
-        var httpContext = new DefaultHttpContext();
-        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var httpContext = new DefaultHttpContext
         {
-            new Claim("company_id", companyId.ToString())
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("company_id", companyId.ToString())
+            ]))
+        };
 
         var companyContext = CreateCompanyContext(httpContext);
 
@@ -73,11 +73,12 @@ public class CompanyContextTests
     public void CompanyId_ShouldReturnClaimValue_WhenBothClaimAndHeaderExistAndMatch()
     {
         var companyId = Guid.NewGuid();
-        var httpContext = new DefaultHttpContext();
-        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var httpContext = new DefaultHttpContext
         {
-            new Claim("company_id", companyId.ToString())
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("company_id", companyId.ToString())
+            ]))
+        };
         httpContext.Request.Headers["CompanyId"] = companyId.ToString();
 
         var companyContext = CreateCompanyContext(httpContext);
@@ -88,11 +89,12 @@ public class CompanyContextTests
     [Fact]
     public void CompanyId_ShouldThrow_WhenClaimAndHeaderMismatch()
     {
-        var httpContext = new DefaultHttpContext();
-        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var httpContext = new DefaultHttpContext
         {
-            new Claim("company_id", Guid.NewGuid().ToString())
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("company_id", Guid.NewGuid().ToString())
+            ]))
+        };
         httpContext.Request.Headers["CompanyId"] = Guid.NewGuid().ToString();
 
         var companyContext = CreateCompanyContext(httpContext);
@@ -105,11 +107,12 @@ public class CompanyContextTests
     public void CompanyId_ShouldSupportCompanyIdClaimAlias()
     {
         var companyId = Guid.NewGuid();
-        var httpContext = new DefaultHttpContext();
-        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var httpContext = new DefaultHttpContext
         {
-            new Claim("companyId", companyId.ToString())
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("companyId", companyId.ToString())
+            ]))
+        };
 
         var companyContext = CreateCompanyContext(httpContext);
 

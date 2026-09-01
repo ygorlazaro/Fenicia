@@ -1,8 +1,9 @@
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
 
-public class PersonAddressService(IPersonAddressRepository personAddressRepository)
+public class PersonAddressService(IPersonAddressRepository personAddressRepository) : IPersonAddressService
 {
     public PersonAddressService()
         : this(null!)

@@ -16,7 +16,7 @@ public partial class DefaultContext : DbContext
     public DefaultContext(DbContextOptions<DefaultContext> options, ICompanyContext companyContext)
         : base(options)
     {
-        this._companyContext = companyContext;
+        _companyContext = companyContext;
     }
 
     public DefaultContext()
@@ -28,6 +28,32 @@ public partial class DefaultContext : DbContext
     public Guid? CurrentCompanyId => _companyContext.CompanyId;
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        TimestampSetter();
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override int SaveChanges()
+    {
+        TimestampSetter();
+
+        return base.SaveChanges();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        ApplyFilters(modelBuilder);
+
+        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer).HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee).HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
+
+        base.OnModelCreating(modelBuilder);
+    }
+
+    private void TimestampSetter()
     {
         foreach (var item in ChangeTracker.Entries())
         {
@@ -52,20 +78,6 @@ public partial class DefaultContext : DbContext
         }
 
         ApplyCompanyId();
-
-        return base.SaveChangesAsync(cancellationToken);
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        PostgresDateTimeOffsetSupport.Init(modelBuilder);
-        ApplyFilters(modelBuilder);
-
-        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer).HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee).HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
-
-        base.OnModelCreating(modelBuilder);
     }
 
     private void ApplyCompanyId()

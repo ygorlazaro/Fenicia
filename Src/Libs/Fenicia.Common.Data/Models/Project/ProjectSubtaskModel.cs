@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Fenicia.Common.Data.Models.ProjectModels;
+namespace Fenicia.Common.Data.Models.Project;
 
 [Table("project_subtasks", Schema = "project")]
 public class ProjectSubtaskModel : BaseCompanyModel

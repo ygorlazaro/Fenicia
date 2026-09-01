@@ -3,6 +3,7 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
+using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SupplierController(SupplierService supplierService) : ControllerBase
+public class SupplierController(ISupplierService supplierService) : ControllerBase
 {
     /// <summary>
     /// Obtém uma lista paginada de fornecedores.

@@ -1,5 +1,5 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Models.SocialNetworkModels;
+using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Attachment.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +7,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
 public class AttachmentService(AttachmentRepository repository)
 {
-    public async Task<AddAttachmentResponse> AddAsync(AddAttachmentCommand command, Guid companyId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<AddAttachmentResponse> AddAsync(AddAttachmentCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
         var model = new AttachmentModel
         {
@@ -24,7 +24,7 @@ public class AttachmentService(AttachmentRepository repository)
         return new AddAttachmentResponse(created.Id, created.Url, created.FileType, created.FileSize, created.CommentId, created.CompanyId, created.UploadDate);
     }
 
-    public async Task DeleteAsync(DeleteAttachmentCommand command, Guid userId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(DeleteAttachmentCommand command, CancellationToken cancellationToken = default)
     {
         await repository.DeleteAsync(command.Id, cancellationToken);
     }

@@ -7,7 +7,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
-
+using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -19,11 +19,11 @@ public class ProductCategoryControllerTests : IDisposable
     private readonly ProductCategoryController _controller;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<ProductCategoryService> _mockService;
+    private readonly Mock<IProductCategoryService> _mockService;
 
     public ProductCategoryControllerTests()
     {
-        _mockService = new Mock<ProductCategoryService>();
+        _mockService = new Mock<IProductCategoryService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new ProductCategoryController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
@@ -141,16 +141,16 @@ public class ProductCategoryControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProductCategoryQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>(new List<GetAllProductCategoryResponse>(), 0, 1, 10));
+            .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken cancellationToken) => new GetProductCategoryByIdResponse(q.Id, "Test Category"));
+            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken _) => new GetProductCategoryByIdResponse(q.Id, "Test Category"));
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddProductCategoryCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddProductCategoryResponse(cmd.Id, cmd.Name));
+            .ReturnsAsync((AddProductCategoryCommand cmd, Guid _, CancellationToken _) => new AddProductCategoryResponse(cmd.Id, cmd.Name));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
+            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid _, CancellationToken _) => new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

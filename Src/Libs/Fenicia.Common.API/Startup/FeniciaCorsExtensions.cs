@@ -8,7 +8,8 @@ public static class FeniciaCorsExtensions
 {
     public static WebApplicationBuilder AddFeniciaCors(this WebApplicationBuilder builder)
     {
-        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" };
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ??
+                             ["http://localhost:5173"];
 
         builder.Services.AddCors(o =>
         {

@@ -32,7 +32,7 @@ public class PaginationTests
     [Fact]
     public void Pages_ShouldCalculateCorrectly()
     {
-        var pagination = new Pagination<List<int>>(new List<int>(), 10, 1, 3);
+        var pagination = new Pagination<List<int>>([], 10, 1, 3);
 
         pagination.Pages.Should().Be(4);
     }
@@ -40,7 +40,7 @@ public class PaginationTests
     [Fact]
     public void Pages_WhenTotalIsZero_ShouldReturnZero()
     {
-        var pagination = new Pagination<List<int>>(new List<int>(), 0, 1, 10);
+        var pagination = new Pagination<List<int>>([], 0, 1, 10);
 
         pagination.Pages.Should().Be(0);
     }
@@ -48,7 +48,7 @@ public class PaginationTests
     [Fact]
     public void Pages_WhenTotalIsExactMultiple_ShouldReturnExactPages()
     {
-        var pagination = new Pagination<List<int>>(new List<int>(), 10, 1, 5);
+        var pagination = new Pagination<List<int>>([], 10, 1, 5);
 
         pagination.Pages.Should().Be(2);
     }

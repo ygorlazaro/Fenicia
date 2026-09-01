@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
@@ -11,7 +10,6 @@ namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 public class EmployeeRepositoryTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly EmployeeRepository _repository;
 
     public EmployeeRepositoryTests()
@@ -20,7 +18,6 @@ public class EmployeeRepositoryTests : IDisposable
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new EmployeeRepository(_db);
-        _faker = new Faker();
     }
 
     public void Dispose()
@@ -57,7 +54,7 @@ public class EmployeeRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(employee.Id);
+        result.Id.Should().Be(employee.Id);
     }
 
     [Fact]
@@ -98,7 +95,7 @@ public class EmployeeRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(employee.Id);
+        result.Id.Should().Be(employee.Id);
     }
 
     [Fact]
@@ -129,7 +126,7 @@ public class EmployeeRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedEmployee = await _db.BasicEmployees.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == employee.Id);
         deletedEmployee.Should().NotBeNull();
-        deletedEmployee!.Deleted.Should().NotBeNull();
+        deletedEmployee.Deleted.Should().NotBeNull();
     }
 
     [Fact]

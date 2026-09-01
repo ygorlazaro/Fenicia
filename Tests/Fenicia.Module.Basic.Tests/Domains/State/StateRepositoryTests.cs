@@ -57,7 +57,7 @@ public class StateRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(state.Id);
+        result.Id.Should().Be(state.Id);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class StateRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(state.Id);
+        result.Id.Should().Be(state.Id);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class StateRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedState = await _db.AuthStates.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == state.Id);
         deletedState.Should().NotBeNull();
-        deletedState!.Deleted.Should().NotBeNull();
+        deletedState.Deleted.Should().NotBeNull();
     }
 
     [Fact]

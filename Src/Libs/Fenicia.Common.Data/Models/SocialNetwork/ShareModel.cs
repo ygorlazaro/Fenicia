@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Auth;
 
-namespace Fenicia.Common.Data.Models.SocialNetworkModels;
+namespace Fenicia.Common.Data.Models.SocialNetwork;
 
 [Table("shares", Schema = "social_network")]
 public class ShareModel : BaseCompanyModel

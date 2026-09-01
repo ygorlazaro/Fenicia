@@ -7,7 +7,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
-
+using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -19,11 +19,11 @@ public class EmployeeControllerTests : IDisposable
     private readonly EmployeeController _controller;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<EmployeeService> _mockService;
+    private readonly Mock<IEmployeeService> _mockService;
 
     public EmployeeControllerTests()
     {
-        _mockService = new Mock<EmployeeService>();
+        _mockService = new Mock<IEmployeeService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new EmployeeController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
@@ -141,16 +141,16 @@ public class EmployeeControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllEmployeeQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllEmployeeResponse>>(new List<GetAllEmployeeResponse>(), 0, 1, 10));
+            .ReturnsAsync(new Pagination<List<GetAllEmployeeResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetEmployeeByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken cancellationToken) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+            .ReturnsAsync((GetEmployeeByIdQuery q, CancellationToken _) => new GetEmployeeByIdResponse(q.Id, Guid.NewGuid(), Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddEmployeeCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+            .ReturnsAsync((AddEmployeeCommand _, Guid _, CancellationToken _) => new AddEmployeeResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
+            .ReturnsAsync((UpdateEmployeeCommand cmd, Guid _, CancellationToken _) => new UpdateEmployeeResponse(cmd.Id, Guid.NewGuid(), Guid.NewGuid()));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteEmployeeCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

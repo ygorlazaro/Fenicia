@@ -23,8 +23,6 @@ public static class ExceptionMessages
 
     public static string EmailAlreadyExists => GetString("EmailAlreadyExists");
 
-    public static string CompanyNotFound => GetString("CompanyNotFound");
-
     public static string RoleNotFound => GetString("RoleNotFound");
 
     public static string CompanyNotFoundWithCNPJ => GetString("CompanyNotFoundWithCNPJ");
@@ -41,8 +39,6 @@ public static class ExceptionMessages
 
     public static string ErrorHashingPassword => GetString("ErrorHashingPassword");
 
-    public static string InvalidPassword => GetString("InvalidPassword");
-
     public static string InvalidForgotPasswordCode => GetString("InvalidForgotPasswordCode");
 
     public static string UserNotAssociatedWithActiveCompanies => GetString("UserNotAssociatedWithActiveCompanies");
@@ -51,46 +47,13 @@ public static class ExceptionMessages
 
     public static string ModulesNotFound => GetString("ModulesNotFound");
 
-    public static string OrderDetailsCannotBeEmpty => GetString("OrderDetailsCannotBeEmpty");
-
     public static string Unauthorized => GetString("Unauthorized");
-
-    public static string InternalError => GetString("InternalError");
 
     public static string CompanyNotFoundMessage => GetString("CompanyNotFoundById");
 
     public static string PermissionDeniedUpdateCompany => GetString("PermissionDeniedUpdateCompany");
 
     public static string CompanyExists => GetString("CompanyExists");
-
-    public static string UserWithIdNotFound(string userId)
-    {
-#pragma warning disable CA1863
-        return string.Format(CultureInfo.InvariantCulture, GetString("UserWithIdNotFound"), userId);
-#pragma warning restore CA1863
-    }
-
-    public static string CompanyNotFoundById(string companyId)
-    {
-#pragma warning disable CA1863
-        return string.Format(CultureInfo.InvariantCulture, GetString("CompanyNotFound"), companyId);
-#pragma warning restore CA1863
-    }
-
-    public static string RoleNotFoundById(string roleId)
-    {
-#pragma warning disable CA1863
-        return string.Format(CultureInfo.InvariantCulture, GetString("RoleNotFound"), roleId);
-#pragma warning restore CA1863
-    }
-
-    public static string GetStringWithFormat(string key, params object[] args)
-    {
-        var format = GetString(key);
-#pragma warning disable CA1305
-        return string.Format(format, args);
-#pragma warning restore CA1305
-    }
 
     private static string GetString(string name)
     {

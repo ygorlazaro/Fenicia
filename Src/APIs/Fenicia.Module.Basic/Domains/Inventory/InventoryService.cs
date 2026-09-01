@@ -1,22 +1,23 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer;
-using Fenicia.Module.Basic.Domains.Employee;
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
+using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
+using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
+using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
 public class InventoryService(
-    ProductService productService,
-    StockMovementService stockMovementService,
-    OrderDetailService orderDetailService,
-    CustomerService customerService,
-    EmployeeService employeeService,
-    SupplierService supplierService)
+    IProductService productService,
+    IStockMovementService stockMovementService,
+    IOrderDetailService orderDetailService,
+    ICustomerService customerService,
+    IEmployeeService employeeService,
+    ISupplierService supplierService) : IInventoryService
 {
     public InventoryService()
         : this(null!, null!, null!, null!, null!, null!)

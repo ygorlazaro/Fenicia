@@ -1,10 +1,11 @@
 using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.State.DTOs;
+using Fenicia.Module.Basic.Domains.State.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateService(IStateRepository stateRepository)
+public class StateService(IStateRepository stateRepository) : IStateService
 {
     public StateService()
         : this(null!)

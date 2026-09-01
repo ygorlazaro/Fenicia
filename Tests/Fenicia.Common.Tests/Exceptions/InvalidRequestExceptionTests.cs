@@ -17,7 +17,7 @@ public class InvalidRequestExceptionTests
     [Fact]
     public void Constructor_WithCustomMessage_ShouldUseCustomMessage()
     {
-        var customMessage = "Custom invalid request message";
+        const string customMessage = "Custom invalid request message";
         var exception = new InvalidRequestException(customMessage);
 
         exception.Message.Should().Be(customMessage);

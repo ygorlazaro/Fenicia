@@ -44,7 +44,11 @@ public static class AdvancedQueryExtensions
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(sort))
+        if (string.IsNullOrWhiteSpace(sort))
+        {
+            return query;
+        }
+
         {
             var sortParts = sort.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             var first = true;

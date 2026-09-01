@@ -16,7 +16,7 @@ public abstract class Program
 {
     public static void Main(string[] args)
     {
-        var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
+        FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaDependencyInjection(() =>
     {

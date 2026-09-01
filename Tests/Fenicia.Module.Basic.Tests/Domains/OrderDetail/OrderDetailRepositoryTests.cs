@@ -57,7 +57,7 @@ public class OrderDetailRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(orderDetail.Id);
+        result.Id.Should().Be(orderDetail.Id);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class OrderDetailRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(orderDetail.Id);
+        result.Id.Should().Be(orderDetail.Id);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class OrderDetailRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedOrderDetail = await _db.BasicOrderDetails.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == orderDetail.Id);
         deletedOrderDetail.Should().NotBeNull();
-        deletedOrderDetail!.Deleted.Should().NotBeNull();
+        deletedOrderDetail.Deleted.Should().NotBeNull();
     }
 
     [Fact]

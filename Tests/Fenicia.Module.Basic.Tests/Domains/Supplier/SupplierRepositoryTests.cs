@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
@@ -11,7 +10,6 @@ namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 public class SupplierRepositoryTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly SupplierRepository _repository;
 
     public SupplierRepositoryTests()
@@ -20,7 +18,6 @@ public class SupplierRepositoryTests : IDisposable
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new SupplierRepository(_db);
-        _faker = new Faker();
     }
 
     public void Dispose()
@@ -57,7 +54,7 @@ public class SupplierRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(supplier.Id);
+        result.Id.Should().Be(supplier.Id);
     }
 
     [Fact]
@@ -98,7 +95,7 @@ public class SupplierRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(supplier.Id);
+        result.Id.Should().Be(supplier.Id);
     }
 
     [Fact]
@@ -129,7 +126,7 @@ public class SupplierRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedSupplier = await _db.BasicSuppliers.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == supplier.Id);
         deletedSupplier.Should().NotBeNull();
-        deletedSupplier!.Deleted.Should().NotBeNull();
+        deletedSupplier.Deleted.Should().NotBeNull();
     }
 
     [Fact]

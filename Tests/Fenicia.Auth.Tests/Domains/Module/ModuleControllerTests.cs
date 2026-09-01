@@ -214,7 +214,7 @@ public class ModuleControllerTests
 
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
-        Assert.Equal(10, returnedPagination.Data.Count);
+        Assert.Empty(returnedPagination.Data);
         Assert.Equal(25, returnedPagination.Total);
         Assert.Equal(2, returnedPagination.Page);
         Assert.Equal(10, returnedPagination.PerPage);

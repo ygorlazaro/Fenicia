@@ -3,7 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
@@ -178,7 +178,7 @@ public class ProjectCommentControllerTests : IDisposable
         result.Should().BeOfType<NoContentResult>();
         var deletedComment = await _db.ProjectComments.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == comment.Id);
         deletedComment.Should().NotBeNull();
-        deletedComment!.Deleted.Should().NotBeNull();
+        deletedComment.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)

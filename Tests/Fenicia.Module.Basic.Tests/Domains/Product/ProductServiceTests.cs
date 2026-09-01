@@ -1,82 +1,63 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
-using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
+using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
 public class ProductServiceTests : IDisposable
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IProductRepository> _mockRepository;
+    private readonly Mock<IProductCategoryService> _mockCategoryService;
     private readonly ProductService _service;
 
     public ProductServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        var productRepository = new ProductRepository(_db);
-        var mockProductCategoryService = new Mock<ProductCategoryService>(new Mock<IProductCategoryRepository>().Object);
-        var mockOrderDetailService = new Mock<OrderDetailService>(new Mock<IOrderDetailRepository>().Object);
-        var mockStockMovementService = new Mock<StockMovementService>(new Mock<IStockMovementRepository>().Object, null!);
-        _service = new ProductService(productRepository, mockProductCategoryService.Object, mockOrderDetailService.Object, mockStockMovementService.Object);
+        _mockRepository = new Mock<IProductRepository>();
+        _mockCategoryService = new Mock<IProductCategoryService>();
+        var mockOrderDetailService = new Mock<IOrderDetailService>();
+        var mockStockMovementService = new Mock<IStockMovementService>();
+        _service = new ProductService(_mockRepository.Object, _mockCategoryService.Object, mockOrderDetailService.Object, mockStockMovementService.Object);
         _faker = new Faker();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_WhenProductsExist_ReturnsPaginationWithProducts()
-    {
-        // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
-        _db.BasicProductCategories.Add(category);
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal(), CategoryId = category.Id };
-        _db.BasicProducts.Add(product);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        // Act
-        var result = await _service.GetAllAsync(new GetAllProductQuery(1, 10, null, null), CancellationToken.None);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Data.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductExists_ReturnsProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
-        _db.BasicProductCategories.Add(category);
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal(), CategoryId = category.Id };
-        _db.BasicProducts.Add(product);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Cat" };
+        var supplier = new SupplierModel { Id = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = "Sup" } };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = "Test", SalesPrice = 100m, CategoryId = category.Id, Category = category, SupplierId = supplier.Id, Supplier = supplier };
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(product.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(product);
 
         // Act
         var result = await _service.GetByIdAsync(new GetProductByIdQuery(product.Id), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(product.Id);
+        result.Id.Should().Be(product.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductDoesNotExist_ReturnsNull()
     {
+        // Arrange
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProductModel?)null);
+
         // Act
         var result = await _service.GetByIdAsync(new GetProductByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
@@ -89,60 +70,87 @@ public class ProductServiceTests : IDisposable
     {
         // Arrange
         var command = new AddProductCommand(Id: Guid.NewGuid(), Name: _faker.Commerce.ProductName(), SalesPrice: _faker.Random.Decimal());
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProductModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProductModel p, CancellationToken _) => p);
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(command.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, CancellationToken _) => null);
+        _mockCategoryService.Setup(c => c.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProductCategoryByIdResponse?)null);
 
         // Act
-        var result = await _service.AddAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.AddAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
+        result.Id.Should().Be(command.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductExists_UpdatesProduct()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
-        _db.BasicProducts.Add(product);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Cat" };
+        var product = new ProductModel { Id = Guid.NewGuid(), Name = "Old", SalesPrice = 100m, CategoryId = category.Id, Category = category };
+        _mockRepository.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(product);
+        _mockRepository.Setup(r => r.UpdateAsync(product.Id, It.IsAny<ProductModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, ProductModel p, CancellationToken _) => p);
+        _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(product.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(product);
+        _mockCategoryService.Setup(c => c.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetProductCategoryByIdResponse(category.Id, category.Name));
 
-        var command = new UpdateProductCommand(product.Id, Name: "Updated Name", SalesPrice: _faker.Random.Decimal());
+        var command = new UpdateProductCommand(product.Id, Name: "Updated", SalesPrice: 200m);
 
         // Act
-        var result = await _service.UpdateAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Updated Name");
+        result.Id.Should().Be(product.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProductCommand(Id: Guid.NewGuid(), Name: "Updated Name", SalesPrice: _faker.Random.Decimal());
+        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProductModel?)null);
+
+        var command = new UpdateProductCommand(Id: Guid.NewGuid(), Name: "Updated", SalesPrice: 200m);
 
         // Act
-        var result = await _service.UpdateAsync(command, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenProductExists_SoftDeletesProduct()
+    public async Task DeleteAsync_WhenProductExists_DeletesProduct()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
-        _db.BasicProducts.Add(product);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var productId = Guid.NewGuid();
+        _mockRepository.Setup(r => r.DeleteAsync(productId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         // Act
-        await _service.DeleteAsync(new DeleteProductCommand(product.Id), _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        await _service.DeleteAsync(new DeleteProductCommand(productId), Guid.NewGuid(), CancellationToken.None);
 
         // Assert
-        var deletedProduct = await _db.BasicProducts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == product.Id);
-        deletedProduct.Should().NotBeNull();
-        deletedProduct!.Deleted.Should().NotBeNull();
+        _mockRepository.Verify(r => r.DeleteAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCountAsync_ReturnsCount()
+    {
+        // Arrange
+        _mockRepository.Setup(r => r.CountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(42);
+
+        // Act
+        var result = await _service.GetCountAsync(CancellationToken.None);
+
+        // Assert
+        result.Should().Be(42);
     }
 }

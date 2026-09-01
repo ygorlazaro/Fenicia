@@ -28,7 +28,6 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <response code="403">Forbidden - the user does not have the Admin role required to create reports.</response>
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database insert.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while inserting the report.</exception>
     [HttpPost]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddReportResponse))]
@@ -62,7 +61,6 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="ArgumentException">Thrown by the service when the status is not Approved or Denied.</exception>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database update.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while updating the report.</exception>
     [HttpPatch("{id:guid}/status")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateReportResponse))]
@@ -87,6 +85,8 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
+    /// <param name="query"></param>
+    /// <param name="sort"></param>
     /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>A list of reports for the requested page.</returns>
     /// <response code="200">Reports retrieved successfully. Example: <c>[{ "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333", "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description": "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }]</c></response>
@@ -95,7 +95,6 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <response code="403">Forbidden - the user does not have the Admin role required to view reports.</response>
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database query.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while querying reports.</exception>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllReportResponse>))]
@@ -125,7 +124,6 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <response code="404">Report with the specified ID was not found.</response>
     /// <response code="500">Internal server error caused by a database failure.</response>
     /// <exception cref="OperationCanceledException">Thrown by the repository when the cancellation token is triggered during the database query.</exception>
-    /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while querying the report.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetReportByIdResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

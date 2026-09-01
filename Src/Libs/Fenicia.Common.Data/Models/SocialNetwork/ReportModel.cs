@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.SocialNetwork;
 
-namespace Fenicia.Common.Data.Models.SocialNetworkModels;
+namespace Fenicia.Common.Data.Models.SocialNetwork;
 
 [Table("reports", Schema = "social_network")]
 public class ReportModel : BaseModel

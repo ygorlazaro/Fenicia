@@ -1,23 +1,24 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Exceptions;
-using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.Person;
-using Fenicia.Module.Basic.Domains.PersonAddress;
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
+using Fenicia.Module.Basic.Domains.Person.Interfaces;
+using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
 public class CustomerService(
     ICustomerRepository customerRepository,
-    PersonService personService,
-    AddressService addressService,
-    PersonAddressService personAddressService,
-    OrderService orderService)
+    IPersonService personService,
+    IAddressService addressService,
+    IPersonAddressService personAddressService,
+    IOrderService orderService) : ICustomerService
 {
     public CustomerService()
         : this(null!, null!, null!, null!, null!)

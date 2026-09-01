@@ -7,7 +7,7 @@ public class PaginationQueryTests
     [Fact]
     public void Constructor_ShouldInitializeProperties()
     {
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
 
         query.Page.Should().Be(1);
         query.PerPage.Should().Be(10);
@@ -16,8 +16,8 @@ public class PaginationQueryTests
     [Fact]
     public void Equality_ShouldWork()
     {
-        var query1 = new PaginationQuery(1, 10);
-        var query2 = new PaginationQuery(1, 10);
+        var query1 = new PaginationQuery();
+        var query2 = new PaginationQuery();
 
         query1.Should().Be(query2);
     }
@@ -25,8 +25,8 @@ public class PaginationQueryTests
     [Fact]
     public void Inequality_ShouldWork()
     {
-        var query1 = new PaginationQuery(1, 10);
-        var query2 = new PaginationQuery(2, 10);
+        var query1 = new PaginationQuery();
+        var query2 = new PaginationQuery(2);
 
         query1.Should().NotBe(query2);
     }

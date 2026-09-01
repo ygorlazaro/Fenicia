@@ -1,7 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
-
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StockMovementController(StockMovementService stockMovementService) : ControllerBase
+public class StockMovementController(IStockMovementService stockMovementService) : ControllerBase
 {
     /// <summary>
     /// Obtém movimentações de estoque por período.

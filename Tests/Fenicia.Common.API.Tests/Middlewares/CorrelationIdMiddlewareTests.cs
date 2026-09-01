@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Fenicia.Common.API.Middlewares;
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.API.Tests.Middlewares;
@@ -23,7 +22,7 @@ public class CorrelationIdMiddlewareTests
     {
         var middleware = new CorrelationIdMiddleware(next: _ => Task.CompletedTask);
         var context = new DefaultHttpContext();
-        var existingId = "existing-correlation-id";
+        const string existingId = "existing-correlation-id";
         context.Request.Headers["X-Correlation-ID"] = existingId;
 
         await middleware.InvokeAsync(context);

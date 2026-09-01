@@ -4,7 +4,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
@@ -21,7 +21,6 @@ public class ProjectSubtaskControllerTests : IDisposable
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId;
     private readonly Guid _companyId;
 
     public ProjectSubtaskControllerTests()
@@ -33,9 +32,9 @@ public class ProjectSubtaskControllerTests : IDisposable
         var service = new ProjectSubtaskService(repository);
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new ProjectSubtaskController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _testUserId = Guid.NewGuid();
+        var testUserId = Guid.NewGuid();
         _companyId = companyContext.CompanyId;
-        SetupUserClaims(_testUserId);
+        SetupUserClaims(testUserId);
         _faker = new Faker();
     }
 
@@ -187,7 +186,7 @@ public class ProjectSubtaskControllerTests : IDisposable
         result.Should().BeOfType<NoContentResult>();
         var deletedSubtask = await _db.ProjectSubtasks.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == subtask.Id);
         deletedSubtask.Should().NotBeNull();
-        deletedSubtask!.Deleted.Should().NotBeNull();
+        deletedSubtask.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)

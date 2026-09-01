@@ -38,7 +38,7 @@ public class PersonModel : BaseCompanyModel
     [MaxLength(1000)]
     public string? Notes { get; set; }
 
-    public virtual ICollection<PersonAddressModel> PersonAddresses { get; set; } = new List<PersonAddressModel>();
+    public virtual ICollection<PersonAddressModel> PersonAddresses { get; set; } = [];
 
     public virtual CustomerModel? Customer { get; set; }
 

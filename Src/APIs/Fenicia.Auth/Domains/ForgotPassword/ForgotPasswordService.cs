@@ -1,6 +1,7 @@
 using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Auth.Domains.Security.Interfaces;
+using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -36,5 +37,6 @@ public class ForgotPasswordService(IForgotPasswordRepository repository, IUserSe
 
         currentCode.IsActive = false;
         await repository.UpdateAsync(currentCode.Id, currentCode, cancellationToken);
+        await userService.UpdateHashedPasswordAsync(new UpdatePasswordCommand(user.Id, user.Password), cancellationToken);
     }
 }

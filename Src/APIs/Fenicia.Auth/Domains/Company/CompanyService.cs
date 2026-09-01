@@ -20,7 +20,8 @@ public class CompanyService(ICompanyRepository repository, IUserRoleService user
         var userRoles = await userRoleService.GetUserRolesAsync(userId, page, perPage, cancellationToken);
         var total = await userRoleService.CountUserRolesAsync(userId, cancellationToken);
 
-        var result = userRoles.Select(ur => ur.MapToGetCompaniesByUserResponse());
+        var activeUserRoles = userRoles.Where(ur => ur.Company.IsActive).ToList();
+        var result = activeUserRoles.Select(ur => ur.MapToGetCompaniesByUserResponse());
 
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
     }

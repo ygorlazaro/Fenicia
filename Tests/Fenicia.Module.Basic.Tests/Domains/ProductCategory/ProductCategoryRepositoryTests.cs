@@ -57,7 +57,7 @@ public class ProductCategoryRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(productCategory.Id);
+        result.Id.Should().Be(productCategory.Id);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class ProductCategoryRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(productCategory.Id);
+        result.Id.Should().Be(productCategory.Id);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class ProductCategoryRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedProductCategory = await _db.BasicProductCategories.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == productCategory.Id);
         deletedProductCategory.Should().NotBeNull();
-        deletedProductCategory!.Deleted.Should().NotBeNull();
+        deletedProductCategory.Deleted.Should().NotBeNull();
     }
 
     [Fact]

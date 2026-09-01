@@ -3,7 +3,7 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
-
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(OrderService orderService) : ControllerBase
+public class OrderController(IOrderService orderService) : ControllerBase
 {
     /// <summary>
     /// Obtém uma lista paginada de pedidos.

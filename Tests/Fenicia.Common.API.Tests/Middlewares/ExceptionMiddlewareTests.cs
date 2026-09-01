@@ -1,10 +1,8 @@
 using System.Net;
 using AwesomeAssertions;
 using Fenicia.Common.API.Middlewares;
-using Fenicia.Common.Data;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Localization;
 
 namespace Fenicia.Common.API.Tests.Middlewares;
 
@@ -80,8 +78,13 @@ public class ExceptionMiddlewareTests
     public async Task InvokeAsync_ShouldReturnErrorCode_ForInvalidRequestException()
     {
         var middleware = CreateMiddleware(() => new InvalidRequestException("Invalid request"));
-        var context = new DefaultHttpContext();
-        context.Response.Body = new MemoryStream();
+        var context = new DefaultHttpContext
+        {
+            Response =
+            {
+                Body = new MemoryStream()
+            }
+        };
 
         await middleware.InvokeAsync(context);
 

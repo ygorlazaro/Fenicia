@@ -1,12 +1,10 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
-using Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
@@ -51,7 +49,7 @@ public class ProjectSubtaskServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -79,7 +77,7 @@ public class ProjectSubtaskServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(projectSubtask.Id);
+        result.Id.Should().Be(projectSubtask.Id);
         result.Title.Should().Be(projectSubtask.Title);
     }
 
@@ -133,7 +131,7 @@ public class ProjectSubtaskServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(projectSubtask.Id);
+        result.Id.Should().Be(projectSubtask.Id);
         result.Title.Should().Be("Updated Title");
     }
 
@@ -172,7 +170,7 @@ public class ProjectSubtaskServiceTests : IDisposable
         // Assert
         var deletedSubtask = await _db.ProjectSubtasks.IgnoreQueryFilters().FirstOrDefaultAsync(ps => ps.Id == projectSubtask.Id);
         deletedSubtask.Should().NotBeNull();
-        deletedSubtask!.Deleted.Should().NotBeNull();
+        deletedSubtask.Deleted.Should().NotBeNull();
     }
 
     [Fact]

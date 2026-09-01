@@ -2,7 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-
+using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class InventoryController(InventoryService inventoryService) : ControllerBase
+public class InventoryController(IInventoryService inventoryService) : ControllerBase
 {
     /// <summary>
     /// Obtém o inventário por produto.

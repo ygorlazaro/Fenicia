@@ -1,7 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.State.DTOs;
-
+using Fenicia.Module.Basic.Domains.State.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.State;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StateController(StateService stateService) : ControllerBase
+public class StateController(IStateService stateService) : ControllerBase
 {
     /// <summary>
     /// Obtém a lista de estados.
