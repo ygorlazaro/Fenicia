@@ -11,7 +11,7 @@ public record AddStockMovementCommand(
 
     DateTime? Date,
 
-    decimal Price,
+    decimal? Price,
 
     [Required] StockMovementType Type,
 

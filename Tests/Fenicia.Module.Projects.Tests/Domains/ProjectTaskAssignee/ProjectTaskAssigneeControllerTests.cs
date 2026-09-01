@@ -3,7 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
@@ -96,7 +96,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         var okResult = result.Result as OkObjectResult;
         var response = okResult!.Value as GetProjectTaskAssigneeByIdResponse;
         response.Should().NotBeNull();
-        response!.Id.Should().Be(assignee.Id);
+        response.Id.Should().Be(assignee.Id);
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         var okResult = result.Result as OkObjectResult;
         var response = okResult!.Value as UpdateProjectTaskAssigneeResponse;
         response.Should().NotBeNull();
-        response!.Role.Should().Be("Contributor");
+        response.Role.Should().Be("Contributor");
     }
 
     [Fact]

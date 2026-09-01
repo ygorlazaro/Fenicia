@@ -27,7 +27,7 @@ public class AddressModel : BaseModel
     public string? ZipCode
     {
         get;
-        set => field = !string.IsNullOrWhiteSpace(value) ? new string([.. value.Where(char.IsDigit).Take(8)]) : null!;
+        set => field = !string.IsNullOrWhiteSpace(value) ? new string([.. value.Where(char.IsDigit).Take(8)]) : null;
     }
 
     [Required]

@@ -1,9 +1,10 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Module.Basic.Domains.Address.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public class AddressService(IAddressRepository addressRepository)
+public class AddressService(IAddressRepository addressRepository) : IAddressService
 {
     public AddressService()
         : this(null!)

@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTask;
@@ -56,7 +56,7 @@ public class ProjectTaskServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -90,7 +90,7 @@ public class ProjectTaskServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(projectTask.Id);
+        result.Id.Should().Be(projectTask.Id);
         result.Title.Should().Be(projectTask.Title);
     }
 
@@ -150,7 +150,7 @@ public class ProjectTaskServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(projectTask.Id);
+        result.Id.Should().Be(projectTask.Id);
         result.Title.Should().Be("Updated Title");
     }
 
@@ -195,7 +195,7 @@ public class ProjectTaskServiceTests : IDisposable
         // Assert
         var deletedTask = await _db.ProjectTasks.IgnoreQueryFilters().FirstOrDefaultAsync(pt => pt.Id == projectTask.Id);
         deletedTask.Should().NotBeNull();
-        deletedTask!.Deleted.Should().NotBeNull();
+        deletedTask.Deleted.Should().NotBeNull();
     }
 
     [Fact]

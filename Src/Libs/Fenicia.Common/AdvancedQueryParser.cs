@@ -4,7 +4,7 @@ namespace Fenicia.Common;
 
 public static class AdvancedQueryParser
 {
-    private static readonly Regex FilterRegex = new(@"^(?<property>[^\[\]]+?)\[(?<operator>[^\[\]]*?)\](?<value>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex _filterRegex = new(@"^(?<property>[^\[\]]+?)\[(?<operator>[^\[\]]*?)\](?<value>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static List<QueryFilter> Parse(string? query)
     {
@@ -21,7 +21,7 @@ public static class AdvancedQueryParser
             var subParts = part.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             foreach (var subPart in subParts)
             {
-                var match = FilterRegex.Match(subPart);
+                var match = _filterRegex.Match(subPart);
                 if (!match.Success)
                 {
                     continue;

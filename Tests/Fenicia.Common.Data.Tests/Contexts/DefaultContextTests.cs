@@ -91,7 +91,7 @@ public class DefaultContextTests : IDisposable
 
         var result = await _db.AuthUsers.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == user.Id, CancellationToken.None);
         result.Should().NotBeNull();
-        result!.Deleted.Should().NotBeNull();
+        result.Deleted.Should().NotBeNull();
     }
 
     [Fact]

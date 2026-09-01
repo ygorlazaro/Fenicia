@@ -57,7 +57,7 @@ public class AddressRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(address.Id);
+        result.Id.Should().Be(address.Id);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class AddressRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(address.Id);
+        result.Id.Should().Be(address.Id);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class AddressRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedAddress = await _db.AuthAddresses.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == address.Id);
         deletedAddress.Should().NotBeNull();
-        deletedAddress!.Deleted.Should().NotBeNull();
+        deletedAddress.Deleted.Should().NotBeNull();
     }
 
     [Fact]

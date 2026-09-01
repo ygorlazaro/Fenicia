@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectStatus;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
@@ -14,7 +14,6 @@ public class GetAllProjectStatusServiceTests : IDisposable
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly ProjectStatusService _service;
-    private readonly ProjectStatusRepository _repository;
     private readonly Guid _companyId;
 
     public GetAllProjectStatusServiceTests()
@@ -22,8 +21,8 @@ public class GetAllProjectStatusServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
-        _repository = new ProjectStatusRepository(_db);
-        _service = new ProjectStatusService(_repository);
+        var repository = new ProjectStatusRepository(_db);
+        _service = new ProjectStatusService(repository);
         _faker = new Faker();
         _companyId = companyContext.CompanyId;
     }
@@ -43,7 +42,7 @@ public class GetAllProjectStatusServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectStatusQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectStatusQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

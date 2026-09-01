@@ -89,7 +89,7 @@ public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyCo
         }
     }
 
-    private Guid? GetUserId(HttpContext context)
+    private static Guid? GetUserId(HttpContext context)
     {
         var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
         return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId) ? userId : null;

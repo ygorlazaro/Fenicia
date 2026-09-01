@@ -3,7 +3,7 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
-
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductController(ProductService productService) : ControllerBase
+public class ProductController(IProductService productService) : ControllerBase
 {
     /// <summary>
     /// Obtém uma lista paginada de produtos.

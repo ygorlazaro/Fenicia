@@ -1,12 +1,11 @@
 using System.Security.Claims;
 
 using AwesomeAssertions;
-using Bogus;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
-
+using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,16 +15,14 @@ namespace Fenicia.Module.Basic.Tests.Domains.Dashboard;
 public class DashboardControllerTests : IDisposable
 {
     private readonly DashboardController _controller;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<DashboardService> _mockService;
+    private readonly Mock<IDashboardService> _mockService;
 
     public DashboardControllerTests()
     {
-        _mockService = new Mock<DashboardService>();
+        _mockService = new Mock<IDashboardService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new DashboardController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }

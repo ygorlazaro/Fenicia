@@ -79,7 +79,9 @@ public class LikeController(LikeService likeService) : ControllerBase
     /// <param name="wide">Wide event context for audit logging. Example: <c>{ "userId": "11111111-1111-1111-1111-111111111111" }</c></param>
     /// <param name="page">Page number for pagination (1-based index). Example: <c>1</c></param>
     /// <param name="perPage">Number of items per page. Example: <c>10</c></param>
+    /// <param name="sort"></param>
     /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
+    /// <param name="query"></param>
     /// <returns>A list of likes for the requested feed.</returns>
     /// <response code="200">Likes retrieved successfully.</response>
     /// <response code="400">Invalid pagination parameters supplied.</response>

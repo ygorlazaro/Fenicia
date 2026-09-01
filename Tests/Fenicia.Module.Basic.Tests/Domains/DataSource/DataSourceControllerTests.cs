@@ -1,12 +1,9 @@
 using System.Security.Claims;
 
 using AwesomeAssertions;
-using Bogus;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.DataSource;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-
+using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,16 +13,14 @@ namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
 public class DataSourceControllerTests : IDisposable
 {
     private readonly DataSourceController _controller;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<DataSourceService> _mockService;
+    private readonly Mock<IDataSourceService> _mockService;
 
     public DataSourceControllerTests()
     {
-        _mockService = new Mock<DataSourceService>();
+        _mockService = new Mock<IDataSourceService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new DataSourceController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -64,10 +59,10 @@ public class DataSourceControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetPositionsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetAllPositionForDataSourceResponse>());
+            .ReturnsAsync([]);
 
         _mockService.Setup(s => s.GetProductCategoriesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetAllProductCategoryForDataSourceResponse>());
+            .ReturnsAsync([]);
     }
 
     private void SetupUserClaims(Guid userId)

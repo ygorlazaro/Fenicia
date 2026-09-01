@@ -1,7 +1,6 @@
 using System.Security.Claims;
 
 using AwesomeAssertions;
-using Bogus;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
@@ -9,7 +8,7 @@ using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
-
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -19,16 +18,14 @@ namespace Fenicia.Module.Basic.Tests.Domains.Order;
 public class OrderControllerTests : IDisposable
 {
     private readonly OrderController _controller;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<OrderService> _mockService;
+    private readonly Mock<IOrderService> _mockService;
 
     public OrderControllerTests()
     {
-        _mockService = new Mock<OrderService>();
+        _mockService = new Mock<IOrderService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new OrderController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -111,13 +108,13 @@ public class OrderControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllOrderQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllOrderResponse>>(new List<GetAllOrderResponse>(), 0, 1, 10));
+            .ReturnsAsync(new Pagination<List<GetAllOrderResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetOrderByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetOrderByIdQuery q, CancellationToken cancellationToken) => new GetOrderByIdResponse(q.Id, "ORD-123", Guid.NewGuid(), Guid.NewGuid(), "Customer", 100, 0, 1, DateTime.UtcNow, "Pending", PaymentMethod.Cash, null));
+            .ReturnsAsync((GetOrderByIdQuery q, CancellationToken _) => new GetOrderByIdResponse(q.Id, "ORD-123", Guid.NewGuid(), Guid.NewGuid(), "Customer", 100, 0, 1, DateTime.UtcNow, "Pending", PaymentMethod.Cash, null));
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((CreateOrderCommand cmd, Guid companyId, CancellationToken cancellationToken) => new CreateOrderResponse(Guid.NewGuid(), "ORD-123", Guid.NewGuid(), Guid.NewGuid(), 100, 0, 1, DateTime.UtcNow, OrderStatus.Pending, PaymentMethod.Cash, null, Guid.NewGuid()));
+            .ReturnsAsync((CreateOrderCommand _, Guid _, CancellationToken _) => new CreateOrderResponse(Guid.NewGuid(), "ORD-123", Guid.NewGuid(), Guid.NewGuid(), 100, 0, 1, DateTime.UtcNow, OrderStatus.Pending, PaymentMethod.Cash, null, Guid.NewGuid()));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

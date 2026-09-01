@@ -95,7 +95,7 @@ public class OrderRepositoryTests : IDisposable
             Status = OrderStatus.Approved,
             UserId = Guid.NewGuid(),
             TotalAmount = 100.00m,
-            CompanyId = Guid.NewGuid()
+            CompanyId = Guid.Empty
         };
 
         var order2 = new OrderModel
@@ -106,7 +106,7 @@ public class OrderRepositoryTests : IDisposable
             Status = OrderStatus.Approved,
             UserId = Guid.NewGuid(),
             TotalAmount = 200.00m,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = Guid.Empty,
             Deleted = DateTime.UtcNow
         };
 
@@ -115,7 +115,7 @@ public class OrderRepositoryTests : IDisposable
 
         var results = await _repository.GetAllAsync(1, 10, CancellationToken.None);
 
-        var orderModels = results as OrderModel[] ?? [];
+        var orderModels = results.ToArray();
         Assert.Single(orderModels);
         Assert.Equal(order1.Id, orderModels.First().Id);
     }

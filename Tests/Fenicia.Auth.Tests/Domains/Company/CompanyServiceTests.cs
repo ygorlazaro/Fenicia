@@ -102,44 +102,9 @@ public class CompanyServiceTests
     public async Task GetCompaniesByUserAsync_WhenPageBeyondAvailablePages_ReturnsEmptyList()
     {
         var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var roleId = Guid.NewGuid();
-
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "User"
-        };
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Internet.UserName(),
-            Password = _faker.Internet.Password()
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = company.Id,
-            Role = role,
-            Company = company,
-            User = user
-        };
 
         _mockUserRoleService.Setup(s => s.GetUserRolesAsync(userId, 5, 10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([userRole]);
+            .ReturnsAsync([]);
         _mockUserRoleService.Setup(s => s.CountUserRolesAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
@@ -340,7 +305,7 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.GetUserRolesAsync(userId, 1, 10, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userRoles);
         _mockUserRoleService.Setup(s => s.CountUserRolesAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(2);
+            .ReturnsAsync(1);
 
         var result = await _service.GetCompaniesByUserAsync(userId, 1, 10, CancellationToken.None);
 

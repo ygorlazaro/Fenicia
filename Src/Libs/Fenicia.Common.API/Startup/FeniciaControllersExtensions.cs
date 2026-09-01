@@ -1,7 +1,5 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
-
-using Fenicia.Common.Data;
 using Fenicia.Common.Localization;
 
 using Microsoft.AspNetCore.Builder;

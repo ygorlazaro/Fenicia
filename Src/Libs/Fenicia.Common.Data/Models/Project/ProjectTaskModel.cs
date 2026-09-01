@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Project;
 
-namespace Fenicia.Common.Data.Models.ProjectModels;
+namespace Fenicia.Common.Data.Models.Project;
 
 [Table("tasks", Schema = "project")]
 public class ProjectTaskModel : BaseCompanyModel

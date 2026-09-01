@@ -1,5 +1,5 @@
 using AwesomeAssertions;
-using Fenicia.Common.Api.Controllers;
+using Fenicia.Common.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Common.API.Tests.Controllers;
@@ -20,16 +20,14 @@ public class ControllerBaseExtensionsTests
     public void ForbidWithMessage_ShouldReturnProblem_WithCorrectProperties()
     {
         var controller = new TestController();
-        var result = controller.ForbidWithMessage("Test message") as ObjectResult;
+        var result = controller.ForbidWithMessage("Test message");
 
         result.Should().NotBeNull();
-        var valueType = result!.Value!.GetType()!;
+        var valueType = result.Value!.GetType();
         valueType.GetProperty("status")!.GetValue(result.Value!)!.Should().Be(403);
         valueType.GetProperty("title")!.GetValue(result.Value!)!.Should().Be("Forbidden");
         valueType.GetProperty("detail")!.GetValue(result.Value!)!.Should().Be("Test message");
     }
 
-    private sealed class TestController : ControllerBase
-    {
-    }
+    private sealed class TestController : ControllerBase;
 }

@@ -13,12 +13,9 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
 
             if (jwtCompanyId.HasValue && headerCompanyId.HasValue)
             {
-                if (jwtCompanyId.Value != headerCompanyId.Value)
-                {
-                    throw new InvalidOperationException("CompanyId mismatch between JWT claim and HTTP header.");
-                }
-
-                return jwtCompanyId.Value;
+                return jwtCompanyId.Value != headerCompanyId.Value
+                    ? throw new InvalidOperationException("CompanyId mismatch between JWT claim and HTTP header.")
+                    : jwtCompanyId.Value;
             }
 
             if (jwtCompanyId.HasValue)
@@ -26,12 +23,7 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
                 return jwtCompanyId.Value;
             }
 
-            if (headerCompanyId.HasValue)
-            {
-                return headerCompanyId.Value;
-            }
-
-            return Guid.Empty;
+            return headerCompanyId ?? Guid.Empty;
         }
     }
 
@@ -40,12 +32,7 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
         var claim = http.HttpContext?.User?.FindFirst("company_id")
                         ?? http.HttpContext?.User?.FindFirst("companyId");
 
-        if (claim is not null && Guid.TryParse(claim.Value, out var claimCompanyId))
-        {
-            return claimCompanyId;
-        }
-
-        return null;
+        return claim is not null && Guid.TryParse(claim.Value, out var claimCompanyId) ? claimCompanyId : null;
     }
 
     private Guid? GetHeaderCompanyId()
@@ -53,11 +40,6 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
         var headerValue = http.HttpContext?.Request?.Headers["CompanyId"].FirstOrDefault()
                            ?? http.HttpContext?.Request?.Headers["companyId"].FirstOrDefault();
 
-        if (!string.IsNullOrEmpty(headerValue) && Guid.TryParse(headerValue, out var headerCompanyId))
-        {
-            return headerCompanyId;
-        }
-
-        return null;
+        return !string.IsNullOrEmpty(headerValue) && Guid.TryParse(headerValue, out var headerCompanyId) ? headerCompanyId : null;
     }
 }

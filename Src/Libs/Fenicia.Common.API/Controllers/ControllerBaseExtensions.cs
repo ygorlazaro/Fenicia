@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fenicia.Common.Api.Controllers;
+namespace Fenicia.Common.API.Controllers;
 
 public static class ControllerBaseExtensions
 {

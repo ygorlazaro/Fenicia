@@ -411,7 +411,7 @@ public class UserControllerTests
         var result = await _controller.DeleteAsync(_testUserId, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<BadRequestResult>(result);
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]

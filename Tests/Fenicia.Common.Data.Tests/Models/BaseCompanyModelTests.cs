@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Fenicia.Common.Data;
 
 namespace Fenicia.Common.Data.Tests.Models;
 
@@ -32,7 +31,5 @@ public class BaseCompanyModelTests
         model.CompanyId.Should().Be(companyId);
     }
 
-    private sealed class TestBaseCompanyModel : BaseCompanyModel
-    {
-    }
+    private sealed class TestBaseCompanyModel : BaseCompanyModel;
 }

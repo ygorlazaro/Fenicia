@@ -1,5 +1,4 @@
-using Fenicia.Common.Data.Models.SocialNetworkModels;
-
+using Fenicia.Common.Data.Models.SocialNetwork;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Contexts;

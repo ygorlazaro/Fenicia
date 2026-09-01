@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Fenicia.Common.Data.Models.SocialNetworkModels;
+namespace Fenicia.Common.Data.Models.SocialNetwork;
 
 [Table("attachments", Schema = "social_network")]
 public class AttachmentModel : BaseCompanyModel

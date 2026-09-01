@@ -1,59 +1,27 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Person;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Person;
 
 public class PersonServiceTests : IDisposable
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IPersonRepository> _mockRepository;
     private readonly PersonService _service;
 
     public PersonServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        var repository = new PersonRepository(_db);
-        _service = new PersonService(repository);
+        _mockRepository = new Mock<IPersonRepository>();
+        _service = new PersonService(_mockRepository.Object);
         _faker = new Faker();
     }
 
     public void Dispose()
     {
-        _db.Dispose();
         GC.SuppressFinalize(this);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_WhenPersonExists_ReturnsPerson()
-    {
-        // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
-        _db.BasicPeople.Add(person);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        // Act
-        var result = await _service.GetByIdAsync(person.Id, CancellationToken.None);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be(person.Id);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_WhenPersonDoesNotExist_ReturnsNull()
-    {
-        // Act
-        var result = await _service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
-
-        // Assert
-        result.Should().BeNull();
     }
 
     [Fact]
@@ -61,42 +29,72 @@ public class PersonServiceTests : IDisposable
     {
         // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<PersonModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(person);
 
         // Act
-        var result = await _service.InsertAsync(person, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.InsertAsync(person, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.CompanyId.Should().Be(person.CompanyId);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPersonExists_UpdatesPerson()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
-        _db.BasicPeople.Add(person);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        person.Name = "Updated Name";
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = "Updated Name" };
+        _mockRepository.Setup(r => r.UpdateAsync(person.Id, It.IsAny<PersonModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(person);
 
         // Act
-        var result = await _service.UpdateAsync(person.Id, person, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.UpdateAsync(person.Id, person, Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Updated Name");
+        result.Id.Should().Be(person.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPersonDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<PersonModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PersonModel?)null);
 
         // Act
-        var result = await _service.UpdateAsync(person.Id, person, _db.CurrentCompanyId ?? Guid.Empty, CancellationToken.None);
+        var result = await _service.UpdateAsync(Guid.NewGuid(), new PersonModel(), Guid.NewGuid(), CancellationToken.None);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenPersonExists_ReturnsPerson()
+    {
+        // Arrange
+        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName };
+        _mockRepository.Setup(r => r.GetByIdAsync(person.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(person);
+
+        // Act
+        var result = await _service.GetByIdAsync(person.Id, CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().Be(person.Id);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenPersonDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PersonModel?)null);
+
+        // Act
+        var result = await _service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().BeNull();

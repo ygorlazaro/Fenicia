@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Fenicia.Externals.Email;
 
 namespace Fenicia.Externals.Email.Tests;
 
@@ -12,7 +11,7 @@ public class IBrevoProviderTests
 
         var method = interfaceType.GetMethod("Send");
         method.Should().NotBeNull();
-        method!.ReturnType.Should().Be(typeof(void));
+        method.ReturnType.Should().Be(typeof(void));
     }
 
     [Fact]

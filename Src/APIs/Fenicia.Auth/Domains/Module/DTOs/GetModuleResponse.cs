@@ -11,4 +11,4 @@ public sealed record GetModuleResponse(
     [MaxLength(200)] string? Icon,
     bool IsActive,
     int SortOrder,
-    decimal Price);
+    decimal? Price);

@@ -1,22 +1,23 @@
-using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Employee;
-using Fenicia.Module.Basic.Domains.Position;
+using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
+using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
+using Fenicia.Module.Basic.Domains.Position.Interfaces;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
-using Fenicia.Module.Basic.Domains.Supplier;
+using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
+using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;
 
 public class DataSourceService(
-    CustomerService customerService,
-    EmployeeService employeeService,
-    PositionService positionService,
-    ProductCategoryService productCategoryService,
-    ProductService productService,
-    SupplierService supplierService)
+    ICustomerService customerService,
+    IEmployeeService employeeService,
+    IPositionService positionService,
+    IProductCategoryService productCategoryService,
+    IProductService productService,
+    ISupplierService supplierService) : IDataSourceService
 {
     public DataSourceService()
         : this(null!, null!, null!, null!, null!, null!)

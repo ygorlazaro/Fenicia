@@ -4,7 +4,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project;
@@ -135,7 +135,7 @@ public class ProjectControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new AddProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), EnumProjectStatus.Draft.ToString(), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
+        var command = new AddProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Draft), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
         var wide = new WideEventContext();
 
         // Act
@@ -166,7 +166,7 @@ public class ProjectControllerTests : IDisposable
         _db.Projects.Add(project);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectCommand(project.Id, _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), EnumProjectStatus.Active.ToString(), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
+        var command = new UpdateProjectCommand(project.Id, _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Active), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
 
         // Act
         var result = await _controller.PatchAsync(command, project.Id, wide, CancellationToken.None);
@@ -184,7 +184,7 @@ public class ProjectControllerTests : IDisposable
     {
         // Arrange
         var wide = new WideEventContext();
-        var command = new UpdateProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), EnumProjectStatus.Draft.ToString(), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
+        var command = new UpdateProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Draft), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId);
 
         // Act
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);

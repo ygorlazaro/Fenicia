@@ -4,6 +4,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
+using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class EmployeeController(EmployeeService employeeService) : ControllerBase
+public class EmployeeController(IEmployeeService employeeService) : ControllerBase
 {
     /// <summary>
     /// Obtém a lista de funcionários.

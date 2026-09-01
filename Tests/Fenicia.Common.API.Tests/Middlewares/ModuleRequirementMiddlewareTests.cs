@@ -11,8 +11,10 @@ public class ModuleRequirementMiddlewareTests
     public async Task InvokeAsync_ShouldReturn403_WhenModuleClaimMissing()
     {
         var middleware = new ModuleRequirementMiddleware(next: null!, "Auth");
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity([]));
+        var context = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([]))
+        };
 
         await middleware.InvokeAsync(context);
 
@@ -23,11 +25,12 @@ public class ModuleRequirementMiddlewareTests
     public async Task InvokeAsync_ShouldReturn403_WhenModuleNotInClaim()
     {
         var middleware = new ModuleRequirementMiddleware(next: null!, "Auth");
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var context = new DefaultHttpContext
         {
-            new Claim("module", "[\"Basic\"]")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("module", "[\"Basic\"]")
+            ]))
+        };
 
         await middleware.InvokeAsync(context);
 
@@ -45,11 +48,12 @@ public class ModuleRequirementMiddlewareTests
                 return Task.CompletedTask;
             },
             requiredModule: "Auth");
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var context = new DefaultHttpContext
         {
-            new Claim("module", "[\"Auth\",\"Basic\"]")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("module", "[\"Auth\",\"Basic\"]")
+            ]))
+        };
 
         await middleware.InvokeAsync(context);
 
@@ -61,11 +65,12 @@ public class ModuleRequirementMiddlewareTests
     public async Task InvokeAsync_ShouldReturn403_WhenClaimFormatIsInvalid()
     {
         var middleware = new ModuleRequirementMiddleware(next: null!, "Auth");
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var context = new DefaultHttpContext
         {
-            new Claim("module", "invalid-json")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("module", "invalid-json")
+            ]))
+        };
 
         await middleware.InvokeAsync(context);
 

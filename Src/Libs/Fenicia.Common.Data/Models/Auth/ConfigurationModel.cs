@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Fenicia.Common.Enums.Auth;
@@ -9,6 +10,7 @@ public class ConfigurationModel : BaseCompanyModel
 {
     public ConfigType ConfigType { get; set; }
 
+    [MaxLength(200)]
     public string Value { get; set; } = null!;
 
     public Guid UserId { get; set; }

@@ -156,7 +156,8 @@ public class RefreshTokenServiceTests
 
         await _service.InvalidateAsync(refreshToken, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(tokenResponse, It.IsAny<CancellationToken>()), Times.Once);
+        var updatedToken = tokenResponse with { IsActive = false };
+        _mockRepository.Verify(r => r.UpdateAsync(updatedToken, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

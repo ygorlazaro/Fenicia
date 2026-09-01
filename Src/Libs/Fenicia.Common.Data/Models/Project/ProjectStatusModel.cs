@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Fenicia.Common.Data.Models.ProjectModels;
+namespace Fenicia.Common.Data.Models.Project;
 
 [Table("statuses", Schema = "project")]
 public class ProjectStatusModel : BaseCompanyModel

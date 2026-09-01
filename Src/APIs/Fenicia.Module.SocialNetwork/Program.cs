@@ -1,14 +1,7 @@
-using System.Text;
-
 using Fenicia.Common.API;
-using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-
-using Scalar.AspNetCore;
 
 namespace Fenicia.Module.SocialNetwork;
 
@@ -16,82 +9,27 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var tenantArg = args.FirstOrDefault(o => o.StartsWith("--tenant="));
-        if (tenantArg is not null)
-        {
-            var tenantId = tenantArg.Split("=")[1];
+        FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
-            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
-        }
-
-        var configBuilder = new ConfigurationManager();
-        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Common.json");
-        if (!File.Exists(commonApiSettingsPath))
-        {
-            throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
-        }
-
-        configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
-        configBuilder.AddEnvironmentVariables();
-
-        var builder = WebApplication.CreateBuilder(args);
-        builder.Configuration.AddConfiguration(configBuilder);
-
-        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret key not found in configuration"));
-
-        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-        builder.Services.AddHttpContextAccessor();
-
-        builder.Services.AddDbContext<DefaultContext>((sp, o) =>
-    {
-        var config = sp.GetRequiredService<IConfiguration>();
-        var connString = config.GetConnectionString("Auth");
-
-        if (string.IsNullOrWhiteSpace(connString))
-        {
-            throw new InvalidOperationException("Connection string inválida");
-        }
-    });
-
-        builder.Services.AddAuthentication(o =>
-    {
-        o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    }).AddJwtBearer(o =>
-{
-    o.RequireHttpsMetadata = false;
-    o.SaveToken = true;
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidIssuer = "AuthService",
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true
-    };
-});
-
-        builder.Services.AddControllers();
-        builder.Services.AddOpenApi();
-        builder.AddFeniciaCors();
+        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors()
+            .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
+            .AddFeniciaDependencyInjection(() =>
+            {
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
+            }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
+        app.UseFeniciaLocalization();
 
-        if (app.Environment.IsDevelopment())
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") == "true")
         {
-            app.MapOpenApi();
-            app.MapScalarApiReference(o => { o.Authentication = new ScalarAuthenticationOptions { PreferredSecuritySchemes = ["Bearer "] }; });
+            return;
         }
 
-        app.UseAuthentication();
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
+        app.UseAuthentication();
         app.UseAuthorization();
-
-        app.UseWhen(o => o.Request.Path.StartsWithSegments("/socialnetwork"), appBuilder => appBuilder.UseModuleRequirement("socialnetwork"));
-
-        app.MapControllers();
-
         app.Run();
     }
 }

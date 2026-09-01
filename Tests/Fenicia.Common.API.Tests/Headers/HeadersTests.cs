@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Fenicia.Common.API;
 
 namespace Fenicia.Common.API.Tests.Headers;
 

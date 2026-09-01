@@ -79,6 +79,8 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query"></param>
+    /// <param name="sort"></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de seguidores</returns>
     /// <response code="200">Lista de seguidores retornada com sucesso</response>
@@ -107,6 +109,8 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query"></param>
+    /// <param name="sort"></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de usuários seguidos</returns>
     /// <response code="200">Lista de usuários seguidos retornada com sucesso</response>

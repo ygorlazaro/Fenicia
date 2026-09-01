@@ -11,8 +11,10 @@ public class RoleGodRequirementMiddlewareTests
     public async Task InvokeAsync_ShouldReturn403_WhenRoleClaimMissing()
     {
         var middleware = new RoleGodRequirementMiddleware(next: null!);
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity([]));
+        var context = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([]))
+        };
 
         await middleware.InvokeAsync(context);
 
@@ -23,11 +25,12 @@ public class RoleGodRequirementMiddlewareTests
     public async Task InvokeAsync_ShouldReturn403_WhenRoleIsNotAdmin()
     {
         var middleware = new RoleGodRequirementMiddleware(next: null!);
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var context = new DefaultHttpContext
         {
-            new Claim("role", "[\"User\"]")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("role", "[\"User\"]")
+            ]))
+        };
 
         await middleware.InvokeAsync(context);
 
@@ -43,11 +46,12 @@ public class RoleGodRequirementMiddlewareTests
             called = true;
             return Task.CompletedTask;
         });
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var context = new DefaultHttpContext
         {
-            new Claim("role", "[\"Admin\"]")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("role", "[\"Admin\"]")
+            ]))
+        };
 
         await middleware.InvokeAsync(context);
 
@@ -59,11 +63,12 @@ public class RoleGodRequirementMiddlewareTests
     public async Task InvokeAsync_ShouldReturn403_WhenClaimFormatIsInvalid()
     {
         var middleware = new RoleGodRequirementMiddleware(next: null!);
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var context = new DefaultHttpContext
         {
-            new Claim("role", "invalid-json")
-        }));
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim("role", "invalid-json")
+            ]))
+        };
 
         await middleware.InvokeAsync(context);
 

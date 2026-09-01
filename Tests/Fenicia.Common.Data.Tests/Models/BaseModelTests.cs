@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Fenicia.Common.Data;
 
 namespace Fenicia.Common.Data.Tests.Models;
 
@@ -33,7 +32,5 @@ public class BaseModelTests
         model.Deleted.Should().BeNull();
     }
 
-    private sealed class TestBaseModel : BaseModel
-    {
-    }
+    private sealed class TestBaseModel : BaseModel;
 }

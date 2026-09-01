@@ -1,5 +1,5 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,12 +1,11 @@
 using System.Security.Claims;
 
 using AwesomeAssertions;
-using Bogus;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.State.DTOs;
-
+using Fenicia.Module.Basic.Domains.State.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,16 +15,14 @@ namespace Fenicia.Module.Basic.Tests.Domains.State;
 public class StateControllerTests : IDisposable
 {
     private readonly StateController _controller;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<StateService> _mockService;
+    private readonly Mock<IStateService> _mockService;
 
     public StateControllerTests()
     {
-        _mockService = new Mock<StateService>();
+        _mockService = new Mock<IStateService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new StateController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -51,7 +48,7 @@ public class StateControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllStateQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetAllStateResponse>());
+            .ReturnsAsync([]);
     }
 
     private void SetupUserClaims(Guid userId)

@@ -58,7 +58,7 @@ public class StockMovementRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(stockMovement.Id);
+        result.Id.Should().Be(stockMovement.Id);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class StockMovementRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(stockMovement.Id);
+        result.Id.Should().Be(stockMovement.Id);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class StockMovementRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedStockMovement = await _db.BasicStockMovements.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == stockMovement.Id);
         deletedStockMovement.Should().NotBeNull();
-        deletedStockMovement!.Deleted.Should().NotBeNull();
+        deletedStockMovement.Deleted.Should().NotBeNull();
     }
 
     [Fact]

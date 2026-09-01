@@ -4,13 +4,14 @@ using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementService(
     IStockMovementRepository stockMovementRepository,
-    IProductRepository productRepository)
+    IProductRepository productRepository) : IStockMovementService
 {
     public StockMovementService()
         : this(null!, null!)

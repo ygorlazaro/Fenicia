@@ -17,7 +17,7 @@ public class NotSavedExceptionTests
     [Fact]
     public void Constructor_WithCustomMessage_ShouldUseCustomMessage()
     {
-        var customMessage = "Custom not saved message";
+        const string customMessage = "Custom not saved message";
         var exception = new NotSavedException(customMessage);
 
         exception.Message.Should().Be(customMessage);

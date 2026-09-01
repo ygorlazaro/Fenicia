@@ -80,6 +80,8 @@ public class BlockController(BlockService blockService) : ControllerBase
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
+    /// <param name="query"></param>
+    /// <param name="sort"></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de usuários bloqueados</returns>
     /// <response code="200">Lista de usuários bloqueados retornada com sucesso</response>

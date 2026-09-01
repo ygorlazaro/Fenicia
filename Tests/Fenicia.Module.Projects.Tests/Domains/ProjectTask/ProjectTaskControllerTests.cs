@@ -4,7 +4,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTask;
@@ -137,8 +137,8 @@ public class ProjectTaskControllerTests : IDisposable
             Guid.NewGuid(),
             _faker.Commerce.Categories(1).First(),
             _faker.Commerce.ProductDescription(),
-            EnumTaskPriority.Medium.ToString(),
-            EnumTaskType.Task.ToString(),
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
             _faker.Random.Int(1, 100),
             _faker.Random.Int(1, 21),
             DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
@@ -185,8 +185,8 @@ public class ProjectTaskControllerTests : IDisposable
             projectTask.StatusId,
             _faker.Commerce.Categories(1).First(),
             _faker.Commerce.ProductDescription(),
-            EnumTaskPriority.High.ToString(),
-            EnumTaskType.Bug.ToString(),
+            nameof(EnumTaskPriority.High),
+            nameof(EnumTaskType.Bug),
             _faker.Random.Int(1, 100),
             _faker.Random.Int(1, 21),
             DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
@@ -214,8 +214,8 @@ public class ProjectTaskControllerTests : IDisposable
             Guid.NewGuid(),
             _faker.Commerce.Categories(1).First(),
             _faker.Commerce.ProductDescription(),
-            EnumTaskPriority.Medium.ToString(),
-            EnumTaskType.Task.ToString(),
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
             _faker.Random.Int(1, 100),
             _faker.Random.Int(1, 21),
             DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
@@ -258,7 +258,7 @@ public class ProjectTaskControllerTests : IDisposable
         result.Should().BeOfType<NoContentResult>();
         var deletedTask = await _db.ProjectTasks.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == projectTask.Id);
         deletedTask.Should().NotBeNull();
-        deletedTask!.Deleted.Should().NotBeNull();
+        deletedTask.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)

@@ -57,7 +57,7 @@ public class PositionRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(position.Id);
+        result.Id.Should().Be(position.Id);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class PositionRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(position.Id);
+        result.Id.Should().Be(position.Id);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class PositionRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedPosition = await _db.BasicPositions.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == position.Id);
         deletedPosition.Should().NotBeNull();
-        deletedPosition!.Deleted.Should().NotBeNull();
+        deletedPosition.Deleted.Should().NotBeNull();
     }
 
     [Fact]

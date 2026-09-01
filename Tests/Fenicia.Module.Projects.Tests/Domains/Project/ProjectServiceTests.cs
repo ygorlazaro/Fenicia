@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project;
@@ -50,7 +50,7 @@ public class ProjectServiceTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProjectQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectQuery(), CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -80,7 +80,7 @@ public class ProjectServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(project.Id);
+        result.Id.Should().Be(project.Id);
         result.Title.Should().Be(project.Title);
         result.Statuses.Should().NotBeNull();
         result.Tasks.Should().NotBeNull();
@@ -102,7 +102,7 @@ public class ProjectServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesProject()
     {
         // Arrange
-        var command = new AddProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), EnumProjectStatus.Draft.ToString(), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid());
+        var command = new AddProjectCommand(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Draft), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid());
 
         // Act
         var result = await _service.AddAsync(command, _companyId, CancellationToken.None);
@@ -111,7 +111,7 @@ public class ProjectServiceTests : IDisposable
         result.Should().NotBeNull();
         result.Id.Should().Be(command.Id);
         result.Title.Should().Be(command.Title);
-        result.Status.Should().Be(EnumProjectStatus.Draft.ToString());
+        result.Status.Should().Be(nameof(EnumProjectStatus.Draft));
         result.CompanyId.Should().Be(_companyId);
     }
 
@@ -131,23 +131,23 @@ public class ProjectServiceTests : IDisposable
         _db.Projects.Add(project);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectCommand(project.Id, "Updated Title", _faker.Commerce.ProductDescription(), EnumProjectStatus.Active.ToString(), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), project.Owner);
+        var command = new UpdateProjectCommand(project.Id, "Updated Title", _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Active), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), project.Owner);
 
         // Act
         var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(project.Id);
+        result.Id.Should().Be(project.Id);
         result.Title.Should().Be("Updated Title");
-        result.Status.Should().Be(EnumProjectStatus.Active.ToString());
+        result.Status.Should().Be(nameof(EnumProjectStatus.Active));
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProjectDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProjectCommand(Guid.NewGuid(), "Updated Title", _faker.Commerce.ProductDescription(), EnumProjectStatus.Active.ToString(), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid());
+        var command = new UpdateProjectCommand(Guid.NewGuid(), "Updated Title", _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Active), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid());
 
         // Act
         var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
@@ -178,7 +178,7 @@ public class ProjectServiceTests : IDisposable
         // Assert
         var deletedProject = await _db.Projects.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == project.Id);
         deletedProject.Should().NotBeNull();
-        deletedProject!.Deleted.Should().NotBeNull();
+        deletedProject.Deleted.Should().NotBeNull();
     }
 
     [Fact]

@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Fenicia.Common.Enums.External;
-using Fenicia.Externals.Email;
 
 namespace Fenicia.Externals.Email.Tests;
 
@@ -18,7 +17,7 @@ public class BrevoProviderTests
     public void Send_ShouldReadApiKeyFromEnvironment()
     {
         var provider = new BrevoProvider();
-        Action act = () => provider.Send(EmailTemplate.ForgotPassword, "test@example.com", "Test", null);
+        var act = () => provider.Send(EmailTemplate.ForgotPassword, "test@example.com", "Test", null);
 
         act.Should().Throw<Exception>();
     }
@@ -26,10 +25,8 @@ public class BrevoProviderTests
     [Fact]
     public void Send_ShouldUseTemplateIdFromEnum()
     {
-        var provider = new BrevoProvider();
-
-        var template = EmailTemplate.ForgotPassword;
-        var templateId = (int)template;
+        const EmailTemplate template = EmailTemplate.ForgotPassword;
+        const int templateId = (int)template;
 
         templateId.Should().Be(1);
     }

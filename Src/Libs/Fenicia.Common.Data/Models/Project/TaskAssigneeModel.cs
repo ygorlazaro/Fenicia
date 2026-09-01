@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Project;
 
-namespace Fenicia.Common.Data.Models.ProjectModels;
+namespace Fenicia.Common.Data.Models.Project;
 
 [Table("task_assignees", Schema = "project")]
 public class TaskAssigneeModel : BaseCompanyModel

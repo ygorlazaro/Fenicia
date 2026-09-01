@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Auth;
 
-namespace Fenicia.Common.Data.Models.ProjectModels;
+namespace Fenicia.Common.Data.Models.Project;
 
 [Table("comments", Schema = "project")]
 public class ProjectCommentModel : BaseCompanyModel

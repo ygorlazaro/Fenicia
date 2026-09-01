@@ -1,6 +1,4 @@
 using System.Text;
-
-using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;

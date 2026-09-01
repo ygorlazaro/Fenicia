@@ -57,7 +57,7 @@ public class PersonRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(person.Id);
+        result.Id.Should().Be(person.Id);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class PersonRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(person.Id);
+        result.Id.Should().Be(person.Id);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class PersonRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedPerson = await _db.BasicPeople.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == person.Id);
         deletedPerson.Should().NotBeNull();
-        deletedPerson!.Deleted.Should().NotBeNull();
+        deletedPerson.Deleted.Should().NotBeNull();
     }
 
     [Fact]

@@ -1,14 +1,11 @@
 using System.Security.Claims;
 
 using AwesomeAssertions;
-using Bogus;
-
-using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
-
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -18,16 +15,14 @@ namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 public class StockMovementControllerTests : IDisposable
 {
     private readonly StockMovementController _controller;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<StockMovementService> _mockService;
+    private readonly Mock<IStockMovementService> _mockService;
 
     public StockMovementControllerTests()
     {
-        _mockService = new Mock<StockMovementService>();
+        _mockService = new Mock<IStockMovementService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new StockMovementController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -112,13 +107,13 @@ public class StockMovementControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAsync(It.IsAny<GetStockMovementQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GetStockMovementResponse>());
+            .ReturnsAsync([]);
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddStockMovementCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
+            .ReturnsAsync((AddStockMovementCommand cmd, Guid _, CancellationToken _) => new AddStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateStockMovementCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdateStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
+            .ReturnsAsync((UpdateStockMovementCommand cmd, Guid _, CancellationToken _) => new UpdateStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, null, null, null, null, cmd.Reason));
 
         _mockService.Setup(s => s.GetDashboardAsync(It.IsAny<GetStockMovementDashboardQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new StockMovementDashboardResponse());

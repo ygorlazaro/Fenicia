@@ -13,7 +13,6 @@ public class AddProjectStatusServiceTests : IDisposable
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly ProjectStatusService _service;
-    private readonly ProjectStatusRepository _repository;
     private readonly Guid _companyId;
 
     public AddProjectStatusServiceTests()
@@ -21,8 +20,8 @@ public class AddProjectStatusServiceTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
-        _repository = new ProjectStatusRepository(_db);
-        _service = new ProjectStatusService(_repository);
+        var repository = new ProjectStatusRepository(_db);
+        _service = new ProjectStatusService(repository);
         _faker = new Faker();
         _companyId = companyContext.CompanyId;
     }
@@ -44,7 +43,7 @@ public class AddProjectStatusServiceTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Name.Should().Be(command.Name);
+        result.Name.Should().Be(command.Name);
         result.CompanyId.Should().Be(_companyId);
     }
 }

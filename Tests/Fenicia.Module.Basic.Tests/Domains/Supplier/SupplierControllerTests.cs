@@ -5,10 +5,9 @@ using Bogus;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
-
+using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -20,11 +19,11 @@ public class SupplierControllerTests : IDisposable
     private readonly SupplierController _controller;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<SupplierService> _mockService;
+    private readonly Mock<ISupplierService> _mockService;
 
     public SupplierControllerTests()
     {
-        _mockService = new Mock<SupplierService>();
+        _mockService = new Mock<ISupplierService>();
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new SupplierController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
@@ -142,16 +141,16 @@ public class SupplierControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllSupplierQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<List<GetAllSupplierResponse>>(new List<GetAllSupplierResponse>(), 0, 1, 10));
+            .ReturnsAsync(new Pagination<List<GetAllSupplierResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetSupplierByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetSupplierByIdQuery q, CancellationToken cancellationToken) => new GetSupplierByIdResponse(q.Id, Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+            .ReturnsAsync((GetSupplierByIdQuery q, CancellationToken _) => new GetSupplierByIdResponse(q.Id, Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddSupplierCommand cmd, Guid companyId, CancellationToken cancellationToken) => new AddSupplierResponse(cmd.Id, cmd.Cnpj));
+            .ReturnsAsync((AddSupplierCommand cmd, Guid _, CancellationToken _) => new AddSupplierResponse(cmd.Id, cmd.Cnpj));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateSupplierCommand cmd, Guid companyId, CancellationToken cancellationToken) => new UpdateSupplierResponse(cmd.Id, cmd.Cnpj));
+            .ReturnsAsync((UpdateSupplierCommand cmd, Guid _, CancellationToken _) => new UpdateSupplierResponse(cmd.Id, cmd.Cnpj));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
@@ -11,7 +10,6 @@ namespace Fenicia.Module.Basic.Tests.Domains.PersonAddress;
 public class PersonAddressRepositoryTests : IDisposable
 {
     private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly PersonAddressRepository _repository;
 
     public PersonAddressRepositoryTests()
@@ -20,7 +18,6 @@ public class PersonAddressRepositoryTests : IDisposable
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new PersonAddressRepository(_db);
-        _faker = new Faker();
     }
 
     public void Dispose()
@@ -57,7 +54,7 @@ public class PersonAddressRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(personAddress.Id);
+        result.Id.Should().Be(personAddress.Id);
     }
 
     [Fact]
@@ -98,7 +95,7 @@ public class PersonAddressRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(personAddress.Id);
+        result.Id.Should().Be(personAddress.Id);
     }
 
     [Fact]
@@ -129,7 +126,7 @@ public class PersonAddressRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedPersonAddress = await _db.BasicPersonAddresses.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == personAddress.Id);
         deletedPersonAddress.Should().NotBeNull();
-        deletedPersonAddress!.Deleted.Should().NotBeNull();
+        deletedPersonAddress.Deleted.Should().NotBeNull();
     }
 
     [Fact]

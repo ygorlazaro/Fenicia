@@ -1,11 +1,12 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
+using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-public class PositionService(IPositionRepository positionRepository)
+public class PositionService(IPositionRepository positionRepository) : IPositionService
 {
     public PositionService()
         : this(null!)

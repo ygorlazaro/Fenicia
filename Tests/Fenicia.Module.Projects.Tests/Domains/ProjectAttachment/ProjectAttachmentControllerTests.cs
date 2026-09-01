@@ -3,7 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
@@ -20,7 +20,6 @@ public class ProjectAttachmentControllerTests : IDisposable
     private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId;
     private readonly Guid _companyId;
 
     public ProjectAttachmentControllerTests()
@@ -32,9 +31,9 @@ public class ProjectAttachmentControllerTests : IDisposable
         var service = new ProjectAttachmentService(repository);
         _mockHttpContext = new Mock<HttpContext>();
         _controller = new ProjectAttachmentController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _testUserId = Guid.NewGuid();
+        var testUserId = Guid.NewGuid();
         _companyId = companyContext.CompanyId;
-        SetupUserClaims(_testUserId);
+        SetupUserClaims(testUserId);
         _faker = new Faker();
     }
 

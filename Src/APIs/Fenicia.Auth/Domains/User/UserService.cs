@@ -306,7 +306,7 @@ public class UserService(
         {
             var existing = await userRoleService.GetUserRolesByUserIdAsync(user.Id, cancellationToken);
 
-            foreach (var role in existing ?? [])
+            foreach (var role in existing)
             {
                 await userRoleService.DeleteAsync(role.Id, cancellationToken);
             }
@@ -327,7 +327,7 @@ public class UserService(
 
         var requestedSet = requestedRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
-        var existingRoles = await userRoleService.GetUserRolesByUserIdAsync(user.Id, cancellationToken) ?? [];
+        var existingRoles = await userRoleService.GetUserRolesByUserIdAsync(user.Id, cancellationToken);
 
         var existingSet = existingRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 

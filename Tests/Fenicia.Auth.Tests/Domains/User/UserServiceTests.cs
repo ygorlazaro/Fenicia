@@ -296,6 +296,9 @@ public class UserServiceTests
         _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _mockUserRepository.Setup(r => r.UpdateAsync(userId, It.IsAny<UserModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
+        _mockUserRepository.Setup(r => r.Query()).Returns(new List<UserModel>().AsQueryable());
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         var result = await _service.UpdateAsync(request, CancellationToken.None);
 

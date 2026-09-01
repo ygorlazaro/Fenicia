@@ -3,7 +3,7 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
-
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +17,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CustomerController(CustomerService customerService) : ControllerBase
+public class CustomerController(ICustomerService customerService) : ControllerBase
 {
     /// <summary>
     /// Obtém uma lista paginada de clientes.

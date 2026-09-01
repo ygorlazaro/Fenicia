@@ -30,7 +30,7 @@ public class AuthProgramIntegrationTests
         builder.Services.AddTransient<Externals.Email.IBrevoProvider, TestBrevoProvider>();
         builder.Services.AddSingleton<Common.Data.ICompanyContext, Common.Data.CompanyContext>();
         builder.Services.AddHttpContextAccessor();
-        }).AddFeniciaDbContext<Common.Data.Contexts.DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+    }).AddFeniciaDbContext<Common.Data.Contexts.DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();

@@ -57,7 +57,7 @@ public class ProductRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(product.Id);
+        result.Id.Should().Be(product.Id);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class ProductRepositoryTests : IDisposable
 
         // Assert
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Updated Name");
+        result.Name.Should().Be("Updated Name");
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class ProductRepositoryTests : IDisposable
         result.Should().Be(1);
         var deletedProduct = await _db.BasicProducts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == product.Id);
         deletedProduct.Should().NotBeNull();
-        deletedProduct!.Deleted.Should().NotBeNull();
+        deletedProduct.Deleted.Should().NotBeNull();
     }
 
     [Fact]
