@@ -4,7 +4,6 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
@@ -32,7 +31,7 @@ public class ProjectCommentServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectCommentModel>(comments));
 
-        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(comments[0].Id);
@@ -49,7 +48,7 @@ public class ProjectCommentServiceTests
         var result = await _service.GetByIdAsync(new GetProjectCommentByIdQuery(comment.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(comment.Id);
+        result.Id.Should().Be(comment.Id);
         result.Content.Should().Be("hello");
     }
 
@@ -95,7 +94,7 @@ public class ProjectCommentServiceTests
         var result = await _service.UpdateAsync(command, comment.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Content.Should().Be("updated");
+        result.Content.Should().Be("updated");
     }
 
     [Fact]

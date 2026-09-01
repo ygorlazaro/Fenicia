@@ -31,7 +31,7 @@ public class ProjectStatusServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectStatusModel>(statuses));
 
-        var result = await _service.GetAllAsync(new GetAllProjectStatusQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectStatusQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(statuses[0].Id);
@@ -48,7 +48,7 @@ public class ProjectStatusServiceTests
         var result = await _service.GetByIdAsync(new GetProjectStatusByIdQuery(status.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Active");
+        result.Name.Should().Be("Active");
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class ProjectStatusServiceTests
         var result = await _service.UpdateAsync(command, status.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be(command.Name);
+        result.Name.Should().Be(command.Name);
     }
 
     [Fact]

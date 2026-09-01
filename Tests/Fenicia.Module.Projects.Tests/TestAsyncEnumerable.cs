@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Fenicia.Module.Projects.Tests;
 

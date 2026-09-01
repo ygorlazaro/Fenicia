@@ -32,7 +32,7 @@ public class ProjectTaskServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectTaskModel>(tasks));
 
-        var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(tasks[0].Id);
@@ -49,7 +49,7 @@ public class ProjectTaskServiceTests
         var result = await _service.GetByIdAsync(new GetProjectTaskByIdQuery(task.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(task.Id);
+        result.Id.Should().Be(task.Id);
         result.Title.Should().Be("T");
     }
 
@@ -93,7 +93,7 @@ public class ProjectTaskServiceTests
         var result = await _service.UpdateAsync(command, task.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Title.Should().Be("U");
+        result.Title.Should().Be("U");
     }
 
     [Fact]

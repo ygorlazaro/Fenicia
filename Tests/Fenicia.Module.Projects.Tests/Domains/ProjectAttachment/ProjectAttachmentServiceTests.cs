@@ -4,7 +4,6 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectAttachment;
@@ -32,7 +31,7 @@ public class ProjectAttachmentServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<AttachmentModel>(attachments));
 
-        var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(attachments[0].Id);
@@ -49,7 +48,7 @@ public class ProjectAttachmentServiceTests
         var result = await _service.GetByIdAsync(new GetProjectAttachmentByIdQuery(attachment.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(attachment.Id);
+        result.Id.Should().Be(attachment.Id);
     }
 
     [Fact]
@@ -92,7 +91,7 @@ public class ProjectAttachmentServiceTests
         var result = await _service.UpdateAsync(command, attachment.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(attachment.Id);
+        result.Id.Should().Be(attachment.Id);
     }
 
     [Fact]

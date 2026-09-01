@@ -25,11 +25,6 @@ public sealed class TestAsyncQueryProvider<T>(IQueryProvider inner) : IAsyncQuer
         return inner.Execute<TResult>(expression);
     }
 
-    public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
-    {
-        return new TestAsyncEnumerable<TResult>(expression);
-    }
-
     public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
     {
         return inner.Execute<TResult>(expression);

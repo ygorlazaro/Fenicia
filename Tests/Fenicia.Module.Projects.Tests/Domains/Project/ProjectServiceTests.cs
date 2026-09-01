@@ -5,7 +5,6 @@ using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
@@ -41,7 +40,7 @@ public class ProjectServiceTests
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectModel>(projects));
 
-        var result = await _service.GetAllAsync(new GetAllProjectQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProjectQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(projects[0].Id);
@@ -67,7 +66,7 @@ public class ProjectServiceTests
         var result = await _service.GetByIdAsync(new GetProjectByIdQuery(project.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(project.Id);
+        result.Id.Should().Be(project.Id);
         result.Title.Should().Be(project.Title);
         result.Statuses.Should().NotBeNull();
         result.Tasks.Should().NotBeNull();
@@ -137,7 +136,7 @@ public class ProjectServiceTests
         var result = await _service.UpdateAsync(command, project.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(project.Id);
+        result.Id.Should().Be(project.Id);
         result.Title.Should().Be("Updated Title");
     }
 
