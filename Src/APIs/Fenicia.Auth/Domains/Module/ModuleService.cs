@@ -51,7 +51,7 @@ public class ModuleService(IModuleRepository repository, IUserRoleService userRo
 
         var modulesResult = await repository.GetByIdsAsync(moduleIds, cancellationToken);
 
-        return [.. modulesResult.Select(m => m.MapToGetUserModulesResponse())];
+        return [.. (modulesResult ?? []).Select(m => m.MapToGetUserModulesResponse())];
     }
 
     public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)

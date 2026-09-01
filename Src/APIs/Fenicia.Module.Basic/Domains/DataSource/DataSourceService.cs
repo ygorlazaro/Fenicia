@@ -18,6 +18,11 @@ public class DataSourceService(
     ProductService productService,
     SupplierService supplierService)
 {
+    public DataSourceService()
+        : this(null!, null!, null!, null!, null!, null!)
+    {
+    }
+
     public virtual async Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(CancellationToken cancellationToken = default)
     {
         return await customerService.GetAllForDataSourceAsync(cancellationToken);
