@@ -273,7 +273,7 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasRoles_TokenContainsRoleClaims()
     {
-        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", "Manager"]);
 
         var token = _service.GenerateString(userWithRoles);
 
@@ -290,7 +290,7 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasModules_TokenContainsModuleClaims()
     {
-        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", "social"]);
 
         var token = _service.GenerateString(userWithModules);
 
@@ -329,7 +329,7 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
-        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", string.Empty]);
 
         var token = _service.GenerateString(userWithEmptyRoles);
 
@@ -343,7 +343,7 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
-        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", string.Empty]);
 
         var token = _service.GenerateString(userWithEmptyModules);
 
@@ -356,7 +356,7 @@ public class TokenServiceTests
 
     private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId) : GenerateTokenResponse(Id, Name, Email);
 
-    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, List<string> Roles) : GenerateTokenResponse(Id, Name, Email);
 
-    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, List<string> Modules) : GenerateTokenResponse(Id, Name, Email);
 }

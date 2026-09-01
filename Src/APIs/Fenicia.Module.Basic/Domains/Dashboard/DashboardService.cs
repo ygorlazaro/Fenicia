@@ -13,6 +13,11 @@ public class DashboardService(
     ProductService productService,
     EmployeeService employeeService)
 {
+    public DashboardService()
+        : this(null!, null!, null!)
+    {
+    }
+
     public virtual async Task<FinancialDashboardResponse> GetFinancialDashboardAsync(GetFinancialDashboardQuery query, CancellationToken cancellationToken = default)
     {
         var kpi = await CalculateKpiSummaryAsync(cancellationToken);

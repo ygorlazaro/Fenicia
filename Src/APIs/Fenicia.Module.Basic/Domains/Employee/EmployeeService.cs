@@ -19,6 +19,11 @@ public class EmployeeService(
     PersonAddressService personAddressService,
     OrderService orderService)
 {
+    public EmployeeService()
+        : this(null!, null!, null!, null!, null!)
+    {
+    }
+
     public virtual async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken cancellationToken = default)
     {
         var baseQuery = employeeRepository.Query()

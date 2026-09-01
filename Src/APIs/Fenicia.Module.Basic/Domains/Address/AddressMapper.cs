@@ -9,6 +9,6 @@ public static partial class AddressMapper
 {
     public static AddressResponse MapToAddressResponse(this AddressModel address)
     {
-        return new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country);
+        return new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country);
     }
 }
