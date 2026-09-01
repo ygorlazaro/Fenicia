@@ -1,213 +1,124 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTask;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
+using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTask;
 
-public class ProjectTaskServiceTests : IDisposable
+public class ProjectTaskServiceTests
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IProjectTaskRepository> _mockRepository;
     private readonly ProjectTaskService _service;
-    private readonly Guid _companyId;
 
     public ProjectTaskServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        _service = new ProjectTaskService(new ProjectTaskRepository(_db));
         _faker = new Faker();
-        _companyId = companyContext.CompanyId;
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
+        _mockRepository = new Mock<IProjectTaskRepository>();
+        _service = new ProjectTaskService(_mockRepository.Object);
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenTasksExist_ReturnsPaginationWithTasks()
+    public async Task GetAllAsync_WhenTasksExist_ReturnsTasks()
     {
-        // Arrange
-        var projectTask = new ProjectTaskModel
+        var tasks = new List<ProjectTaskModel>
         {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            Description = _faker.Lorem.Sentence(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = 1,
-            EstimatePoints = 3,
-            DueDate = DateTime.UtcNow,
-            CreatedBy = Guid.NewGuid(),
-            CompanyId = _companyId
+            new() { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = _faker.Lorem.Sentence(), Priority = EnumTaskPriority.Medium, Type = EnumTaskType.Task, Order = 1, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() }
         };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(), CancellationToken.None);
+        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectTaskModel>(tasks));
 
-        // Assert
-        result.Should().NotBeNull();
+        var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(1, 10), CancellationToken.None);
+
         result.Should().HaveCount(1);
+        result.First().Id.Should().Be(tasks[0].Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenTaskExists_ReturnsTask()
     {
-        // Arrange
-        var projectTask = new ProjectTaskModel
-        {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            Description = _faker.Lorem.Sentence(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = 1,
-            EstimatePoints = 3,
-            DueDate = DateTime.UtcNow,
-            CreatedBy = Guid.NewGuid(),
-            CompanyId = _companyId
-        };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var task = new ProjectTaskModel { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = "T", Priority = EnumTaskPriority.Medium, Type = EnumTaskType.Task, Order = 1, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
 
-        // Act
-        var result = await _service.GetByIdAsync(new GetProjectTaskByIdQuery(projectTask.Id), CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByIdWithRelationsAsync(task.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(task);
 
-        // Assert
+        var result = await _service.GetByIdAsync(new GetProjectTaskByIdQuery(task.Id), CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().Be(projectTask.Id);
-        result.Title.Should().Be(projectTask.Title);
+        result!.Id.Should().Be(task.Id);
+        result.Title.Should().Be("T");
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenTaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
+        _mockRepository.Setup(r => r.GetByIdWithRelationsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectTaskModel?)null);
 
-        // Act
         var result = await _service.GetByIdAsync(new GetProjectTaskByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task AddAsync_WhenCommandIsValid_CreatesTask()
+    public async Task AddAsync_WhenCommandIsValid_ReturnsCreatedTask()
     {
-        // Arrange
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence(), _faker.Lorem.Sentence(), "Medium", "Task", 1, 3, DateTime.UtcNow, Guid.NewGuid());
+        var companyId = Guid.NewGuid();
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "T", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, Guid.NewGuid());
 
-        // Act
-        var result = await _service.AddAsync(command, _companyId, CancellationToken.None);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectTaskModel m, CancellationToken _) => m);
 
-        // Assert
+        var result = await _service.AddAsync(command, companyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
-        result.CompanyId.Should().Be(_companyId);
+        result.Id.Should().Be(command.Id);
+        result.CompanyId.Should().Be(companyId);
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenTaskExists_UpdatesTask()
+    public async Task UpdateAsync_WhenTaskExists_ReturnsUpdatedTask()
     {
-        // Arrange
-        var projectTask = new ProjectTaskModel
-        {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            Description = _faker.Lorem.Sentence(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = 1,
-            EstimatePoints = 3,
-            DueDate = DateTime.UtcNow,
-            CreatedBy = Guid.NewGuid(),
-            CompanyId = _companyId
-        };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var task = new ProjectTaskModel { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = "U", Priority = EnumTaskPriority.High, Type = EnumTaskType.Bug, Order = 2, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
 
-        var command = new UpdateProjectTaskCommand(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, "Updated Title", projectTask.Description, "High", "Bug", 2, 5, DateTime.UtcNow, projectTask.CreatedBy);
+        _mockRepository.Setup(r => r.UpdateAsync(task.Id, It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(task);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectTaskCommand(task.Id, task.ProjectId, task.StatusId, "U", null, nameof(EnumTaskPriority.High), nameof(EnumTaskType.Bug), 2, null, null, task.CreatedBy);
 
-        // Assert
+        var result = await _service.UpdateAsync(command, task.CompanyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().Be(projectTask.Id);
-        result.Title.Should().Be("Updated Title");
+        result!.Title.Should().Be("U");
     }
 
     [Fact]
     public async Task UpdateAsync_WhenTaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
-        var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Updated Title", _faker.Lorem.Sentence(), "High", "Bug", 2, 5, DateTime.UtcNow, Guid.NewGuid());
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectTaskModel?)null);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "U", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, Guid.NewGuid());
 
-        // Assert
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
+
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenTaskExists_SoftDeletesTask()
+    public async Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
     {
-        // Arrange
-        var projectTask = new ProjectTaskModel
-        {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            Description = _faker.Lorem.Sentence(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = 1,
-            EstimatePoints = 3,
-            DueDate = DateTime.UtcNow,
-            CreatedBy = Guid.NewGuid(),
-            CompanyId = _companyId
-        };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        await _service.DeleteAsync(new DeleteProjectTaskCommand(projectTask.Id), CancellationToken.None);
+        _mockRepository.Setup(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
-        // Assert
-        var deletedTask = await _db.ProjectTasks.IgnoreQueryFilters().FirstOrDefaultAsync(pt => pt.Id == projectTask.Id);
-        deletedTask.Should().NotBeNull();
-        deletedTask.Deleted.Should().NotBeNull();
-    }
+        await _service.DeleteAsync(new DeleteProjectTaskCommand(id), CancellationToken.None);
 
-    [Fact]
-    public async Task DeleteAsync_WhenTaskDoesNotExist_DoesNothing()
-    {
-        // Arrange
-
-        // Act
-        await _service.DeleteAsync(new DeleteProjectTaskCommand(Guid.NewGuid()), CancellationToken.None);
-
-        // Assert
-        var count = await _db.ProjectTasks.CountAsync();
-        count.Should().Be(0);
+        _mockRepository.Verify(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

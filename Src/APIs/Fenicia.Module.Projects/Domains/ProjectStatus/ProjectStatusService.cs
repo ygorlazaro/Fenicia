@@ -1,11 +1,12 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
-public class ProjectStatusService(ProjectStatusRepository repository)
+public class ProjectStatusService(IProjectStatusRepository repository) : IProjectStatusService
 {
     public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(GetAllProjectStatusQuery query, CancellationToken cancellationToken = default)
     {

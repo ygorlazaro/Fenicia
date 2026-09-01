@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectStatusController(ProjectStatusService projectStatusService) : ControllerBase
+public class ProjectStatusController(IProjectStatusService projectStatusService) : ControllerBase
 {
     /// <summary>
     /// Gets a paginated list of project statuses.

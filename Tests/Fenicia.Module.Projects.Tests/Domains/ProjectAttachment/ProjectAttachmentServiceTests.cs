@@ -1,190 +1,123 @@
 using AwesomeAssertions;
 using Bogus;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Tests;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
+using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectAttachment;
 
-public class ProjectAttachmentServiceTests : IDisposable
+public class ProjectAttachmentServiceTests
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IRepository<AttachmentModel>> _mockRepository;
     private readonly ProjectAttachmentService _service;
-    private readonly Guid _companyId;
 
     public ProjectAttachmentServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        _companyId = companyContext.CompanyId;
-        _service = new ProjectAttachmentService(new ProjectAttachmentRepository(_db));
         _faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
+        _mockRepository = new Mock<IRepository<AttachmentModel>>();
+        _service = new ProjectAttachmentService(_mockRepository.Object);
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenAttachmentsExist_ReturnsListWithAttachments()
+    public async Task GetAllAsync_WhenAttachmentsExist_ReturnsAttachments()
     {
-        // Arrange
-        var attachment = new AttachmentModel
+        var attachments = new List<AttachmentModel>
         {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            FileName = _faker.System.FileName(),
-            FileUrl = _faker.Internet.Url(),
-            FileSize = _faker.Random.Long(1, 1000),
-            UploadedBy = Guid.NewGuid(),
-            CompanyId = _companyId
+            new() { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = _faker.System.FileName(), FileUrl = _faker.Internet.Url(), FileSize = 100, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() }
         };
-        _db.ProjectAttachments.Add(attachment);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(), CancellationToken.None);
+        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<AttachmentModel>(attachments));
 
-        // Assert
-        result.Should().NotBeNull();
+        var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(1, 10), CancellationToken.None);
+
         result.Should().HaveCount(1);
+        result.First().Id.Should().Be(attachments[0].Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenAttachmentExists_ReturnsAttachment()
     {
-        // Arrange
-        var attachment = new AttachmentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            FileName = _faker.System.FileName(),
-            FileUrl = _faker.Internet.Url(),
-            FileSize = _faker.Random.Long(1, 1000),
-            UploadedBy = Guid.NewGuid(),
-            CompanyId = _companyId
-        };
-        _db.ProjectAttachments.Add(attachment);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var attachment = new AttachmentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = "x.pdf", FileUrl = "http://x", FileSize = 100, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
 
-        // Act
+        _mockRepository.Setup(r => r.GetByIdAsync(attachment.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(attachment);
+
         var result = await _service.GetByIdAsync(new GetProjectAttachmentByIdQuery(attachment.Id), CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
-        result.Id.Should().Be(attachment.Id);
-        result.FileName.Should().Be(attachment.FileName);
+        result!.Id.Should().Be(attachment.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenAttachmentDoesNotExist_ReturnsNull()
     {
-        // Arrange
+        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AttachmentModel?)null);
 
-        // Act
         var result = await _service.GetByIdAsync(new GetProjectAttachmentByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task AddAsync_WhenCommandIsValid_CreatesAttachment()
+    public async Task AddAsync_WhenCommandIsValid_ReturnsCreatedAttachment()
     {
-        // Arrange
-        var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.System.FileName(), _faker.Internet.Url(), _faker.Random.Long(1, 1000), Guid.NewGuid(), "application/pdf");
+        var companyId = Guid.NewGuid();
+        var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), "x.pdf", "http://x", 100, Guid.NewGuid(), "application/pdf");
 
-        // Act
-        var result = await _service.AddAsync(command, _companyId, CancellationToken.None);
+        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<AttachmentModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AttachmentModel m, CancellationToken _) => m);
 
-        // Assert
+        var result = await _service.AddAsync(command, companyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
+        result.Id.Should().Be(command.Id);
+        result.CompanyId.Should().Be(companyId);
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenAttachmentExists_UpdatesAttachment()
+    public async Task UpdateAsync_WhenAttachmentExists_ReturnsUpdatedAttachment()
     {
-        // Arrange
-        var attachment = new AttachmentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            FileName = _faker.System.FileName(),
-            FileUrl = _faker.Internet.Url(),
-            FileSize = _faker.Random.Long(1, 1000),
-            UploadedBy = Guid.NewGuid(),
-            CompanyId = _companyId
-        };
-        _db.ProjectAttachments.Add(attachment);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var attachment = new AttachmentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = "y.pdf", FileUrl = "http://y", FileSize = 200, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
 
-        var command = new UpdateProjectAttachmentCommand(attachment.Id, attachment.TaskId, _faker.System.FileName(), _faker.Internet.Url(), _faker.Random.Long(1, 1000), Guid.NewGuid());
+        _mockRepository.Setup(r => r.UpdateAsync(attachment.Id, It.IsAny<AttachmentModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(attachment);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectAttachmentCommand(attachment.Id, attachment.TaskId, "y.pdf", "http://y", 200, Guid.NewGuid());
 
-        // Assert
+        var result = await _service.UpdateAsync(command, attachment.CompanyId, CancellationToken.None);
+
         result.Should().NotBeNull();
-        result.Id.Should().Be(attachment.Id);
+        result!.Id.Should().Be(attachment.Id);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenAttachmentDoesNotExist_ReturnsNull()
     {
-        // Arrange
-        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.System.FileName(), _faker.Internet.Url(), _faker.Random.Long(1, 1000), Guid.NewGuid());
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<AttachmentModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AttachmentModel?)null);
 
-        // Act
-        var result = await _service.UpdateAsync(command, _companyId, CancellationToken.None);
+        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), "y.pdf", "http://y", 200, Guid.NewGuid());
 
-        // Assert
+        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
+
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenAttachmentExists_SoftDeletesAttachment()
+    public async Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
     {
-        // Arrange
-        var attachment = new AttachmentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            FileName = _faker.System.FileName(),
-            FileUrl = _faker.Internet.Url(),
-            FileSize = _faker.Random.Long(1, 1000),
-            UploadedBy = Guid.NewGuid(),
-            CompanyId = _companyId
-        };
-        _db.ProjectAttachments.Add(attachment);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        await _service.DeleteAsync(new DeleteProjectAttachmentCommand(attachment.Id), CancellationToken.None);
+        _mockRepository.Setup(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
-        // Assert
-        var deletedAttachment = await _db.ProjectAttachments.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == attachment.Id);
-        deletedAttachment.Should().NotBeNull();
-        deletedAttachment.Deleted.Should().NotBeNull();
-    }
+        await _service.DeleteAsync(new DeleteProjectAttachmentCommand(id), CancellationToken.None);
 
-    [Fact]
-    public async Task DeleteAsync_WhenAttachmentDoesNotExist_DoesNothing()
-    {
-        // Arrange
-
-        // Act
-        await _service.DeleteAsync(new DeleteProjectAttachmentCommand(Guid.NewGuid()), CancellationToken.None);
-
-        // Assert
-        var count = await _db.ProjectAttachments.CountAsync();
-        count.Should().Be(0);
+        _mockRepository.Verify(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

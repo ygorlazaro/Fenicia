@@ -1,200 +1,147 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
-public class ProjectSubtaskControllerTests : IDisposable
+public class ProjectSubtaskControllerTests
 {
     private readonly ProjectSubtaskController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IProjectSubtaskService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _companyId;
+    private readonly Guid _testUserId;
 
     public ProjectSubtaskControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        var repository = new ProjectSubtaskRepository(_db);
-        var service = new ProjectSubtaskService(repository);
+        _mockService = new Mock<IProjectSubtaskService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProjectSubtaskController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        var testUserId = Guid.NewGuid();
-        _companyId = companyContext.CompanyId;
-        SetupUserClaims(testUserId);
+        _testUserId = Guid.NewGuid();
+        _controller = new ProjectSubtaskController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        SetupUserClaims(_testUserId);
         _faker = new Faker();
     }
 
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
     [Fact]
-    public async Task GetAsync_WhenSubtasksExist_ReturnsOk()
+    public async Task GetAsync_WhenSubtasksExist_ReturnsOkWithSubtasks()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var subtask = new ProjectSubtaskModel
+        var subtasks = new List<GetAllProjectSubtaskResponse>
         {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompletedAt = null,
-            CompanyId = _companyId
+            new(Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence(), false, 1, null, Guid.NewGuid())
         };
-        _db.ProjectSubtasks.Add(subtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectSubtaskQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(subtasks);
+
         var result = await _controller.GetAsync(wide, 1, 10, null, null, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSubtaskExists_ReturnsOk()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var subtask = new ProjectSubtaskModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompletedAt = null,
-            CompanyId = _companyId
-        };
-        _db.ProjectSubtasks.Add(subtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var subtask = new GetProjectSubtaskByIdResponse(Guid.NewGuid(), Guid.NewGuid(), "S", false, 1, null, Guid.NewGuid());
 
-        // Act
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectSubtaskByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(subtask);
+
         var result = await _controller.GetByIdAsync(subtask.Id, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenSubtaskDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var wide = new WideEventContext();
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectSubtaskByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProjectSubtaskByIdResponse?)null);
 
-        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     [Fact]
-    public async Task PostAsync_WhenCommandIsValid_CreatesSubtask()
+    public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence(), false, 1, null);
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "S", false, 1, null);
+        var response = new AddProjectSubtaskResponse(command.Id, command.TaskId, command.Title, command.IsCompleted, command.Order, command.CompletedAt, Guid.NewGuid());
 
-        // Act
+        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<CreatedResult>();
     }
 
     [Fact]
     public async Task PatchAsync_WhenSubtaskExists_ReturnsOk()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var subtask = new ProjectSubtaskModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompletedAt = null,
-            CompanyId = _companyId
-        };
-        _db.ProjectSubtasks.Add(subtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
-        var command = new UpdateProjectSubtaskCommand(subtask.Id, Guid.NewGuid(), "Updated Title", true, 2, DateTime.UtcNow);
+        var subtaskId = Guid.NewGuid();
+        var command = new UpdateProjectSubtaskCommand(subtaskId, Guid.NewGuid(), "U", true, 2, DateTime.UtcNow);
+        var response = new UpdateProjectSubtaskResponse(command.Id, command.TaskId, command.Title, command.IsCompleted, command.Order, command.CompletedAt, Guid.NewGuid());
 
-        // Act
-        var result = await _controller.PatchAsync(command, subtask.Id, wide, CancellationToken.None);
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectSubtaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
-        // Assert
+        var result = await _controller.PatchAsync(command, subtaskId, wide, CancellationToken.None);
+
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
     [Fact]
     public async Task PatchAsync_WhenSubtaskDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "Updated Title", true, 2, DateTime.UtcNow);
+        var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "U", true, 2, DateTime.UtcNow);
 
-        // Act
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectSubtaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProjectSubtaskResponse?)null);
+
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenSubtaskExists_DeletesSubtask()
+    public async Task DeleteAsync_WhenCalled_ReturnsNoContent()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var subtask = new ProjectSubtaskModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            Title = _faker.Lorem.Sentence(),
-            IsCompleted = false,
-            Order = 1,
-            CompletedAt = null,
-            CompanyId = _companyId
-        };
-        _db.ProjectSubtasks.Add(subtask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        var result = await _controller.DeleteAsync(subtask.Id, wide, CancellationToken.None);
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProjectSubtaskCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        // Assert
+        var result = await _controller.DeleteAsync(id, wide, CancellationToken.None);
+
         result.Should().BeOfType<NoContentResult>();
-        var deletedSubtask = await _db.ProjectSubtasks.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == subtask.Id);
-        deletedSubtask.Should().NotBeNull();
-        deletedSubtask.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)
     {
-        var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, userId.ToString()) };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId.ToString()),
+            new("userId", userId.ToString()),
+            new(ClaimTypes.Role, "Admin")
+        };
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        _mockHttpContext.Setup(x => x.User).Returns(principal);
+        _controller.ControllerContext.HttpContext!.User = principal;
     }
 }

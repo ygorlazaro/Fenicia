@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
+using Fenicia.Module.Projects.Domains.Project.Interfaces;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace Fenicia.Module.Projects.Domains.Project;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectController(ProjectService projectService) : ControllerBase
+public class ProjectController(IProjectService projectService) : ControllerBase
 {
     /// <summary>
     /// Gets all projects with pagination.

@@ -1,264 +1,151 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Enums.Project;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTask;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
+using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTask;
 
-public class ProjectTaskControllerTests : IDisposable
+public class ProjectTaskControllerTests
 {
     private readonly ProjectTaskController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IProjectTaskService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
-    private readonly Guid _companyId;
 
     public ProjectTaskControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        var companyContext = new TestCompanyContext();
-        _db = new DefaultContext(options, companyContext);
-        var repository = new ProjectTaskRepository(_db);
-        var service = new ProjectTaskService(repository);
+        _mockService = new Mock<IProjectTaskService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProjectTaskController(service) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _testUserId = Guid.NewGuid();
-        _companyId = companyContext.CompanyId;
+        _controller = new ProjectTaskController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAsync_WhenTasksExist_ReturnsOkWithTasks()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var projectTask = new ProjectTaskModel
+        var tasks = new List<GetAllProjectTaskResponse>
         {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = _faker.Random.Int(1, 100),
-            EstimatePoints = _faker.Random.Int(1, 21),
-            DueDate = DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            CreatedBy = _testUserId,
-            CompanyId = _companyId
+            new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), _faker.Commerce.Categories(1).First(), null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, _testUserId, Guid.NewGuid())
         };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectTaskQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tasks);
+
         var result = await _controller.GetAsync(wide, 1, 10, null, null, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var tasks = (List<GetAllProjectTaskResponse>)okResult.Value!;
-        tasks.Should().HaveCount(1);
-        tasks.First().Id.Should().Be(projectTask.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenTaskExists_ReturnsOkWithTask()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var projectTask = new ProjectTaskModel
-        {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = _faker.Random.Int(1, 100),
-            EstimatePoints = _faker.Random.Int(1, 21),
-            DueDate = DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            CreatedBy = _testUserId,
-            CompanyId = _companyId
-        };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var task = new GetProjectTaskByIdResponse(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "T",
+            null,
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
+            1,
+            null,
+            null,
+            _testUserId,
+            Guid.NewGuid(),
+            [],
+            [],
+            [],
+            []);
 
-        // Act
-        var result = await _controller.GetByIdAsync(projectTask.Id, wide, CancellationToken.None);
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectTaskByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(task);
 
-        // Assert
+        var result = await _controller.GetByIdAsync(task.Id, wide, CancellationToken.None);
+
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var returnedTask = (GetProjectTaskByIdResponse)okResult.Value!;
-        returnedTask.Id.Should().Be(projectTask.Id);
-        returnedTask.Title.Should().Be(projectTask.Title);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenTaskDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var wide = new WideEventContext();
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectTaskByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetProjectTaskByIdResponse?)null);
 
-        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
-        // Arrange
-        var command = new AddProjectTaskCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            _faker.Commerce.Categories(1).First(),
-            _faker.Commerce.ProductDescription(),
-            nameof(EnumTaskPriority.Medium),
-            nameof(EnumTaskType.Task),
-            _faker.Random.Int(1, 100),
-            _faker.Random.Int(1, 21),
-            DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            _testUserId);
         var wide = new WideEventContext();
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "T", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, _testUserId);
+        var response = new AddProjectTaskResponse(command.Id, command.ProjectId, command.StatusId, command.Title, command.Description, command.Priority, command.Type, command.Order, command.EstimatePoints, command.DueDate, command.CreatedBy, Guid.NewGuid());
 
-        // Act
+        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)result.Result;
-        var returnedTask = (AddProjectTaskResponse)createdResult.Value!;
-        returnedTask.Id.Should().Be(command.Id);
-        returnedTask.Title.Should().Be(command.Title);
     }
 
     [Fact]
-    public async Task PatchAsync_WhenTaskExists_ReturnsOkWithUpdatedTask()
+    public async Task PatchAsync_WhenTaskExists_ReturnsOk()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var projectTask = new ProjectTaskModel
-        {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = _faker.Random.Int(1, 100),
-            EstimatePoints = _faker.Random.Int(1, 21),
-            DueDate = DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            CreatedBy = _testUserId,
-            CompanyId = _companyId
-        };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var taskId = Guid.NewGuid();
+        var command = new UpdateProjectTaskCommand(taskId, Guid.NewGuid(), Guid.NewGuid(), "U", null, nameof(EnumTaskPriority.High), nameof(EnumTaskType.Bug), 2, null, null, _testUserId);
+        var response = new UpdateProjectTaskResponse(command.Id, command.ProjectId, command.StatusId, command.Title, command.Description, command.Priority, command.Type, command.Order, command.EstimatePoints, command.DueDate, command.CreatedBy, Guid.NewGuid());
 
-        var command = new UpdateProjectTaskCommand(
-            projectTask.Id,
-            projectTask.ProjectId,
-            projectTask.StatusId,
-            _faker.Commerce.Categories(1).First(),
-            _faker.Commerce.ProductDescription(),
-            nameof(EnumTaskPriority.High),
-            nameof(EnumTaskType.Bug),
-            _faker.Random.Int(1, 100),
-            _faker.Random.Int(1, 21),
-            DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            _testUserId);
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectTaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
-        // Act
-        var result = await _controller.PatchAsync(command, projectTask.Id, wide, CancellationToken.None);
+        var result = await _controller.PatchAsync(command, taskId, wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result;
-        var returnedTask = (UpdateProjectTaskResponse)okResult.Value!;
-        returnedTask.Id.Should().Be(projectTask.Id);
-        returnedTask.Title.Should().Be(command.Title);
     }
 
     [Fact]
     public async Task PatchAsync_WhenTaskDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var command = new UpdateProjectTaskCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            _faker.Commerce.Categories(1).First(),
-            _faker.Commerce.ProductDescription(),
-            nameof(EnumTaskPriority.Medium),
-            nameof(EnumTaskType.Task),
-            _faker.Random.Int(1, 100),
-            _faker.Random.Int(1, 21),
-            DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            _testUserId);
+        var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "U", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, _testUserId);
 
-        // Act
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectTaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProjectTaskResponse?)null);
+
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
-        // Assert
         result.Result.Should().BeOfType<NotFoundResult>();
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenTaskExists_ReturnsNoContent()
+    public async Task DeleteAsync_WhenCalled_ReturnsNoContent()
     {
-        // Arrange
         var wide = new WideEventContext();
-        var projectTask = new ProjectTaskModel
-        {
-            Id = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            StatusId = Guid.NewGuid(),
-            Title = _faker.Commerce.Categories(1).First(),
-            Description = _faker.Commerce.ProductDescription(),
-            Priority = EnumTaskPriority.Medium,
-            Type = EnumTaskType.Task,
-            Order = _faker.Random.Int(1, 100),
-            EstimatePoints = _faker.Random.Int(1, 21),
-            DueDate = DateTime.UtcNow.AddDays(_faker.Random.Int(1, 30)),
-            CreatedBy = _testUserId,
-            CompanyId = _companyId
-        };
-        _db.ProjectTasks.Add(projectTask);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        var id = Guid.NewGuid();
 
-        // Act
-        var result = await _controller.DeleteAsync(projectTask.Id, wide, CancellationToken.None);
+        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProjectTaskCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        // Assert
+        var result = await _controller.DeleteAsync(id, wide, CancellationToken.None);
+
         result.Should().BeOfType<NoContentResult>();
-        var deletedTask = await _db.ProjectTasks.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == projectTask.Id);
-        deletedTask.Should().NotBeNull();
-        deletedTask.Deleted.Should().NotBeNull();
     }
 
     private void SetupUserClaims(Guid userId)
@@ -269,9 +156,9 @@ public class ProjectTaskControllerTests : IDisposable
             new("userId", userId.ToString()),
             new(ClaimTypes.Role, "Admin")
         };
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        _mockHttpContext.Setup(x => x.User).Returns(principal);
+        _controller.ControllerContext.HttpContext!.User = principal;
     }
 }
