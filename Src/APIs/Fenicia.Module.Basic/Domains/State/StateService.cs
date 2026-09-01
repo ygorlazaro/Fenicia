@@ -1,28 +1,19 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.State.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateService
+public class StateService(IStateRepository stateRepository)
 {
-    private readonly IStateRepository _stateRepository;
-
     public StateService()
         : this(null!)
     {
     }
 
-    public StateService(IStateRepository stateRepository)
-    {
-        _stateRepository = stateRepository;
-    }
-
     public virtual async Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken cancellationToken = default)
     {
-        var baseQuery = _stateRepository.Query();
+        var baseQuery = stateRepository.Query();
 
         var filters = AdvancedQueryParser.Parse(query.Query);
         var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);

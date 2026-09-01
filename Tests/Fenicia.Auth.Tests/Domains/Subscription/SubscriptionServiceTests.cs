@@ -1,47 +1,36 @@
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.Subscription.DTOs;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Auth.Domains.Subscription.Interfaces;
+using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Subscription;
 
-public class SubscriptionServiceTests : IDisposable
+public class SubscriptionServiceTests
 {
-    private readonly DefaultContext _context;
+    private readonly Mock<ISubscriptionRepository> _mockRepository;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<IUserRoleService> _mockUserRoleService;
     private readonly SubscriptionService _service;
 
     public SubscriptionServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        _context = new DefaultContext(options, new TestCompanyContext());
-        _context.Database.EnsureCreated();
-
-        var userRepository = new UserRepository(_context);
-        var userRoleRepository = new UserRoleRepository(_context);
-        var roleRepository = new RoleRepository(_context);
-        var companyRepository = new CompanyRepository(_context);
-        var userRoleService = new UserRoleService(userRoleRepository);
-        var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository, userRoleService);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
-        _service = new SubscriptionService(new SubscriptionRepository(_context), userService, userRoleService);
+        _mockRepository = new Mock<ISubscriptionRepository>();
+        _mockUserService = new Mock<IUserService>();
+        _mockUserRoleService = new Mock<IUserRoleService>();
+        _service = new SubscriptionService(_mockRepository.Object, _mockUserService.Object, _mockUserRoleService.Object);
     }
 
     [Fact]
     public async Task GetUserProfileAsync_WhenUserDoesNotExist_ReturnsNull()
     {
         var nonExistentUserId = Guid.NewGuid();
+
+        _mockUserService.Setup(s => s.GetByIdAsync(nonExistentUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetUserByIdResponse)null!);
 
         var result = await _service.GetUserProfileAsync(nonExistentUserId, CancellationToken.None);
 
@@ -61,8 +50,12 @@ public class SubscriptionServiceTests : IDisposable
             Created = DateTime.UtcNow
         };
 
-        _context.AuthUsers.Add(user);
-        await _context.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetUserByIdResponse(user.Id, user.Name, user.Email));
+        _mockUserRoleService.Setup(s => s.GetUserRoleModelsByUserAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        _mockRepository.Setup(r => r.GetUserSubscriptionsAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         var result = await _service.GetUserProfileAsync(userId, CancellationToken.None);
 
@@ -72,10 +65,5 @@ public class SubscriptionServiceTests : IDisposable
         Assert.Equal("test@example.com", result.Email);
         Assert.Empty(result.Companies);
         Assert.Empty(result.Subscriptions);
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
     }
 }

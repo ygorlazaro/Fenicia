@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.RefreshToken.DTOs;
+using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Auth.Domains.RefreshToken;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class RefreshTokenController(RefreshTokenService refreshTokenService) : ControllerBase
+public class RefreshTokenController(IRefreshTokenService refreshTokenService) : ControllerBase
 {
     /// <summary>
     /// Gera um novo refresh token para o usuário autenticado.
@@ -72,12 +73,7 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
             var isValid = await refreshTokenService.ValidateAsync(userId, token, cancellationToken);
             var tokenData = await refreshTokenService.GetAsync(token, cancellationToken);
 
-            if (tokenData is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new ValidateTokenResponse(token, tokenData.ExpirationDate, userId, isValid));
+            return tokenData is null ? NotFound() : Ok(new ValidateTokenResponse(token, tokenData.ExpirationDate, userId, isValid));
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -85,7 +81,7 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
         }
         catch (InvalidRequestException ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { ex.Message });
         }
     }
 
@@ -126,7 +122,7 @@ public class RefreshTokenController(RefreshTokenService refreshTokenService) : C
         }
         catch (InvalidRequestException ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { ex.Message });
         }
     }
 }

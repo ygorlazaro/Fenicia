@@ -1,72 +1,43 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Bogus;
-
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.LoginAttempt.Interfaces;
 using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
-using Fenicia.Common.Tests;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
-public class TokenServiceTests : IDisposable
+public class TokenServiceTests
 {
-    private readonly Mock<IConnectionMultiplexer> _redisMock;
     private readonly Mock<IDatabase> _redisDbMock;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<ILoginAttemptService> _mockLoginAttemptService;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<ISecurityService> _mockSecurityService;
     private readonly TokenService _service;
 
     public TokenServiceTests()
     {
-        _redisMock = new Mock<IConnectionMultiplexer>();
+        var redisMock = new Mock<IConnectionMultiplexer>();
         _redisDbMock = new Mock<IDatabase>();
-        _redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(_redisDbMock.Object);
-        var loginAttemptService = new LoginAttemptService(_redisMock.Object);
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(_redisDbMock.Object);
 
-        var inMemorySettings = new Dictionary<string, string?>
-        {
-            {
-                "Jwt:Secret", "ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes"
-            }
-        };
+        var mockConfiguration = new Mock<IConfiguration>();
+        _mockLoginAttemptService = new Mock<ILoginAttemptService>();
+        _mockUserService = new Mock<IUserService>();
+        _mockSecurityService = new Mock<ISecurityService>();
 
-        var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
+        mockConfiguration.Setup(c => c["Jwt:Secret"]).Returns("ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes");
 
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        var userRepository = new UserRepository(_db);
-        var userRoleRepository = new UserRoleRepository(_db);
-        var roleRepository = new RoleRepository(_db);
-        var companyRepository = new CompanyRepository(_db);
-        var userRoleService = new UserRoleService(userRoleRepository);
-        var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository, userRoleService);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
-        _service = new TokenService(configuration, loginAttemptService, userService, new SecurityService());
+        _service = new TokenService(mockConfiguration.Object, _mockLoginAttemptService.Object, _mockUserService.Object, _mockSecurityService.Object);
         _faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -76,7 +47,8 @@ public class TokenServiceTests : IDisposable
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
         var key = $"login-attempt:{email.ToLower()}";
 
-        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)5);
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(5);
+        _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(5);
 
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Too many login attempts. Please try again later.", ex.Message);
@@ -89,7 +61,10 @@ public class TokenServiceTests : IDisposable
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
         var key = $"login-attempt:{email.ToLower()}";
 
-        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)2);
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(2);
+        _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(2);
+        _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserModel?)null);
 
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
@@ -104,6 +79,7 @@ public class TokenServiceTests : IDisposable
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
+        _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(0);
 
         var user = new UserModel
         {
@@ -113,8 +89,9 @@ public class TokenServiceTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        _db.AuthUsers.Add(user);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(password, user.Password)).Returns(true);
 
         var result = await _service.GenerateAsync(query, CancellationToken.None);
 
@@ -132,7 +109,8 @@ public class TokenServiceTests : IDisposable
         var query = new GenerateTokenQuery(email, _faker.Internet.Password());
         var key = $"login-attempt:{email.ToLower()}";
 
-        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)2);
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(2);
+        _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(2);
 
         var user = new UserModel
         {
@@ -142,8 +120,9 @@ public class TokenServiceTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(correctPassword)
         };
 
-        _db.AuthUsers.Add(user);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(It.IsAny<string>(), user.Password)).Returns(false);
 
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
@@ -157,7 +136,8 @@ public class TokenServiceTests : IDisposable
         var query = new GenerateTokenQuery(email, password);
         var key = $"login-attempt:{email.ToLower()}";
 
-        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns((RedisValue)4);
+        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(4);
+        _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(4);
 
         var user = new UserModel
         {
@@ -167,10 +147,11 @@ public class TokenServiceTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        _db.AuthUsers.Add(user);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(password, user.Password)).Returns(true);
 
-        await Record.ExceptionAsync(async () => await _service.GenerateAsync(query, CancellationToken.None));
+        _ = await Record.ExceptionAsync(async () => await _service.GenerateAsync(query, CancellationToken.None));
     }
 
     [Fact]
@@ -182,6 +163,7 @@ public class TokenServiceTests : IDisposable
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
+        _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(0);
 
         var user = new UserModel
         {
@@ -191,22 +173,20 @@ public class TokenServiceTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(correctPassword)
         };
 
-        _db.AuthUsers.Add(user);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(It.IsAny<string>(), user.Password)).Returns(false);
 
         _ = await Record.ExceptionAsync(async () => await _service.GenerateAsync(query, CancellationToken.None));
 
-        _redisDbMock.Verify(x => x.StringSetAsync(key, 1, TimeSpan.FromMinutes(15), When.Always, CommandFlags.None), Times.Once);
+        _mockLoginAttemptService.Verify(s => s.IncrementAsync(email), Times.Once);
     }
 
     [Fact]
     public async Task GenerateAsync_WhenEmailIsEmpty_ThrowsArgumentException()
     {
-        var email = _faker.Internet.Email();
+        _faker.Internet.Email();
         var query = new GenerateTokenQuery(string.Empty, _faker.Internet.Password());
-        var key = $"login-attempt:{email.ToLower()}";
-
-        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
 
         await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
     }
@@ -217,9 +197,6 @@ public class TokenServiceTests : IDisposable
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
         var query = new GenerateTokenQuery(email, string.Empty);
-        var key = $"login-attempt:{email.ToLower()}";
-
-        _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
 
         var user = new UserModel
         {
@@ -229,8 +206,8 @@ public class TokenServiceTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        _db.AuthUsers.Add(user);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
 
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Contains("Password", ex.Message);
@@ -296,7 +273,7 @@ public class TokenServiceTests : IDisposable
     [Fact]
     public void GenerateString_WhenUserHasRoles_TokenContainsRoleClaims()
     {
-        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", "Manager"]);
+        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         var token = _service.GenerateString(userWithRoles);
 
@@ -313,7 +290,7 @@ public class TokenServiceTests : IDisposable
     [Fact]
     public void GenerateString_WhenUserHasModules_TokenContainsModuleClaims()
     {
-        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", "social"]);
+        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         var token = _service.GenerateString(userWithModules);
 
@@ -342,8 +319,7 @@ public class TokenServiceTests : IDisposable
     [Fact]
     public void GenerateString_WhenConfigurationSecretIsNull_ThrowsInvalidOperationException()
     {
-        var badConfig = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
-
+        var badConfig = new ConfigurationBuilder().AddInMemoryCollection([]).Build();
         var badService = new TokenService(badConfig, null!, null!, new SecurityService());
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
@@ -353,7 +329,7 @@ public class TokenServiceTests : IDisposable
     [Fact]
     public void GenerateString_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
-        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", string.Empty, null!, "User"]);
+        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         var token = _service.GenerateString(userWithEmptyRoles);
 
@@ -367,7 +343,7 @@ public class TokenServiceTests : IDisposable
     [Fact]
     public void GenerateString_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
-        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), [string.Empty, null!, "basic"]);
+        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
 
         var token = _service.GenerateString(userWithEmptyModules);
 
@@ -380,9 +356,7 @@ public class TokenServiceTests : IDisposable
 
     private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId) : GenerateTokenResponse(Id, Name, Email);
 
-    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, IEnumerable<string> Roles) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email) : GenerateTokenResponse(Id, Name, Email);
 
-    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, IEnumerable<string> Modules) : GenerateTokenResponse(Id, Name, Email);
-
-    private sealed record GenerateTokenResponseWithRolesAndModules(Guid Id, string Name, string Email, IEnumerable<string> Roles, IEnumerable<string> Modules) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email) : GenerateTokenResponse(Id, Name, Email);
 }

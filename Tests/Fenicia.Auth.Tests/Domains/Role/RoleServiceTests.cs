@@ -1,29 +1,19 @@
 using Fenicia.Auth.Domains.Role;
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Auth.Domains.Role.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Tests;
-
-using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Role;
 
-public class RoleServiceTests : IDisposable
+public class RoleServiceTests
 {
-    private readonly DefaultContext _db;
+    private readonly Mock<IRoleRepository> _mockRepository;
     private readonly RoleService _service;
 
     public RoleServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        _service = new RoleService(new RoleRepository(_db));
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-        GC.SuppressFinalize(this);
+        _mockRepository = new Mock<IRoleRepository>();
+        _service = new RoleService(_mockRepository.Object);
     }
 
     [Fact]
@@ -37,8 +27,8 @@ public class RoleServiceTests : IDisposable
             Name = "Admin"
         };
 
-        _db.AuthRoles.Add(adminRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(adminRole);
 
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
@@ -50,14 +40,8 @@ public class RoleServiceTests : IDisposable
     [Fact]
     public async Task GetAdminAsync_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
-        var role = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "User"
-        };
-
-        _db.AuthRoles.Add(role);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RoleModel?)null);
 
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
@@ -75,20 +59,8 @@ public class RoleServiceTests : IDisposable
             Name = "Admin"
         };
 
-        var userRole = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "User"
-        };
-
-        var managerRole = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Manager"
-        };
-
-        _db.AuthRoles.AddRange(adminRole, userRole, managerRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(adminRole);
 
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
@@ -99,14 +71,8 @@ public class RoleServiceTests : IDisposable
     [Fact]
     public async Task GetAdminAsync_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
-        var role = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "admin"
-        };
-
-        _db.AuthRoles.Add(role);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RoleModel?)null);
 
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
@@ -116,6 +82,9 @@ public class RoleServiceTests : IDisposable
     [Fact]
     public async Task GetAdminAsync_WithEmptyDatabase_ReturnsNull()
     {
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RoleModel?)null);
+
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
         Assert.Null(result);
@@ -124,14 +93,8 @@ public class RoleServiceTests : IDisposable
     [Fact]
     public async Task GetAdminAsync_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
-        var role = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = " Admin "
-        };
-
-        _db.AuthRoles.Add(role);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RoleModel?)null);
 
         var result = await _service.GetAdminAsync(CancellationToken.None);
 
@@ -142,7 +105,7 @@ public class RoleServiceTests : IDisposable
     public async Task GetAdminAsync_WhenMultipleAdminRolesExist_ReturnsFirst()
     {
         var adminRoleId1 = Guid.NewGuid();
-        var adminRoleId2 = Guid.NewGuid();
+        Guid.NewGuid();
 
         var adminRole1 = new RoleModel
         {
@@ -150,14 +113,8 @@ public class RoleServiceTests : IDisposable
             Name = "Admin"
         };
 
-        var adminRole2 = new RoleModel
-        {
-            Id = adminRoleId2,
-            Name = "Admin"
-        };
-
-        _db.AuthRoles.AddRange(adminRole1, adminRole2);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockRepository.Setup(r => r.GetByNameAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(adminRole1);
 
         var result = await _service.GetAdminAsync(CancellationToken.None);
 

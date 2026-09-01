@@ -88,7 +88,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
 
     public async Task<int> GetTotalQuantityAsync(CancellationToken cancellationToken = default)
     {
-        return (int)await DbSet.SumAsync(p => (double)p.Quantity, cancellationToken);
+        return (int)await DbSet.SumAsync(p => p.Quantity, cancellationToken);
     }
 
     public async Task<decimal> GetTotalCostPriceByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
@@ -103,7 +103,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
 
     public async Task<int> GetTotalQuantityByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
-        return (int)await DbSet.Where(p => p.CategoryId == categoryId).SumAsync(p => (double)p.Quantity, cancellationToken);
+        return (int)await DbSet.Where(p => p.CategoryId == categoryId).SumAsync(p => p.Quantity, cancellationToken);
     }
 
     public async Task<decimal> GetTotalCostPriceByProductAsync(Guid productId, CancellationToken cancellationToken = default)
@@ -118,7 +118,7 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
 
     public async Task<int> GetTotalQuantityByProductAsync(Guid productId, CancellationToken cancellationToken = default)
     {
-        return (int)await DbSet.Where(p => p.Id == productId).SumAsync(p => (double)p.Quantity, cancellationToken);
+        return (int)await DbSet.Where(p => p.Id == productId).SumAsync(p => p.Quantity, cancellationToken);
     }
 
     public async Task<decimal> GetTotalCostValueAsync(CancellationToken cancellationToken = default)
@@ -158,6 +158,6 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
                 .Where(p => p.Quantity > 0)
             .Select(p => new { p.CategoryId, CategoryName = p.Category.Name, p.Quantity, p.CostPrice })
             .ToListAsync(cancellationToken)
-            .ContinueWith(t => t.Result.GroupBy(p => new { p.CategoryId, p.CategoryName }).Select(g => (g.Key.CategoryId, g.Key.CategoryName, g.Count(), g.First().CostPrice)).OrderByDescending(g => g.CostPrice * (decimal)g.Item3).ToList(), cancellationToken);
+            .ContinueWith(t => t.Result.GroupBy(p => new { p.CategoryId, p.CategoryName }).Select(g => (g.Key.CategoryId, g.Key.CategoryName, g.Count(), g.First().CostPrice)).OrderByDescending(g => g.CostPrice * g.Item3).ToList(), cancellationToken);
     }
 }

@@ -3,6 +3,4 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public interface IAddressRepository : IRepository<AddressModel>
-{
-}
+public interface IAddressRepository : IRepository<AddressModel>;

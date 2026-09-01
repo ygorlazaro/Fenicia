@@ -1,13 +1,14 @@
 using Fenicia.Auth.Domains.ForgotPassword.DTOs;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
+using Fenicia.Auth.Domains.Security.Interfaces;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordService(ForgotPasswordRepository repository, UserService userService, SecurityService securityService)
+public class ForgotPasswordService(IForgotPasswordRepository repository, IUserService userService, ISecurityService securityService) : IForgotPasswordService
 {
     public async Task AddAsync(AddForgotPasswordCommand command, CancellationToken cancellationToken = default)
     {

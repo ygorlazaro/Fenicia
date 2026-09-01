@@ -1,16 +1,17 @@
 using Fenicia.Auth.Domains.Role.DTOs;
+using Fenicia.Auth.Domains.Role.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Role;
 
-public class RoleService(RoleRepository repository)
+public class RoleService(IRoleRepository repository) : IRoleService
 {
     public async Task<GetAdminRoleResponse?> GetAdminAsync(CancellationToken cancellationToken = default)
     {
         var role = await repository.GetByNameAsync("Admin", cancellationToken);
 
-        return role is null ? null : role.MapToGetAdminRoleResponse();
+        return role?.MapToGetAdminRoleResponse();
     }
 
     public async Task<RoleModel?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)

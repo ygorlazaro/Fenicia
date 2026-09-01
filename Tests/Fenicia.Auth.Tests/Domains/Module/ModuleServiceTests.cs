@@ -1,52 +1,30 @@
 using Bogus;
-
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Module.Interfaces;
+using Fenicia.Auth.Domains.Subscription.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
-
-using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Module;
 
-public class ModuleServiceTests : IDisposable
+public class ModuleServiceTests
 {
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
+    private readonly Mock<IModuleRepository> _mockModuleRepository;
+    private readonly Mock<IUserRoleService> _mockUserRoleService;
+    private readonly Mock<ISubscriptionService> _mockSubscriptionService;
     private readonly ModuleService _service;
 
     public ModuleServiceTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        var userRoleRepository = new UserRoleRepository(_db);
-        var userRoleService = new UserRoleService(userRoleRepository);
-        var userRepository = new UserRepository(_db);
-        var roleRepository = new RoleRepository(_db);
-        var companyRepository = new CompanyRepository(_db);
-        var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository, userRoleService);
-        var userService = new UserService(userRepository, userRoleService, roleService, companyService, new SecurityService());
-        var subscriptionRepository = new SubscriptionRepository(_db);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, userService, userRoleService);
-        _service = new ModuleService(new ModuleRepository(_db), userRoleService, subscriptionService);
         _faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
+        _mockModuleRepository = new Mock<IModuleRepository>();
+        _mockUserRoleService = new Mock<IUserRoleService>();
+        _mockSubscriptionService = new Mock<ISubscriptionService>();
+        _service = new ModuleService(_mockModuleRepository.Object, _mockUserRoleService.Object, _mockSubscriptionService.Object);
     }
 
     [Fact]
@@ -72,10 +50,9 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 2
         };
 
-        _db.AuthModules.AddRange(module1, module2);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module1, module2 }.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
@@ -107,10 +84,9 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 2
         };
 
-        _db.AuthModules.AddRange(authModule, basicModule);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { authModule, basicModule }.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -141,10 +117,9 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 2
         };
 
-        _db.AuthModules.AddRange(activeModule, inactiveModule);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { activeModule, inactiveModule }.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Data);
@@ -168,10 +143,9 @@ public class ModuleServiceTests : IDisposable
             });
         }
 
-        _db.AuthModules.AddRange(modules);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(modules.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(2, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(2), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
@@ -184,7 +158,9 @@ public class ModuleServiceTests : IDisposable
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsEmptyPagination()
     {
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel>().AsAsyncQueryable());
+
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result.Data);
@@ -204,10 +180,9 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 1
         };
 
-        _db.AuthModules.Add(module);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module }.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(10, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(10), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result.Data);
@@ -247,10 +222,9 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 2
         };
 
-        _db.AuthModules.AddRange(module1, module2, module3);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module1, module2, module3 }.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(3, result.Data.Count);
@@ -275,8 +249,7 @@ public class ModuleServiceTests : IDisposable
             SortOrder = 1
         };
 
-        _db.AuthModules.Add(module);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 20), CancellationToken.None);
 
@@ -289,9 +262,9 @@ public class ModuleServiceTests : IDisposable
     public async Task GetAllModulesAsync_VerifiesResponseContainsAllFields()
     {
         var moduleId = Guid.NewGuid();
-        var description = "Test module description";
-        var icon = "icon-test";
-        var sortOrder = 5;
+        const string description = "Test module description";
+        const string icon = "icon-test";
+        const int sortOrder = 5;
 
         var module = new ModuleModel
         {
@@ -305,10 +278,9 @@ public class ModuleServiceTests : IDisposable
             SortOrder = sortOrder
         };
 
-        _db.AuthModules.Add(module);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module }.AsAsyncQueryable());
 
-        var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 10), CancellationToken.None);
+        var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotEmpty(result.Data);
@@ -330,7 +302,6 @@ public class ModuleServiceTests : IDisposable
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
         var subscriptionId = Guid.NewGuid();
-        var subscriptionCreditId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
@@ -353,17 +324,6 @@ public class ModuleServiceTests : IDisposable
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
-        {
-            Id = subscriptionCreditId,
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
         var userRole = new UserRoleModel
         {
             Id = userRoleId,
@@ -372,11 +332,14 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userRole);
+        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([subscription]);
+        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([module]);
+        _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([module]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
@@ -393,6 +356,9 @@ public class ModuleServiceTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserRoleModel?)null);
+
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
         Assert.NotNull(result);
@@ -404,20 +370,12 @@ public class ModuleServiceTests : IDisposable
     {
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var moduleId = Guid.NewGuid();
+        Guid.NewGuid();
         var subscriptionId = Guid.NewGuid();
-        var subscriptionCreditId = Guid.NewGuid();
+        Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
-
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = "Test Module",
-            Type = ModuleType.Accounting,
-            Price = 100.00m
-        };
 
         var subscription = new SubscriptionModel
         {
@@ -429,17 +387,6 @@ public class ModuleServiceTests : IDisposable
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
-        {
-            Id = subscriptionCreditId,
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
         var userRole = new UserRoleModel
         {
             Id = userRoleId,
@@ -448,11 +395,10 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userRole);
+        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([subscription]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
@@ -465,20 +411,12 @@ public class ModuleServiceTests : IDisposable
     {
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var moduleId = Guid.NewGuid();
+        Guid.NewGuid();
         var subscriptionId = Guid.NewGuid();
-        var subscriptionCreditId = Guid.NewGuid();
+        Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
-
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = "Test Module",
-            Type = ModuleType.Accounting,
-            Price = 100.00m
-        };
 
         var subscription = new SubscriptionModel
         {
@@ -490,17 +428,6 @@ public class ModuleServiceTests : IDisposable
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
-        {
-            Id = subscriptionCreditId,
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = false,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
         var userRole = new UserRoleModel
         {
             Id = userRoleId,
@@ -509,11 +436,12 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userRole);
+        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([subscription]);
+        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
@@ -526,20 +454,12 @@ public class ModuleServiceTests : IDisposable
     {
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var moduleId = Guid.NewGuid();
+        Guid.NewGuid();
         var subscriptionId = Guid.NewGuid();
-        var subscriptionCreditId = Guid.NewGuid();
+        Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
-
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = "Test Module",
-            Type = ModuleType.Accounting,
-            Price = 100.00m
-        };
 
         var subscription = new SubscriptionModel
         {
@@ -551,17 +471,6 @@ public class ModuleServiceTests : IDisposable
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
-        {
-            Id = subscriptionCreditId,
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-30),
-            EndDate = now.AddDays(-10),
-            OrderDetailId = Guid.NewGuid()
-        };
-
         var userRole = new UserRoleModel
         {
             Id = userRoleId,
@@ -570,11 +479,10 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userRole);
+        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([subscription]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
@@ -620,26 +528,6 @@ public class ModuleServiceTests : IDisposable
             OrderId = Guid.NewGuid()
         };
 
-        var credit1 = new SubscriptionCreditModel
-        {
-            ModuleId = module1Id,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
-        var credit2 = new SubscriptionCreditModel
-        {
-            ModuleId = module2Id,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
         var userRole = new UserRoleModel
         {
             Id = userRoleId,
@@ -648,11 +536,14 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        _db.AuthModules.AddRange(module1, module2);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userRole);
+        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([subscription]);
+        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([module1, module2]);
+        _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([module1, module2]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
@@ -665,55 +556,13 @@ public class ModuleServiceTests : IDisposable
     {
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var differentCompanyId = Guid.NewGuid();
-        var moduleId = Guid.NewGuid();
-        var subscriptionId = Guid.NewGuid();
-        var userRoleId = Guid.NewGuid();
+        Guid.NewGuid();
+        Guid.NewGuid();
+        Guid.NewGuid();
+        Guid.NewGuid();
 
-        var now = DateTime.UtcNow;
-
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = "Test Module",
-            Type = ModuleType.Accounting,
-            Price = 100.00m
-        };
-
-        var subscription = new SubscriptionModel
-        {
-            Id = subscriptionId,
-            CompanyId = differentCompanyId,
-            Status = SubscriptionStatus.Active,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderId = Guid.NewGuid()
-        };
-
-        var subscriptionCredit = new SubscriptionCreditModel
-        {
-            Id = Guid.NewGuid(),
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = userRoleId,
-            UserId = userId,
-            CompanyId = differentCompanyId,
-            RoleId = Guid.NewGuid()
-        };
-
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserRoleModel?)null);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 
@@ -750,26 +599,6 @@ public class ModuleServiceTests : IDisposable
             OrderId = Guid.NewGuid()
         };
 
-        var credit1 = new SubscriptionCreditModel
-        {
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
-        var credit2 = new SubscriptionCreditModel
-        {
-            ModuleId = moduleId,
-            SubscriptionId = subscriptionId,
-            IsActive = true,
-            StartDate = now.AddDays(-10),
-            EndDate = now.AddDays(20),
-            OrderDetailId = Guid.NewGuid()
-        };
-
         var userRole = new UserRoleModel
         {
             Id = userRoleId,
@@ -778,11 +607,14 @@ public class ModuleServiceTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        _db.AuthUserRoles.Add(userRole);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userRole);
+        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([subscription]);
+        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([module, module]);
+        _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([module]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
 

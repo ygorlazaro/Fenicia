@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public class NotificationRepository(DefaultContext context) : Repository<NotificationModel>(context)
+public class NotificationRepository(DefaultContext context) : Repository<NotificationModel>(context), INotificationRepository
 {
     public async Task<Pagination<List<NotificationModel>>> GetAllWithPaginationAsync(int page, int perPage, CancellationToken cancellationToken = default)
     {

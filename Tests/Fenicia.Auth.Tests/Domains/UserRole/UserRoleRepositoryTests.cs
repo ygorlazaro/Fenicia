@@ -1,8 +1,5 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
-
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

@@ -5,11 +5,6 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public static partial class SubscriptionMapper
 {
-    public static GetUserProfileResponse MapToGetUserProfileResponse(this UserModel user, IEnumerable<UserCompanyResponse> companies, IEnumerable<UserSubscriptionResponse> subscriptions)
-    {
-        return new GetUserProfileResponse(user.Id, user.Name, user.Email, companies, subscriptions);
-    }
-
     public static UserCompanyResponse MapToUserCompanyResponse(this UserRoleModel userRole)
     {
         return new UserCompanyResponse(userRole.Company.Id, userRole.Company.Name, userRole.Company.Cnpj);

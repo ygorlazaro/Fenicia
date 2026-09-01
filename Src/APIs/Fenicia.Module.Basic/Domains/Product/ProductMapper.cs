@@ -25,9 +25,9 @@ public static partial class ProductMapper
             product.Dimensions,
             product.UnitOfMeasure,
             product.CategoryId,
-            product.Category?.Name ?? string.Empty,
+            product.Category.Name,
             product.SupplierId,
-            product.Supplier?.Person?.Name ?? string.Empty,
+            product.Supplier?.Person.Name ?? string.Empty,
             product.IsActive);
     }
 
@@ -49,9 +49,9 @@ public static partial class ProductMapper
             product.Dimensions,
             product.UnitOfMeasure,
             product.CategoryId,
-            product.Category?.Name ?? string.Empty,
+            product.Category.Name,
             product.SupplierId,
-            product.Supplier?.Person?.Name,
+            product.Supplier?.Person.Name,
             product.IsActive);
     }
 

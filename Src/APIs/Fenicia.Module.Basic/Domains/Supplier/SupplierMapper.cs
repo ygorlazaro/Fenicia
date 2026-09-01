@@ -20,7 +20,7 @@ public static partial class SupplierMapper
             supplier.Person.Email,
             supplier.Person.PhoneNumber,
             supplier.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
     }
 
     public static GetSupplierByIdResponse MapToGetSupplierByIdResponse(this SupplierModel supplier)

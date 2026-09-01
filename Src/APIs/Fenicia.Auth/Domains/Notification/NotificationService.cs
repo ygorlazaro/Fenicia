@@ -1,11 +1,12 @@
 using Fenicia.Auth.Domains.Notification.DTOs;
+using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public class NotificationService(NotificationRepository repository)
+public class NotificationService(INotificationRepository repository) : INotificationService
 {
     public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(GetAllNotificationsQuery query, CancellationToken cancellationToken = default)
     {
@@ -25,7 +26,7 @@ public class NotificationService(NotificationRepository repository)
     {
         var notification = await repository.GetByIdAsync(id, cancellationToken);
 
-        return notification is null ? null : notification.MapToGetNotificationByIdResponse();
+        return notification?.MapToGetNotificationByIdResponse();
     }
 
     public async Task<AddNotificationResponse> AddAsync(AddNotificationCommand command, Guid companyId, CancellationToken cancellationToken = default)

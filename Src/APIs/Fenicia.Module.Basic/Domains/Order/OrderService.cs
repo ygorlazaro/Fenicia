@@ -9,30 +9,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
-public class OrderService
+public class OrderService(
+    IOrderRepository orderRepository,
+    OrderDetailService orderDetailService,
+    StockMovementService stockMovementService)
 {
-    private readonly IOrderRepository _orderRepository;
-    private readonly OrderDetailService _orderDetailService;
-    private readonly StockMovementService _stockMovementService;
-
     public OrderService()
         : this(null!, null!, null!)
     {
     }
 
-    public OrderService(
-        IOrderRepository orderRepository,
-        OrderDetailService orderDetailService,
-        StockMovementService stockMovementService)
-    {
-        _orderRepository = orderRepository;
-        _orderDetailService = orderDetailService;
-        _stockMovementService = stockMovementService;
-    }
-
     public virtual async Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(GetAllOrderQuery query, CancellationToken cancellationToken = default)
     {
-        var baseQuery = _orderRepository.Query()
+        var baseQuery = orderRepository.Query()
             .Include(o => o.Customer).ThenInclude(c => c.Person);
 
         var filters = AdvancedQueryParser.Parse(query.Query);
@@ -47,9 +36,9 @@ public class OrderService
             .Select(o => o.Id)
             .ToListAsync(cancellationToken);
 
-        var detailCounts = await _orderDetailService.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
+        var detailCounts = await orderDetailService.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
 
-        var orders = await (from o in _orderRepository.Query()
+        var orders = await (from o in orderRepository.Query()
                             where orderIds.Contains(o.Id)
                             select new
                             {
@@ -92,14 +81,9 @@ public class OrderService
 
     public virtual async Task<GetOrderByIdResponse?> GetByIdAsync(GetOrderByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var order = await _orderRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var order = await orderRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        if (order is null)
-        {
-            return null;
-        }
-
-        return order.MapToGetOrderByIdResponse();
+        return order?.MapToGetOrderByIdResponse();
     }
 
     public virtual async Task<CreateOrderResponse> CreateAsync(CreateOrderCommand command, Guid companyId, CancellationToken cancellationToken = default)
@@ -140,7 +124,7 @@ public class OrderService
             CompanyId = companyId
         };
 
-        var created = await _orderRepository.InsertAsync(order, cancellationToken);
+        var created = await orderRepository.InsertAsync(order, cancellationToken);
 
         foreach (var detail in details)
         {
@@ -162,7 +146,7 @@ public class OrderService
                 stockMovement.Id,
                 stockMovement.Quantity,
                 stockMovement.Date,
-                stockMovement.Price ?? 0,
+                stockMovement.Price,
                 stockMovement.Type,
                 stockMovement.ProductId,
                 stockMovement.CustomerId,
@@ -171,7 +155,7 @@ public class OrderService
                 stockMovement.OrderId,
                 stockMovement.Reason);
 
-            await _stockMovementService.AddAsync(movementCommand, companyId, cancellationToken);
+            await stockMovementService.AddAsync(movementCommand, companyId, cancellationToken);
         }
 
         return created.MapToCreateOrderResponse();
@@ -179,7 +163,7 @@ public class OrderService
 
     public virtual async Task DeleteAsync(DeleteOrderCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _orderRepository.DeleteAsync(command.Id, cancellationToken);
+        await orderRepository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public virtual async Task<OrderAnalyticsResponse> GetAnalyticsAsync(GetOrderAnalyticsQuery query, CancellationToken cancellationToken = default)
@@ -187,12 +171,13 @@ public class OrderService
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var orders = await _orderRepository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var response = await orderRepository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orders = response.ToList();
 
-        var ordersByStatus = await GetOrdersByStatusAsync(orders, cancellationToken);
+        var ordersByStatus = GetOrdersByStatus(orders);
         var salesTrend = await GetSalesTrendAsync(orders, cancellationToken);
         var topCustomers = await GetTopCustomerAsync(query, orders, cancellationToken);
-        var averageOrderValue = await GetAverageOrderValueAsync(orders, cancellationToken);
+        var averageOrderValue = GetAverageOrderValue(orders);
         var cancelledOrders = await GetCancelledOrderAsync(orders, cancellationToken);
 
         return new OrderAnalyticsResponse
@@ -205,109 +190,116 @@ public class OrderService
         };
     }
 
-    public virtual async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
-    {
-        return await _orderRepository.CountAsync(cancellationToken);
-    }
-
     public virtual async Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetTotalRevenueAsync(cancellationToken);
+        return await orderRepository.GetTotalRevenueAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetTotalCostAsync(cancellationToken);
+        return await orderRepository.GetTotalCostAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetTotalOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetTotalOrdersCountAsync(cancellationToken);
+        return await orderRepository.GetTotalOrdersCountAsync(cancellationToken);
     }
 
     public virtual async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetOrderDatesAsync(cancellationToken);
+        return await orderRepository.GetOrderDatesAsync(cancellationToken);
     }
 
     public virtual async Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetOrderWeeksAsync(cancellationToken);
+        return await orderRepository.GetOrderWeeksAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetTodayRevenueAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetTodayRevenueAsync(cancellationToken);
+        return await orderRepository.GetTodayRevenueAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetTodayOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetTodayOrdersCountAsync(cancellationToken);
+        return await orderRepository.GetTodayOrdersCountAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetWeekRevenueAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetWeekRevenueAsync(cancellationToken);
+        return await orderRepository.GetWeekRevenueAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetWeekOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetWeekOrdersCountAsync(cancellationToken);
+        return await orderRepository.GetWeekOrdersCountAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetMonthRevenueAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetMonthRevenueAsync(cancellationToken);
+        return await orderRepository.GetMonthRevenueAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetMonthOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetMonthOrdersCountAsync(cancellationToken);
+        return await orderRepository.GetMonthOrdersCountAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetLastMonthRevenueAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetLastMonthRevenueAsync(cancellationToken);
+        return await orderRepository.GetLastMonthRevenueAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetPendingAmountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetPendingAmountAsync(cancellationToken);
+        return await orderRepository.GetPendingAmountAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetPendingOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetPendingOrdersCountAsync(cancellationToken);
+        return await orderRepository.GetPendingOrdersCountAsync(cancellationToken);
     }
 
     public virtual async Task<decimal> GetApprovedAmountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetApprovedAmountAsync(cancellationToken);
+        return await orderRepository.GetApprovedAmountAsync(cancellationToken);
     }
 
     public virtual async Task<int> GetApprovedOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetApprovedOrdersCountAsync(cancellationToken);
+        return await orderRepository.GetApprovedOrdersCountAsync(cancellationToken);
     }
 
     public virtual async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetRecentOrdersAsync(topLimit, cancellationToken);
+        return await orderRepository.GetRecentOrdersAsync(topLimit, cancellationToken);
     }
 
     public virtual async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetTopCustomerOrdersAsync(cancellationToken);
+        return await orderRepository.GetTopCustomerOrdersAsync(cancellationToken);
     }
 
     public virtual async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetAtRiskOrdersAsync(cancellationToken);
+        return await orderRepository.GetAtRiskOrdersAsync(cancellationToken);
     }
 
     public virtual async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
-        return await _orderRepository.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
+        return await orderRepository.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
+    }
+
+    private static List<OrderStatusCountResponse> GetOrdersByStatus(IEnumerable<OrderModel> orders)
+    {
+        var groups = orders
+                .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
+            .ToList();
+
+        return [.. groups
+            .Select(g => new OrderStatusCountResponse(g.Status.ToString(), g.Count, g.Total))
+            .OrderByDescending(s => s.Count)];
     }
 
     private static decimal CalculateMedian(List<decimal> values)
@@ -327,30 +319,7 @@ public class OrderService
         return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
     }
 
-    private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IEnumerable<OrderModel> orders, CancellationToken cancellationToken = default)
-    {
-        var cancelled = orders
-                .Where(o => o.Status == OrderStatus.Cancelled)
-            .Select(o => new { o.Id, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.SaleDate })
-            .ToList();
-
-        var orderIds = cancelled.Select(o => o.Id).ToList();
-
-        var detailQtys = await _orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
-
-        return [.. cancelled
-            .Select(o => new CancelledOrderResponse(
-                o.Id,
-                o.CustomerName,
-                o.TotalAmount,
-                o.SaleDate,
-                (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0),
-                null))
-            .OrderByDescending(o => o.SaleDate)
-            .Take(20)];
-    }
-
-    private async Task<AverageOrderValueResponse> GetAverageOrderValueAsync(IEnumerable<OrderModel> orders, CancellationToken cancellationToken = default)
+    private static AverageOrderValueResponse GetAverageOrderValue(IEnumerable<OrderModel> orders)
     {
         var orderValues = orders.Select(o => o.TotalAmount).OrderBy(v => v).ToList();
         var averageOrderValue = new AverageOrderValueResponse
@@ -364,6 +333,29 @@ public class OrderService
         return averageOrderValue;
     }
 
+    private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IEnumerable<OrderModel> orders, CancellationToken cancellationToken = default)
+    {
+        var cancelled = orders
+                .Where(o => o.Status == OrderStatus.Cancelled)
+            .Select(o => new { o.Id, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.SaleDate })
+            .ToList();
+
+        var orderIds = cancelled.Select(o => o.Id).ToList();
+
+        var detailQtys = await orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
+
+        return [.. cancelled
+            .Select(o => new CancelledOrderResponse(
+                o.Id,
+                o.CustomerName,
+                o.TotalAmount,
+                o.SaleDate,
+                (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0),
+                null))
+            .OrderByDescending(o => o.SaleDate)
+            .Take(20)];
+    }
+
     private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IEnumerable<OrderModel> orders, CancellationToken cancellationToken = default)
     {
         var raw = orders
@@ -372,7 +364,7 @@ public class OrderService
 
         var orderIds = raw.Select(o => o.Id).ToList();
 
-        var detailQtys = await _orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
+        var detailQtys = await orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
 
         var topCustomers = raw
             .GroupBy(o => new { o.CustomerId, o.CustomerName })
@@ -392,12 +384,12 @@ public class OrderService
     private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IEnumerable<OrderModel> orders, CancellationToken cancellationToken = default)
     {
         var orderData = orders
-                .Select(o => new { Date = o.SaleDate.Date, o.TotalAmount, o.Id })
+                .Select(o => new { o.SaleDate.Date, o.TotalAmount, o.Id })
             .ToList();
 
         var orderIds = orderData.Select(o => o.Id).ToList();
 
-        var detailQtys = await _orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
+        var detailQtys = await orderDetailService.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
 
         var salesTrend = orderData
             .GroupBy(o => o.Date)
@@ -411,17 +403,5 @@ public class OrderService
             .ToList();
 
         return salesTrend;
-    }
-
-    private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IEnumerable<OrderModel> orders, CancellationToken cancellationToken = default)
-    {
-        var groups = orders
-                .GroupBy(o => o.Status)
-            .Select(g => new { Status = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
-            .ToList();
-
-        return [.. groups
-            .Select(g => new OrderStatusCountResponse(g.Status.ToString(), g.Count, g.Total))
-            .OrderByDescending(s => s.Count)];
     }
 }

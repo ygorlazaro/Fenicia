@@ -1,59 +1,42 @@
 using System.Security.Claims;
-using Bogus;
-
 using Fenicia.Auth.Domains.Notification;
 using Fenicia.Auth.Domains.Notification.DTOs;
+using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Notification;
 
-public class NotificationControllerTests : IDisposable
+public class NotificationControllerTests
 {
     private readonly NotificationController _controller;
-    private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
+    private readonly Mock<INotificationService> _mockService;
 
     public NotificationControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
         _testUserId = Guid.NewGuid();
-        var notificationRepository = new NotificationRepository(_db);
-        var notificationService = new NotificationService(notificationRepository);
+        _mockService = new Mock<INotificationService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new NotificationController(notificationService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
-        _faker = new Faker();
+        _controller = new NotificationController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task GetAsync_WhenNoNotificationsExist_ReturnsOkWithEmptyPagination()
     {
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllNotificationsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<GetAllNotificationsResponse>>([], 0, query.Page, query.PerPage));
 
         var result = await _controller.GetAsync(wide, query.Page, query.PerPage, null, null, CancellationToken.None);
 
@@ -64,9 +47,8 @@ public class NotificationControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_SetsWideEventContextUserId()
     {
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery();
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
 
         await _controller.GetAsync(wide, query.Page, query.PerPage, null, null, CancellationToken.None);
 
@@ -77,11 +59,11 @@ public class NotificationControllerTests : IDisposable
     public async Task GetByIdAsync_WhenNotificationExists_ReturnsOk()
     {
         var id = Guid.NewGuid();
-        _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "Test", Description = "D", Date = DateTime.UtcNow });
-        await _db.SaveChangesAsync(CancellationToken.None);
+
+        _mockService.Setup(s => s.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetNotificationByIdResponse(id, "Test", "D", DateTime.UtcNow, null, false));
 
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
 
         var result = await _controller.GetByIdAsync(id, wide, CancellationToken.None);
 
@@ -93,7 +75,9 @@ public class NotificationControllerTests : IDisposable
     public async Task GetByIdAsync_WhenNotificationDoesNotExist_ReturnsNotFound()
     {
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetNotificationByIdResponse?)null);
 
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -109,6 +93,9 @@ public class NotificationControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
+        _mockService.Setup(s => s.AddAsync(command, headers.CompanyId, cancellationToken))
+            .ReturnsAsync(new AddNotificationResponse(Guid.NewGuid()));
+
         var result = await _controller.PostAsync(command, headers, wide, cancellationToken);
 
         Assert.NotNull(result);
@@ -119,8 +106,9 @@ public class NotificationControllerTests : IDisposable
     public async Task PatchAsync_WhenNotificationExists_ReturnsOk()
     {
         var id = Guid.NewGuid();
-        _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "Old", Description = "D", Date = DateTime.UtcNow, Read = false });
-        await _db.SaveChangesAsync(CancellationToken.None);
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateNotificationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UpdateNotificationResponse(id));
 
         var command = new UpdateNotificationCommand(id, "New Title", "New Desc", null, "img.png", true);
         var wide = new WideEventContext();
@@ -137,8 +125,9 @@ public class NotificationControllerTests : IDisposable
     public async Task PatchAsync_WhenMarkingAsRead_ReturnsOk()
     {
         var id = Guid.NewGuid();
-        _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false });
-        await _db.SaveChangesAsync(CancellationToken.None);
+
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateNotificationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UpdateNotificationResponse(id));
 
         var command = new UpdateNotificationCommand(id, "T", "D", null, null, true);
         var wide = new WideEventContext();
@@ -159,6 +148,9 @@ public class NotificationControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateNotificationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateNotificationResponse?)null);
+
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), headers, wide, cancellationToken);
 
         Assert.NotNull(result);
@@ -169,8 +161,9 @@ public class NotificationControllerTests : IDisposable
     public async Task DeleteAsync_WhenNotificationExists_ReturnsNoContent()
     {
         var id = Guid.NewGuid();
-        _db.AuthNotifications.Add(new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow });
-        await _db.SaveChangesAsync(CancellationToken.None);
+
+        _mockService.Setup(s => s.DeleteAsync(id, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;

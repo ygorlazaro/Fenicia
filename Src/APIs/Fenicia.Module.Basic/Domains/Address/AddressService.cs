@@ -1,21 +1,13 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public class AddressService
+public class AddressService(IAddressRepository addressRepository)
 {
-    private readonly IAddressRepository _addressRepository;
-
     public AddressService()
         : this(null!)
     {
-    }
-
-    public AddressService(IAddressRepository addressRepository)
-    {
-        _addressRepository = addressRepository;
     }
 
     public virtual async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken cancellationToken = default)
@@ -33,7 +25,7 @@ public class AddressService
             Country = command.Country
         };
 
-        var created = await _addressRepository.InsertAsync(address, cancellationToken);
+        var created = await addressRepository.InsertAsync(address, cancellationToken);
 
         return created.MapToAddressResponse();
     }
@@ -53,14 +45,14 @@ public class AddressService
             Country = command.Country
         };
 
-        var updated = await _addressRepository.UpdateAsync(id, address, cancellationToken);
+        var updated = await addressRepository.UpdateAsync(id, address, cancellationToken);
 
         return updated?.MapToAddressResponse();
     }
 
     public virtual async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var address = await _addressRepository.GetByIdAsync(id, cancellationToken);
+        var address = await addressRepository.GetByIdAsync(id, cancellationToken);
 
         return address?.MapToAddressResponse();
     }

@@ -1,8 +1,9 @@
+using Fenicia.Auth.Domains.LoginAttempt.Interfaces;
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.LoginAttempt;
 
-public class LoginAttemptService(IConnectionMultiplexer redis)
+public class LoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptService
 {
     private const int _expirationMinutes = 15;
     private const string _keyPrefix = "login-attempt:";
@@ -17,7 +18,7 @@ public class LoginAttemptService(IConnectionMultiplexer redis)
         return value.HasValue ? (int)value : 0;
     }
 
-    public async Task IncrementAsync(string email, CancellationToken cancellationToken = default)
+    public async Task IncrementAsync(string email)
     {
         var key = GetKey(email);
         var current = _redisDb.StringGet(key);
@@ -27,7 +28,7 @@ public class LoginAttemptService(IConnectionMultiplexer redis)
         await _redisDb.StringSetAsync(key, newValue, TimeSpan.FromMinutes(_expirationMinutes), When.Always, CommandFlags.None);
     }
 
-    public Task ResetAsync(string email, CancellationToken cancellationToken = default)
+    public Task ResetAsync(string email)
     {
         _redisDb.KeyDelete(GetKey(email));
         return Task.CompletedTask;

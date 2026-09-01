@@ -4,6 +4,4 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-public class PositionRepository(DefaultContext context) : Repository<PositionModel>(context), IPositionRepository
-{
-}
+public class PositionRepository(DefaultContext context) : Repository<PositionModel>(context), IPositionRepository;

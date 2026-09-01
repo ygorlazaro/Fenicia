@@ -5,23 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public class ProductCategoryService
+public class ProductCategoryService(IProductCategoryRepository productCategoryRepository)
 {
-    private readonly IProductCategoryRepository _productCategoryRepository;
-
     public ProductCategoryService()
         : this(null!)
     {
     }
 
-    public ProductCategoryService(IProductCategoryRepository productCategoryRepository)
-    {
-        _productCategoryRepository = productCategoryRepository;
-    }
-
     public virtual async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(GetAllProductCategoryQuery query, CancellationToken cancellationToken = default)
     {
-        var baseQuery = _productCategoryRepository.Query();
+        var baseQuery = productCategoryRepository.Query();
 
         var filters = AdvancedQueryParser.Parse(query.Query);
         var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
@@ -39,9 +32,9 @@ public class ProductCategoryService
 
     public virtual async Task<GetProductCategoryByIdResponse?> GetByIdAsync(GetProductCategoryByIdQuery query, CancellationToken cancellationToken = default)
     {
-        var category = await _productCategoryRepository.GetByIdAsync(query.Id, cancellationToken);
+        var category = await productCategoryRepository.GetByIdAsync(query.Id, cancellationToken);
 
-        return category is null ? null : category.MapToGetProductCategoryByIdResponse();
+        return category?.MapToGetProductCategoryByIdResponse();
     }
 
     public virtual async Task<AddProductCategoryResponse> AddAsync(AddProductCategoryCommand command, Guid companyId, CancellationToken cancellationToken = default)
@@ -53,14 +46,14 @@ public class ProductCategoryService
             CompanyId = companyId
         };
 
-        await _productCategoryRepository.InsertAsync(category, cancellationToken);
+        await productCategoryRepository.InsertAsync(category, cancellationToken);
 
         return category.MapToAddProductCategoryResponse();
     }
 
     public virtual async Task<UpdateProductCategoryResponse?> UpdateAsync(UpdateProductCategoryCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var category = await _productCategoryRepository.GetByIdAsync(command.Id, cancellationToken);
+        var category = await productCategoryRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (category is null)
         {
@@ -70,7 +63,7 @@ public class ProductCategoryService
         category.Name = command.Name;
         category.CompanyId = companyId;
 
-        await _productCategoryRepository.UpdateAsync(command.Id, category, cancellationToken);
+        await productCategoryRepository.UpdateAsync(command.Id, category, cancellationToken);
 
         return category.MapToUpdateProductCategoryResponse();
     }
@@ -78,7 +71,7 @@ public class ProductCategoryService
     public virtual async Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
         var idList = ids.ToList();
-        return await _productCategoryRepository.Query()
+        return await productCategoryRepository.Query()
             .Where(pc => idList.Contains(pc.Id))
             .Select(pc => pc.MapToGetProductCategoryByIdResponse())
             .ToListAsync(cancellationToken);
@@ -86,6 +79,6 @@ public class ProductCategoryService
 
     public virtual async Task DeleteAsync(DeleteProductCategoryCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        await _productCategoryRepository.DeleteAsync(command.Id, cancellationToken);
+        await productCategoryRepository.DeleteAsync(command.Id, cancellationToken);
     }
 }

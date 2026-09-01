@@ -1,5 +1,4 @@
 using Bogus;
-using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Tests.Domains.Security;

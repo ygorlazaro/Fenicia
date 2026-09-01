@@ -182,6 +182,18 @@ dotnet_diagnostic.CA1812.severity = none
 dotnet_diagnostic.CA1515.severity = none
 dotnet_diagnostic.CA1707.severity = none
 
+
+dotnet_diagnostic.IDE0028.severity = error
+
+
+dotnet_diagnostic.IDE0030.severity = error
+
+
+dotnet_diagnostic.IDE0305.severity = error
+
+
+dotnet_diagnostic.IDE0301.severity = error
+
 [**/Migrations/**/*.cs]
 dotnet_diagnostic.SA1201.severity = none
 dotnet_diagnostic.SA1202.severity = none
@@ -217,3 +229,14 @@ dotnet_diagnostic.IDE0005.severity = none
 
 [**/Fenicia.Module.Basic/Domains/**/*Service.cs]
 csharp_style_prefer_primary_constructors = true:none
+
+[**/Interfaces/*.cs]
+dotnet_diagnostic.IDE0130.severity = none
+
+[**/AsyncQueryableHelper.cs]
+dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1201.severity = none
+dotnet_diagnostic.SA1128.severity = none
+dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.CA1852.severity = none
+dotnet_diagnostic.CS8618.severity = none

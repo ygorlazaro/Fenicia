@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Notification.DTOs;
+using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Auth.Domains.Notification;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class NotificationController(NotificationService notificationService) : ControllerBase
+public class NotificationController(INotificationService notificationService) : ControllerBase
 {
     /// <summary>
     /// Obtém todas as notificações do usuário autenticado com paginação.

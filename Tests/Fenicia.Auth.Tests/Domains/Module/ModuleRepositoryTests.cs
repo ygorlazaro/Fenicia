@@ -206,7 +206,7 @@ public class ModuleRepositoryTests : IDisposable
         _db.AuthModules.AddRange(module1, module2);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _repository.GetByIdsAsync(new[] { module1.Id, module2.Id }, CancellationToken.None);
+        var result = await _repository.GetByIdsAsync([module1.Id, module2.Id], CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
@@ -230,7 +230,7 @@ public class ModuleRepositoryTests : IDisposable
         _db.AuthModules.Add(module);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _repository.GetByIdsAsync(new[] { module.Id, Guid.NewGuid() }, CancellationToken.None);
+        var result = await _repository.GetByIdsAsync([module.Id, Guid.NewGuid()], CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result);
@@ -240,7 +240,7 @@ public class ModuleRepositoryTests : IDisposable
     [Fact]
     public async Task GetByIdsAsync_WhenNoIdsExist_ReturnsEmptyList()
     {
-        var result = await _repository.GetByIdsAsync(new[] { Guid.NewGuid() }, CancellationToken.None);
+        var result = await _repository.GetByIdsAsync([Guid.NewGuid()], CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result);

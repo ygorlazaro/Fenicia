@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.User.DTOs;
-using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.User;
@@ -39,10 +38,5 @@ public static partial class UserMapper
     public static GetUserForRefreshResponse MapToGetUserForRefreshResponse(this UserModel user)
     {
         return new GetUserForRefreshResponse(user.Id, user.Email, user.Name);
-    }
-
-    public static GetUserCompaniesResponse MapToGetUserCompaniesResponse(this UserRoleModel userRole)
-    {
-        return new GetUserCompaniesResponse(userRole.CompanyId, userRole.Role.Name, userRole.Company.Id, userRole.Company.Name, userRole.Company.Cnpj);
     }
 }

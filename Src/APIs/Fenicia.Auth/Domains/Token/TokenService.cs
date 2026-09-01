@@ -1,20 +1,18 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
-using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.LoginAttempt.Interfaces;
+using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Auth.Domains.Token.DTOs;
-using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.Token.Interfaces;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
-
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(IConfiguration configuration, LoginAttemptService loginAttemptService, UserService userService, SecurityService securityService)
+public class TokenService(IConfiguration configuration, ILoginAttemptService loginAttemptService, IUserService userService, ISecurityService securityService) : ITokenService
 {
     public TokenService()
         : this(null!, null!, null!, null!)
@@ -28,7 +26,7 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
 
         if (user is null)
         {
-            await loginAttemptService.IncrementAsync(query.Email, cancellationToken);
+            await loginAttemptService.IncrementAsync(query.Email);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
@@ -38,12 +36,12 @@ public class TokenService(IConfiguration configuration, LoginAttemptService logi
 
         if (isValidPassword)
         {
-            await loginAttemptService.ResetAsync(query.Email, cancellationToken);
+            await loginAttemptService.ResetAsync(query.Email);
 
             return new GenerateTokenResponse(user.Id, user.Name, user.Email);
         }
 
-        await loginAttemptService.IncrementAsync(query.Email, cancellationToken);
+        await loginAttemptService.IncrementAsync(query.Email);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);

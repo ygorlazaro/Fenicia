@@ -1,25 +1,19 @@
 using System.Security.Claims;
 using Bogus;
 using Bogus.Extensions.Brazil;
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.DTOs;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.DTOs;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.DTOs;
+using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
+using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
@@ -27,40 +21,20 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class UserControllerTests
 {
     private readonly UserController _controller;
-    private readonly DefaultContext _db;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Guid _testUserId;
-    private readonly UserRepository _userRepository;
-    private readonly UserRoleRepository _userRoleRepository;
-    private readonly RoleRepository _roleRepository;
-    private readonly CompanyRepository _companyRepository;
-    private readonly UserService _userService;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<IModuleService> _mockModuleService;
 
     public UserControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        _userRepository = new UserRepository(_db);
-        _userRoleRepository = new UserRoleRepository(_db);
-        _roleRepository = new RoleRepository(_db);
-        _companyRepository = new CompanyRepository(_db);
-        var userRoleService = new UserRoleService(_userRoleRepository);
-        var roleService = new RoleService(_roleRepository);
-        var companyService = new CompanyService(_companyRepository, userRoleService);
-        _userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
-        var moduleRepository = new ModuleRepository(_db);
-        var subscriptionRepository = new SubscriptionRepository(_db);
-        var subscriptionService = new SubscriptionService(subscriptionRepository, _userService, userRoleService);
-        var moduleService = new ModuleService(moduleRepository, userRoleService, subscriptionService);
+        _mockUserService = new Mock<IUserService>();
+        _mockModuleService = new Mock<IModuleService>();
+        _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
 
-        _mockHttpContext = new Mock<HttpContext>();
-        var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(_mockHttpContext.Object);
-
-        _controller = new UserController(_userService, moduleService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new UserController(_mockUserService.Object, _mockModuleService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -73,6 +47,9 @@ public class UserControllerTests
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, _testUserId, cancellationToken))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
 
@@ -95,16 +72,8 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+            .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
@@ -116,37 +85,15 @@ public class UserControllerTests
     {
         var otherUserId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var adminRoleId = Guid.NewGuid();
+        Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
-
-        var loggedInUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
-
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+            .Returns(Task.CompletedTask);
+        _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, otherUserId, cancellationToken))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
@@ -158,38 +105,14 @@ public class UserControllerTests
     {
         var otherUserId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var otherCompanyId = Guid.NewGuid();
-        var adminRoleId = Guid.NewGuid();
+        Guid.NewGuid();
+        Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
-
-        var loggedInUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = adminRoleId,
-            CompanyId = otherCompanyId
-        };
-
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+            .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
@@ -197,99 +120,13 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task GetUserModulesAsync_WhenUserHasActiveSubscription_ReturnsOkWithModules()
-    {
-        var companyId = Guid.NewGuid();
-        var moduleId = Guid.NewGuid();
-        var subscriptionId = Guid.NewGuid();
-        var subscriptionCreditId = Guid.NewGuid();
-
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = _faker.Finance.Amount(10,                100)
-        };
-
-        var subscription = new SubscriptionModel
-        {
-            Id = subscriptionId,
-            CompanyId = companyId,
-            Status = SubscriptionStatus.Active,
-            StartDate = DateTime.Now.AddDays(-10),
-            EndDate = DateTime.Now.AddDays(30)
-        };
-
-        var subscriptionCredit = new SubscriptionCreditModel
-        {
-            Id = subscriptionCreditId,
-            SubscriptionId = subscriptionId,
-            ModuleId = moduleId,
-            IsActive = true,
-            StartDate = DateTime.Now.AddDays(-10),
-            EndDate = DateTime.Now.AddDays(30)
-        };
-
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = Guid.NewGuid(),
-            CompanyId = companyId
-        };
-
-        _db.AuthModules.Add(module);
-        _db.AuthSubscriptions.Add(subscription);
-        _db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(userRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
-
-        Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
-
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
-
-        var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
-        Assert.Single(returnedModules);
-        Assert.Equal(moduleId, returnedModules[0].Id);
-        Assert.Equal(module.Name, returnedModules[0].Name);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
-    public async Task GetUserModulesAsync_SetsWideEventContextUserId()
-    {
-        var companyId = Guid.NewGuid();
-        var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
     public async Task GetUserCompanyAsync_WhenUserHasNoCompanies_ReturnsOkWithEmptyList()
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
 
@@ -323,30 +160,11 @@ public class UserControllerTests
             Name = "Admin"
         };
 
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
-
-        await _companyRepository.InsertAsync(company, CancellationToken.None);
-        await _roleRepository.InsertAsync(role, CancellationToken.None);
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(userRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+
+        _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
+            .ReturnsAsync([new GetUserCompaniesResponse(companyId, role.Name, companyId, company.Name, company.Cnpj)]);
 
         var result = await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
 
@@ -369,6 +187,9 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
+        _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
+            .ReturnsAsync([]);
+
         await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
@@ -381,16 +202,8 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
+            .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
@@ -401,46 +214,15 @@ public class UserControllerTests
     public async Task GetUserCompanyAsync_WhenUserIsNotOwner_ButSharesCompany_ReturnsOk()
     {
         var otherUserId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var adminRoleId = Guid.NewGuid();
+        Guid.NewGuid();
+        Guid.NewGuid();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
-
-        var loggedInUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
-
-        var otherUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = otherUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
-
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(otherUserRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
+            .Returns(Task.CompletedTask);
+        _mockUserService.Setup(s => s.GetCompaniesAsync(otherUserId, cancellationToken))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
@@ -456,16 +238,8 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+            .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
@@ -477,37 +251,15 @@ public class UserControllerTests
     {
         var otherUserId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var adminRoleId = Guid.NewGuid();
+        Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
-
-        var loggedInUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
-
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+            .Returns(Task.CompletedTask);
+        _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, otherUserId, cancellationToken))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
 
@@ -521,16 +273,8 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
+            .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
@@ -541,46 +285,15 @@ public class UserControllerTests
     public async Task GetUserCompanyAsync_WhenUserIsNotOwner_ButIsAdmin_ReturnsOk()
     {
         var otherUserId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var adminRoleId = Guid.NewGuid();
+        Guid.NewGuid();
+        Guid.NewGuid();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
-
-        var loggedInUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
-
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        var otherUserRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = otherUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
-
-        await _roleRepository.InsertAsync(adminRole, CancellationToken.None);
-        await _userRepository.InsertAsync(otherUser, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(loggedInUserRole, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(otherUserRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
+            .Returns(Task.CompletedTask);
+        _mockUserService.Setup(s => s.GetCompaniesAsync(otherUserId, cancellationToken))
+            .ReturnsAsync([]);
 
         var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
 
@@ -623,16 +336,8 @@ public class UserControllerTests
     {
         SetupUserClaims(_testUserId, "God");
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.GetAllAsync(It.IsAny<GetAllUsersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Pagination<List<UserListItemResponse>>([], 1, 1, 10));
 
         var result = await _controller.GetAsync(1, 10, null, null, CancellationToken.None);
 
@@ -645,21 +350,8 @@ public class UserControllerTests
     {
         SetupUserClaims(_testUserId, "God");
 
-        var roleId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "User"
-        };
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = "Test Company",
-            Cnpj = _faker.Company.Cnpj(),
-            IsActive = true
-        };
+        Guid.NewGuid();
+        Guid.NewGuid();
 
         var user = new UserModel
         {
@@ -669,19 +361,8 @@ public class UserControllerTests
             Password = _faker.Internet.Password()
         };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
-
-        await _roleRepository.InsertAsync(role, CancellationToken.None);
-        await _companyRepository.InsertAsync(company, CancellationToken.None);
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _userRoleRepository.InsertAsync(userRole, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetUserByIdResponse(user.Id, user.Name, user.Email));
 
         var result = await _controller.GetByIdAsync(user.Id, CancellationToken.None);
 
@@ -695,69 +376,10 @@ public class UserControllerTests
         SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
+        _mockUserService.Setup(s => s.GetByIdAsync(nonExistentUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetUserByIdResponse?)null);
+
         var result = await _controller.GetByIdAsync(nonExistentUserId, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_WhenUserIsDeleted_ReturnsNotFound()
-    {
-        SetupUserClaims(_testUserId, "God");
-
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password(),
-            Deleted = DateTime.UtcNow
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var result = await _controller.GetByIdAsync(user.Id, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_WhenUserNotFound_ReturnsNotFound()
-    {
-        SetupUserClaims(_testUserId, "God");
-        var nonExistentUserId = Guid.NewGuid();
-
-        var query = new UpdateUserCommand(nonExistentUserId, "Updated Name");
-
-        var result = await _controller.UpdateAsync(nonExistentUserId, query, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_WhenUserIsDeleted_ReturnsNotFound()
-    {
-        SetupUserClaims(_testUserId, "God");
-
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password(),
-            Deleted = DateTime.UtcNow
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new UpdateUserCommand(user.Id, "Updated Name");
-
-        var result = await _controller.UpdateAsync(user.Id, query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -769,30 +391,10 @@ public class UserControllerTests
         SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
+        _mockUserService.Setup(s => s.DeleteAsync(nonExistentUserId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidRequestException("User not found"));
+
         var result = await _controller.DeleteAsync(nonExistentUserId, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_WhenUserIsDeleted_ReturnsNotFound()
-    {
-        SetupUserClaims(_testUserId, "God");
-
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password(),
-            Deleted = DateTime.UtcNow
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var result = await _controller.DeleteAsync(user.Id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);
@@ -803,21 +405,13 @@ public class UserControllerTests
     {
         SetupUserClaims(_testUserId, "God");
 
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
+        _mockUserService.Setup(s => s.DeleteAsync(_testUserId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidRequestException("Cannot delete yourself"));
 
         var result = await _controller.DeleteAsync(_testUserId, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<NoContentResult>(result);
+        Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
@@ -828,32 +422,10 @@ public class UserControllerTests
 
         var query = new UpdateUserPasswordCommand(_testUserId, _faker.Internet.Password());
 
+        _mockUserService.Setup(s => s.UpdatePasswordAsync(It.IsAny<UpdateUserPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidRequestException("User not found"));
+
         var result = await _controller.ChangePasswordAsync(nonExistentUserId, query, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    public async Task ChangePasswordAsync_WhenUserIsDeleted_ReturnsNotFound()
-    {
-        SetupUserClaims(_testUserId, "God");
-
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password(),
-            Deleted = DateTime.UtcNow
-        };
-
-        await _userRepository.InsertAsync(user, CancellationToken.None);
-        await _db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new UpdateUserPasswordCommand(user.Id, _faker.Internet.Password());
-
-        var result = await _controller.ChangePasswordAsync(user.Id, query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);

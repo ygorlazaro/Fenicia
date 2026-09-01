@@ -18,11 +18,11 @@ public static partial class StockMovementMapper
             movement.Price,
             movement.Type,
             movement.CustomerId,
-            movement.Customer != null && movement.Customer.Person != null ? movement.Customer.Person.Name : null,
+            movement.Customer?.Person.Name,
             movement.SupplierId,
-            movement.Supplier != null && movement.Supplier.Person != null ? movement.Supplier.Person.Name : null,
+            movement.Supplier?.Person.Name,
             movement.EmployeeId,
-            movement.Employee != null && movement.Employee.Person != null ? movement.Employee.Person.Name : null,
+            movement.Employee?.Person.Name,
             movement.OrderId,
             movement.Reason);
     }

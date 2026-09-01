@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Subscription.DTOs;
+using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace Fenicia.Auth.Domains.Subscription;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SubscriptionController(SubscriptionService subscriptionService) : ControllerBase
+public class SubscriptionController(ISubscriptionService subscriptionService) : ControllerBase
 {
     /// <summary>
     /// Obtém o perfil do usuário autenticado com empresas e assinaturas.

@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public class UserRoleRepository(DefaultContext context) : Repository<UserRoleModel>(context)
+public class UserRoleRepository(DefaultContext context) : Repository<UserRoleModel>(context), IUserRoleRepository
 {
     public async Task<List<UserRoleModel>> GetCompaniesByUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {

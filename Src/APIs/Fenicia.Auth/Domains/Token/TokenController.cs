@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Token.DTOs;
+using Fenicia.Auth.Domains.Token.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -14,7 +15,7 @@ namespace Fenicia.Auth.Domains.Token;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class TokenController(TokenService tokenService) : ControllerBase
+public class TokenController(ITokenService tokenService) : ControllerBase
 {
     /// <summary>
     /// Gera um token JWT para o usuário (login).
@@ -42,7 +43,7 @@ public class TokenController(TokenService tokenService) : ControllerBase
 
             var userResponse = await tokenService.GenerateAsync(request, cancellationToken);
 
-            return await PopulateTokenAsync(userResponse, cancellationToken);
+            return PopulateTokenAsync(userResponse);
         }
         catch (PermissionDeniedException ex)
         {
@@ -62,7 +63,7 @@ public class TokenController(TokenService tokenService) : ControllerBase
         }
     }
 
-    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(GenerateTokenResponse user, CancellationToken cancellationToken = default)
+    private ActionResult<TokenResponse> PopulateTokenAsync(GenerateTokenResponse user)
     {
         var token = tokenService.GenerateString(user);
         var response = token.MapToTokenResponse(string.Empty, user);

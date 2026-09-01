@@ -1,60 +1,31 @@
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Module;
+using System.Security.Claims;
 using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.Register.DTOs;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.Register.Interfaces;
 using Fenicia.Auth.Domains.User.DTOs;
-using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Tests;
+using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Register;
 
-public class RegisterControllerTests : IDisposable
+public class RegisterControllerTests
 {
-    private readonly Guid _adminRoleId;
     private readonly RegisterController _controller;
-    private readonly DefaultContext _db;
-    private readonly UserRepository _userRepository;
-    private readonly UserRoleRepository _userRoleRepository;
-    private readonly RoleRepository _roleRepository;
-    private readonly CompanyRepository _companyRepository;
+    private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<IRegisterService> _mockService;
 
     public RegisterControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var adminRoleId = Guid.NewGuid();
+        _mockHttpContext = new Mock<HttpContext>();
+        _mockService = new Mock<IRegisterService>();
 
-        _db = new DefaultContext(options, new TestCompanyContext());
-        _userRepository = new UserRepository(_db);
-        _userRoleRepository = new UserRoleRepository(_db);
-        _roleRepository = new RoleRepository(_db);
-        _companyRepository = new CompanyRepository(_db);
-        var userRoleService = new UserRoleService(_userRoleRepository);
-        var roleService = new RoleService(_roleRepository);
-        var companyService = new CompanyService(_companyRepository, userRoleService);
-        var userService = new UserService(_userRepository, userRoleService, roleService, companyService, new SecurityService());
-        var registerService = new RegisterService(userService);
+        _controller = new RegisterController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
-        var mockHttpContext = new Mock<HttpContext>();
-        _controller = new RegisterController(registerService) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-
-        _adminRoleId = Guid.NewGuid();
-        SeedAdminRoleAsync().GetAwaiter().GetResult();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
+        SetupUserClaims(adminRoleId);
     }
 
     [Fact]
@@ -65,8 +36,8 @@ public class RegisterControllerTests : IDisposable
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("existing@example.com", "password123", "Test User", company);
 
-        await _userRepository.InsertAsync(new UserModel { Email = request.Email, Name = "Existing User", Password = "password" }, CancellationToken.None);
-        _db.SaveChanges();
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidRequestException("This email already exists"));
 
         var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
@@ -81,8 +52,8 @@ public class RegisterControllerTests : IDisposable
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        await _companyRepository.InsertAsync(new CompanyModel { Cnpj = company.Cnpj, Name = "Existing Company" }, CancellationToken.None);
-        _db.SaveChanges();
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidRequestException("Company with this CNPJ already exists."));
 
         var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
@@ -97,8 +68,8 @@ public class RegisterControllerTests : IDisposable
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        _db.AuthRoles.Remove(_db.AuthRoles.First());
-        _db.SaveChanges();
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidRequestException("Admin role not found. Please ensure that the admin role exists in the database."));
 
         var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
@@ -113,6 +84,15 @@ public class RegisterControllerTests : IDisposable
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
+        var expectedResponse = new RegisterResponse(
+            Guid.NewGuid(),
+            "Test User",
+            "test@example.com",
+            new CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12.345.678/0001-90"));
+
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResponse);
+
         var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
         var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -122,17 +102,6 @@ public class RegisterControllerTests : IDisposable
         Assert.Equal(request.Name, response.Name);
         Assert.Equal(company.Name, response.Company.Name);
         Assert.Equal(request.Email, wide.UserId);
-
-        var createdUser = await _db.AuthUsers.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
-        Assert.NotNull(createdUser);
-        Assert.NotEqual(request.Password, createdUser.Password);
-
-        var createdCompany = await _db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == company.Cnpj, cancellationToken);
-        Assert.NotNull(createdCompany);
-
-        var userRole = await _db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, cancellationToken);
-        Assert.NotNull(userRole);
-        Assert.Equal(_adminRoleId, userRole.RoleId);
     }
 
     [Fact]
@@ -142,6 +111,9 @@ public class RegisterControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
+
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RegisterResponse(Guid.NewGuid(), "Test User", "test@example.com", new CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12.345.678/0001-90")));
 
         await _controller.CreateNewUserAsync(request, wide, cancellationToken);
 
@@ -176,9 +148,13 @@ public class RegisterControllerTests : IDisposable
         Assert.Equal("application/json", produces.ContentTypes.FirstOrDefault());
     }
 
-    private async Task SeedAdminRoleAsync()
+    private void SetupUserClaims(Guid userId)
     {
-        _roleRepository.InsertAsync(new RoleModel { Id = _adminRoleId, Name = "Admin" }, CancellationToken.None).GetAwaiter().GetResult();
-        _db.SaveChanges();
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        _controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

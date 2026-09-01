@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Module.DTOs;
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Auth.Domains.Module;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ModuleController(ModuleService service) : ControllerBase
+public class ModuleController(IModuleService service) : ControllerBase
 {
     /// <summary>
     /// Obtém todos os módulos ativos com paginação (endpoint anônimo).

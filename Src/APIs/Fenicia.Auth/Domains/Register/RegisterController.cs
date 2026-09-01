@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Register.DTOs;
+using Fenicia.Auth.Domains.Register.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 
@@ -12,7 +13,7 @@ namespace Fenicia.Auth.Domains.Register;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class RegisterController(RegisterService registerService) : ControllerBase
+public class RegisterController(IRegisterService registerService) : ControllerBase
 {
     /// <summary>
     /// Cria um novo usuário com sua empresa inicial.

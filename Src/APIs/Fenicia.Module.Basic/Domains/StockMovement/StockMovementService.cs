@@ -8,22 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
-public class StockMovementService
+public class StockMovementService(
+    IStockMovementRepository stockMovementRepository,
+    IProductRepository productRepository)
 {
-    private readonly IStockMovementRepository _stockMovementRepository;
-    private readonly IProductRepository _productRepository;
-
     public StockMovementService()
         : this(null!, null!)
     {
-    }
-
-    public StockMovementService(
-        IStockMovementRepository stockMovementRepository,
-        IProductRepository productRepository)
-    {
-        _stockMovementRepository = stockMovementRepository;
-        _productRepository = productRepository;
     }
 
     public virtual async Task<List<GetStockMovementResponse>> GetAsync(GetStockMovementQuery query, CancellationToken cancellationToken = default)
@@ -31,7 +22,7 @@ public class StockMovementService
         var startDate = query.StartDate ?? DateTime.MinValue;
         var endDate = query.EndDate ?? DateTime.MaxValue;
 
-        var baseQuery = _stockMovementRepository.Query()
+        var baseQuery = stockMovementRepository.Query()
             .Include(m => m.Product).ThenInclude(p => p.Category)
             .Include(m => m.Customer!).ThenInclude(c => c.Person)
             .Include(m => m.Supplier!).ThenInclude(s => s.Person)
@@ -67,29 +58,31 @@ public class StockMovementService
             CompanyId = companyId
         };
 
-        await _stockMovementRepository.InsertAsync(stockMovement, cancellationToken);
+        await stockMovementRepository.InsertAsync(stockMovement, cancellationToken);
 
-        var product = await _productRepository.GetByIdAsync(command.ProductId, cancellationToken);
+        var product = await productRepository.GetByIdAsync(command.ProductId, cancellationToken);
 
-        if (product is not null)
+        if (product is null)
         {
-            var newQuantity = command.Type switch
-            {
-                StockMovementType.In => product.Quantity + command.Quantity,
-                StockMovementType.Out => product.Quantity - command.Quantity,
-                _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
-            };
-
-            product.Quantity = (double)newQuantity;
-            await _productRepository.UpdateAsync(product.Id, product, cancellationToken);
+            return stockMovement.MapToAddStockMovementResponse();
         }
+
+        var newQuantity = command.Type switch
+        {
+            StockMovementType.In => product.Quantity + command.Quantity,
+            StockMovementType.Out => product.Quantity - command.Quantity,
+            _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
+        };
+
+        product.Quantity = newQuantity;
+        await productRepository.UpdateAsync(product.Id, product, cancellationToken);
 
         return stockMovement.MapToAddStockMovementResponse();
     }
 
     public virtual async Task<UpdateStockMovementResponse?> UpdateAsync(UpdateStockMovementCommand command, Guid companyId, CancellationToken cancellationToken = default)
     {
-        var stockMovement = await _stockMovementRepository.GetByIdAsync(command.Id, cancellationToken);
+        var stockMovement = await stockMovementRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (stockMovement is null)
         {
@@ -108,7 +101,7 @@ public class StockMovementService
         stockMovement.Reason = command.Reason;
         stockMovement.CompanyId = companyId;
 
-        await _stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, cancellationToken);
+        await stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, cancellationToken);
 
         return stockMovement.MapToUpdateStockMovementResponse();
     }
@@ -116,7 +109,7 @@ public class StockMovementService
     public virtual async Task<List<StockMovementModel>> GetRecentWithProductAsync(int days, int topLimit, CancellationToken cancellationToken = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-days);
-        return await _stockMovementRepository.Query()
+        return await stockMovementRepository.Query()
             .Include(m => m.Product)
             .Where(m => m.SupplierId.HasValue && m.Date >= startDate)
             .OrderByDescending(m => m.Date)
@@ -129,12 +122,12 @@ public class StockMovementService
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var movements = await _stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
+        var movements = await stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
         var movementList = movements.ToList();
 
-        var history = await GetStockMovementHistoryAsync(movementList, cancellationToken);
+        var history = GetStockMovementHistoryAsync(movementList);
         var monthlyInOut = GetMonthlyInOut(movementList);
-        var topMovedProducts = await GetTopMovedProductAsync(query, movementList, cancellationToken);
+        var topMovedProducts = GetTopMovedProduct(query, movementList);
         var turnoverRates = await GetStockTurnoverAsync(query, movementList, cancellationToken);
 
         return new StockMovementDashboardResponse
@@ -148,66 +141,16 @@ public class StockMovementService
 
     public virtual async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
-        var result = await _stockMovementRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
+        var result = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         return [.. result];
     }
 
     public virtual async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default)
     {
-        return await _stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
+        return await stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
     }
 
-    private async Task<List<StockMovementHistoryResponse>> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
-    {
-        var movementList = movements.ToList();
-
-        var request = from m in movementList
-                      orderby m.Date descending
-                      select new StockMovementHistoryResponse(
-                          m.Id,
-                          m.ProductId,
-                          m.Product.Name,
-                          m.Quantity,
-                          m.Date!.Value,
-                          m.Price ?? 0,
-                          m.Type.ToString(),
-                          m.Reason,
-                          m.Customer != null && m.Customer.Person != null ? m.Customer.Person.Name : null,
-                          m.Supplier != null && m.Supplier.Person != null ? m.Supplier.Person.Name : null);
-
-        return [.. request];
-    }
-
-    private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
-    {
-        var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
-
-        var products = await _productRepository.GetAllWithDetailsAsync(1, 10000, cancellationToken);
-        var productList = products.Where(p => p.Quantity > 0).ToList();
-
-        var request = from p in productList
-                      join m in productOutMovements on p.Id equals m.ProductId into gj
-                      from m in gj.DefaultIfEmpty()
-                      let totalSold = m != null ? m.TotalSold ?? 0 : 0
-                      let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
-                      let categoryName = p.Category != null ? p.Category.Name : null
-                      orderby turnoverRate descending
-                      select new
-                      {
-                          p.Id,
-                          p.Name,
-                          CategoryName = categoryName,
-                          p.Quantity,
-                          totalSold,
-                          turnoverRate
-                      };
-
-        var data = request.Take(query.TopLimit).ToList();
-
-        return [.. data.Select(x => new StockTurnoverResponse(x.Id, x.Name, x.CategoryName, x.Quantity, x.totalSold, x.turnoverRate, ClassifyTurnover(x.turnoverRate)))];
-    }
-
-    private async Task<List<TopMovedProductResponse>> GetTopMovedProductAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
+    private static List<TopMovedProductResponse> GetTopMovedProduct(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements)
     {
         var movementList = movements.ToList();
 
@@ -215,10 +158,10 @@ public class StockMovementService
             .OrderByDescending(g => g.Sum(x => x.Quantity))
             .Select(g => new TopMovedProductResponse(g.Key.ProductId, g.Key.ProductName, g.Key.CategoryName, g.Sum(x => x.Quantity), g.Sum(x => x.Price ?? 0), g.Count()));
 
-        return await Task.FromResult(request.Take(query.TopLimit).ToList());
+        return [.. request.Take(query.TopLimit)];
     }
 
-    private List<MonthlyInOutResponse> GetMonthlyInOut(IEnumerable<StockMovementModel> movements)
+    private static List<MonthlyInOutResponse> GetMonthlyInOut(IEnumerable<StockMovementModel> movements)
     {
         var movementList = movements.ToList();
 
@@ -241,7 +184,7 @@ public class StockMovementService
         return [.. data.Select(x => new MonthlyInOutResponse($"{x.Month:D2}/{x.Year}", x.TotalIn, x.TotalOut, x.TotalInValue, x.TotalOutValue))];
     }
 
-    private string ClassifyTurnover(double rate)
+    private static string ClassifyTurnover(double rate)
     {
         return rate switch
         {
@@ -250,5 +193,55 @@ public class StockMovementService
             >= 0.5 => "Low",
             _ => "Very Low"
         };
+    }
+
+    private static List<StockMovementHistoryResponse> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements)
+    {
+        var movementList = movements.ToList();
+
+        var request = from m in movementList
+                      orderby m.Date descending
+                      select new StockMovementHistoryResponse(
+                          m.Id,
+                          m.ProductId,
+                          m.Product.Name,
+                          m.Quantity,
+                          m.Date!.Value,
+                          m.Price ?? 0,
+                          m.Type.ToString(),
+                          m.Reason,
+                          m.Customer?.Person.Name,
+                          m.Supplier?.Person.Name);
+
+        return [.. request];
+    }
+
+    private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
+    {
+        var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
+
+        var products = await productRepository.GetAllWithDetailsAsync(1, 10000, cancellationToken);
+        var productList = products.Where(p => p.Quantity > 0).ToList();
+
+        var request = from p in productList
+                      join m in productOutMovements on p.Id equals m.ProductId into gj
+                      from m in gj.DefaultIfEmpty()
+                      let totalSold = m != null ? m.TotalSold ?? 0 : 0
+                      let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
+                      let categoryName = p.Category.Name
+                      orderby turnoverRate descending
+                      select new
+                      {
+                          p.Id,
+                          p.Name,
+                          CategoryName = categoryName,
+                          p.Quantity,
+                          totalSold,
+                          turnoverRate
+                      };
+
+        var data = request.Take(query.TopLimit).ToList();
+
+        return [.. data.Select(x => new StockTurnoverResponse(x.Id, x.Name, x.CategoryName, x.Quantity, x.totalSold, x.turnoverRate, ClassifyTurnover(x.turnoverRate)))];
     }
 }

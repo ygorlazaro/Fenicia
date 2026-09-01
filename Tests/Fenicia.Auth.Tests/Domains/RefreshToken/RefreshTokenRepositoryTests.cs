@@ -6,17 +6,16 @@ namespace Fenicia.Auth.Tests.Domains.RefreshToken;
 
 public class RefreshTokenRepositoryTests : IDisposable
 {
-    private readonly Mock<IConnectionMultiplexer> _redisMock;
     private readonly Mock<IDatabase> _redisDbMock;
     private readonly RefreshTokenRepository _repository;
 
     public RefreshTokenRepositoryTests()
     {
-        _redisMock = new Mock<IConnectionMultiplexer>();
+        var redisMock = new Mock<IConnectionMultiplexer>();
         _redisDbMock = new Mock<IDatabase>();
 
-        _redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(_redisDbMock.Object);
-        _repository = new RefreshTokenRepository(_redisMock.Object);
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(_redisDbMock.Object);
+        _repository = new RefreshTokenRepository(redisMock.Object);
     }
 
     [Fact]

@@ -1,78 +1,34 @@
 using System.Security.Claims;
 
-using Bogus;
-using Bogus.Extensions.Brazil;
-
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.DTOs;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
-
+using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
 
-public class OrderControllerTests : IDisposable
+public class OrderControllerTests
 {
     private readonly OrderController _controller;
-    private readonly DefaultContext _db;
-    private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testCompanyId;
     private readonly Guid _testUserId;
-    private readonly UserRoleRepository _userRoleRepository;
-    private readonly UserRoleService _userRoleService;
+    private readonly Mock<IOrderService> _mockService;
 
     public OrderControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-        _db = new DefaultContext(options, new TestCompanyContext());
-        _testUserId = Guid.NewGuid();
-        _testCompanyId = Guid.NewGuid();
-        _userRoleRepository = new UserRoleRepository(_db);
-        _userRoleService = new UserRoleService(_userRoleRepository);
-        var moduleRepository = new ModuleRepository(_db);
-        var orderRepository = new OrderRepository(_db);
-        var subscriptionRepository = new SubscriptionRepository(_db);
-        var userRepository = new UserRepository(_db);
-        var roleRepository = new RoleRepository(_db);
-        var companyRepository = new CompanyRepository(_db);
-        var roleService = new RoleService(roleRepository);
-        var companyService = new CompanyService(companyRepository, _userRoleService);
-        var userService = new UserService(userRepository, _userRoleService, roleService, companyService, new SecurityService());
-        var subscriptionService = new SubscriptionService(subscriptionRepository, userService, _userRoleService);
-        var moduleService = new ModuleService(moduleRepository, _userRoleService, subscriptionService);
-        var orderService = new OrderService(moduleService, orderRepository, subscriptionService, _userRoleService);
-
         _mockHttpContext = new Mock<HttpContext>();
+        _testUserId = Guid.NewGuid();
+        _mockService = new Mock<IOrderService>();
 
-        _controller = new OrderController(orderService) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new OrderController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
-        _faker = new Faker();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -82,8 +38,11 @@ public class OrderControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
-        var headers = new Headers { CompanyId = _testCompanyId };
+        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
+
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
@@ -91,43 +50,17 @@ public class OrderControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ThrowsItemNotExistsException()
+    public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ReturnsNotFound()
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        var company = new CompanyModel
-        {
-            Id = _testCompanyId,
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = Guid.NewGuid(),
-            CompanyId = _testCompanyId
-        };
-
-        _db.AuthUsers.Add(user);
-        _db.AuthCompanies.Add(company);
-        _db.AuthUserRoles.Add(userRole);
-        _db.SaveChanges();
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ItemNotExistsException("Modules not found"));
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
-        var headers = new Headers { CompanyId = _testCompanyId };
+        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
         var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
@@ -135,74 +68,34 @@ public class OrderControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsOkWithOrder()
+    public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsCreatedWithOrder()
     {
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = _faker.Finance.Amount(10, 100)
-        };
+        var orderId = Guid.NewGuid();
 
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        var company = new CompanyModel
-        {
-            Id = _testCompanyId,
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = Guid.NewGuid(),
-            CompanyId = _testCompanyId
-        };
-
-        _db.AuthModules.Add(module);
-        _db.AuthUsers.Add(user);
-        _db.AuthCompanies.Add(company);
-        _db.AuthUserRoles.Add(userRole);
-        _db.SaveChanges();
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateNewOrderResponse(orderId));
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
-        var headers = new Headers { CompanyId = _testCompanyId };
+        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
         var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
-        var createdResult = result.Result as CreatedResult;
-        Assert.NotNull(createdResult);
+        var createdResult = Assert.IsType<CreatedResult>(result.Result);
         Assert.Equal(201, createdResult.StatusCode);
 
-        var returnedResponse = createdResult.Value as CreateNewOrderResponse;
+        var returnedResponse = Assert.IsType<CreateNewOrderResponse>(createdResult.Value);
         Assert.NotNull(returnedResponse);
+        Assert.Equal(orderId, returnedResponse.OrderId);
 
-        Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
         Assert.Equal(_testUserId.ToString(), wide.UserId);
-
-        var createdOrder = await _db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, cancellationToken);
-        Assert.NotNull(createdOrder);
-
-        Assert.Equal(_testUserId, createdOrder.UserId);
-        Assert.Equal(_testCompanyId, createdOrder.CompanyId);
     }
 
     [Fact]
@@ -212,47 +105,14 @@ public class OrderControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel
-        {
-            Id = moduleId,
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = _faker.Finance.Amount(10, 100)
-        };
+        var orderId = Guid.NewGuid();
 
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-        };
-
-        var company = new CompanyModel
-        {
-            Id = _testCompanyId,
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = _testUserId,
-            RoleId = Guid.NewGuid(),
-            CompanyId = _testCompanyId
-        };
-
-        _db.AuthModules.Add(module);
-        _db.AuthUsers.Add(user);
-        _db.AuthCompanies.Add(company);
-        _db.AuthUserRoles.Add(userRole);
-        _db.SaveChanges();
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateNewOrderResponse(orderId));
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(_testUserId, _testCompanyId, modules);
-        var headers = new Headers { CompanyId = _testCompanyId };
+        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var headers = new Headers { CompanyId = Guid.NewGuid() };
 
         await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
 
@@ -294,7 +154,6 @@ public class OrderControllerTests : IDisposable
     private void SetupUserClaims(Guid userId)
     {
         var claims = new List<Claim> { new("userId", userId.ToString()) };
-
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 

@@ -22,7 +22,7 @@ public static partial class EmployeeMapper
             employee.Person.PhoneNumber,
             employee.Person.Document,
             employee.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
     }
 
     public static GetEmployeeByIdResponse MapToGetEmployeeByIdResponse(this EmployeeModel employee)
@@ -55,6 +55,6 @@ public static partial class EmployeeMapper
             employee.Person.PhoneNumber,
             employee.Person.Document,
             employee.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State?.Name, address.City, address.Country) : null);
+            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
     }
 }
