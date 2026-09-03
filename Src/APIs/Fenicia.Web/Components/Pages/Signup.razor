@@ -9,7 +9,7 @@
     <RadzenCard>
         <h3 style="margin-top: 0;">Create Account</h3>
 
-        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="signup-form">
             <DataAnnotationsValidator />
 
             <RadzenTextBox @bind-Value="model.Name" Placeholder="Full Name" Style="width:100%; margin-bottom: 15px;" />
