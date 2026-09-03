@@ -1,10 +1,8 @@
-using System.Reflection;
 using System.Text.Json.Serialization;
 using Fenicia.Common.Localization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fenicia.Common.API.Startup;
@@ -12,8 +10,7 @@ namespace Fenicia.Common.API.Startup;
 public static class FeniciaControllersExtensions
 {
     public static WebApplicationBuilder AddFeniciaControllers(
-        this WebApplicationBuilder builder,
-        Assembly? assembly = null)
+        this WebApplicationBuilder builder)
     {
         builder.Services.Configure<ApiBehaviorOptions>(o =>
         {
@@ -31,17 +28,7 @@ public static class FeniciaControllersExtensions
             };
         });
 
-        builder.Services.AddControllers().ConfigureApplicationPartManager(manager =>
-        {
-            var targetAssembly = assembly ?? Assembly.GetEntryAssembly()
-                ?? throw new InvalidOperationException(
-                    "Could not determine the assembly to load controllers from.");
-
-            if (!manager.ApplicationParts.Any(ap => ap is AssemblyPart part && part.Assembly == targetAssembly))
-            {
-                manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
-            }
-        }).AddJsonOptions(o =>
+        builder.Services.AddControllers().AddJsonOptions(o =>
         {
             o.JsonSerializerOptions.AllowTrailingCommas = false;
             o.JsonSerializerOptions.MaxDepth = 0;
