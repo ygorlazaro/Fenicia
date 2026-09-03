@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject IAuthStateService AuthState
+@inject IJSRuntime JSRuntime
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
     <div style="margin-bottom: 20px; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
@@ -38,11 +38,42 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            isLoggedIn = await AuthState.IsAuthenticatedAsync();
-            userName = await AuthState.GetUserNameAsync() ?? string.Empty;
-            StateHasChanged();
+            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+            var loggedIn = !string.IsNullOrEmpty(token);
+            if (loggedIn != isLoggedIn)
+            {
+                isLoggedIn = loggedIn;
+                userName = loggedIn ? (ParseUserName(token) ?? string.Empty) : string.Empty;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Auth check error: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    private static string? ParseUserName(string token)
+    {
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length < 2) return null;
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+            using var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            return doc.RootElement.TryGetProperty("unique_name", out var n) ? n.GetString() : null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Parse error: {ex.Message}");
+            return null;
         }
     }
 }
