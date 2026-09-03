@@ -83,6 +83,7 @@
             };
 
             var response = await client.PostAsJsonAsync("/register", request);
+            var body = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
@@ -93,8 +94,7 @@
             else
             {
                 isSuccess = false;
-                var error = await response.Content.ReadAsStringAsync();
-                message = $"Registration failed ({(int)response.StatusCode}): {error}";
+                message = $"Registration failed ({(int)response.StatusCode}): {body}";
             }
         }
         catch (Exception ex)
