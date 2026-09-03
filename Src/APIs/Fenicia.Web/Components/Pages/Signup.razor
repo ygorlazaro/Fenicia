@@ -67,6 +67,7 @@
 
     private async Task HandleSubmit()
     {
+        Console.WriteLine($"[Signup] HandleSubmit called! Name={model.Name}, Email={model.Email}, Password={model.Password}, Company={model.CompanyName}, Cnpj={model.Cnpj}");
         message = null;
         isLoading = true;
         StateHasChanged();
