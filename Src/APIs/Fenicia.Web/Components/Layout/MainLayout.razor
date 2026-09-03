@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <RadzenComponents @rendermode="InteractiveServer" />
 
@@ -9,7 +10,16 @@
             <RadzenButton Text="Fenicia" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/"))" Style="font-size: 1.5rem; font-weight: bold;" />
             <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem">
                 <RadzenButton Text="Home" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/"))" />
-                <RadzenButton Text="Sign Up" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/signup"))" />
+                @if (isLoggedIn)
+                {
+                    <RadzenButton Text="Dashboard" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/dashboard"))" />
+                    <RadzenButton Text="Logout" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/logout"))" />
+                }
+                else
+                {
+                    <RadzenButton Text="Sign Up" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/signup"))" />
+                    <RadzenButton Text="Login" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/login"))" />
+                }
             </RadzenStack>
         </RadzenStack>
     </RadzenCard>
@@ -22,3 +32,17 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private bool isLoggedIn = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+            isLoggedIn = !string.IsNullOrEmpty(token);
+            StateHasChanged();
+        }
+    }
+}

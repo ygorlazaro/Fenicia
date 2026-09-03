@@ -1,0 +1,23 @@
+@page "/dashboard"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Dashboard - Fenicia</PageTitle>
+
+<div style="max-width: 1200px; margin: 50px auto; padding: 0 20px;">
+    <RadzenCard>
+        <h3 style="margin-top: 0;">Dashboard</h3>
+        <p>Welcome to your dashboard!</p>
+    </RadzenCard>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+        if (string.IsNullOrEmpty(token))
+        {
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+        }
+    }
+}
