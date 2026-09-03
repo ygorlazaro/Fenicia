@@ -12,22 +12,22 @@
         <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="signup-form">
             <DataAnnotationsValidator />
 
-            <RadzenTextBox Value="model.Name" ValueChanged="(string v) => model.Name = v" Placeholder="Full Name" Style="width:100%; margin-bottom: 15px;" />
+            <RadzenTextBox Value="@model.Name" ValueChanged="@((string v) => model.Name = v)" Placeholder="Full Name" Style="width:100%; margin-bottom: 15px;" />
             <ValidationMessage For="@(() => model.Name)" />
 
-            <RadzenTextBox Value="model.Email" ValueChanged="(string v) => model.Email = v" Placeholder="Email" Type="email" Style="width:100%; margin-bottom: 15px;" />
+            <RadzenTextBox Value="@model.Email" ValueChanged="@((string v) => model.Email = v)" Placeholder="Email" Type="email" Style="width:100%; margin-bottom: 15px;" />
             <ValidationMessage For="@(() => model.Email)" />
 
-            <RadzenTextBox Value="model.Password" ValueChanged="(string v) => model.Password = v" Placeholder="Password" Type="password" Style="width:100%; margin-bottom: 15px;" />
+            <RadzenTextBox Value="@model.Password" ValueChanged="@((string v) => model.Password = v)" Placeholder="Password" Type="password" Style="width:100%; margin-bottom: 15px;" />
             <ValidationMessage For="@(() => model.Password)" />
 
-            <RadzenTextBox Value="model.CompanyName" ValueChanged="(string v) => model.CompanyName = v" Placeholder="Company Name" Style="width:100%; margin-bottom: 15px;" />
+            <RadzenTextBox Value="@model.CompanyName" ValueChanged="@((string v) => model.CompanyName = v)" Placeholder="Company Name" Style="width:100%; margin-bottom: 15px;" />
             <ValidationMessage For="@(() => model.CompanyName)" />
 
-            <RadzenTextBox Value="model.Cnpj" ValueChanged="(string v) => model.Cnpj = v" Placeholder="CNPJ" Style="width:100%; margin-bottom: 20px;" />
+            <RadzenTextBox Value="@model.Cnpj" ValueChanged="@((string v) => model.Cnpj = v)" Placeholder="CNPJ" Style="width:100%; margin-bottom: 20px;" />
             <ValidationMessage For="@(() => model.Cnpj)" />
 
-            <RadzenButton ButtonType="ButtonType.Submit" Text="Sign Up" Style="width:100%;" Disabled="@isLoading" />
+            <RadzenButton ButtonType="ButtonType.Button" Text="Sign Up" Click="HandleSubmit" Style="width:100%;" Disabled="@isLoading" />
         </EditForm>
 
         @if (!string.IsNullOrEmpty(message))
