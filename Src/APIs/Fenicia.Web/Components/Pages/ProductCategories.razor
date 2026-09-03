@@ -189,6 +189,7 @@
 
             var token = await CompanyContext.GetTokenAsync();
             var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            Console.WriteLine($"[ProductCategories] Client base address: {client.BaseAddress}");
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -196,11 +197,13 @@
             }
 
             var response = await client.GetAsync("/productcategory?page=1&perPage=100");
+            Console.WriteLine($"[ProductCategories] GET {client.BaseAddress}/productcategory?page=1&perPage=100 -> {(int)response.StatusCode} {response.StatusCode}");
+            var body = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[ProductCategories] Response body: {body}");
+
             if (response.IsSuccessStatusCode)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[ProductCategories] GET response: {json}");
-
+                var json = body;
                 var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 var paginated = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json, options);
 
@@ -219,7 +222,7 @@
             }
             else
             {
-                errorMessage = $"Failed to load categories: {(int)response.StatusCode} {response.StatusCode}";
+                errorMessage = $"Failed to load categories: {(int)response.StatusCode} {response.StatusCode} - {body}";
             }
         }
         catch (Exception ex)
