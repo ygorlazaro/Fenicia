@@ -31,14 +31,16 @@ public static class FeniciaControllersExtensions
             };
         });
 
-        var targetAssembly = (assembly ?? Assembly.GetEntryAssembly()) ??
-                             throw new InvalidOperationException(
-                                 "Could not determine the assembly to load controllers from.");
-
         builder.Services.AddControllers().ConfigureApplicationPartManager(manager =>
         {
-            manager.ApplicationParts.Clear();
-            manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
+            var targetAssembly = assembly ?? Assembly.GetEntryAssembly()
+                ?? throw new InvalidOperationException(
+                    "Could not determine the assembly to load controllers from.");
+
+            if (!manager.ApplicationParts.Any(ap => ap is AssemblyPart part && part.Assembly == targetAssembly))
+            {
+                manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
+            }
         }).AddJsonOptions(o =>
         {
             o.JsonSerializerOptions.AllowTrailingCommas = false;
