@@ -1,13 +1,17 @@
 @page "/logout"
+@rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
 <PageTitle>Logout - Fenicia</PageTitle>
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JSRuntime.InvokeVoidAsync("cookieHelper.remove", "auth_token");
-        NavigationManager.NavigateTo("/", forceLoad: true);
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("cookieHelper.remove", "auth_token");
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
     }
 }
