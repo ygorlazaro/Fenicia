@@ -38,7 +38,12 @@
 
     protected override void OnInitialized()
     {
-        NavigationManager.LocationChanged += async (_, _) => await RefreshAuthAsync();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _ = RefreshAuthAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -59,7 +64,7 @@
             {
                 isLoggedIn = loggedIn;
                 userName = loggedIn ? (ParseUserName(token) ?? string.Empty) : string.Empty;
-                StateHasChanged();
+                await InvokeAsync(StateHasChanged);
             }
         }
         catch (Exception ex)
