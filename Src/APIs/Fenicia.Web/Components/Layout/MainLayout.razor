@@ -36,7 +36,20 @@
     private bool isLoggedIn = false;
     private string userName = string.Empty;
 
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += async (_, _) => await RefreshAuthAsync();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshAuthAsync();
+        }
+    }
+
+    private async Task RefreshAuthAsync()
     {
         try
         {
