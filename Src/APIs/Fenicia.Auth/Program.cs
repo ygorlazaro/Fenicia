@@ -31,6 +31,7 @@ using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Externals.Email;
 
 namespace Fenicia.Auth;
@@ -60,6 +61,7 @@ public class Program
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
                 builder.Services.AddScoped<IUserRepository, UserRepository>();
                 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
                 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
