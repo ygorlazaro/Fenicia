@@ -1,7 +1,7 @@
 @page "/dashboard"
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject IAuthStateService AuthState
 
 <PageTitle>Dashboard - Fenicia</PageTitle>
 
@@ -17,8 +17,8 @@
     {
         if (firstRender)
         {
-            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
-            if (string.IsNullOrEmpty(token))
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
             {
                 NavigationManager.NavigateTo("/login");
             }
