@@ -38,15 +38,31 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
+            Console.WriteLine($"[MainLayout] OnAfterRenderAsync fired, firstRender={firstRender}");
             var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
-            isLoggedIn = !string.IsNullOrEmpty(token);
-            if (isLoggedIn)
+            Console.WriteLine($"[MainLayout] token={(string.IsNullOrEmpty(token) ? "null/empty" : "found")}");
+            var loggedIn = !string.IsNullOrEmpty(token);
+            
+            if (loggedIn != isLoggedIn)
             {
-                userName = GetUserNameFromToken(token);
+                Console.WriteLine($"[MainLayout] Auth state changed: {isLoggedIn} -> {loggedIn}");
+                isLoggedIn = loggedIn;
+                if (isLoggedIn)
+                {
+                    userName = GetUserNameFromToken(token);
+                }
+                else
+                {
+                    userName = string.Empty;
+                }
+                StateHasChanged();
             }
-            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Error: {ex.Message}");
         }
     }
 
