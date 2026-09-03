@@ -23,15 +23,13 @@ public class ModuleService(
         var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
         var orderedQuery = filteredQuery.OrderBy(m => m.SortOrder);
 
-        var totalTask = orderedQuery.CountAsync(cancellationToken);
-        var modulesTask = orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var total = await orderedQuery.CountAsync(cancellationToken);
+        var modules = await orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        await Task.WhenAll(totalTask, modulesTask);
-
         return new Pagination<List<GetModuleResponse>>(
-            [.. modulesTask.Result.Select(m => m.MapToGetModuleResponse())],
-            totalTask.Result,
+            [.. modules.Select(m => m.MapToGetModuleResponse())],
+            total,
             query.Page,
             query.PerPage);
     }

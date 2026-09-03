@@ -1,13 +1,19 @@
+using Fenicia.Web;
 using Fenicia.Web.Components;
 using Fenicia.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddHttpClient("FeniciaAuth", client =>
 {
     var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5000";
     client.BaseAddress = new Uri(apiBaseUrl);
 });
+
+builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
+builder.Services.AddScoped<CompanyHeaderHandler>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

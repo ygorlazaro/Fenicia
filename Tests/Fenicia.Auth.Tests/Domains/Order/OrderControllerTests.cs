@@ -38,12 +38,12 @@ public class OrderControllerTests
 
         var modules = new List<Guid> { Guid.NewGuid() };
         var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
-        var headers = new Headers { CompanyId = Guid.NewGuid() };
+        var companyId = Guid.NewGuid();
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
+        var result = await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -59,9 +59,9 @@ public class OrderControllerTests
 
         var modules = new List<Guid> { Guid.NewGuid() };
         var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
-        var headers = new Headers { CompanyId = Guid.NewGuid() };
+        var companyId = Guid.NewGuid();
 
-        var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
+        var result = await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
 
         Assert.IsType<NotFoundObjectResult>(result.Result);
     }
@@ -80,9 +80,9 @@ public class OrderControllerTests
 
         var modules = new List<Guid> { moduleId };
         var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
-        var headers = new Headers { CompanyId = Guid.NewGuid() };
+        var companyId = Guid.NewGuid();
 
-        var result = await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
+        var result = await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
@@ -111,9 +111,9 @@ public class OrderControllerTests
 
         var modules = new List<Guid> { moduleId };
         var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
-        var headers = new Headers { CompanyId = Guid.NewGuid() };
+        var companyId = Guid.NewGuid();
 
-        await _controller.CreateNewOrderAsync(command, headers, wide, cancellationToken);
+        await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
 
         Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
