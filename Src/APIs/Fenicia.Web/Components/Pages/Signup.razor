@@ -7,7 +7,7 @@
 <PageTitle>Sign Up - Fenicia</PageTitle>
 
 <div style="max-width: 500px; margin: 50px auto; padding: 0 20px;">
-    <RadzenCard>
+    <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
         <h3 style="margin-top: 0;">Create Account</h3>
 
         <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="signup-form">
@@ -56,7 +56,7 @@
                 @message
             </div>
         }
-    </RadzenCard>
+    </div>
 </div>
 
 @code {
