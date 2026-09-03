@@ -5,12 +5,10 @@ namespace Fenicia.Web.Services;
 public interface ICompanyContextService
 {
     Task<Guid?> GetSelectedCompanyIdAsync();
-
     Task SetSelectedCompanyIdAsync(Guid? companyId);
-
     Task<Guid> GetUserIdAsync();
-
     Task<string?> GetTokenAsync();
+    Task<bool> IsAuthenticatedAsync();
 }
 
 public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextService
@@ -82,5 +80,18 @@ public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextServic
     public async Task<string?> GetTokenAsync()
     {
         return await jsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+    }
+
+    public async Task<bool> IsAuthenticatedAsync()
+    {
+        try
+        {
+            var token = await GetTokenAsync();
+            return !string.IsNullOrEmpty(token);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
