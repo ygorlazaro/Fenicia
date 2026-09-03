@@ -40,7 +40,7 @@ public class Program
     public static void Main(string[] args)
     {
         var configuration = new ConfigurationManager();
-        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Common.json");
+        var commonApiSettingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.Common.json");
 
         if (!File.Exists(commonApiSettingsPath))
         {
