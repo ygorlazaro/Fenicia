@@ -23,7 +23,7 @@ public class AuthStateService(IJSRuntime jsRuntime) : IAuthStateService
     {
         if (!_isAuthenticated)
         {
-            var token = await jsRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+            var token = await jsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
             _isAuthenticated = !string.IsNullOrEmpty(token);
             if (_isAuthenticated)
             {
@@ -48,14 +48,14 @@ public class AuthStateService(IJSRuntime jsRuntime) : IAuthStateService
     {
         _isAuthenticated = true;
         _userName = GetUserNameFromToken(token);
-        await jsRuntime.InvokeVoidAsync("cookieHelper.set", "auth_token", token, expiryHours);
+        await jsRuntime.InvokeVoidAsync("storageHelper.set", "auth_token", token);
     }
 
     public async Task ClearTokenAsync()
     {
         _isAuthenticated = false;
         _userName = null;
-        await jsRuntime.InvokeVoidAsync("cookieHelper.remove", "auth_token");
+        await jsRuntime.InvokeVoidAsync("storageHelper.remove", "auth_token");
     }
 
     private static string? GetUserNameFromToken(string token)

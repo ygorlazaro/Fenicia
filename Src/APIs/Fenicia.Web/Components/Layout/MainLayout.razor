@@ -40,7 +40,7 @@
     {
         try
         {
-            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+            var token = await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
             var loggedIn = !string.IsNullOrEmpty(token);
             if (loggedIn != isLoggedIn)
             {
