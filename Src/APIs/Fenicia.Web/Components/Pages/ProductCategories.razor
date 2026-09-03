@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
+@inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
 
 <PageTitle>Product Categories - Fenicia</PageTitle>
@@ -158,7 +159,7 @@
         {
             try
             {
-                isLoggedIn = await CompanyContext.IsAuthenticatedAsync();
+                isLoggedIn = await AuthState.IsAuthenticatedAsync();
             }
             catch
             {
