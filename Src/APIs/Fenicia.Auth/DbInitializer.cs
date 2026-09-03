@@ -14,19 +14,8 @@ public static class DbInitializer
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DefaultContext>();
 
-        if (!context.Database.CanConnect())
-        {
-            context.Database.EnsureCreated();
-            Seed(context);
-            return;
-        }
-
-        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-        if (pendingMigrations.Any())
-        {
-            await context.Database.MigrateAsync();
-            Seed(context);
-        }
+        await context.Database.MigrateAsync();
+        Seed(context);
     }
 
     private static void Seed(DefaultContext context)
