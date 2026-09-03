@@ -1,6 +1,6 @@
 @page "/logout"
 @rendermode InteractiveServer
-@inject IJSRuntime JSRuntime
+@inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
 
 <PageTitle>Logout - Fenicia</PageTitle>
@@ -10,7 +10,7 @@
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("cookieHelper.remove", "auth_token");
+            await AuthState.ClearTokenAsync();
             NavigationManager.NavigateTo("/");
         }
     }

@@ -1,4 +1,5 @@
 using Fenicia.Web.Components;
+using Fenicia.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddHttpClient("FeniciaAuth", client =>
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<IAuthStateService, AuthStateService>();
 
 var app = builder.Build();
 
