@@ -90,9 +90,9 @@ public class Program
         var app = builder.Build();
         app.UseFeniciaLocalization();
 
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") == "true")
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") != "true")
         {
-            return;
+            DbInitializer.InitializeAsync(app.Services).GetAwaiter().GetResult();
         }
 
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
