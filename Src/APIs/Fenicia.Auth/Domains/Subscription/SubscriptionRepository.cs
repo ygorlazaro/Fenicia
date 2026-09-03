@@ -17,6 +17,7 @@ public class SubscriptionRepository(DefaultContext context)
         var now = DateTime.UtcNow;
 
         return DbSet
+            .Include(s => s.Company)
             .Where(s => s.Company.UsersRoles.Any(ur => ur.UserId == userId))
             .Where(s => s.Status == SubscriptionStatus.Active && now >= s.StartDate && now <= s.EndDate)
             .Distinct()

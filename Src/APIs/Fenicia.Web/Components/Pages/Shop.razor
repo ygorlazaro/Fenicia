@@ -1,0 +1,289 @@
+@page "/shop"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject IAuthStateService AuthState
+
+<PageTitle>Shop - Fenicia</PageTitle>
+
+<MainLayout>
+    <div style="max-width: 1000px; margin: 50px auto; padding: 0 20px;">
+        @if (!isLoggedIn)
+        {
+            <div style="padding: 20px; border: 1px solid #f8d7da; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                <p>Please log in to subscribe to modules.</p>
+            </div>
+        }
+        else if (isLoading)
+        {
+            <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white; text-align: center;">
+                <p>Loading modules...</p>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div style="padding: 20px; border: 1px solid #f8d7da; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                <p>@errorMessage</p>
+            </div>
+        }
+        else if (modules == null || modules.Count == 0)
+        {
+            <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white; text-align: center;">
+                <p>No modules available at the moment.</p>
+            </div>
+        }
+        else
+        {
+            <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white; margin-bottom: 20px;">
+                <h2 style="margin-top: 0; font-size: 1.3rem; color: #333;">Available Modules</h2>
+                <p style="color: #666; margin-bottom: 20px;">Select one or more modules to subscribe.</p>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    @foreach (var module in modules)
+                    {
+                        <div style="padding: 16px; border: 1px solid #e0e0e0; border-radius: 4px; background: #f8f9fa; display: flex; align-items: center; gap: 12px;">
+                            <input type="checkbox" id="module-@module.Id" checked="@selectedModules.Contains(module.Id)" @onchange="() => ToggleModule(module.Id)" />
+                            <div style="flex: 1;">
+                                <label for="module-@module.Id" style="font-weight: 600; color: #333; cursor: pointer;">@module.Name</label>
+                                @if (!string.IsNullOrEmpty(module.Description))
+                                {
+                                    <p style="margin: 4px 0 0; color: #666; font-size: 0.9rem;">@module.Description</p>
+                                }
+                                <div style="margin-top: 4px; font-size: 0.85rem; color: #666;">
+                                    Type: @module.Type
+                                    @if (module.Price.HasValue)
+                                    {
+                                        <span> | Price: $@module.Price.Value.ToString("F2")</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <button class="btn btn-primary" @onclick="SubscribeAsync" disabled="@isSubmitting" style="width: auto; padding: 10px 30px;">
+                        @if (isSubmitting)
+                        {
+                            <text>Subscribing...</text>
+                        }
+                        else
+                        {
+                            <text>Subscribe (@selectedModules.Count selected)</text>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(resultMessage))
+            {
+                <div style="padding: 15px; border-radius: 4px; background: @(isSuccess ? "#d4edda" : "#f8d7da"); color: @(isSuccess ? "#155724" : "#721c24");">
+                    @resultMessage
+                </div>
+            }
+        }
+    </div>
+</MainLayout>
+
+@code {
+    private bool isLoggedIn = false;
+    private bool isLoading = true;
+    private bool isSubmitting;
+    private string? errorMessage;
+    private string? resultMessage;
+    private bool isSuccess;
+    private List<ModuleDto>? modules;
+    private HashSet<Guid> selectedModules = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                isLoggedIn = await AuthState.IsAuthenticatedAsync();
+            }
+            catch
+            {
+                isLoggedIn = false;
+            }
+
+            await InvokeAsync(StateHasChanged);
+
+            if (isLoggedIn)
+            {
+                await LoadModulesAsync();
+            }
+            else
+            {
+                isLoading = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private async Task LoadModulesAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+                Console.WriteLine($"[Shop] Added CompanyId header: {selectedCompanyId.Value}");
+            }
+            else
+            {
+                Console.WriteLine("[Shop] No company selected, CompanyId header not set");
+            }
+
+            var response = await client.GetAsync("/module?page=1&perPage=100");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[Shop] Modules response: {json}");
+
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                var paginated = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json, options);
+
+                if (paginated.TryGetProperty("data", out var dataElement) && dataElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    modules = System.Text.Json.JsonSerializer.Deserialize<List<ModuleDto>>(dataElement.GetRawText(), options);
+                }
+                else if (paginated.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    modules = System.Text.Json.JsonSerializer.Deserialize<List<ModuleDto>>(json, options);
+                }
+            }
+            else
+            {
+                errorMessage = $"Failed to load modules: {(int)response.StatusCode} {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+            Console.WriteLine($"[Shop] Load error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ToggleModule(Guid moduleId)
+    {
+        if (selectedModules.Contains(moduleId))
+        {
+            selectedModules.Remove(moduleId);
+        }
+        else
+        {
+            selectedModules.Add(moduleId);
+        }
+        StateHasChanged();
+    }
+
+    private async Task SubscribeAsync()
+    {
+        if (selectedModules.Count == 0)
+        {
+            resultMessage = "Please select at least one module.";
+            isSuccess = false;
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+            resultMessage = null;
+            StateHasChanged();
+
+            var userId = await CompanyContext.GetUserIdAsync();
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+
+            if (!companyId.HasValue)
+            {
+                resultMessage = "Please select a company before subscribing.";
+                isSuccess = false;
+                return;
+            }
+
+            var token = await CompanyContext.GetTokenAsync();
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            Console.WriteLine($"[Shop] POST /order with CompanyId: {companyId.Value}");
+
+            var command = new
+            {
+                UserId = userId,
+                CompanyId = companyId.Value,
+                Modules = selectedModules.ToList()
+            };
+
+            var response = await client.PostAsJsonAsync("/order", command);
+            Console.WriteLine($"[Shop] POST /order -> {(int)response.StatusCode} {response.StatusCode}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[Shop] Response body: {body}");
+                resultMessage = $"Failed to subscribe: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                isSuccess = false;
+            }
+            else
+            {
+                resultMessage = "Subscription created successfully! Redirecting to profile...";
+                isSuccess = true;
+                StateHasChanged();
+                await Task.Delay(1500);
+                NavigationManager.NavigateTo("/profile");
+            }
+        }
+        catch (Exception ex)
+        {
+            resultMessage = $"Error: {ex.Message}";
+            isSuccess = false;
+            Console.WriteLine($"[Shop] Subscribe error: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private class ModuleDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public decimal? Price { get; set; }
+        public bool IsActive { get; set; }
+        public int SortOrder { get; set; }
+    }
+}

@@ -2,8 +2,18 @@
 @rendermode InteractiveServer
 @inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Logout - Fenicia</PageTitle>
+
+<MainLayout>
+    <div style="max-width: 1200px; margin: 50px auto; padding: 0 20px;">
+        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
+            <h3 style="margin-top: 0;">Logout</h3>
+            <p>Logging out...</p>
+        </div>
+    </div>
+</MainLayout>
 
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -11,6 +21,7 @@
         if (firstRender)
         {
             await AuthState.ClearTokenAsync();
+            await JSRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
             NavigationManager.NavigateTo("/");
         }
     }

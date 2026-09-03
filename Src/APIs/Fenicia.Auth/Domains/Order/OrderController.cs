@@ -39,7 +39,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(
         CreateNewOrderCommand request,
-        [FromHeader] Headers headers,
+        [FromHeader(Name = "CompanyId")] Guid companyId,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -48,8 +48,8 @@ public class OrderController(IOrderService orderService) : ControllerBase
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
-            var companyId = headers.CompanyId;
-            var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
+            Console.WriteLine($"[OrderController] userId={userId}, companyId={companyId}, Modules={request.Modules?.Count ?? 0}");
+            var command = new CreateNewOrderCommand(userId, companyId, request.Modules ?? []);
             var order = await orderService.CreateAsync(command, cancellationToken);
 
             return order switch

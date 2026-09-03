@@ -1,17 +1,68 @@
-﻿@inherits LayoutComponentBase
+﻿@inherits ComponentBase
+@rendermode InteractiveServer
+@implements IDisposable
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
     <div style="margin-bottom: 20px; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <a href="/" style="font-size: 1.5rem; font-weight: bold; color: #4f46e5; text-decoration: none;">Fenicia</a>
-            <div style="display: flex; gap: 1rem;">
+            <div style="display: flex; gap: 1rem; align-items: center;">
                 <a href="/" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Home</a>
                 @if (isLoggedIn)
                 {
+                    <button class="company-switcher-btn" @onclick="ToggleCompanyModal">
+                        @if (!string.IsNullOrEmpty(selectedCompanyName))
+                        {
+                            <span>@selectedCompanyName</span>
+                        }
+                        else
+                        {
+                            <span>Select Company</span>
+                        }
+                        <span class="arrow">▼</span>
+                    </button>
+                    @if (showCompanyModal)
+                    {
+                        <div class="company-modal-overlay" @onclick="CloseCompanyModal">
+                            <div class="company-modal" @onclick:stopPropagation="true">
+                                <div class="company-modal-header">
+                                    <h3>Select Company</h3>
+                                    <button class="close-btn" @onclick="CloseCompanyModal">✕</button>
+                                </div>
+                                <div class="company-modal-body">
+                                    @if (!string.IsNullOrEmpty(companyError))
+                                    {
+                                        <p style="color: red;">@companyError</p>
+                                    }
+                                    else if (companies.Count == 0)
+                                    {
+                                        <p>No companies found.</p>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var company in companies)
+                                        {
+                                            <button class="company-item @(async () => await IsCompanySelected
+                                            (company) ? 
+                                            "selected" : "")"
+                                            @onclick="() => SelectCompany(company)">
+                                                <div class="company-name">@company.CompanyName</div>
+                                                <div class="company-role">@company.Role</div>
+                                                <div class="company-cnpj">@FormatCnpj(company.Cnpj)</div>
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
                     <a href="/profile" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">My Profile (@userName)</a>
                     <a href="/dashboard" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Dashboard</a>
+                    <a href="/shop" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Shop</a>
                     <a href="/logout" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Logout</a>
                 }
                 else
@@ -23,7 +74,7 @@
         </div>
     </div>
 
-    @Body
+    @ChildContent
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -33,24 +84,65 @@
 </div>
 
 @code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
     private bool isLoggedIn = false;
     private string userName = string.Empty;
+    private bool _jsAvailable;
+    private bool showCompanyModal;
+    private string selectedCompanyName = string.Empty;
+    private string companyError = string.Empty;
+    private List<UserCompanyItem> companies = [];
+    private bool _companiesLoaded;
 
     protected override void OnInitialized()
     {
+        Console.WriteLine("[MainLayout] OnInitialized called");
         NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        _ = RefreshAuthAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        Console.WriteLine($"[MainLayout] OnAfterRenderAsync firstRender={firstRender} _jsAvailable={_jsAvailable} _companiesLoaded={_companiesLoaded}");
+        if (_jsAvailable)
         {
             await RefreshAuthAsync();
+            if (!_companiesLoaded)
+            {
+                _companiesLoaded = true;
+                await LoadCompaniesAsync();
+            }
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+            _jsAvailable = true;
+            Console.WriteLine("[MainLayout] JS is available");
+            await RefreshAuthAsync();
+            if (!_companiesLoaded)
+            {
+                _companiesLoaded = true;
+                await LoadCompaniesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            var message = ex.InnerException?.Message ?? ex.Message;
+            if (message.Contains("statically rendered"))
+            {
+                Console.WriteLine("[MainLayout] Caught statically rendered exception");
+                return;
+            }
+            Console.WriteLine($"[MainLayout] OnAfterRenderAsync error: {ex.GetType().Name}: {message}");
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (_jsAvailable)
+        {
+            _ = RefreshAuthAsync();
         }
     }
 
@@ -63,13 +155,112 @@
             if (loggedIn != isLoggedIn)
             {
                 isLoggedIn = loggedIn;
-                userName = loggedIn ? (ParseUserName(token) ?? string.Empty) : string.Empty;
+                userName = loggedIn ? ParseUserName(token) ?? string.Empty : string.Empty;
                 await InvokeAsync(StateHasChanged);
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[MainLayout] Auth check error: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    private void ToggleCompanyModal()
+    {
+        showCompanyModal = !showCompanyModal;
+    }
+
+    private void CloseCompanyModal()
+    {
+        showCompanyModal = false;
+    }
+
+    private async Task LoadCompaniesAsync()
+    {
+        try
+        {
+            var userId = await CompanyContext.GetUserIdAsync();
+            var token = await CompanyContext.GetTokenAsync();
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+                Console.WriteLine($"[CompanySwitcher] Added CompanyId header: {selectedCompanyId.Value}");
+            }
+
+            var response = await client.GetAsync($"/user/{userId}/company");
+            Console.WriteLine($"[CompanySwitcher] GET /user/{userId}/company -> {(int)response.StatusCode} {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[CompanySwitcher] Response: {json}");
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<UserCompanyItem>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (items is not null)
+                {
+                    companies = items;
+                    await LoadSelectedCompanyAsync();
+                }
+            }
+            else
+            {
+                companyError = $"Error: {(int)response.StatusCode} {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CompanySwitcher] Load error: {ex.Message}");
+            companyError = ex.Message;
+        }
+    }
+
+    private async Task LoadSelectedCompanyAsync()
+    {
+        try
+        {
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                var match = companies.FirstOrDefault(c => c.CompanyId == companyId.Value);
+                if (match is not null)
+                {
+                    selectedCompanyName = match.CompanyName;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CompanySwitcher] Load selected error: {ex.Message}");
+        }
+    }
+
+    private async Task<bool> IsCompanySelected(UserCompanyItem company)
+    {
+        return company.CompanyId.ToString() == (await CompanyContext.GetSelectedCompanyIdAsync())?.ToString();
+    }
+
+    private async Task SelectCompany(UserCompanyItem company)
+    {
+        try
+        {
+            await CompanyContext.SetSelectedCompanyIdAsync(company.CompanyId);
+            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", company.CompanyId.ToString(), 7);
+            selectedCompanyName = company.CompanyName;
+            CloseCompanyModal();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CompanySwitcher] Select error: {ex.Message}");
         }
     }
 
@@ -94,4 +285,27 @@
             return null;
         }
     }
+
+    private static string FormatCnpj(string cnpj)
+    {
+        if (cnpj.Length == 14)
+        {
+            return $"{cnpj[..2]}.{cnpj[2..5]}.{cnpj[5..8]}/{cnpj[8..12]}-{cnpj[12..]}";
+        }
+        return cnpj;
+    }
+
+    private class UserCompanyItem
+    {
+        public Guid Id { get; set; }
+        public Guid CompanyId { get; set; }
+        public string CompanyName { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string Cnpj { get; set; } = string.Empty;
+    }
+
+    public void Dispose()
+    {
+    }
+
 }
