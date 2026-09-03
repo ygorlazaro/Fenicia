@@ -2,27 +2,25 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
-<RadzenComponents @rendermode="InteractiveServer" />
-
 <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-    <RadzenCard Style="margin-bottom: 20px; margin-top: 20px;">
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
-            <RadzenButton Text="Fenicia" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/"))" Style="font-size: 1.5rem; font-weight: bold;" />
-            <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem">
-                <RadzenButton Text="Home" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/"))" />
+    <div style="margin-bottom: 20px; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="font-size: 1.5rem; font-weight: bold; color: #4f46e5; text-decoration: none;">Fenicia</a>
+            <div style="display: flex; gap: 1rem;">
+                <a href="/" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Home</a>
                 @if (isLoggedIn)
                 {
-                    <RadzenButton Text="Dashboard" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/dashboard"))" />
-                    <RadzenButton Text="Logout" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/logout"))" />
+                    <a href="/dashboard" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Dashboard</a>
+                    <a href="/logout" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Logout</a>
                 }
                 else
                 {
-                    <RadzenButton Text="Sign Up" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/signup"))" />
-                    <RadzenButton Text="Login" Variant="Variant.Text" Click="@(() => NavigationManager.NavigateTo("/login"))" />
+                    <a href="/signup" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Sign Up</a>
+                    <a href="/login" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Login</a>
                 }
-            </RadzenStack>
-        </RadzenStack>
-    </RadzenCard>
+            </div>
+        </div>
+    </div>
 
     @Body
 </div>

@@ -7,8 +7,4 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Radzen.Blazor" Version="11.3.0" />
-  </ItemGroup>
-
 </Project>

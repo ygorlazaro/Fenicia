@@ -1,9 +1,6 @@
 using Fenicia.Web.Components;
-using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddRadzenComponents();
 
 builder.Services.AddHttpClient("FeniciaAuth", client =>
 {
