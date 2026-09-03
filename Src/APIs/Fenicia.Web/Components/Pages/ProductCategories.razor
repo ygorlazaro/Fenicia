@@ -185,6 +185,7 @@
 
     private async Task LoadCategoriesAsync()
     {
+        Console.WriteLine("[ProductCategories] LoadCategoriesAsync STARTED");
         try
         {
             isLoading = true;
@@ -192,6 +193,7 @@
             StateHasChanged();
 
             var token = await CompanyContext.GetTokenAsync();
+            Console.WriteLine($"[ProductCategories] Token present: {!string.IsNullOrEmpty(token)}");
             var client = HttpClientFactory.CreateClient("FeniciaBasic");
             Console.WriteLine($"[ProductCategories] Client base address: {client.BaseAddress}");
 
