@@ -94,7 +94,7 @@
             {
                 isSuccess = false;
                 var error = await response.Content.ReadAsStringAsync();
-                message = $"Registration failed: {error}";
+                message = $"Registration failed ({(int)response.StatusCode}): {error}";
             }
         }
         catch (Exception ex)
