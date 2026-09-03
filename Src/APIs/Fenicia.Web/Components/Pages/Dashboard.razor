@@ -13,17 +13,14 @@
 </div>
 
 @code {
-    private bool isAuthorized = false;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
-            isAuthorized = !string.IsNullOrEmpty(token);
-            if (!isAuthorized)
+            if (string.IsNullOrEmpty(token))
             {
-                NavigationManager.NavigateTo("/login", forceLoad: true);
+                NavigationManager.NavigateTo("/login");
             }
         }
     }
