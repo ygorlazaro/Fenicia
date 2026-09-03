@@ -1,4 +1,5 @@
 @page "/signup"
+@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
@@ -27,7 +28,7 @@
             <RadzenTextBox Value="@model.Cnpj" ValueChanged="@((string v) => model.Cnpj = v)" Placeholder="CNPJ" Style="width:100%; margin-bottom: 20px;" />
             <ValidationMessage For="@(() => model.Cnpj)" />
 
-            <RadzenButton ButtonType="ButtonType.Button" Text="Sign Up" Click="HandleSubmit" Style="width:100%;" Disabled="@isLoading" />
+            <RadzenButton ButtonType="ButtonType.Button" Text="Sign Up" @onclick="HandleSubmit" Style="width:100%;" Disabled="@isLoading" />
         </EditForm>
 
         @if (!string.IsNullOrEmpty(message))
