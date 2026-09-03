@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject IAuthStateService AuthState
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
     <div style="margin-bottom: 20px; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
@@ -38,50 +38,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine("[MainLayout] OnAfterRenderAsync called");
-        try
+        if (firstRender)
         {
-            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
-            Console.WriteLine($"[MainLayout] token result: {(string.IsNullOrEmpty(token) ? "empty" : "found")}");
-            isLoggedIn = !string.IsNullOrEmpty(token);
-            if (isLoggedIn) userName = GetUserNameFromToken(token);
+            isLoggedIn = await AuthState.IsAuthenticatedAsync();
+            userName = await AuthState.GetUserNameAsync() ?? string.Empty;
+            StateHasChanged();
         }
-        catch (JSException ex)
-        {
-            Console.WriteLine($"[MainLayout] JS error: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[MainLayout] Error: {ex.GetType().Name}: {ex.Message}");
-        }
-    }
-
-    private static string GetUserNameFromToken(string token)
-    {
-        try
-        {
-            var parts = token.Split('.');
-            if (parts.Length < 2) return string.Empty;
-
-            var payload = parts[1];
-            payload = payload.Replace('-', '+').Replace('_', '/');
-            switch (payload.Length % 4)
-            {
-                case 2: payload += "=="; break;
-                case 3: payload += "="; break;
-            }
-
-            var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload));
-            using var doc = System.Text.Json.JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty("unique_name", out var nameElement))
-            {
-                return nameElement.GetString() ?? string.Empty;
-            }
-        }
-        catch
-        {
-            // ignore decode errors
-        }
-        return string.Empty;
     }
 }

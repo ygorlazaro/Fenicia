@@ -4,7 +4,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject IAuthStateService AuthState
 
 <PageTitle>Login - Fenicia</PageTitle>
 
@@ -75,7 +75,7 @@
                 var tokenData = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (tokenData != null && !string.IsNullOrEmpty(tokenData.AccessToken))
                 {
-                    await JSRuntime.InvokeVoidAsync("cookieHelper.set", "auth_token", tokenData.AccessToken, 60 * 60 * 3);
+                    await AuthState.SetTokenAsync(tokenData.AccessToken, 60 * 60 * 3);
                     isSuccess = true;
                     message = "Login successful! Redirecting...";
                     await Task.Delay(500);
