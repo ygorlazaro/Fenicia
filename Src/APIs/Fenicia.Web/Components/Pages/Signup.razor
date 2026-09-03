@@ -1,0 +1,115 @@
+@page "/signup"
+@using System.ComponentModel.DataAnnotations
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign Up - Fenicia</PageTitle>
+
+<div style="max-width: 500px; margin: 50px auto; padding: 0 20px;">
+    <RadzenCard>
+        <h3 style="margin-top: 0;">Create Account</h3>
+
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <RadzenTextBox @bind-Value="model.Name" Placeholder="Full Name" Style="width:100%; margin-bottom: 15px;" />
+            <ValidationMessage For="@(() => model.Name)" />
+
+            <RadzenTextBox @bind-Value="model.Email" Placeholder="Email" Type="email" Style="width:100%; margin-bottom: 15px;" />
+            <ValidationMessage For="@(() => model.Email)" />
+
+            <RadzenPassword @bind-Value="model.Password" Placeholder="Password" Style="width:100%; margin-bottom: 15px;" />
+            <ValidationMessage For="@(() => model.Password)" />
+
+            <RadzenTextBox @bind-Value="model.CompanyName" Placeholder="Company Name" Style="width:100%; margin-bottom: 15px;" />
+            <ValidationMessage For="@(() => model.CompanyName)" />
+
+            <RadzenTextBox @bind-Value="model.Cnpj" Placeholder="CNPJ" Style="width:100%; margin-bottom: 20px;" />
+            <ValidationMessage For="@(() => model.Cnpj)" />
+
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Sign Up" Style="width:100%;" Disabled="@isLoading" />
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="margin-top: 15px; padding: 10px; border-radius: 4px; background-color: @(isSuccess ? "#d4edda" : "#f8d7da"); color: @(isSuccess ? "#155724" : "#721c24");">
+                @message
+            </div>
+        }
+    </RadzenCard>
+</div>
+
+@code {
+    private SignupModel model = new();
+    private string? message;
+    private bool isSuccess;
+    private bool isLoading;
+
+    private async Task HandleSubmit()
+    {
+        message = null;
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            var request = new
+            {
+                email = model.Email,
+                password = model.Password,
+                name = model.Name,
+                company = new { cnpj = model.Cnpj, name = model.CompanyName }
+            };
+
+            var response = await client.PostAsJsonAsync("/register", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                isSuccess = true;
+                message = "Account created successfully! You can now log in.";
+                model = new SignupModel();
+            }
+            else
+            {
+                isSuccess = false;
+                var error = await response.Content.ReadAsStringAsync();
+                message = $"Registration failed: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private class SignupModel
+    {
+        [Required]
+        [MaxLength(48)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(48)]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        public string Password { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        public string CompanyName { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        public string Cnpj { get; set; } = string.Empty;
+    }
+}
