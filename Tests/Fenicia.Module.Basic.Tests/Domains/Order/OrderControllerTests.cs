@@ -1,7 +1,5 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Enums.Auth;
@@ -25,7 +23,8 @@ public class OrderControllerTests : IDisposable
     {
         _mockService = new Mock<IOrderService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new OrderController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new OrderController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -39,7 +38,13 @@ public class OrderControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, OrderStatus.Pending, [], PaymentMethod.Cash);
+        var command = new CreateOrderCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            OrderStatus.Pending,
+            [],
+            PaymentMethod.Cash);
         var wide = new WideEventContext();
 
         // Act
@@ -95,7 +100,9 @@ public class OrderControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetOrderByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByIdAsync(
+                It.Is<GetOrderByIdQuery>(q => q.Id != It.IsAny<Guid>()),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrderByIdResponse?)null);
 
         // Act
@@ -111,12 +118,42 @@ public class OrderControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllOrderResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetOrderByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetOrderByIdQuery q, CancellationToken _) => new GetOrderByIdResponse(q.Id, "ORD-123", Guid.NewGuid(), Guid.NewGuid(), "Customer", 100, 0, 1, DateTime.UtcNow, "Pending", PaymentMethod.Cash, null));
+            .ReturnsAsync((GetOrderByIdQuery q, CancellationToken _) => new GetOrderByIdResponse(
+                q.Id,
+                "ORD-123",
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "Customer",
+                100,
+                0,
+                1,
+                DateTime.UtcNow,
+                "Pending",
+                PaymentMethod.Cash,
+                null));
 
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((CreateOrderCommand _, Guid _, CancellationToken _) => new CreateOrderResponse(Guid.NewGuid(), "ORD-123", Guid.NewGuid(), Guid.NewGuid(), 100, 0, 1, DateTime.UtcNow, OrderStatus.Pending, PaymentMethod.Cash, null, Guid.NewGuid()));
+        _mockService.Setup(s => s.CreateAsync(
+                It.IsAny<CreateOrderCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CreateOrderCommand _, Guid _, CancellationToken _) => new CreateOrderResponse(
+                Guid.NewGuid(),
+                "ORD-123",
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                100,
+                0,
+                1,
+                DateTime.UtcNow,
+                OrderStatus.Pending,
+                PaymentMethod.Cash,
+                null,
+                Guid.NewGuid()));
 
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteOrderCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.DeleteAsync(
+                It.IsAny<DeleteOrderCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
     }
 

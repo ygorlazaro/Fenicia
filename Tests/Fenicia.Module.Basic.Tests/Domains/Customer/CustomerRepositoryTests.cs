@@ -14,7 +14,8 @@ public class CustomerRepositoryTests : IDisposable
 
     public CustomerRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new CustomerRepository(_db);
@@ -79,7 +80,7 @@ public class CustomerRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
@@ -124,7 +125,8 @@ public class CustomerRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedCustomer = await _db.BasicCustomers.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == customer.Id);
+        var deletedCustomer =
+            await _db.BasicCustomers.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == customer.Id);
         deletedCustomer.Should().NotBeNull();
         deletedCustomer.Deleted.Should().NotBeNull();
     }

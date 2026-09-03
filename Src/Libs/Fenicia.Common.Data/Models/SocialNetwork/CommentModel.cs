@@ -8,33 +8,33 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class CommentModel : BaseCompanyModel
 {
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [Required]
-    public Guid FeedId { get; set; }
+    public Guid FeedId { get; init; }
 
-    public Guid? ParentCommentId { get; set; }
+    public Guid? ParentCommentId { get; init; }
 
     [Required]
     [MaxLength(1024)]
-    public string Text { get; set; } = string.Empty;
+    public string Text { get; init; } = string.Empty;
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [ForeignKey(nameof(FeedId))]
-    public FeedModel Feed { get; set; } = null!;
+    public FeedModel Feed { get; init; } = default!;
 
     [ForeignKey(nameof(ParentCommentId))]
-    public CommentModel? ParentComment { get; set; }
+    public CommentModel? ParentComment { get; init; }
 
-    public DateTime CommentDate { get; set; } = DateTime.UtcNow;
+    public DateTime CommentDate { get; init; } = DateTime.UtcNow;
 
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? UpdatedDate { get; init; }
 
-    public List<LikeModel> Likes { get; set; } = [];
+    public List<LikeModel> Likes { get; init; } = [];
 
-    public List<AttachmentModel> Attachments { get; set; } = [];
+    public List<AttachmentModel> Attachments { get; init; } = [];
 
-    public List<CommentModel> Replies { get; set; } = [];
+    public List<CommentModel> Replies { get; init; } = [];
 }

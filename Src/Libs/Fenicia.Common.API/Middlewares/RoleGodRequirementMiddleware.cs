@@ -1,5 +1,4 @@
 using System.Text.Json;
-
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.API.Middlewares;

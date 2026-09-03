@@ -1,8 +1,6 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
-
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 public class EmployeeController(IEmployeeService employeeService) : ControllerBase
 {
     /// <summary>
-    /// Obtém a lista de funcionários.
+    ///     Obtém a lista de funcionários.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página (padrão: 1)</param>
@@ -35,13 +33,21 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllEmployeeResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllEmployeeResponse>>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await employeeService.GetAllAsync(new GetAllEmployeeQuery(page, perPage, query, sort), cancellationToken);
+            var employees = await employeeService.GetAllAsync(
+                new GetAllEmployeeQuery(page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(employees);
         }
@@ -52,7 +58,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     /// <summary>
-    /// Obtém um funcionário pelo ID.
+    ///     Obtém um funcionário pelo ID.
     /// </summary>
     /// <param name="id">ID do funcionário</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -68,7 +74,10 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetEmployeeByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetEmployeeByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -85,7 +94,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     /// <summary>
-    /// Cria um novo funcionário.
+    ///     Cria um novo funcionário.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="command">Dados do funcionário</param>
@@ -101,7 +110,10 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddEmployeeResponse>> PostAsync([FromBody] AddEmployeeCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddEmployeeResponse>> PostAsync(
+        [FromBody] AddEmployeeCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -118,7 +130,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     /// <summary>
-    /// Atualiza um funcionário existente.
+    ///     Atualiza um funcionário existente.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="command">Dados atualizados do funcionário</param>
@@ -137,13 +149,20 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateEmployeeResponse>> PatchAsync([FromBody] UpdateEmployeeCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateEmployeeResponse>> PatchAsync(
+        [FromBody] UpdateEmployeeCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await employeeService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
+            var employee = await employeeService.UpdateAsync(
+                command with { Id = id },
+                ClaimReader.UserId(User),
+                cancellationToken);
 
             return employee is null ? NotFound() : Ok(employee);
         }
@@ -154,7 +173,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     /// <summary>
-    /// Remove um funcionário.
+    ///     Remove um funcionário.
     /// </summary>
     /// <param name="id">ID do funcionário</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -168,13 +187,19 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await employeeService.DeleteAsync(new DeleteEmployeeCommand(id), ClaimReader.UserId(User), cancellationToken);
+            await employeeService.DeleteAsync(
+                new DeleteEmployeeCommand(id),
+                ClaimReader.UserId(User),
+                cancellationToken);
 
             return NoContent();
         }
@@ -185,7 +210,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     /// <summary>
-    /// Obtém o desempenho dos funcionários.
+    ///     Obtém o desempenho dos funcionários.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
@@ -200,13 +225,19 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<EmployeePerformanceResponse>> GetPerformanceAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EmployeePerformanceResponse>> GetPerformanceAsync(
+        WideEventContext wide,
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await employeeService.GetPerformanceAsync(new GetEmployeePerformanceQuery(days, topLimit), cancellationToken);
+            var performance = await employeeService.GetPerformanceAsync(
+                new GetEmployeePerformanceQuery(days, topLimit),
+                cancellationToken);
 
             return Ok(performance);
         }

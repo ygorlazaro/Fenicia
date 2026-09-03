@@ -1,10 +1,8 @@
 using Bogus;
-
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Role;
@@ -17,7 +15,8 @@ public class RoleRepositoryTests : IDisposable
 
     public RoleRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new RoleRepository(_db);

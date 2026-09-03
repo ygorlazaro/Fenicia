@@ -3,7 +3,6 @@ using Fenicia.Auth.Domains.RefreshToken.DTOs;
 using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +16,7 @@ namespace Fenicia.Auth.Domains.RefreshToken;
 public class RefreshTokenController(IRefreshTokenService refreshTokenService) : ControllerBase
 {
     /// <summary>
-    /// Gera um novo refresh token para o usuário autenticado.
+    ///     Gera um novo refresh token para o usuário autenticado.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -30,7 +29,9 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<GenerateRefreshTokenResponse>> PostAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GenerateRefreshTokenResponse>> PostAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -47,7 +48,7 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     }
 
     /// <summary>
-    /// Valida um refresh token pelo valor.
+    ///     Valida um refresh token pelo valor.
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -63,7 +64,10 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ValidateTokenResponse>> GetAsync([FromRoute] string token, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ValidateTokenResponse>> GetAsync(
+        [FromRoute] string token,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -73,7 +77,9 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
             var isValid = await refreshTokenService.ValidateAsync(userId, token, cancellationToken);
             var tokenData = await refreshTokenService.GetAsync(token, cancellationToken);
 
-            return tokenData is null ? NotFound() : Ok(new ValidateTokenResponse(token, tokenData.ExpirationDate, userId, isValid));
+            return tokenData is null
+                ? NotFound()
+                : Ok(new ValidateTokenResponse(token, tokenData.ExpirationDate, userId, isValid));
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -86,7 +92,7 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     }
 
     /// <summary>
-    /// Invalida um refresh token.
+    ///     Invalida um refresh token.
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
     /// <param name="command">Comando com o refresh token a ser invalidado</param>
@@ -102,7 +108,11 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PatchAsync([FromRoute] string token, [FromBody] UpdateRefreshTokenCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PatchAsync(
+        [FromRoute] string token,
+        [FromBody] UpdateRefreshTokenCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

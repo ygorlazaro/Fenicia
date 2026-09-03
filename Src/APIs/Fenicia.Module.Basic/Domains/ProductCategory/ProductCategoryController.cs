@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
@@ -17,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 public class ProductCategoryController(IProductCategoryService productCategoryService) : ControllerBase
 {
     /// <summary>
-    /// Obtém uma lista paginada de categorias de produto.
+    ///     Obtém uma lista paginada de categorias de produto.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
@@ -34,13 +33,21 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var categories = await productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(page, perPage, query, sort), cancellationToken);
+            var categories = await productCategoryService.GetAllAsync(
+                new GetAllProductCategoryQuery(page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(categories);
         }
@@ -51,7 +58,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    /// Obtém uma categoria de produto pelo ID.
+    ///     Obtém uma categoria de produto pelo ID.
     /// </summary>
     /// <param name="id">ID da categoria</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -67,13 +74,18 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var category = await productCategoryService.GetByIdAsync(new GetProductCategoryByIdQuery(id), cancellationToken);
+            var category = await productCategoryService.GetByIdAsync(
+                new GetProductCategoryByIdQuery(id),
+                cancellationToken);
 
             return category is null ? NotFound() : Ok(category);
         }
@@ -84,7 +96,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    /// Cria uma nova categoria de produto.
+    ///     Cria uma nova categoria de produto.
     /// </summary>
     /// <param name="command">Dados da categoria a ser criada</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -100,7 +112,10 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddProductCategoryResponse>> PostAsync(
+        [FromBody] AddProductCategoryCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -118,7 +133,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    /// Atualiza uma categoria de produto existente.
+    ///     Atualiza uma categoria de produto existente.
     /// </summary>
     /// <param name="command">Dados atualizados da categoria</param>
     /// <param name="id">ID da categoria</param>
@@ -137,14 +152,21 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync([FromBody] UpdateProductCategoryCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync(
+        [FromBody] UpdateProductCategoryCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            var category = await productCategoryService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
+            var category = await productCategoryService.UpdateAsync(
+                command with { Id = id },
+                companyId,
+                cancellationToken);
 
             return category is null ? NotFound() : Ok(category);
         }
@@ -155,7 +177,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    /// Remove uma categoria de produto (soft delete).
+    ///     Remove uma categoria de produto (soft delete).
     /// </summary>
     /// <param name="id">ID da categoria</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -169,14 +191,20 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            await productCategoryService.DeleteAsync(new DeleteProductCategoryCommand(id), companyId, cancellationToken);
+            await productCategoryService.DeleteAsync(
+                new DeleteProductCategoryCommand(id),
+                companyId,
+                cancellationToken);
 
             return NoContent();
         }

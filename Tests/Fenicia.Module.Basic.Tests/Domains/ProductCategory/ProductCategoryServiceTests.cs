@@ -19,7 +19,8 @@ public class ProductCategoryServiceTests : IDisposable
 
     public ProductCategoryServiceTests()
     {
-        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         _mockRepository = new Mock<IProductCategoryRepository>();
         _service = new ProductCategoryService(_mockRepository.Object);
         _faker = new Faker();
@@ -72,7 +73,9 @@ public class ProductCategoryServiceTests : IDisposable
             .ReturnsAsync((ProductCategoryModel?)null);
 
         // Act
-        var result = await _service.GetByIdAsync(new GetProductCategoryByIdQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await _service.GetByIdAsync(
+            new GetProductCategoryByIdQuery(Guid.NewGuid()),
+            CancellationToken.None);
 
         // Assert
         result.Should().BeNull();
@@ -101,7 +104,10 @@ public class ProductCategoryServiceTests : IDisposable
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Old Name" };
         _mockRepository.Setup(r => r.GetByIdAsync(category.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(category);
-        _mockRepository.Setup(r => r.UpdateAsync(category.Id, It.IsAny<ProductCategoryModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                category.Id,
+                It.IsAny<ProductCategoryModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, ProductCategoryModel c, CancellationToken _) => c);
 
         var command = new UpdateProductCategoryCommand(category.Id, "Updated Name");
@@ -139,11 +145,17 @@ public class ProductCategoryServiceTests : IDisposable
             .ReturnsAsync(1);
 
         // Act
-        await _service.DeleteAsync(new DeleteProductCategoryCommand(categoryId), Guid.NewGuid(), CancellationToken.None);
+        await _service.DeleteAsync(
+            new DeleteProductCategoryCommand(categoryId),
+            Guid.NewGuid(),
+            CancellationToken.None);
 
         // Assert
         _mockRepository.Verify(r => r.DeleteAsync(categoryId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private DefaultContext NewDb() => new(_dbOptions, new TestCompanyContext());
+    private DefaultContext NewDb()
+    {
+        return new DefaultContext(_dbOptions, new TestCompanyContext());
+    }
 }

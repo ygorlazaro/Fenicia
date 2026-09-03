@@ -1,8 +1,6 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Customer;
@@ -25,7 +23,8 @@ public class CustomerControllerTests : IDisposable
     {
         _mockService = new Mock<ICustomerService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new CustomerController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new CustomerController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
@@ -40,7 +39,12 @@ public class CustomerControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new AddCustomerCommand(_faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new AddCustomerCommand(
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
         var wide = new WideEventContext();
 
         // Act
@@ -55,7 +59,13 @@ public class CustomerControllerTests : IDisposable
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var command = new UpdateCustomerCommand(customerId, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new UpdateCustomerCommand(
+            customerId,
+            "Updated Name",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
         var wide = new WideEventContext();
 
         // Act
@@ -69,10 +79,19 @@ public class CustomerControllerTests : IDisposable
     public async Task PatchAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var command = new UpdateCustomerCommand(Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new UpdateCustomerCommand(
+            Guid.NewGuid(),
+            "Updated Name",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateCustomerCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.Is<UpdateCustomerCommand>(c => c.Id != It.IsAny<Guid>()),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateCustomerResponse?)null);
 
         // Act
@@ -128,7 +147,9 @@ public class CustomerControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetCustomerByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByIdAsync(
+                It.Is<GetCustomerByIdQuery>(q => q.Id != It.IsAny<Guid>()),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetCustomerByIdResponse?)null);
 
         // Act
@@ -144,15 +165,33 @@ public class CustomerControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllCustomerResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetCustomerByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetCustomerByIdQuery q, CancellationToken _) => new GetCustomerByIdResponse(q.Id, Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+            .ReturnsAsync((GetCustomerByIdQuery q, CancellationToken _) => new GetCustomerByIdResponse(
+                q.Id,
+                Guid.NewGuid(),
+                "Test",
+                "test@test.com",
+                "123",
+                "123",
+                null));
 
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddCustomerCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddCustomerCommand _, Guid _, CancellationToken _) => new AddCustomerResponse(Guid.NewGuid(), Guid.NewGuid()));
+        _mockService.Setup(s => s.AddAsync(
+                It.IsAny<AddCustomerCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddCustomerCommand _, Guid _, CancellationToken _) =>
+                new AddCustomerResponse(Guid.NewGuid(), Guid.NewGuid()));
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCustomerCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateCustomerCommand cmd, Guid _, CancellationToken _) => new UpdateCustomerResponse(cmd.Id, Guid.NewGuid()));
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateCustomerCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateCustomerCommand cmd, Guid _, CancellationToken _) =>
+                new UpdateCustomerResponse(cmd.Id, Guid.NewGuid()));
 
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteCustomerCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.DeleteAsync(
+                It.IsAny<DeleteCustomerCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
     }
 

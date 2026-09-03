@@ -189,12 +189,18 @@ public class ConfigurationServiceTests
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
         var companyId = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(
+                _testUserId,
+                companyId,
+                ConfigType.Language,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ConfigurationModel?)null);
 
         await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -211,16 +217,25 @@ public class ConfigurationServiceTests
             Value = "pt-BR"
         };
 
-        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(
+                _testUserId,
+                companyId,
+                ConfigType.Language,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingConfig);
-        _mockRepository.Setup(r => r.UpdateAsync(originalId, It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                originalId,
+                It.IsAny<ConfigurationModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingConfig);
 
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "en");
 
         await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(originalId, It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(originalId, It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -241,16 +256,25 @@ public class ConfigurationServiceTests
             Value = "pt-BR"
         };
 
-        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(
+                _testUserId,
+                companyId,
+                ConfigType.Language,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingConfig);
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfigurationModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingConfig);
 
         await _service.UpsertAsync(command1, companyId, CancellationToken.None);
         await _service.UpsertAsync(command2, companyId, CancellationToken.None);
         await _service.UpsertAsync(command3, companyId, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+        _mockRepository.Verify(
+            r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ConfigurationModel>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(3));
     }
 
     [Fact]
@@ -259,12 +283,18 @@ public class ConfigurationServiceTests
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, string.Empty);
         var companyId = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(
+                _testUserId,
+                companyId,
+                ConfigType.Language,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ConfigurationModel?)null);
 
         await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.Is<ConfigurationModel>(c => c.Value == string.Empty), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.Is<ConfigurationModel>(c => c.Value == string.Empty), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -274,11 +304,17 @@ public class ConfigurationServiceTests
         var command = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, longValue);
         var companyId = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetByUserCompanyAndTypeAsync(
+                _testUserId,
+                companyId,
+                ConfigType.Language,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ConfigurationModel?)null);
 
         await _service.UpsertAsync(command, companyId, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.Is<ConfigurationModel>(c => c.Value == longValue), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.Is<ConfigurationModel>(c => c.Value == longValue), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

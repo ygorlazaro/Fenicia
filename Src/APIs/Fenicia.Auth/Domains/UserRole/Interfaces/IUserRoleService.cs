@@ -7,9 +7,15 @@ public interface IUserRoleService
 {
     Task<List<UserRoleResponse>> GetCompaniesByUserAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 
-    Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken = default);
+    Task<List<UserRoleModel>> GetUserRolesAsync(
+        Guid userId,
+        int page,
+        int perPage,
+        CancellationToken cancellationToken = default);
 
     Task<int> CountUserRolesAsync(Guid userId, CancellationToken cancellationToken = default);
 

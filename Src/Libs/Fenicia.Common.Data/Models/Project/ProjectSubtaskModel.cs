@@ -4,20 +4,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("project_subtasks", Schema = "project")]
-public class ProjectSubtaskModel : BaseCompanyModel
+public sealed class ProjectSubtaskModel : BaseCompanyModel
 {
-    public Guid TaskId { get; set; }
+    public Guid TaskId { get; init; }
 
     [MaxLength(256)]
-    public string Title { get; set; } = null!;
+    public string Title { get; init; } = string.Empty;
 
-    public bool IsCompleted { get; set; } = false;
+    public bool IsCompleted { get; init; } = false;
 
-    public int Order { get; set; } = 0;
+    public int Order { get; init; } = 0;
 
-    public DateTime? CompletedAt { get; set; }
+    public DateTime? CompletedAt { get; init; }
 
-    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
+    public ProjectTaskModel TaskModel { get; init; } = default!;
 
-    public DateTime? DueDate { get; set; }
+    public DateTime? DueDate { get; init; }
 }

@@ -5,14 +5,13 @@ namespace Fenicia.Common.API;
 
 public static class FeniciaModuleLoader
 {
-    public static string Load(string[] args, out ConfigurationManager configuration, out WebApplicationBuilder builder)
+    public static void Load(string[] args, out ConfigurationManager configuration, out WebApplicationBuilder builder)
     {
-        var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant="));
-        var tenantId = string.Empty;
+        var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant=", StringComparison.Ordinal));
 
         if (tenantArg is not null)
         {
-            tenantId = tenantArg.Split("=")[1];
+            var tenantId = tenantArg.Split("=")[1];
 
             Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
@@ -30,7 +29,5 @@ public static class FeniciaModuleLoader
 
         builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
-
-        return tenantId;
     }
 }

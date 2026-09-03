@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("roles", Schema = "auth")]
-public class RoleModel : BaseModel
+public sealed class RoleModel : BaseModel
 {
     [Required]
     [MaxLength(10)]
     [Column("name")]
-    public string Name { get; set; } = null!;
+    public string Name { get; init; } = string.Empty;
 
-    public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
+    public List<UserRoleModel> UsersRoles { get; init; } = [];
 }

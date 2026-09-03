@@ -12,14 +12,15 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(IConfiguration configuration, ILoginAttemptService loginAttemptService, IUserService userService, ISecurityService securityService) : ITokenService
+public sealed class TokenService(
+    IConfiguration configuration,
+    ILoginAttemptService loginAttemptService,
+    IUserService userService,
+    ISecurityService securityService) : ITokenService
 {
-    public TokenService()
-        : this(null!, null!, null!, null!)
-    {
-    }
-
-    public virtual async Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken cancellationToken = default)
+    public async Task<GenerateTokenResponse> GenerateAsync(
+        GenerateTokenQuery query,
+        CancellationToken cancellationToken = default)
     {
         var attempts = ValidateAttempts(query);
         var user = await userService.FirstByEmailOrDefaultAsync(query.Email, cancellationToken);
@@ -47,7 +48,7 @@ public class TokenService(IConfiguration configuration, ILoginAttemptService log
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
     }
 
-    public virtual string GenerateString(GenerateTokenResponse user)
+    public string GenerateString(GenerateTokenResponse user)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
@@ -67,7 +68,11 @@ public class TokenService(IConfiguration configuration, ILoginAttemptService log
 
     private static List<Claim> GenerateClaims(GenerateTokenResponse user)
     {
-        var authClaims = new List<Claim> { new("userId", user.Id.ToString()), new("email", user.Email), new("unique_name", user.Name), new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) };
+        var authClaims = new List<Claim>
+        {
+            new("userId", user.Id.ToString()), new("email", user.Email), new("unique_name", user.Name),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
         var companyIdProp = user.GetType().GetProperty("CompanyId");
         if (companyIdProp != null)
@@ -75,7 +80,8 @@ public class TokenService(IConfiguration configuration, ILoginAttemptService log
             var companyIdValue = companyIdProp.GetValue(user);
             if (companyIdValue != null && !string.IsNullOrEmpty(companyIdValue.ToString()))
             {
-                authClaims.Add(new Claim("companyId", companyIdValue.ToString()!));
+                var companyId = companyIdValue.ToString() ?? string.Empty;
+                authClaims.Add(new Claim("companyId", companyId));
             }
         }
 
@@ -95,7 +101,8 @@ public class TokenService(IConfiguration configuration, ILoginAttemptService log
 
         var modulesList = modulesValue.Select(m => m?.ToString()).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
-        authClaims.AddRange(modulesList.Where(m => !string.IsNullOrEmpty(m)).Select(m => new Claim("module", m ?? string.Empty)));
+        authClaims.AddRange(
+            modulesList.Where(m => !string.IsNullOrEmpty(m)).Select(m => new Claim("module", m ?? string.Empty)));
 
         return authClaims;
     }

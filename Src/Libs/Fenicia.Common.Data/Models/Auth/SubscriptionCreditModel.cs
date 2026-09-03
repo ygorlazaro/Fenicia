@@ -4,31 +4,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("subscription_credits", Schema = "auth")]
-public class SubscriptionCreditModel : BaseModel
+public sealed class SubscriptionCreditModel : BaseModel
 {
     [Required]
-    public Guid SubscriptionId { get; set; }
+    public Guid SubscriptionId { get; init; }
 
     [Required]
-    public Guid ModuleId { get; set; }
+    public Guid ModuleId { get; init; }
 
     [Required]
-    public bool IsActive { get; set; }
+    public bool IsActive { get; init; }
 
     [Required]
-    public DateTime StartDate { get; set; }
+    public DateTime StartDate { get; init; }
 
     [Required]
-    public DateTime EndDate { get; set; }
+    public DateTime EndDate { get; init; }
 
-    public Guid? OrderDetailId { get; set; }
+    public Guid? OrderDetailId { get; init; }
 
     [ForeignKey(nameof(ModuleId))]
-    public virtual ModuleModel Module { get; set; } = null!;
+    public ModuleModel Module { get; init; } = default!;
 
     [ForeignKey(nameof(SubscriptionId))]
-    public virtual SubscriptionModel Subscription { get; set; } = null!;
+    public SubscriptionModel Subscription { get; init; } = default!;
 
     [ForeignKey(nameof(OrderDetailId))]
-    public virtual OrderDetailModel? Order { get; set; }
+    public OrderDetailModel? Order { get; init; }
 }

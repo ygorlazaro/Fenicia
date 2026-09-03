@@ -30,14 +30,20 @@ public class OrderDetailServiceTests : IDisposable
         var product = new ProductModel { Id = Guid.NewGuid(), Name = "Test", SalesPrice = 10m };
         var details = new List<OrderDetailModel>
         {
-            new() { Id = Guid.NewGuid(), OrderId = orderId, ProductId = product.Id, Product = product, Quantity = 2, Price = 10m }
+            new()
+            {
+                Id = Guid.NewGuid(), OrderId = orderId, ProductId = product.Id, Product = product, Quantity = 2,
+                Price = 10m
+            }
         };
 
         _mockRepository.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(details);
 
         // Act
-        var result = await _service.GetByOrderIdAsync(new GetOrderDetailsByOrderIdQuery(orderId), CancellationToken.None);
+        var result = await _service.GetByOrderIdAsync(
+            new GetOrderDetailsByOrderIdQuery(orderId),
+            CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -51,7 +57,8 @@ public class OrderDetailServiceTests : IDisposable
         var orderIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
         var counts = orderIds.ToDictionary(id => id, _ => 3);
 
-        _mockRepository.Setup(r => r.GetDetailCountsByOrderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r =>
+                r.GetDetailCountsByOrderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(counts);
 
         // Act
@@ -69,7 +76,8 @@ public class OrderDetailServiceTests : IDisposable
         var orderIds = new List<Guid> { Guid.NewGuid() };
         var sums = orderIds.ToDictionary(id => id, _ => 5.0);
 
-        _mockRepository.Setup(r => r.GetQuantitySumsByOrderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r =>
+                r.GetQuantitySumsByOrderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(sums);
 
         // Act
@@ -89,11 +97,17 @@ public class OrderDetailServiceTests : IDisposable
             new() { Id = Guid.NewGuid(), Quantity = 1, Price = 5m }
         };
 
-        _mockRepository.Setup(r => r.GetByOrderDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetByOrderDateRangeAsync(
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(details);
 
         // Act
-        var result = await _service.GetByOrderDateRangeAsync(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow, CancellationToken.None);
+        var result = await _service.GetByOrderDateRangeAsync(
+            DateTime.UtcNow.AddDays(-7),
+            DateTime.UtcNow,
+            CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

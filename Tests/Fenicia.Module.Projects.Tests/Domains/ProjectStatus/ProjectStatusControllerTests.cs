@@ -15,8 +15,8 @@ public class ProjectStatusControllerTests
 {
     private readonly ProjectStatusController _controller;
     private readonly Faker _faker;
-    private readonly Mock<IProjectStatusService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<IProjectStatusService> _mockService;
     private readonly Guid _testUserId;
 
     public ProjectStatusControllerTests()
@@ -24,7 +24,8 @@ public class ProjectStatusControllerTests
         _mockService = new Mock<IProjectStatusService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectStatusController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProjectStatusController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
     }
@@ -35,7 +36,14 @@ public class ProjectStatusControllerTests
         var wide = new WideEventContext();
         var statuses = new List<GetAllProjectStatusResponse>
         {
-            new(Guid.NewGuid(), Guid.NewGuid(), _faker.Commerce.Categories(1).First(), "#FF0000", 1, false, Guid.NewGuid())
+            new(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                _faker.Commerce.Categories(1).First(),
+                "#FF0000",
+                1,
+                false,
+                Guid.NewGuid())
         };
 
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectStatusQuery>(), It.IsAny<CancellationToken>()))
@@ -66,7 +74,14 @@ public class ProjectStatusControllerTests
     public async Task GetByIdAsync_WhenStatusExists_ReturnsOkWithStatus()
     {
         var wide = new WideEventContext();
-        var status = new GetProjectStatusByIdResponse(Guid.NewGuid(), Guid.NewGuid(), "Active", "#FF0000", 1, false, Guid.NewGuid());
+        var status = new GetProjectStatusByIdResponse(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Active",
+            "#FF0000",
+            1,
+            false,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectStatusByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(status);
@@ -95,7 +110,14 @@ public class ProjectStatusControllerTests
     {
         var wide = new WideEventContext();
         var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "Active", "#FF0000", 1, false);
-        var response = new AddProjectStatusResponse(command.Id, command.ProjectId, command.Name, command.Color, command.Order, command.IsFinal, Guid.NewGuid());
+        var response = new AddProjectStatusResponse(
+            command.Id,
+            command.ProjectId,
+            command.Name,
+            command.Color,
+            command.Order,
+            command.IsFinal,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -113,9 +135,19 @@ public class ProjectStatusControllerTests
         var wide = new WideEventContext();
         var statusId = Guid.NewGuid();
         var command = new UpdateProjectStatusCommand(statusId, Guid.NewGuid(), "Done", "#00FF00", 2, true);
-        var response = new UpdateProjectStatusResponse(command.Id, command.ProjectId, command.Name, command.Color, command.Order, command.IsFinal, Guid.NewGuid());
+        var response = new UpdateProjectStatusResponse(
+            command.Id,
+            command.ProjectId,
+            command.Name,
+            command.Color,
+            command.Order,
+            command.IsFinal,
+            Guid.NewGuid());
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectStatusCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectStatusCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PatchAsync(command, statusId, wide, CancellationToken.None);
@@ -131,7 +163,10 @@ public class ProjectStatusControllerTests
         var wide = new WideEventContext();
         var command = new UpdateProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "Done", "#00FF00", 2, true);
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectStatusCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectStatusCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectStatusResponse?)null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);

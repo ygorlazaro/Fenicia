@@ -8,19 +8,19 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class ShareModel : BaseCompanyModel
 {
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [Required]
-    public Guid OriginalFeedId { get; set; }
+    public Guid OriginalFeedId { get; init; }
 
     [MaxLength(512)]
-    public string? Text { get; set; }
+    public string? Text { get; init; }
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [ForeignKey(nameof(OriginalFeedId))]
-    public FeedModel OriginalFeed { get; set; } = null!;
+    public FeedModel OriginalFeed { get; init; } = default!;
 
-    public DateTime ShareDate { get; set; } = DateTime.UtcNow;
+    public DateTime ShareDate { get; init; } = DateTime.UtcNow;
 }

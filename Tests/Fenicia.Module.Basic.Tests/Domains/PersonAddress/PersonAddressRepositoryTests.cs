@@ -14,7 +14,8 @@ public class PersonAddressRepositoryTests : IDisposable
 
     public PersonAddressRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new PersonAddressRepository(_db);
@@ -30,7 +31,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllPersonAddresses()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -45,7 +47,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenPersonAddressExists_ReturnsPersonAddress()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -71,7 +74,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task InsertAsync_WhenPersonAddressIsValid_InsertsPersonAddress()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
 
         // Act
         var result = await _repository.InsertAsync(personAddress, CancellationToken.None);
@@ -79,14 +83,15 @@ public class PersonAddressRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenPersonAddressExists_UpdatesPersonAddress()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -102,7 +107,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenPersonAddressDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
 
         // Act
         var result = await _repository.UpdateAsync(personAddress.Id, personAddress, CancellationToken.None);
@@ -115,7 +121,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenPersonAddressExists_SoftDeletesPersonAddress()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -124,7 +131,8 @@ public class PersonAddressRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedPersonAddress = await _db.BasicPersonAddresses.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == personAddress.Id);
+        var deletedPersonAddress = await _db.BasicPersonAddresses.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(p => p.Id == personAddress.Id);
         deletedPersonAddress.Should().NotBeNull();
         deletedPersonAddress.Deleted.Should().NotBeNull();
     }
@@ -133,7 +141,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -148,7 +157,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingPersonAddresses()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -163,7 +173,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task AnyAsync_WhenPersonAddressExists_ReturnsTrue()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -178,7 +189,8 @@ public class PersonAddressRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var personAddress = new PersonAddressModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
+        var personAddress = new PersonAddressModel
+            { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), AddressId = Guid.NewGuid() };
         _db.BasicPersonAddresses.Add(personAddress);
         await _db.SaveChangesAsync(CancellationToken.None);
 

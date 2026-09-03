@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.Data.Models.Basic;
@@ -26,25 +25,25 @@ public class StockMovementModel : BaseCompanyModel
     public string? Reason { get; set; }
 
     [ForeignKey(nameof(ProductId))]
-    public ProductModel Product { get; set; } = null!;
+    public ProductModel Product { get; init; } = default!;
 
     public Guid? CustomerId { get; set; }
 
     public Guid? SupplierId { get; set; }
 
     [ForeignKey(nameof(CustomerId))]
-    public CustomerModel? Customer { get; set; }
+    public CustomerModel? Customer { get; init; }
 
     [ForeignKey(nameof(SupplierId))]
-    public SupplierModel? Supplier { get; set; }
+    public SupplierModel? Supplier { get; init; }
 
     public Guid? EmployeeId { get; set; }
 
     [ForeignKey(nameof(EmployeeId))]
-    public EmployeeModel? Employee { get; set; }
+    public EmployeeModel? Employee { get; init; }
 
     public Guid? OrderId { get; set; }
 
     [ForeignKey(nameof(OrderId))]
-    public OrderModel? Order { get; set; }
+    public OrderModel? Order { get; init; }
 }

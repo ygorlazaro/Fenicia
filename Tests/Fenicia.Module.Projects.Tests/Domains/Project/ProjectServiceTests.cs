@@ -143,7 +143,10 @@ public class ProjectServiceTests
     [Fact]
     public async Task UpdateAsync_WhenProjectDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ProjectModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ProjectModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectModel?)null);
 
         var command = new UpdateProjectCommand(

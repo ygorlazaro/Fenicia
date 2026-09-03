@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
@@ -16,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 public class DataSourceController(IDataSourceService dataSourceService) : ControllerBase
 {
     /// <summary>
-    /// Obtém a lista de cargos para datasource.
+    ///     Obtém a lista de cargos para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -29,7 +28,9 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -46,7 +47,7 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     }
 
     /// <summary>
-    /// Obtém a lista de categorias de produtos para datasource.
+    ///     Obtém a lista de categorias de produtos para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -59,7 +60,9 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -76,7 +79,7 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     }
 
     /// <summary>
-    /// Obtém a lista de fornecedores para datasource.
+    ///     Obtém a lista de fornecedores para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -89,7 +92,9 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -106,7 +111,7 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     }
 
     /// <summary>
-    /// Obtém a lista de clientes para datasource.
+    ///     Obtém a lista de clientes para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -119,7 +124,9 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -136,7 +143,7 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     }
 
     /// <summary>
-    /// Obtém a lista de produtos para datasource.
+    ///     Obtém a lista de produtos para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -149,7 +156,9 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -166,7 +175,7 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     }
 
     /// <summary>
-    /// Obtém a lista de funcionários para datasource.
+    ///     Obtém a lista de funcionários para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -179,7 +188,9 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

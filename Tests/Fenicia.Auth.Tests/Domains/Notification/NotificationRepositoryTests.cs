@@ -2,7 +2,6 @@ using Fenicia.Auth.Domains.Notification;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Notification;
@@ -14,7 +13,8 @@ public class NotificationRepositoryTests : IDisposable
 
     public NotificationRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new NotificationRepository(_db);
@@ -32,12 +32,13 @@ public class NotificationRepositoryTests : IDisposable
     {
         for (var i = 0; i < 5; i++)
         {
-            _db.AuthNotifications.Add(new NotificationModel
-            {
-                Title = $"Notification {i}",
-                Description = "Desc",
-                Date = DateTime.UtcNow.AddDays(-i)
-            });
+            _db.AuthNotifications.Add(
+                new NotificationModel
+                {
+                    Title = $"Notification {i}",
+                    Description = "Desc",
+                    Date = DateTime.UtcNow.AddDays(-i)
+                });
         }
 
         await _db.SaveChangesAsync(CancellationToken.None);

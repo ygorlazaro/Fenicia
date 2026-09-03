@@ -6,41 +6,41 @@ using Fenicia.Common.Enums.Project;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("tasks", Schema = "project")]
-public class ProjectTaskModel : BaseCompanyModel
+public sealed class ProjectTaskModel : BaseCompanyModel
 {
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId { get; init; }
 
-    public Guid StatusId { get; set; }
+    public Guid StatusId { get; init; }
 
     [MaxLength(256)]
-    public string Title { get; set; } = null!;
+    public string Title { get; init; } = string.Empty;
 
     [MaxLength(4096)]
-    public string? Description { get; set; } = null;
+    public string? Description { get; init; } = null;
 
-    public EnumTaskPriority Priority { get; set; } = EnumTaskPriority.Medium;
+    public EnumTaskPriority Priority { get; init; } = EnumTaskPriority.Medium;
 
-    public EnumTaskType Type { get; set; } = EnumTaskType.Task;
+    public EnumTaskType Type { get; init; } = EnumTaskType.Task;
 
-    public int Order { get; set; } = 0;
+    public int Order { get; init; } = 0;
 
-    public int? EstimatePoints { get; set; } = null;
+    public int? EstimatePoints { get; init; } = null;
 
-    public DateTime? DueDate { get; set; } = null;
+    public DateTime? DueDate { get; init; } = null;
 
-    public Guid CreatedBy { get; set; } = Guid.Empty;
+    public Guid CreatedBy { get; init; } = Guid.Empty;
 
-    public virtual List<AttachmentModel> Attachments { get; set; } = [];
+    public List<AttachmentModel> Attachments { get; init; } = [];
 
-    public virtual List<ProjectCommentModel> Comments { get; set; } = [];
+    public List<ProjectCommentModel> Comments { get; init; } = [];
 
-    public virtual List<ProjectSubtaskModel> Subtasks { get; set; } = [];
+    public List<ProjectSubtaskModel> Subtasks { get; init; } = [];
 
-    public virtual List<TaskAssigneeModel> Assignees { get; set; } = [];
+    public List<TaskAssigneeModel> Assignees { get; init; } = [];
 
-    public virtual ProjectStatusModel StatusModel { get; set; } = null!;
+    public ProjectStatusModel StatusModel { get; init; } = default!;
 
-    public virtual UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
-    public virtual ProjectModel ProjectModel { get; set; } = null!;
+    public ProjectModel ProjectModel { get; init; } = default!;
 }

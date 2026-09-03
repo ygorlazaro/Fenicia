@@ -1,8 +1,6 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Supplier;
@@ -25,7 +23,8 @@ public class SupplierControllerTests : IDisposable
     {
         _mockService = new Mock<ISupplierService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new SupplierController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new SupplierController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
@@ -40,7 +39,22 @@ public class SupplierControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), _faker.Person.Random.AlphaNumeric(11), _faker.Person.Random.AlphaNumeric(11), new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var command = new AddSupplierCommand(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Person.Email,
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Person.Random.AlphaNumeric(11),
+            new AddressDTO(
+                _faker.Address.StreetAddress(),
+                _faker.Address.BuildingNumber(),
+                null,
+                _faker.Address.City(),
+                _faker.Address.ZipCode(),
+                Guid.NewGuid(),
+                _faker.Address.City(),
+                null));
         var wide = new WideEventContext();
 
         // Act
@@ -55,7 +69,22 @@ public class SupplierControllerTests : IDisposable
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var command = new UpdateSupplierCommand(supplierId, _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var command = new UpdateSupplierCommand(
+            supplierId,
+            _faker.Person.FullName,
+            _faker.Person.Email,
+            _faker.Person.Random.AlphaNumeric(11),
+            "12345678900",
+            "12345678900",
+            new AddressDTO(
+                _faker.Address.StreetAddress(),
+                _faker.Address.BuildingNumber(),
+                null,
+                _faker.Address.City(),
+                _faker.Address.ZipCode(),
+                Guid.NewGuid(),
+                _faker.Address.City(),
+                null));
         var wide = new WideEventContext();
 
         // Act
@@ -69,10 +98,28 @@ public class SupplierControllerTests : IDisposable
     public async Task PatchAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var command = new UpdateSupplierCommand(Guid.NewGuid(), _faker.Person.FullName, _faker.Person.Email, _faker.Person.Random.AlphaNumeric(11), "12345678900", "12345678900", new AddressDTO(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), null, _faker.Address.City(), _faker.Address.ZipCode(), Guid.NewGuid(), _faker.Address.City(), null));
+        var command = new UpdateSupplierCommand(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Person.Email,
+            _faker.Person.Random.AlphaNumeric(11),
+            "12345678900",
+            "12345678900",
+            new AddressDTO(
+                _faker.Address.StreetAddress(),
+                _faker.Address.BuildingNumber(),
+                null,
+                _faker.Address.City(),
+                _faker.Address.ZipCode(),
+                Guid.NewGuid(),
+                _faker.Address.City(),
+                null));
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateSupplierCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.Is<UpdateSupplierCommand>(c => c.Id != It.IsAny<Guid>()),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateSupplierResponse?)null);
 
         // Act
@@ -128,7 +175,9 @@ public class SupplierControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetSupplierByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByIdAsync(
+                It.Is<GetSupplierByIdQuery>(q => q.Id != It.IsAny<Guid>()),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetSupplierByIdResponse?)null);
 
         // Act
@@ -144,15 +193,33 @@ public class SupplierControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllSupplierResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetSupplierByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetSupplierByIdQuery q, CancellationToken _) => new GetSupplierByIdResponse(q.Id, Guid.NewGuid(), "Test", "test@test.com", "123", "123", null));
+            .ReturnsAsync((GetSupplierByIdQuery q, CancellationToken _) => new GetSupplierByIdResponse(
+                q.Id,
+                Guid.NewGuid(),
+                "Test",
+                "test@test.com",
+                "123",
+                "123",
+                null));
 
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddSupplierCommand cmd, Guid _, CancellationToken _) => new AddSupplierResponse(cmd.Id, cmd.Cnpj));
+        _mockService.Setup(s => s.AddAsync(
+                It.IsAny<AddSupplierCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddSupplierCommand cmd, Guid _, CancellationToken _) =>
+                new AddSupplierResponse(cmd.Id, cmd.Cnpj));
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateSupplierCommand cmd, Guid _, CancellationToken _) => new UpdateSupplierResponse(cmd.Id, cmd.Cnpj));
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateSupplierCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateSupplierCommand cmd, Guid _, CancellationToken _) =>
+                new UpdateSupplierResponse(cmd.Id, cmd.Cnpj));
 
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteSupplierCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.DeleteAsync(
+                It.IsAny<DeleteSupplierCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
     }
 

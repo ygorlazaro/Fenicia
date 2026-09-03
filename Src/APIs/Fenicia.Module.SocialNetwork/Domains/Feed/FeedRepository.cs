@@ -7,7 +7,10 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public class FeedRepository(DefaultContext context) : Repository<FeedModel>(context)
 {
-    public new async Task<IEnumerable<FeedModel>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    public new async Task<IEnumerable<FeedModel>> GetAllAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default)
     {
         return await DbSet
             .OrderByDescending(f => f.Date)
@@ -16,9 +19,9 @@ public class FeedRepository(DefaultContext context) : Repository<FeedModel>(cont
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<FeedModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<FeedModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(f => f.Comments)
             .Include(f => f.Likes)
             .Include(f => f.Shares)

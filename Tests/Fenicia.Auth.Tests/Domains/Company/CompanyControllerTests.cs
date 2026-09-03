@@ -1,16 +1,13 @@
 using System.Security.Claims;
-
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.DTOs;
 using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
@@ -51,7 +48,11 @@ public class CompanyControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         _serviceMock
-            .Setup(s => s.GetCompaniesByUserAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCompaniesByUserAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Pagination<IEnumerable<GetCompaniesByUserResponse>>([], 0, query.Page, query.PerPage));
 
         var result = await _controller.GetByLoggedUser(query, wide, cancellationToken);
@@ -87,8 +88,17 @@ public class CompanyControllerTests : IDisposable
         };
 
         _serviceMock
-            .Setup(s => s.GetCompaniesByUserAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Pagination<IEnumerable<GetCompaniesByUserResponse>>(companies, companies.Count, query.Page, query.PerPage));
+            .Setup(s => s.GetCompaniesByUserAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new Pagination<IEnumerable<GetCompaniesByUserResponse>>(
+                    companies,
+                    companies.Count,
+                    query.Page,
+                    query.PerPage));
 
         var result = await _controller.GetByLoggedUser(query, wide, cancellationToken);
 
@@ -114,7 +124,11 @@ public class CompanyControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         _serviceMock
-            .Setup(s => s.GetCompaniesByUserAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCompaniesByUserAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Pagination<IEnumerable<GetCompaniesByUserResponse>>([], 0, query.Page, query.PerPage));
 
         await _controller.GetByLoggedUser(query, wide, cancellationToken);
@@ -130,7 +144,11 @@ public class CompanyControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         _serviceMock
-            .Setup(s => s.UpdateAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var request = new UpdateCompanyRequest("New Name");
@@ -158,7 +176,11 @@ public class CompanyControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         _serviceMock
-            .Setup(s => s.UpdateAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ItemNotExistsException());
 
         var request = new UpdateCompanyRequest("New Name");
@@ -177,7 +199,11 @@ public class CompanyControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         _serviceMock
-            .Setup(s => s.UpdateAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new PermissionDeniedException());
 
         var request = new UpdateCompanyRequest("New Name");
@@ -196,7 +222,11 @@ public class CompanyControllerTests : IDisposable
         var cancellationToken = CancellationToken.None;
 
         _serviceMock
-            .Setup(s => s.UpdateAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var request = new UpdateCompanyRequest("New Name");
@@ -221,7 +251,8 @@ public class CompanyControllerTests : IDisposable
     {
         var controllerType = typeof(CompanyController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -232,7 +263,8 @@ public class CompanyControllerTests : IDisposable
     {
         var controllerType = typeof(CompanyController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
@@ -244,7 +276,8 @@ public class CompanyControllerTests : IDisposable
         var controllerType = typeof(CompanyController);
         var methodInfo = controllerType.GetMethod(nameof(CompanyController.PatchAsync));
 
-        var authorizeAttribute = methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute =
+            methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);

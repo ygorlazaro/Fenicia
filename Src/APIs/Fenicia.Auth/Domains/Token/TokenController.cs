@@ -1,10 +1,8 @@
 using System.Net.Mime;
-
 using Fenicia.Auth.Domains.Token.DTOs;
 using Fenicia.Auth.Domains.Token.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +16,7 @@ namespace Fenicia.Auth.Domains.Token;
 public class TokenController(ITokenService tokenService) : ControllerBase
 {
     /// <summary>
-    /// Gera um token JWT para o usuário (login).
+    ///     Gera um token JWT para o usuário (login).
     /// </summary>
     /// <param name="request">Query com e-mail e senha</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -35,7 +33,10 @@ public class TokenController(ITokenService tokenService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<TokenResponse>> PostAsync(GenerateTokenQuery request, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<TokenResponse>> PostAsync(
+        GenerateTokenQuery request,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -47,19 +48,21 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         }
         catch (PermissionDeniedException ex)
         {
-            return BadRequest(new ProblemDetails
-            {
-                Title = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return BadRequest(
+                new ProblemDetails
+                {
+                    Title = ex.Message,
+                    Status = StatusCodes.Status400BadRequest
+                });
         }
         catch (InvalidRequestException ex)
         {
-            return BadRequest(new ProblemDetails
-            {
-                Title = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return BadRequest(
+                new ProblemDetails
+                {
+                    Title = ex.Message,
+                    Status = StatusCodes.Status400BadRequest
+                });
         }
     }
 

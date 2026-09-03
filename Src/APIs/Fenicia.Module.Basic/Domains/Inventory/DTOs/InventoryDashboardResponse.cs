@@ -4,7 +4,7 @@ public record InventoryDashboardResponse
 {
     public List<InventoryDashboardItemResponse> LowStockItems { get; set; } = [];
 
-    public int TotalCustomers { get; set; }
+    public int TotalCustomers { get; init; }
 
     public int TotalEmployees { get; set; }
 

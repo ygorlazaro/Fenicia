@@ -4,7 +4,7 @@ namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record AddProductCommand(
     [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
+    [Required] [MaxLength(200)] string Name,
     string? SKU = null,
     string? Barcode = null,
     string? Description = null,

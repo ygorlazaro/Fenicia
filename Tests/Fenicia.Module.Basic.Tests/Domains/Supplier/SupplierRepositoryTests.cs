@@ -14,7 +14,8 @@ public class SupplierRepositoryTests : IDisposable
 
     public SupplierRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new SupplierRepository(_db);
@@ -79,7 +80,7 @@ public class SupplierRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
@@ -124,7 +125,8 @@ public class SupplierRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedSupplier = await _db.BasicSuppliers.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == supplier.Id);
+        var deletedSupplier =
+            await _db.BasicSuppliers.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == supplier.Id);
         deletedSupplier.Should().NotBeNull();
         deletedSupplier.Deleted.Should().NotBeNull();
     }

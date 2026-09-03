@@ -8,11 +8,11 @@ public class NotificationModel : BaseCompanyModel
 {
     [Column("title")]
     [MaxLength(200)]
-    public string Title { get; set; } = null!;
+    public string Title { get; set; } = string.Empty;
 
     [Column("description")]
     [MaxLength(200)]
-    public string Description { get; set; } = null!;
+    public string Description { get; set; } = string.Empty;
 
     [Column("date")]
     public DateTime Date { get; set; } = DateTime.UtcNow;

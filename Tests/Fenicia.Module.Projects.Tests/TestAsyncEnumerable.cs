@@ -18,6 +18,7 @@ public sealed class TestAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerabl
 
     public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-        return new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
+        using var enumerator = this.AsEnumerable().GetEnumerator();
+        return new TestAsyncEnumerator<T>(enumerator);
     }
 }

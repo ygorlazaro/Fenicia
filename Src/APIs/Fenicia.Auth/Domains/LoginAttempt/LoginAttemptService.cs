@@ -25,7 +25,12 @@ public class LoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptSe
 
         var newValue = current.HasValue ? (int)current + 1 : 1;
 
-        await _redisDb.StringSetAsync(key, newValue, TimeSpan.FromMinutes(_expirationMinutes), When.Always, CommandFlags.None);
+        await _redisDb.StringSetAsync(
+            key,
+            newValue,
+            TimeSpan.FromMinutes(_expirationMinutes),
+            When.Always,
+            CommandFlags.None);
     }
 
     public Task ResetAsync(string email)

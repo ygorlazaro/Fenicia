@@ -16,7 +16,8 @@ public class OrderDetailRepositoryTests : IDisposable
 
     public OrderDetailRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new OrderDetailRepository(_db);
@@ -33,7 +34,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllOrderDetails()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -48,7 +53,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenOrderDetailExists_ReturnsOrderDetail()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -74,7 +83,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task InsertAsync_WhenOrderDetailIsValid_InsertsOrderDetail()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
 
         // Act
         var result = await _repository.InsertAsync(orderDetail, CancellationToken.None);
@@ -82,14 +95,18 @@ public class OrderDetailRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenOrderDetailExists_UpdatesOrderDetail()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -105,7 +122,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenOrderDetailDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
 
         // Act
         var result = await _repository.UpdateAsync(orderDetail.Id, orderDetail, CancellationToken.None);
@@ -118,7 +139,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenOrderDetailExists_SoftDeletesOrderDetail()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -127,7 +152,8 @@ public class OrderDetailRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedOrderDetail = await _db.BasicOrderDetails.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == orderDetail.Id);
+        var deletedOrderDetail =
+            await _db.BasicOrderDetails.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == orderDetail.Id);
         deletedOrderDetail.Should().NotBeNull();
         deletedOrderDetail.Deleted.Should().NotBeNull();
     }
@@ -136,7 +162,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -151,7 +181,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingOrderDetails()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -166,7 +200,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task AnyAsync_WhenOrderDetailExists_ReturnsTrue()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -181,7 +219,11 @@ public class OrderDetailRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var orderDetail = new OrderDetailModel { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(), Quantity = _faker.Random.Double() };
+        var orderDetail = new OrderDetailModel
+        {
+            Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), ProductId = Guid.NewGuid(), Price = _faker.Random.Decimal(),
+            Quantity = _faker.Random.Double()
+        };
         _db.BasicOrderDetails.Add(orderDetail);
         await _db.SaveChangesAsync(CancellationToken.None);
 

@@ -45,39 +45,41 @@ public class Program
     {
         FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
-        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
-    {
-        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<CustomerRepository>();
-        builder.Services.AddScoped<PersonRepository>();
-        builder.Services.AddScoped<AddressRepository>();
-        builder.Services.AddScoped<PersonAddressRepository>();
-        builder.Services.AddScoped<EmployeeRepository>();
-        builder.Services.AddScoped<PositionRepository>();
-        builder.Services.AddScoped<ProductRepository>();
-        builder.Services.AddScoped<ProductCategoryRepository>();
-        builder.Services.AddScoped<StockMovementRepository>();
-        builder.Services.AddScoped<OrderDetailRepository>();
-        builder.Services.AddScoped<SupplierRepository>();
-        builder.Services.AddScoped<StateRepository>();
-        builder.Services.AddScoped<IAddressService, AddressService>();
-        builder.Services.AddScoped<IPersonService, PersonService>();
-        builder.Services.AddScoped<IPersonAddressService, PersonAddressService>();
-        builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
-        builder.Services.AddScoped<IStockMovementService, StockMovementService>();
-        builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
-        builder.Services.AddScoped<IStateService, StateService>();
-        builder.Services.AddScoped<IPositionService, PositionService>();
-        builder.Services.AddScoped<IProductService, ProductService>();
-        builder.Services.AddScoped<ISupplierService, SupplierService>();
-        builder.Services.AddScoped<IOrderService, OrderService>();
-        builder.Services.AddScoped<ICustomerService, CustomerService>();
-        builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-        builder.Services.AddScoped<IInventoryService, InventoryService>();
-        builder.Services.AddScoped<IDataSourceService, DataSourceService>();
-        builder.Services.AddScoped<IDashboardService, DashboardService>();
-    }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors()
+            .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
+            .AddFeniciaDependencyInjection(() =>
+            {
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped<CustomerRepository>();
+                builder.Services.AddScoped<PersonRepository>();
+                builder.Services.AddScoped<AddressRepository>();
+                builder.Services.AddScoped<PersonAddressRepository>();
+                builder.Services.AddScoped<EmployeeRepository>();
+                builder.Services.AddScoped<PositionRepository>();
+                builder.Services.AddScoped<ProductRepository>();
+                builder.Services.AddScoped<ProductCategoryRepository>();
+                builder.Services.AddScoped<StockMovementRepository>();
+                builder.Services.AddScoped<OrderDetailRepository>();
+                builder.Services.AddScoped<SupplierRepository>();
+                builder.Services.AddScoped<StateRepository>();
+                builder.Services.AddScoped<IAddressService, AddressService>();
+                builder.Services.AddScoped<IPersonService, PersonService>();
+                builder.Services.AddScoped<IPersonAddressService, PersonAddressService>();
+                builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
+                builder.Services.AddScoped<IStockMovementService, StockMovementService>();
+                builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+                builder.Services.AddScoped<IStateService, StateService>();
+                builder.Services.AddScoped<IPositionService, PositionService>();
+                builder.Services.AddScoped<IProductService, ProductService>();
+                builder.Services.AddScoped<ISupplierService, SupplierService>();
+                builder.Services.AddScoped<IOrderService, OrderService>();
+                builder.Services.AddScoped<ICustomerService, CustomerService>();
+                builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+                builder.Services.AddScoped<IInventoryService, InventoryService>();
+                builder.Services.AddScoped<IDataSourceService, DataSourceService>();
+                builder.Services.AddScoped<IDashboardService, DashboardService>();
+            }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();

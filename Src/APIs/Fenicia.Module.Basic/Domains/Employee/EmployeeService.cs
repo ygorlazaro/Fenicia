@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
-public class EmployeeService(
+public sealed class EmployeeService(
     IEmployeeRepository employeeRepository,
     IPersonService personService,
     IAddressService addressService,
@@ -25,13 +25,15 @@ public class EmployeeService(
     {
     }
 
-    public virtual async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(GetAllEmployeeQuery query, CancellationToken cancellationToken = default)
+    public async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(
+        GetAllEmployeeQuery query,
+        CancellationToken cancellationToken = default)
     {
         var baseQuery = employeeRepository.Query()
             .Include(e => e.Person)
             .Include(e => e.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
+            .ThenInclude(pa => pa.Address)
+            .ThenInclude(a => a.State)
             .Include(e => e.Position);
 
         var filters = AdvancedQueryParser.Parse(query.Query);
@@ -49,21 +51,27 @@ public class EmployeeService(
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
     }
 
-    public virtual async Task<List<GetAllEmployeeForDataSourceResponse>> GetAllForDataSourceAsync(CancellationToken cancellationToken = default)
+    public async Task<List<GetAllEmployeeForDataSourceResponse>> GetAllForDataSourceAsync(
+        CancellationToken cancellationToken = default)
     {
         var employees = await employeeRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
         return [.. employees.Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.Person.Name))];
     }
 
-    public virtual async Task<GetEmployeeByIdResponse?> GetByIdAsync(GetEmployeeByIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<GetEmployeeByIdResponse?> GetByIdAsync(
+        GetEmployeeByIdQuery query,
+        CancellationToken cancellationToken = default)
     {
         var employee = await employeeRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
         return employee?.MapToGetEmployeeByIdResponse();
     }
 
-    public virtual async Task<AddEmployeeResponse> AddAsync(AddEmployeeCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<AddEmployeeResponse> AddAsync(
+        AddEmployeeCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var person = new PersonModel
         {
@@ -77,14 +85,22 @@ public class EmployeeService(
 
         if (command.Address != null)
         {
-            var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+            var addressCommand = new AddressCommand(
+                command.Address.Street,
+                command.Address.Number,
+                command.Address.Complement,
+                command.Address.Neighborhood,
+                command.Address.ZipCode,
+                command.Address.StateId,
+                command.Address.City,
+                command.Address.Country);
             var createdAddress = await addressService.AddAsync(addressCommand, cancellationToken);
 
             var personAddress = new PersonAddressModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = person.Id,
-                AddressId = createdAddress.Id,
+                AddressId = createdAddress.Id
             };
             await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
         }
@@ -104,7 +120,10 @@ public class EmployeeService(
         return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
     }
 
-    public virtual async Task<UpdateEmployeeResponse?> UpdateAsync(UpdateEmployeeCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<UpdateEmployeeResponse?> UpdateAsync(
+        UpdateEmployeeCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var employee = await employeeRepository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
 
@@ -125,35 +144,57 @@ public class EmployeeService(
 
             if (existingPersonAddress?.Address != null)
             {
-                var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+                var addressCommand = new AddressCommand(
+                    command.Address.Street,
+                    command.Address.Number,
+                    command.Address.Complement,
+                    command.Address.Neighborhood,
+                    command.Address.ZipCode,
+                    command.Address.StateId,
+                    command.Address.City,
+                    command.Address.Country);
                 await addressService.UpdateAsync(existingPersonAddress.Address.Id, addressCommand, cancellationToken);
             }
             else
             {
-                var addressCommand = new AddressCommand(command.Address.Street, command.Address.Number, command.Address.Complement, command.Address.Neighborhood, command.Address.ZipCode, command.Address.StateId, command.Address.City, command.Address.Country);
+                var addressCommand = new AddressCommand(
+                    command.Address.Street,
+                    command.Address.Number,
+                    command.Address.Complement,
+                    command.Address.Neighborhood,
+                    command.Address.ZipCode,
+                    command.Address.StateId,
+                    command.Address.City,
+                    command.Address.Country);
                 var createdAddress = await addressService.AddAsync(addressCommand, cancellationToken);
 
                 var newPersonAddress = new PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = employee.PersonId,
-                    AddressId = createdAddress.Id,
+                    AddressId = createdAddress.Id
                 };
                 await personAddressService.InsertAsync(newPersonAddress, companyId, cancellationToken);
             }
         }
 
         await personService.UpdateAsync(employee.Person.Id, employee.Person, companyId, cancellationToken);
-        var updated = await employeeRepository.UpdateAsync(command.Id, employee, cancellationToken) ?? throw new ItemNotExistsException();
+        var updated = await employeeRepository.UpdateAsync(command.Id, employee, cancellationToken) ??
+                      throw new ItemNotExistsException();
         return new UpdateEmployeeResponse(updated.Id, updated.PositionId, employee.PersonId);
     }
 
-    public virtual async Task DeleteAsync(DeleteEmployeeCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(
+        DeleteEmployeeCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         await employeeRepository.DeleteAsync(command.Id, cancellationToken);
     }
 
-    public virtual async Task<EmployeePerformanceResponse> GetPerformanceAsync(GetEmployeePerformanceQuery query, CancellationToken cancellationToken = default)
+    public async Task<EmployeePerformanceResponse> GetPerformanceAsync(
+        GetEmployeePerformanceQuery query,
+        CancellationToken cancellationToken = default)
     {
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-query.Days);
@@ -175,33 +216,41 @@ public class EmployeeService(
         };
     }
 
-    public virtual async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return await employeeRepository.CountAsync(cancellationToken);
+        return employeeRepository.CountAsync(cancellationToken);
     }
 
-    public virtual async Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken cancellationToken = default)
+    public Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken cancellationToken = default)
     {
-        return await employeeRepository.GetAllEmployeesAsync(cancellationToken);
+        return employeeRepository.GetAllEmployeesAsync(cancellationToken);
     }
 
-    public virtual async Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default)
     {
-        return await employeeRepository.CountAsync(cancellationToken);
+        return employeeRepository.CountAsync(cancellationToken);
     }
 
-    public virtual async Task<Pagination<List<GetEmployeesByPositionIdResponse>>> GetByPositionIdAsync(GetEmployeesByPositionIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<Pagination<List<GetEmployeesByPositionIdResponse>>> GetByPositionIdAsync(
+        GetEmployeesByPositionIdQuery query,
+        CancellationToken cancellationToken = default)
     {
         var total = await employeeRepository.CountAsync(e => e.PositionId == query.PositionId, cancellationToken);
 
-        var employees = await employeeRepository.GetByPositionIdAsync(query.PositionId, query.Page, query.PerPage, cancellationToken);
+        var employees = await employeeRepository.GetByPositionIdAsync(
+            query.PositionId,
+            query.Page,
+            query.PerPage,
+            cancellationToken);
 
         var response = employees.Select(e => e.MapToGetEmployeesByPositionIdResponse()).ToList();
 
         return new Pagination<List<GetEmployeesByPositionIdResponse>>(response, total, query.Page, query.PerPage);
     }
 
-    private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(IEnumerable<OrderModel> orders, IEnumerable<EmployeeModel> employees)
+    private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(
+        IEnumerable<OrderModel> orders,
+        IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
@@ -224,7 +273,10 @@ public class EmployeeService(
         return summary;
     }
 
-    private static List<TopPerformerResponse> GetTopPerformer(GetEmployeePerformanceQuery query, List<EmployeeSalesResponse> salesByEmployee, EmployeePerformanceSummaryResponse summary)
+    private static List<TopPerformerResponse> GetTopPerformer(
+        GetEmployeePerformanceQuery query,
+        IEnumerable<EmployeeSalesResponse> salesByEmployee,
+        EmployeePerformanceSummaryResponse summary)
     {
         var topPerformers = salesByEmployee.Take(query.TopLimit).Select(e =>
         {
@@ -242,19 +294,34 @@ public class EmployeeService(
                 performanceLevel = "Good";
             }
 
-            return new TopPerformerResponse(e.EmployeeId, e.EmployeeName, e.PositionName, e.TotalSales, e.TotalOrders, performanceLevel);
+            return new TopPerformerResponse(
+                e.EmployeeId,
+                e.EmployeeName,
+                e.PositionName,
+                e.TotalSales,
+                e.TotalOrders,
+                performanceLevel);
         }).ToList();
         return topPerformers;
     }
 
-    private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(IEnumerable<OrderModel> orders, IEnumerable<EmployeeModel> employees)
+    private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
+        IEnumerable<OrderModel> orders,
+        IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
         var ordersByEmployee = ordersList.GroupBy(o => o.EmployeeId!.Value).Select(g =>
         {
             var employee = employees.First(e => e.Id == g.Key);
-            return new EmployeeOrderCountResponse(g.Key, employee.Person.Name, employee.Position.Name, g.Count(), g.Sum(o => o.TotalAmount), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate));
+            return new EmployeeOrderCountResponse(
+                g.Key,
+                employee.Person.Name,
+                employee.Position.Name,
+                g.Count(),
+                g.Sum(o => o.TotalAmount),
+                g.Min(o => o.SaleDate),
+                g.Max(o => o.SaleDate));
         }).OrderByDescending(e => e.OrderCount).ToList();
 
         return ordersByEmployee;
@@ -267,7 +334,14 @@ public class EmployeeService(
         var data = ordersList.GroupBy(o => o.Employee!.Id).Select(g =>
         {
             var employee = g.First().Employee!;
-            return new EmployeeSalesResponse(employee.Id, employee.Person.Name, employee.Position.Name, g.Sum(o => o.TotalAmount), g.Count(), g.Sum(o => o.TotalAmount), 0);
+            return new EmployeeSalesResponse(
+                employee.Id,
+                employee.Person.Name,
+                employee.Position.Name,
+                g.Sum(o => o.TotalAmount),
+                g.Count(),
+                g.Sum(o => o.TotalAmount),
+                0);
         }).ToList();
 
         for (var i = 0; i < data.Count; i++)

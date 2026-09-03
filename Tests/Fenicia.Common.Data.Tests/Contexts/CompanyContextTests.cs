@@ -10,7 +10,7 @@ public class CompanyContextTests
     [Fact]
     public void CompanyId_ShouldReturnEmpty_WhenNoClaimsOrHeaders()
     {
-        var companyContext = CreateCompanyContext(httpContext: null);
+        var companyContext = CreateCompanyContext(null);
 
         companyContext.CompanyId.Should().Be(Guid.Empty);
     }
@@ -20,9 +20,11 @@ public class CompanyContextTests
     {
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("company_id", "not-a-guid")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("company_id", "not-a-guid")
+                ]))
         };
 
         var companyContext = CreateCompanyContext(httpContext);
@@ -47,9 +49,11 @@ public class CompanyContextTests
         var companyId = Guid.NewGuid();
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("company_id", companyId.ToString())
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("company_id", companyId.ToString())
+                ]))
         };
 
         var companyContext = CreateCompanyContext(httpContext);
@@ -75,9 +79,11 @@ public class CompanyContextTests
         var companyId = Guid.NewGuid();
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("company_id", companyId.ToString())
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("company_id", companyId.ToString())
+                ]))
         };
         httpContext.Request.Headers["CompanyId"] = companyId.ToString();
 
@@ -91,9 +97,11 @@ public class CompanyContextTests
     {
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("company_id", Guid.NewGuid().ToString())
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("company_id", Guid.NewGuid().ToString())
+                ]))
         };
         httpContext.Request.Headers["CompanyId"] = Guid.NewGuid().ToString();
 
@@ -109,9 +117,11 @@ public class CompanyContextTests
         var companyId = Guid.NewGuid();
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("companyId", companyId.ToString())
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("companyId", companyId.ToString())
+                ]))
         };
 
         var companyContext = CreateCompanyContext(httpContext);

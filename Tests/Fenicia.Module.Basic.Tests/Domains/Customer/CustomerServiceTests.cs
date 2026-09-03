@@ -3,6 +3,7 @@ using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
+using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
@@ -18,15 +19,16 @@ public class CustomerServiceTests : IDisposable
 {
     private readonly DbContextOptions<DefaultContext> _dbOptions;
     private readonly Faker _faker;
-    private readonly Mock<ICustomerRepository> _mockRepository;
     private readonly Mock<IAddressService> _mockAddressService;
-    private readonly Mock<IPersonAddressService> _mockPersonAddressService;
     private readonly Mock<IOrderService> _mockOrderService;
+    private readonly Mock<IPersonAddressService> _mockPersonAddressService;
+    private readonly Mock<ICustomerRepository> _mockRepository;
     private readonly CustomerService _service;
 
     public CustomerServiceTests()
     {
-        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         _mockRepository = new Mock<ICustomerRepository>();
         var mockPersonService = new Mock<IPersonService>();
         _mockAddressService = new Mock<IAddressService>();
@@ -51,7 +53,8 @@ public class CustomerServiceTests : IDisposable
     {
         // Arrange
         var db = NewDb();
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
+        var person = new PersonModel
+            { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
         db.BasicCustomers.Add(customer);
         await db.SaveChangesAsync(CancellationToken.None);
@@ -69,7 +72,8 @@ public class CustomerServiceTests : IDisposable
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsCustomer()
     {
         // Arrange
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
+        var person = new PersonModel
+            { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
         var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(customer.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(customer);
@@ -100,7 +104,12 @@ public class CustomerServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesCustomer()
     {
         // Arrange
-        var command = new AddCustomerCommand(_faker.Person.FullName, _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new AddCustomerCommand(
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<CustomerModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CustomerModel c, CancellationToken _) => c);
 
@@ -117,11 +126,23 @@ public class CustomerServiceTests : IDisposable
     {
         // Arrange
         var addressId = Guid.NewGuid();
-        var addressResponse = new Fenicia.Module.Basic.Domains.Address.DTOs.AddressResponse(
-            addressId, "Street", "100", null, "Neighborhood", "12345-678", Guid.NewGuid(), "State", "City", "Country");
-        _mockAddressService.Setup(a => a.AddAsync(It.IsAny<Fenicia.Module.Basic.Domains.Address.DTOs.AddressCommand>(), It.IsAny<CancellationToken>()))
+        var addressResponse = new AddressResponse(
+            addressId,
+            "Street",
+            "100",
+            null,
+            "Neighborhood",
+            "12345-678",
+            Guid.NewGuid(),
+            "State",
+            "City",
+            "Country");
+        _mockAddressService.Setup(a => a.AddAsync(It.IsAny<AddressCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(addressResponse);
-        _mockPersonAddressService.Setup(p => p.InsertAsync(It.IsAny<PersonAddressModel>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockPersonAddressService.Setup(p => p.InsertAsync(
+                It.IsAny<PersonAddressModel>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((PersonAddressModel pa, Guid _, CancellationToken _) => pa);
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<CustomerModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CustomerModel c, CancellationToken _) => c);
@@ -131,7 +152,7 @@ public class CustomerServiceTests : IDisposable
             _faker.Internet.Email(),
             _faker.Person.Random.AlphaNumeric(11),
             _faker.Phone.PhoneNumber(),
-            new Fenicia.Module.Basic.Domains.Address.DTOs.AddressCommand(
+            new AddressCommand(
                 _faker.Address.StreetAddress(),
                 _faker.Address.BuildingNumber(),
                 null,
@@ -160,7 +181,13 @@ public class CustomerServiceTests : IDisposable
         _mockRepository.Setup(r => r.UpdateAsync(customer.Id, It.IsAny<CustomerModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, CustomerModel c, CancellationToken _) => c);
 
-        var command = new UpdateCustomerCommand(customer.Id, "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new UpdateCustomerCommand(
+            customer.Id,
+            "Updated Name",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
 
         // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
@@ -177,7 +204,13 @@ public class CustomerServiceTests : IDisposable
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CustomerModel?)null);
 
-        var command = new UpdateCustomerCommand(Guid.NewGuid(), "Updated Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new UpdateCustomerCommand(
+            Guid.NewGuid(),
+            "Updated Name",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
 
         // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
@@ -207,7 +240,8 @@ public class CustomerServiceTests : IDisposable
         // Arrange
         _mockOrderService.Setup(o => o.GetTotalOrdersCountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(10);
         _mockOrderService.Setup(o => o.GetTotalRevenueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1000m);
-        _mockOrderService.Setup(o => o.GetRecentOrdersAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _mockOrderService.Setup(o => o.GetRecentOrdersAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         _mockOrderService.Setup(o => o.GetTopCustomerOrdersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         _mockOrderService.Setup(o => o.GetAtRiskOrdersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         _mockRepository.Setup(r => r.CountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(5);
@@ -232,5 +266,8 @@ public class CustomerServiceTests : IDisposable
         result.Should().Be(7);
     }
 
-    private DefaultContext NewDb() => new(_dbOptions, new TestCompanyContext());
+    private DefaultContext NewDb()
+    {
+        return new DefaultContext(_dbOptions, new TestCompanyContext());
+    }
 }

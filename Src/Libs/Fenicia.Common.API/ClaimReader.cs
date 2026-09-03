@@ -7,8 +7,8 @@ public static class ClaimReader
     public static Guid UserId(ClaimsPrincipal user)
     {
         return GetGuidClaimValue(user, ClaimTypes.NameIdentifier)
-            ?? GetGuidClaimValue(user, "userId")
-            ?? throw new UnauthorizedAccessException();
+               ?? GetGuidClaimValue(user, "userId")
+               ?? throw new UnauthorizedAccessException();
     }
 
     private static Guid? GetGuidClaimValue(ClaimsPrincipal user, string claimType)

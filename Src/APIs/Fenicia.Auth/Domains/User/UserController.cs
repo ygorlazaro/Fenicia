@@ -6,7 +6,6 @@ using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +19,7 @@ namespace Fenicia.Auth.Domains.User;
 public class UserController(IUserService userService, IModuleService moduleService) : ControllerBase
 {
     /// <summary>
-    /// Obtém os módulos de um usuário para uma empresa.
+    ///     Obtém os módulos de um usuário para uma empresa.
     /// </summary>
     /// <param name="id">ID do usuário</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
@@ -35,7 +34,11 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync([FromRoute] Guid id, [FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync(
+        [FromRoute] Guid id,
+        [FromHeader] Headers headers,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -56,7 +59,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    /// Obtém as empresas associadas a um usuário.
+    ///     Obtém as empresas associadas a um usuário.
     /// </summary>
     /// <param name="id">ID do usuário</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -70,7 +73,10 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -90,7 +96,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    /// Obtém todos os usuários com paginação.
+    ///     Obtém todos os usuários com paginação.
     /// </summary>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="pageSize">Quantidade de itens por página (padrão: 10)</param>
@@ -105,15 +111,22 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAsync(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
-        var result = await userService.GetAllAsync(new GetAllUsersQuery(page, pageSize, query, sort), cancellationToken);
+        var result = await userService.GetAllAsync(
+            new GetAllUsersQuery(page, pageSize, query, sort),
+            cancellationToken);
 
         return Ok(result);
     }
 
     /// <summary>
-    /// Obtém um usuário pelo ID.
+    ///     Obtém um usuário pelo ID.
     /// </summary>
     /// <param name="userId">ID do usuário</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -139,7 +152,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    /// Cria um novo usuário.
+    ///     Cria um novo usuário.
     /// </summary>
     /// <param name="request">Dados do usuário (e-mail, senha, nome, roles)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -153,7 +166,9 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> CreateAsync(CreateUserCommand request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> CreateAsync(
+        CreateUserCommand request,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -168,7 +183,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    /// Atualiza um usuário existente.
+    ///     Atualiza um usuário existente.
     /// </summary>
     /// <param name="userId">ID do usuário</param>
     /// <param name="request">Dados atualizados do usuário (nome, e-mail, roles por empresa)</param>
@@ -186,7 +201,10 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "God,Admin")]
-    public async Task<IActionResult> UpdateAsync(Guid userId, UpdateUserCommand request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> UpdateAsync(
+        Guid userId,
+        UpdateUserCommand request,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -202,7 +220,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    /// Remove um usuário (soft delete).
+    ///     Remove um usuário (soft delete).
     /// </summary>
     /// <param name="userId">ID do usuário</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -229,7 +247,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    /// Altera a senha de um usuário.
+    ///     Altera a senha de um usuário.
     /// </summary>
     /// <param name="userId">ID do usuário</param>
     /// <param name="request">Comando com a nova senha</param>
@@ -246,7 +264,10 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> ChangePasswordAsync(Guid userId, UpdateUserPasswordCommand request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> ChangePasswordAsync(
+        Guid userId,
+        UpdateUserPasswordCommand request,
+        CancellationToken cancellationToken = default)
     {
         try
         {

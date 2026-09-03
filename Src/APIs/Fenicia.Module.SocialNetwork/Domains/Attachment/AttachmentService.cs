@@ -7,7 +7,10 @@ namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
 public class AttachmentService(AttachmentRepository repository)
 {
-    public async Task<AddAttachmentResponse> AddAsync(AddAttachmentCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<AddAttachmentResponse> AddAsync(
+        AddAttachmentCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var model = new AttachmentModel
         {
@@ -21,7 +24,14 @@ public class AttachmentService(AttachmentRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddAttachmentResponse(created.Id, created.Url, created.FileType, created.FileSize, created.CommentId, created.CompanyId, created.UploadDate);
+        return new AddAttachmentResponse(
+            created.Id,
+            created.Url,
+            created.FileType,
+            created.FileSize,
+            created.CommentId,
+            created.CompanyId,
+            created.UploadDate);
     }
 
     public async Task DeleteAsync(DeleteAttachmentCommand command, CancellationToken cancellationToken = default)
@@ -29,12 +39,25 @@ public class AttachmentService(AttachmentRepository repository)
         await repository.DeleteAsync(command.Id, cancellationToken);
     }
 
-    public async Task<List<GetAttachmentResponse>> GetByCommentAsync(GetAttachmentsByCommentQuery query, Guid commentId, CancellationToken cancellationToken = default)
+    public async Task<List<GetAttachmentResponse>> GetByCommentAsync(
+        GetAttachmentsByCommentQuery query,
+        Guid commentId,
+        CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(a => a.CommentId == commentId);
         var filters = AdvancedQueryParser.Parse(query.Query);
         var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
-        var attachments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
-        return [.. attachments.Select(a => new GetAttachmentResponse(a.Id, a.Url, a.FileType, a.FileSize, a.CommentId, a.UploadDate))];
+        var attachments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+        return
+        [
+            .. attachments.Select(a => new GetAttachmentResponse(
+                a.Id,
+                a.Url,
+                a.FileType,
+                a.FileSize,
+                a.CommentId,
+                a.UploadDate))
+        ];
     }
 }

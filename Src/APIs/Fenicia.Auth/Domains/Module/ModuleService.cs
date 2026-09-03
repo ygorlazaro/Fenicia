@@ -9,9 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public class ModuleService(IModuleRepository repository, IUserRoleService userRoleService, ISubscriptionService subscriptionService) : IModuleService
+public class ModuleService(
+    IModuleRepository repository,
+    IUserRoleService userRoleService,
+    ISubscriptionService subscriptionService) : IModuleService
 {
-    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(m => m.Type != ModuleType.Auth && m.IsActive);
         var filters = AdvancedQueryParser.Parse(query.Query);
@@ -19,14 +24,22 @@ public class ModuleService(IModuleRepository repository, IUserRoleService userRo
         var orderedQuery = filteredQuery.OrderBy(m => m.SortOrder);
 
         var totalTask = orderedQuery.CountAsync(cancellationToken);
-        var modulesTask = orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
+        var modulesTask = orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+            .ToListAsync(cancellationToken);
 
         await Task.WhenAll(totalTask, modulesTask);
 
-        return new Pagination<List<GetModuleResponse>>([.. modulesTask.Result.Select(m => m.MapToGetModuleResponse())], totalTask.Result, query.Page, query.PerPage);
+        return new Pagination<List<GetModuleResponse>>(
+            [.. modulesTask.Result.Select(m => m.MapToGetModuleResponse())],
+            totalTask.Result,
+            query.Page,
+            query.PerPage);
     }
 
-    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<List<GetUserModulesResponse>> GetUserModulesAsync(
+        Guid companyId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
         var userRole = await userRoleService.GetUserRoleAsync(userId, companyId, cancellationToken);
 
@@ -35,13 +48,15 @@ public class ModuleService(IModuleRepository repository, IUserRoleService userRo
             return [];
         }
 
-        var companySubscriptions = await subscriptionService.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
+        var companySubscriptions =
+            await subscriptionService.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
 
         var moduleIds = new HashSet<Guid>();
 
         foreach (var subscription in companySubscriptions)
         {
-            var modules = await subscriptionService.GetActiveModulesForSubscriptionAsync(subscription.Id, cancellationToken);
+            var modules =
+                await subscriptionService.GetActiveModulesForSubscriptionAsync(subscription.Id, cancellationToken);
 
             foreach (var module in modules)
             {
@@ -54,13 +69,15 @@ public class ModuleService(IModuleRepository repository, IUserRoleService userRo
         return [.. modulesResult.Select(m => m.MapToGetUserModulesResponse())];
     }
 
-    public async Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    public Task<List<ModuleModel>> GetModulesByIdsAsync(
+        IEnumerable<Guid> ids,
+        CancellationToken cancellationToken = default)
     {
-        return await repository.GetByIdsAsync(ids, cancellationToken);
+        return repository.GetByIdsAsync(ids, cancellationToken);
     }
 
-    public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)
+    public Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByTypeAsync(type, cancellationToken);
+        return repository.GetByTypeAsync(type, cancellationToken);
     }
 }

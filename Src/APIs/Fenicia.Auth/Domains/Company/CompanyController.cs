@@ -4,7 +4,6 @@ using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +17,7 @@ namespace Fenicia.Auth.Domains.Company;
 public class CompanyController(ICompanyService service) : ControllerBase
 {
     /// <summary>
-    /// Obtém as empresas associadas ao usuário autenticado com paginação.
+    ///     Obtém as empresas associadas ao usuário autenticado com paginação.
     /// </summary>
     /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -35,7 +34,10 @@ public class CompanyController(ICompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser(
+        [FromQuery] PaginationQuery query,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -57,7 +59,7 @@ public class CompanyController(ICompanyService service) : ControllerBase
     }
 
     /// <summary>
-    /// Atualiza o nome de uma empresa existente.
+    ///     Atualiza o nome de uma empresa existente.
     /// </summary>
     /// <param name="id">ID da empresa</param>
     /// <param name="request">Dados de atualização da empresa (nome)</param>
@@ -78,7 +80,11 @@ public class CompanyController(ICompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyRequest request, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PatchAsync(
+        [FromRoute] Guid id,
+        [FromBody] UpdateCompanyRequest request,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

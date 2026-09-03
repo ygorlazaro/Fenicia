@@ -24,6 +24,11 @@ public static class AsyncQueryableHelper
             Provider = new FakeQueryProvider<T>(data);
         }
 
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            return new FakeAsyncEnumerator<T>(Data.GetEnumerator());
+        }
+
         public Expression Expression { get; internal init; }
         public Type ElementType => typeof(T);
         public IQueryProvider Provider { get; }
@@ -37,11 +42,6 @@ public static class AsyncQueryableHelper
         {
             return GetEnumerator();
         }
-
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        {
-            return new FakeAsyncEnumerator<T>(Data.GetEnumerator());
-        }
     }
 
     private sealed class FakeQueryProvider<T>(List<T> data) : IAsyncQueryProvider
@@ -53,7 +53,8 @@ public static class AsyncQueryableHelper
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return new FakeQueryable<TElement>(FilterData(expression).Cast<TElement>().ToList()) { Expression = expression };
+            return new FakeQueryable<TElement>(FilterData(expression).Cast<TElement>().ToList())
+                { Expression = expression };
         }
 
         public object? Execute(Expression expression)
@@ -64,7 +65,7 @@ public static class AsyncQueryableHelper
         public TResult Execute<TResult>(Expression expression)
         {
             var result = ExecuteInternal(expression);
-            
+
             if (typeof(TResult).IsGenericType && typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
             {
                 var resultType = typeof(TResult).GetGenericArguments()[0];
@@ -73,11 +74,12 @@ public static class AsyncQueryableHelper
                     .MakeGenericMethod(resultType);
                 return (TResult)fromResultMethod.Invoke(null, [taskResult])!;
             }
-            
+
             if (result is TResult tr)
             {
                 return tr;
             }
+
             return (TResult)result!;
         }
 
@@ -100,34 +102,33 @@ public static class AsyncQueryableHelper
                 ? fake.Data
                 : FilterData(sourceArg);
 
-            if (method.Name == "Where" && method.DeclaringType == typeof(Queryable))
+            switch (method.Name)
             {
-                var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                return CallLinq(current, "Where", predicate).ToList();
-            }
-
-            if (method.Name == "OrderBy" && method.DeclaringType == typeof(Queryable))
-            {
-                var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                return CallLinq(current, "OrderBy", keySelector).ToList();
-            }
-
-            if (method.Name == "OrderByDescending" && method.DeclaringType == typeof(Queryable))
-            {
-                var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                return CallLinq(current, "OrderByDescending", keySelector).ToList();
-            }
-
-            if (method.Name == "Skip" && method.DeclaringType == typeof(Queryable))
-            {
-                var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
-                return current.Skip(count).ToList();
-            }
-
-            if (method.Name == "Take" && method.DeclaringType == typeof(Queryable))
-            {
-                var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
-                return current.Take(count).ToList();
+                case "Where" when method.DeclaringType == typeof(Queryable):
+                {
+                    var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                    return CallLinq(current, "Where", predicate).ToList();
+                }
+                case "OrderBy" when method.DeclaringType == typeof(Queryable):
+                {
+                    var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                    return CallLinq(current, "OrderBy", keySelector).ToList();
+                }
+                case "OrderByDescending" when method.DeclaringType == typeof(Queryable):
+                {
+                    var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                    return CallLinq(current, "OrderByDescending", keySelector).ToList();
+                }
+                case "Skip" when method.DeclaringType == typeof(Queryable):
+                {
+                    var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
+                    return current.Skip(count).ToList();
+                }
+                case "Take" when method.DeclaringType == typeof(Queryable):
+                {
+                    var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
+                    return current.Take(count).ToList();
+                }
             }
 
             if (method.Name != "Select" || method.DeclaringType != typeof(Queryable))
@@ -141,66 +142,65 @@ public static class AsyncQueryableHelper
 
         private object? ExecuteInternal(Expression expression)
         {
-            if (expression is MethodCallExpression methodCall)
+            switch (expression)
             {
-                var method = methodCall.Method;
-                var sourceArg = Unwrap(methodCall.Arguments[0]);
-
-                var current = sourceArg is ConstantExpression { Value: FakeQueryable<T> fake }
-                    ? fake.Data
-                    : ExecuteInternal(sourceArg) as List<T> ?? data;
-
-                switch (method.Name)
+                case MethodCallExpression methodCall:
                 {
-                    case "Count" when method.DeclaringType == typeof(Queryable):
-                        return current.Count;
-                    case "ToList" when method.DeclaringType == typeof(Enumerable):
-                        return current;
-                    case "FirstOrDefault" when method.DeclaringType == typeof(Enumerable):
-                        return current.FirstOrDefault();
-                    case "Any" when method.DeclaringType == typeof(Enumerable):
-                        return current.Any();
-                    case "Where" when method.DeclaringType == typeof(Queryable):
+                    var method = methodCall.Method;
+                    var sourceArg = Unwrap(methodCall.Arguments[0]);
+
+                    var current = sourceArg is ConstantExpression { Value: FakeQueryable<T> fake }
+                        ? fake.Data
+                        : ExecuteInternal(sourceArg) as List<T> ?? data;
+
+                    switch (method.Name)
                     {
-                        var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                        return CallLinq(current, "Where", predicate).ToList();
+                        case "Count" when method.DeclaringType == typeof(Queryable):
+                            return current.Count;
+                        case "ToList" when method.DeclaringType == typeof(Enumerable):
+                            return current;
+                        case "FirstOrDefault" when method.DeclaringType == typeof(Enumerable):
+                            return current.FirstOrDefault();
+                        case "Any" when method.DeclaringType == typeof(Enumerable):
+                            return current.Any();
+                        case "Where" when method.DeclaringType == typeof(Queryable):
+                        {
+                            var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                            return CallLinq(current, "Where", predicate).ToList();
+                        }
+                        case "OrderBy" when method.DeclaringType == typeof(Queryable):
+                        {
+                            var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                            return CallLinq(current, "OrderBy", keySelector).ToList();
+                        }
+                        case "OrderByDescending" when method.DeclaringType == typeof(Queryable):
+                        {
+                            var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                            return CallLinq(current, "OrderByDescending", keySelector).ToList();
+                        }
+                        case "Skip" when method.DeclaringType == typeof(Queryable):
+                        {
+                            var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
+                            return current.Skip(count).ToList();
+                        }
+                        case "Take" when method.DeclaringType == typeof(Queryable):
+                        {
+                            var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
+                            return current.Take(count).ToList();
+                        }
+                        case "Select" when method.DeclaringType == typeof(Queryable):
+                        {
+                            var selector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+                            return CallLinq(current, "Select", selector).ToList();
+                        }
                     }
-                    case "OrderBy" when method.DeclaringType == typeof(Queryable):
-                    {
-                        var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                        return CallLinq(current, "OrderBy", keySelector).ToList();
-                    }
-                    case "OrderByDescending" when method.DeclaringType == typeof(Queryable):
-                    {
-                        var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                        return CallLinq(current, "OrderByDescending", keySelector).ToList();
-                    }
-                    case "Skip" when method.DeclaringType == typeof(Queryable):
-                    {
-                        var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
-                        return current.Skip(count).ToList();
-                    }
-                    case "Take" when method.DeclaringType == typeof(Queryable):
-                    {
-                        var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
-                        return current.Take(count).ToList();
-                    }
-                    case "Select" when method.DeclaringType == typeof(Queryable):
-                    {
-                        var selector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                        return CallLinq(current, "Select", selector).ToList();
-                    }
+
+                    break;
                 }
-            }
-
-            if (expression is LambdaExpression lambda)
-            {
-                return lambda.Compile().DynamicInvoke();
-            }
-
-            if (expression is ConstantExpression constant)
-            {
-                return constant.Value;
+                case LambdaExpression lambda:
+                    return lambda.Compile().DynamicInvoke();
+                case ConstantExpression constant:
+                    return constant.Value;
             }
 
             throw new NotSupportedException($"Expression not supported: {expression.GetType().Name}");
@@ -211,27 +211,29 @@ public static class AsyncQueryableHelper
             var elementType = typeof(T);
             var queryableMethods = typeof(Queryable).GetMethods(BindingFlags.Public | BindingFlags.Static);
             var method = queryableMethods.First(m => m.Name == methodName && m.GetParameters().Length == 2);
-            
+
             MethodInfo genericMethod;
-            if (methodName is "Where")
+            switch (methodName)
             {
-                genericMethod = method.MakeGenericMethod(elementType);
+                case "Where":
+                    genericMethod = method.MakeGenericMethod(elementType);
+                    break;
+                case "OrderBy" or "OrderByDescending":
+                {
+                    var keyType = GetLambdaReturnType(lambda);
+                    genericMethod = method.MakeGenericMethod(elementType, keyType);
+                    break;
+                }
+                case "Select":
+                {
+                    var resultType = GetLambdaReturnType(lambda);
+                    genericMethod = method.MakeGenericMethod(elementType, resultType);
+                    break;
+                }
+                default:
+                    throw new NotSupportedException($"Method not supported: {methodName}");
             }
-            else if (methodName is "OrderBy" or "OrderByDescending")
-            {
-                var keyType = GetLambdaReturnType(lambda);
-                genericMethod = method.MakeGenericMethod(elementType, keyType);
-            }
-            else if (methodName is "Select")
-            {
-                var resultType = GetLambdaReturnType(lambda);
-                genericMethod = method.MakeGenericMethod(elementType, resultType);
-            }
-            else
-            {
-                throw new NotSupportedException($"Method not supported: {methodName}");
-            }
-            
+
             var queryableSource = source.AsQueryable();
             return (IEnumerable<T>)genericMethod.Invoke(null, [queryableSource, lambda])!;
         }
@@ -247,22 +249,18 @@ public static class AsyncQueryableHelper
             {
                 expression = unary.Operand;
             }
+
             return expression;
         }
 
         private static object? Evaluate(Expression expression)
         {
-            if (expression is LambdaExpression lambda)
+            return expression switch
             {
-                return lambda.Compile().DynamicInvoke();
-            }
-
-            if (expression is ConstantExpression constant)
-            {
-                return constant.Value;
-            }
-
-            throw new NotSupportedException($"Cannot evaluate expression: {expression.GetType().Name}");
+                LambdaExpression lambda => lambda.Compile().DynamicInvoke(),
+                ConstantExpression constant => constant.Value,
+                _ => throw new NotSupportedException($"Cannot evaluate expression: {expression.GetType().Name}")
+            };
         }
     }
 

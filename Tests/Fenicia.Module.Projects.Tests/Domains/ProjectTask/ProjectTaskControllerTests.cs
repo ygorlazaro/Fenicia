@@ -16,8 +16,8 @@ public class ProjectTaskControllerTests
 {
     private readonly ProjectTaskController _controller;
     private readonly Faker _faker;
-    private readonly Mock<IProjectTaskService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<IProjectTaskService> _mockService;
     private readonly Guid _testUserId;
 
     public ProjectTaskControllerTests()
@@ -25,7 +25,8 @@ public class ProjectTaskControllerTests
         _mockService = new Mock<IProjectTaskService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectTaskController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProjectTaskController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
     }
@@ -36,7 +37,19 @@ public class ProjectTaskControllerTests
         var wide = new WideEventContext();
         var tasks = new List<GetAllProjectTaskResponse>
         {
-            new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), _faker.Commerce.Categories(1).First(), null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, _testUserId, Guid.NewGuid())
+            new(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                _faker.Commerce.Categories(1).First(),
+                null,
+                nameof(EnumTaskPriority.Medium),
+                nameof(EnumTaskType.Task),
+                1,
+                null,
+                null,
+                _testUserId,
+                Guid.NewGuid())
         };
 
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectTaskQuery>(), It.IsAny<CancellationToken>()))
@@ -93,8 +106,31 @@ public class ProjectTaskControllerTests
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         var wide = new WideEventContext();
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "T", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, _testUserId);
-        var response = new AddProjectTaskResponse(command.Id, command.ProjectId, command.StatusId, command.Title, command.Description, command.Priority, command.Type, command.Order, command.EstimatePoints, command.DueDate, command.CreatedBy, Guid.NewGuid());
+        var command = new AddProjectTaskCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "T",
+            null,
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
+            1,
+            null,
+            null,
+            _testUserId);
+        var response = new AddProjectTaskResponse(
+            command.Id,
+            command.ProjectId,
+            command.StatusId,
+            command.Title,
+            command.Description,
+            command.Priority,
+            command.Type,
+            command.Order,
+            command.EstimatePoints,
+            command.DueDate,
+            command.CreatedBy,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -109,10 +145,36 @@ public class ProjectTaskControllerTests
     {
         var wide = new WideEventContext();
         var taskId = Guid.NewGuid();
-        var command = new UpdateProjectTaskCommand(taskId, Guid.NewGuid(), Guid.NewGuid(), "U", null, nameof(EnumTaskPriority.High), nameof(EnumTaskType.Bug), 2, null, null, _testUserId);
-        var response = new UpdateProjectTaskResponse(command.Id, command.ProjectId, command.StatusId, command.Title, command.Description, command.Priority, command.Type, command.Order, command.EstimatePoints, command.DueDate, command.CreatedBy, Guid.NewGuid());
+        var command = new UpdateProjectTaskCommand(
+            taskId,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "U",
+            null,
+            nameof(EnumTaskPriority.High),
+            nameof(EnumTaskType.Bug),
+            2,
+            null,
+            null,
+            _testUserId);
+        var response = new UpdateProjectTaskResponse(
+            command.Id,
+            command.ProjectId,
+            command.StatusId,
+            command.Title,
+            command.Description,
+            command.Priority,
+            command.Type,
+            command.Order,
+            command.EstimatePoints,
+            command.DueDate,
+            command.CreatedBy,
+            Guid.NewGuid());
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectTaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectTaskCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PatchAsync(command, taskId, wide, CancellationToken.None);
@@ -124,9 +186,23 @@ public class ProjectTaskControllerTests
     public async Task PatchAsync_WhenTaskDoesNotExist_ReturnsNotFound()
     {
         var wide = new WideEventContext();
-        var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "U", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, _testUserId);
+        var command = new UpdateProjectTaskCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "U",
+            null,
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
+            1,
+            null,
+            null,
+            _testUserId);
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectTaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectTaskCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectTaskResponse?)null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);

@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
@@ -9,8 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
+/// <inheritdoc />
 /// <summary>
-/// Gerencia operações de clientes.
+///     Gerencia operações de clientes.
 /// </summary>
 [Authorize]
 [ApiController]
@@ -20,7 +20,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 public class CustomerController(ICustomerService customerService) : ControllerBase
 {
     /// <summary>
-    /// Obtém uma lista paginada de clientes.
+    ///     Obtém uma lista paginada de clientes.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
@@ -39,17 +39,25 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customers = await customerService.GetAllAsync(new GetAllCustomerQuery(page, perPage, query, sort), cancellationToken);
+        var customers = await customerService.GetAllAsync(
+            new GetAllCustomerQuery(page, perPage, query, sort),
+            cancellationToken);
 
         return Ok(customers);
     }
 
     /// <summary>
-    /// Obtém um cliente pelo ID.
+    ///     Obtém um cliente pelo ID.
     /// </summary>
     /// <param name="id">ID do cliente</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -67,7 +75,10 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetCustomerByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetCustomerByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -77,7 +88,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     /// <summary>
-    /// Cria um novo cliente.
+    ///     Cria um novo cliente.
     /// </summary>
     /// <param name="command">Dados do cliente a ser criado</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -93,7 +104,10 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddCustomerResponse>> PostAsync([FromBody] AddCustomerCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddCustomerResponse>> PostAsync(
+        [FromBody] AddCustomerCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -103,7 +117,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     /// <summary>
-    /// Atualiza um cliente existente.
+    ///     Atualiza um cliente existente.
     /// </summary>
     /// <param name="command">Dados atualizados do cliente</param>
     /// <param name="id">ID do cliente</param>
@@ -122,11 +136,18 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateCustomerResponse>> PatchAsync([FromBody] UpdateCustomerCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateCustomerResponse>> PatchAsync(
+        [FromBody] UpdateCustomerCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customer = await customerService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
+        var customer = await customerService.UpdateAsync(
+            command with { Id = id },
+            ClaimReader.UserId(User),
+            cancellationToken);
 
         return customer switch
         {
@@ -136,7 +157,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     /// <summary>
-    /// Remove um cliente (soft delete).
+    ///     Remove um cliente (soft delete).
     /// </summary>
     /// <param name="id">ID do cliente</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -149,7 +170,10 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -159,7 +183,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     /// <summary>
-    /// Obtém insights agregados de clientes.
+    ///     Obtém insights agregados de clientes.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Período em dias para análise</param>
@@ -177,11 +201,18 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, [FromQuery] int riskThresholdDays = 60, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(
+        WideEventContext wide,
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        [FromQuery] int riskThresholdDays = 60,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var insights = await customerService.GetInsightsAsync(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), cancellationToken);
+        var insights = await customerService.GetInsightsAsync(
+            new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays),
+            cancellationToken);
 
         return Ok(insights);
     }

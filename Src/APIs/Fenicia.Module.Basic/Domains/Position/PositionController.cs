@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
@@ -17,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 public class PositionController(IPositionService positionService) : ControllerBase
 {
     /// <summary>
-    /// Obtém uma lista paginada de posições.
+    ///     Obtém uma lista paginada de posições.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
@@ -34,13 +33,21 @@ public class PositionController(IPositionService positionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await positionService.GetAllAsync(new GetAllPositionQuery(page, perPage, query, sort), cancellationToken);
+            var positions = await positionService.GetAllAsync(
+                new GetAllPositionQuery(page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(positions);
         }
@@ -51,7 +58,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
     }
 
     /// <summary>
-    /// Obtém uma posição pelo ID.
+    ///     Obtém uma posição pelo ID.
     /// </summary>
     /// <param name="id">ID da posição</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -67,7 +74,10 @@ public class PositionController(IPositionService positionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -84,7 +94,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
     }
 
     /// <summary>
-    /// Cria uma nova posição.
+    ///     Cria uma nova posição.
     /// </summary>
     /// <param name="command">Dados da posição a ser criada</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -100,7 +110,10 @@ public class PositionController(IPositionService positionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddPositionResponse>> PostAsync([FromBody] AddPositionCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddPositionResponse>> PostAsync(
+        [FromBody] AddPositionCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -118,7 +131,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
     }
 
     /// <summary>
-    /// Atualiza uma posição existente.
+    ///     Atualiza uma posição existente.
     /// </summary>
     /// <param name="command">Dados atualizados da posição</param>
     /// <param name="id">ID da posição</param>
@@ -137,7 +150,11 @@ public class PositionController(IPositionService positionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdatePositionResponse>> PatchAsync([FromBody] UpdatePositionCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdatePositionResponse>> PatchAsync(
+        [FromBody] UpdatePositionCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -155,7 +172,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
     }
 
     /// <summary>
-    /// Remove uma posição (soft delete).
+    ///     Remove uma posição (soft delete).
     /// </summary>
     /// <param name="id">ID da posição</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -169,7 +186,10 @@ public class PositionController(IPositionService positionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

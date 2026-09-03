@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("people", Schema = "basic")]
-public class PersonModel : BaseCompanyModel
+public sealed class PersonModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
     [MaxLength(14)]
     public string? Document
@@ -29,18 +29,18 @@ public class PersonModel : BaseCompanyModel
     }
 
     [DataType(DataType.Date)]
-    public DateTime? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; init; }
 
     [Column("photo_url")]
     [MaxLength(500)]
-    public string? PhotoUrl { get; set; }
+    public string? PhotoUrl { get; init; }
 
     [MaxLength(1000)]
-    public string? Notes { get; set; }
+    public string? Notes { get; init; }
 
-    public virtual ICollection<PersonAddressModel> PersonAddresses { get; set; } = [];
+    public ICollection<PersonAddressModel> PersonAddresses { get; init; } = [];
 
-    public virtual CustomerModel? Customer { get; set; }
+    public CustomerModel? Customer { get; init; }
 
-    public virtual EmployeeModel? Employee { get; set; }
+    public EmployeeModel? Employee { get; init; }
 }

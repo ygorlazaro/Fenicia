@@ -12,8 +12,27 @@ public static partial class CustomerMapper
     {
         var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
-
-        return new GetAllCustomerResponse(customer.Id, customer.PersonId, customer.Person.Name, customer.Person.Email, customer.Person.PhoneNumber, customer.Person.Document, address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
+        return new GetAllCustomerResponse(
+            customer.Id,
+            customer.PersonId,
+            customer.Person.Name,
+            customer.Person.Email,
+            customer.Person.PhoneNumber,
+            customer.Person.Document,
+            addressResponse);
     }
 
     public static GetCustomerByIdResponse MapToGetCustomerByIdResponse(this CustomerModel customer)
@@ -21,6 +40,19 @@ public static partial class CustomerMapper
         var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
         return new GetCustomerByIdResponse(
             customer.Id,
             customer.PersonId,
@@ -28,6 +60,6 @@ public static partial class CustomerMapper
             customer.Person.Email,
             customer.Person.PhoneNumber,
             customer.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+            addressResponse);
     }
 }

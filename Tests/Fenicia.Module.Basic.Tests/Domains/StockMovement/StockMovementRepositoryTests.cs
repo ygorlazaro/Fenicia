@@ -17,7 +17,8 @@ public class StockMovementRepositoryTests : IDisposable
 
     public StockMovementRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new StockMovementRepository(_db);
@@ -34,7 +35,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllStockMovements()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -49,7 +54,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenStockMovementExists_ReturnsStockMovement()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -75,7 +84,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task InsertAsync_WhenStockMovementIsValid_InsertsStockMovement()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
 
         // Act
         var result = await _repository.InsertAsync(stockMovement, CancellationToken.None);
@@ -83,14 +96,18 @@ public class StockMovementRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenStockMovementExists_UpdatesStockMovement()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -106,7 +123,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenStockMovementDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
 
         // Act
         var result = await _repository.UpdateAsync(stockMovement.Id, stockMovement, CancellationToken.None);
@@ -119,7 +140,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenStockMovementExists_SoftDeletesStockMovement()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -128,7 +153,8 @@ public class StockMovementRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedStockMovement = await _db.BasicStockMovements.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == stockMovement.Id);
+        var deletedStockMovement = await _db.BasicStockMovements.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(s => s.Id == stockMovement.Id);
         deletedStockMovement.Should().NotBeNull();
         deletedStockMovement.Deleted.Should().NotBeNull();
     }
@@ -137,7 +163,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -152,7 +182,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingStockMovements()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -167,7 +201,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task AnyAsync_WhenStockMovementExists_ReturnsTrue()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -182,7 +220,11 @@ public class StockMovementRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var stockMovement = new StockMovementModel { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(), Price = _faker.Random.Decimal(), Type = StockMovementType.In };
+        var stockMovement = new StockMovementModel
+        {
+            Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = _faker.Random.Double(),
+            Price = _faker.Random.Decimal(), Type = StockMovementType.In
+        };
         _db.BasicStockMovements.Add(stockMovement);
         await _db.SaveChangesAsync(CancellationToken.None);
 

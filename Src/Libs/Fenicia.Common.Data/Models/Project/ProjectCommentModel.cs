@@ -5,18 +5,18 @@ using Fenicia.Common.Data.Models.Auth;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("comments", Schema = "project")]
-public class ProjectCommentModel : BaseCompanyModel
+public sealed class ProjectCommentModel : BaseCompanyModel
 {
-    public Guid TaskId { get; set; } = Guid.Empty;
+    public Guid TaskId { get; init; } = Guid.Empty;
 
-    public Guid UserId { get; set; } = Guid.Empty;
+    public Guid UserId { get; init; } = Guid.Empty;
 
     [MaxLength(4096)]
     public string Content { get; set; } = string.Empty;
 
-    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
+    public ProjectTaskModel TaskModel { get; init; } = default!;
 
-    public virtual UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
-    public Guid AuthorId { get; set; }
+    public Guid AuthorId { get; init; }
 }

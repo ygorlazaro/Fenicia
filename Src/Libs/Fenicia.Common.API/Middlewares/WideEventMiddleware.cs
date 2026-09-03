@@ -1,5 +1,4 @@
 using System.Diagnostics;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -35,19 +34,21 @@ public class WideEventMiddleware(RequestDelegate next, ILogger<WideEventMiddlewa
             sw.Stop();
             wide.DurationMs = sw.ElapsedMilliseconds;
 
-            logger.LogInformation("wide_event{Args}", new
-            {
-                wide.TraceId,
-                wide.Path,
-                wide.Method,
-                wide.StatusCode,
-                wide.DurationMs,
-                wide.Success,
-                wide.UserId,
-                wide.Operation,
-                wide.ErrorCode,
-                wide.ErrorMessage
-            });
+            logger.LogInformation(
+                "wide_event{Args}",
+                new
+                {
+                    wide.TraceId,
+                    wide.Path,
+                    wide.Method,
+                    wide.StatusCode,
+                    wide.DurationMs,
+                    wide.Success,
+                    wide.UserId,
+                    wide.Operation,
+                    wide.ErrorCode,
+                    wide.ErrorMessage
+                });
         }
     }
 }

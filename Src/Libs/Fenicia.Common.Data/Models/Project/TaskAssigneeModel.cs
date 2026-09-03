@@ -5,17 +5,17 @@ using Fenicia.Common.Enums.Project;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("task_assignees", Schema = "project")]
-public class TaskAssigneeModel : BaseCompanyModel
+public sealed class TaskAssigneeModel : BaseCompanyModel
 {
-    public Guid TaskId { get; set; } = Guid.Empty;
+    public Guid TaskId { get; init; } = Guid.Empty;
 
-    public Guid UserId { get; set; } = Guid.Empty;
+    public Guid UserId { get; init; } = Guid.Empty;
 
-    public EnumAssigneeRole Role { get; set; } = EnumAssigneeRole.Owner;
+    public EnumAssigneeRole Role { get; init; } = EnumAssigneeRole.Owner;
 
-    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+    public DateTime AssignedAt { get; init; } = DateTime.UtcNow;
 
-    public virtual UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
-    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
+    public ProjectTaskModel TaskModel { get; init; } = default!;
 }

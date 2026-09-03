@@ -1,16 +1,15 @@
 using System.Net.Mime;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment;
 
+/// <inheritdoc />
 /// <summary>
-/// Manages project comment operations.
+///     Manages project comment operations.
 /// </summary>
 [Authorize]
 [ApiController]
@@ -20,7 +19,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectComment;
 public class ProjectCommentController(IProjectCommentService projectCommentService) : ControllerBase
 {
     /// <summary>
-    /// Gets a paginated list of project comments.
+    ///     Gets a paginated list of project comments.
     /// </summary>
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
@@ -38,17 +37,25 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectCommentResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComments = await projectCommentService.GetAllAsync(new GetAllProjectCommentQuery(page, perPage, query, sort), cancellationToken);
+        var projectComments = await projectCommentService.GetAllAsync(
+            new GetAllProjectCommentQuery(page, perPage, query, sort),
+            cancellationToken);
 
         return Ok(projectComments);
     }
 
     /// <summary>
-    /// Gets a project comment by ID.
+    ///     Gets a project comment by ID.
     /// </summary>
     /// <param name="id">Project comment ID</param>
     /// <param name="wide">Wide event context</param>
@@ -65,17 +72,22 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectCommentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetProjectCommentByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await projectCommentService.GetByIdAsync(new GetProjectCommentByIdQuery(id), cancellationToken);
+        var projectComment = await projectCommentService.GetByIdAsync(
+            new GetProjectCommentByIdQuery(id),
+            cancellationToken);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
 
     /// <summary>
-    /// Creates a new project comment.
+    ///     Creates a new project comment.
     /// </summary>
     /// <param name="command">Project comment data</param>
     /// <param name="wide">Wide event context</param>
@@ -94,7 +106,10 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectCommentResponse>> PostAsync([FromBody] AddProjectCommentCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddProjectCommentResponse>> PostAsync(
+        [FromBody] AddProjectCommentCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -104,7 +119,7 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     }
 
     /// <summary>
-    /// Updates an existing project comment.
+    ///     Updates an existing project comment.
     /// </summary>
     /// <param name="command">Updated project comment data</param>
     /// <param name="id">Project comment ID</param>
@@ -126,17 +141,24 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectCommentResponse>> PatchAsync([FromBody] UpdateProjectCommentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateProjectCommentResponse>> PatchAsync(
+        [FromBody] UpdateProjectCommentCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await projectCommentService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
+        var projectComment = await projectCommentService.UpdateAsync(
+            command with { Id = id },
+            ClaimReader.UserId(User),
+            cancellationToken);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
 
     /// <summary>
-    /// Deletes a project comment.
+    ///     Deletes a project comment.
     /// </summary>
     /// <param name="id">Project comment ID</param>
     /// <param name="wide">Wide event context</param>
@@ -151,7 +173,10 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 

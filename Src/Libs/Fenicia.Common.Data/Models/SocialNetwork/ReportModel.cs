@@ -9,27 +9,27 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class ReportModel : BaseModel
 {
     [Required]
-    public Guid ReporterId { get; set; }
+    public Guid ReporterId { get; init; }
 
     [Required]
-    public Guid TargetId { get; set; }
+    public Guid TargetId { get; init; }
 
     [Required]
     [MaxLength(32)]
-    public string TargetType { get; set; } = string.Empty;
+    public string TargetType { get; init; } = string.Empty;
 
     [Required]
     [MaxLength(64)]
-    public string Reason { get; set; } = string.Empty;
+    public string Reason { get; init; } = string.Empty;
 
     [MaxLength(512)]
-    public string? Description { get; set; }
+    public string? Description { get; init; }
 
     [Required]
     public EnumReportStatus Status { get; set; } = EnumReportStatus.Pending;
 
     [ForeignKey(nameof(ReporterId))]
-    public UserModel Reporter { get; set; } = null!;
+    public UserModel Reporter { get; init; } = default!;
 
-    public DateTime ReportDate { get; set; } = DateTime.UtcNow;
+    public DateTime ReportDate { get; init; } = DateTime.UtcNow;
 }

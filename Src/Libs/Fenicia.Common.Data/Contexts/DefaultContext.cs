@@ -1,7 +1,5 @@
 using System.Reflection;
-
 using Fenicia.Common.Data.Models.Basic;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,9 +44,11 @@ public partial class DefaultContext : DbContext
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
         ApplyFilters(modelBuilder);
 
-        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer).HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer)
+            .HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee).HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee)
+            .HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -74,6 +74,11 @@ public partial class DefaultContext : DbContext
                     model.Deleted = DateTime.UtcNow;
                     item.State = EntityState.Modified;
                     break;
+                case EntityState.Detached:
+                case EntityState.Unchanged:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -82,7 +87,8 @@ public partial class DefaultContext : DbContext
 
     private void ApplyCompanyId()
     {
-        var entries = ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added && e.Entity.CompanyId == Guid.Empty);
+        var entries = ChangeTracker.Entries<BaseCompanyModel>()
+            .Where(e => e.State == EntityState.Added && e.Entity.CompanyId == Guid.Empty);
 
         foreach (var entry in entries)
         {
@@ -100,15 +106,21 @@ public partial class DefaultContext : DbContext
         {
             if (typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
-                var method = typeof(DefaultContext).GetMethod(nameof(SetFilter), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(entityType.ClrType);
+                var method =
+                    typeof(DefaultContext).GetMethod(nameof(SetFilter), BindingFlags.NonPublic | BindingFlags.Instance)
+                        ?.MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this, [modelBuilder]);
+                method?.Invoke(this, [modelBuilder]);
             }
-            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) && !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
+            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) &&
+                     !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
-                var method = typeof(DefaultContext).GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(entityType.ClrType);
+                var method = typeof(DefaultContext).GetMethod(
+                        nameof(SetSoftDeleteFilter),
+                        BindingFlags.NonPublic | BindingFlags.Instance)
+                    ?.MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this, [modelBuilder]);
+                method?.Invoke(this, [modelBuilder]);
             }
         }
     }
@@ -116,7 +128,8 @@ public partial class DefaultContext : DbContext
     private void SetFilter<TEntity>(ModelBuilder modelBuilder)
         where TEntity : BaseCompanyModel
     {
-        modelBuilder.Entity<TEntity>().HasQueryFilter(e => (CurrentCompanyId == null || e.CompanyId == CurrentCompanyId) && e.Deleted == null);
+        modelBuilder.Entity<TEntity>().HasQueryFilter(e =>
+            (CurrentCompanyId == null || e.CompanyId == CurrentCompanyId) && e.Deleted == null);
     }
 
     private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder)

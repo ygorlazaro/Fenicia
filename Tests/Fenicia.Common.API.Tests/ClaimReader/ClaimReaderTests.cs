@@ -12,7 +12,7 @@ public class ClaimReaderTests
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Test"));
 
-        var result = Fenicia.Common.API.ClaimReader.UserId(principal);
+        var result = API.ClaimReader.UserId(principal);
 
         result.Should().Be(userId);
     }
@@ -23,7 +23,7 @@ public class ClaimReaderTests
         var claims = new List<Claim> { new("name", "Test") };
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Test"));
 
-        Action act = () => Fenicia.Common.API.ClaimReader.UserId(principal);
+        Action act = () => API.ClaimReader.UserId(principal);
 
         act.Should().Throw<UnauthorizedAccessException>();
     }
@@ -33,7 +33,7 @@ public class ClaimReaderTests
     {
         var principal = new ClaimsPrincipal(new ClaimsIdentity([]));
 
-        Action act = () => Fenicia.Common.API.ClaimReader.UserId(principal);
+        Action act = () => API.ClaimReader.UserId(principal);
 
         act.Should().Throw<UnauthorizedAccessException>();
     }

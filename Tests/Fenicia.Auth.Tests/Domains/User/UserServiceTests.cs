@@ -16,11 +16,11 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class UserServiceTests
 {
     private readonly Faker _faker;
-    private readonly Mock<IUserRepository> _mockUserRepository;
+    private readonly Mock<ICompanyService> _mockCompanyService;
     private readonly Mock<IRoleService> _mockRoleService;
     private readonly Mock<ISecurityService> _mockSecurityService;
+    private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IUserRoleService> _mockUserRoleService;
-    private readonly Mock<ICompanyService> _mockCompanyService;
     private readonly UserService _service;
 
     public UserServiceTests()
@@ -31,7 +31,12 @@ public class UserServiceTests
         _mockRoleService = new Mock<IRoleService>();
         _mockCompanyService = new Mock<ICompanyService>();
         _mockSecurityService = new Mock<ISecurityService>();
-        _service = new UserService(_mockUserRepository.Object, _mockUserRoleService.Object, _mockRoleService.Object, _mockCompanyService.Object, _mockSecurityService.Object);
+        _service = new UserService(
+            _mockUserRepository.Object,
+            _mockUserRoleService.Object,
+            _mockRoleService.Object,
+            _mockCompanyService.Object,
+            _mockSecurityService.Object);
     }
 
     [Fact]
@@ -69,12 +74,18 @@ public class UserServiceTests
         var cnpj = _faker.Company.Cnpj();
         var companyName = _faker.Company.CompanyName();
 
-        var command = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
+        var command = new CreateNewUserCommand(
+            email,
+            password,
+            name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        _mockCompanyService.Setup(s => s.GetByCnpjAsync(cnpj, It.IsAny<CancellationToken>())).ReturnsAsync((CompanyModel?)null);
+        _mockCompanyService.Setup(s => s.GetByCnpjAsync(cnpj, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CompanyModel?)null);
         _mockSecurityService.Setup(s => s.Hash(password)).Returns("hashed_password");
-        _mockRoleService.Setup(s => s.GetRoleAsync("Admin", It.IsAny<CancellationToken>())).ReturnsAsync(new RoleModel { Id = Guid.NewGuid(), Name = "Admin" });
+        _mockRoleService.Setup(s => s.GetRoleAsync("Admin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RoleModel { Id = Guid.NewGuid(), Name = "Admin" });
 
         var result = await _service.CreateNewAsync(command, CancellationToken.None);
 
@@ -84,9 +95,15 @@ public class UserServiceTests
         Assert.Equal(companyName, result.Company.Name);
         Assert.Equal(cnpj, result.Company.Cnpj);
 
-        _mockUserRepository.Verify(r => r.InsertAsync(It.IsAny<UserModel>(), It.IsAny<CancellationToken>()), Times.Once);
-        _mockCompanyService.Verify(s => s.InsertAsync(It.IsAny<CompanyModel>(), It.IsAny<CancellationToken>()), Times.Once);
-        _mockUserRoleService.Verify(s => s.InsertAsync(It.IsAny<UserRoleModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockUserRepository.Verify(
+            r => r.InsertAsync(It.IsAny<UserModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        _mockCompanyService.Verify(
+            s => s.InsertAsync(It.IsAny<CompanyModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        _mockUserRoleService.Verify(
+            s => s.InsertAsync(It.IsAny<UserRoleModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -98,11 +115,16 @@ public class UserServiceTests
         var cnpj = _faker.Company.Cnpj();
         var companyName = _faker.Company.CompanyName();
 
-        var command = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
+        var command = new CreateNewUserCommand(
+            email,
+            password,
+            name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.CreateNewAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.CreateNewAsync(command, CancellationToken.None));
         Assert.Equal("This email already exists", ex.Message);
     }
 
@@ -115,12 +137,18 @@ public class UserServiceTests
         var cnpj = _faker.Company.Cnpj();
         var companyName = _faker.Company.CompanyName();
 
-        var command = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
+        var command = new CreateNewUserCommand(
+            email,
+            password,
+            name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        _mockCompanyService.Setup(s => s.GetByCnpjAsync(cnpj, It.IsAny<CancellationToken>())).ReturnsAsync(new CompanyModel { Cnpj = cnpj, Name = "Existing Company" });
+        _mockCompanyService.Setup(s => s.GetByCnpjAsync(cnpj, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompanyModel { Cnpj = cnpj, Name = "Existing Company" });
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.CreateNewAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.CreateNewAsync(command, CancellationToken.None));
         Assert.Equal("Company with this CNPJ already exists.", ex.Message);
     }
 
@@ -143,7 +171,9 @@ public class UserServiceTests
         Assert.Equal(name, result.Name);
         Assert.NotEqual(Guid.Empty, result.Id);
 
-        _mockUserRepository.Verify(r => r.InsertAsync(It.IsAny<UserModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockUserRepository.Verify(
+            r => r.InsertAsync(It.IsAny<UserModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -157,7 +187,8 @@ public class UserServiceTests
 
         var request = new CreateUserCommand(email, password, "Another " + name);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.CreateAsync(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.CreateAsync(request, CancellationToken.None));
 
         Assert.Equal("This email already exists", exception.Message);
     }
@@ -178,7 +209,9 @@ public class UserServiceTests
 
         await _service.DeleteAsync(userId, CancellationToken.None);
 
-        _mockUserRepository.Verify(r => r.UpdateAsync(user.Id, It.Is<UserModel>(u => u.Deleted != null), It.IsAny<CancellationToken>()), Times.Once);
+        _mockUserRepository.Verify(
+            r => r.UpdateAsync(user.Id, It.Is<UserModel>(u => u.Deleted != null), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -186,9 +219,11 @@ public class UserServiceTests
     {
         var nonExistentUserId = Guid.NewGuid();
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(nonExistentUserId, It.IsAny<CancellationToken>())).ReturnsAsync((UserModel?)null);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(nonExistentUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserModel?)null);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.DeleteAsync(nonExistentUserId, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(() =>
+            _service.DeleteAsync(nonExistentUserId, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }
@@ -261,7 +296,12 @@ public class UserServiceTests
         Assert.Equal(user.Name, result.Name);
         Assert.Equal(user.Email, result.Email);
 
-        _mockUserRepository.Verify(r => r.UpdateAsync(user.Id, It.Is<UserModel>(u => u.Password == "new_hashed_password"), It.IsAny<CancellationToken>()), Times.Once);
+        _mockUserRepository.Verify(
+            r => r.UpdateAsync(
+                user.Id,
+                It.Is<UserModel>(u => u.Password == "new_hashed_password"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -271,9 +311,11 @@ public class UserServiceTests
         var newPassword = _faker.Internet.Password();
         var query = new UpdatePasswordCommand(nonExistentUserId, newPassword);
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(nonExistentUserId, It.IsAny<CancellationToken>())).ReturnsAsync((UserModel?)null);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(nonExistentUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserModel?)null);
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.UpdateHashedPasswordAsync(query, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.UpdateHashedPasswordAsync(query, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }

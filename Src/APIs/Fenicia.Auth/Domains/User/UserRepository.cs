@@ -8,13 +8,13 @@ namespace Fenicia.Auth.Domains.User;
 
 public class UserRepository(DefaultContext context) : Repository<UserModel>(context), IUserRepository
 {
-    public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        return DbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
-    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await DbSet.AnyAsync(u => u.Email == email, cancellationToken);
+        return DbSet.AnyAsync(u => u.Email == email, cancellationToken);
     }
 }

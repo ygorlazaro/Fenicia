@@ -14,7 +14,8 @@ public class EmployeeRepositoryTests : IDisposable
 
     public EmployeeRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new EmployeeRepository(_db);
@@ -30,7 +31,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllEmployees()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -45,7 +47,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsEmployee()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -71,7 +74,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task InsertAsync_WhenEmployeeIsValid_InsertsEmployee()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
 
         // Act
         var result = await _repository.InsertAsync(employee, CancellationToken.None);
@@ -79,14 +83,15 @@ public class EmployeeRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenEmployeeExists_UpdatesEmployee()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -102,7 +107,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenEmployeeDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
 
         // Act
         var result = await _repository.UpdateAsync(employee.Id, employee, CancellationToken.None);
@@ -115,7 +121,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenEmployeeExists_SoftDeletesEmployee()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -124,7 +131,8 @@ public class EmployeeRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedEmployee = await _db.BasicEmployees.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == employee.Id);
+        var deletedEmployee =
+            await _db.BasicEmployees.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == employee.Id);
         deletedEmployee.Should().NotBeNull();
         deletedEmployee.Deleted.Should().NotBeNull();
     }
@@ -133,7 +141,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -148,7 +157,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingEmployees()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -163,7 +173,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task AnyAsync_WhenEmployeeExists_ReturnsTrue()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -178,7 +189,8 @@ public class EmployeeRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        var employee = new EmployeeModel
+            { Id = Guid.NewGuid(), PositionId = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         _db.BasicEmployees.Add(employee);
         await _db.SaveChangesAsync(CancellationToken.None);
 

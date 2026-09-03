@@ -23,9 +23,9 @@ public class UserControllerTests
     private readonly UserController _controller;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId;
-    private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<IModuleService> _mockModuleService;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Guid _testUserId;
 
     public UserControllerTests()
     {
@@ -34,7 +34,8 @@ public class UserControllerTests
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
 
-        _controller = new UserController(_mockUserService.Object, _mockModuleService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new UserController(_mockUserService.Object, _mockModuleService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -72,7 +73,11 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
+                _testUserId,
+                otherUserId,
+                headers.CompanyId,
+                cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
@@ -90,7 +95,11 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
+                _testUserId,
+                otherUserId,
+                headers.CompanyId,
+                cancellationToken))
             .Returns(Task.CompletedTask);
         _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, otherUserId, cancellationToken))
             .ReturnsAsync([]);
@@ -111,7 +120,11 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
+                _testUserId,
+                otherUserId,
+                headers.CompanyId,
+                cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
@@ -238,7 +251,11 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
+                _testUserId,
+                otherUserId,
+                headers.CompanyId,
+                cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
         var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
@@ -256,7 +273,11 @@ public class UserControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, headers.CompanyId, cancellationToken))
+        _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
+                _testUserId,
+                otherUserId,
+                headers.CompanyId,
+                cancellationToken))
             .Returns(Task.CompletedTask);
         _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, otherUserId, cancellationToken))
             .ReturnsAsync([]);
@@ -315,7 +336,8 @@ public class UserControllerTests
     {
         var controllerType = typeof(UserController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -326,7 +348,8 @@ public class UserControllerTests
     {
         var controllerType = typeof(UserController);
 
-        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+        var apiControllerAttribute =
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         Assert.NotNull(apiControllerAttribute);
     }
@@ -422,7 +445,9 @@ public class UserControllerTests
 
         var query = new UpdateUserPasswordCommand(_testUserId, _faker.Internet.Password());
 
-        _mockUserService.Setup(s => s.UpdatePasswordAsync(It.IsAny<UpdateUserPasswordCommand>(), It.IsAny<CancellationToken>()))
+        _mockUserService.Setup(s => s.UpdatePasswordAsync(
+                It.IsAny<UpdateUserPasswordCommand>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException("User not found"));
 
         var result = await _controller.ChangePasswordAsync(nonExistentUserId, query, CancellationToken.None);

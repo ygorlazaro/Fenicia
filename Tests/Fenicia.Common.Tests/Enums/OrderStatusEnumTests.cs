@@ -39,7 +39,8 @@ public class OrderStatusEnumTests
     private static string GetEnumDescription(OrderStatus value)
     {
         var field = value.GetType().GetField(value.ToString())!;
-        var attribute = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
+        var attribute =
+            field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
         return attribute!.Description;
     }
 }

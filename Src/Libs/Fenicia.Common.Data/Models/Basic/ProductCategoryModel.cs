@@ -8,7 +8,7 @@ public class ProductCategoryModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
-    public List<ProductModel> Products { get; set; } = null!;
+    public List<ProductModel> Products { get; init; } = [];
 }

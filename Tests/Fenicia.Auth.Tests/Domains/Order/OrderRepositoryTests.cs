@@ -3,7 +3,6 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
@@ -15,7 +14,8 @@ public class OrderRepositoryTests : IDisposable
 
     public OrderRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new OrderRepository(_db);
@@ -197,7 +197,8 @@ public class OrderRepositoryTests : IDisposable
 
         Assert.Equal(1, result);
 
-        var deletedOrder = await _db.AuthOrders.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.Id == orderId, CancellationToken.None);
+        var deletedOrder = await _db.AuthOrders.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(o => o.Id == orderId, CancellationToken.None);
         Assert.NotNull(deletedOrder);
         Assert.NotNull(deletedOrder.Deleted);
     }

@@ -5,7 +5,9 @@ namespace Fenicia.Common.Localization;
 
 public static class ExceptionMessages
 {
-    private static readonly ResourceManager _resourceMapper = new("Fenicia.Common.Resources.ExceptionMessages", typeof(ExceptionMessages).Assembly);
+    private static readonly ResourceManager _resourceMapper = new(
+        "Fenicia.Common.Resources.ExceptionMessages",
+        typeof(ExceptionMessages).Assembly);
 
     public static string InvalidRequest => GetString("InvalidRequest");
 

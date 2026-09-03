@@ -8,19 +8,19 @@ public class AttachmentModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(512)]
-    public string Url { get; set; } = string.Empty;
+    public string Url { get; init; } = string.Empty;
 
     [Required]
     [MaxLength(64)]
-    public string FileType { get; set; } = string.Empty;
+    public string FileType { get; init; } = string.Empty;
 
-    public long FileSize { get; set; }
+    public long FileSize { get; init; }
 
     [Required]
-    public Guid CommentId { get; set; }
+    public Guid CommentId { get; init; }
 
     [ForeignKey(nameof(CommentId))]
-    public CommentModel Comment { get; set; } = null!;
+    public CommentModel Comment { get; init; } = default!;
 
-    public DateTime UploadDate { get; set; } = DateTime.UtcNow;
+    public DateTime UploadDate { get; init; } = DateTime.UtcNow;
 }

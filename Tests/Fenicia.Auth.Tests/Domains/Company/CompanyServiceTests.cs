@@ -319,7 +319,8 @@ public class CompanyServiceTests
     {
         var userId = Guid.NewGuid();
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GetCompaniesByUserAsync(userId, 1, 0, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.GetCompaniesByUserAsync(userId, 1, 0, CancellationToken.None));
     }
 
     [Fact]
@@ -357,7 +358,8 @@ public class CompanyServiceTests
         _mockRepository.Setup(r => r.AnyActiveAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CompanyModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
@@ -371,7 +373,8 @@ public class CompanyServiceTests
         _mockRepository.Setup(r => r.AnyActiveAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CompanyModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
@@ -395,7 +398,8 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.IsAdminAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -418,7 +422,8 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.IsAdminAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -443,7 +448,8 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.IsAdminAsync(userId, companyId2, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId2, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(() =>
+            _service.UpdateAsync(companyId2, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -522,7 +528,8 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.IsAdminAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -546,7 +553,8 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.IsAdminAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -570,7 +578,8 @@ public class CompanyServiceTests
         _mockUserRoleService.Setup(s => s.IsAdminAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -583,7 +592,8 @@ public class CompanyServiceTests
         _mockRepository.Setup(r => r.AnyActiveAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CompanyModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.UpdateAsync(companyId, userId, "Updated Name", CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 }

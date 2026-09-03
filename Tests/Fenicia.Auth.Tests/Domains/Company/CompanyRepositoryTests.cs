@@ -1,11 +1,9 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
-
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
@@ -18,7 +16,8 @@ public class CompanyRepositoryTests : IDisposable
 
     public CompanyRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new CompanyRepository(_db);

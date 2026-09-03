@@ -7,11 +7,20 @@ public interface IOrderRepository : IRepository<OrderModel>
 {
     Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
-    Task<List<Guid>> GetRecentOrderIdsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<List<Guid>> GetRecentOrderIdsAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 
     Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default);
 
@@ -51,5 +60,8 @@ public interface IOrderRepository : IRepository<OrderModel>
 
     Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default);
 
-    Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 }

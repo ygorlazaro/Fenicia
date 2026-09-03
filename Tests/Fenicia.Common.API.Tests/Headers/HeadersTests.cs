@@ -7,7 +7,7 @@ public class HeadersTests
     [Fact]
     public void Constructor_ShouldInitializeWithDefaultValues()
     {
-        var headers = new Fenicia.Common.API.Headers();
+        var headers = new API.Headers();
 
         headers.CompanyId.Should().Be(Guid.Empty);
     }
@@ -15,7 +15,7 @@ public class HeadersTests
     [Fact]
     public void CompanyId_ShouldBeSettable()
     {
-        var headers = new Fenicia.Common.API.Headers();
+        var headers = new API.Headers();
         var companyId = Guid.NewGuid();
 
         headers.CompanyId = companyId;

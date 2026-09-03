@@ -24,7 +24,12 @@ public class SupplierServiceTests : IDisposable
         var mockStockMovementService = new Mock<IStockMovementService>();
         var mockAddressService = new Mock<IAddressService>();
         var mockPersonAddressService = new Mock<IPersonAddressService>();
-        _service = new SupplierService(_mockRepository.Object, mockProductService.Object, mockStockMovementService.Object, mockAddressService.Object, mockPersonAddressService.Object);
+        _service = new SupplierService(
+            _mockRepository.Object,
+            mockProductService.Object,
+            mockStockMovementService.Object,
+            mockAddressService.Object,
+            mockPersonAddressService.Object);
         _faker = new Faker();
     }
 
@@ -68,7 +73,14 @@ public class SupplierServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesSupplier()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), "Test Supplier", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), "12345678901", null);
+        var command = new AddSupplierCommand(
+            Guid.NewGuid(),
+            "Test Supplier",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            "12345678901",
+            null);
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<SupplierModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((SupplierModel s, CancellationToken _) => s);
 
@@ -91,7 +103,14 @@ public class SupplierServiceTests : IDisposable
         _mockRepository.Setup(r => r.UpdateAsync(supplier.Id, It.IsAny<SupplierModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, SupplierModel s, CancellationToken _) => s);
 
-        var command = new UpdateSupplierCommand(supplier.Id, "Updated", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), "99999999999", null);
+        var command = new UpdateSupplierCommand(
+            supplier.Id,
+            "Updated",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            "99999999999",
+            null);
 
         // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
@@ -108,7 +127,14 @@ public class SupplierServiceTests : IDisposable
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((SupplierModel?)null);
 
-        var command = new UpdateSupplierCommand(Guid.NewGuid(), "Updated", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), "99999999999", null);
+        var command = new UpdateSupplierCommand(
+            Guid.NewGuid(),
+            "Updated",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            "99999999999",
+            null);
 
         // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);

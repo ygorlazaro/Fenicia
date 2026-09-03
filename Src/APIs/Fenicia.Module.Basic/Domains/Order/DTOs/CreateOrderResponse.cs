@@ -6,7 +6,7 @@ namespace Fenicia.Module.Basic.Domains.Order.DTOs;
 
 public record CreateOrderResponse(
     [Required] Guid Id,
-    [Required][MaxLength(200)] string OrderNumber,
+    [Required] [MaxLength(200)] string OrderNumber,
     [Required] Guid UserId,
     [Required] Guid CustomerId,
     decimal TotalAmount,

@@ -16,7 +16,8 @@ public class AddressRepositoryTests : IDisposable
 
     public AddressRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new AddressRepository(_db);
@@ -33,7 +34,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllAddresses()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -48,7 +53,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenAddressExists_ReturnsAddress()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -74,7 +83,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task InsertAsync_WhenAddressIsValid_InsertsAddress()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
 
         // Act
         var result = await _repository.InsertAsync(address, CancellationToken.None);
@@ -82,14 +95,18 @@ public class AddressRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenAddressExists_UpdatesAddress()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -105,7 +122,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenAddressDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
 
         // Act
         var result = await _repository.UpdateAsync(address.Id, address, CancellationToken.None);
@@ -118,7 +139,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenAddressExists_SoftDeletesAddress()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -136,7 +161,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -151,7 +180,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingAddresses()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -166,7 +199,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task AnyAsync_WhenAddressExists_ReturnsTrue()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -181,7 +218,11 @@ public class AddressRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var address = new AddressModel { Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(), ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City() };
+        var address = new AddressModel
+        {
+            Id = Guid.NewGuid(), Street = _faker.Address.StreetName(), Number = _faker.Address.BuildingNumber(),
+            ZipCode = "12345678", StateId = Guid.NewGuid(), City = _faker.Address.City()
+        };
         _db.AuthAddresses.Add(address);
         await _db.SaveChangesAsync(CancellationToken.None);
 

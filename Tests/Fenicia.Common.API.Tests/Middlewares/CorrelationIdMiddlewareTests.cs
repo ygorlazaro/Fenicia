@@ -8,7 +8,7 @@ public class CorrelationIdMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldGenerateCorrelationId_WhenHeaderMissing()
     {
-        var middleware = new CorrelationIdMiddleware(next: _ => Task.CompletedTask);
+        var middleware = new CorrelationIdMiddleware(_ => Task.CompletedTask);
         var context = new DefaultHttpContext();
 
         await middleware.InvokeAsync(context);
@@ -20,7 +20,7 @@ public class CorrelationIdMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldUseExistingCorrelationId_WhenHeaderExists()
     {
-        var middleware = new CorrelationIdMiddleware(next: _ => Task.CompletedTask);
+        var middleware = new CorrelationIdMiddleware(_ => Task.CompletedTask);
         var context = new DefaultHttpContext();
         const string existingId = "existing-correlation-id";
         context.Request.Headers["X-Correlation-ID"] = existingId;
@@ -33,7 +33,7 @@ public class CorrelationIdMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldSetResponseHeader()
     {
-        var middleware = new CorrelationIdMiddleware(next: _ => Task.CompletedTask);
+        var middleware = new CorrelationIdMiddleware(_ => Task.CompletedTask);
         var context = new DefaultHttpContext();
 
         await middleware.InvokeAsync(context);

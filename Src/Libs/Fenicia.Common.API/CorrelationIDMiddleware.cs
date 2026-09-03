@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http;
-
 using Serilog;
 using Serilog.Context;
 
@@ -29,7 +28,10 @@ public class CorrelationIdMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error processing request with correlation ID: {CorrelationId}", context.Request.Headers[correlationIdHeader]);
+            Log.Error(
+                ex,
+                "Error processing request with correlation ID: {CorrelationId}",
+                context.Request.Headers[correlationIdHeader]);
             throw;
         }
     }

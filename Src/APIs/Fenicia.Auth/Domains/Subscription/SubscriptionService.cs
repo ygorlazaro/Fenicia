@@ -8,9 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public class SubscriptionService(ISubscriptionRepository subscriptionRepository, IUserService userService, IUserRoleService userRoleService) : ISubscriptionService
+public class SubscriptionService(
+    ISubscriptionRepository subscriptionRepository,
+    IUserService userService,
+    IUserRoleService userRoleService) : ISubscriptionService
 {
-    public async Task<GetUserProfileResponse?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<GetUserProfileResponse?> GetUserProfileAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
         var user = await userService.GetByIdAsync(userId, cancellationToken);
 
@@ -31,7 +36,8 @@ public class SubscriptionService(ISubscriptionRepository subscriptionRepository,
             var modules = await subscriptionRepository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
             var moduleResponses = modules.Select(m => m.MapToUserModuleResponse()).ToList();
 
-            subscriptionResponses.Add(subscription.MapToUserSubscriptionResponse(subscription.Company.Name, moduleResponses));
+            subscriptionResponses.Add(
+                subscription.MapToUserSubscriptionResponse(subscription.Company.Name, moduleResponses));
         }
 
         return new GetUserProfileResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
@@ -44,17 +50,22 @@ public class SubscriptionService(ISubscriptionRepository subscriptionRepository,
         await subscriptionRepository.InsertAsync(subscription, cancellationToken);
     }
 
-    public async Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
+    public Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(
+        Guid subscriptionId,
+        CancellationToken cancellationToken = default)
     {
-        return await subscriptionRepository.GetSubscriptionModulesAsync(subscriptionId, cancellationToken);
+        return subscriptionRepository.GetSubscriptionModulesAsync(subscriptionId, cancellationToken);
     }
 
-    public async Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(Guid companyId, CancellationToken cancellationToken = default)
+    public Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
 
-        return await subscriptionRepository.Query()
-            .Where(s => s.CompanyId == companyId && s.Status == SubscriptionStatus.Active && now >= s.StartDate && now <= s.EndDate)
+        return subscriptionRepository.Query()
+            .Where(s => s.CompanyId == companyId && s.Status == SubscriptionStatus.Active && now >= s.StartDate &&
+                        now <= s.EndDate)
             .ToListAsync(cancellationToken);
     }
 }

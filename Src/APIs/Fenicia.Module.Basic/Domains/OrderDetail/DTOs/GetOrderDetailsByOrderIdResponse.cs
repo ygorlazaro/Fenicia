@@ -6,7 +6,7 @@ public record GetOrderDetailsByOrderIdResponse(
     [Required] Guid Id,
     [Required] Guid OrderId,
     [Required] Guid ProductId,
-    [Required][MaxLength(200)] string ProductName,
+    [Required] [MaxLength(200)] string ProductName,
     decimal Price,
     decimal DiscountAmount,
     double Quantity,

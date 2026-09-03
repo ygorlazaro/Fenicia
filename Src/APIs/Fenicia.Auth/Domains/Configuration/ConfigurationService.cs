@@ -6,17 +6,26 @@ namespace Fenicia.Auth.Domains.Configuration;
 
 public class ConfigurationService(IConfigurationRepository repository) : IConfigurationService
 {
-    public async Task<List<GetConfigurationResponse>> GetAllAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<List<GetConfigurationResponse>> GetAllAsync(
+        Guid userId,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, cancellationToken);
 
         return [.. configurations.OrderBy(c => c.ConfigType).Select(c => c.MapToGetConfigurationResponse())];
     }
 
-    public async Task UpsertAsync(UpsertConfigurationCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task UpsertAsync(
+        UpsertConfigurationCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var configuration = await repository.GetByUserCompanyAndTypeAsync(
-            command.UserId, companyId, command.ConfigType, cancellationToken);
+            command.UserId,
+            companyId,
+            command.ConfigType,
+            cancellationToken);
 
         if (configuration is null)
         {

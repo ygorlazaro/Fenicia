@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public static partial class UserRoleMapper
+public static class UserRoleMapper
 {
     public static UserRoleResponse MapToUserRoleResponse(this UserRoleModel userRole)
     {

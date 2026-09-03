@@ -14,8 +14,8 @@ namespace Fenicia.Module.Basic.Tests.Domains.Product;
 public class ProductServiceTests : IDisposable
 {
     private readonly Faker _faker;
-    private readonly Mock<IProductRepository> _mockRepository;
     private readonly Mock<IProductCategoryService> _mockCategoryService;
+    private readonly Mock<IProductRepository> _mockRepository;
     private readonly ProductService _service;
 
     public ProductServiceTests()
@@ -24,7 +24,11 @@ public class ProductServiceTests : IDisposable
         _mockCategoryService = new Mock<IProductCategoryService>();
         var mockOrderDetailService = new Mock<IOrderDetailService>();
         var mockStockMovementService = new Mock<IStockMovementService>();
-        _service = new ProductService(_mockRepository.Object, _mockCategoryService.Object, mockOrderDetailService.Object, mockStockMovementService.Object);
+        _service = new ProductService(
+            _mockRepository.Object,
+            _mockCategoryService.Object,
+            mockOrderDetailService.Object,
+            mockStockMovementService.Object);
         _faker = new Faker();
     }
 
@@ -38,8 +42,13 @@ public class ProductServiceTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Cat" };
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = "Sup" } };
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = "Test", SalesPrice = 100m, CategoryId = category.Id, Category = category, SupplierId = supplier.Id, Supplier = supplier };
+        var supplier = new SupplierModel
+            { Id = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = "Sup" } };
+        var product = new ProductModel
+        {
+            Id = Guid.NewGuid(), Name = "Test", SalesPrice = 100m, CategoryId = category.Id, Category = category,
+            SupplierId = supplier.Id, Supplier = supplier
+        };
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(product.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
 
@@ -69,12 +78,17 @@ public class ProductServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesProduct()
     {
         // Arrange
-        var command = new AddProductCommand(Id: Guid.NewGuid(), Name: _faker.Commerce.ProductName(), SalesPrice: _faker.Random.Decimal());
+        var command = new AddProductCommand(
+            Guid.NewGuid(),
+            _faker.Commerce.ProductName(),
+            SalesPrice: _faker.Random.Decimal());
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProductModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProductModel p, CancellationToken _) => p);
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(command.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, CancellationToken _) => null);
-        _mockCategoryService.Setup(c => c.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
+        _mockCategoryService.Setup(c => c.GetByIdAsync(
+                It.IsAny<GetProductCategoryByIdQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetProductCategoryByIdResponse?)null);
 
         // Act
@@ -90,17 +104,20 @@ public class ProductServiceTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Cat" };
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = "Old", SalesPrice = 100m, CategoryId = category.Id, Category = category };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = "Old", SalesPrice = 100m, CategoryId = category.Id, Category = category };
         _mockRepository.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
         _mockRepository.Setup(r => r.UpdateAsync(product.Id, It.IsAny<ProductModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, ProductModel p, CancellationToken _) => p);
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(product.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
-        _mockCategoryService.Setup(c => c.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
+        _mockCategoryService.Setup(c => c.GetByIdAsync(
+                It.IsAny<GetProductCategoryByIdQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetProductCategoryByIdResponse(category.Id, category.Name));
 
-        var command = new UpdateProductCommand(product.Id, Name: "Updated", SalesPrice: 200m);
+        var command = new UpdateProductCommand(product.Id, "Updated", SalesPrice: 200m);
 
         // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
@@ -117,7 +134,7 @@ public class ProductServiceTests : IDisposable
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProductModel?)null);
 
-        var command = new UpdateProductCommand(Id: Guid.NewGuid(), Name: "Updated", SalesPrice: 200m);
+        var command = new UpdateProductCommand(Guid.NewGuid(), "Updated", SalesPrice: 200m);
 
         // Act
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);

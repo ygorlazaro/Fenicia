@@ -12,8 +12,8 @@ namespace Fenicia.Auth.Tests.Domains.Subscription;
 public class SubscriptionServiceTests
 {
     private readonly Mock<ISubscriptionRepository> _mockRepository;
-    private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<IUserRoleService> _mockUserRoleService;
+    private readonly Mock<IUserService> _mockUserService;
     private readonly SubscriptionService _service;
 
     public SubscriptionServiceTests()
@@ -21,7 +21,10 @@ public class SubscriptionServiceTests
         _mockRepository = new Mock<ISubscriptionRepository>();
         _mockUserService = new Mock<IUserService>();
         _mockUserRoleService = new Mock<IUserRoleService>();
-        _service = new SubscriptionService(_mockRepository.Object, _mockUserService.Object, _mockUserRoleService.Object);
+        _service = new SubscriptionService(
+            _mockRepository.Object,
+            _mockUserService.Object,
+            _mockUserRoleService.Object);
     }
 
     [Fact]

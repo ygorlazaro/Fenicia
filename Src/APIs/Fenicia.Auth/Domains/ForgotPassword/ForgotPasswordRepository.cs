@@ -6,12 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordRepository(DefaultContext context) : Repository<ForgotPasswordModel>(context), IForgotPasswordRepository
+public class ForgotPasswordRepository(DefaultContext context)
+    : Repository<ForgotPasswordModel>(context), IForgotPasswordRepository
 {
-    public async Task<ForgotPasswordModel?> GetActiveByUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken = default)
+    public Task<ForgotPasswordModel?> GetActiveByUserIdAndCodeAsync(
+        Guid userId,
+        string code,
+        CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        return await DbSet.FirstOrDefaultAsync(
+        return DbSet.FirstOrDefaultAsync(
             fp => fp.UserId == userId && fp.Code == code && fp.IsActive && fp.ExpirationDate >= now,
             cancellationToken);
     }

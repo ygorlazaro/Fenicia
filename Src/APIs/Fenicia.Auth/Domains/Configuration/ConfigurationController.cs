@@ -2,7 +2,6 @@ using System.Net.Mime;
 using Fenicia.Auth.Domains.Configuration.DTOs;
 using Fenicia.Auth.Domains.Configuration.Interfaces;
 using Fenicia.Common.API;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,7 @@ namespace Fenicia.Auth.Domains.Configuration;
 public class ConfigurationController(IConfigurationService configurationService) : ControllerBase
 {
     /// <summary>
-    /// Obtém todas as configurações de um usuário para uma empresa.
+    ///     Obtém todas as configurações de um usuário para uma empresa.
     /// </summary>
     /// <param name="companyId">ID da empresa</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -31,7 +30,10 @@ public class ConfigurationController(IConfigurationService configurationService)
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid companyId, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync(
+        [FromQuery] Guid companyId,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -49,7 +51,7 @@ public class ConfigurationController(IConfigurationService configurationService)
     }
 
     /// <summary>
-    /// Cria ou atualiza uma configuração (upsert) para o usuário autenticado.
+    ///     Cria ou atualiza uma configuração (upsert) para o usuário autenticado.
     /// </summary>
     /// <param name="id">ID da configuração (usado para atualização)</param>
     /// <param name="companyId">ID da empresa</param>
@@ -70,7 +72,12 @@ public class ConfigurationController(IConfigurationService configurationService)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromQuery] Guid companyId, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> PatchAsync(
+        [FromRoute] Guid id,
+        [FromQuery] Guid companyId,
+        [FromBody] UpsertConfigurationCommand request,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

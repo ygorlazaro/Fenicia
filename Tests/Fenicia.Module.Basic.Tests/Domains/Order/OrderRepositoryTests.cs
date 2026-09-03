@@ -17,7 +17,8 @@ public class OrderRepositoryTests : IDisposable
 
     public OrderRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new OrderRepository(_db);
@@ -34,7 +35,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllOrders()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -49,7 +55,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenOrderExists_ReturnsOrder()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -75,7 +86,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task InsertAsync_WhenOrderIsValid_InsertsOrder()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
 
         // Act
         var result = await _repository.InsertAsync(order, CancellationToken.None);
@@ -83,14 +99,19 @@ public class OrderRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenOrderExists_UpdatesOrder()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -106,7 +127,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenOrderDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
 
         // Act
         var result = await _repository.UpdateAsync(order.Id, order, CancellationToken.None);
@@ -119,7 +145,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenOrderExists_SoftDeletesOrder()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -137,7 +168,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -152,7 +188,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingOrders()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -167,7 +208,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task AnyAsync_WhenOrderExists_ReturnsTrue()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -182,7 +228,12 @@ public class OrderRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var order = new OrderModel { Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(), CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow, Status = OrderStatus.Pending };
+        var order = new OrderModel
+        {
+            Id = Guid.NewGuid(), OrderNumber = _faker.Random.AlphaNumeric(10), UserId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(), TotalAmount = _faker.Random.Decimal(), SaleDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
         _db.BasicOrders.Add(order);
         await _db.SaveChangesAsync(CancellationToken.None);
 

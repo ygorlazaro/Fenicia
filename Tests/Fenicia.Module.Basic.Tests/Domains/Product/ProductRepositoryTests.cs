@@ -16,7 +16,8 @@ public class ProductRepositoryTests : IDisposable
 
     public ProductRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new ProductRepository(_db);
@@ -33,7 +34,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllProducts()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -48,7 +50,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenProductExists_ReturnsProduct()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -74,7 +77,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task InsertAsync_WhenProductIsValid_InsertsProduct()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
 
         // Act
         var result = await _repository.InsertAsync(product, CancellationToken.None);
@@ -82,14 +86,15 @@ public class ProductRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductExists_UpdatesProduct()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -106,7 +111,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenProductDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
 
         // Act
         var result = await _repository.UpdateAsync(product.Id, product, CancellationToken.None);
@@ -119,7 +125,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenProductExists_SoftDeletesProduct()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -137,7 +144,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -152,7 +160,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingProducts()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -167,7 +176,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task AnyAsync_WhenProductExists_ReturnsTrue()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -182,7 +192,8 @@ public class ProductRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var product = new ProductModel { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
+        var product = new ProductModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName(), SalesPrice = _faker.Random.Decimal() };
         _db.BasicProducts.Add(product);
         await _db.SaveChangesAsync(CancellationToken.None);
 

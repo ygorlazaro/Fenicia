@@ -27,7 +27,13 @@ public class DataSourceServiceTests : IDisposable
         var mockProductCategoryService = new Mock<IProductCategoryService>();
         _mockProductService = new Mock<IProductService>();
         _mockSupplierService = new Mock<ISupplierService>();
-        _service = new DataSourceService(_mockCustomerService.Object, _mockEmployeeService.Object, mockPositionService.Object, mockProductCategoryService.Object, _mockProductService.Object, _mockSupplierService.Object);
+        _service = new DataSourceService(
+            _mockCustomerService.Object,
+            _mockEmployeeService.Object,
+            mockPositionService.Object,
+            mockProductCategoryService.Object,
+            _mockProductService.Object,
+            _mockSupplierService.Object);
     }
 
     public void Dispose()

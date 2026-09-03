@@ -7,23 +7,26 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 
 public class CustomerRepository(DefaultContext context) : Repository<CustomerModel>(context), ICustomerRepository
 {
-    public async Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet
-                .Include(c => c.Person)
+        return DbSet
+            .Include(c => c.Person)
             .Include(c => c.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
+            .ThenInclude(pa => pa.Address)
+            .ThenInclude(a => a.State)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default)
     {
         return await DbSet
-                .Include(c => c.Person)
+            .Include(c => c.Person)
             .Include(c => c.Person.PersonAddresses)
-                .ThenInclude(pa => pa.Address)
-                    .ThenInclude(a => a.State)
+            .ThenInclude(pa => pa.Address)
+            .ThenInclude(a => a.State)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(cancellationToken);

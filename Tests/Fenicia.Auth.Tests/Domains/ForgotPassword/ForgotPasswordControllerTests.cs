@@ -1,3 +1,4 @@
+using System.Net;
 using System.Security.Claims;
 using Bogus;
 using Fenicia.Auth.Domains.ForgotPassword;
@@ -28,12 +29,13 @@ public class ForgotPasswordControllerTests
         {
             Connection =
             {
-                RemoteIpAddress = System.Net.IPAddress.Parse("127.0.0.1")
+                RemoteIpAddress = IPAddress.Parse("127.0.0.1")
             }
         };
         httpContext.Request.Headers.UserAgent = "TestAgent";
 
-        _controller = new ForgotPasswordController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
+        _controller = new ForgotPasswordController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
         SetupUserClaims(testUserId);
     }
@@ -135,7 +137,10 @@ public class ForgotPasswordControllerTests
         _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ItemNotExistsException("User with given email does not exist."));
 
-        var command = new ResetPasswordCommand(_faker.Internet.Email(), _faker.Internet.Password(), _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+        var command = new ResetPasswordCommand(
+            _faker.Internet.Email(),
+            _faker.Internet.Password(),
+            _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
         var result = await _controller.PatchAsync(command, wide, cancellationToken);
 
@@ -166,7 +171,8 @@ public class ForgotPasswordControllerTests
     {
         var controllerType = typeof(ForgotPasswordController);
 
-        var allowAnonymousAttribute = controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+        var allowAnonymousAttribute =
+            controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         Assert.NotNull(allowAnonymousAttribute);
     }
@@ -176,7 +182,8 @@ public class ForgotPasswordControllerTests
     {
         var controllerType = typeof(ForgotPasswordController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -187,7 +194,8 @@ public class ForgotPasswordControllerTests
     {
         var controllerType = typeof(ForgotPasswordController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());

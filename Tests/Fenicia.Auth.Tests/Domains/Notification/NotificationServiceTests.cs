@@ -23,14 +23,20 @@ public class NotificationServiceTests
         var command = new AddNotificationCommand("Test", "Desc", DateTime.UtcNow, "img.png");
         var companyId = Guid.NewGuid();
 
-        var createdNotification = new NotificationModel { Id = Guid.NewGuid(), Title = "Test", Description = "Desc", Date = DateTime.UtcNow, ImageUrl = "img.png", Read = false, CompanyId = companyId };
+        var createdNotification = new NotificationModel
+        {
+            Id = Guid.NewGuid(), Title = "Test", Description = "Desc", Date = DateTime.UtcNow, ImageUrl = "img.png",
+            Read = false, CompanyId = companyId
+        };
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdNotification);
 
         var result = await _service.AddAsync(command, companyId, CancellationToken.None);
 
         Assert.NotNull(result);
-        _mockRepository.Verify(r => r.InsertAsync(It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -39,7 +45,9 @@ public class NotificationServiceTests
         var notifications = new List<NotificationModel>();
         for (var i = 0; i < 5; i++)
         {
-            notifications.Add(new NotificationModel { Id = Guid.NewGuid(), Title = $"N{i}", Description = "D", Date = DateTime.UtcNow });
+            notifications.Add(
+                new NotificationModel
+                    { Id = Guid.NewGuid(), Title = $"N{i}", Description = "D", Date = DateTime.UtcNow });
         }
 
         _mockRepository.Setup(r => r.Query()).Returns(notifications.AsAsyncQueryable());
@@ -79,7 +87,8 @@ public class NotificationServiceTests
     public async Task DeleteAsync_ShouldCompleteWithoutError()
     {
         var id = Guid.NewGuid();
-        var notification = new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Deleted = null };
+        var notification = new NotificationModel
+            { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Deleted = null };
 
         _mockRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(notification);
@@ -89,7 +98,9 @@ public class NotificationServiceTests
         var result = await _service.DeleteAsync(id, Guid.NewGuid(), CancellationToken.None);
 
         Assert.True(result);
-        _mockRepository.Verify(r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -106,34 +117,46 @@ public class NotificationServiceTests
     public async Task UpdateAsync_ShouldUpdateNotification_WhenExists()
     {
         var id = Guid.NewGuid();
-        var existing = new NotificationModel { Id = id, Title = "Old", Description = "D", Date = DateTime.UtcNow, Read = false };
+        var existing = new NotificationModel
+            { Id = id, Title = "Old", Description = "D", Date = DateTime.UtcNow, Read = false };
 
         _mockRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
         _mockRepository.Setup(r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "New", "D2", null, "img2.png", true), Guid.NewGuid(), CancellationToken.None);
+        var result = await _service.UpdateAsync(
+            new UpdateNotificationCommand(id, "New", "D2", null, "img2.png", true),
+            Guid.NewGuid(),
+            CancellationToken.None);
 
         Assert.NotNull(result);
-        _mockRepository.Verify(r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
     public async Task UpdateAsync_ShouldMarkAsRead_WhenIsReadIsTrue()
     {
         var id = Guid.NewGuid();
-        var existing = new NotificationModel { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false };
+        var existing = new NotificationModel
+            { Id = id, Title = "T", Description = "D", Date = DateTime.UtcNow, Read = false };
 
         _mockRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
         _mockRepository.Setup(r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(id, "T", "D", null, null, true), Guid.NewGuid(), CancellationToken.None);
+        var result = await _service.UpdateAsync(
+            new UpdateNotificationCommand(id, "T", "D", null, null, true),
+            Guid.NewGuid(),
+            CancellationToken.None);
 
         Assert.NotNull(result);
-        _mockRepository.Verify(r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(id, It.IsAny<NotificationModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -142,7 +165,10 @@ public class NotificationServiceTests
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((NotificationModel?)null);
 
-        var result = await _service.UpdateAsync(new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null), Guid.NewGuid(), CancellationToken.None);
+        var result = await _service.UpdateAsync(
+            new UpdateNotificationCommand(Guid.NewGuid(), "T", "D", null, null, null),
+            Guid.NewGuid(),
+            CancellationToken.None);
         Assert.Null(result);
     }
 }

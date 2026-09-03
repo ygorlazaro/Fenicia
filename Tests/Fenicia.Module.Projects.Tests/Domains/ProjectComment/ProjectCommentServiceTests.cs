@@ -26,7 +26,11 @@ public class ProjectCommentServiceTests
     {
         var comments = new List<ProjectCommentModel>
         {
-            new() { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = _faker.Lorem.Sentence(), CompanyId = Guid.NewGuid() }
+            new()
+            {
+                Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(),
+                Content = _faker.Lorem.Sentence(), CompanyId = Guid.NewGuid()
+            }
         };
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectCommentModel>(comments));
@@ -40,7 +44,11 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenCommentExists_ReturnsComment()
     {
-        var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "hello", CompanyId = Guid.NewGuid() };
+        var comment = new ProjectCommentModel
+        {
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "hello",
+            CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.GetByIdAsync(comment.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(comment);
@@ -58,7 +66,9 @@ public class ProjectCommentServiceTests
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectCommentModel?)null);
 
-        var result = await _service.GetByIdAsync(new GetProjectCommentByIdQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await _service.GetByIdAsync(
+            new GetProjectCommentByIdQuery(Guid.NewGuid()),
+            CancellationToken.None);
 
         result.Should().BeNull();
     }
@@ -82,11 +92,18 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task UpdateAsync_WhenCommentExists_ReturnsUpdatedComment()
     {
-        var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "updated", CompanyId = Guid.NewGuid() };
+        var comment = new ProjectCommentModel
+        {
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "updated",
+            CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.GetByIdAsync(comment.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(comment);
-        _mockRepository.Setup(r => r.UpdateAsync(comment.Id, It.IsAny<ProjectCommentModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                comment.Id,
+                It.IsAny<ProjectCommentModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(comment);
 
         var command = new UpdateProjectCommentCommand(comment.Id, "updated");

@@ -30,7 +30,7 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
     private Guid? GetJwtCompanyId()
     {
         var claim = http.HttpContext?.User?.FindFirst("company_id")
-                        ?? http.HttpContext?.User?.FindFirst("companyId");
+                    ?? http.HttpContext?.User?.FindFirst("companyId");
 
         return claim is not null && Guid.TryParse(claim.Value, out var claimCompanyId) ? claimCompanyId : null;
     }
@@ -38,8 +38,10 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
     private Guid? GetHeaderCompanyId()
     {
         var headerValue = http.HttpContext?.Request?.Headers["CompanyId"].FirstOrDefault()
-                           ?? http.HttpContext?.Request?.Headers["companyId"].FirstOrDefault();
+                          ?? http.HttpContext?.Request?.Headers["companyId"].FirstOrDefault();
 
-        return !string.IsNullOrEmpty(headerValue) && Guid.TryParse(headerValue, out var headerCompanyId) ? headerCompanyId : null;
+        return !string.IsNullOrEmpty(headerValue) && Guid.TryParse(headerValue, out var headerCompanyId)
+            ? headerCompanyId
+            : null;
     }
 }

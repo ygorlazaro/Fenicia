@@ -60,11 +60,18 @@ public class PersonServiceTests : IDisposable
     public async Task UpdateAsync_WhenPersonDoesNotExist_ReturnsNull()
     {
         // Arrange
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<PersonModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<PersonModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((PersonModel?)null);
 
         // Act
-        var result = await _service.UpdateAsync(Guid.NewGuid(), new PersonModel(), Guid.NewGuid(), CancellationToken.None);
+        var result = await _service.UpdateAsync(
+            Guid.NewGuid(),
+            new PersonModel(),
+            Guid.NewGuid(),
+            CancellationToken.None);
 
         // Assert
         result.Should().BeNull();

@@ -2,21 +2,36 @@ using Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 
-public class ProfileService(IProfileRepository profileRepository)
+public sealed class ProfileService(IProfileRepository profileRepository)
 {
     public ProfileService()
         : this(null!)
     {
     }
 
-    public virtual async Task<GetProfileByIdResponse?> GetByIdAsync(GetProfileByIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<GetProfileByIdResponse?> GetByIdAsync(
+        GetProfileByIdQuery query,
+        CancellationToken cancellationToken = default)
     {
         var profile = await profileRepository.GetByIdAsync(query.Id, cancellationToken);
 
-        return profile is null ? null : new GetProfileByIdResponse(profile.Id, profile.UserId, profile.Bio, profile.ImageUrl, profile.Website, profile.Location, profile.Phone, profile.BirthDate);
+        return profile is null
+            ? null
+            : new GetProfileByIdResponse(
+                profile.Id,
+                profile.UserId,
+                profile.Bio,
+                profile.ImageUrl,
+                profile.Website,
+                profile.Location,
+                profile.Phone,
+                profile.BirthDate);
     }
 
-    public virtual async Task<UpdateProfileResponse?> UpdateAsync(UpdateProfileCommand command, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<UpdateProfileResponse?> UpdateAsync(
+        UpdateProfileCommand command,
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
         var profile = await profileRepository.GetByIdAsync(command.Id, cancellationToken);
 
@@ -34,6 +49,14 @@ public class ProfileService(IProfileRepository profileRepository)
 
         await profileRepository.UpdateAsync(command.Id, profile, cancellationToken);
 
-        return new UpdateProfileResponse(profile.Id, profile.UserId, profile.Bio, profile.ImageUrl, profile.Website, profile.Location, profile.Phone, profile.BirthDate);
+        return new UpdateProfileResponse(
+            profile.Id,
+            profile.UserId,
+            profile.Bio,
+            profile.ImageUrl,
+            profile.Website,
+            profile.Location,
+            profile.Phone,
+            profile.BirthDate);
     }
 }

@@ -4,4 +4,4 @@ namespace Fenicia.Module.SocialNetwork.Domains.Report.DTOs;
 
 public record UpdateReportStatusCommand(
     [Required] Guid Id,
-    [Required][MaxLength(200)] string Status);
+    [Required] [MaxLength(200)] string Status);

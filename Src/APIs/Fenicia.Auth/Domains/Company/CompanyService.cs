@@ -8,9 +8,13 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyService(ICompanyRepository repository, IUserRoleService userRoleService) : ICompanyService
+public sealed class CompanyService(ICompanyRepository repository, IUserRoleService userRoleService) : ICompanyService
 {
-    public virtual async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken = default)
+    public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(
+        Guid userId,
+        int page,
+        int perPage,
+        CancellationToken cancellationToken = default)
     {
         if (perPage <= 0)
         {
@@ -26,9 +30,14 @@ public class CompanyService(ICompanyRepository repository, IUserRoleService user
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
     }
 
-    public virtual async Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(
+        Guid companyId,
+        Guid userId,
+        string name,
+        CancellationToken cancellationToken = default)
     {
-        var company = await repository.AnyActiveAsync(companyId, cancellationToken) ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
+        var company = await repository.AnyActiveAsync(companyId, cancellationToken) ??
+                      throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
         var isAdmin = await userRoleService.IsAdminAsync(userId, companyId, cancellationToken);
 
         if (!isAdmin)
@@ -40,18 +49,18 @@ public class CompanyService(ICompanyRepository repository, IUserRoleService user
         await repository.UpdateAsync(company.Id, company, cancellationToken);
     }
 
-    public async Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken = default)
+    public Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByIdAsync(companyId, cancellationToken);
+        return repository.GetByIdAsync(companyId, cancellationToken);
     }
 
-    public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
+    public Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByCnpjAsync(cnpj, cancellationToken);
+        return repository.GetByCnpjAsync(cnpj, cancellationToken);
     }
 
-    public async Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default)
+    public Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default)
     {
-        return await repository.InsertAsync(company, cancellationToken);
+        return repository.InsertAsync(company, cancellationToken);
     }
 }

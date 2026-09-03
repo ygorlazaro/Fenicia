@@ -16,8 +16,8 @@ public class ProjectControllerTests
 {
     private readonly ProjectController _controller;
     private readonly Faker _faker;
-    private readonly Mock<IProjectService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<IProjectService> _mockService;
     private readonly Guid _testUserId;
 
     public ProjectControllerTests()
@@ -25,7 +25,8 @@ public class ProjectControllerTests
         _mockService = new Mock<IProjectService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProjectController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
     }
@@ -36,7 +37,15 @@ public class ProjectControllerTests
         var wide = new WideEventContext();
         var projects = new List<GetAllProjectResponse>
         {
-            new(Guid.NewGuid(), _faker.Commerce.Categories(1).First(), _faker.Commerce.ProductDescription(), nameof(EnumProjectStatus.Active), DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), _testUserId, Guid.NewGuid())
+            new(
+                Guid.NewGuid(),
+                _faker.Commerce.Categories(1).First(),
+                _faker.Commerce.ProductDescription(),
+                nameof(EnumProjectStatus.Active),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMonths(1),
+                _testUserId,
+                Guid.NewGuid())
         };
 
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectQuery>(), It.IsAny<CancellationToken>()))
@@ -116,7 +125,15 @@ public class ProjectControllerTests
             DateTime.UtcNow,
             DateTime.UtcNow.AddMonths(1),
             _testUserId);
-        var response = new AddProjectResponse(command.Id, command.Title, command.Description, nameof(EnumProjectStatus.Draft), command.StartDate, command.EndDate, _testUserId, Guid.NewGuid());
+        var response = new AddProjectResponse(
+            command.Id,
+            command.Title,
+            command.Description,
+            nameof(EnumProjectStatus.Draft),
+            command.StartDate,
+            command.EndDate,
+            _testUserId,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -141,9 +158,20 @@ public class ProjectControllerTests
             DateTime.UtcNow,
             DateTime.UtcNow.AddMonths(1),
             _testUserId);
-        var response = new UpdateProjectResponse(command.Id, command.Title, command.Description, command.Status, command.StartDate, command.EndDate, command.Owner, Guid.NewGuid());
+        var response = new UpdateProjectResponse(
+            command.Id,
+            command.Title,
+            command.Description,
+            command.Status,
+            command.StartDate,
+            command.EndDate,
+            command.Owner,
+            Guid.NewGuid());
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PatchAsync(command, projectId, wide, CancellationToken.None);
@@ -166,7 +194,10 @@ public class ProjectControllerTests
             DateTime.UtcNow.AddMonths(1),
             _testUserId);
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectResponse?)null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);

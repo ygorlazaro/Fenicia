@@ -1,7 +1,6 @@
 using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.DTOs;
 using Fenicia.Common.Exceptions;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
@@ -22,7 +21,8 @@ public class RefreshTokenServiceTests
     {
         var userId = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var result = await _service.GenerateAsync(userId, CancellationToken.None);
 
@@ -36,7 +36,8 @@ public class RefreshTokenServiceTests
     {
         var userId = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var token1 = await _service.GenerateAsync(userId, CancellationToken.None);
         var token2 = await _service.GenerateAsync(userId, CancellationToken.None);
@@ -53,7 +54,8 @@ public class RefreshTokenServiceTests
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var token1 = await _service.GenerateAsync(userId1, CancellationToken.None);
         var token2 = await _service.GenerateAsync(userId2, CancellationToken.None);
@@ -67,7 +69,8 @@ public class RefreshTokenServiceTests
         var userId = Guid.NewGuid();
         var tokens = new List<string>();
 
-        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _mockRepository.Setup(r => r.AddAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         for (var i = 0; i < 10; i++)
         {
@@ -100,11 +103,14 @@ public class RefreshTokenServiceTests
     {
         const string refreshToken = "non_existent_token";
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         await _service.InvalidateAsync(refreshToken, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -112,7 +118,8 @@ public class RefreshTokenServiceTests
     {
         string? refreshToken = null;
 
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.InvalidateAsync(refreshToken!, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _service.InvalidateAsync(refreshToken!, CancellationToken.None));
     }
 
     [Fact]
@@ -120,11 +127,14 @@ public class RefreshTokenServiceTests
     {
         var refreshToken = string.Empty;
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         await _service.InvalidateAsync(refreshToken, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -182,11 +192,14 @@ public class RefreshTokenServiceTests
     {
         const string refreshToken = "malformed_token";
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         await _service.InvalidateAsync(refreshToken, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -229,11 +242,14 @@ public class RefreshTokenServiceTests
     {
         const string refreshToken = "bad_json_token";
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         await _service.InvalidateAsync(refreshToken, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(It.IsAny<RefreshTokenModel>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -257,7 +273,8 @@ public class RefreshTokenServiceTests
         var userId = Guid.NewGuid();
         const string refreshToken = "non_existent_token";
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         var result = await _service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
@@ -316,7 +333,8 @@ public class RefreshTokenServiceTests
         var userId = Guid.NewGuid();
         var query = new ValidateTokenQuery(userId, null!);
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.ValidateAsync(query.UserId, query.RefreshToken, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.ValidateAsync(query.UserId, query.RefreshToken, CancellationToken.None));
     }
 
     [Fact]
@@ -355,7 +373,8 @@ public class RefreshTokenServiceTests
         var userId = Guid.NewGuid();
         const string refreshToken = "malformed_token";
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         var result = await _service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 
@@ -368,7 +387,8 @@ public class RefreshTokenServiceTests
         var userId = Guid.NewGuid();
         var query = new ValidateTokenQuery(userId, "   ");
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.ValidateAsync(query.UserId, query.RefreshToken, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.ValidateAsync(query.UserId, query.RefreshToken, CancellationToken.None));
     }
 
     [Fact]
@@ -377,7 +397,8 @@ public class RefreshTokenServiceTests
         var userId = Guid.NewGuid();
         const string refreshToken = "null_deserialize_token";
 
-        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshTokenModel?)null);
+        _mockRepository.Setup(r => r.GetAsync(refreshToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshTokenModel?)null);
 
         var result = await _service.ValidateAsync(userId, refreshToken, CancellationToken.None);
 

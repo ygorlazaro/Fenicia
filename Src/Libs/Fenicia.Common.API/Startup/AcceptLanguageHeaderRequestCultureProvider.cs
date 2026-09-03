@@ -1,18 +1,14 @@
 using System.Globalization;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 
 namespace Fenicia.Common.API.Startup;
 
-public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
+internal sealed class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
 {
     public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext)
     {
-        if (httpContext is null)
-        {
-            throw new ArgumentNullException(nameof(httpContext));
-        }
+        ArgumentNullException.ThrowIfNull(httpContext);
 
         var acceptLanguage = httpContext.Request.Headers.AcceptLanguage.FirstOrDefault();
 
@@ -24,17 +20,11 @@ public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
         var languages = acceptLanguage.Split(',');
         var requestedCultures = new List<CultureInfo>();
 
-        foreach (var language in languages)
+        foreach (var cultureName in languages.Select(language => language.Split(';').FirstOrDefault()?.Trim()).Where(cultureName => !string.IsNullOrEmpty(cultureName)))
         {
-            var cultureName = language.Split(';').FirstOrDefault()?.Trim();
-            if (string.IsNullOrEmpty(cultureName))
-            {
-                continue;
-            }
-
             try
             {
-                requestedCultures.Add(new CultureInfo(cultureName));
+                requestedCultures.Add(new CultureInfo(cultureName ?? throw new InvalidOperationException()));
             }
             catch (CultureNotFoundException)
             {

@@ -38,7 +38,11 @@ public class RegisterServiceTests
         Assert.Equal(expectedUser.Email, result.Email);
         Assert.Equal(expectedUser.Company.Name, result.Company.Name);
 
-        mockUserService.Verify(s => s.CreateNewAsync(It.Is<CreateNewUserCommand>(c => c.Email == command.Email), It.IsAny<CancellationToken>()), Times.Once);
+        mockUserService.Verify(
+            s => s.CreateNewAsync(
+                It.Is<CreateNewUserCommand>(c => c.Email == command.Email),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

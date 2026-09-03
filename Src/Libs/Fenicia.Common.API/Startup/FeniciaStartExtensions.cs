@@ -1,19 +1,18 @@
 using AspNetCoreRateLimit;
-
 using Fenicia.Common.API.Middlewares;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-
 using Scalar.AspNetCore;
-
 using Serilog;
 
 namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaStartExtensions
 {
-    public static void Start(this WebApplicationBuilder builder, string? segment = null, string? moduleRequirement = null)
+    public static void Start(
+        this WebApplicationBuilder builder,
+        string? segment = null,
+        string? moduleRequirement = null)
     {
         var app = builder.Build();
 
@@ -27,7 +26,10 @@ public static class FeniciaStartExtensions
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(o => { o.Authentication = new ScalarAuthenticationOptions { PreferredSecuritySchemes = ["Bearer "] }; });
+            app.MapScalarApiReference(o =>
+            {
+                o.Authentication = new ScalarAuthenticationOptions { PreferredSecuritySchemes = ["Bearer "] };
+            });
         }
 
         app.UseHttpsRedirection();
@@ -44,7 +46,9 @@ public static class FeniciaStartExtensions
 
         if (segment != null && moduleRequirement != null)
         {
-            app.UseWhen(o => o.Request.Path.StartsWithSegments(segment), appBuilder => appBuilder.UseModuleRequirement(moduleRequirement));
+            app.UseWhen(
+                o => o.Request.Path.StartsWithSegments(segment),
+                appBuilder => appBuilder.UseModuleRequirement(moduleRequirement));
         }
 
         app.UseIpRateLimiting();

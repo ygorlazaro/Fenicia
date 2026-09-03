@@ -19,7 +19,8 @@ public class PositionServiceTests : IDisposable
 
     public PositionServiceTests()
     {
-        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         _mockRepository = new Mock<IPositionRepository>();
         _service = new PositionService(_mockRepository.Object);
         _faker = new Faker();
@@ -145,5 +146,8 @@ public class PositionServiceTests : IDisposable
         _mockRepository.Verify(r => r.DeleteAsync(positionId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private DefaultContext NewDb() => new(_dbOptions, new TestCompanyContext());
+    private DefaultContext NewDb()
+    {
+        return new DefaultContext(_dbOptions, new TestCompanyContext());
+    }
 }

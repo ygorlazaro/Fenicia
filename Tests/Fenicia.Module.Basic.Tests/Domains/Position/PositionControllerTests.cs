@@ -1,8 +1,6 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Position;
@@ -25,7 +23,8 @@ public class PositionControllerTests : IDisposable
     {
         _mockService = new Mock<IPositionService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new PositionController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new PositionController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
@@ -72,7 +71,10 @@ public class PositionControllerTests : IDisposable
         var command = new UpdatePositionCommand(Guid.NewGuid(), "Updated Name");
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdatePositionCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.Is<UpdatePositionCommand>(c => c.Id != It.IsAny<Guid>()),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdatePositionResponse?)null);
 
         // Act
@@ -128,7 +130,9 @@ public class PositionControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetPositionByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByIdAsync(
+                It.Is<GetPositionByIdQuery>(q => q.Id != It.IsAny<Guid>()),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetPositionByIdResponse?)null);
 
         // Act
@@ -144,15 +148,27 @@ public class PositionControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllPositionResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetPositionByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken _) => new GetPositionByIdResponse(q.Id, "Test Position"));
+            .ReturnsAsync((GetPositionByIdQuery q, CancellationToken _) =>
+                new GetPositionByIdResponse(q.Id, "Test Position"));
 
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddPositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddPositionCommand cmd, Guid _, CancellationToken _) => new AddPositionResponse(cmd.Id, cmd.Name));
+        _mockService.Setup(s => s.AddAsync(
+                It.IsAny<AddPositionCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddPositionCommand cmd, Guid _, CancellationToken _) =>
+                new AddPositionResponse(cmd.Id, cmd.Name));
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdatePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdatePositionCommand cmd, Guid _, CancellationToken _) => new UpdatePositionResponse(cmd.Id, cmd.Name));
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdatePositionCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdatePositionCommand cmd, Guid _, CancellationToken _) =>
+                new UpdatePositionResponse(cmd.Id, cmd.Name));
 
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeletePositionCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.DeleteAsync(
+                It.IsAny<DeletePositionCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
     }
 

@@ -1,16 +1,15 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.SocialNetwork.Domains.Block.DTOs;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Block;
 
+/// <inheritdoc />
 /// <summary>
-/// Gerencia operações de bloqueio de usuários.
+///     Gerencia operações de bloqueio de usuários.
 /// </summary>
 [Authorize]
 [ApiController]
@@ -20,7 +19,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Block;
 public class BlockController(BlockService blockService) : ControllerBase
 {
     /// <summary>
-    /// Bloqueia um usuário.
+    ///     Bloqueia um usuário.
     /// </summary>
     /// <param name="command">Dados do usuário a ser bloqueado</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -38,7 +37,10 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddBlockResponse>> BlockAsync([FromBody] BlockCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddBlockResponse>> BlockAsync(
+        [FromBody] BlockCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -48,7 +50,7 @@ public class BlockController(BlockService blockService) : ControllerBase
     }
 
     /// <summary>
-    /// Desbloqueia um usuário.
+    ///     Desbloqueia um usuário.
     /// </summary>
     /// <param name="blockedUserId">ID do usuário a ser desbloqueado</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -64,7 +66,10 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> UnblockAsync([FromRoute] Guid blockedUserId, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> UnblockAsync(
+        [FromRoute] Guid blockedUserId,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -74,7 +79,7 @@ public class BlockController(BlockService blockService) : ControllerBase
     }
 
     /// <summary>
-    /// Obtém a lista de usuários bloqueados por um usuário.
+    ///     Obtém a lista de usuários bloqueados por um usuário.
     /// </summary>
     /// <param name="userId">ID do usuário</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -94,17 +99,27 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetBlockedResponse>>>> GetBlockedAsync([FromRoute] Guid userId, WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetBlockedResponse>>>> GetBlockedAsync(
+        [FromRoute] Guid userId,
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await blockService.GetBlockedAsync(new GetBlockedQuery(page, perPage, query, sort), userId, cancellationToken);
+        var result = await blockService.GetBlockedAsync(
+            new GetBlockedQuery(page, perPage, query, sort),
+            userId,
+            cancellationToken);
 
         return Ok(result);
     }
 
     /// <summary>
-    /// Verifica se um usuário está bloqueando outro.
+    ///     Verifica se um usuário está bloqueando outro.
     /// </summary>
     /// <param name="userId">ID do usuário</param>
     /// <param name="blockedUserId">ID do usuário bloqueado</param>
@@ -121,7 +136,11 @@ public class BlockController(BlockService blockService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<bool>> IsBlockedAsync([FromRoute] Guid userId, [FromRoute] Guid blockedUserId, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<bool>> IsBlockedAsync(
+        [FromRoute] Guid userId,
+        [FromRoute] Guid blockedUserId,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 

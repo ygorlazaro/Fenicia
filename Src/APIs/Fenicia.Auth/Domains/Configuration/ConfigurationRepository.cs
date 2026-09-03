@@ -7,22 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationRepository(DefaultContext context) : Repository<ConfigurationModel>(context), IConfigurationRepository
+public class ConfigurationRepository(DefaultContext context)
+    : Repository<ConfigurationModel>(context), IConfigurationRepository
 {
-    public async Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(Guid userId, Guid companyId, ConfigType configType, CancellationToken cancellationToken = default)
+    public Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(
+        Guid userId,
+        Guid companyId,
+        ConfigType configType,
+        CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(
+        return DbSet.FirstOrDefaultAsync(
             c => c.UserId == userId && c.CompanyId == companyId && c.ConfigType == configType,
             cancellationToken);
     }
 
-    public async Task<List<ConfigurationModel>> GetByUserAndCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
+    public Task<List<ConfigurationModel>> GetByUserAndCompanyAsync(
+        Guid userId,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var query = from c in DbSet
-                    where c.UserId == userId && c.CompanyId == companyId
-                    orderby c.ConfigType
-                    select c;
+            where c.UserId == userId && c.CompanyId == companyId
+            orderby c.ConfigType
+            select c;
 
-        return await query.ToListAsync(cancellationToken);
+        return query.ToListAsync(cancellationToken);
     }
 }

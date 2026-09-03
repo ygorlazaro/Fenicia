@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Fenicia.Common.Localization;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,9 @@ namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaControllersExtensions
 {
-    public static WebApplicationBuilder AddFeniciaControllers(this WebApplicationBuilder builder, Assembly? assembly = null)
+    public static WebApplicationBuilder AddFeniciaControllers(
+        this WebApplicationBuilder builder,
+        Assembly? assembly = null)
     {
         builder.Services.Configure<ApiBehaviorOptions>(o =>
         {
@@ -30,19 +31,21 @@ public static class FeniciaControllersExtensions
             };
         });
 
-        var targetAssembly = (assembly ?? Assembly.GetEntryAssembly()) ?? throw new InvalidOperationException("Could not determine the assembly to load controllers from.");
+        var targetAssembly = (assembly ?? Assembly.GetEntryAssembly()) ??
+                             throw new InvalidOperationException(
+                                 "Could not determine the assembly to load controllers from.");
 
         builder.Services.AddControllers().ConfigureApplicationPartManager(manager =>
-    {
-        manager.ApplicationParts.Clear();
-        manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
-    }).AddJsonOptions(o =>
-{
-    o.JsonSerializerOptions.AllowTrailingCommas = false;
-    o.JsonSerializerOptions.MaxDepth = 0;
-    o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
+        {
+            manager.ApplicationParts.Clear();
+            manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
+        }).AddJsonOptions(o =>
+        {
+            o.JsonSerializerOptions.AllowTrailingCommas = false;
+            o.JsonSerializerOptions.MaxDepth = 0;
+            o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 
         builder.Services.AddOpenApi();
 

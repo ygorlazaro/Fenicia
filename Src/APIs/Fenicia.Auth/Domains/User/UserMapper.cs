@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.User;
 
-public static partial class UserMapper
+public static class UserMapper
 {
     public static UserListItemResponse MapToUserListItemResponse(this UserModel user)
     {
