@@ -19,3 +19,4 @@ Src/Front/.env.production
 Src/Front/.env.local
 Docker/.env
 Fenicia.Module.Basic.Tests/TestResults/*
+.idea/
