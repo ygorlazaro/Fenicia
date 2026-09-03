@@ -10,6 +10,7 @@
                 <a href="/" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Home</a>
                 @if (isLoggedIn)
                 {
+                    <a href="/profile" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">My Profile (@userName)</a>
                     <a href="/dashboard" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Dashboard</a>
                     <a href="/logout" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Logout</a>
                 }
@@ -33,6 +34,7 @@
 
 @code {
     private bool isLoggedIn = false;
+    private string userName = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -40,7 +42,40 @@
         {
             var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
             isLoggedIn = !string.IsNullOrEmpty(token);
+            if (isLoggedIn)
+            {
+                userName = GetUserNameFromToken(token);
+            }
             StateHasChanged();
         }
+    }
+
+    private static string GetUserNameFromToken(string token)
+    {
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length < 2) return string.Empty;
+
+            var payload = parts[1];
+            payload = payload.Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+
+            var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload));
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("unique_name", out var nameElement))
+            {
+                return nameElement.GetString() ?? string.Empty;
+            }
+        }
+        catch
+        {
+            // ignore decode errors
+        }
+        return string.Empty;
     }
 }
