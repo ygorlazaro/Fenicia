@@ -1,0 +1,27 @@
+@page "/profile"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>My Profile - Fenicia</PageTitle>
+
+<div style="max-width: 600px; margin: 50px auto; padding: 0 20px;">
+    <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
+        <h3 style="margin-top: 0;">My Profile</h3>
+        <p>Profile page coming soon.</p>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+            if (string.IsNullOrEmpty(token))
+            {
+                NavigationManager.NavigateTo("/login");
+            }
+        }
+    }
+}
