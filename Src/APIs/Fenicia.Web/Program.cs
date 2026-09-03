@@ -5,6 +5,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRadzenComponents();
 
+builder.Services.AddHttpClient("FeniciaAuth", client =>
+{
+    var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5000";
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
