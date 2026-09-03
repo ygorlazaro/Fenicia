@@ -155,14 +155,17 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        Console.WriteLine($"[ProductCategories] OnAfterRenderAsync firstRender={firstRender}");
         if (firstRender)
         {
             try
             {
                 isLoggedIn = await AuthState.IsAuthenticatedAsync();
+                Console.WriteLine($"[ProductCategories] isLoggedIn={isLoggedIn}");
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[ProductCategories] AuthState error: {ex.Message}");
                 isLoggedIn = false;
             }
 
