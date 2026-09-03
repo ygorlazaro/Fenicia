@@ -11,7 +11,7 @@
         if (firstRender)
         {
             await JSRuntime.InvokeVoidAsync("cookieHelper.remove", "auth_token");
-            NavigationManager.NavigateTo("/", forceLoad: true);
+            NavigationManager.NavigateTo("/");
         }
     }
 }
