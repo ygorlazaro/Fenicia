@@ -1,9 +1,9 @@
 using Fenicia.Web.Components;
-using MudBlazor.Services;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMudServices();
+builder.Services.AddRadzenComponents();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
