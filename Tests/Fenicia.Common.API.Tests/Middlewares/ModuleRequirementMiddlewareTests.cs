@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Fenicia.Common.API.Middlewares;
 using Microsoft.AspNetCore.Http;
+using Moq;
 
 namespace Fenicia.Common.API.Tests.Middlewares;
 
@@ -10,7 +11,8 @@ public class ModuleRequirementMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldReturn403_WhenModuleClaimMissing()
     {
-        var middleware = new ModuleRequirementMiddleware(next: null!, "Auth");
+        var requestDelegate = new Mock<RequestDelegate>();
+        var middleware = new ModuleRequirementMiddleware(requestDelegate.Object, "Auth");
         var context = new DefaultHttpContext
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([]))
@@ -24,12 +26,15 @@ public class ModuleRequirementMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldReturn403_WhenModuleNotInClaim()
     {
-        var middleware = new ModuleRequirementMiddleware(next: null!, "Auth");
+        var requestDelegate = new Mock<RequestDelegate>();
+        var middleware = new ModuleRequirementMiddleware(requestDelegate.Object, "Auth");
         var context = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("module", "[\"Basic\"]")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("module", "[\"Basic\"]")
+                ]))
         };
 
         await middleware.InvokeAsync(context);
@@ -42,17 +47,19 @@ public class ModuleRequirementMiddlewareTests
     {
         var called = false;
         var middleware = new ModuleRequirementMiddleware(
-            next: _ =>
+            _ =>
             {
                 called = true;
                 return Task.CompletedTask;
             },
-            requiredModule: "Auth");
+            "Auth");
         var context = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("module", "[\"Auth\",\"Basic\"]")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("module", "[\"Auth\",\"Basic\"]")
+                ]))
         };
 
         await middleware.InvokeAsync(context);
@@ -64,12 +71,15 @@ public class ModuleRequirementMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldReturn403_WhenClaimFormatIsInvalid()
     {
-        var middleware = new ModuleRequirementMiddleware(next: null!, "Auth");
+        var requestDelegate = new Mock<RequestDelegate>();
+        var middleware = new ModuleRequirementMiddleware(requestDelegate.Object, "Auth");
         var context = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("module", "invalid-json")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("module", "invalid-json")
+                ]))
         };
 
         await middleware.InvokeAsync(context);

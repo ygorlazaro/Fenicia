@@ -11,28 +11,28 @@ public class UserModel : BaseModel
     [EmailAddress]
     [StringLength(48)]
     [Column("email")]
-    public string Email { get; set; } = null!;
+    public string Email { get; set; } = string.Empty;
 
     [Required]
     [StringLength(200)]
     [Column("password")]
-    public string Password { get; set; } = null!;
+    public string Password { get; set; } = string.Empty;
 
     [Required]
     [StringLength(48)]
     [Column("name")]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
-    public List<UserRoleModel> UsersRoles { get; set; } = [];
+    public List<UserRoleModel> UsersRoles { get; init; } = [];
 
-    public List<OrderModel> Orders { get; set; } = [];
+    public List<OrderModel> Orders { get; init; } = [];
 
-    public List<ProjectTaskModel> Tasks { get; set; } = [];
+    public List<ProjectTaskModel> Tasks { get; init; } = [];
 
     [MaxLength(48)]
-    public string? ImageUrl { get; set; }
+    public string? ImageUrl { get; init; }
 
-    public List<TaskAssigneeModel> TaskAssignees { get; set; } = [];
+    public List<TaskAssigneeModel> TaskAssignees { get; init; } = [];
 
-    public List<ConfigurationModel> Configurations { get; set; } = [];
+    public List<ConfigurationModel> Configurations { get; init; } = [];
 }

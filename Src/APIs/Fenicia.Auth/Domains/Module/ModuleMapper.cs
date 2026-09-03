@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public static partial class ModuleMapper
+public static class ModuleMapper
 {
     public static GetModuleResponse MapToGetModuleResponse(this ModuleModel module)
     {

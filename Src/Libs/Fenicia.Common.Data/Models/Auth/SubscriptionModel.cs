@@ -1,32 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("subscriptions", Schema = "auth")]
-public class SubscriptionModel : BaseModel
+public sealed class SubscriptionModel : BaseModel
 {
     [Required]
-    public SubscriptionStatus Status { get; set; }
+    public SubscriptionStatus Status { get; init; }
 
     [Required]
-    public Guid CompanyId { get; set; }
+    public Guid CompanyId { get; init; }
 
     [Required]
-    public DateTime StartDate { get; set; }
+    public DateTime StartDate { get; init; }
 
     [Required]
-    public DateTime EndDate { get; set; }
+    public DateTime EndDate { get; init; }
 
-    public Guid? OrderId { get; set; }
+    public Guid? OrderId { get; init; }
 
     [ForeignKey(nameof(CompanyId))]
-    public CompanyModel Company { get; set; } = null!;
+    public CompanyModel Company { get; init; } = default!;
 
     [ForeignKey(nameof(OrderId))]
-    public virtual OrderModel? Order { get; set; }
+    public OrderModel? Order { get; init; }
 
-    public virtual ICollection<SubscriptionCreditModel> Credits { get; set; } = null!;
+    public ICollection<SubscriptionCreditModel> Credits { get; set; } = [];
 }

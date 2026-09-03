@@ -14,19 +14,21 @@ public class RoleService(IRoleRepository repository) : IRoleService
         return role?.MapToGetAdminRoleResponse();
     }
 
-    public async Task<RoleModel?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)
+    public Task<RoleModel?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByNameAsync(roleName, cancellationToken);
+        return repository.GetByNameAsync(roleName, cancellationToken);
     }
 
-    public async Task<RoleModel?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
+    public Task<RoleModel?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
-        return await repository.GetByIdAsync(roleId, cancellationToken);
+        return repository.GetByIdAsync(roleId, cancellationToken);
     }
 
-    public async Task<List<RoleModel>> GetRolesByIdsAsync(List<Guid> roleIds, CancellationToken cancellationToken = default)
+    public Task<List<RoleModel>> GetRolesByIdsAsync(
+        List<Guid> roleIds,
+        CancellationToken cancellationToken = default)
     {
-        return await repository.Query()
+        return repository.Query()
             .Where(r => roleIds.Contains(r.Id))
             .ToListAsync(cancellationToken);
     }

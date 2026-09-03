@@ -1,7 +1,5 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
@@ -22,7 +20,8 @@ public class InventoryControllerTests : IDisposable
     {
         _mockService = new Mock<IInventoryService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new InventoryController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new InventoryController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -86,7 +85,9 @@ public class InventoryControllerTests : IDisposable
 
     private void SetupServiceMocks()
     {
-        _mockService.Setup(s => s.GetDashboardAsync(It.IsAny<GetInventoryDashboardQuery>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetDashboardAsync(
+                It.IsAny<GetInventoryDashboardQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new InventoryDashboardResponse());
 
         _mockService.Setup(s => s.GetHealthAsync(It.IsAny<GetInventoryHealthQuery>(), It.IsAny<CancellationToken>()))
@@ -95,7 +96,9 @@ public class InventoryControllerTests : IDisposable
         _mockService.Setup(s => s.GetAsync(It.IsAny<GetInventoryQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new InventoryResponse());
 
-        _mockService.Setup(s => s.GetByProductAsync(It.IsAny<GetInventoryByProductQuery>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByProductAsync(
+                It.IsAny<GetInventoryByProductQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new InventoryResponse());
     }
 

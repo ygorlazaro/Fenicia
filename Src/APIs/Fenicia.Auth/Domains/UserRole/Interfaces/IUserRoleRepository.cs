@@ -9,7 +9,11 @@ public interface IUserRoleRepository : IRepository<UserRoleModel>
 
     Task<List<UserRoleModel>> GetUserCompaniesAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<List<UserRoleModel>> GetUserRolesAsync(Guid userId, int page, int perPage, CancellationToken cancellationToken = default);
+    Task<List<UserRoleModel>> GetUserRolesAsync(
+        Guid userId,
+        int page,
+        int perPage,
+        CancellationToken cancellationToken = default);
 
     Task<int> CountUserRolesAsync(Guid userId, CancellationToken cancellationToken = default);
 

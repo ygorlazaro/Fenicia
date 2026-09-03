@@ -6,16 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
-public class ProjectTaskRepository(DefaultContext context) : Repository<ProjectTaskModel>(context), IProjectTaskRepository
+public class ProjectTaskRepository(DefaultContext context)
+    : Repository<ProjectTaskModel>(context), IProjectTaskRepository
 {
-    public async Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<ProjectTaskModel?> GetByIdWithRelationsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
-        return await DbSet
-                .Include(pt => pt.Attachments)
+        return DbSet
+            .Include(pt => pt.Attachments)
             .Include(pt => pt.Comments)
             .Include(pt => pt.Subtasks)
             .Include(pt => pt.Assignees)
-                .ThenInclude(a => a.User)
+            .ThenInclude(a => a.User)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 }

@@ -14,9 +14,9 @@ namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
 public class InventoryServiceTests : IDisposable
 {
-    private readonly Mock<IProductService> _mockProductService;
     private readonly Mock<ICustomerService> _mockCustomerService;
     private readonly Mock<IEmployeeService> _mockEmployeeService;
+    private readonly Mock<IProductService> _mockProductService;
     private readonly Mock<ISupplierService> _mockSupplierService;
     private readonly InventoryService _service;
 
@@ -28,7 +28,13 @@ public class InventoryServiceTests : IDisposable
         _mockCustomerService = new Mock<ICustomerService>();
         _mockEmployeeService = new Mock<IEmployeeService>();
         _mockSupplierService = new Mock<ISupplierService>();
-        _service = new InventoryService(_mockProductService.Object, mockStockMovementService.Object, mockOrderDetailService.Object, _mockCustomerService.Object, _mockEmployeeService.Object, _mockSupplierService.Object);
+        _service = new InventoryService(
+            _mockProductService.Object,
+            mockStockMovementService.Object,
+            mockOrderDetailService.Object,
+            _mockCustomerService.Object,
+            _mockEmployeeService.Object,
+            _mockSupplierService.Object);
     }
 
     public void Dispose()
@@ -40,7 +46,9 @@ public class InventoryServiceTests : IDisposable
     public async Task GetAsync_ReturnsInventory()
     {
         // Arrange
-        _mockProductService.Setup(p => p.GetAllWithCategoryAsync(It.IsAny<GetAllProductQuery>(), It.IsAny<CancellationToken>()))
+        _mockProductService.Setup(p => p.GetAllWithCategoryAsync(
+                It.IsAny<GetAllProductQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _mockProductService.Setup(p => p.GetTotalCostPriceAsync(It.IsAny<CancellationToken>())).ReturnsAsync(100m);
         _mockProductService.Setup(p => p.GetTotalSalesPriceAsync(It.IsAny<CancellationToken>())).ReturnsAsync(200m);

@@ -1,14 +1,11 @@
 using System.Security.Claims;
-
 using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.DTOs;
 using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.API;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
@@ -25,7 +22,8 @@ public class RefreshTokenControllerTests
         _mockHttpContext = new Mock<HttpContext>();
         var mockService = new Mock<IRefreshTokenService>();
 
-        _controller = new RefreshTokenController(mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new RefreshTokenController(mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
     }
@@ -45,7 +43,8 @@ public class RefreshTokenControllerTests
     {
         var controllerType = typeof(RefreshTokenController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -56,7 +55,8 @@ public class RefreshTokenControllerTests
     {
         var controllerType = typeof(RefreshTokenController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());

@@ -3,7 +3,7 @@ using Fenicia.Auth.Domains.User.DTOs;
 
 namespace Fenicia.Auth.Domains.Register;
 
-public static partial class RegisterMapper
+public static class RegisterMapper
 {
     public static RegisterResponse MapToRegisterResponse(this CreateNewUserResponse userResponse)
     {

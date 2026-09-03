@@ -26,7 +26,11 @@ public class ProjectAttachmentServiceTests
     {
         var attachments = new List<AttachmentModel>
         {
-            new() { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = _faker.System.FileName(), FileUrl = _faker.Internet.Url(), FileSize = 100, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() }
+            new()
+            {
+                Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = _faker.System.FileName(),
+                FileUrl = _faker.Internet.Url(), FileSize = 100, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid()
+            }
         };
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<AttachmentModel>(attachments));
@@ -40,12 +44,18 @@ public class ProjectAttachmentServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenAttachmentExists_ReturnsAttachment()
     {
-        var attachment = new AttachmentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = "x.pdf", FileUrl = "http://x", FileSize = 100, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
+        var attachment = new AttachmentModel
+        {
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = "x.pdf", FileUrl = "http://x", FileSize = 100,
+            UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.GetByIdAsync(attachment.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(attachment);
 
-        var result = await _service.GetByIdAsync(new GetProjectAttachmentByIdQuery(attachment.Id), CancellationToken.None);
+        var result = await _service.GetByIdAsync(
+            new GetProjectAttachmentByIdQuery(attachment.Id),
+            CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Id.Should().Be(attachment.Id);
@@ -57,7 +67,9 @@ public class ProjectAttachmentServiceTests
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AttachmentModel?)null);
 
-        var result = await _service.GetByIdAsync(new GetProjectAttachmentByIdQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await _service.GetByIdAsync(
+            new GetProjectAttachmentByIdQuery(Guid.NewGuid()),
+            CancellationToken.None);
 
         result.Should().BeNull();
     }
@@ -66,7 +78,14 @@ public class ProjectAttachmentServiceTests
     public async Task AddAsync_WhenCommandIsValid_ReturnsCreatedAttachment()
     {
         var companyId = Guid.NewGuid();
-        var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), "x.pdf", "http://x", 100, Guid.NewGuid(), "application/pdf");
+        var command = new AddProjectAttachmentCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "x.pdf",
+            "http://x",
+            100,
+            Guid.NewGuid(),
+            "application/pdf");
 
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<AttachmentModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AttachmentModel m, CancellationToken _) => m);
@@ -81,12 +100,25 @@ public class ProjectAttachmentServiceTests
     [Fact]
     public async Task UpdateAsync_WhenAttachmentExists_ReturnsUpdatedAttachment()
     {
-        var attachment = new AttachmentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = "y.pdf", FileUrl = "http://y", FileSize = 200, UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
+        var attachment = new AttachmentModel
+        {
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), FileName = "y.pdf", FileUrl = "http://y", FileSize = 200,
+            UploadedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid()
+        };
 
-        _mockRepository.Setup(r => r.UpdateAsync(attachment.Id, It.IsAny<AttachmentModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                attachment.Id,
+                It.IsAny<AttachmentModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(attachment);
 
-        var command = new UpdateProjectAttachmentCommand(attachment.Id, attachment.TaskId, "y.pdf", "http://y", 200, Guid.NewGuid());
+        var command = new UpdateProjectAttachmentCommand(
+            attachment.Id,
+            attachment.TaskId,
+            "y.pdf",
+            "http://y",
+            200,
+            Guid.NewGuid());
 
         var result = await _service.UpdateAsync(command, attachment.CompanyId, CancellationToken.None);
 
@@ -97,10 +129,19 @@ public class ProjectAttachmentServiceTests
     [Fact]
     public async Task UpdateAsync_WhenAttachmentDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<AttachmentModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<AttachmentModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((AttachmentModel?)null);
 
-        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), "y.pdf", "http://y", 200, Guid.NewGuid());
+        var command = new UpdateProjectAttachmentCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "y.pdf",
+            "http://y",
+            200,
+            Guid.NewGuid());
 
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 

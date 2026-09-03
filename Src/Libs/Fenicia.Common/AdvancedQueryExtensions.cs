@@ -5,19 +5,24 @@ namespace Fenicia.Common;
 
 public static class AdvancedQueryExtensions
 {
-    public static IQueryable<T> ApplyAdvancedQuery<T>(this IQueryable<T> query, List<QueryFilter> filters, string? sort = null)
+    public static IQueryable<T> ApplyAdvancedQuery<T>(
+        this IQueryable<T> query,
+        List<QueryFilter> filters,
+        string? sort = null)
     {
         if (filters is { Count: > 0 })
         {
             var parameter = Expression.Parameter(typeof(T), "x");
             Expression? combined = null;
 
-            foreach (var filter in filters)
+            void HandleFilters(QueryFilter filter)
             {
-                var property = typeof(T).GetProperty(filter.Property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var property = typeof(T).GetProperty(
+                    filter.Property,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                 if (property is null)
                 {
-                    continue;
+                    return;
                 }
 
                 var member = Expression.Property(parameter, property);
@@ -26,7 +31,10 @@ public static class AdvancedQueryExtensions
                 {
                     QueryOperator.Equals => Expression.Equal(member, constant),
                     QueryOperator.NotEquals => Expression.NotEqual(member, constant),
-                    QueryOperator.Contains => Expression.Call(member, property.PropertyType.GetMethod("Contains", [property.PropertyType])!, constant),
+                    QueryOperator.Contains => Expression.Call(
+                        member,
+                        property.PropertyType.GetMethod("Contains", [property.PropertyType])!,
+                        constant),
                     QueryOperator.GreaterThan => Expression.GreaterThan(member, constant),
                     QueryOperator.LessThan => Expression.LessThan(member, constant),
                     QueryOperator.GreaterThanOrEqual => Expression.GreaterThanOrEqual(member, constant),
@@ -36,6 +44,8 @@ public static class AdvancedQueryExtensions
 
                 combined = combined is null ? body : Expression.AndAlso(combined, body);
             }
+
+            filters.ForEach(HandleFilters);
 
             if (combined is not null)
             {
@@ -57,7 +67,9 @@ public static class AdvancedQueryExtensions
             {
                 var isDescending = sortPart.StartsWith('-');
                 var propertyName = isDescending ? sortPart[1..] : sortPart;
-                var property = typeof(T).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var property = typeof(T).GetProperty(
+                    propertyName,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
                 if (property is null)
                 {
@@ -68,7 +80,11 @@ public static class AdvancedQueryExtensions
                 var member = Expression.Property(parameter, property);
                 var lambda = Expression.Lambda(member, parameter);
 
-                var methodName = first ? (isDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy)) : (isDescending ? nameof(Queryable.ThenByDescending) : nameof(Queryable.ThenBy));
+                var methodName = first
+                    ? isDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy)
+                    : isDescending
+                        ? nameof(Queryable.ThenByDescending)
+                        : nameof(Queryable.ThenBy);
                 var method = typeof(Queryable).GetMethods()
                     .First(m => m.Name == methodName && m.GetParameters().Length == 2)
                     .MakeGenericMethod(typeof(T), property.PropertyType);

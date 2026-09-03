@@ -7,7 +7,7 @@ public record GetEmployeesByPositionIdResponse(
     [Required] Guid Id,
     [Required] Guid PositionId,
     [Required] Guid PersonId,
-    [Required][MaxLength(200)] string Name,
+    [Required] [MaxLength(200)] string Name,
     string? Email,
     string? PhoneNumber,
     string? Document,

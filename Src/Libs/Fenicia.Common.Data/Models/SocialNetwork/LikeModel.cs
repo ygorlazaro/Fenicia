@@ -8,16 +8,16 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class LikeModel : BaseCompanyModel
 {
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [Required]
-    public Guid FeedId { get; set; }
+    public Guid FeedId { get; init; }
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [ForeignKey(nameof(FeedId))]
-    public FeedModel Feed { get; set; } = null!;
+    public FeedModel Feed { get; init; } = default!;
 
-    public DateTime LikeDate { get; set; } = DateTime.UtcNow;
+    public DateTime LikeDate { get; init; } = DateTime.UtcNow;
 }

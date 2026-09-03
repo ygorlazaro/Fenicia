@@ -19,15 +19,16 @@ public class SubscriptionControllerTests
     private readonly SubscriptionController _controller;
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId = Guid.NewGuid();
     private readonly Mock<ISubscriptionService> _mockService;
+    private readonly Guid _testUserId = Guid.NewGuid();
 
     public SubscriptionControllerTests()
     {
         _mockHttpContext = new Mock<HttpContext>();
         _mockService = new Mock<ISubscriptionService>();
 
-        _controller = new SubscriptionController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new SubscriptionController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -110,11 +111,18 @@ public class SubscriptionControllerTests
             user.Name,
             user.Email,
             [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
-            [new UserSubscriptionResponse(subscription.Id, company.Id, company.Name, subscription.Status, subscription.StartDate, subscription.EndDate)
-            {
-                Modules = [new UserModuleResponse(module.Id, module.Name, module.Type)]
-            }
-        ]);
+            [
+                new UserSubscriptionResponse(
+                    subscription.Id,
+                    company.Id,
+                    company.Name,
+                    subscription.Status,
+                    subscription.StartDate,
+                    subscription.EndDate)
+                {
+                    Modules = [new UserModuleResponse(module.Id, module.Name, module.Type)]
+                }
+            ]);
 
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
@@ -341,11 +349,18 @@ public class SubscriptionControllerTests
             user.Name,
             user.Email,
             [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
-            [new UserSubscriptionResponse(subscription.Id, company.Id, company.Name, subscription.Status, subscription.StartDate, subscription.EndDate)
-            {
-                Modules = [new UserModuleResponse(module1.Id, module1.Name, module1.Type)]
-            }
-        ]);
+            [
+                new UserSubscriptionResponse(
+                    subscription.Id,
+                    company.Id,
+                    company.Name,
+                    subscription.Status,
+                    subscription.StartDate,
+                    subscription.EndDate)
+                {
+                    Modules = [new UserModuleResponse(module1.Id, module1.Name, module1.Type)]
+                }
+            ]);
 
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);

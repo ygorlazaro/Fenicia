@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public static partial class CompanyMapper
+public static class CompanyMapper
 {
     public static GetCompaniesByUserResponse MapToGetCompaniesByUserResponse(this UserRoleModel userRole)
     {

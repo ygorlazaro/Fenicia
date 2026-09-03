@@ -9,11 +9,25 @@ public static partial class InventoryMapper
 {
     public static InventoryDetailResponse MapToInventoryDetailResponse(this ProductModel product)
     {
-        return new InventoryDetailResponse(product.Id, product.Name, product.Quantity, product.CostPrice, product.SalesPrice, product.CategoryId, product.Category.Name);
+        return new InventoryDetailResponse(
+            product.Id,
+            product.Name,
+            product.Quantity,
+            product.CostPrice,
+            product.SalesPrice,
+            product.CategoryId,
+            product.Category.Name);
     }
 
     public static InventoryDashboardItemResponse MapToInventoryDashboardItemResponse(this ProductModel product)
     {
-        return new InventoryDashboardItemResponse(product.Id, product.Name, product.Quantity, product.CostPrice, product.SalesPrice, product.CategoryId, product.Category.Name);
+        return new InventoryDashboardItemResponse(
+            product.Id,
+            product.Name,
+            product.Quantity,
+            product.CostPrice,
+            product.SalesPrice,
+            product.CategoryId,
+            product.Category.Name);
     }
 }

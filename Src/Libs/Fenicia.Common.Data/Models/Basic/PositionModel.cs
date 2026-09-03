@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("positions", Schema = "basic")]
-public class PositionModel : BaseCompanyModel
+public sealed class PositionModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
-    public virtual List<EmployeeModel> Employees { get; set; } = null!;
+    public List<EmployeeModel> Employees { get; init; } = [];
 }

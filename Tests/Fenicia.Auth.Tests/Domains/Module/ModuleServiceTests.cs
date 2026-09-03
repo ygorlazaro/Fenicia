@@ -14,8 +14,8 @@ public class ModuleServiceTests
 {
     private readonly Faker _faker;
     private readonly Mock<IModuleRepository> _mockModuleRepository;
-    private readonly Mock<IUserRoleService> _mockUserRoleService;
     private readonly Mock<ISubscriptionService> _mockSubscriptionService;
+    private readonly Mock<IUserRoleService> _mockUserRoleService;
     private readonly ModuleService _service;
 
     public ModuleServiceTests()
@@ -26,7 +26,10 @@ public class ModuleServiceTests
         _mockSubscriptionService = new Mock<ISubscriptionService>();
         _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _service = new ModuleService(_mockModuleRepository.Object, _mockUserRoleService.Object, _mockSubscriptionService.Object);
+        _service = new ModuleService(
+            _mockModuleRepository.Object,
+            _mockUserRoleService.Object,
+            _mockSubscriptionService.Object);
     }
 
     [Fact]
@@ -52,7 +55,8 @@ public class ModuleServiceTests
             SortOrder = 2
         };
 
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module1, module2 }.AsAsyncQueryable());
+        _mockModuleRepository.Setup(r => r.Query())
+            .Returns(new List<ModuleModel> { module1, module2 }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
@@ -86,7 +90,8 @@ public class ModuleServiceTests
             SortOrder = 2
         };
 
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { authModule, basicModule }.AsAsyncQueryable());
+        _mockModuleRepository.Setup(r => r.Query())
+            .Returns(new List<ModuleModel> { authModule, basicModule }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
@@ -119,7 +124,8 @@ public class ModuleServiceTests
             SortOrder = 2
         };
 
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { activeModule, inactiveModule }.AsAsyncQueryable());
+        _mockModuleRepository.Setup(r => r.Query())
+            .Returns(new List<ModuleModel> { activeModule, inactiveModule }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
@@ -134,15 +140,16 @@ public class ModuleServiceTests
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new ModuleModel
-            {
-                Id = Guid.NewGuid(),
-                Name = $"Module {_faker.Commerce.ProductName()} {i}",
-                Type = (ModuleType)((i % 10) + 1),
-                Price = 10.0m,
-                IsActive = true,
-                SortOrder = i
-            });
+            modules.Add(
+                new ModuleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"Module {_faker.Commerce.ProductName()} {i}",
+                    Type = (ModuleType)((i % 10) + 1),
+                    Price = 10.0m,
+                    IsActive = true,
+                    SortOrder = i
+                });
         }
 
         _mockModuleRepository.Setup(r => r.Query()).Returns(modules.AsAsyncQueryable());
@@ -224,7 +231,8 @@ public class ModuleServiceTests
             SortOrder = 2
         };
 
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module1, module2, module3 }.AsAsyncQueryable());
+        _mockModuleRepository.Setup(r => r.Query())
+            .Returns(new List<ModuleModel> { module1, module2, module3 }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
@@ -336,9 +344,11 @@ public class ModuleServiceTests
 
         _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userRole);
-        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService
+            .Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([subscription]);
-        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService.Setup(s =>
+                s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync([module]);
         _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([module]);
@@ -374,8 +384,11 @@ public class ModuleServiceTests
         var companyId = Guid.NewGuid();
 
         _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() });
-        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new UserRoleModel
+                    { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() });
+        _mockSubscriptionService
+            .Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
@@ -416,9 +429,11 @@ public class ModuleServiceTests
 
         _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userRole);
-        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService
+            .Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([subscription]);
-        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService.Setup(s =>
+                s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
@@ -434,8 +449,11 @@ public class ModuleServiceTests
         var companyId = Guid.NewGuid();
 
         _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() });
-        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new UserRoleModel
+                    { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() });
+        _mockSubscriptionService
+            .Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var result = await _service.GetUserModulesAsync(companyId, userId, CancellationToken.None);
@@ -492,9 +510,11 @@ public class ModuleServiceTests
 
         _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userRole);
-        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService
+            .Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([subscription]);
-        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService.Setup(s =>
+                s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync([module1, module2]);
         _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([module1, module2]);
@@ -563,9 +583,11 @@ public class ModuleServiceTests
 
         _mockUserRoleService.Setup(s => s.GetUserRoleAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userRole);
-        _mockSubscriptionService.Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService
+            .Setup(s => s.GetActiveSubscriptionsByCompanyAsync(companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([subscription]);
-        _mockSubscriptionService.Setup(s => s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
+        _mockSubscriptionService.Setup(s =>
+                s.GetActiveModulesForSubscriptionAsync(subscription.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync([module, module]);
         _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([module]);

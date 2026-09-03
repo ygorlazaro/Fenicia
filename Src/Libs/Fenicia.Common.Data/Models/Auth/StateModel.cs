@@ -1,22 +1,21 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("states", Schema = "auth")]
-public class StateModel : BaseModel
+public sealed class StateModel : BaseModel
 {
     [Required]
     [MaxLength(30)]
-    public string Name { get; set; } = null!;
+    public string Name { get; init; } = string.Empty;
 
     [Required]
     [MaxLength(2)]
-    public string Uf { get; set; } = null!;
+    public string Uf { get; init; } = string.Empty;
 
-    public virtual List<AddressModel> Addresses { get; set; } = null!;
+    public List<AddressModel> Addresses { get; init; } = [];
 
-    public virtual List<PersonModel> People { get; set; } = null!;
+    public List<PersonModel> People { get; init; } = [];
 }

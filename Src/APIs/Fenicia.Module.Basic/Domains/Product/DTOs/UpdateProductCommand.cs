@@ -4,7 +4,7 @@ namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record UpdateProductCommand(
     Guid Id,
-    [Required][MaxLength(50)] string Name,
+    [Required] [MaxLength(50)] string Name,
     [MaxLength(50)] string? SKU = null,
     [MaxLength(50)] string? Barcode = null,
     [MaxLength(1000)] string? Description = null,

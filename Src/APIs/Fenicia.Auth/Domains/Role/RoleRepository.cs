@@ -8,8 +8,8 @@ namespace Fenicia.Auth.Domains.Role;
 
 public class RoleRepository(DefaultContext context) : Repository<RoleModel>(context), IRoleRepository
 {
-    public async Task<RoleModel?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    public Task<RoleModel?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(r => r.Name == name, cancellationToken);
+        return DbSet.FirstOrDefaultAsync(r => r.Name == name, cancellationToken);
     }
 }

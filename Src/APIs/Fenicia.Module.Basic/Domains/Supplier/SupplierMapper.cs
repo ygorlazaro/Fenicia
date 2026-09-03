@@ -13,6 +13,19 @@ public static partial class SupplierMapper
         var personAddress = supplier.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
         return new GetAllSupplierResponse(
             supplier.Id,
             supplier.PersonId,
@@ -20,7 +33,7 @@ public static partial class SupplierMapper
             supplier.Person.Email,
             supplier.Person.PhoneNumber,
             supplier.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+            addressResponse);
     }
 
     public static GetSupplierByIdResponse MapToGetSupplierByIdResponse(this SupplierModel supplier)
@@ -28,6 +41,19 @@ public static partial class SupplierMapper
         var personAddress = supplier.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
         return new GetSupplierByIdResponse(
             supplier.Id,
             supplier.PersonId,
@@ -35,7 +61,7 @@ public static partial class SupplierMapper
             supplier.Person.Email,
             supplier.Person.PhoneNumber,
             supplier.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+            addressResponse);
     }
 
     public static AddSupplierResponse MapToAddSupplierResponse(this SupplierModel supplier)

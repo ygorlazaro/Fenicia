@@ -17,7 +17,8 @@ public class RepositoryTests : IDisposable
 
     public RepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new TestDataContext(options, companyContext);
         _repository = new Repository<TestEntity>(_db);
@@ -241,7 +242,7 @@ public class RepositoryTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
         await _repository.DeleteAsync(entity.Id, CancellationToken.None);
 
-        var result = await _repository.GetAllAsync(page: 1, perPage: 10, CancellationToken.None);
+        var result = await _repository.GetAllAsync(1, 10, CancellationToken.None);
 
         result.Should().BeEmpty();
     }

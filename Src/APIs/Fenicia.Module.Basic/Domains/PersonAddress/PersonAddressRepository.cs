@@ -4,4 +4,5 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
 
-public class PersonAddressRepository(DefaultContext context) : Repository<PersonAddressModel>(context), IPersonAddressRepository;
+public class PersonAddressRepository(DefaultContext context)
+    : Repository<PersonAddressModel>(context), IPersonAddressRepository;

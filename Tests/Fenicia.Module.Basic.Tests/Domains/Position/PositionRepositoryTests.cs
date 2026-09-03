@@ -16,7 +16,8 @@ public class PositionRepositoryTests : IDisposable
 
     public PositionRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new PositionRepository(_db);
@@ -82,7 +83,7 @@ public class PositionRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
@@ -127,7 +128,8 @@ public class PositionRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedPosition = await _db.BasicPositions.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == position.Id);
+        var deletedPosition =
+            await _db.BasicPositions.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == position.Id);
         deletedPosition.Should().NotBeNull();
         deletedPosition.Deleted.Should().NotBeNull();
     }

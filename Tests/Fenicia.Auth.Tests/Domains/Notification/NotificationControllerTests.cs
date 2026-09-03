@@ -4,7 +4,6 @@ using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +15,16 @@ public class NotificationControllerTests
 {
     private readonly NotificationController _controller;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId;
     private readonly Mock<INotificationService> _mockService;
+    private readonly Guid _testUserId;
 
     public NotificationControllerTests()
     {
         _testUserId = Guid.NewGuid();
         _mockService = new Mock<INotificationService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new NotificationController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new NotificationController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
     }
@@ -107,7 +107,10 @@ public class NotificationControllerTests
     {
         var id = Guid.NewGuid();
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateNotificationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateNotificationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UpdateNotificationResponse(id));
 
         var command = new UpdateNotificationCommand(id, "New Title", "New Desc", null, "img.png", true);
@@ -126,7 +129,10 @@ public class NotificationControllerTests
     {
         var id = Guid.NewGuid();
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateNotificationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateNotificationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UpdateNotificationResponse(id));
 
         var command = new UpdateNotificationCommand(id, "T", "D", null, null, true);
@@ -148,7 +154,10 @@ public class NotificationControllerTests
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateNotificationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateNotificationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateNotificationResponse?)null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), headers, wide, cancellationToken);
@@ -189,7 +198,8 @@ public class NotificationControllerTests
     {
         var controllerType = typeof(NotificationController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -200,7 +210,8 @@ public class NotificationControllerTests
     {
         var controllerType = typeof(NotificationController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());

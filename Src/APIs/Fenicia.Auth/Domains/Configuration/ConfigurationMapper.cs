@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public static partial class ConfigurationMapper
+public static class ConfigurationMapper
 {
     public static GetConfigurationResponse MapToGetConfigurationResponse(this ConfigurationModel configuration)
     {

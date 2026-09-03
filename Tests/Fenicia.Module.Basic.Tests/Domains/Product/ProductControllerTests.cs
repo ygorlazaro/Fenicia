@@ -1,8 +1,6 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Product;
@@ -25,7 +23,8 @@ public class ProductControllerTests : IDisposable
     {
         _mockService = new Mock<IProductService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProductController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProductController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
@@ -40,7 +39,10 @@ public class ProductControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new AddProductCommand(Id: Guid.NewGuid(), Name: _faker.Commerce.ProductName(), SalesPrice: _faker.Random.Decimal());
+        var command = new AddProductCommand(
+            Guid.NewGuid(),
+            _faker.Commerce.ProductName(),
+            SalesPrice: _faker.Random.Decimal());
         var wide = new WideEventContext();
 
         // Act
@@ -55,7 +57,7 @@ public class ProductControllerTests : IDisposable
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var command = new UpdateProductCommand(productId, Name: "Updated Name", SalesPrice: _faker.Random.Decimal());
+        var command = new UpdateProductCommand(productId, "Updated Name", SalesPrice: _faker.Random.Decimal());
         var wide = new WideEventContext();
 
         // Act
@@ -69,10 +71,13 @@ public class ProductControllerTests : IDisposable
     public async Task PatchAsync_WhenProductDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var command = new UpdateProductCommand(Id: Guid.NewGuid(), Name: "Updated Name", SalesPrice: _faker.Random.Decimal());
+        var command = new UpdateProductCommand(Guid.NewGuid(), "Updated Name", SalesPrice: _faker.Random.Decimal());
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateProductCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.Is<UpdateProductCommand>(c => c.Id != It.IsAny<Guid>()),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProductResponse?)null);
 
         // Act
@@ -128,7 +133,9 @@ public class ProductControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetProductByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByIdAsync(
+                It.Is<GetProductByIdQuery>(q => q.Id != It.IsAny<Guid>()),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetProductByIdResponse?)null);
 
         // Act
@@ -144,15 +151,81 @@ public class ProductControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllProductResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProductByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetProductByIdQuery q, CancellationToken _) => new GetProductByIdResponse(q.Id, "Test Product", null, null, null, null, 100, 10, null, null, null, null, null, null, Guid.NewGuid(), "Category", null, null, true));
+            .ReturnsAsync((GetProductByIdQuery q, CancellationToken _) => new GetProductByIdResponse(
+                q.Id,
+                "Test Product",
+                null,
+                null,
+                null,
+                null,
+                100,
+                10,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                Guid.NewGuid(),
+                "Category",
+                null,
+                null,
+                true));
 
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddProductCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddProductCommand cmd, Guid _, CancellationToken _) => new AddProductResponse(cmd.Id, cmd.Name, null, null, null, null, 100, 10, null, null, null, null, null, null, Guid.NewGuid(), "Category", null, null, true));
+        _mockService.Setup(s => s.AddAsync(
+                It.IsAny<AddProductCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddProductCommand cmd, Guid _, CancellationToken _) => new AddProductResponse(
+                cmd.Id,
+                cmd.Name,
+                null,
+                null,
+                null,
+                null,
+                100,
+                10,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                Guid.NewGuid(),
+                "Category",
+                null,
+                null,
+                true));
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProductCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateProductCommand cmd, Guid _, CancellationToken _) => new UpdateProductResponse(cmd.Id, cmd.Name, null, null, null, null, 100, 10, null, null, null, null, null, null, Guid.NewGuid(), "Category", null, null, true));
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProductCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProductCommand cmd, Guid _, CancellationToken _) => new UpdateProductResponse(
+                cmd.Id,
+                cmd.Name,
+                null,
+                null,
+                null,
+                null,
+                100,
+                10,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                Guid.NewGuid(),
+                "Category",
+                null,
+                null,
+                true));
 
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProductCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.DeleteAsync(
+                It.IsAny<DeleteProductCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
     }
 

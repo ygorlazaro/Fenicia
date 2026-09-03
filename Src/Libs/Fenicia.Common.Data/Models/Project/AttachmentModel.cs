@@ -5,26 +5,26 @@ using Fenicia.Common.Data.Models.Auth;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("attachments", Schema = "project")]
-public class AttachmentModel : BaseCompanyModel
+public sealed class AttachmentModel : BaseCompanyModel
 {
-    public Guid TaskId { get; set; }
+    public Guid TaskId { get; init; }
 
     [MaxLength(256)]
-    public string FileName { get; set; } = null!;
+    public string FileName { get; init; } = string.Empty;
 
     [MaxLength(256)]
-    public string FileUrl { get; set; } = null!;
+    public string FileUrl { get; init; } = string.Empty;
 
-    public long FileSize { get; set; } = 0;
+    public long FileSize { get; init; } = 0;
 
-    public Guid UploadedBy { get; set; } = Guid.Empty;
+    public Guid UploadedBy { get; init; } = Guid.Empty;
 
-    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
+    public ProjectTaskModel TaskModel { get; init; } = default!;
 
-    public virtual UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [MaxLength(50)]
-    public string? ContentType { get; set; }
+    public string? ContentType { get; init; }
 
-    public long Size { get; set; }
+    public long Size { get; init; }
 }

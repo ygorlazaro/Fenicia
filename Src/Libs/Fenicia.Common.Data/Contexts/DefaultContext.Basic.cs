@@ -1,7 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-
 using Microsoft.EntityFrameworkCore;
-
 using OrderDetailModel = Fenicia.Common.Data.Models.Basic.OrderDetailModel;
 using OrderModel = Fenicia.Common.Data.Models.Basic.OrderModel;
 

@@ -53,37 +53,39 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
 
-        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
-    {
-        builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
-        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-        builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-        builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-        builder.Services.AddScoped<IConfigurationRepository, ConfigurationRepository>();
-        builder.Services.AddScoped<IForgotPasswordRepository, ForgotPasswordRepository>();
-        builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
-        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-        builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
-        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        builder.Services.AddScoped<ISecurityService, SecurityService>();
-        builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
-        builder.Services.AddScoped<ICompanyService, CompanyService>();
-        builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IUserRoleService, UserRoleService>();
-        builder.Services.AddScoped<IRoleService, RoleService>();
-        builder.Services.AddScoped<IModuleService, ModuleService>();
-        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        builder.Services.AddScoped<ITokenService, TokenService>();
-        builder.Services.AddScoped<IRegisterService, RegisterService>();
-        builder.Services.AddScoped<INotificationService, NotificationService>();
-        builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
-        builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-        builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
-        builder.Services.AddScoped<IOrderService, OrderService>();
-    }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors()
+            .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
+            .AddFeniciaDependencyInjection(() =>
+            {
+                builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped<IUserRepository, UserRepository>();
+                builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+                builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+                builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+                builder.Services.AddScoped<IConfigurationRepository, ConfigurationRepository>();
+                builder.Services.AddScoped<IForgotPasswordRepository, ForgotPasswordRepository>();
+                builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
+                builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+                builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+                builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+                builder.Services.AddScoped<ISecurityService, SecurityService>();
+                builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
+                builder.Services.AddScoped<ICompanyService, CompanyService>();
+                builder.Services.AddScoped<IUserService, UserService>();
+                builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+                builder.Services.AddScoped<IRoleService, RoleService>();
+                builder.Services.AddScoped<IModuleService, ModuleService>();
+                builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+                builder.Services.AddScoped<ITokenService, TokenService>();
+                builder.Services.AddScoped<IRegisterService, RegisterService>();
+                builder.Services.AddScoped<INotificationService, NotificationService>();
+                builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
+                builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+                builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
+                builder.Services.AddScoped<IOrderService, OrderService>();
+            }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();

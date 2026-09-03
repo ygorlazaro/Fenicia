@@ -8,22 +8,22 @@ public class UserRoleModel : BaseModel
 {
     [Required]
     [Column("user_id")]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [Required]
     [Column("role_id")]
-    public Guid RoleId { get; set; }
+    public Guid RoleId { get; init; }
 
     [Required]
     [Column("company_id")]
-    public Guid CompanyId { get; set; }
+    public Guid CompanyId { get; init; }
 
     [ForeignKey(nameof(RoleId))]
-    public RoleModel Role { get; set; } = null!;
+    public RoleModel Role { get; init; } = default!;
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [ForeignKey(nameof(CompanyId))]
-    public CompanyModel Company { get; set; } = null!;
+    public CompanyModel Company { get; init; } = default!;
 }

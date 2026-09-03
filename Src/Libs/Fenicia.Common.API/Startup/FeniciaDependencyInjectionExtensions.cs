@@ -1,15 +1,15 @@
 using System.Reflection;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-
 using StackExchange.Redis;
 
 namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaDependencyInjectionExtensions
 {
-    public static WebApplicationBuilder AddFeniciaDependencyInjection(this WebApplicationBuilder builder, Action relatedDependencies)
+    public static WebApplicationBuilder AddFeniciaDependencyInjection(
+        this WebApplicationBuilder builder,
+        Action relatedDependencies)
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
@@ -33,9 +33,14 @@ public static class FeniciaDependencyInjectionExtensions
 
     private static void RegisterAllHandlers(this IServiceCollection services)
     {
-        var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Could not determine the entry assembly for handler registration.");
+        var assembly = Assembly.GetEntryAssembly() ??
+                       throw new InvalidOperationException(
+                           "Could not determine the entry assembly for handler registration.");
 
-        var handlerTypes = assembly.GetTypes().Where(t => t is { IsClass: true, IsAbstract: false, IsPublic: true } && (t.Name.EndsWith("Handler", StringComparison.Ordinal) || t.Name.EndsWith("Service", StringComparison.Ordinal)));
+        var handlerTypes = assembly.GetTypes().Where(t =>
+            t is { IsClass: true, IsAbstract: false, IsPublic: true } &&
+            (t.Name.EndsWith("Handler", StringComparison.Ordinal) ||
+             t.Name.EndsWith("Service", StringComparison.Ordinal)));
 
         foreach (var handlerType in handlerTypes)
         {

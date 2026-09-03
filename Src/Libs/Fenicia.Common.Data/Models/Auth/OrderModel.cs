@@ -1,61 +1,60 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("orders", Schema = "auth")]
-public class OrderModel : BaseModel
+public sealed class OrderModel : BaseModel
 {
     [Required]
     [Column("order_number")]
     [MaxLength(20)]
-    public string OrderNumber { get; set; } = null!;
+    public string OrderNumber { get; init; } = string.Empty;
 
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [Required]
-    public Guid CompanyId { get; set; }
+    public Guid CompanyId { get; init; }
 
     [Required]
     [Column(TypeName = "decimal(18,2)")]
     [Range(0, double.MaxValue)]
-    public decimal TotalAmount { get; set; }
+    public decimal TotalAmount { get; init; }
 
     [Column("discount_amount")]
     [Range(0, double.MaxValue)]
-    public decimal DiscountAmount { get; set; }
+    public decimal DiscountAmount { get; init; }
 
     [Column("total_quantity")]
     [Range(0, int.MaxValue)]
-    public int TotalQuantity { get; set; }
+    public int TotalQuantity { get; init; }
 
     [Required]
     [DataType(DataType.DateTime)]
-    public DateTime SaleDate { get; set; }
+    public DateTime SaleDate { get; init; }
 
     [Required]
     [EnumDataType(typeof(OrderStatus))]
-    public OrderStatus Status { get; set; }
+    public OrderStatus Status { get; init; }
 
     [Column("payment_method")]
     [EnumDataType(typeof(PaymentMethod))]
-    public PaymentMethod PaymentMethod { get; set; }
+    public PaymentMethod PaymentMethod { get; init; }
 
     [Column("notes")]
     [MaxLength(1000)]
-    public string? Notes { get; set; }
+    public string? Notes { get; init; }
 
-    public virtual SubscriptionModel? Subscription { get; set; }
+    public SubscriptionModel? Subscription { get; set; }
 
-    public virtual ICollection<OrderDetailModel> Details { get; set; } = null!;
+    public ICollection<OrderDetailModel> Details { get; init; } = [];
 
     [ForeignKey(nameof(UserId))]
-    public virtual UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [ForeignKey(nameof(CompanyId))]
-    public virtual CompanyModel Company { get; set; } = null!;
+    public CompanyModel Company { get; init; } = default!;
 }

@@ -10,7 +10,7 @@ public record EmployeePerformanceSummaryResponse
 
     public int TotalOrders { get; set; }
 
-    public decimal AverageSalesPerEmployee { get; set; }
+    public decimal AverageSalesPerEmployee { get; init; }
 
     public decimal AverageOrdersPerEmployee { get; set; }
 }

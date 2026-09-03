@@ -1,6 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
-public class StockMovementService(
+public sealed class StockMovementService(
     IStockMovementRepository stockMovementRepository,
     IProductRepository productRepository) : IStockMovementService
 {
@@ -18,7 +19,9 @@ public class StockMovementService(
     {
     }
 
-    public virtual async Task<List<GetStockMovementResponse>> GetAsync(GetStockMovementQuery query, CancellationToken cancellationToken = default)
+    public async Task<List<GetStockMovementResponse>> GetAsync(
+        GetStockMovementQuery query,
+        CancellationToken cancellationToken = default)
     {
         var startDate = query.StartDate ?? DateTime.MinValue;
         var endDate = query.EndDate ?? DateTime.MaxValue;
@@ -41,7 +44,10 @@ public class StockMovementService(
         return [.. movements.Select(m => m.MapToGetStockMovementResponse())];
     }
 
-    public virtual async Task<AddStockMovementResponse> AddAsync(AddStockMovementCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<AddStockMovementResponse> AddAsync(
+        AddStockMovementCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var stockMovement = new StockMovementModel
         {
@@ -72,6 +78,7 @@ public class StockMovementService(
         {
             StockMovementType.In => product.Quantity + command.Quantity,
             StockMovementType.Out => product.Quantity - command.Quantity,
+            StockMovementType.None => throw new ItemNotExistsException(),
             _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
         };
 
@@ -81,7 +88,10 @@ public class StockMovementService(
         return stockMovement.MapToAddStockMovementResponse();
     }
 
-    public virtual async Task<UpdateStockMovementResponse?> UpdateAsync(UpdateStockMovementCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<UpdateStockMovementResponse?> UpdateAsync(
+        UpdateStockMovementCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var stockMovement = await stockMovementRepository.GetByIdAsync(command.Id, cancellationToken);
 
@@ -107,10 +117,13 @@ public class StockMovementService(
         return stockMovement.MapToUpdateStockMovementResponse();
     }
 
-    public virtual async Task<List<StockMovementModel>> GetRecentWithProductAsync(int days, int topLimit, CancellationToken cancellationToken = default)
+    public Task<List<StockMovementModel>> GetRecentWithProductAsync(
+        int days,
+        int topLimit,
+        CancellationToken cancellationToken = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-days);
-        return await stockMovementRepository.Query()
+        return stockMovementRepository.Query()
             .Include(m => m.Product)
             .Where(m => m.SupplierId.HasValue && m.Date >= startDate)
             .OrderByDescending(m => m.Date)
@@ -118,12 +131,15 @@ public class StockMovementService(
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<StockMovementDashboardResponse> GetDashboardAsync(GetStockMovementDashboardQuery query, CancellationToken cancellationToken = default)
+    public async Task<StockMovementDashboardResponse> GetDashboardAsync(
+        GetStockMovementDashboardQuery query,
+        CancellationToken cancellationToken = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var movements = await stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
+        var movements =
+            await stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
         var movementList = movements.ToList();
 
         var history = GetStockMovementHistoryAsync(movementList);
@@ -140,24 +156,38 @@ public class StockMovementService(
         };
     }
 
-    public virtual async Task<List<StockMovementModel>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public async Task<List<StockMovementModel>> GetByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
     {
         var result = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         return [.. result];
     }
 
-    public virtual async Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default)
+    public Task<Dictionary<Guid, DateTime?>> GetLastMovementsByProductIdsAsync(
+        IEnumerable<Guid> productIds,
+        CancellationToken cancellationToken = default)
     {
-        return await stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
+        return stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
     }
 
-    private static List<TopMovedProductResponse> GetTopMovedProduct(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements)
+    private static List<TopMovedProductResponse> GetTopMovedProduct(
+        GetStockMovementDashboardQuery query,
+        IEnumerable<StockMovementModel> movements)
     {
         var movementList = movements.ToList();
 
-        var request = movementList.GroupBy(m => new { m.ProductId, ProductName = m.Product.Name, CategoryName = m.Product.Category.Name })
+        var request = movementList.GroupBy(m => new
+                { m.ProductId, ProductName = m.Product.Name, CategoryName = m.Product.Category.Name })
             .OrderByDescending(g => g.Sum(x => x.Quantity))
-            .Select(g => new TopMovedProductResponse(g.Key.ProductId, g.Key.ProductName, g.Key.CategoryName, g.Sum(x => x.Quantity), g.Sum(x => x.Price ?? 0), g.Count()));
+            .Select(g => new TopMovedProductResponse(
+                g.Key.ProductId,
+                g.Key.ProductName,
+                g.Key.CategoryName,
+                g.Sum(x => x.Quantity),
+                g.Sum(x => x.Price ?? 0),
+                g.Count()));
 
         return [.. request.Take(query.TopLimit)];
     }
@@ -182,7 +212,15 @@ public class StockMovementService(
 
         var data = query.ToList();
 
-        return [.. data.Select(x => new MonthlyInOutResponse($"{x.Month:D2}/{x.Year}", x.TotalIn, x.TotalOut, x.TotalInValue, x.TotalOutValue))];
+        return
+        [
+            .. data.Select(x => new MonthlyInOutResponse(
+                $"{x.Month:D2}/{x.Year}",
+                x.TotalIn,
+                x.TotalOut,
+                x.TotalInValue,
+                x.TotalOutValue))
+        ];
     }
 
     private static string ClassifyTurnover(double rate)
@@ -196,53 +234,68 @@ public class StockMovementService(
         };
     }
 
-    private static List<StockMovementHistoryResponse> GetStockMovementHistoryAsync(IEnumerable<StockMovementModel> movements)
+    private static List<StockMovementHistoryResponse> GetStockMovementHistoryAsync(
+        IEnumerable<StockMovementModel> movements)
     {
         var movementList = movements.ToList();
 
         var request = from m in movementList
-                      orderby m.Date descending
-                      select new StockMovementHistoryResponse(
-                          m.Id,
-                          m.ProductId,
-                          m.Product.Name,
-                          m.Quantity,
-                          m.Date!.Value,
-                          m.Price ?? 0,
-                          m.Type.ToString(),
-                          m.Reason,
-                          m.Customer?.Person.Name,
-                          m.Supplier?.Person.Name);
+            orderby m.Date descending
+            select new StockMovementHistoryResponse(
+                m.Id,
+                m.ProductId,
+                m.Product.Name,
+                m.Quantity,
+                m.Date!.Value,
+                m.Price ?? 0,
+                m.Type.ToString(),
+                m.Reason,
+                m.Customer?.Person.Name,
+                m.Supplier?.Person.Name);
 
         return [.. request];
     }
 
-    private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IEnumerable<StockMovementModel> movements, CancellationToken cancellationToken = default)
+    private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(
+        GetStockMovementDashboardQuery query,
+        IEnumerable<StockMovementModel> movements,
+        CancellationToken cancellationToken = default)
     {
-        var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId).Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
+        var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId)
+            .Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
         var products = await productRepository.GetAllWithDetailsAsync(1, 10000, cancellationToken);
         var productList = products.Where(p => p.Quantity > 0).ToList();
 
         var request = from p in productList
-                      join m in productOutMovements on p.Id equals m.ProductId into gj
-                      from m in gj.DefaultIfEmpty()
-                      let totalSold = m != null ? m.TotalSold ?? 0 : 0
-                      let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
-                      let categoryName = p.Category.Name
-                      orderby turnoverRate descending
-                      select new
-                      {
-                          p.Id,
-                          p.Name,
-                          CategoryName = categoryName,
-                          p.Quantity,
-                          totalSold,
-                          turnoverRate
-                      };
+            join m in productOutMovements on p.Id equals m.ProductId into gj
+            from m in gj.DefaultIfEmpty()
+            let totalSold = m != null ? m.TotalSold ?? 0 : 0
+            let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
+            let categoryName = p.Category.Name
+            orderby turnoverRate descending
+            select new
+            {
+                p.Id,
+                p.Name,
+                CategoryName = categoryName,
+                p.Quantity,
+                totalSold,
+                turnoverRate
+            };
 
         var data = request.Take(query.TopLimit).ToList();
 
-        return [.. data.Select(x => new StockTurnoverResponse(x.Id, x.Name, x.CategoryName, x.Quantity, x.totalSold, x.turnoverRate, ClassifyTurnover(x.turnoverRate)))];
+        return
+        [
+            .. data.Select(x => new StockTurnoverResponse(
+                x.Id,
+                x.Name,
+                x.CategoryName,
+                x.Quantity,
+                x.totalSold,
+                x.turnoverRate,
+                ClassifyTurnover(x.turnoverRate)))
+        ];
     }
 }

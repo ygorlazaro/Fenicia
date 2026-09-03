@@ -16,8 +16,8 @@ public class ConfigurationControllerTests
 {
     private readonly ConfigurationController _controller;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId;
     private readonly Mock<IConfigurationService> _mockService;
+    private readonly Guid _testUserId;
 
     public ConfigurationControllerTests()
     {
@@ -26,7 +26,8 @@ public class ConfigurationControllerTests
         _mockHttpContext = new Mock<HttpContext>();
         _mockService = new Mock<IConfigurationService>();
 
-        _controller = new ConfigurationController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ConfigurationController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
     }
@@ -80,7 +81,8 @@ public class ConfigurationControllerTests
         };
 
         _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([
+            .ReturnsAsync(
+            [
                 .. ((List<ConfigurationModel>)[config1, config2]).Select(c => c.MapToGetConfigurationResponse())
             ]);
 
@@ -161,7 +163,10 @@ public class ConfigurationControllerTests
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpsertAsync(
+                It.IsAny<UpsertConfigurationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var result = await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, wide, cancellationToken);
@@ -176,7 +181,10 @@ public class ConfigurationControllerTests
     {
         var companyId = Guid.NewGuid();
 
-        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpsertAsync(
+                It.IsAny<UpsertConfigurationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var wide = new WideEventContext();
@@ -199,7 +207,10 @@ public class ConfigurationControllerTests
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpsertAsync(
+                It.IsAny<UpsertConfigurationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, cancellationToken);
@@ -216,7 +227,10 @@ public class ConfigurationControllerTests
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        _mockService.Setup(s => s.UpsertAsync(It.IsAny<UpsertConfigurationCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpsertAsync(
+                It.IsAny<UpsertConfigurationCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, wide, cancellationToken);
@@ -239,7 +253,8 @@ public class ConfigurationControllerTests
     {
         var controllerType = typeof(ConfigurationController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -250,7 +265,8 @@ public class ConfigurationControllerTests
     {
         var controllerType = typeof(ConfigurationController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());

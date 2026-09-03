@@ -3,7 +3,6 @@ using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 public class ForgotPasswordController(IForgotPasswordService forgotPasswordService) : ControllerBase
 {
     /// <summary>
-    /// Inicia o fluxo de recuperação de senha enviando um código para o e-mail informado.
+    ///     Inicia o fluxo de recuperação de senha enviando um código para o e-mail informado.
     /// </summary>
     /// <param name="reset">Comando com o e-mail do usuário</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -30,7 +29,10 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PostAsync([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PostAsync(
+        [FromBody] AddForgotPasswordCommand reset,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -52,7 +54,7 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     }
 
     /// <summary>
-    /// Redefine a senha do usuário usando o código de recuperação.
+    ///     Redefine a senha do usuário usando o código de recuperação.
     /// </summary>
     /// <param name="request">Comando com e-mail, nova senha e código de recuperação</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -66,7 +68,10 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PatchAsync([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] ResetPasswordCommand request,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

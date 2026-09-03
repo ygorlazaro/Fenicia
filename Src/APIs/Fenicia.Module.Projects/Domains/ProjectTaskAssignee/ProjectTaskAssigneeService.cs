@@ -10,27 +10,50 @@ namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
 public class ProjectTaskAssigneeService(IRepository<TaskAssigneeModel> repository) : IProjectTaskAssigneeService
 {
-    public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(GetAllProjectTaskAssigneeQuery query, CancellationToken cancellationToken = default)
+    public async Task<List<GetAllProjectTaskAssigneeResponse>> GetAllAsync(
+        GetAllProjectTaskAssigneeQuery query,
+        CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
         var filters = AdvancedQueryParser.Parse(query.Query);
         var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
-        var assignees = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
-        return [.. assignees.Select(a => new GetAllProjectTaskAssigneeResponse(a.Id, a.TaskId, a.UserId, a.Role.ToString(), a.AssignedAt, a.CompanyId))];
+        var assignees = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+        return
+        [
+            .. assignees.Select(a => new GetAllProjectTaskAssigneeResponse(
+                a.Id,
+                a.TaskId,
+                a.UserId,
+                a.Role.ToString(),
+                a.AssignedAt,
+                a.CompanyId))
+        ];
     }
 
-    public async Task<GetProjectTaskAssigneeByIdResponse?> GetByIdAsync(GetProjectTaskAssigneeByIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<GetProjectTaskAssigneeByIdResponse?> GetByIdAsync(
+        GetProjectTaskAssigneeByIdQuery query,
+        CancellationToken cancellationToken = default)
     {
         var assignee = await repository.GetByIdAsync(query.Id, cancellationToken);
 
         return assignee switch
         {
             null => null,
-            _ => new GetProjectTaskAssigneeByIdResponse(assignee.Id, assignee.TaskId, assignee.UserId, assignee.Role.ToString(), assignee.AssignedAt, assignee.CompanyId)
+            _ => new GetProjectTaskAssigneeByIdResponse(
+                assignee.Id,
+                assignee.TaskId,
+                assignee.UserId,
+                assignee.Role.ToString(),
+                assignee.AssignedAt,
+                assignee.CompanyId)
         };
     }
 
-    public async Task<AddProjectTaskAssigneeResponse> AddAsync(AddProjectTaskAssigneeCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<AddProjectTaskAssigneeResponse> AddAsync(
+        AddProjectTaskAssigneeCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var assignee = new TaskAssigneeModel
         {
@@ -43,10 +66,19 @@ public class ProjectTaskAssigneeService(IRepository<TaskAssigneeModel> repositor
         };
 
         var created = await repository.InsertAsync(assignee, cancellationToken);
-        return new AddProjectTaskAssigneeResponse(created.Id, created.TaskId, created.UserId, created.Role.ToString(), created.AssignedAt, created.CompanyId);
+        return new AddProjectTaskAssigneeResponse(
+            created.Id,
+            created.TaskId,
+            created.UserId,
+            created.Role.ToString(),
+            created.AssignedAt,
+            created.CompanyId);
     }
 
-    public async Task<UpdateProjectTaskAssigneeResponse?> UpdateAsync(UpdateProjectTaskAssigneeCommand command, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<UpdateProjectTaskAssigneeResponse?> UpdateAsync(
+        UpdateProjectTaskAssigneeCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var assignee = new TaskAssigneeModel
         {
@@ -59,10 +91,20 @@ public class ProjectTaskAssigneeService(IRepository<TaskAssigneeModel> repositor
         };
 
         var updated = await repository.UpdateAsync(command.Id, assignee, cancellationToken);
-        return updated is null ? null : new UpdateProjectTaskAssigneeResponse(updated.Id, updated.TaskId, updated.UserId, updated.Role.ToString(), updated.AssignedAt, updated.CompanyId);
+        return updated is null
+            ? null
+            : new UpdateProjectTaskAssigneeResponse(
+                updated.Id,
+                updated.TaskId,
+                updated.UserId,
+                updated.Role.ToString(),
+                updated.AssignedAt,
+                updated.CompanyId);
     }
 
-    public async Task DeleteAsync(DeleteProjectTaskAssigneeCommand command, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(
+        DeleteProjectTaskAssigneeCommand command,
+        CancellationToken cancellationToken = default)
     {
         await repository.DeleteAsync(command.Id, cancellationToken);
     }

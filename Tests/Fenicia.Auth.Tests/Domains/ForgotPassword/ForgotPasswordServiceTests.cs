@@ -15,8 +15,8 @@ public class ForgotPasswordServiceTests
 {
     private readonly Faker _faker;
     private readonly Mock<IForgotPasswordRepository> _mockRepository;
-    private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<ISecurityService> _mockSecurityService;
+    private readonly Mock<IUserService> _mockUserService;
     private readonly ForgotPasswordService _service;
 
     public ForgotPasswordServiceTests()
@@ -25,7 +25,10 @@ public class ForgotPasswordServiceTests
         _mockRepository = new Mock<IForgotPasswordRepository>();
         _mockUserService = new Mock<IUserService>();
         _mockSecurityService = new Mock<ISecurityService>();
-        _service = new ForgotPasswordService(_mockRepository.Object, _mockUserService.Object, _mockSecurityService.Object);
+        _service = new ForgotPasswordService(
+            _mockRepository.Object,
+            _mockUserService.Object,
+            _mockSecurityService.Object);
     }
 
     [Fact]
@@ -49,7 +52,9 @@ public class ForgotPasswordServiceTests
 
         await _service.AddAsync(command, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.IsAny<ForgotPasswordModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.IsAny<ForgotPasswordModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -61,7 +66,8 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.AddAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.AddAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -76,7 +82,8 @@ public class ForgotPasswordServiceTests
 
         var command = new AddForgotPasswordCommand(upperCaseEmail);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.AddAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.AddAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -101,7 +108,9 @@ public class ForgotPasswordServiceTests
 
         await _service.AddAsync(command, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.Is<ForgotPasswordModel>(fp => fp.UserId == userId1), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.Is<ForgotPasswordModel>(fp => fp.UserId == userId1), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -126,7 +135,9 @@ public class ForgotPasswordServiceTests
         await _service.AddAsync(command, CancellationToken.None);
         await _service.AddAsync(command, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.IsAny<ForgotPasswordModel>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.IsAny<ForgotPasswordModel>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
     }
 
     [Fact]
@@ -138,7 +149,8 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.AddAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.AddAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -177,7 +189,9 @@ public class ForgotPasswordServiceTests
         await _service.AddAsync(command1, CancellationToken.None);
         await _service.AddAsync(command2, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.IsAny<ForgotPasswordModel>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _mockRepository.Verify(
+            r => r.InsertAsync(It.IsAny<ForgotPasswordModel>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
     }
 
     [Fact]
@@ -203,7 +217,11 @@ public class ForgotPasswordServiceTests
 
         await _service.AddAsync(command, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.InsertAsync(It.Is<ForgotPasswordModel>(fp => fp.IpAddress == ipAddress && fp.UserAgent == userAgent), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.InsertAsync(
+                It.Is<ForgotPasswordModel>(fp => fp.IpAddress == ipAddress && fp.UserAgent == userAgent),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -241,8 +259,15 @@ public class ForgotPasswordServiceTests
 
         await _service.ResetAsync(command, CancellationToken.None);
 
-        _mockRepository.Verify(r => r.UpdateAsync(forgotPassword.Id, It.Is<ForgotPasswordModel>(fp => !fp.IsActive), It.IsAny<CancellationToken>()), Times.Once);
-        _mockUserService.Verify(s => s.UpdateHashedPasswordAsync(It.IsAny<UpdatePasswordCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockRepository.Verify(
+            r => r.UpdateAsync(
+                forgotPassword.Id,
+                It.Is<ForgotPasswordModel>(fp => !fp.IsActive),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _mockUserService.Verify(
+            s => s.UpdateHashedPasswordAsync(It.IsAny<UpdatePasswordCommand>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -257,7 +282,8 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -284,7 +310,8 @@ public class ForgotPasswordServiceTests
 
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -311,7 +338,8 @@ public class ForgotPasswordServiceTests
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -338,7 +366,8 @@ public class ForgotPasswordServiceTests
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -367,7 +396,8 @@ public class ForgotPasswordServiceTests
 
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -394,7 +424,8 @@ public class ForgotPasswordServiceTests
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        await Assert.ThrowsAsync<InvalidDataException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidDataException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
     }
 
     [Fact]
@@ -433,7 +464,11 @@ public class ForgotPasswordServiceTests
 
         await _service.ResetAsync(command, CancellationToken.None);
 
-        _mockUserService.Verify(s => s.UpdateHashedPasswordAsync(It.Is<UpdatePasswordCommand>(p => p.UserId == userId && p.Password == "hashed_new_password"), It.IsAny<CancellationToken>()), Times.Once);
+        _mockUserService.Verify(
+            s => s.UpdateHashedPasswordAsync(
+                It.Is<UpdatePasswordCommand>(p => p.UserId == userId && p.Password == "hashed_new_password"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -448,7 +483,8 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.ResetAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
+            _service.ResetAsync(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 }

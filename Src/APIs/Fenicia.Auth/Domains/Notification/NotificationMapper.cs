@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public static partial class NotificationMapper
+public static class NotificationMapper
 {
     public static GetAllNotificationsResponse MapToGetAllNotificationsResponse(this NotificationModel notification)
     {

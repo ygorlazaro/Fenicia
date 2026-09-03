@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
@@ -17,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 public class SupplierController(ISupplierService supplierService) : ControllerBase
 {
     /// <summary>
-    /// Obtém uma lista paginada de fornecedores.
+    ///     Obtém uma lista paginada de fornecedores.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
@@ -34,13 +33,21 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllSupplierResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllSupplierResponse>>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await supplierService.GetAllAsync(new GetAllSupplierQuery(page, perPage, query, sort), cancellationToken);
+            var suppliers = await supplierService.GetAllAsync(
+                new GetAllSupplierQuery(page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(suppliers);
         }
@@ -51,7 +58,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     }
 
     /// <summary>
-    /// Obtém um fornecedor pelo ID.
+    ///     Obtém um fornecedor pelo ID.
     /// </summary>
     /// <param name="id">ID do fornecedor</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -67,7 +74,10 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetSupplierByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetSupplierByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -84,7 +94,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     }
 
     /// <summary>
-    /// Cria um novo fornecedor.
+    ///     Cria um novo fornecedor.
     /// </summary>
     /// <param name="command">Dados do fornecedor a ser criado</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -100,7 +110,10 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddSupplierResponse>> PostAsync([FromBody] AddSupplierCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddSupplierResponse>> PostAsync(
+        [FromBody] AddSupplierCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -118,7 +131,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     }
 
     /// <summary>
-    /// Atualiza um fornecedor existente.
+    ///     Atualiza um fornecedor existente.
     /// </summary>
     /// <param name="command">Dados atualizados do fornecedor</param>
     /// <param name="id">ID do fornecedor</param>
@@ -137,7 +150,11 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateSupplierResponse>> PatchAsync([FromBody] UpdateSupplierCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateSupplierResponse>> PatchAsync(
+        [FromBody] UpdateSupplierCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -155,7 +172,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     }
 
     /// <summary>
-    /// Remove um fornecedor (soft delete).
+    ///     Remove um fornecedor (soft delete).
     /// </summary>
     /// <param name="id">ID do fornecedor</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -167,7 +184,10 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -185,7 +205,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     }
 
     /// <summary>
-    /// Obtém o desempenho de fornecedores.
+    ///     Obtém o desempenho de fornecedores.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Período em dias</param>
@@ -200,13 +220,19 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<SupplierPerformanceResponse>> GetPerformanceAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<SupplierPerformanceResponse>> GetPerformanceAsync(
+        WideEventContext wide,
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await supplierService.GetPerformanceAsync(new GetSupplierPerformanceQuery(days, topLimit), cancellationToken);
+            var performance = await supplierService.GetPerformanceAsync(
+                new GetSupplierPerformanceQuery(days, topLimit),
+                cancellationToken);
 
             return Ok(performance);
         }

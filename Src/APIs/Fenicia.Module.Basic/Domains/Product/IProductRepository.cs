@@ -5,17 +5,35 @@ namespace Fenicia.Module.Basic.Domains.Product;
 
 public interface IProductRepository : IRepository<ProductModel>
 {
-    Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
     Task<ProductModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProductModel>> GetByCategoryIdAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProductModel>> GetByCategoryIdAsync(
+        Guid categoryId,
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(Guid categoryId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(
+        Guid categoryId,
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(Guid productId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(
+        Guid productId,
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default);
 
     Task<List<ProductModel>> GetLowStockAsync(CancellationToken cancellationToken = default);
 
@@ -41,9 +59,12 @@ public interface IProductRepository : IRepository<ProductModel>
 
     Task<decimal> GetTotalSalesValueAsync(CancellationToken cancellationToken = default);
 
-    Task<List<ProductModel>> GetZeroMovementCandidatesAsync(IEnumerable<Guid> activeProductIds, CancellationToken cancellationToken = default);
+    Task<List<ProductModel>> GetZeroMovementCandidatesAsync(
+        IEnumerable<Guid> activeProductIds,
+        CancellationToken cancellationToken = default);
 
     Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken cancellationToken = default);
 
-    Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(CancellationToken cancellationToken = default);
+    Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(
+        CancellationToken cancellationToken = default);
 }

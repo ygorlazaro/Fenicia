@@ -1,21 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("Configuration", Schema = "auth")]
-public class ConfigurationModel : BaseCompanyModel
+public sealed class ConfigurationModel : BaseCompanyModel
 {
-    public ConfigType ConfigType { get; set; }
+    public ConfigType ConfigType { get; init; }
 
     [MaxLength(200)]
-    public string Value { get; set; } = null!;
+    public string Value { get; set; } = string.Empty;
 
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
-    public virtual UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
-    public virtual CompanyModel Company { get; set; } = null!;
+    public CompanyModel Company { get; init; } = default!;
 }

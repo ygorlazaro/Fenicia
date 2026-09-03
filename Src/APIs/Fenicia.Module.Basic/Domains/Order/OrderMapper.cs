@@ -7,7 +7,11 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [Mapper]
 public static partial class OrderMapper
 {
-    public static GetAllOrderResponse MapToGetAllOrderResponse(this OrderModel order, string customerName, string? employeeName, int detailCount)
+    public static GetAllOrderResponse MapToGetAllOrderResponse(
+        this OrderModel order,
+        string customerName,
+        string? employeeName,
+        int detailCount)
     {
         return new GetAllOrderResponse(
             order.Id,

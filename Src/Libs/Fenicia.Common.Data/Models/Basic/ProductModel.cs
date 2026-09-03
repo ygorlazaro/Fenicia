@@ -8,7 +8,7 @@ public class ProductModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
     [MaxLength(50)]
     public string? SKU { get; set; }
@@ -51,18 +51,18 @@ public class ProductModel : BaseCompanyModel
     public Guid CategoryId { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
-    public ProductCategoryModel Category { get; set; } = null!;
+    public ProductCategoryModel Category { get; init; } = default!;
 
     public Guid? SupplierId { get; set; }
 
     [ForeignKey(nameof(SupplierId))]
-    public SupplierModel? Supplier { get; set; }
+    public SupplierModel? Supplier { get; init; }
 
     [Required]
     [Column("is_active")]
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; init; } = true;
 
-    public List<StockMovementModel> StockMovements { get; set; } = null!;
+    public List<StockMovementModel> StockMovements { get; init; } = [];
 
-    public List<OrderDetailModel> OrderDetails { get; set; } = null!;
+    public List<OrderDetailModel> OrderDetails { get; init; } = [];
 }

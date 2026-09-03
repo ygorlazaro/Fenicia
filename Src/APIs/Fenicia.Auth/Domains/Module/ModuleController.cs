@@ -3,7 +3,6 @@ using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +16,7 @@ namespace Fenicia.Auth.Domains.Module;
 public class ModuleController(IModuleService service) : ControllerBase
 {
     /// <summary>
-    /// Obtém todos os módulos ativos com paginação (endpoint anônimo).
+    ///     Obtém todos os módulos ativos com paginação (endpoint anônimo).
     /// </summary>
     /// <param name="query">Parâmetros de paginação, filtro e ordenação</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -29,7 +28,10 @@ public class ModuleController(IModuleService service) : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<GetModuleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync(
+        [FromQuery] PaginationQuery query,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = "Guest";
 

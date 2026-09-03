@@ -15,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 public class StockMovementController(IStockMovementService stockMovementService) : ControllerBase
 {
     /// <summary>
-    /// Obtém movimentações de estoque por período.
+    ///     Obtém movimentações de estoque por período.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="startDate">Data inicial</param>
@@ -34,13 +34,23 @@ public class StockMovementController(IStockMovementService stockMovementService)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync(WideEventContext wide, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await stockMovementService.GetAsync(new GetStockMovementQuery(startDate, endDate, page, perPage, query, sort), cancellationToken);
+            var stockMovement = await stockMovementService.GetAsync(
+                new GetStockMovementQuery(startDate, endDate, page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(stockMovement);
         }
@@ -51,7 +61,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
     }
 
     /// <summary>
-    /// Cria uma nova movimentação de estoque.
+    ///     Cria uma nova movimentação de estoque.
     /// </summary>
     /// <param name="command">Dados da movimentação</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -67,7 +77,10 @@ public class StockMovementController(IStockMovementService stockMovementService)
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddStockMovementResponse>> PostAsync([FromBody] AddStockMovementCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddStockMovementResponse>> PostAsync(
+        [FromBody] AddStockMovementCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -85,7 +98,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
     }
 
     /// <summary>
-    /// Atualiza uma movimentação de estoque existente.
+    ///     Atualiza uma movimentação de estoque existente.
     /// </summary>
     /// <param name="id">ID da movimentação</param>
     /// <param name="command">Dados atualizados da movimentação</param>
@@ -107,14 +120,21 @@ public class StockMovementController(IStockMovementService stockMovementService)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync([FromRoute] Guid id, [FromBody] UpdateStockMovementCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync(
+        [FromRoute] Guid id,
+        [FromBody] UpdateStockMovementCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = ClaimReader.UserId(User);
-            var stockMovement = await stockMovementService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
+            var stockMovement = await stockMovementService.UpdateAsync(
+                command with { Id = id },
+                companyId,
+                cancellationToken);
 
             return stockMovement is null ? NotFound() : Ok(stockMovement);
         }
@@ -125,7 +145,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
     }
 
     /// <summary>
-    /// Obtém métricas analíticas das movimentações de estoque.
+    ///     Obtém métricas analíticas das movimentações de estoque.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Período em dias para análise</param>
@@ -140,13 +160,19 @@ public class StockMovementController(IStockMovementService stockMovementService)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(WideEventContext wide, [FromQuery] int days = 30, [FromQuery] int topLimit = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(
+        WideEventContext wide,
+        [FromQuery] int days = 30,
+        [FromQuery] int topLimit = 10,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await stockMovementService.GetDashboardAsync(new GetStockMovementDashboardQuery(days, topLimit), cancellationToken);
+            var dashboard = await stockMovementService.GetDashboardAsync(
+                new GetStockMovementDashboardQuery(days, topLimit),
+                cancellationToken);
 
             return Ok(dashboard);
         }

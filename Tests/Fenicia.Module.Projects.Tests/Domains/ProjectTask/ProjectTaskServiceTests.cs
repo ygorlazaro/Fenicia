@@ -27,7 +27,12 @@ public class ProjectTaskServiceTests
     {
         var tasks = new List<ProjectTaskModel>
         {
-            new() { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = _faker.Lorem.Sentence(), Priority = EnumTaskPriority.Medium, Type = EnumTaskType.Task, Order = 1, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() }
+            new()
+            {
+                Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(),
+                Title = _faker.Lorem.Sentence(), Priority = EnumTaskPriority.Medium, Type = EnumTaskType.Task,
+                Order = 1, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid()
+            }
         };
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectTaskModel>(tasks));
@@ -41,7 +46,12 @@ public class ProjectTaskServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenTaskExists_ReturnsTask()
     {
-        var task = new ProjectTaskModel { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = "T", Priority = EnumTaskPriority.Medium, Type = EnumTaskType.Task, Order = 1, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
+        var task = new ProjectTaskModel
+        {
+            Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = "T",
+            Priority = EnumTaskPriority.Medium, Type = EnumTaskType.Task, Order = 1, CreatedBy = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.GetByIdWithRelationsAsync(task.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(task);
@@ -68,7 +78,18 @@ public class ProjectTaskServiceTests
     public async Task AddAsync_WhenCommandIsValid_ReturnsCreatedTask()
     {
         var companyId = Guid.NewGuid();
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "T", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, Guid.NewGuid());
+        var command = new AddProjectTaskCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "T",
+            null,
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
+            1,
+            null,
+            null,
+            Guid.NewGuid());
 
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectTaskModel m, CancellationToken _) => m);
@@ -83,12 +104,28 @@ public class ProjectTaskServiceTests
     [Fact]
     public async Task UpdateAsync_WhenTaskExists_ReturnsUpdatedTask()
     {
-        var task = new ProjectTaskModel { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = "U", Priority = EnumTaskPriority.High, Type = EnumTaskType.Bug, Order = 2, CreatedBy = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
+        var task = new ProjectTaskModel
+        {
+            Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), StatusId = Guid.NewGuid(), Title = "U",
+            Priority = EnumTaskPriority.High, Type = EnumTaskType.Bug, Order = 2, CreatedBy = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.UpdateAsync(task.Id, It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(task);
 
-        var command = new UpdateProjectTaskCommand(task.Id, task.ProjectId, task.StatusId, "U", null, nameof(EnumTaskPriority.High), nameof(EnumTaskType.Bug), 2, null, null, task.CreatedBy);
+        var command = new UpdateProjectTaskCommand(
+            task.Id,
+            task.ProjectId,
+            task.StatusId,
+            "U",
+            null,
+            nameof(EnumTaskPriority.High),
+            nameof(EnumTaskType.Bug),
+            2,
+            null,
+            null,
+            task.CreatedBy);
 
         var result = await _service.UpdateAsync(command, task.CompanyId, CancellationToken.None);
 
@@ -99,10 +136,24 @@ public class ProjectTaskServiceTests
     [Fact]
     public async Task UpdateAsync_WhenTaskDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ProjectTaskModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectTaskModel?)null);
 
-        var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "U", null, nameof(EnumTaskPriority.Medium), nameof(EnumTaskType.Task), 1, null, null, Guid.NewGuid());
+        var command = new UpdateProjectTaskCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "U",
+            null,
+            nameof(EnumTaskPriority.Medium),
+            nameof(EnumTaskType.Task),
+            1,
+            null,
+            null,
+            Guid.NewGuid());
 
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 

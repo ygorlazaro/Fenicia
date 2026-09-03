@@ -7,9 +7,14 @@ namespace Fenicia.Auth.Domains.Module.Interfaces;
 
 public interface IModuleService
 {
-    Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(PaginationQuery query, CancellationToken cancellationToken = default);
+    Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default);
 
-    Task<List<GetUserModulesResponse>> GetUserModulesAsync(Guid companyId, Guid userId, CancellationToken cancellationToken = default);
+    Task<List<GetUserModulesResponse>> GetUserModulesAsync(
+        Guid companyId,
+        Guid userId,
+        CancellationToken cancellationToken = default);
 
     Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
 

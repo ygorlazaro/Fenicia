@@ -15,8 +15,8 @@ public class ProjectSubtaskControllerTests
 {
     private readonly ProjectSubtaskController _controller;
     private readonly Faker _faker;
-    private readonly Mock<IProjectSubtaskService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<IProjectSubtaskService> _mockService;
     private readonly Guid _testUserId;
 
     public ProjectSubtaskControllerTests()
@@ -24,7 +24,8 @@ public class ProjectSubtaskControllerTests
         _mockService = new Mock<IProjectSubtaskService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectSubtaskController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProjectSubtaskController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
     }
@@ -50,7 +51,14 @@ public class ProjectSubtaskControllerTests
     public async Task GetByIdAsync_WhenSubtaskExists_ReturnsOk()
     {
         var wide = new WideEventContext();
-        var subtask = new GetProjectSubtaskByIdResponse(Guid.NewGuid(), Guid.NewGuid(), "S", false, 1, null, Guid.NewGuid());
+        var subtask = new GetProjectSubtaskByIdResponse(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "S",
+            false,
+            1,
+            null,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectSubtaskByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(subtask);
@@ -77,7 +85,14 @@ public class ProjectSubtaskControllerTests
     {
         var wide = new WideEventContext();
         var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "S", false, 1, null);
-        var response = new AddProjectSubtaskResponse(command.Id, command.TaskId, command.Title, command.IsCompleted, command.Order, command.CompletedAt, Guid.NewGuid());
+        var response = new AddProjectSubtaskResponse(
+            command.Id,
+            command.TaskId,
+            command.Title,
+            command.IsCompleted,
+            command.Order,
+            command.CompletedAt,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -93,9 +108,19 @@ public class ProjectSubtaskControllerTests
         var wide = new WideEventContext();
         var subtaskId = Guid.NewGuid();
         var command = new UpdateProjectSubtaskCommand(subtaskId, Guid.NewGuid(), "U", true, 2, DateTime.UtcNow);
-        var response = new UpdateProjectSubtaskResponse(command.Id, command.TaskId, command.Title, command.IsCompleted, command.Order, command.CompletedAt, Guid.NewGuid());
+        var response = new UpdateProjectSubtaskResponse(
+            command.Id,
+            command.TaskId,
+            command.Title,
+            command.IsCompleted,
+            command.Order,
+            command.CompletedAt,
+            Guid.NewGuid());
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectSubtaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectSubtaskCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PatchAsync(command, subtaskId, wide, CancellationToken.None);
@@ -109,7 +134,10 @@ public class ProjectSubtaskControllerTests
         var wide = new WideEventContext();
         var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "U", true, 2, DateTime.UtcNow);
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectSubtaskCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectSubtaskCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectSubtaskResponse?)null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);

@@ -8,7 +8,10 @@ namespace Fenicia.Module.SocialNetwork.Domains.Report;
 
 public class ReportService(ReportRepository repository)
 {
-    public async Task<AddReportResponse> AddAsync(AddReportCommand command, Guid reporterId, CancellationToken cancellationToken = default)
+    public async Task<AddReportResponse> AddAsync(
+        AddReportCommand command,
+        Guid reporterId,
+        CancellationToken cancellationToken = default)
     {
         var model = new ReportModel
         {
@@ -23,10 +26,20 @@ public class ReportService(ReportRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddReportResponse(created.Id, created.ReporterId, created.TargetId, created.TargetType, created.Reason, created.Description, created.Status.ToString(), created.ReportDate);
+        return new AddReportResponse(
+            created.Id,
+            created.ReporterId,
+            created.TargetId,
+            created.TargetType,
+            created.Reason,
+            created.Description,
+            created.Status.ToString(),
+            created.ReportDate);
     }
 
-    public async Task<UpdateReportResponse?> UpdateStatusAsync(UpdateReportStatusCommand command, CancellationToken cancellationToken = default)
+    public async Task<UpdateReportResponse?> UpdateStatusAsync(
+        UpdateReportStatusCommand command,
+        CancellationToken cancellationToken = default)
     {
         var existing = await repository.GetByIdAsync(command.Id, cancellationToken);
         if (existing is null)
@@ -45,18 +58,44 @@ public class ReportService(ReportRepository repository)
         return updated is null ? null : new UpdateReportResponse(updated.Id, updated.Status.ToString());
     }
 
-    public async Task<List<GetAllReportResponse>> GetAllAsync(GetAllReportQuery query, CancellationToken cancellationToken = default)
+    public async Task<List<GetAllReportResponse>> GetAllAsync(
+        GetAllReportQuery query,
+        CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
         var filters = AdvancedQueryParser.Parse(query.Query);
         var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
-        var reports = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(cancellationToken);
-        return [.. reports.Select(r => new GetAllReportResponse(r.Id, r.ReporterId, r.TargetId, r.TargetType, r.Reason, r.Description, r.Status.ToString(), r.ReportDate))];
+        var reports = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+        return
+        [
+            .. reports.Select(r => new GetAllReportResponse(
+                r.Id,
+                r.ReporterId,
+                r.TargetId,
+                r.TargetType,
+                r.Reason,
+                r.Description,
+                r.Status.ToString(),
+                r.ReportDate))
+        ];
     }
 
-    public async Task<GetReportByIdResponse?> GetByIdAsync(GetReportByIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<GetReportByIdResponse?> GetByIdAsync(
+        GetReportByIdQuery query,
+        CancellationToken cancellationToken = default)
     {
         var report = await repository.GetByIdAsync(query.Id, cancellationToken);
-        return report is null ? null : new GetReportByIdResponse(report.Id, report.ReporterId, report.TargetId, report.TargetType, report.Reason, report.Description, report.Status.ToString(), report.ReportDate);
+        return report is null
+            ? null
+            : new GetReportByIdResponse(
+                report.Id,
+                report.ReporterId,
+                report.TargetId,
+                report.TargetType,
+                report.Reason,
+                report.Description,
+                report.Status.ToString(),
+                report.ReportDate);
     }
 }

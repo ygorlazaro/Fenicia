@@ -6,6 +6,7 @@ using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
+using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Moq;
 
@@ -23,7 +24,10 @@ public class OrderServiceTests : IDisposable
         _mockRepository = new Mock<IOrderRepository>();
         var mockOrderDetailService = new Mock<IOrderDetailService>();
         _mockStockMovementService = new Mock<IStockMovementService>();
-        _service = new OrderService(_mockRepository.Object, mockOrderDetailService.Object, _mockStockMovementService.Object);
+        _service = new OrderService(
+            _mockRepository.Object,
+            mockOrderDetailService.Object,
+            _mockStockMovementService.Object);
         _faker = new Faker();
     }
 
@@ -85,12 +89,32 @@ public class OrderServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesOrder()
     {
         // Arrange
-        var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, OrderStatus.Pending, [], PaymentMethod.Cash);
+        var command = new CreateOrderCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            OrderStatus.Pending,
+            [],
+            PaymentMethod.Cash);
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((OrderModel o, CancellationToken _) => o);
-        _mockStockMovementService.Setup(s => s.AddAsync(It.IsAny<Fenicia.Module.Basic.Domains.StockMovement.DTOs.AddStockMovementCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Fenicia.Module.Basic.Domains.StockMovement.DTOs.AddStockMovementCommand cmd, Guid _, CancellationToken _) =>
-                new Fenicia.Module.Basic.Domains.StockMovement.DTOs.AddStockMovementResponse(cmd.Id, cmd.ProductId, cmd.Quantity, cmd.Date, cmd.Price, cmd.Type, cmd.CustomerId, cmd.SupplierId, cmd.EmployeeId, cmd.OrderId, cmd.Reason));
+        _mockStockMovementService.Setup(s => s.AddAsync(
+                It.IsAny<AddStockMovementCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddStockMovementCommand cmd, Guid _, CancellationToken _) =>
+                new AddStockMovementResponse(
+                    cmd.Id,
+                    cmd.ProductId,
+                    cmd.Quantity,
+                    cmd.Date,
+                    cmd.Price,
+                    cmd.Type,
+                    cmd.CustomerId,
+                    cmd.SupplierId,
+                    cmd.EmployeeId,
+                    cmd.OrderId,
+                    cmd.Reason));
 
         // Act
         var result = await _service.CreateAsync(command, Guid.NewGuid(), CancellationToken.None);
@@ -119,7 +143,10 @@ public class OrderServiceTests : IDisposable
     public async Task GetAnalyticsAsync_ReturnsAnalytics()
     {
         // Arrange
-        _mockRepository.Setup(r => r.GetAnalyticsOrdersAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.GetAnalyticsOrdersAsync(
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         // Act

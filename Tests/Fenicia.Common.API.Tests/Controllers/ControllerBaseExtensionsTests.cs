@@ -23,10 +23,10 @@ public class ControllerBaseExtensionsTests
         var result = controller.ForbidWithMessage("Test message");
 
         result.Should().NotBeNull();
-        var valueType = result.Value!.GetType();
-        valueType.GetProperty("status")!.GetValue(result.Value!)!.Should().Be(403);
-        valueType.GetProperty("title")!.GetValue(result.Value!)!.Should().Be("Forbidden");
-        valueType.GetProperty("detail")!.GetValue(result.Value!)!.Should().Be("Test message");
+        var valueType = result.Value?.GetType();
+        valueType?.GetProperty("status")?.GetValue(result.Value).Should().Be(403);
+        valueType?.GetProperty("title")?.GetValue(result.Value).Should().Be("Forbidden");
+        valueType?.GetProperty("detail")?.GetValue(result.Value).Should().Be("Test message");
     }
 
     private sealed class TestController : ControllerBase;

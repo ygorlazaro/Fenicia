@@ -1,16 +1,12 @@
 using Bogus;
-
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.DTOs;
 using Fenicia.Auth.Domains.Token.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using Moq;
-
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
@@ -52,7 +48,8 @@ public class TokenControllerTests
         var wide = new WideEventContext();
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, request.Email);
 
-        _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
         _tokenServiceMock.Setup(s => s.GenerateString(It.IsAny<GenerateTokenResponse>())).Returns("jwt");
 
         var result = await _controller.PostAsync(request, wide, CancellationToken.None);

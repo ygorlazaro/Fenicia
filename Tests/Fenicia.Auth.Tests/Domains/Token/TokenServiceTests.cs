@@ -16,11 +16,11 @@ namespace Fenicia.Auth.Tests.Domains.Token;
 
 public class TokenServiceTests
 {
-    private readonly Mock<IDatabase> _redisDbMock;
     private readonly Faker _faker;
     private readonly Mock<ILoginAttemptService> _mockLoginAttemptService;
-    private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<ISecurityService> _mockSecurityService;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<IDatabase> _redisDbMock;
     private readonly TokenService _service;
 
     public TokenServiceTests()
@@ -34,9 +34,14 @@ public class TokenServiceTests
         _mockUserService = new Mock<IUserService>();
         _mockSecurityService = new Mock<ISecurityService>();
 
-        mockConfiguration.Setup(c => c["Jwt:Secret"]).Returns("ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes");
+        mockConfiguration.Setup(c => c["Jwt:Secret"])
+            .Returns("ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes");
 
-        _service = new TokenService(mockConfiguration.Object, _mockLoginAttemptService.Object, _mockUserService.Object, _mockSecurityService.Object);
+        _service = new TokenService(
+            mockConfiguration.Object,
+            _mockLoginAttemptService.Object,
+            _mockUserService.Object,
+            _mockSecurityService.Object);
         _faker = new Faker();
     }
 
@@ -50,7 +55,8 @@ public class TokenServiceTests
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(5);
         _mockLoginAttemptService.Setup(s => s.GetAttempts(email)).Returns(5);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Too many login attempts. Please try again later.", ex.Message);
     }
 
@@ -66,7 +72,8 @@ public class TokenServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
     }
 
@@ -124,7 +131,8 @@ public class TokenServiceTests
             .ReturnsAsync(user);
         _mockSecurityService.Setup(s => s.Verify(It.IsAny<string>(), user.Password)).Returns(false);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Equal("Invalid username or password.", ex.Message);
     }
 
@@ -188,7 +196,8 @@ public class TokenServiceTests
         _faker.Internet.Email();
         var query = new GenerateTokenQuery(string.Empty, _faker.Internet.Password());
 
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.GenerateAsync(query, CancellationToken.None));
     }
 
     [Fact]
@@ -209,7 +218,8 @@ public class TokenServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await _service.GenerateAsync(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.GenerateAsync(query, CancellationToken.None));
         Assert.Contains("Password", ex.Message);
     }
 
@@ -259,7 +269,11 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasCompanyId_TokenContainsCompanyIdClaim()
     {
-        var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), Guid.NewGuid());
+        var userWithCompany = new GenerateTokenResponseWithCompany(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            Guid.NewGuid());
 
         var token = _service.GenerateString(userWithCompany);
 
@@ -273,7 +287,11 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasRoles_TokenContainsRoleClaims()
     {
-        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", "Manager"]);
+        var userWithRoles = new GenerateTokenResponseWithRoles(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            ["Admin", "User", "Manager"]);
 
         var token = _service.GenerateString(userWithRoles);
 
@@ -290,7 +308,11 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasModules_TokenContainsModuleClaims()
     {
-        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", "social"]);
+        var userWithModules = new GenerateTokenResponseWithModules(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            ["basic", "social"]);
 
         var token = _service.GenerateString(userWithModules);
 
@@ -329,7 +351,11 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
-        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["Admin", "User", string.Empty]);
+        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            ["Admin", "User", string.Empty]);
 
         var token = _service.GenerateString(userWithEmptyRoles);
 
@@ -343,7 +369,11 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
-        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email(), ["basic", string.Empty]);
+        var userWithEmptyModules = new GenerateTokenResponseWithModules(
+            Guid.NewGuid(),
+            _faker.Person.FullName,
+            _faker.Internet.Email(),
+            ["basic", string.Empty]);
 
         var token = _service.GenerateString(userWithEmptyModules);
 
@@ -354,11 +384,14 @@ public class TokenServiceTests
         Assert.Single(moduleClaims);
     }
 
-    private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId)
+        : GenerateTokenResponse(Id, Name, Email);
 
     // ReSharper disable once NotAccessedPositionalProperty.Local
-    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, List<string> Roles) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, List<string> Roles)
+        : GenerateTokenResponse(Id, Name, Email);
 
     // ReSharper disable once NotAccessedPositionalProperty.Local
-    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, List<string> Modules) : GenerateTokenResponse(Id, Name, Email);
+    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, List<string> Modules)
+        : GenerateTokenResponse(Id, Name, Email);
 }

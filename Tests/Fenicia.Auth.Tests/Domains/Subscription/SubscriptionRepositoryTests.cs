@@ -5,7 +5,6 @@ using Fenicia.Auth.Tests.Domains.Security;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Subscription;
@@ -18,7 +17,8 @@ public class SubscriptionRepositoryTests : IDisposable
 
     public SubscriptionRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new SubscriptionRepository(_db);

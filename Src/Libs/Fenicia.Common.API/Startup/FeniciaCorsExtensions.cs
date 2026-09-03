@@ -13,8 +13,16 @@ public static class FeniciaCorsExtensions
 
         builder.Services.AddCors(o =>
         {
-            o.AddPolicy("RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
-            o.AddPolicy("DevCors", policy => { policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            o.AddPolicy(
+                "RestrictedCors",
+                policy =>
+                {
+                    policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br")
+                        .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
+            o.AddPolicy(
+                "DevCors",
+                policy => { policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
         });
 
         return builder;

@@ -2,7 +2,6 @@ using System.Net.Mime;
 using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Common.API;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,7 @@ namespace Fenicia.Auth.Domains.Subscription;
 public class SubscriptionController(ISubscriptionService subscriptionService) : ControllerBase
 {
     /// <summary>
-    /// Obtém o perfil do usuário autenticado com empresas e assinaturas.
+    ///     Obtém o perfil do usuário autenticado com empresas e assinaturas.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -29,7 +28,9 @@ public class SubscriptionController(ISubscriptionService subscriptionService) : 
     [ProducesResponseType(typeof(GetUserProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetUserProfileResponse>> GetUserProfile(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetUserProfileResponse>> GetUserProfile(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

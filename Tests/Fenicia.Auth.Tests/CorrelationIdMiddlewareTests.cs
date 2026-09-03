@@ -1,7 +1,5 @@
 using Bogus;
-
 using Fenicia.Common.API;
-
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Auth.Tests;
@@ -51,7 +49,9 @@ public class CorrelationIdMiddlewareTests
         await middleware.InvokeAsync(context);
 
         Assert.True(called, "Next delegate should be invoked");
-        Assert.True(context.Request.Headers.ContainsKey(_headerName), "Request should contain generated correlation header");
+        Assert.True(
+            context.Request.Headers.ContainsKey(_headerName),
+            "Request should contain generated correlation header");
         Assert.True(context.Response.Headers.ContainsKey(_headerName), "Response should contain correlation header");
 
         var value = context.Request.Headers[_headerName].ToString();
@@ -74,12 +74,17 @@ public class CorrelationIdMiddlewareTests
 
         var middleware = new CorrelationIdMiddleware(Next);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await middleware.InvokeAsync(context));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => middleware.InvokeAsync(context));
         Assert.Equal("boom", ex.Message);
-        Assert.True(context.Response.Headers.ContainsKey(_headerName), "Response should contain correlation header even when an exception is thrown");
+        Assert.True(
+            context.Response.Headers.ContainsKey(_headerName),
+            "Response should contain correlation header even when an exception is thrown");
 
         return;
 
-        static Task Next(HttpContext ctx) => throw new InvalidOperationException("boom");
+        static Task Next(HttpContext ctx)
+        {
+            throw new InvalidOperationException("boom");
+        }
     }
 }

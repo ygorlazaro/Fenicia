@@ -7,8 +7,8 @@ namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
 public class LoginAttemptServiceTests : IDisposable
 {
-    private readonly Mock<IDatabase> _redisDbMock;
     private readonly Faker _faker;
+    private readonly Mock<IDatabase> _redisDbMock;
     private readonly LoginAttemptService _service;
 
     public LoginAttemptServiceTests()
@@ -20,6 +20,10 @@ public class LoginAttemptServiceTests : IDisposable
         redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(_redisDbMock.Object);
 
         _service = new LoginAttemptService(redisMock.Object);
+    }
+
+    public void Dispose()
+    {
     }
 
     [Fact]
@@ -101,7 +105,7 @@ public class LoginAttemptServiceTests : IDisposable
     [Fact]
     public async Task IncrementAsync_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.IncrementAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _service.IncrementAsync(null!));
     }
 
     [Fact]
@@ -118,10 +122,6 @@ public class LoginAttemptServiceTests : IDisposable
     [Fact]
     public async Task ResetAsync_WhenEmailIsNull_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.ResetAsync(null!));
-    }
-
-    public void Dispose()
-    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _service.ResetAsync(null!));
     }
 }

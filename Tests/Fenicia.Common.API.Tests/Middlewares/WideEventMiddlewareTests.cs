@@ -11,9 +11,9 @@ public class WideEventMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldSetPathAndMethod()
     {
-        var middleware = new WideEventMiddleware(next: _ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
+        var middleware = new WideEventMiddleware(_ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
         var context = new DefaultHttpContext();
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
         context.Request.Path = "/api/test";
         context.Request.Method = "POST";
 
@@ -26,9 +26,9 @@ public class WideEventMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldSetStatusCodeOnSuccess()
     {
-        var middleware = new WideEventMiddleware(next: _ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
+        var middleware = new WideEventMiddleware(_ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
         var context = new DefaultHttpContext();
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
         context.Response.StatusCode = 200;
 
         await middleware.InvokeAsync(context, wide);
@@ -41,12 +41,12 @@ public class WideEventMiddlewareTests
     public async Task InvokeAsync_ShouldSetStatusCodeOnError()
     {
         var middleware = new WideEventMiddleware(
-            next: _ => throw new InvalidOperationException("Test error"),
+            _ => throw new InvalidOperationException("Test error"),
             Mock.Of<ILogger<WideEventMiddleware>>());
         var context = new DefaultHttpContext();
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
 
-        var act = async () => await middleware.InvokeAsync(context, wide);
+        var act = () => middleware.InvokeAsync(context, wide);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
         wide.Success.Should().BeFalse();
@@ -57,9 +57,9 @@ public class WideEventMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldSetDurationMs()
     {
-        var middleware = new WideEventMiddleware(next: _ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
+        var middleware = new WideEventMiddleware(_ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
         var context = new DefaultHttpContext();
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
 
         await middleware.InvokeAsync(context, wide);
 
@@ -69,9 +69,9 @@ public class WideEventMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldSetOperation()
     {
-        var middleware = new WideEventMiddleware(next: _ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
+        var middleware = new WideEventMiddleware(_ => Task.CompletedTask, Mock.Of<ILogger<WideEventMiddleware>>());
         var context = new DefaultHttpContext();
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
         context.Request.Path = "/api/users";
         context.Request.Method = "GET";
 

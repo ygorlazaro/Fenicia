@@ -1,7 +1,5 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
@@ -22,7 +20,8 @@ public class DashboardControllerTests : IDisposable
     {
         _mockService = new Mock<IDashboardService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new DashboardController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new DashboardController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }
@@ -47,7 +46,9 @@ public class DashboardControllerTests : IDisposable
 
     private void SetupServiceMocks()
     {
-        _mockService.Setup(s => s.GetFinancialDashboardAsync(It.IsAny<GetFinancialDashboardQuery>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetFinancialDashboardAsync(
+                It.IsAny<GetFinancialDashboardQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FinancialDashboardResponse());
     }
 

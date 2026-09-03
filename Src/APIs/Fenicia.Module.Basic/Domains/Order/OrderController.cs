@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
@@ -17,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Order;
 public class OrderController(IOrderService orderService) : ControllerBase
 {
     /// <summary>
-    /// Obtém uma lista paginada de pedidos.
+    ///     Obtém uma lista paginada de pedidos.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
@@ -34,13 +33,21 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var orders = await orderService.GetAllAsync(new GetAllOrderQuery(page, perPage, query, sort), cancellationToken);
+            var orders = await orderService.GetAllAsync(
+                new GetAllOrderQuery(page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(orders);
         }
@@ -51,7 +58,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     /// <summary>
-    /// Obtém um pedido pelo ID.
+    ///     Obtém um pedido pelo ID.
     /// </summary>
     /// <param name="id">ID do pedido</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -67,7 +74,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetOrderByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetOrderByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -84,7 +94,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     /// <summary>
-    /// Cria um novo pedido.
+    ///     Cria um novo pedido.
     /// </summary>
     /// <param name="command">Dados do pedido a ser criado</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -100,14 +110,20 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CreateOrderResponse>> PostAsync([FromBody] CreateOrderCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<CreateOrderResponse>> PostAsync(
+        [FromBody] CreateOrderCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
-            var order = await orderService.CreateAsync(command with { UserId = userId }, ClaimReader.UserId(User), cancellationToken);
+            var order = await orderService.CreateAsync(
+                command with { UserId = userId },
+                ClaimReader.UserId(User),
+                cancellationToken);
 
             return new CreatedResult(string.Empty, order);
         }
@@ -118,7 +134,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     /// <summary>
-    /// Remove um pedido (soft delete).
+    ///     Remove um pedido (soft delete).
     /// </summary>
     /// <param name="id">ID do pedido</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -133,7 +149,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -150,7 +169,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     /// <summary>
-    /// Obtém uma lista paginada de pedidos.
+    ///     Obtém uma lista paginada de pedidos.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Período em dias</param>
@@ -165,13 +184,19 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<OrderAnalyticsResponse>> GetAnalyticsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topCustomersLimit = 10, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<OrderAnalyticsResponse>> GetAnalyticsAsync(
+        WideEventContext wide,
+        [FromQuery] int days = 90,
+        [FromQuery] int topCustomersLimit = 10,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var analytics = await orderService.GetAnalyticsAsync(new GetOrderAnalyticsQuery(days, topCustomersLimit), cancellationToken);
+            var analytics = await orderService.GetAnalyticsAsync(
+                new GetOrderAnalyticsQuery(days, topCustomersLimit),
+                cancellationToken);
 
             return Ok(analytics);
         }

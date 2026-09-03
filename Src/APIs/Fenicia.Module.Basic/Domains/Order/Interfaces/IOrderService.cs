@@ -6,15 +6,22 @@ namespace Fenicia.Module.Basic.Domains.Order.Interfaces;
 
 public interface IOrderService
 {
-    Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(GetAllOrderQuery query, CancellationToken cancellationToken = default);
+    Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(
+        GetAllOrderQuery query,
+        CancellationToken cancellationToken = default);
 
     Task<GetOrderByIdResponse?> GetByIdAsync(GetOrderByIdQuery query, CancellationToken cancellationToken = default);
 
-    Task<CreateOrderResponse> CreateAsync(CreateOrderCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task<CreateOrderResponse> CreateAsync(
+        CreateOrderCommand command,
+        Guid companyId,
+        CancellationToken cancellationToken = default);
 
     Task DeleteAsync(DeleteOrderCommand command, Guid companyId, CancellationToken cancellationToken = default);
 
-    Task<OrderAnalyticsResponse> GetAnalyticsAsync(GetOrderAnalyticsQuery query, CancellationToken cancellationToken = default);
+    Task<OrderAnalyticsResponse> GetAnalyticsAsync(
+        GetOrderAnalyticsQuery query,
+        CancellationToken cancellationToken = default);
 
     Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default);
 
@@ -54,5 +61,8 @@ public interface IOrderService
 
     Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default);
 
-    Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 }

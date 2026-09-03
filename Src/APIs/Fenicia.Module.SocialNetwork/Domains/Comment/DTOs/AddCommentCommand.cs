@@ -7,4 +7,4 @@ public record AddCommentCommand(
     [Required] Guid UserId,
     [Required] Guid FeedId,
     Guid? ParentCommentId,
-    [Required][MaxLength(1024)] string Text);
+    [Required] [MaxLength(1024)] string Text);

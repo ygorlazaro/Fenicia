@@ -4,21 +4,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("statuses", Schema = "project")]
-public class ProjectStatusModel : BaseCompanyModel
+public sealed class ProjectStatusModel : BaseCompanyModel
 {
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId { get; init; }
 
     [MaxLength(30)]
-    public string Name { get; set; } = null!;
+    public string Name { get; init; } = string.Empty;
 
     [MaxLength(7)]
-    public string Color { get; set; } = null!;
+    public string Color { get; init; } = string.Empty;
 
-    public int Order { get; set; } = 0;
+    public int Order { get; init; } = 0;
 
-    public bool IsFinal { get; set; } = false;
+    public bool IsFinal { get; init; } = false;
 
-    public virtual ProjectModel ProjectModel { get; set; } = null!;
+    public ProjectModel ProjectModel { get; init; } = default!;
 
-    public virtual List<ProjectTaskModel> Tasks { get; set; } = [];
+    public List<ProjectTaskModel> Tasks { get; init; } = [];
 }

@@ -16,7 +16,8 @@ public class ProductCategoryRepositoryTests : IDisposable
 
     public ProductCategoryRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         var companyContext = new TestCompanyContext();
         _db = new DefaultContext(options, companyContext);
         _repository = new ProductCategoryRepository(_db);
@@ -33,7 +34,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllProductCategories()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -48,7 +50,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task GetByIdAsync_WhenProductCategoryExists_ReturnsProductCategory()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -74,7 +77,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task InsertAsync_WhenProductCategoryIsValid_InsertsProductCategory()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
 
         // Act
         var result = await _repository.InsertAsync(productCategory, CancellationToken.None);
@@ -82,14 +86,15 @@ public class ProductCategoryRepositoryTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
-        result.Created.Should().NotBe(default(DateTime));
+        result.Created.Should().NotBe(default);
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductCategoryExists_UpdatesProductCategory()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -105,7 +110,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenProductCategoryDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
 
         // Act
         var result = await _repository.UpdateAsync(productCategory.Id, productCategory, CancellationToken.None);
@@ -118,7 +124,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task DeleteAsync_WhenProductCategoryExists_SoftDeletesProductCategory()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -127,7 +134,8 @@ public class ProductCategoryRepositoryTests : IDisposable
 
         // Assert
         result.Should().Be(1);
-        var deletedProductCategory = await _db.BasicProductCategories.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == productCategory.Id);
+        var deletedProductCategory = await _db.BasicProductCategories.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(p => p.Id == productCategory.Id);
         deletedProductCategory.Should().NotBeNull();
         deletedProductCategory.Deleted.Should().NotBeNull();
     }
@@ -136,7 +144,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -151,7 +160,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task FindAsync_ReturnsMatchingProductCategories()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -166,7 +176,8 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task AnyAsync_WhenProductCategoryExists_ReturnsTrue()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
@@ -181,12 +192,14 @@ public class ProductCategoryRepositoryTests : IDisposable
     public async Task Query_ReturnsQueryable()
     {
         // Arrange
-        var productCategory = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var productCategory = new ProductCategoryModel
+            { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
         _db.BasicProductCategories.Add(productCategory);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await _repository.Query().Where(p => p.Id == productCategory.Id).ToListAsync(CancellationToken.None);
+        var result = await _repository.Query().Where(p => p.Id == productCategory.Id)
+            .ToListAsync(CancellationToken.None);
 
         // Assert
         result.Should().HaveCount(1);

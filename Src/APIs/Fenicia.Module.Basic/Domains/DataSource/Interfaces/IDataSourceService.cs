@@ -10,7 +10,8 @@ public interface IDataSourceService
 
     Task<List<GetAllPositionForDataSourceResponse>> GetPositionsAsync(CancellationToken cancellationToken = default);
 
-    Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(CancellationToken cancellationToken = default);
+    Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(
+        CancellationToken cancellationToken = default);
 
     Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(CancellationToken cancellationToken = default);
 

@@ -1,8 +1,6 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.ProductCategory;
@@ -25,7 +23,8 @@ public class ProductCategoryControllerTests : IDisposable
     {
         _mockService = new Mock<IProductCategoryService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProductCategoryController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProductCategoryController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
@@ -72,7 +71,10 @@ public class ProductCategoryControllerTests : IDisposable
         var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "Updated Name");
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateProductCategoryCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.Is<UpdateProductCategoryCommand>(c => c.Id != It.IsAny<Guid>()),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProductCategoryResponse?)null);
 
         // Act
@@ -128,7 +130,9 @@ public class ProductCategoryControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.Is<GetProductCategoryByIdQuery>(q => q.Id != It.IsAny<Guid>()), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByIdAsync(
+                It.Is<GetProductCategoryByIdQuery>(q => q.Id != It.IsAny<Guid>()),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetProductCategoryByIdResponse?)null);
 
         // Act
@@ -144,15 +148,27 @@ public class ProductCategoryControllerTests : IDisposable
             .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken _) => new GetProductCategoryByIdResponse(q.Id, "Test Category"));
+            .ReturnsAsync((GetProductCategoryByIdQuery q, CancellationToken _) =>
+                new GetProductCategoryByIdResponse(q.Id, "Test Category"));
 
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddProductCategoryCommand cmd, Guid _, CancellationToken _) => new AddProductCategoryResponse(cmd.Id, cmd.Name));
+        _mockService.Setup(s => s.AddAsync(
+                It.IsAny<AddProductCategoryCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AddProductCategoryCommand cmd, Guid _, CancellationToken _) =>
+                new AddProductCategoryResponse(cmd.Id, cmd.Name));
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid _, CancellationToken _) => new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProductCategoryCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UpdateProductCategoryCommand cmd, Guid _, CancellationToken _) =>
+                new UpdateProductCategoryResponse(cmd.Id, cmd.Name));
 
-        _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProductCategoryCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.DeleteAsync(
+                It.IsAny<DeleteProductCategoryCommand>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
     }
 

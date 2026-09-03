@@ -5,23 +5,23 @@ using Fenicia.Common.Enums.Project;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("projects", Schema = "project")]
-public class ProjectModel : BaseCompanyModel
+public sealed class ProjectModel : BaseCompanyModel
 {
     [MaxLength(256)]
-    public string Title { get; set; } = null!;
+    public string Title { get; init; } = string.Empty;
 
     [MaxLength(4096)]
-    public string? Description { get; set; } = null;
+    public string? Description { get; init; } = null;
 
-    public EnumProjectStatus Status { get; set; } = EnumProjectStatus.Active;
+    public EnumProjectStatus Status { get; init; } = EnumProjectStatus.Active;
 
-    public DateTime? StartDate { get; set; } = null;
+    public DateTime? StartDate { get; init; } = null;
 
-    public DateTime? EndDate { get; set; } = null;
+    public DateTime? EndDate { get; init; } = null;
 
-    public Guid Owner { get; set; }
+    public Guid Owner { get; init; }
 
-    public virtual List<ProjectStatusModel> Statuses { get; set; } = [];
+    public List<ProjectStatusModel> Statuses { get; init; } = [];
 
-    public virtual List<ProjectTaskModel> Tasks { get; set; } = [];
+    public List<ProjectTaskModel> Tasks { get; init; } = [];
 }

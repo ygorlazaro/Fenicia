@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
@@ -16,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
     /// <summary>
-    /// Obtém o dashboard financeiro com KPIs, receita vs custo, margem de lucro, contas a receber e vendas diárias.
+    ///     Obtém o dashboard financeiro com KPIs, receita vs custo, margem de lucro, contas a receber e vendas diárias.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
@@ -30,13 +29,18 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(WideEventContext wide, [FromQuery] int days = 90, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(
+        WideEventContext wide,
+        [FromQuery] int days = 90,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await dashboardService.GetFinancialDashboardAsync(new GetFinancialDashboardQuery(days), cancellationToken);
+            var dashboard = await dashboardService.GetFinancialDashboardAsync(
+                new GetFinancialDashboardQuery(days),
+                cancellationToken);
 
             return Ok(dashboard);
         }

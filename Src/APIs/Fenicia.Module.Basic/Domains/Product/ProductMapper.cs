@@ -77,7 +77,10 @@ public static partial class ProductMapper
             product.IsActive);
     }
 
-    public static AddProductResponse MapToAddProductResponse(this ProductModel product, string categoryName, string? supplierName)
+    public static AddProductResponse MapToAddProductResponse(
+        this ProductModel product,
+        string categoryName,
+        string? supplierName)
     {
         return new AddProductResponse(
             product.Id,
@@ -101,7 +104,10 @@ public static partial class ProductMapper
             product.IsActive);
     }
 
-    public static UpdateProductResponse MapToUpdateProductResponse(this ProductModel product, string categoryName, string? supplierName)
+    public static UpdateProductResponse MapToUpdateProductResponse(
+        this ProductModel product,
+        string categoryName,
+        string? supplierName)
     {
         return new UpdateProductResponse(
             product.Id,

@@ -1,7 +1,5 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.State.DTOs;
@@ -22,7 +20,8 @@ public class StateControllerTests : IDisposable
     {
         _mockService = new Mock<IStateService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new StateController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new StateController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }

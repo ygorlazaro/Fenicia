@@ -8,7 +8,7 @@ public class WideEventContextTests
     [Fact]
     public void Constructor_ShouldInitializeWithDefaultValues()
     {
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
 
         wide.Path.Should().BeNull();
         wide.Method.Should().BeNull();
@@ -23,7 +23,7 @@ public class WideEventContextTests
     [Fact]
     public void Operation_ShouldCombinePathAndMethod()
     {
-        var wide = new Fenicia.Common.API.WideEventContext
+        var wide = new API.WideEventContext
         {
             Path = "/api/users",
             Method = "GET"
@@ -37,7 +37,7 @@ public class WideEventContextTests
     {
         using var activity = new Activity("TestActivity").Start();
 
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new API.WideEventContext();
 
         wide.TraceId.Should().NotBeEmpty();
         wide.TraceId.Should().MatchRegex(@"^[0-9a-f]{32}$");

@@ -7,7 +7,7 @@ public record UpdateCommentResponse(
     [Required] Guid UserId,
     [Required] Guid FeedId,
     Guid? ParentCommentId,
-    [Required][MaxLength(200)] string Text,
+    [Required] [MaxLength(200)] string Text,
     [Required] DateTime CommentDate,
     DateTime? UpdatedDate,
     [Required] Guid CompanyId);

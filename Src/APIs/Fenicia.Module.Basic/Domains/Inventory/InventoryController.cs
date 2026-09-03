@@ -1,5 +1,4 @@
 using System.Net.Mime;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
@@ -16,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 public class InventoryController(IInventoryService inventoryService) : ControllerBase
 {
     /// <summary>
-    /// Obtém o inventário por produto.
+    ///     Obtém o inventário por produto.
     /// </summary>
     /// <param name="productId">ID do produto</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -30,13 +29,18 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync([FromRoute] Guid productId, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync(
+        [FromRoute] Guid productId,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetByProductAsync(new GetInventoryByProductQuery(productId), cancellationToken);
+            var inventory = await inventoryService.GetByProductAsync(
+                new GetInventoryByProductQuery(productId),
+                cancellationToken);
 
             return Ok(inventory);
         }
@@ -47,7 +51,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     }
 
     /// <summary>
-    /// Obtém o inventário por categoria.
+    ///     Obtém o inventário por categoria.
     /// </summary>
     /// <param name="categoryId">ID da categoria</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -61,13 +65,18 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryByCategoryIdAsync(
+        [FromRoute] Guid categoryId,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetByCategoryAsync(new GetInventoryByCategoryQuery(categoryId), cancellationToken);
+            var inventory = await inventoryService.GetByCategoryAsync(
+                new GetInventoryByCategoryQuery(categoryId),
+                cancellationToken);
 
             return Ok(inventory);
         }
@@ -78,7 +87,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     }
 
     /// <summary>
-    /// Obtém o inventário completo.
+    ///     Obtém o inventário completo.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página</param>
@@ -95,13 +104,21 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await inventoryService.GetAsync(new GetInventoryQuery(page, perPage, query, sort), cancellationToken);
+            var inventory = await inventoryService.GetAsync(
+                new GetInventoryQuery(page, perPage, query, sort),
+                cancellationToken);
 
             return Ok(inventory);
         }
@@ -112,7 +129,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     }
 
     /// <summary>
-    /// Obtém o dashboard do inventário.
+    ///     Obtém o dashboard do inventário.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -125,13 +142,17 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryDashboardResponse>> GetInventoryDashboardAsync(WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<InventoryDashboardResponse>> GetInventoryDashboardAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await inventoryService.GetDashboardAsync(new GetInventoryDashboardQuery(), cancellationToken);
+            var dashboard = await inventoryService.GetDashboardAsync(
+                new GetInventoryDashboardQuery(),
+                cancellationToken);
 
             return Ok(dashboard);
         }
@@ -142,7 +163,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     }
 
     /// <summary>
-    /// Obtém o inventário completo.
+    ///     Obtém o inventário completo.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="zeroMovementDays">Dias sem movimentação</param>
@@ -157,13 +178,19 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<InventoryHealthResponse>> GetInventoryHealthAsync(WideEventContext wide, [FromQuery] int zeroMovementDays = 90, [FromQuery] double overstockMultiplier = 3.0, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<InventoryHealthResponse>> GetInventoryHealthAsync(
+        WideEventContext wide,
+        [FromQuery] int zeroMovementDays = 90,
+        [FromQuery] double overstockMultiplier = 3.0,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var health = await inventoryService.GetHealthAsync(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), cancellationToken);
+            var health = await inventoryService.GetHealthAsync(
+                new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier),
+                cancellationToken);
 
             return Ok(health);
         }

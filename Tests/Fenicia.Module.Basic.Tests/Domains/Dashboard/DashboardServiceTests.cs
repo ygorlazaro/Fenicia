@@ -19,7 +19,10 @@ public class DashboardServiceTests : IDisposable
         _mockOrderService = new Mock<IOrderService>();
         _mockProductService = new Mock<IProductService>();
         var mockEmployeeService = new Mock<IEmployeeService>();
-        _service = new DashboardService(_mockOrderService.Object, _mockProductService.Object, mockEmployeeService.Object);
+        _service = new DashboardService(
+            _mockOrderService.Object,
+            _mockProductService.Object,
+            mockEmployeeService.Object);
     }
 
     public void Dispose()
@@ -51,7 +54,9 @@ public class DashboardServiceTests : IDisposable
         _mockProductService.Setup(p => p.GetTotalProductsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(50);
 
         // Act
-        var result = await _service.GetFinancialDashboardAsync(new GetFinancialDashboardQuery(), CancellationToken.None);
+        var result = await _service.GetFinancialDashboardAsync(
+            new GetFinancialDashboardQuery(),
+            CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();

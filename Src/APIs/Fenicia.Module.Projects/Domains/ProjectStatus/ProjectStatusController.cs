@@ -1,16 +1,15 @@
 using System.Net.Mime;
-
 using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
+/// <inheritdoc />
 /// <summary>
-/// Manages project status operations.
+///     Manages project status operations.
 /// </summary>
 [Authorize]
 [ApiController]
@@ -20,7 +19,7 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 public class ProjectStatusController(IProjectStatusService projectStatusService) : ControllerBase
 {
     /// <summary>
-    /// Gets a paginated list of project statuses.
+    ///     Gets a paginated list of project statuses.
     /// </summary>
     /// <param name="wide">Wide event context</param>
     /// <param name="page">Page number</param>
@@ -38,17 +37,25 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectStatusResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var statuses = await projectStatusService.GetAllAsync(new GetAllProjectStatusQuery(page, perPage, query, sort), cancellationToken);
+        var statuses = await projectStatusService.GetAllAsync(
+            new GetAllProjectStatusQuery(page, perPage, query, sort),
+            cancellationToken);
 
         return Ok(statuses);
     }
 
     /// <summary>
-    /// Gets a project status by ID.
+    ///     Gets a project status by ID.
     /// </summary>
     /// <param name="id">Project status ID</param>
     /// <param name="wide">Wide event context</param>
@@ -65,7 +72,10 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -75,7 +85,7 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     }
 
     /// <summary>
-    /// Creates a new project status.
+    ///     Creates a new project status.
     /// </summary>
     /// <param name="command">Project status data</param>
     /// <param name="wide">Wide event context</param>
@@ -94,7 +104,10 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectStatusResponse>> PostAsync([FromBody] AddProjectStatusCommand command, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<AddProjectStatusResponse>> PostAsync(
+        [FromBody] AddProjectStatusCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
@@ -104,7 +117,7 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     }
 
     /// <summary>
-    /// Updates an existing project status.
+    ///     Updates an existing project status.
     /// </summary>
     /// <param name="command">Updated project status data</param>
     /// <param name="id">Project status ID</param>
@@ -126,17 +139,24 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectStatusResponse>> PatchAsync([FromBody] UpdateProjectStatusCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UpdateProjectStatusResponse>> PatchAsync(
+        [FromBody] UpdateProjectStatusCommand command,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.UpdateAsync(command with { Id = id }, ClaimReader.UserId(User), cancellationToken);
+        var status = await projectStatusService.UpdateAsync(
+            command with { Id = id },
+            ClaimReader.UserId(User),
+            cancellationToken);
 
         return status is null ? NotFound() : Ok(status);
     }
 
     /// <summary>
-    /// Deletes a project status.
+    ///     Deletes a project status.
     /// </summary>
     /// <param name="id">Project status ID</param>
     /// <param name="wide">Wide event context</param>
@@ -151,7 +171,10 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 

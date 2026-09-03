@@ -4,5 +4,8 @@ namespace Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 
 public interface IPersonAddressService
 {
-    Task<PersonAddressModel> InsertAsync(PersonAddressModel personAddress, Guid companyId, CancellationToken cancellationToken = default);
+    Task<PersonAddressModel> InsertAsync(
+        PersonAddressModel personAddress,
+        Guid companyId,
+        CancellationToken cancellationToken = default);
 }

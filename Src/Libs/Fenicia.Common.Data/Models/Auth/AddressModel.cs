@@ -5,15 +5,15 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("addresses", Schema = "auth")]
-public class AddressModel : BaseModel
+public sealed class AddressModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Street { get; set; } = null!;
+    public string Street { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(20)]
-    public string Number { get; set; } = null!;
+    public string Number { get; set; } = string.Empty;
 
     [MaxLength(20)]
     public string? Complement { get; set; }
@@ -31,26 +31,26 @@ public class AddressModel : BaseModel
     }
 
     [Required]
-    public Guid StateId { get; set; }
+    public Guid StateId { get; init; }
 
     [Required]
     [MaxLength(50)]
-    public string City { get; set; } = null!;
+    public string City { get; set; } = string.Empty;
 
     [MaxLength(50)]
     public string? Country { get; set; }
 
-    public AddressType AddressType { get; set; } = AddressType.Both;
+    public AddressType AddressType { get; init; } = AddressType.Both;
 
-    public double? Latitude { get; set; }
+    public double? Latitude { get; init; }
 
-    public double? Longitude { get; set; }
+    public double? Longitude { get; init; }
 
-    public bool IsDefault { get; set; }
+    public bool IsDefault { get; init; }
 
     [MaxLength(500)]
-    public string? Observation { get; set; }
+    public string? Observation { get; init; }
 
     [ForeignKey(nameof(StateId))]
-    public virtual StateModel State { get; set; } = null!;
+    public StateModel State { get; set; } = default!;
 }

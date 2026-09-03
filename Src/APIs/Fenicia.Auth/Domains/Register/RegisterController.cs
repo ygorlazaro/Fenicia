@@ -3,7 +3,6 @@ using Fenicia.Auth.Domains.Register.DTOs;
 using Fenicia.Auth.Domains.Register.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,7 @@ namespace Fenicia.Auth.Domains.Register;
 public class RegisterController(IRegisterService registerService) : ControllerBase
 {
     /// <summary>
-    /// Cria um novo usuário com sua empresa inicial.
+    ///     Cria um novo usuário com sua empresa inicial.
     /// </summary>
     /// <param name="request">Dados do usuário (e-mail, senha, nome, empresa)</param>
     /// <param name="wide">Contexto de eventos wide</param>
@@ -30,7 +29,10 @@ public class RegisterController(IRegisterService registerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<RegisterResponse>> CreateNewUserAsync(RegisterCommand request, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<RegisterResponse>> CreateNewUserAsync(
+        RegisterCommand request,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {

@@ -3,7 +3,6 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
@@ -16,7 +15,8 @@ public class ConfigurationRepositoryTests : IDisposable
 
     public ConfigurationRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new ConfigurationRepository(_db);
@@ -46,7 +46,11 @@ public class ConfigurationRepositoryTests : IDisposable
         _db.AuthConfigurations.Add(config);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _repository.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, CancellationToken.None);
+        var result = await _repository.GetByUserCompanyAndTypeAsync(
+            _testUserId,
+            companyId,
+            ConfigType.Language,
+            CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(config.Id, result.Id);
@@ -58,7 +62,11 @@ public class ConfigurationRepositoryTests : IDisposable
     {
         var companyId = _db.CurrentCompanyId ?? Guid.Empty;
 
-        var result = await _repository.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, CancellationToken.None);
+        var result = await _repository.GetByUserCompanyAndTypeAsync(
+            _testUserId,
+            companyId,
+            ConfigType.Language,
+            CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -80,7 +88,11 @@ public class ConfigurationRepositoryTests : IDisposable
         _db.AuthConfigurations.Add(config);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _repository.GetByUserCompanyAndTypeAsync(_testUserId, companyId, ConfigType.Language, CancellationToken.None);
+        var result = await _repository.GetByUserCompanyAndTypeAsync(
+            _testUserId,
+            companyId,
+            ConfigType.Language,
+            CancellationToken.None);
 
         Assert.Null(result);
     }

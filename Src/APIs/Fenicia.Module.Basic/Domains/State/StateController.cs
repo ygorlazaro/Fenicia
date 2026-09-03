@@ -15,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.State;
 public class StateController(IStateService stateService) : ControllerBase
 {
     /// <summary>
-    /// Obtém a lista de estados.
+    ///     Obtém a lista de estados.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="query">Filtros avançados. Example: <c>uf[=]SP</c></param>
@@ -32,7 +32,11 @@ public class StateController(IStateService stateService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, [FromQuery] string? query = null, [FromQuery] string? sort = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(
+        WideEventContext wide,
+        [FromQuery] string? query = null,
+        [FromQuery] string? sort = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {

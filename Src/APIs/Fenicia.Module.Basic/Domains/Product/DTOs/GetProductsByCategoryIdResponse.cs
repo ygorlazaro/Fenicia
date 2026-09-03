@@ -4,7 +4,7 @@ namespace Fenicia.Module.Basic.Domains.Product.DTOs;
 
 public record GetProductsByCategoryIdResponse(
     [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
+    [Required] [MaxLength(200)] string Name,
     string? SKU,
     string? Barcode,
     string? Description,
@@ -18,5 +18,5 @@ public record GetProductsByCategoryIdResponse(
     string? Dimensions,
     string? UnitOfMeasure,
     [Required] Guid CategoryId,
-    [Required][MaxLength(200)] string CategoryName,
+    [Required] [MaxLength(200)] string CategoryName,
     bool IsActive);

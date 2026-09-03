@@ -25,7 +25,8 @@ public class ModuleControllerTests
         var mockHttpContext = new Mock<HttpContext>();
         _faker = new Faker();
 
-        _controller = new ModuleController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        _controller = new ModuleController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     [Fact]
@@ -78,8 +79,24 @@ public class ModuleControllerTests
 
         var modules = new List<GetModuleResponse>
         {
-            new(module1.Id, module1.Name, module1.Type, module1.Description, module1.Icon, module1.IsActive, module1.SortOrder, module1.Price),
-            new(module2.Id, module2.Name, module2.Type, module2.Description, module2.Icon, module2.IsActive, module2.SortOrder, module2.Price)
+            new(
+                module1.Id,
+                module1.Name,
+                module1.Type,
+                module1.Description,
+                module1.Icon,
+                module1.IsActive,
+                module1.SortOrder,
+                module1.Price),
+            new(
+                module2.Id,
+                module2.Name,
+                module2.Type,
+                module2.Description,
+                module2.Icon,
+                module2.IsActive,
+                module2.SortOrder,
+                module2.Price)
         };
 
         var query = new PaginationQuery();
@@ -119,7 +136,15 @@ public class ModuleControllerTests
 
         var modules = new List<GetModuleResponse>
         {
-            new(basicModule.Id, basicModule.Name, basicModule.Type, basicModule.Description, basicModule.Icon, basicModule.IsActive, basicModule.SortOrder, basicModule.Price)
+            new(
+                basicModule.Id,
+                basicModule.Name,
+                basicModule.Type,
+                basicModule.Description,
+                basicModule.Icon,
+                basicModule.IsActive,
+                basicModule.SortOrder,
+                basicModule.Price)
         };
 
         var query = new PaginationQuery();
@@ -158,7 +183,15 @@ public class ModuleControllerTests
 
         var modules = new List<GetModuleResponse>
         {
-            new(activeModule.Id, activeModule.Name, activeModule.Type, activeModule.Description, activeModule.Icon, activeModule.IsActive, activeModule.SortOrder, activeModule.Price)
+            new(
+                activeModule.Id,
+                activeModule.Name,
+                activeModule.Type,
+                activeModule.Description,
+                activeModule.Icon,
+                activeModule.IsActive,
+                activeModule.SortOrder,
+                activeModule.Price)
         };
 
         var query = new PaginationQuery();
@@ -235,7 +268,8 @@ public class ModuleControllerTests
     {
         var controllerType = typeof(ModuleController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -246,7 +280,8 @@ public class ModuleControllerTests
     {
         var controllerType = typeof(ModuleController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
@@ -258,7 +293,8 @@ public class ModuleControllerTests
         var controllerType = typeof(ModuleController);
         var methodInfo = controllerType.GetMethod(nameof(ModuleController.GetAllModulesAsync));
 
-        var allowAnonymousAttribute = methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+        var allowAnonymousAttribute =
+            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         Assert.NotNull(allowAnonymousAttribute);
     }

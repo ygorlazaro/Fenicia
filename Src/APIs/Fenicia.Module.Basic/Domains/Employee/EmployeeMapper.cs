@@ -13,6 +13,19 @@ public static partial class EmployeeMapper
         var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
         return new GetAllEmployeeResponse(
             employee.Id,
             employee.PositionId,
@@ -22,7 +35,7 @@ public static partial class EmployeeMapper
             employee.Person.PhoneNumber,
             employee.Person.Document,
             employee.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+            addressResponse);
     }
 
     public static GetEmployeeByIdResponse MapToGetEmployeeByIdResponse(this EmployeeModel employee)
@@ -30,6 +43,19 @@ public static partial class EmployeeMapper
         var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
         return new GetEmployeeByIdResponse(
             employee.Id,
             employee.PositionId,
@@ -38,7 +64,7 @@ public static partial class EmployeeMapper
             employee.Person.Email,
             employee.Person.PhoneNumber,
             employee.Person.Document,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+            addressResponse);
     }
 
     public static GetEmployeesByPositionIdResponse MapToGetEmployeesByPositionIdResponse(this EmployeeModel employee)
@@ -46,6 +72,19 @@ public static partial class EmployeeMapper
         var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
         var address = personAddress?.Address;
 
+        var addressResponse = address != null
+            ? new AddressResponse(
+                address.Id,
+                address.Street,
+                address.Number,
+                address.Complement,
+                address.Neighborhood,
+                address.ZipCode!,
+                address.StateId,
+                address.State.Name,
+                address.City,
+                address.Country)
+            : null;
         return new GetEmployeesByPositionIdResponse(
             employee.Id,
             employee.PositionId,
@@ -55,6 +94,6 @@ public static partial class EmployeeMapper
             employee.Person.PhoneNumber,
             employee.Person.Document,
             employee.Position.Name,
-            address != null ? new AddressResponse(address.Id, address.Street, address.Number, address.Complement, address.Neighborhood, address.ZipCode!, address.StateId, address.State.Name, address.City, address.Country) : null);
+            addressResponse);
     }
 }

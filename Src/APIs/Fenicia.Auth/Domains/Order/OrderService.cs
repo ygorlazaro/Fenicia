@@ -11,9 +11,15 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public class OrderService(IModuleService moduleService, IRepository<OrderModel> orderRepository, ISubscriptionService subscriptionService, IUserRoleService userRoleService) : IOrderService
+public class OrderService(
+    IModuleService moduleService,
+    IRepository<OrderModel> orderRepository,
+    ISubscriptionService subscriptionService,
+    IUserRoleService userRoleService) : IOrderService
 {
-    public async Task<CreateNewOrderResponse?> CreateAsync(CreateNewOrderCommand command, CancellationToken cancellationToken = default)
+    public async Task<CreateNewOrderResponse?> CreateAsync(
+        CreateNewOrderCommand command,
+        CancellationToken cancellationToken = default)
     {
         await ValidateUserAsync(command, cancellationToken);
 
@@ -90,7 +96,10 @@ public class OrderService(IModuleService moduleService, IRepository<OrderModel> 
 
     private async Task ValidateUserAsync(CreateNewOrderCommand command, CancellationToken cancellationToken = default)
     {
-        var existingUser = await userRoleService.AnyIdAndCompanyAsync(command.UserId, command.CompanyId, cancellationToken);
+        var existingUser = await userRoleService.AnyIdAndCompanyAsync(
+            command.UserId,
+            command.CompanyId,
+            cancellationToken);
 
         if (!existingUser)
         {
@@ -98,7 +107,9 @@ public class OrderService(IModuleService moduleService, IRepository<OrderModel> 
         }
     }
 
-    private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken cancellationToken = default)
+    private async Task<List<ModuleModel>> PopulateModules(
+        IEnumerable<Guid> request,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -127,13 +138,17 @@ public class OrderService(IModuleService moduleService, IRepository<OrderModel> 
         }
     }
 
-    private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken cancellationToken = default)
+    private Task<List<ModuleModel>> GetModulesToOrderAsync(
+        IEnumerable<Guid> request,
+        CancellationToken cancellationToken = default)
     {
-        return await moduleService.GetModulesByIdsAsync(request, cancellationToken);
+        return moduleService.GetModulesByIdsAsync(request, cancellationToken);
     }
 
-    private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken cancellationToken = default)
+    private Task<ModuleModel?> GetModuleByTypeAsync(
+        ModuleType moduleType,
+        CancellationToken cancellationToken = default)
     {
-        return await moduleService.GetModuleByTypeAsync(moduleType, cancellationToken);
+        return moduleService.GetModuleByTypeAsync(moduleType, cancellationToken);
     }
 }

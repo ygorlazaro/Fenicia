@@ -15,8 +15,8 @@ public class ProjectCommentControllerTests
 {
     private readonly ProjectCommentController _controller;
     private readonly Faker _faker;
-    private readonly Mock<IProjectCommentService> _mockService;
     private readonly Mock<HttpContext> _mockHttpContext;
+    private readonly Mock<IProjectCommentService> _mockService;
     private readonly Guid _testUserId;
 
     public ProjectCommentControllerTests()
@@ -24,7 +24,8 @@ public class ProjectCommentControllerTests
         _mockService = new Mock<IProjectCommentService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectCommentController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new ProjectCommentController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
     }
@@ -50,7 +51,12 @@ public class ProjectCommentControllerTests
     public async Task GetByIdAsync_WhenCommentExists_ReturnsOk()
     {
         var wide = new WideEventContext();
-        var comment = new GetProjectCommentByIdResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "hello", Guid.NewGuid());
+        var comment = new GetProjectCommentByIdResponse(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "hello",
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectCommentByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(comment);
@@ -77,7 +83,12 @@ public class ProjectCommentControllerTests
     {
         var wide = new WideEventContext();
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), _testUserId, "hello");
-        var response = new AddProjectCommentResponse(command.Id, command.TaskId, command.UserId, command.Content, Guid.NewGuid());
+        var response = new AddProjectCommentResponse(
+            command.Id,
+            command.TaskId,
+            command.UserId,
+            command.Content,
+            Guid.NewGuid());
 
         _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -93,9 +104,17 @@ public class ProjectCommentControllerTests
         var wide = new WideEventContext();
         var commentId = Guid.NewGuid();
         var command = new UpdateProjectCommentCommand(commentId, "updated");
-        var response = new UpdateProjectCommentResponse(command.Id, Guid.NewGuid(), _testUserId, command.Content, Guid.NewGuid());
+        var response = new UpdateProjectCommentResponse(
+            command.Id,
+            Guid.NewGuid(),
+            _testUserId,
+            command.Content,
+            Guid.NewGuid());
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectCommentCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectCommentCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PatchAsync(command, commentId, wide, CancellationToken.None);
@@ -109,7 +128,10 @@ public class ProjectCommentControllerTests
         var wide = new WideEventContext();
         var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "x");
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProjectCommentCommand>(), _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.UpdateAsync(
+                It.IsAny<UpdateProjectCommentCommand>(),
+                _testUserId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectCommentResponse?)null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);

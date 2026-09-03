@@ -1,5 +1,4 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.DataSource;
@@ -20,7 +19,8 @@ public class DataSourceControllerTests : IDisposable
     {
         _mockService = new Mock<IDataSourceService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new DataSourceController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new DataSourceController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
     }

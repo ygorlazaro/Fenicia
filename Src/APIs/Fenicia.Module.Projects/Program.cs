@@ -27,25 +27,26 @@ public abstract class Program
     {
         FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
-        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaDependencyInjection(() =>
-    {
-        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-        builder.Services.AddScoped<IRepository<AttachmentModel>, ProjectAttachmentRepository>();
-        builder.Services.AddScoped<IRepository<ProjectCommentModel>, ProjectCommentRepository>();
-        builder.Services.AddScoped<IRepository<ProjectSubtaskModel>, ProjectSubtaskRepository>();
-        builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
-        builder.Services.AddScoped<IRepository<TaskAssigneeModel>, ProjectTaskAssigneeRepository>();
-        builder.Services.AddScoped<IProjectStatusRepository, ProjectStatusRepository>();
-        builder.Services.AddScoped<IProjectService, ProjectService>();
-        builder.Services.AddScoped<IProjectAttachmentService, ProjectAttachmentService>();
-        builder.Services.AddScoped<IProjectCommentService, ProjectCommentService>();
-        builder.Services.AddScoped<IProjectSubtaskService, ProjectSubtaskService>();
-        builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
-        builder.Services.AddScoped<IProjectTaskAssigneeService, ProjectTaskAssigneeService>();
-        builder.Services.AddScoped<IProjectStatusService, ProjectStatusService>();
-    }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors()
+            .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaDependencyInjection(() =>
+            {
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+                builder.Services.AddScoped<IRepository<AttachmentModel>, ProjectAttachmentRepository>();
+                builder.Services.AddScoped<IRepository<ProjectCommentModel>, ProjectCommentRepository>();
+                builder.Services.AddScoped<IRepository<ProjectSubtaskModel>, ProjectSubtaskRepository>();
+                builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
+                builder.Services.AddScoped<IRepository<TaskAssigneeModel>, ProjectTaskAssigneeRepository>();
+                builder.Services.AddScoped<IProjectStatusRepository, ProjectStatusRepository>();
+                builder.Services.AddScoped<IProjectService, ProjectService>();
+                builder.Services.AddScoped<IProjectAttachmentService, ProjectAttachmentService>();
+                builder.Services.AddScoped<IProjectCommentService, ProjectCommentService>();
+                builder.Services.AddScoped<IProjectSubtaskService, ProjectSubtaskService>();
+                builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
+                builder.Services.AddScoped<IProjectTaskAssigneeService, ProjectTaskAssigneeService>();
+                builder.Services.AddScoped<IProjectStatusService, ProjectStatusService>();
+            }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         builder.Start("/projects", "projects");
     }

@@ -8,60 +8,69 @@ namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderRepository(DefaultContext context) : Repository<OrderModel>(context), IOrderRepository
 {
-    public async Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet
-                .Include(o => o.Customer).ThenInclude(c => c.Person)
+        return DbSet
+            .Include(o => o.Customer).ThenInclude(c => c.Person)
             .Include(o => o.Details).ThenInclude(d => d.Product)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<OrderModel>> GetRecentOrdersAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default)
     {
         return await DbSet
-                .OrderByDescending(o => o.SaleDate)
+            .OrderByDescending(o => o.SaleDate)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Guid>> GetRecentOrderIdsAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    public Task<List<Guid>> GetRecentOrderIdsAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default)
     {
-        return await DbSet
-                .OrderByDescending(o => o.SaleDate)
+        return DbSet
+            .OrderByDescending(o => o.SaleDate)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .Select(o => o.Id)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
     {
         return await DbSet
-                .Include(o => o.Customer).ThenInclude(c => c.Person)
+            .Include(o => o.Customer).ThenInclude(c => c.Person)
             .Include(o => o.Details)
             .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet.SumAsync(o => o.TotalAmount, cancellationToken);
+        return DbSet.SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), cancellationToken);
+        return DbSet.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), cancellationToken);
     }
 
-    public async Task<int> GetTotalOrdersCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetTotalOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet.CountAsync(cancellationToken);
+        return DbSet.CountAsync(cancellationToken);
     }
 
-    public async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken cancellationToken = default)
+    public Task<List<DateTime>> GetOrderDatesAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .OrderBy(o => o.SaleDate)
             .Select(o => o.SaleDate.Date)
             .Distinct()
@@ -77,97 +86,95 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(cancellationToken);
 
         var weekStarts = new List<DateTime>();
-        foreach (var date in dates)
+        foreach (var weekStart in dates.Select(date => date.AddDays(-(int)date.DayOfWeek)).Where(weekStart => weekStarts.Count == 0 || weekStart > weekStarts[^1]))
         {
-            var weekStart = date.AddDays(-(int)date.DayOfWeek);
-            if (weekStarts.Count == 0 || weekStart > weekStarts[^1])
-            {
-                weekStarts.Add(weekStart);
-            }
+            weekStarts.Add(weekStart);
         }
 
         return weekStarts;
     }
 
-    public async Task<decimal> GetTodayRevenueAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetTodayRevenueAsync(CancellationToken cancellationToken = default)
     {
         var today = DateTime.UtcNow.Date;
-        return await DbSet
+        return DbSet
             .Where(o => o.SaleDate.Date == today)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<int> GetTodayOrdersCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetTodayOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         var today = DateTime.UtcNow.Date;
-        return await DbSet.CountAsync(o => o.SaleDate.Date == today, cancellationToken);
+        return DbSet.CountAsync(o => o.SaleDate.Date == today, cancellationToken);
     }
 
-    public async Task<decimal> GetWeekRevenueAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetWeekRevenueAsync(CancellationToken cancellationToken = default)
     {
         var weekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
-        return await DbSet
+        return DbSet
             .Where(o => o.SaleDate.Date >= weekStart)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<int> GetWeekOrdersCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetWeekOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         var weekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
-        return await DbSet.CountAsync(o => o.SaleDate.Date >= weekStart, cancellationToken);
+        return DbSet.CountAsync(o => o.SaleDate.Date >= weekStart, cancellationToken);
     }
 
-    public async Task<decimal> GetMonthRevenueAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetMonthRevenueAsync(CancellationToken cancellationToken = default)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
-        return await DbSet
+        return DbSet
             .Where(o => o.SaleDate.Date >= monthStart)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<int> GetMonthOrdersCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetMonthOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
-        return await DbSet.CountAsync(o => o.SaleDate.Date >= monthStart, cancellationToken);
+        return DbSet.CountAsync(o => o.SaleDate.Date >= monthStart, cancellationToken);
     }
 
-    public async Task<decimal> GetLastMonthRevenueAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetLastMonthRevenueAsync(CancellationToken cancellationToken = default)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
         var lastMonthStart = monthStart.AddMonths(-1);
         var lastMonthEnd = monthStart.AddDays(-1);
-        return await DbSet
+        return DbSet
             .Where(o => o.SaleDate.Date >= lastMonthStart && o.SaleDate.Date <= lastMonthEnd)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<decimal> GetPendingAmountAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetPendingAmountAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Where(o => o.Status == OrderStatus.Pending)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<int> GetPendingOrdersCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetPendingOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet.CountAsync(o => o.Status == OrderStatus.Pending, cancellationToken);
+        return DbSet.CountAsync(o => o.Status == OrderStatus.Pending, cancellationToken);
     }
 
-    public async Task<decimal> GetApprovedAmountAsync(CancellationToken cancellationToken = default)
+    public Task<decimal> GetApprovedAmountAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Where(o => o.Status == OrderStatus.Approved)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
-    public async Task<int> GetApprovedOrdersCountAsync(CancellationToken cancellationToken = default)
+    public Task<int> GetApprovedOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet.CountAsync(o => o.Status == OrderStatus.Approved, cancellationToken);
+        return DbSet.CountAsync(o => o.Status == OrderStatus.Approved, cancellationToken);
     }
 
-    public async Task<List<OrderModel>> GetRecentOrdersAsync(int topLimit, CancellationToken cancellationToken = default)
+    public Task<List<OrderModel>> GetRecentOrdersAsync(
+        int topLimit,
+        CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
             .Include(o => o.Details)
             .OrderByDescending(o => o.SaleDate)
@@ -175,24 +182,27 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
+    public Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
             .Include(o => o.Details)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
+    public Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(o => o.Employee).ThenInclude(e => e!.Person)
             .Include(o => o.Employee).ThenInclude(e => e!.Position)
             .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)

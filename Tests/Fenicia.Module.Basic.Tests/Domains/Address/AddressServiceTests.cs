@@ -29,7 +29,15 @@ public class AddressServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesAddressAndReturnsResponse()
     {
         // Arrange
-        var command = new AddressCommand(_faker.Address.StreetAddress(), _faker.Address.BuildingNumber(), _faker.Address.SecondaryAddress(), _faker.Address.City(), "84140955", Guid.NewGuid(), _faker.Address.City(), _faker.Address.Country());
+        var command = new AddressCommand(
+            _faker.Address.StreetAddress(),
+            _faker.Address.BuildingNumber(),
+            _faker.Address.SecondaryAddress(),
+            _faker.Address.City(),
+            "84140955",
+            Guid.NewGuid(),
+            _faker.Address.City(),
+            _faker.Address.Country());
         var state = new StateModel { Id = command.StateId, Name = "State", Uf = "ST" };
         var address = new AddressModel
         {
@@ -91,7 +99,15 @@ public class AddressServiceTests : IDisposable
                 return a;
             });
 
-        var command = new AddressCommand("Updated Street", "Updated Number", "Updated Complement", "Updated Neighborhood", "12345678", Guid.NewGuid(), "Updated City", "Updated Country");
+        var command = new AddressCommand(
+            "Updated Street",
+            "Updated Number",
+            "Updated Complement",
+            "Updated Neighborhood",
+            "12345678",
+            Guid.NewGuid(),
+            "Updated City",
+            "Updated Country");
 
         // Act
         var result = await _service.UpdateAsync(address.Id, command, CancellationToken.None);
@@ -107,10 +123,21 @@ public class AddressServiceTests : IDisposable
     public async Task UpdateAsync_WhenAddressDoesNotExist_ReturnsNull()
     {
         // Arrange
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<AddressModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<AddressModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((AddressModel?)null);
 
-        var command = new AddressCommand("Updated Street", "Updated Number", "Updated Complement", "Updated Neighborhood", "12345678", Guid.NewGuid(), "Updated City", "Updated Country");
+        var command = new AddressCommand(
+            "Updated Street",
+            "Updated Number",
+            "Updated Complement",
+            "Updated Neighborhood",
+            "12345678",
+            Guid.NewGuid(),
+            "Updated City",
+            "Updated Country");
 
         // Act
         var result = await _service.UpdateAsync(Guid.NewGuid(), command, CancellationToken.None);

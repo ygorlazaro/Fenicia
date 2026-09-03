@@ -24,7 +24,12 @@ public class EmployeeServiceTests : IDisposable
         var mockAddressService = new Mock<IAddressService>();
         var mockPersonAddressService = new Mock<IPersonAddressService>();
         var mockOrderService = new Mock<IOrderService>();
-        _service = new EmployeeService(_mockRepository.Object, mockPersonService.Object, mockAddressService.Object, mockPersonAddressService.Object, mockOrderService.Object);
+        _service = new EmployeeService(
+            _mockRepository.Object,
+            mockPersonService.Object,
+            mockAddressService.Object,
+            mockPersonAddressService.Object,
+            mockOrderService.Object);
         _faker = new Faker();
     }
 
@@ -39,7 +44,10 @@ public class EmployeeServiceTests : IDisposable
         // Arrange
         var person = new PersonModel { Id = Guid.NewGuid(), Name = "Emp" };
         var position = new PositionModel { Id = Guid.NewGuid(), Name = "Dev" };
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person, PositionId = position.Id, Position = position };
+        var employee = new EmployeeModel
+        {
+            Id = Guid.NewGuid(), PersonId = person.Id, Person = person, PositionId = position.Id, Position = position
+        };
         _mockRepository.Setup(r => r.GetByIdWithDetailsAsync(employee.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(employee);
 
@@ -69,7 +77,14 @@ public class EmployeeServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesEmployee()
     {
         // Arrange
-        var command = new AddEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "Name", _faker.Internet.Email(), _faker.Person.Random.AlphaNumeric(11), _faker.Phone.PhoneNumber(), null);
+        var command = new AddEmployeeCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Name",
+            _faker.Internet.Email(),
+            _faker.Person.Random.AlphaNumeric(11),
+            _faker.Phone.PhoneNumber(),
+            null);
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<EmployeeModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((EmployeeModel e, CancellationToken _) => e);
 

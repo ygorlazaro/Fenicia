@@ -8,10 +8,10 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class ProfileModel : BaseModel
 {
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; } = null!;
+    public UserModel User { get; init; } = default!;
 
     [MaxLength(160)]
     public string? Bio { get; set; }

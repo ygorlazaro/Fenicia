@@ -11,7 +11,7 @@ using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;
 
-public class DataSourceService(
+public sealed class DataSourceService(
     ICustomerService customerService,
     IEmployeeService employeeService,
     IPositionService positionService,
@@ -24,37 +24,45 @@ public class DataSourceService(
     {
     }
 
-    public virtual async Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(CancellationToken cancellationToken = default)
+    public Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(
+        CancellationToken cancellationToken = default)
     {
-        return await customerService.GetAllForDataSourceAsync(cancellationToken);
+        return customerService.GetAllForDataSourceAsync(cancellationToken);
     }
 
-    public virtual async Task<List<GetAllEmployeeForDataSourceResponse>> GetEmployeesAsync(CancellationToken cancellationToken = default)
+    public Task<List<GetAllEmployeeForDataSourceResponse>> GetEmployeesAsync(
+        CancellationToken cancellationToken = default)
     {
-        return await employeeService.GetAllForDataSourceAsync(cancellationToken);
+        return employeeService.GetAllForDataSourceAsync(cancellationToken);
     }
 
-    public virtual async Task<List<GetAllPositionForDataSourceResponse>> GetPositionsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<GetAllPositionForDataSourceResponse>> GetPositionsAsync(
+        CancellationToken cancellationToken = default)
     {
         var positions = await positionService.GetAllAsync(new GetAllPositionQuery(1, int.MaxValue), cancellationToken);
 
         return [.. positions.Data.Select(p => p.MapToDataSourceResponse())];
     }
 
-    public virtual async Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(CancellationToken cancellationToken = default)
+    public async Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(
+        CancellationToken cancellationToken = default)
     {
-        var categories = await productCategoryService.GetAllAsync(new GetAllProductCategoryQuery(1, int.MaxValue), cancellationToken);
+        var categories = await productCategoryService.GetAllAsync(
+            new GetAllProductCategoryQuery(1, int.MaxValue),
+            cancellationToken);
 
         return [.. categories.Data.Select(pc => pc.MapToDataSourceResponse())];
     }
 
-    public virtual async Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(CancellationToken cancellationToken = default)
+    public Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(
+        CancellationToken cancellationToken = default)
     {
-        return await productService.GetAllForDataSourceAsync(cancellationToken);
+        return productService.GetAllForDataSourceAsync(cancellationToken);
     }
 
-    public virtual async Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(CancellationToken cancellationToken = default)
+    public Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(
+        CancellationToken cancellationToken = default)
     {
-        return await supplierService.GetAllForDataSourceAsync(cancellationToken);
+        return supplierService.GetAllForDataSourceAsync(cancellationToken);
     }
 }

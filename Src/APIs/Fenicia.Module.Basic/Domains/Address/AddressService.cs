@@ -4,14 +4,16 @@ using Fenicia.Module.Basic.Domains.Address.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public class AddressService(IAddressRepository addressRepository) : IAddressService
+public sealed class AddressService(IAddressRepository addressRepository) : IAddressService
 {
     public AddressService()
         : this(null!)
     {
     }
 
-    public virtual async Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken cancellationToken = default)
+    public async Task<AddressResponse> AddAsync(
+        AddressCommand command,
+        CancellationToken cancellationToken = default)
     {
         var address = new AddressModel
         {
@@ -31,7 +33,10 @@ public class AddressService(IAddressRepository addressRepository) : IAddressServ
         return created.MapToAddressResponse();
     }
 
-    public virtual async Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken cancellationToken = default)
+    public async Task<AddressResponse?> UpdateAsync(
+        Guid id,
+        AddressCommand command,
+        CancellationToken cancellationToken = default)
     {
         var address = new AddressModel
         {
@@ -51,7 +56,7 @@ public class AddressService(IAddressRepository addressRepository) : IAddressServ
         return updated?.MapToAddressResponse();
     }
 
-    public virtual async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var address = await addressRepository.GetByIdAsync(id, cancellationToken);
 

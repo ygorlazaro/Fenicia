@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-
 using Serilog;
 
 namespace Fenicia.Common.API.Startup;

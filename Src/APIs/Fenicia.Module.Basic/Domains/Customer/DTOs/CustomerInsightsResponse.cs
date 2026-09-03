@@ -2,11 +2,11 @@ namespace Fenicia.Module.Basic.Domains.Customer.DTOs;
 
 public record CustomerInsightsResponse
 {
-    public CustomerSummaryResponse Summary { get; set; } = new();
+    public CustomerSummaryResponse Summary { get; init; } = new();
 
-    public List<CustomerOrderHistoryResponse> TopCustomers { get; set; } = [];
+    public List<CustomerOrderHistoryResponse> TopCustomers { get; init; } = [];
 
-    public List<CustomerRecentOrdersResponse> RecentOrders { get; set; } = [];
+    public List<CustomerRecentOrdersResponse> RecentOrders { get; init; } = [];
 
-    public List<CustomerRiskAlertResponse> AtRiskCustomers { get; set; } = [];
+    public List<CustomerRiskAlertResponse> AtRiskCustomers { get; init; } = [];
 }

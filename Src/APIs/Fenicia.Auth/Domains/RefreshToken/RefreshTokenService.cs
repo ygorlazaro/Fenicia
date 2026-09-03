@@ -5,9 +5,9 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshTokenService
+public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshTokenService
 {
-    public virtual async Task<string> GenerateAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<string> GenerateAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var randomNumber = new byte[32];
 
@@ -22,12 +22,15 @@ public class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshT
         return refreshToken.Token;
     }
 
-    public virtual async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
     {
         return string.IsNullOrWhiteSpace(token) ? null : await repository.GetAsync(token, cancellationToken);
     }
 
-    public virtual async Task<RefreshTokenModel> UpdateAsync(string token, bool isActive, CancellationToken cancellationToken = default)
+    public async Task<RefreshTokenModel> UpdateAsync(
+        string token,
+        bool isActive,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -47,12 +50,9 @@ public class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshT
         return updated;
     }
 
-    public virtual async Task InvalidateAsync(string refreshToken, CancellationToken cancellationToken = default)
+    public async Task InvalidateAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        if (refreshToken is null)
-        {
-            throw new ArgumentNullException(nameof(refreshToken));
-        }
+        ArgumentNullException.ThrowIfNull(refreshToken);
 
         var token = await repository.GetAsync(refreshToken, cancellationToken);
 
@@ -65,7 +65,10 @@ public class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshT
         await repository.UpdateAsync(updatedToken, cancellationToken);
     }
 
-    public virtual async Task<bool> ValidateAsync(Guid userId, string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<bool> ValidateAsync(
+        Guid userId,
+        string refreshToken,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {

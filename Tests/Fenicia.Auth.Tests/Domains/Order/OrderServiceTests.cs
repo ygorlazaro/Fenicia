@@ -25,7 +25,11 @@ public class OrderServiceTests
         _mockOrderRepository = new Mock<IRepository<OrderModel>>();
         _mockSubscriptionService = new Mock<ISubscriptionService>();
         _mockUserRoleService = new Mock<IUserRoleService>();
-        _service = new OrderService(_mockModuleService.Object, _mockOrderRepository.Object, _mockSubscriptionService.Object, _mockUserRoleService.Object);
+        _service = new OrderService(
+            _mockModuleService.Object,
+            _mockOrderRepository.Object,
+            _mockSubscriptionService.Object,
+            _mockUserRoleService.Object);
     }
 
     [Fact]
@@ -40,7 +44,8 @@ public class OrderServiceTests
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await _service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await _service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("User does not exists at the company", ex.Message);
     }
 
@@ -53,12 +58,15 @@ public class OrderServiceTests
 
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await _service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("Modules not found", ex.Message);
     }
 
@@ -71,12 +79,15 @@ public class OrderServiceTests
 
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await _service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("Modules not found", ex.Message);
     }
 
@@ -98,7 +109,9 @@ public class OrderServiceTests
 
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([basicModule]);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -106,8 +119,12 @@ public class OrderServiceTests
         var result = await _service.CreateAsync(command, CancellationToken.None);
 
         Assert.NotNull(result);
-        _mockOrderRepository.Verify(r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()), Times.Once);
-        _mockSubscriptionService.Verify(s => s.CreateSubscriptionAsync(It.IsAny<SubscriptionModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockOrderRepository.Verify(
+            r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        _mockSubscriptionService.Verify(
+            s => s.CreateSubscriptionAsync(It.IsAny<SubscriptionModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -137,7 +154,9 @@ public class OrderServiceTests
 
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([accountingModule]);
         _mockModuleService.Setup(s => s.GetModuleByTypeAsync(ModuleType.Basic, It.IsAny<CancellationToken>()))
             .ReturnsAsync(basicModule);
@@ -147,8 +166,12 @@ public class OrderServiceTests
         var result = await _service.CreateAsync(command, CancellationToken.None);
 
         Assert.NotNull(result);
-        _mockOrderRepository.Verify(r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()), Times.Once);
-        _mockSubscriptionService.Verify(s => s.CreateSubscriptionAsync(It.IsAny<SubscriptionModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockOrderRepository.Verify(
+            r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        _mockSubscriptionService.Verify(
+            s => s.CreateSubscriptionAsync(It.IsAny<SubscriptionModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -169,14 +192,17 @@ public class OrderServiceTests
 
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([accountingModule]);
         _mockModuleService.Setup(s => s.GetModuleByTypeAsync(ModuleType.Basic, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ModuleModel?)null);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await _service.CreateAsync(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await _service.CreateAsync(command, CancellationToken.None));
         Assert.Equal("Modules not found", ex.Message);
     }
 
@@ -206,7 +232,9 @@ public class OrderServiceTests
 
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+        _mockModuleService.Setup(s => s.GetModulesByIdsAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([module1]);
         _mockModuleService.Setup(s => s.GetModuleByTypeAsync(ModuleType.Basic, It.IsAny<CancellationToken>()))
             .ReturnsAsync(basicModule);
@@ -216,6 +244,8 @@ public class OrderServiceTests
         var result = await _service.CreateAsync(command, CancellationToken.None);
 
         Assert.NotNull(result);
-        _mockOrderRepository.Verify(r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockOrderRepository.Verify(
+            r => r.InsertAsync(It.IsAny<OrderModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

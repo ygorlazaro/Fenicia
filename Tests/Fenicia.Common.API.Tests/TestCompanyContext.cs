@@ -1,6 +1,8 @@
+using Fenicia.Common.Data;
+
 namespace Fenicia.Common.API.Tests;
 
-public class TestCompanyContext : Data.ICompanyContext
+public class TestCompanyContext : ICompanyContext
 {
     public Guid CompanyId { get; } = Guid.NewGuid();
 }

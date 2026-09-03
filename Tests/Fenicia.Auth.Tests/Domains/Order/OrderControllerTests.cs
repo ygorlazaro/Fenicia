@@ -1,5 +1,4 @@
 using System.Security.Claims;
-
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.DTOs;
 using Fenicia.Auth.Domains.Order.Interfaces;
@@ -8,7 +7,6 @@ using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
@@ -17,8 +15,8 @@ public class OrderControllerTests
 {
     private readonly OrderController _controller;
     private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Guid _testUserId;
     private readonly Mock<IOrderService> _mockService;
+    private readonly Guid _testUserId;
 
     public OrderControllerTests()
     {
@@ -26,7 +24,8 @@ public class OrderControllerTests
         _testUserId = Guid.NewGuid();
         _mockService = new Mock<IOrderService>();
 
-        _controller = new OrderController(_mockService.Object) { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
+        _controller = new OrderController(_mockService.Object)
+            { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
 
         SetupUserClaims(_testUserId);
     }
@@ -134,7 +133,8 @@ public class OrderControllerTests
     {
         var controllerType = typeof(OrderController);
 
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
@@ -145,7 +145,8 @@ public class OrderControllerTests
     {
         var controllerType = typeof(OrderController);
 
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());

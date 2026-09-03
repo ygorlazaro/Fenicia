@@ -26,7 +26,11 @@ public class ProjectSubtaskServiceTests
     {
         var subtasks = new List<ProjectSubtaskModel>
         {
-            new() { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = _faker.Lorem.Sentence(), IsCompleted = false, Order = 1, CompanyId = Guid.NewGuid() }
+            new()
+            {
+                Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = _faker.Lorem.Sentence(), IsCompleted = false,
+                Order = 1, CompanyId = Guid.NewGuid()
+            }
         };
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectSubtaskModel>(subtasks));
@@ -40,7 +44,11 @@ public class ProjectSubtaskServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenSubtaskExists_ReturnsSubtask()
     {
-        var subtask = new ProjectSubtaskModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = "S", IsCompleted = false, Order = 1, CompanyId = Guid.NewGuid() };
+        var subtask = new ProjectSubtaskModel
+        {
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = "S", IsCompleted = false, Order = 1,
+            CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.GetByIdAsync(subtask.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(subtask);
@@ -57,7 +65,9 @@ public class ProjectSubtaskServiceTests
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectSubtaskModel?)null);
 
-        var result = await _service.GetByIdAsync(new GetProjectSubtaskByIdQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await _service.GetByIdAsync(
+            new GetProjectSubtaskByIdQuery(Guid.NewGuid()),
+            CancellationToken.None);
 
         result.Should().BeNull();
     }
@@ -81,9 +91,16 @@ public class ProjectSubtaskServiceTests
     [Fact]
     public async Task UpdateAsync_WhenSubtaskExists_ReturnsUpdatedSubtask()
     {
-        var subtask = new ProjectSubtaskModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = "U", IsCompleted = true, Order = 2, CompanyId = Guid.NewGuid() };
+        var subtask = new ProjectSubtaskModel
+        {
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), Title = "U", IsCompleted = true, Order = 2,
+            CompanyId = Guid.NewGuid()
+        };
 
-        _mockRepository.Setup(r => r.UpdateAsync(subtask.Id, It.IsAny<ProjectSubtaskModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                subtask.Id,
+                It.IsAny<ProjectSubtaskModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(subtask);
 
         var command = new UpdateProjectSubtaskCommand(subtask.Id, subtask.TaskId, "U", true, 2, DateTime.UtcNow);
@@ -97,7 +114,10 @@ public class ProjectSubtaskServiceTests
     [Fact]
     public async Task UpdateAsync_WhenSubtaskDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ProjectSubtaskModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ProjectSubtaskModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectSubtaskModel?)null);
 
         var command = new UpdateProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), "U", true, 2, DateTime.UtcNow);

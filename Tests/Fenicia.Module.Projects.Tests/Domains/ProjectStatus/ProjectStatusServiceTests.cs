@@ -26,7 +26,11 @@ public class ProjectStatusServiceTests
     {
         var statuses = new List<ProjectStatusModel>
         {
-            new() { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), Color = "#FF0000", Order = 1, IsFinal = false, CompanyId = Guid.NewGuid() }
+            new()
+            {
+                Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(),
+                Color = "#FF0000", Order = 1, IsFinal = false, CompanyId = Guid.NewGuid()
+            }
         };
 
         _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectStatusModel>(statuses));
@@ -40,7 +44,11 @@ public class ProjectStatusServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenStatusExists_ReturnsStatus()
     {
-        var status = new ProjectStatusModel { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Name = "Active", Color = "#FF0000", Order = 1, IsFinal = false, CompanyId = Guid.NewGuid() };
+        var status = new ProjectStatusModel
+        {
+            Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Name = "Active", Color = "#FF0000", Order = 1,
+            IsFinal = false, CompanyId = Guid.NewGuid()
+        };
 
         _mockRepository.Setup(r => r.GetByIdAsync(status.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(status);
@@ -81,9 +89,16 @@ public class ProjectStatusServiceTests
     [Fact]
     public async Task UpdateAsync_WhenStatusExists_ReturnsUpdatedStatus()
     {
-        var status = new ProjectStatusModel { Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Name = "Done", Color = "#00FF00", Order = 2, IsFinal = true, CompanyId = Guid.NewGuid() };
+        var status = new ProjectStatusModel
+        {
+            Id = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Name = "Done", Color = "#00FF00", Order = 2,
+            IsFinal = true, CompanyId = Guid.NewGuid()
+        };
 
-        _mockRepository.Setup(r => r.UpdateAsync(status.Id, It.IsAny<ProjectStatusModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                status.Id,
+                It.IsAny<ProjectStatusModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(status);
 
         var command = new UpdateProjectStatusCommand(status.Id, status.ProjectId, "Done", "#00FF00", 2, true);
@@ -97,7 +112,10 @@ public class ProjectStatusServiceTests
     [Fact]
     public async Task UpdateAsync_WhenStatusDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<ProjectStatusModel>(), It.IsAny<CancellationToken>()))
+        _mockRepository.Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ProjectStatusModel>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectStatusModel?)null);
 
         var command = new UpdateProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "Done", "#00FF00", 2, true);

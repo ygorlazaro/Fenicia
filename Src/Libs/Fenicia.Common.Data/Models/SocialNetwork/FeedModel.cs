@@ -15,14 +15,14 @@ public class FeedModel : BaseCompanyModel
     public string Text { get; set; } = string.Empty;
 
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
 
     [ForeignKey(nameof(UserId))]
-    public UserModel UserModel { get; set; } = null!;
+    public UserModel UserModel { get; init; } = default!;
 
-    public List<CommentModel> Comments { get; set; } = [];
+    public List<CommentModel> Comments { get; init; } = [];
 
-    public List<LikeModel> Likes { get; set; } = [];
+    public List<LikeModel> Likes { get; init; } = [];
 
-    public List<ShareModel> Shares { get; set; } = [];
+    public List<ShareModel> Shares { get; init; } = [];
 }

@@ -1,4 +1,8 @@
 using Fenicia.Common.API.Startup;
+using Fenicia.Common.Data;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Enums.External;
+using Fenicia.Externals.Email;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,12 +29,14 @@ public class AuthProgramIntegrationTests
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
 
-        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
-    {
-        builder.Services.AddTransient<Externals.Email.IBrevoProvider, TestBrevoProvider>();
-        builder.Services.AddSingleton<Common.Data.ICompanyContext, Common.Data.CompanyContext>();
-        builder.Services.AddHttpContextAccessor();
-    }).AddFeniciaDbContext<Common.Data.Contexts.DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors()
+            .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
+            .AddFeniciaDependencyInjection(() =>
+            {
+                builder.Services.AddTransient<IBrevoProvider, TestBrevoProvider>();
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
+            }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
         app.UseFeniciaLocalization();
@@ -38,9 +44,9 @@ public class AuthProgramIntegrationTests
         Assert.NotNull(app);
     }
 
-    private sealed class TestBrevoProvider : Externals.Email.IBrevoProvider
+    private sealed class TestBrevoProvider : IBrevoProvider
     {
-        public void Send(Common.Enums.External.EmailTemplate template, string email, string name, Dictionary<string, object>? parameters)
+        public void Send(EmailTemplate template, string email, string name, Dictionary<string, object>? parameters)
         {
         }
     }

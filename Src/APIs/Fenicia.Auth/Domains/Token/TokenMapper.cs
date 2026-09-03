@@ -2,7 +2,7 @@ using Fenicia.Auth.Domains.Token.DTOs;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public static partial class TokenMapper
+public static class TokenMapper
 {
     public static UserResponse MapToUserResponse(this GenerateTokenResponse user)
     {

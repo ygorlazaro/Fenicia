@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Fenicia.Common.API.Middlewares;
 using Microsoft.AspNetCore.Http;
+using Moq;
 
 namespace Fenicia.Common.API.Tests.Middlewares;
 
@@ -10,7 +11,8 @@ public class RoleGodRequirementMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldReturn403_WhenRoleClaimMissing()
     {
-        var middleware = new RoleGodRequirementMiddleware(next: null!);
+        var requestDelegate = new Mock<RequestDelegate>();
+        var middleware = new RoleGodRequirementMiddleware(requestDelegate.Object);
         var context = new DefaultHttpContext
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([]))
@@ -24,12 +26,15 @@ public class RoleGodRequirementMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldReturn403_WhenRoleIsNotAdmin()
     {
-        var middleware = new RoleGodRequirementMiddleware(next: null!);
+        var requestDelegate = new Mock<RequestDelegate>();
+        var middleware = new RoleGodRequirementMiddleware(requestDelegate.Object);
         var context = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("role", "[\"User\"]")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("role", "[\"User\"]")
+                ]))
         };
 
         await middleware.InvokeAsync(context);
@@ -48,9 +53,11 @@ public class RoleGodRequirementMiddlewareTests
         });
         var context = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("role", "[\"Admin\"]")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("role", "[\"Admin\"]")
+                ]))
         };
 
         await middleware.InvokeAsync(context);
@@ -62,12 +69,15 @@ public class RoleGodRequirementMiddlewareTests
     [Fact]
     public async Task InvokeAsync_ShouldReturn403_WhenClaimFormatIsInvalid()
     {
-        var middleware = new RoleGodRequirementMiddleware(next: null!);
+        var requestDelegate = new Mock<RequestDelegate>();
+        var middleware = new RoleGodRequirementMiddleware(requestDelegate.Object);
         var context = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([
-                new Claim("role", "invalid-json")
-            ]))
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim("role", "invalid-json")
+                ]))
         };
 
         await middleware.InvokeAsync(context);

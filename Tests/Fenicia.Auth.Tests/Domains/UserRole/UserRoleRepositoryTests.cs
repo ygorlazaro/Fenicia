@@ -4,7 +4,6 @@ using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.UserRole;
@@ -17,7 +16,8 @@ public class UserRoleRepositoryTests : IDisposable
 
     public UserRoleRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
         _db = new DefaultContext(options, new TestCompanyContext());
         _repository = new UserRoleRepository(_db);

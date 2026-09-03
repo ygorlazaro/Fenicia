@@ -9,7 +9,11 @@ public interface ISubscriptionService
 
     Task CreateSubscriptionAsync(SubscriptionModel subscription, CancellationToken cancellationToken = default);
 
-    Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
+    Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(
+        Guid subscriptionId,
+        CancellationToken cancellationToken = default);
 
-    Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(Guid companyId, CancellationToken cancellationToken = default);
+    Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(
+        Guid companyId,
+        CancellationToken cancellationToken = default);
 }

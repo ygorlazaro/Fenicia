@@ -3,7 +3,6 @@ using Fenicia.Auth.Domains.Order.DTOs;
 using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +16,7 @@ namespace Fenicia.Auth.Domains.Order;
 public class OrderController(IOrderService orderService) : ControllerBase
 {
     /// <summary>
-    /// Cria um novo pedido com os módulos informados.
+    ///     Cria um novo pedido com os módulos informados.
     /// </summary>
     /// <param name="request">Comando com lista de IDs de módulos</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
@@ -38,7 +37,11 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(CreateNewOrderCommand request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(
+        CreateNewOrderCommand request,
+        [FromHeader] Headers headers,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
     {
         try
         {
