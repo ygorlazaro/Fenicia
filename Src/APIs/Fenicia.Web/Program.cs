@@ -12,6 +12,12 @@ builder.Services.AddHttpClient("FeniciaAuth", client =>
     client.BaseAddress = new Uri(apiBaseUrl);
 });
 
+builder.Services.AddHttpClient("FeniciaBasic", client =>
+{
+    var apiBaseUrl = builder.Configuration["BasicApiBaseUrl"] ?? "http://localhost:5083";
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
 builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
 builder.Services.AddScoped<CompanyHeaderHandler>();
 
