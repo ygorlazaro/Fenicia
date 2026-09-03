@@ -1,4 +1,5 @@
 @page "/login"
+@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
@@ -13,13 +14,26 @@
         <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="login-form">
             <DataAnnotationsValidator />
 
-            <RadzenTextBox Value="@model.Email" ValueChanged="@((string v) => model.Email = v)" Placeholder="Email" Type="email" Style="width:100%; margin-bottom: 15px;" />
-            <ValidationMessage For="@(() => model.Email)" />
+            <div style="margin-bottom: 15px;">
+                <input class="form-control" @bind="model.Email" placeholder="Email" type="email" />
+                <ValidationMessage For="@(() => model.Email)" />
+            </div>
 
-            <RadzenTextBox Value="@model.Password" ValueChanged="@((string v) => model.Password = v)" Placeholder="Password" Type="password" Style="width:100%; margin-bottom: 20px;" />
-            <ValidationMessage For="@(() => model.Password)" />
+            <div style="margin-bottom: 20px;">
+                <input class="form-control" @bind="model.Password" placeholder="Password" type="password" />
+                <ValidationMessage For="@(() => model.Password)" />
+            </div>
 
-            <RadzenButton ButtonType="ButtonType.Button" Text="Login" @onclick="HandleSubmit" Style="width:100%;" Disabled="@isLoading" />
+            <button type="submit" class="btn btn-primary" style="width:100%;" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <text>Logging in...</text>
+                }
+                else
+                {
+                    <text>Login</text>
+                }
+            </button>
         </EditForm>
 
         @if (!string.IsNullOrEmpty(message))
@@ -60,7 +74,7 @@
                 var tokenData = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (tokenData != null && !string.IsNullOrEmpty(tokenData.AccessToken))
                 {
-                    await JSRuntime.InvokeVoidAsync("cookieHelper.set", "auth_token", tokenData.AccessToken, 60 * 60 * 3); // 3 hours
+                    await JSRuntime.InvokeVoidAsync("cookieHelper.set", "auth_token", tokenData.AccessToken, 60 * 60 * 3);
                     isSuccess = true;
                     message = "Login successful! Redirecting...";
                     await Task.Delay(500);

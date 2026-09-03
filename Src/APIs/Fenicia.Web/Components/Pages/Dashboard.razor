@@ -1,4 +1,5 @@
 @page "/dashboard"
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
@@ -12,12 +13,18 @@
 </div>
 
 @code {
-    protected override async Task OnInitializedAsync()
+    private bool isAuthorized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
-        if (string.IsNullOrEmpty(token))
+        if (firstRender)
         {
-            NavigationManager.NavigateTo("/login", forceLoad: true);
+            var token = await JSRuntime.InvokeAsync<string>("cookieHelper.get", "auth_token");
+            isAuthorized = !string.IsNullOrEmpty(token);
+            if (!isAuthorized)
+            {
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+            }
         }
     }
 }
