@@ -50,8 +50,7 @@ public class LikeService(LikeRepository repository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(l => l.FeedId == query.FeedId).OrderByDescending(l => l.LikeDate);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var likes = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return [.. likes.Select(l => new GetLikesResponse(l.Id, l.UserId, l.FeedId, l.LikeDate))];

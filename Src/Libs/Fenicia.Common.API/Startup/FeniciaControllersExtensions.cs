@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Fenicia.Common.Localization;
 using Microsoft.AspNetCore.Builder;
@@ -30,6 +31,7 @@ public static class FeniciaControllersExtensions
 
         builder.Services.AddControllers().AddJsonOptions(o =>
         {
+            o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             o.JsonSerializerOptions.AllowTrailingCommas = false;
             o.JsonSerializerOptions.MaxDepth = 0;
             o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;

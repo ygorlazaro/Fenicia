@@ -32,8 +32,7 @@ public sealed class ProductService(
             .Include(p => p.Category)
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 
@@ -229,8 +228,7 @@ public sealed class ProductService(
         var baseQuery = productRepository.Query()
             .Include(p => p.Category);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         return await filteredQuery
             .OrderBy(p => p.Quantity)

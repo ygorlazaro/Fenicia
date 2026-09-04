@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductCategoryController(IProductCategoryService productCategoryService) : ControllerBase
+public class ProductCategoryController(IProductCategoryService productCategoryService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém uma lista paginada de categorias de produto.
@@ -121,8 +122,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
-            var category = await productCategoryService.AddAsync(command, companyId, cancellationToken);
+            var category = await productCategoryService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
             return new CreatedResult(string.Empty, category);
         }
@@ -162,10 +162,9 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
             var category = await productCategoryService.UpdateAsync(
                 command with { Id = id },
-                companyId,
+                companyContext.CompanyId,
                 cancellationToken);
 
             return category is null ? NotFound() : Ok(category);
@@ -200,10 +199,9 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
             await productCategoryService.DeleteAsync(
                 new DeleteProductCategoryCommand(id),
-                companyId,
+                companyContext.CompanyId,
                 cancellationToken);
 
             return NoContent();

@@ -7,8 +7,6 @@ namespace Fenicia.Common.Data.Repositories;
 public class Repository<T>(DefaultContext context) : IRepository<T>
     where T : BaseModel
 {
-    public DefaultContext Context { get; set; } = context;
-
     protected DbSet<T> DbSet { get; set; } = context.Set<T>();
 
     public async Task<IEnumerable<T>> GetAllAsync(
@@ -44,7 +42,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
             return null;
         }
 
-        Context.Entry(existing).CurrentValues.SetValues(model);
+        context.Entry(existing).CurrentValues.SetValues(model);
         existing.Updated = DateTime.UtcNow;
         await SaveChangesAsync(cancellationToken);
         return existing;
@@ -116,11 +114,13 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return Context.SaveChangesAsync(cancellationToken);
+        return context.SaveChangesAsync(cancellationToken);
     }
 
     public IQueryable<T> Query()
     {
+        // ReSharper disable once UnusedVariable
+        var c = context;
         return DbSet;
     }
 }

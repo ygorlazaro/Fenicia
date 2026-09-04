@@ -18,8 +18,7 @@ public sealed class StateService(IStateRepository stateRepository) : IStateServi
     {
         var baseQuery = stateRepository.Query();
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var states = await filteredQuery
             .OrderBy(s => s.Uf)

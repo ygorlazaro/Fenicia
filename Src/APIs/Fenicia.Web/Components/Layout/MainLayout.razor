@@ -1,82 +1,95 @@
 ﻿@inherits ComponentBase
-@rendermode InteractiveServer
 @implements IDisposable
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-    <div style="margin-bottom: 20px; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <a href="/" style="font-size: 1.5rem; font-weight: bold; color: #4f46e5; text-decoration: none;">Fenicia</a>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <a href="/" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Home</a>
+<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/" style="font-weight: bold; font-size: 1.5rem;">
+                Fenicia
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic" @onclick="ToggleNavbar">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div id="navbarBasic" class="navbar-menu @(isNavbarActive ? "is-active" : "")">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/">
+                    Home
+                </a>
                 @if (isLoggedIn)
                 {
-                    <button class="company-switcher-btn" @onclick="ToggleCompanyModal">
-                        @if (!string.IsNullOrEmpty(selectedCompanyName))
-                        {
-                            <span>@selectedCompanyName</span>
-                        }
-                        else
-                        {
-                            <span>Select Company</span>
-                        }
-                        <span class="arrow">▼</span>
-                    </button>
-                    @if (showCompanyModal)
-                    {
-                        <div class="company-modal-overlay" @onclick="CloseCompanyModal">
-                            <div class="company-modal" @onclick:stopPropagation="true">
-                                <div class="company-modal-header">
-                                    <h3>Select Company</h3>
-                                    <button class="close-btn" @onclick="CloseCompanyModal">✕</button>
-                                </div>
-                                <div class="company-modal-body">
-                                    @if (!string.IsNullOrEmpty(companyError))
-                                    {
-                                        <p style="color: red;">@companyError</p>
-                                    }
-                                    else if (companies.Count == 0)
-                                    {
-                                        <p>No companies found.</p>
-                                    }
-                                    else
-                                    {
-                                        @foreach (var company in companies)
-                                        {
-                                            <button class="company-item @(async () => await IsCompanySelected
-                                            (company) ? 
-                                            "selected" : "")"
-                                            @onclick="() => SelectCompany(company)">
-                                                <div class="company-name">@company.CompanyName</div>
-                                                <div class="company-role">@company.Role</div>
-                                                <div class="company-cnpj">@FormatCnpj(company.Cnpj)</div>
-                                            </button>
-                                        }
-                                    }
-                                </div>
-                            </div>
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                            @if (!string.IsNullOrEmpty(selectedCompanyName))
+                            {
+                                @selectedCompanyName
+                            }
+                            else
+                            {
+                                <span>Select Company</span>
+                            }
+                        </a>
+                        <div class="navbar-dropdown">
+                            @if (companies.Count == 0)
+                            {
+                                <a class="navbar-item">
+                                    No companies found.
+                                </a>
+                            }
+                            else
+                            {
+                                @foreach (var company in companies)
+                                {
+                                    <a class="navbar-item @(IsCompanySelected(company) ? "is-active" : "")" @onclick="() => SelectCompany(company)">
+                                        <div>
+                                            <strong>@company.Name</strong>
+                                            <div class="is-size-7 has-text-grey">@company.Role</div>
+                                            <div class="is-size-7 has-text-grey">@FormatCnpj(company.Cnpj)</div>
+                                        </div>
+                                    </a>
+                                }
+                            }
                         </div>
-                    }
-                    <a href="/profile" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">My Profile (@userName)</a>
-                    <a href="/dashboard" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Dashboard</a>
-                    <a href="/shop" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Shop</a>
-                    <a href="/productcategories" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Categories</a>
-                    <a href="/logout" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Logout</a>
+                    </div>
+                    <a class="navbar-item" href="/profile">
+                        My Profile (@userName)
+                    </a>
+                    <a class="navbar-item" href="/dashboard">
+                        Dashboard
+                    </a>
+                    <a class="navbar-item" href="/shop">
+                        Shop
+                    </a>
+                    <a class="navbar-item" href="/productcategories">
+                        Categories
+                    </a>
+                    <a class="navbar-item" href="/logout">
+                        Logout
+                    </a>
                 }
                 else
                 {
-                    <a href="/signup" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Sign Up</a>
-                    <a href="/login" style="color: #4f46e5; text-decoration: none; padding: 8px 16px;">Login</a>
+                    <a class="navbar-item" href="/signup">
+                        Sign Up
+                    </a>
+                    <a class="navbar-item" href="/login">
+                        Login
+                    </a>
                 }
             </div>
         </div>
     </div>
+</nav>
 
-    @ChildContent
-</div>
+@ChildContent
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
@@ -89,21 +102,20 @@
     private bool isLoggedIn = false;
     private string userName = string.Empty;
     private bool _jsAvailable;
-    private bool showCompanyModal;
+    private bool isNavbarActive;
     private string selectedCompanyName = string.Empty;
+    private Guid? selectedCompanyId;
     private string companyError = string.Empty;
     private List<UserCompanyItem> companies = [];
     private bool _companiesLoaded;
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("[MainLayout] OnInitialized called");
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine($"[MainLayout] OnAfterRenderAsync firstRender={firstRender} _jsAvailable={_jsAvailable} _companiesLoaded={_companiesLoaded}");
         if (_jsAvailable)
         {
             await RefreshAuthAsync();
@@ -119,7 +131,6 @@
         {
             await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
             _jsAvailable = true;
-            Console.WriteLine("[MainLayout] JS is available");
             await RefreshAuthAsync();
             if (!_companiesLoaded)
             {
@@ -132,7 +143,6 @@
             var message = ex.InnerException?.Message ?? ex.Message;
             if (message.Contains("statically rendered"))
             {
-                Console.WriteLine("[MainLayout] Caught statically rendered exception");
                 return;
             }
             Console.WriteLine($"[MainLayout] OnAfterRenderAsync error: {ex.GetType().Name}: {message}");
@@ -145,6 +155,11 @@
         {
             _ = RefreshAuthAsync();
         }
+    }
+
+    private void ToggleNavbar()
+    {
+        isNavbarActive = !isNavbarActive;
     }
 
     private async Task RefreshAuthAsync()
@@ -166,16 +181,6 @@
         }
     }
 
-    private void ToggleCompanyModal()
-    {
-        showCompanyModal = !showCompanyModal;
-    }
-
-    private void CloseCompanyModal()
-    {
-        showCompanyModal = false;
-    }
-
     private async Task LoadCompaniesAsync()
     {
         try
@@ -193,16 +198,13 @@
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
-                Console.WriteLine($"[CompanySwitcher] Added CompanyId header: {selectedCompanyId.Value}");
             }
 
             var response = await client.GetAsync($"/user/{userId}/company");
-            Console.WriteLine($"[CompanySwitcher] GET /user/{userId}/company -> {(int)response.StatusCode} {response.StatusCode}");
 
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[CompanySwitcher] Response: {json}");
                 var items = System.Text.Json.JsonSerializer.Deserialize<List<UserCompanyItem>>(json,
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -219,7 +221,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[CompanySwitcher] Load error: {ex.Message}");
+            Console.WriteLine($"[MainLayout] Load error: {ex.Message}");
             companyError = ex.Message;
         }
     }
@@ -231,37 +233,38 @@
             var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
             if (companyId.HasValue)
             {
-                var match = companies.FirstOrDefault(c => c.CompanyId == companyId.Value);
+                selectedCompanyId = companyId;
+                var match = companies.FirstOrDefault(c => c.Id == companyId.Value);
                 if (match is not null)
                 {
-                    selectedCompanyName = match.CompanyName;
+                    selectedCompanyName = match.Name;
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[CompanySwitcher] Load selected error: {ex.Message}");
+            Console.WriteLine($"[MainLayout] Load selected error: {ex.Message}");
         }
     }
 
-    private async Task<bool> IsCompanySelected(UserCompanyItem company)
+    private bool IsCompanySelected(UserCompanyItem company)
     {
-        return company.CompanyId.ToString() == (await CompanyContext.GetSelectedCompanyIdAsync())?.ToString();
+        return selectedCompanyId.HasValue && selectedCompanyId.Value == company.Id;
     }
 
     private async Task SelectCompany(UserCompanyItem company)
     {
         try
         {
-            await CompanyContext.SetSelectedCompanyIdAsync(company.CompanyId);
-            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", company.CompanyId.ToString(), 7);
-            selectedCompanyName = company.CompanyName;
-            CloseCompanyModal();
+            await CompanyContext.SetSelectedCompanyIdAsync(company.Id);
+            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", company.Id.ToString(), 7);
+            selectedCompanyId = company.Id;
+            selectedCompanyName = company.Name;
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[CompanySwitcher] Select error: {ex.Message}");
+            Console.WriteLine($"[MainLayout] Select error: {ex.Message}");
         }
     }
 
@@ -299,14 +302,14 @@
     private class UserCompanyItem
     {
         public Guid Id { get; set; }
-        public Guid CompanyId { get; set; }
-        public string CompanyName { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Cnpj { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
     }
 
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
 }

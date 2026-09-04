@@ -89,8 +89,7 @@ public sealed class BlockService(IBlockRepository blockRepository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = blockRepository.Query().Where(b => b.UserId == userId && b.IsActive);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var total = await filteredQuery.CountAsync(cancellationToken);
         var blocks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);

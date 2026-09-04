@@ -12,8 +12,7 @@ public class FeedService(FeedRepository repository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().OrderByDescending(f => f.Date);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var feeds = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return

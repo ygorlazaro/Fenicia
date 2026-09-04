@@ -34,8 +34,6 @@ using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
-using ProductRepository = Fenicia.Module.Basic.Domains.Product.ProductRepository;
-using StockMovementRepository = Fenicia.Module.Basic.Domains.StockMovement.StockMovementRepository;
 
 namespace Fenicia.Module.Basic;
 
@@ -51,18 +49,18 @@ public class Program
             {
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
-                builder.Services.AddScoped<CustomerRepository>();
-                builder.Services.AddScoped<PersonRepository>();
-                builder.Services.AddScoped<AddressRepository>();
-                builder.Services.AddScoped<PersonAddressRepository>();
-                builder.Services.AddScoped<EmployeeRepository>();
-                builder.Services.AddScoped<PositionRepository>();
-                builder.Services.AddScoped<ProductRepository>();
-                builder.Services.AddScoped<ProductCategoryRepository>();
-                builder.Services.AddScoped<StockMovementRepository>();
-                builder.Services.AddScoped<OrderDetailRepository>();
-                builder.Services.AddScoped<SupplierRepository>();
-                builder.Services.AddScoped<StateRepository>();
+                builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+                builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+                builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+                builder.Services.AddScoped<IPersonAddressRepository, PersonAddressRepository>();
+                builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+                builder.Services.AddScoped<IPositionRepository, PositionRepository>();
+                builder.Services.AddScoped<IProductRepository, ProductRepository>();
+                builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+                builder.Services.AddScoped<IStockMovementRepository, StockMovementRepository>();
+                builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+                builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+                builder.Services.AddScoped<IStateRepository, StateRepository>();
                 builder.Services.AddScoped<IAddressService, AddressService>();
                 builder.Services.AddScoped<IPersonService, PersonService>();
                 builder.Services.AddScoped<IPersonAddressService, PersonAddressService>();
@@ -92,6 +90,7 @@ public class Program
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
         app.UseAuthentication();
         app.UseAuthorization();
+        app.MapControllers();
         app.Run();
     }
 }

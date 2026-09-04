@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
@@ -18,15 +19,18 @@ public class ProductCategoryControllerTests : IDisposable
     private readonly Faker _faker;
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Mock<IProductCategoryService> _mockService;
+    private readonly Mock<ICompanyContext> _mockCompanyContext;
 
     public ProductCategoryControllerTests()
     {
         _mockService = new Mock<IProductCategoryService>();
+        _mockCompanyContext = new Mock<ICompanyContext>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProductCategoryController(_mockService.Object)
+        _controller = new ProductCategoryController(_mockService.Object, _mockCompanyContext.Object)
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
+        _mockCompanyContext.Setup(c => c.CompanyId).Returns(Guid.NewGuid());
         SetupServiceMocks();
     }
 
@@ -144,7 +148,7 @@ public class ProductCategoryControllerTests : IDisposable
 
     private void SetupServiceMocks()
     {
-        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProductCategoryQuery>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProductCategoryQuery>()))
             .ReturnsAsync(new Pagination<List<GetAllProductCategoryResponse>>([], 0, 1, 10));
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>()))

@@ -385,7 +385,7 @@ public class TokenServiceTests
     }
 
     private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId)
-        : GenerateTokenResponse(Id, Name, Email);
+        : GenerateTokenResponse(Id, Name, Email, CompanyId);
 
     // ReSharper disable once NotAccessedPositionalProperty.Local
     private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, List<string> Roles)

@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bogus;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
@@ -15,6 +16,7 @@ public class ProductCategoryServiceTests : IDisposable
     private readonly DbContextOptions<DefaultContext> _dbOptions;
     private readonly Faker _faker;
     private readonly Mock<IProductCategoryRepository> _mockRepository;
+    private readonly Mock<ICompanyContext> _mockCompanyContext;
     private readonly ProductCategoryService _service;
 
     public ProductCategoryServiceTests()
@@ -22,7 +24,8 @@ public class ProductCategoryServiceTests : IDisposable
         _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         _mockRepository = new Mock<IProductCategoryRepository>();
-        _service = new ProductCategoryService(_mockRepository.Object);
+        _mockCompanyContext = new Mock<ICompanyContext>();
+        _service = new ProductCategoryService(_mockRepository.Object, _mockCompanyContext.Object);
         _faker = new Faker();
     }
 
@@ -35,14 +38,17 @@ public class ProductCategoryServiceTests : IDisposable
     public async Task GetAllAsync_WhenCategoriesExist_ReturnsPaginationWithCategories()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
+        _mockCompanyContext.Setup(c => c.CompanyId).Returns(companyId);
+
         var db = NewDb();
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First() };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = companyId };
         db.BasicProductCategories.Add(category);
         await db.SaveChangesAsync(CancellationToken.None);
         _mockRepository.Setup(r => r.Query()).Returns(() => db.BasicProductCategories);
 
         // Act
-        var result = await _service.GetAllAsync(new GetAllProductCategoryQuery(), CancellationToken.None);
+        var result = await _service.GetAllAsync(new GetAllProductCategoryQuery());
 
         // Assert
         result.Should().NotBeNull();

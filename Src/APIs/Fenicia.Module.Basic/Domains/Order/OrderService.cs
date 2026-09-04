@@ -28,8 +28,7 @@ public sealed class OrderService(
         var baseQuery = orderRepository.Query()
             .Include(o => o.Customer).ThenInclude(c => c.Person);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

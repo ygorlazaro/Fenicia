@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
@@ -6,25 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository) : IProductCategoryService
+public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository, ICompanyContext companyContext) : IProductCategoryService
 {
-    public ProductCategoryService()
-        : this(null!)
-    {
-    }
-
     public async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(
         GetAllProductCategoryQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = productCategoryRepository.Query();
+        var companyId = companyContext.CompanyId;
+        var baseQuery = productCategoryRepository.Query()
+            .Where(pc => pc.Deleted == null);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var total = await filteredQuery.CountAsync(cancellationToken);
-
-        var categories = await filteredQuery
+        var categories = await baseQuery
             .Select(pc => pc.MapToGetAllProductCategoryResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
@@ -72,7 +67,6 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
         }
 
         category.Name = command.Name;
-        category.CompanyId = companyId;
 
         await productCategoryRepository.UpdateAsync(command.Id, category, cancellationToken);
 
