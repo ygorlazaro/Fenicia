@@ -288,12 +288,18 @@ h1:focus {
     }
 }
 
-/*. ============================================
+/* ============================================
     MudTable pager dropdown fix
     ============================================ */
-.mud-table-pagination .mud-popover {
+.mud-table-pagination {
+    overflow: visible !important;
+}
+
+.mud-table-pagination .mud-popover,
+.mud-table-container .mud-popover,
+.mud-table .mud-popover {
     position: fixed !important;
-    z-index: calc(var(--mud-zindex-popover) + 100) !important;
+    z-index: 9999 !important;
 }
 
 /* ============================================
