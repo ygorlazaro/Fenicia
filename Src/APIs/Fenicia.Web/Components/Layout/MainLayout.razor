@@ -9,8 +9,8 @@
 <nav class="navbar is-link" role="navigation" aria-label="main navigation">
     <div class="container">
         <div class="navbar-brand">
-            <a class="navbar-item" href="/" style="font-weight: bold; font-size: 1.5rem;">
-                Fenicia
+            <a class="navbar-item" href="/dashboard">
+                <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
             </a>
             <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic" @onclick="ToggleNavbar">
                 <span aria-hidden="true"></span>
@@ -343,3 +343,10 @@
     }
 
 }
+
+<style>
+    .logo-img {
+        height: 40px;
+        width: auto;
+    }
+</style>

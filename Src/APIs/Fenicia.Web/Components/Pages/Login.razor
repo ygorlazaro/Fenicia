@@ -12,9 +12,7 @@
     <div class="container">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
-                <div class="logo-placeholder">
-                    <span class="logo-text">FENICIA</span>
-                </div>
+                <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
             </a>
         </div>
     </div>
@@ -76,9 +74,9 @@
 
                         @if (!string.IsNullOrEmpty(message))
                         {
-                            <div class="notification mt-4 @(isSuccess ? "is-success" : "is-danger")">
+                            <Notification Color="@(isSuccess ? NotificationColor.Success : NotificationColor.Danger)" HideCloseButton="true">
                                 @message
-                            </div>
+                            </Notification>
                         }
 
                         <p class="has-text-centered mt-5">
@@ -98,26 +96,9 @@
 </footer>
 
 <style>
-    .logo-placeholder {
-        width: 48px;
+    .logo-img {
         height: 48px;
-        border: 2px solid #ffffff;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(4px);
-    }
-
-    .logo-text {
-        color: #ffffff;
-        font-weight: 900;
-        font-size: 0.7rem;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        line-height: 1.1;
-        text-align: center;
+        width: auto;
     }
 </style>
 
@@ -152,26 +133,30 @@
                 {
                     await AuthState.SetTokenAsync(tokenData.AccessToken, 60 * 60 * 3);
                     isSuccess = true;
-                    message = "Login successful! Redirecting...";
+                    message = "Login realizado com sucesso! Redirecionando...";
+                    NotificationService.Show("Login realizado com sucesso!", NotificationColor.Success);
                     await Task.Delay(500);
                     NavigationManager.NavigateTo("/dashboard");
                 }
                 else
                 {
                     isSuccess = false;
-                    message = "Invalid response from server.";
+                    message = "Resposta inválida do servidor.";
+                    NotificationService.Show("Resposta inválida do servidor.", NotificationColor.Danger);
                 }
             }
             else
             {
                 isSuccess = false;
-                message = $"Login failed ({(int)response.StatusCode}): {body}";
+                message = $"Falha no login ({(int)response.StatusCode}): {body}";
+                NotificationService.Show($"Falha no login ({(int)response.StatusCode})", NotificationColor.Danger);
             }
         }
         catch (Exception ex)
         {
             isSuccess = false;
             message = $"Erro: {ex.Message}";
+            NotificationService.Show($"Erro: {ex.Message}", NotificationColor.Danger);
         }
         finally
         {
