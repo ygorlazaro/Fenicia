@@ -4,7 +4,7 @@
 <PageTitle>Fenicia - O Sistema que Cresce com Você</PageTitle>
 
 <MudLayout>
-    <MudAppBar Elevation="4" Color="Color.Primary" Dense="true">
+    <MudAppBar Elevation="4" Class="fenicia-appbar" Dense="true">
         <MudLink Href="/" Underline="Underline.None" Color="Color.Inherit" Class="d-flex align-center">
             <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
         </MudLink>
@@ -24,16 +24,16 @@
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.False" Class="pa-0">
             <MudGrid Justify="Justify.Center" Class="hero-section">
-                <MudItem xs="12" Class="d-flex flex-column align-center justify-center text-center pa-16" Style="background-color: #1a237e;">
+                <MudItem xs="12" Class="d-flex flex-column align-center justify-center text-center pa-16 hero-section">
                     <img src="/images/logo.svg" alt="Fenicia" class="hero-logo" />
-                    <MudText Typo="Typo.h2" Color="Color.Default" Class="mb-4">Seu sistema, suas regras.</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Default" Class="mb-8">O ERP modular open source que cresce junto com sua empresa.</MudText>
+                    <MudText Typo="Typo.h2" Style="color: white;" Class="mb-4">Seu sistema, suas regras.</MudText>
+                    <MudText Typo="Typo.h5" Style="color: rgba(255,255,255,0.9);" Class="mb-8">O ERP modular open source que cresce junto com sua empresa.</MudText>
                     <MudStack Row="true" Spacing="2" Justify="Justify.Center">
                         <MudLink Href="/signup" Underline="Underline.None">
                             <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large" StartIcon="@Icons.Material.Filled.Rocket">Criar minha conta</MudButton>
                         </MudLink>
                         <MudLink Href="#modulos" Underline="Underline.None">
-                            <MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Large" StartIcon="@Icons.Material.Filled.Category">Conhecer todos os módulos</MudButton>
+                            <MudButton Variant="Variant.Outlined" Class="btn-on-dark" Size="Size.Large" StartIcon="@Icons.Material.Filled.Category">Conhecer todos os módulos</MudButton>
                         </MudLink>
                     </MudStack>
                 </MudItem>
@@ -163,23 +163,23 @@
                 </MudGrid>
             </MudContainer>
 
-            <MudPaper Elevation="0" Class="pa-16" Style="background-color: #263238;">
+            <MudPaper Elevation="0" Class="pa-16 section-open-source" Style="background-color: #263238; color: white;">
                 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-                    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Default" Class="mb-4">Código aberto. Confiança de verdade.</MudText>
-                    <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="mb-8">
-                        Diferente da maioria dos ERPs do mercado, o Fenicia é <strong>open source</strong>. Isso não é só um detalhe técnico — é uma promessa: você pode auditar cada linha do que gerencia os dados da sua empresa, ninguém prende seus dados atrás de uma licença fechada, e a comunidade que usa o sistema ajuda a construir o sistema.
+                    <MudText Typo="Typo.h4" Align="Align.Center" Style="color: white;" Class="mb-4">Código aberto. Confiança de verdade.</MudText>
+                    <MudText Typo="Typo.body1" Align="Align.Center" Style="color: rgba(255,255,255,0.85);" Class="mb-8">
+                        Diferente da maioria dos ERPs do mercado, o Fenicia é <strong style="color: white;">open source</strong>. Isso não é só um detalhe técnico — é uma promessa: você pode auditar cada linha do que gerencia os dados da sua empresa, ninguém prende seus dados atrás de uma licença fechada, e a comunidade que usa o sistema ajuda a construir o sistema.
                     </MudText>
                     <MudStack Row="true" Spacing="2" Justify="Justify.Center" Wrap="Wrap.Wrap">
-                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center">
+                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center open-source-chip">
                             <MudIcon Icon="@Icons.Material.Filled.Code" Class="mr-2" />Auditável
                         </MudPaper>
-                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center">
+                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center open-source-chip">
                             <MudIcon Icon="@Icons.Material.Filled.LockOpen" Class="mr-2" />Sem vendor lock-in
                         </MudPaper>
-                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center">
+                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center open-source-chip">
                             <MudIcon Icon="@Icons.Material.Filled.People" Class="mr-2" />Comunidade
                         </MudPaper>
-                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center">
+                        <MudPaper Elevation="1" Class="pa-4 d-flex align-center open-source-chip">
                             <MudIcon Icon="@Icons.Material.Filled.Article" Class="mr-2" />Sem letra miúda
                         </MudPaper>
                     </MudStack>
@@ -197,11 +197,11 @@
             </MudContainer>
 
             <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pb-16">
-                <MudPaper Elevation="2" Class="pa-16 d-flex flex-column align-center text-center" Style="background-color: #1976d2;">
-                    <MudText Typo="Typo.h4" Color="Color.Default" Class="mb-6">Pronto pra montar o sistema que sua empresa merece?</MudText>
+                <MudPaper Elevation="2" Class="pa-16 d-flex flex-column align-center text-center" Style="background: linear-gradient(135deg, #00897b 0%, #00bfa5 100%); color: white;">
+                    <MudText Typo="Typo.h4" Style="color: white;" Class="mb-6">Pronto pra montar o sistema que sua empresa merece?</MudText>
                     <MudStack Row="true" Spacing="2" Justify="Justify.Center" Wrap="Wrap.Wrap">
                         <MudLink Href="/login" Underline="Underline.None">
-                            <MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Large" StartIcon="@Icons.Material.Filled.Login">Login</MudButton>
+                            <MudButton Variant="Variant.Outlined" Class="btn-on-dark" Size="Size.Large" StartIcon="@Icons.Material.Filled.Login">Login</MudButton>
                         </MudLink>
                         <MudLink Href="/signup" Underline="Underline.None">
                             <MudButton Variant="Variant.Filled" Color="Color.Warning" Size="Size.Large" StartIcon="@Icons.Material.Filled.PersonAdd">Criar minha conta</MudButton>
@@ -212,8 +212,8 @@
         </MudContainer>
     </MudMainContent>
 
-    <MudPaper Class="pa-3" Elevation="4">
-        <MudText Typo="Typo.caption" Align="Align.Center">
+    <MudPaper Class="pa-4 fenicia-footer" Elevation="0">
+        <MudText Typo="Typo.caption" Align="Align.Right">
             <strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.
         </MudText>
     </MudPaper>
@@ -245,7 +245,7 @@
     }
 
     .hero-section {
-        background: linear-gradient(135deg, #1a237e 0%, #311b92 50%, #4527a0 100%);
+        background: linear-gradient(135deg, #00695c 0%, #00897b 50%, #00bfa5 100%);
         color: white;
         position: relative;
         overflow: hidden;

@@ -2,11 +2,70 @@
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IAuthStateService AuthState
+@inject ICompanyContextService CompanyContext
+@inject ICompanySelectionState CompanyState
+@inject ICompanyChangeNotifier CompanyNotifier
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Painel - Fenicia</PageTitle>
 
 <MainLayout>
     <MudGrid>
+        <MudItem xs="12" md="4" Class="ml-auto">
+            @if (isLoadingCompanies)
+            {
+                <div class="d-flex justify-center my-4">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                </div>
+            }
+            else if (companies.Count == 0)
+            {
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Filled" Class="mb-6">
+                    Nenhuma empresa encontrada para a sua conta.
+                </MudAlert>
+            }
+            else
+            {
+                <MudPaper Elevation="0" Class="pa-6 company-selector mb-6">
+                    <div class="d-flex align-center mb-4">
+                        <MudIcon Icon="@Icons.Material.Filled.Business" Color="Color.Primary" Size="Size.Large" Class="mr-3" />
+                        <div>
+                            <MudText Typo="Typo.h6">Selecione a empresa</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Default">
+                                Escolha com qual empresa você quer trabalhar.
+                            </MudText>
+                        </div>
+                    </div>
+
+                    <MudList T="Guid?" Clickable="true" SelectedValue="@selectedChoice" SelectedValueChanged="OnCompanySelected">
+                        @foreach (var company in companies)
+                        {
+                            <MudListItem T="Guid?" Value="@company.Id">
+                                <div class="d-flex flex-column">
+                                    <MudText Typo="Typo.body1"><strong>@company.Name</strong></MudText>
+                                    <MudText Typo="Typo.caption">@company.Role</MudText>
+                                    <MudText Typo="Typo.caption">@FormatCnpj(company.Cnpj)</MudText>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                    <div class="d-flex justify-end mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Disabled="@(!selectedChoice.HasValue || isSavingSelection)"
+                                   OnClick="ConfirmCompanySelection">
+                            @if (isSavingSelection)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+                            }
+                            @(IsCurrentSelection ? "Selecionada" : "Selecionar")
+                        </MudButton>
+                    </div>
+                </MudPaper>
+            }
+        </MudItem>
+
         <MudItem xs="12">
             <MudPaper Elevation="2" Class="pa-6">
                 <MudText Typo="Typo.h4" Class="mb-2">Painel</MudText>
@@ -15,7 +74,7 @@
                 <MudGrid Spacing="4">
                     <MudItem xs="12" sm="4">
                         <MudPaper Elevation="1" Class="pa-6 d-flex flex-column align-center text-center">
-                            <MudText Typo="Typo.h3" Color="Color.Primary">0</MudText>
+                            <MudText Typo="Typo.h3" Color="Color.Primary">@companies.Count</MudText>
                             <MudText Typo="Typo.subtitle2" Color="Color.Default">Empresas</MudText>
                         </MudPaper>
                     </MudItem>
@@ -37,16 +96,140 @@
     </MudGrid>
 </MainLayout>
 
+<style>
+    .company-selector {
+        border: 1px solid rgba(94, 53, 177, 0.15) !important;
+        background-color: rgba(94, 53, 177, 0.03) !important;
+    }
+</style>
+
 @code {
+    private List<UserCompanyItem> companies = [];
+    private Guid? selectedCompanyId;
+    private Guid? selectedChoice;
+    private bool isLoadingCompanies = true;
+    private bool isSavingSelection;
+
+    private bool IsCurrentSelection => selectedChoice.HasValue && selectedChoice == selectedCompanyId;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (!firstRender)
         {
-            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
-            if (!isAuthenticated)
+            return;
+        }
+
+        var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await LoadCompaniesAsync();
+    }
+
+    private async Task LoadCompaniesAsync()
+    {
+        try
+        {
+            isLoadingCompanies = true;
+            StateHasChanged();
+
+            var userId = await CompanyContext.GetUserIdAsync();
+            var token = await CompanyContext.GetTokenAsync();
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+
+            if (!string.IsNullOrEmpty(token))
             {
-                NavigationManager.NavigateTo("/login");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var response = await client.GetAsync($"/user/{userId}/company");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<UserCompanyItem>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (items is not null)
+                {
+                    companies = items;
+                }
+            }
+
+            selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", selectedCompanyId.Value.ToString(), 7);
+                selectedChoice = selectedCompanyId;
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Dashboard] Load error: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingCompanies = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnCompanySelected(Guid? value)
+    {
+        selectedChoice = value;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ConfirmCompanySelection()
+    {
+        if (!selectedChoice.HasValue)
+        {
+            return;
+        }
+
+        try
+        {
+            isSavingSelection = true;
+            StateHasChanged();
+
+            await CompanyContext.SetSelectedCompanyIdAsync(selectedChoice.Value);
+            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", selectedChoice.Value.ToString(), 7);
+            selectedCompanyId = selectedChoice.Value;
+            var match = companies.FirstOrDefault(c => c.Id == selectedChoice.Value);
+            if (match is not null)
+            {
+                CompanyState.Set(match.Id, match.Name);
+            }
+            CompanyNotifier.Notify();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Dashboard] Select error: {ex.Message}");
+        }
+        finally
+        {
+            isSavingSelection = false;
+            StateHasChanged();
+        }
+    }
+
+    private static string FormatCnpj(string cnpj)
+    {
+        if (cnpj.Length == 14)
+        {
+            return $"{cnpj[..2]}.{cnpj[2..5]}.{cnpj[5..8]}/{cnpj[8..12]}-{cnpj[12..]}";
+        }
+        return cnpj;
+    }
+
+    private class UserCompanyItem
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Cnpj { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
     }
 }

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="MudBlazor" Version="9.9.0" />
+    <ProjectReference Include="../../Libs/Fenicia.Common/Fenicia.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -16,12 +16,12 @@
         <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="auth-subtitle">Monte o sistema que sua empresa merece</MudText>
 
         <MudForm @bind-IsValid="@formIsValid">
-            <MudTextField @bind-Value="model.Name" Label="Nome completo" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome é obrigatório!" autocomplete="name" />
-            <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="email" />
+            <MudTextField @bind-Value="model.Name" Label="Nome completo" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome é obrigatório!" autocomplete="name" OnKeyDown="HandleKeyDown" />
+            <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="email" OnKeyDown="HandleKeyDown" />
             <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="new-password" OnKeyDown="HandleKeyDown" />
             <MudDivider Class="my-4" />
-            <MudTextField @bind-Value="model.CompanyName" Label="Nome da empresa" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome da empresa é obrigatório!" />
-            <MudTextField @bind-Value="model.Cnpj" Label="CNPJ" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="CNPJ é obrigatório!" />
+            <MudTextField @bind-Value="model.CompanyName" Label="Nome da empresa" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome da empresa é obrigatório!" OnKeyDown="HandleKeyDown" />
+            <MudTextField @bind-Value="model.Cnpj" Label="CNPJ" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="CNPJ é obrigatório!" OnKeyDown="HandleKeyDown" />
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Disabled="@(isLoading || !formIsValid)" OnClick="HandleSubmit" Class="mt-2">
                 @if (isLoading)
                 {

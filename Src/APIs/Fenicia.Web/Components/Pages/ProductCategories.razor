@@ -6,22 +6,23 @@
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading
+@using Fenicia.Common
+
 <PageTitle>Categorias de Produtos - Fenicia</PageTitle>
 
 <MainLayout>
     <MudGrid>
         <MudItem xs="12">
-            @if (!isLoggedIn)
+            @if (!_isLoggedIn)
             {
                 <MudAlert Severity="Severity.Error">Faça login para gerenciar categorias de produtos.</MudAlert>
             }
-            else if (isLoading)
+            else if (!string.IsNullOrEmpty(_errorMessage))
             {
-                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-16" Size="Size.Large" />
-            }
-            else if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+                <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
             }
             else
             {
@@ -36,75 +37,147 @@
                         </MudButton>
                     </MudStack>
 
-                    @if (categories == null || categories.Count == 0)
+                    @if (_selectedItems is { Count: > 0 })
                     {
-                        <MudAlert Severity="Severity.Warning">Nenhuma categoria encontrada. Crie sua primeira categoria!</MudAlert>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.Delete"
+                                   OnClick="DeleteSelectedAsync"
+                                   Disabled="_isDeleting"
+                                   Class="mb-4">
+                            @if (_isDeleting)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                            }
+                            Excluir Selecionados (@_selectedItems.Count)
+                        </MudButton>
                     }
-                    else
-                    {
-                        <MudTable T="CategoryDto" Items="categories" Dense="true" Hover="true" Bordered="true" Striped="true">
-                            <HeaderContent>
-                                <MudTr>
-                                    <MudTd><MudText Typo="Typo.subtitle2">Nome</MudText></MudTd>
-                                    <MudTd Class="text-right"><MudText Typo="Typo.subtitle2">Ações</MudText></MudTd>
-                                </MudTr>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTr>
-                                    <MudTd>@context.Name</MudTd>
-                                    <MudTd Class="text-right">
-                                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small" OnClick="@(() => EditCategory(context))" Disabled="@isSaving" />
-                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteCategory(context))" Disabled="@isDeleting" />
-                                    </MudTd>
-                                </MudTr>
-                            </RowTemplate>
-                        </MudTable>
-                    }
+
+                    <MudTable @ref="_table"
+                              T="ProductCategoryDto"
+                              MultiSelection="true"
+                              Comparer="_comparer"
+                              @bind-SelectedItems="_selectedItems"
+                              FixedHeader="true"
+                              FixedFooter="true"
+                              Height="400px"
+                              Striped="true"
+                              Hover="true"
+                              Dense="true"
+                              Loading="_isLoading"
+                              LoadingContent="_loadingContent"
+                              ServerData="ServerReload"
+                              CanCancelEdit="true"
+                              EditTrigger="TableEditTrigger.RowClick"
+                              RowEditPreview="BackupItem"
+                              RowEditCommit="ItemHasBeenCommitted"
+                              RowEditCancel="ResetItemToOriginalValues">
+                        <HeaderContent>
+                            <MudTh>Nome</MudTh>
+                            <MudTh Style="text-align: right">Ações</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Nome">@context.Name</MudTd>
+                            <MudTd Style="text-align: right">
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                Color="Color.Info"
+                                                Size="Size.Small"
+                                                OnClick="@(() => EditCategory(context))"
+                                                Disabled="_isSaving || _isDeleting" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                Color="Color.Error"
+                                                Size="Size.Small"
+                                                OnClick="@(() => DeleteCategory(context))"
+                                                Disabled="_isSaving || _isDeleting" />
+                            </MudTd>
+                        </RowTemplate>
+                        <RowEditingTemplate>
+                            <MudTd DataLabel="Nome">
+                                <MudTextField @bind-Value="context.Name" Required Immediate />
+                            </MudTd>
+                            <MudTd Style="text-align: right">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                Color="Color.Error"
+                                                Size="Size.Small"
+                                                OnClick="@(() => DeleteCategory(context))"
+                                                Disabled="_isSaving || _isDeleting" />
+                            </MudTd>
+                        </RowEditingTemplate>
+                        <FooterContent>
+                            <MudTd colspan="2">
+                                @if (_selectedItems is { Count: > 0 })
+                                {
+                                    <MudText Typo="Typo.body2">@_selectedItems.Count item(s) selecionado(s)</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">Nenhum item selecionado</MudText>
+                                }
+                            </MudTd>
+                        </FooterContent>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new int[] { 5, 10, 20, 50, 100 }"
+                                           RowsPerPageString="Itens por página:"
+                                           InfoFormat="{first_item}-{last_item} de {all_items}"
+                                           AllItemsText="Todos" />
+                        </PagerContent>
+                    </MudTable>
                 </MudPaper>
             }
         </MudItem>
     </MudGrid>
 </MainLayout>
 
-@if (showModal)
+@if (_showModal)
 {
-    <MudDialog @bind-Visible="showModal" Options="dialogOptions">
+    <MudDialog @bind-Visible="_showModal" Options="_dialogOptions">
         <TitleContent>
-            <MudText Typo="Typo.h6">@(isEditing ? "Editar Categoria" : "Adicionar Categoria")</MudText>
+            <MudText Typo="Typo.h6">@(_activeTab == 0 ? "Adicionar Categoria" : "Editar Categoria")</MudText>
         </TitleContent>
         <DialogContent>
-            @if (!string.IsNullOrEmpty(modalError))
-            {
-                <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@modalError</MudAlert>
-            }
-            <MudTextField @bind-Value="categoryName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
+            <MudTabs @bind-Value="_activeTab" Elevation="1" Rounded="true" Centered="true">
+                <MudTabPanel Text="Nova Categoria" Value="0">
+                    @if (!string.IsNullOrEmpty(_modalError) && _activeTab == 0)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
+                    }
+                    <MudTextField @bind-Value="_categoryName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
+                </MudTabPanel>
+                <MudTabPanel Text="Editar Categoria" Value="1">
+                    @if (!string.IsNullOrEmpty(_modalError) && _activeTab == 1)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
+                    }
+                    <MudTextField @bind-Value="_categoryName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
+                </MudTabPanel>
+            </MudTabs>
         </DialogContent>
         <DialogActions>
             <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseModal">Cancelar</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveCategory" Disabled="@isSaving">
-                @if (isSaving)
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveFromModal" Disabled="_isSaving">
+                @if (_isSaving)
                 {
                     <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
                 }
-                @(isEditing ? "Atualizar" : "Criar")
+                @(_activeTab == 0 ? "Criar" : "Atualizar")
             </MudButton>
         </DialogActions>
     </MudDialog>
 }
 
-@if (showDeleteConfirm)
+@if (_showDeleteConfirm)
 {
-    <MudDialog @bind-Visible="showDeleteConfirm" Options="dialogOptions">
+    <MudDialog @bind-Visible="_showDeleteConfirm" Options="_dialogOptions">
         <TitleContent>
             <MudText Typo="Typo.h6">Excluir Categoria</MudText>
         </TitleContent>
         <DialogContent>
-            <MudText>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</MudText>
+            <MudText>Tem certeza que deseja excluir <strong>@_categoryToDelete?.Name</strong>?</MudText>
         </DialogContent>
         <DialogActions>
             <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseDeleteModal">Cancelar</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ConfirmDelete" Disabled="@isDeleting">
-                @if (isDeleting)
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ConfirmDelete" Disabled="_isDeleting">
+                @if (_isDeleting)
                 {
                     <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
                 }
@@ -115,52 +188,59 @@
 }
 
 @code {
-    private bool isLoggedIn = false;
-    private bool isLoading = true;
-    private bool isSaving;
-    private bool isDeleting;
-    private string? errorMessage;
-    private string? modalError;
-    private List<CategoryDto>? categories;
-    private CategoryDto? categoryToDelete;
+    private bool _isLoggedIn;
+    private bool _isLoading;
+    private bool _isSaving;
+    private bool _isDeleting;
+    private string? _errorMessage;
+    private string? _modalError;
+    private bool _showModal;
+    private int _activeTab;
+    private bool _isEditing;
+    private Guid? _editingId;
+    private string _categoryName = string.Empty;
+    private bool _showDeleteConfirm;
+    private ProductCategoryDto? _categoryToDelete;
+    private MudTable<ProductCategoryDto> _table = default!;
+    private HashSet<ProductCategoryDto> _selectedItems = new();
+    private readonly CategoryDtoComparer _comparer = new();
+    private ProductCategoryDto? _inlineBackup;
 
-    private bool showModal;
-    private bool isEditing;
-    private Guid? editingId;
-    private string categoryName = string.Empty;
+    private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
 
-    private bool showDeleteConfirm;
-
-    private DialogOptions dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
+    private readonly RenderFragment _loadingContent = @<text>
+        @for (int i = 0; i < 5; i++)
+        {
+            <MudTr>
+                <MudTd><MudSkeleton /></MudTd>
+                <MudTd><MudSkeleton /></MudTd>
+            </MudTr>
+        }
+    </text>;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            isLoggedIn = await AuthState.IsAuthenticatedAsync();
+            _isLoggedIn = await AuthState.IsAuthenticatedAsync();
         }
         catch
         {
-            isLoggedIn = false;
+            _isLoggedIn = false;
         }
 
-        if (isLoggedIn)
+        if (!_isLoggedIn)
         {
-            await LoadCategoriesAsync();
-        }
-        else
-        {
-            isLoading = false;
-            StateHasChanged();
+            _isLoading = false;
         }
     }
 
-    private async Task LoadCategoriesAsync()
+    private async Task<TableData<ProductCategoryDto>> ServerReload(TableState state, CancellationToken ct)
     {
         try
         {
-            isLoading = true;
-            errorMessage = null;
+            _isLoading = true;
+            _errorMessage = null;
             StateHasChanged();
 
             var token = await CompanyContext.GetTokenAsync();
@@ -178,82 +258,89 @@
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
             }
 
-            var response = await client.GetAsync("productcategory?page=1&perPage=100");
+            var page = state.Page + 1;
+            var perPage = state.PageSize;
+            var sort = state.SortLabel;
+            var direction = state.SortDirection == SortDirection.Descending ? "desc" : "asc";
+
+            var query = $"?page={page}&perPage={perPage}";
+            if (!string.IsNullOrWhiteSpace(sort))
+            {
+                query += $"&sort={Uri.EscapeDataString(sort)}&direction={direction}";
+            }
+
+            var response = await client.GetAsync($"productcategory{query}", ct);
             var body = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                var json = body;
                 var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var paginated = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json, options);
+                var paginated = System.Text.Json.JsonSerializer.Deserialize<Pagination<List<ProductCategoryDto>>>(body, options);
+                if (paginated is not null)
+                {
+                    return new TableData<ProductCategoryDto>
+                    {
+                        TotalItems = paginated.Total,
+                        Items = paginated.Data ?? new List<ProductCategoryDto>()
+                    };
+                }
+            }
 
-                if (paginated.TryGetProperty("data", out var dataElement) && dataElement.ValueKind == System.Text.Json.JsonValueKind.Array)
-                {
-                    categories = System.Text.Json.JsonSerializer.Deserialize<List<CategoryDto>>(dataElement.GetRawText(), options);
-                }
-                else if (paginated.ValueKind == System.Text.Json.JsonValueKind.Array)
-                {
-                    categories = System.Text.Json.JsonSerializer.Deserialize<List<CategoryDto>>(json, options);
-                }
-                else
-                {
-                    categories = [];
-                }
-            }
-            else
-            {
-                errorMessage = $"Falha ao carregar categorias: {(int)response.StatusCode} {response.StatusCode} - {body}";
-            }
+            _errorMessage = $"Falha ao carregar categorias: {(int)response.StatusCode} {response.StatusCode} - {body}";
+            return new TableData<ProductCategoryDto> { TotalItems = 0, Items = new List<ProductCategoryDto>() };
         }
         catch (Exception ex)
         {
-            errorMessage = $"Erro: {ex.Message}";
+            _errorMessage = $"Erro: {ex.Message}";
+            return new TableData<ProductCategoryDto> { TotalItems = 0, Items = new List<ProductCategoryDto>() };
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
     }
 
     private void OpenAddModal()
     {
-        isEditing = false;
-        editingId = null;
-        categoryName = string.Empty;
-        modalError = null;
-        showModal = true;
+        _activeTab = 0;
+        _isEditing = false;
+        _editingId = null;
+        _categoryName = string.Empty;
+        _modalError = null;
+        _showModal = true;
         StateHasChanged();
     }
 
-    private void EditCategory(CategoryDto category)
+    private void EditCategory(ProductCategoryDto category)
     {
-        isEditing = true;
-        editingId = category.Id;
-        categoryName = category.Name;
-        modalError = null;
-        showModal = true;
+        _activeTab = 1;
+        _isEditing = true;
+        _editingId = category.Id;
+        _categoryName = category.Name;
+        _modalError = null;
+        _showModal = true;
         StateHasChanged();
     }
 
     private void CloseModal()
     {
-        showModal = false;
+        _showModal = false;
         StateHasChanged();
     }
 
-    private async Task SaveCategory()
+    private async Task SaveFromModal()
     {
-        if (string.IsNullOrWhiteSpace(categoryName))
+        if (string.IsNullOrWhiteSpace(_categoryName))
         {
-            modalError = "Nome da categoria é obrigatório.";
+            _modalError = "Nome da categoria é obrigatório.";
             return;
         }
 
         try
         {
-            isSaving = true;
-            modalError = null;
+            _isSaving = true;
+            _modalError = null;
             StateHasChanged();
 
             var token = await CompanyContext.GetTokenAsync();
@@ -271,17 +358,17 @@
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
             }
 
-            if (isEditing && editingId.HasValue)
+            if (_isEditing && _editingId.HasValue)
             {
-                var command = new { Id = editingId.Value, Name = categoryName };
+                var command = new { Id = _editingId.Value, Name = _categoryName };
                 var json = System.Text.Json.JsonSerializer.Serialize(command);
                 var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                var request = new HttpRequestMessage(HttpMethod.Patch, $"productcategory/{editingId.Value}") { Content = content };
+                var request = new HttpRequestMessage(HttpMethod.Patch, $"productcategory/{_editingId.Value}") { Content = content };
                 var response = await client.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    modalError = $"Falha ao atualizar: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                    _modalError = $"Falha ao atualizar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                     NotificationService.Show("Falha ao atualizar categoria.", Severity.Error);
                     StateHasChanged();
                     return;
@@ -291,12 +378,12 @@
             }
             else
             {
-                var command = new { Id = Guid.NewGuid(), Name = categoryName };
+                var command = new { Id = Guid.NewGuid(), Name = _categoryName };
                 var response = await client.PostAsJsonAsync("productcategory", command);
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    modalError = $"Falha ao criar: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                    _modalError = $"Falha ao criar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                     NotificationService.Show("Falha ao criar categoria.", Severity.Error);
                     StateHasChanged();
                     return;
@@ -306,40 +393,40 @@
             }
 
             CloseModal();
-            await LoadCategoriesAsync();
+            await _table.ReloadServerData();
         }
         catch (Exception ex)
         {
-            modalError = $"Erro: {ex.Message}";
+            _modalError = $"Erro: {ex.Message}";
         }
         finally
         {
-            isSaving = false;
+            _isSaving = false;
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    private void DeleteCategory(CategoryDto category)
+    private void DeleteCategory(ProductCategoryDto category)
     {
-        categoryToDelete = category;
-        showDeleteConfirm = true;
+        _categoryToDelete = category;
+        _showDeleteConfirm = true;
         StateHasChanged();
     }
 
     private void CloseDeleteModal()
     {
-        showDeleteConfirm = false;
-        categoryToDelete = null;
+        _showDeleteConfirm = false;
+        _categoryToDelete = null;
         StateHasChanged();
     }
 
     private async Task ConfirmDelete()
     {
-        if (categoryToDelete == null) return;
+        if (_categoryToDelete == null) return;
 
         try
         {
-            isDeleting = true;
+            _isDeleting = true;
             StateHasChanged();
 
             var token = await CompanyContext.GetTokenAsync();
@@ -357,11 +444,11 @@
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
             }
 
-            var response = await client.DeleteAsync($"productcategory/{categoryToDelete.Id}");
+            var response = await client.DeleteAsync($"productcategory/{_categoryToDelete.Id}");
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Falha ao excluir: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                _errorMessage = $"Falha ao excluir: {(int)response.StatusCode} {response.StatusCode} - {body}";
                 NotificationService.Show("Falha ao excluir categoria.", Severity.Error);
             }
             else
@@ -370,22 +457,171 @@
             }
 
             CloseDeleteModal();
-            await LoadCategoriesAsync();
+            await _table.ReloadServerData();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Erro: {ex.Message}";
+            _errorMessage = $"Erro: {ex.Message}";
         }
         finally
         {
-            isDeleting = false;
+            _isDeleting = false;
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    private class CategoryDto
+    private async Task DeleteSelectedAsync()
+    {
+        if (_selectedItems is { Count: > 0 })
+        {
+            try
+            {
+                _isDeleting = true;
+                StateHasChanged();
+
+                var token = await CompanyContext.GetTokenAsync();
+                var client = HttpClientFactory.CreateClient("FeniciaBasic");
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+                if (selectedCompanyId.HasValue)
+                {
+                    client.DefaultRequestHeaders.Remove("CompanyId");
+                    client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+                }
+
+                foreach (var category in _selectedItems.ToList())
+                {
+                    var response = await client.DeleteAsync($"productcategory/{category.Id}");
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var body = await response.Content.ReadAsStringAsync();
+                        _errorMessage = $"Falha ao excluir {category.Name}: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                        NotificationService.Show($"Falha ao excluir {category.Name}.", Severity.Error);
+                    }
+                    else
+                    {
+                        NotificationService.Show($"{category.Name} excluída com sucesso!", Severity.Success);
+                    }
+                }
+
+                _selectedItems.Clear();
+                await _table.ReloadServerData();
+            }
+            catch (Exception ex)
+            {
+                _errorMessage = $"Erro: {ex.Message}";
+            }
+            finally
+            {
+                _isDeleting = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private void BackupItem(object element)
+    {
+        _inlineBackup = new ProductCategoryDto
+        {
+            Id = ((ProductCategoryDto)element).Id,
+            Name = ((ProductCategoryDto)element).Name
+        };
+    }
+
+    private async void ItemHasBeenCommitted(object element)
+    {
+        var category = (ProductCategoryDto)element;
+        try
+        {
+            _isSaving = true;
+            StateHasChanged();
+
+            var token = await CompanyContext.GetTokenAsync();
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+            }
+
+            var command = new { Id = category.Id, Name = category.Name };
+            var json = System.Text.Json.JsonSerializer.Serialize(command);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Patch, $"productcategory/{category.Id}") { Content = content };
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _errorMessage = $"Falha ao atualizar: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                NotificationService.Show("Falha ao atualizar categoria.", Severity.Error);
+            }
+            else
+            {
+                NotificationService.Show("Categoria atualizada com sucesso!", Severity.Success);
+                await _table.ReloadServerData();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+            _inlineBackup = null;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        var category = (ProductCategoryDto)element;
+        if (_inlineBackup is not null)
+        {
+            category.Name = _inlineBackup.Name;
+        }
+
+        _inlineBackup = null;
+    }
+
+    private class ProductCategoryDto : IEquatable<ProductCategoryDto>
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        public bool Equals(ProductCategoryDto? other)
+        {
+            if (other is null) return false;
+            return Id == other.Id && Name == other.Name;
+        }
+
+        public override bool Equals(object? obj) => Equals(obj as ProductCategoryDto);
+
+        public override int GetHashCode() => HashCode.Combine(Id, Name);
+    }
+
+    private sealed class CategoryDtoComparer : IEqualityComparer<ProductCategoryDto>
+    {
+        public bool Equals(ProductCategoryDto? x, ProductCategoryDto? y)
+        {
+            return x is not null && y is not null && x.Id == y.Id;
+        }
+
+        public int GetHashCode(ProductCategoryDto obj)
+        {
+            return obj.Id.GetHashCode();
+        }
     }
 }

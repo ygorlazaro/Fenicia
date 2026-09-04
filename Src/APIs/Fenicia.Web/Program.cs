@@ -22,6 +22,8 @@ builder.Services.AddHttpClient("FeniciaBasic", client =>
 .AddHttpMessageHandler<CompanyHeaderHandler>();
 
 builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
+builder.Services.AddScoped<ICompanySelectionState, CompanySelectionState>();
+builder.Services.AddScoped<ICompanyChangeNotifier, CompanyChangeNotifier>();
 builder.Services.AddScoped<CompanyHeaderHandler>();
 builder.Services.AddScoped<NotificationService>();
 

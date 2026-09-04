@@ -26,7 +26,7 @@ public static class FeniciaTheme
             Surface = "#ffffff",
             DrawerBackground = "#ffffff",
             DrawerText = "rgba(0,0,0,0.87)",
-            AppbarBackground = "#5e35b1",
+            AppbarBackground = "#00695c",
             TextPrimary = "rgba(0,0,0,0.87)",
             TextSecondary = "rgba(0,0,0,0.6)",
             ActionDefault = "rgba(0,0,0,0.54)",
