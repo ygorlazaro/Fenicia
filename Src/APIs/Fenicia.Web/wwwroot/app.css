@@ -8,7 +8,7 @@
     --fenicia-primary-dark: #4527a0;
     --fenicia-primary-light: #9575cd;
     --fenicia-secondary: #ff6f00;
-    --fenicia-accent: #00bfa5;
+    --fenicia-accent: #ff6f00;
     --fenicia-bg-gradient: linear-gradient(135deg, #5e35b1 0%, #4527a0 50%, #311b92 100%);
     --fenicia-card-shadow: 0 10px 40px rgba(94, 53, 177, 0.25);
 }
@@ -55,7 +55,7 @@ h1:focus {
         position: absolute;
         width: 500px;
         height: 500px;
-        background: radial-gradient(circle, rgba(0, 191, 165, 0.2) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(255, 111, 0, 0.2) 0%, transparent 70%);
         bottom: -150px;
         left: -150px;
         border-radius: 50%;
@@ -112,19 +112,19 @@ h1:focus {
 /* ============================================
    AppBar / MainLayout
    ============================================ */
-.fenicia-appbar {
-    background: linear-gradient(135deg, #00695c 0%, #00897b 100%) !important;
-    backdrop-filter: blur(10px);
-}
+    .fenicia-appbar {
+        background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%) !important;
+        backdrop-filter: blur(10px);
+    }
 
-.fenicia-footer {
-    background: linear-gradient(135deg, #00695c 0%, #00897b 100%) !important;
-    color: white !important;
-    border-radius: 0 !important;
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-}
+    .fenicia-footer {
+        background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%) !important;
+        color: white !important;
+        border-radius: 0 !important;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
 
     .fenicia-footer .mud-typography {
         color: rgba(255, 255, 255, 0.85) !important;
