@@ -5,7 +5,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 
-<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+<nav class="navbar is-link" role="navigation" aria-label="main navigation">
     <div class="container">
         <div class="navbar-brand">
             <a class="navbar-item" href="/" style="font-weight: bold; font-size: 1.5rem;">
@@ -22,10 +22,22 @@
         <div id="navbarBasic" class="navbar-menu @(isNavbarActive ? "is-active" : "")">
             <div class="navbar-start">
                 <a class="navbar-item" href="/">
-                    Home
+                    Início
                 </a>
+
                 @if (isLoggedIn)
                 {
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                            Básico
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item" href="/productcategories">
+                                Categorias de Produtos
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link">
                             @if (!string.IsNullOrEmpty(selectedCompanyName))
@@ -34,14 +46,14 @@
                             }
                             else
                             {
-                                <span>Select Company</span>
+                                <span>Selecionar Empresa</span>
                             }
                         </a>
                         <div class="navbar-dropdown">
                             @if (companies.Count == 0)
                             {
                                 <a class="navbar-item">
-                                    No companies found.
+                                    Nenhuma empresa encontrada.
                                 </a>
                             }
                             else
@@ -60,28 +72,25 @@
                         </div>
                     </div>
                     <a class="navbar-item" href="/profile">
-                        My Profile (@userName)
+                        Meu Perfil (@userName)
                     </a>
                     <a class="navbar-item" href="/dashboard">
-                        Dashboard
+                        Painel
                     </a>
                     <a class="navbar-item" href="/shop">
-                        Shop
-                    </a>
-                    <a class="navbar-item" href="/productcategories">
-                        Categories
+                        Loja
                     </a>
                     <a class="navbar-item" href="/logout">
-                        Logout
+                        Sair
                     </a>
                 }
                 else
                 {
                     <a class="navbar-item" href="/signup">
-                        Sign Up
+                        Criar Conta
                     </a>
                     <a class="navbar-item" href="/login">
-                        Login
+                        Entrar
                     </a>
                 }
             </div>
@@ -92,8 +101,8 @@
 @ChildContent
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    Ocorreu um erro não tratado.
+    <a href="." class="reload">Recarregar</a>
     <span class="dismiss">🗙</span>
 </div>
 
@@ -216,7 +225,7 @@
             }
             else
             {
-                companyError = $"Error: {(int)response.StatusCode} {response.StatusCode}";
+                companyError = $"Erro: {(int)response.StatusCode} {response.StatusCode}";
             }
         }
         catch (Exception ex)

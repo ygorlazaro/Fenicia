@@ -5,7 +5,7 @@
 @inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
 
-<PageTitle>Product Categories - Fenicia</PageTitle>
+<PageTitle>Categorias de Produtos - Fenicia</PageTitle>
 
 <MainLayout>
     <section class="section">
@@ -13,13 +13,13 @@
             @if (!isLoggedIn)
             {
                 <div class="notification is-danger">
-                    <p>Please log in to manage product categories.</p>
+                    <p>Faça login para gerenciar categorias de produtos.</p>
                 </div>
             }
             else if (isLoading)
             {
                 <div class="notification is-info is-light">
-                    <p>Loading product categories...</p>
+                    <p>Carregando categorias...</p>
                 </div>
             }
             else if (!string.IsNullOrEmpty(errorMessage))
@@ -30,62 +30,67 @@
             }
             else
             {
-                <div class="box">
-                    <div class="level">
-                        <div class="level-left">
-                            <h2 class="title is-4 mb-0">Product Categories</h2>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <div>
+                                    <h2 class="title is-4">Categorias de Produtos</h2>
+                                    <p class="subtitle is-6">Gerencie suas categorias de produtos</p>
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                <button class="button is-primary" @onclick="OpenAddModal">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-plus"></i>
+                                    </span>
+                                    <span>Adicionar Categoria</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="level-right">
-                            <button class="button is-primary" @onclick="OpenAddModal">
-                                <span class="icon is-small">
-                                    <i class="fas fa-plus"></i>
-                                </span>
-                                <span>Add Category</span>
-                            </button>
-                        </div>
-                    </div>
 
-                    @if (categories == null || categories.Count == 0)
-                    {
-                        <div class="notification is-warning is-light">
-                            <p>No categories found. Create your first category!</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-container">
-                            <table class="table is-fullwidth is-hoverable">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th class="has-text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var category in categories)
-                                    {
+                        @if (categories == null || categories.Count == 0)
+                        {
+                            <div class="notification is-warning is-light">
+                                <p>Nenhuma categoria encontrada. Crie sua primeira categoria!</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-container">
+                                <table class="table is-fullwidth is-hoverable">
+                                    <thead>
                                         <tr>
-                                            <td>@category.Name</td>
-                                            <td class="has-text-right">
-                                                <button class="button is-small is-info is-light" @onclick="() => EditCategory(category)">
-                                                    <span class="icon is-small">
-                                                        <i class="fas fa-edit"></i>
-                                                    </span>
-                                                    <span>Edit</span>
-                                                </button>
-                                                <button class="button is-small is-danger is-light" @onclick="() => DeleteCategory(category)">
-                                                    <span class="icon is-small">
-                                                        <i class="fas fa-trash"></i>
-                                                    </span>
-                                                    <span>Delete</span>
-                                                </button>
-                                            </td>
+                                            <th>Nome</th>
+                                            <th class="has-text-right">Ações</th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var category in categories)
+                                        {
+                                            <tr>
+                                                <td>@category.Name</td>
+                                                <td class="has-text-right">
+                                                    <button class="button is-small is-info is-light" @onclick="() => EditCategory(category)">
+                                                        <span class="icon is-small">
+                                                            <i class="fas fa-edit"></i>
+                                                        </span>
+                                                        <span>Editar</span>
+                                                    </button>
+                                                    <button class="button is-small is-danger is-light" @onclick="() => DeleteCategory(category)">
+                                                        <span class="icon is-small">
+                                                            <i class="fas fa-trash"></i>
+                                                        </span>
+                                                        <span>Excluir</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>
@@ -96,43 +101,43 @@
         <div class="modal is-active">
             <div class="modal-background" @onclick="CloseModal"></div>
             <div class="modal-card" @onclick:stopPropagation="true">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">@(isEditing ? "Edit Category" : "Add Category")</p>
-                    <button class="delete" aria-label="close" @onclick="CloseModal"></button>
-                </header>
-                <section class="modal-card-body">
-                    @if (!string.IsNullOrEmpty(modalError))
-                    {
-                        <div class="notification is-danger is-light">
-                            @modalError
-                        </div>
-                    }
+<header class="modal-card-head">
+                        <p class="modal-card-title">@(isEditing ? "Editar Categoria" : "Adicionar Categoria")</p>
+                        <button class="delete" aria-label="close" @onclick="CloseModal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        @if (!string.IsNullOrEmpty(modalError))
+                        {
+                            <div class="notification is-danger is-light">
+                                @modalError
+                            </div>
+                        }
 
-                    <div class="field">
-                        <label class="label">Category Name</label>
-                        <div class="control">
-                            <input class="input" type="text" @bind="categoryName" placeholder="Enter category name" />
+                        <div class="field">
+                            <label class="label">Nome da Categoria</label>
+                            <div class="control">
+                                <input class="input" type="text" @bind="categoryName" placeholder="Digite o nome da categoria" />
+                            </div>
                         </div>
-                    </div>
-                </section>
-                <footer class="modal-card-foot">
-                    <div class="buttons">
-                        <button class="button" @onclick="CloseModal">Cancel</button>
-                        <button class="button is-primary" @onclick="SaveCategory" disabled="@isSaving">
-                            @if (isSaving)
-                            {
-                                <span class="icon is-small">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                                <span>Saving...</span>
-                            }
-                            else
-                            {
-                                <span>@(isEditing ? "Update" : "Create")</span>
-                            }
-                        </button>
-                    </div>
-                </footer>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <div class="buttons">
+                            <button class="button" @onclick="CloseModal">Cancelar</button>
+                            <button class="button is-primary" @onclick="SaveCategory" disabled="@isSaving">
+                                @if (isSaving)
+                                {
+                                    <span class="icon is-small">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </span>
+                                    <span>Salvando...</span>
+                                }
+                                else
+                                {
+                                    <span>@(isEditing ? "Atualizar" : "Criar")</span>
+                                }
+                            </button>
+                        </div>
+                    </footer>
             </div>
         </div>
     }
@@ -142,31 +147,31 @@
         <div class="modal is-active">
             <div class="modal-background" @onclick="CloseDeleteModal"></div>
             <div class="modal-card" @onclick:stopPropagation="true" style="max-width: 400px;">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Delete Category</p>
-                    <button class="delete" aria-label="close" @onclick="CloseDeleteModal"></button>
-                </header>
-                <section class="modal-card-body">
-                    <p>Are you sure you want to delete <strong>@categoryToDelete?.Name</strong>?</p>
-                </section>
-                <footer class="modal-card-foot">
-                    <div class="buttons">
-                        <button class="button" @onclick="CloseDeleteModal">Cancel</button>
-                        <button class="button is-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
-                            @if (isDeleting)
-                            {
-                                <span class="icon is-small">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                                <span>Deleting...</span>
-                            }
-                            else
-                            {
-                                <span>Delete</span>
-                            }
-                        </button>
-                    </div>
-                </footer>
+<header class="modal-card-head">
+                        <p class="modal-card-title">Excluir Categoria</p>
+                        <button class="delete" aria-label="close" @onclick="CloseDeleteModal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        <p>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</p>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <div class="buttons">
+                            <button class="button" @onclick="CloseDeleteModal">Cancelar</button>
+                            <button class="button is-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                                @if (isDeleting)
+                                {
+                                    <span class="icon is-small">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </span>
+                                    <span>Excluindo...</span>
+                                }
+                                else
+                                {
+                                    <span>Excluir</span>
+                                }
+                            </button>
+                        </div>
+                    </footer>
             </div>
         </div>
     }
@@ -232,11 +237,6 @@
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
-                Console.WriteLine($"[ProductCategories] Added CompanyId header: {selectedCompanyId.Value}");
-            }
-            else
-            {
-                Console.WriteLine("[ProductCategories] No company selected, CompanyId header not set");
             }
 
             var response = await client.GetAsync("productcategory?page=1&perPage=100");
@@ -263,13 +263,12 @@
             }
             else
             {
-                errorMessage = $"Failed to load categories: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                errorMessage = $"Falha ao carregar categorias: {(int)response.StatusCode} {response.StatusCode} - {body}";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
-            Console.WriteLine($"[ProductCategories] Load error: {ex.Message}");
+            errorMessage = $"Erro: {ex.Message}";
         }
         finally
         {
@@ -290,7 +289,6 @@
 
     private void EditCategory(CategoryDto category)
     {
-        Console.WriteLine($"[ProductCategories] EditCategory id={category.Id} name={category.Name}");
         isEditing = true;
         editingId = category.Id;
         categoryName = category.Name;
@@ -307,10 +305,9 @@
 
     private async Task SaveCategory()
     {
-        Console.WriteLine($"[ProductCategories] SaveCategory START editing={isEditing} editingId={editingId} name={categoryName}");
         if (string.IsNullOrWhiteSpace(categoryName))
         {
-            modalError = "Category name is required.";
+            modalError = "Nome da categoria é obrigatório.";
             return;
         }
 
@@ -333,7 +330,6 @@
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
-                Console.WriteLine($"[ProductCategories] SaveCategory Added CompanyId header: {selectedCompanyId.Value}");
             }
 
             if (isEditing && editingId.HasValue)
@@ -346,12 +342,9 @@
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    modalError = $"Failed to update: {(int)response.StatusCode} {response.StatusCode} - {body}";
-                    Console.WriteLine($"[ProductCategories] SaveCategory PATCH failed: {(int)response.StatusCode} {response.StatusCode} {body}");
+                    modalError = $"Falha ao atualizar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                     return;
                 }
-
-                Console.WriteLine($"[ProductCategories] SaveCategory PATCH success");
             }
             else
             {
@@ -360,12 +353,9 @@
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    modalError = $"Failed to create: {(int)response.StatusCode} {response.StatusCode} - {body}";
-                    Console.WriteLine($"[ProductCategories] SaveCategory POST failed: {(int)response.StatusCode} {response.StatusCode} {body}");
+                    modalError = $"Falha ao criar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                     return;
                 }
-
-                Console.WriteLine($"[ProductCategories] SaveCategory POST success");
             }
 
             CloseModal();
@@ -373,8 +363,7 @@
         }
         catch (Exception ex)
         {
-            modalError = $"Error: {ex.Message}";
-            Console.WriteLine($"[ProductCategories] Save error: {ex.Message}");
+            modalError = $"Erro: {ex.Message}";
         }
         finally
         {
@@ -385,7 +374,6 @@
 
     private void DeleteCategory(CategoryDto category)
     {
-        Console.WriteLine($"[ProductCategories] DeleteCategory id={category.Id} name={category.Name}");
         categoryToDelete = category;
         showDeleteConfirm = true;
         StateHasChanged();
@@ -420,20 +408,13 @@
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
                 client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
-                Console.WriteLine($"[ProductCategories] ConfirmDelete Added CompanyId header: {selectedCompanyId.Value}");
             }
 
-            Console.WriteLine($"[ProductCategories] ConfirmDelete START id={categoryToDelete.Id}");
             var response = await client.DeleteAsync($"productcategory/{categoryToDelete.Id}");
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Failed to delete: {(int)response.StatusCode} {response.StatusCode} - {body}";
-                Console.WriteLine($"[ProductCategories] ConfirmDelete DELETE failed: {(int)response.StatusCode} {response.StatusCode} {body}");
-            }
-            else
-            {
-                Console.WriteLine($"[ProductCategories] ConfirmDelete DELETE success");
+                errorMessage = $"Falha ao excluir: {(int)response.StatusCode} {response.StatusCode} - {body}";
             }
 
             CloseDeleteModal();
@@ -441,8 +422,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
-            Console.WriteLine($"[ProductCategories] Delete error: {ex.Message}");
+            errorMessage = $"Erro: {ex.Message}";
         }
         finally
         {

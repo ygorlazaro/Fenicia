@@ -1,5 +1,4 @@
 using Fenicia.Common;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
@@ -7,13 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository, ICompanyContext companyContext) : IProductCategoryService
+public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository) : IProductCategoryService
 {
     public async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(
         GetAllProductCategoryQuery query,
         CancellationToken cancellationToken = default)
     {
-        var companyId = companyContext.CompanyId;
         var baseQuery = productCategoryRepository.Query()
             .Where(pc => pc.Deleted == null);
 
@@ -60,6 +58,8 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
         CancellationToken cancellationToken = default)
     {
         var category = await productCategoryRepository.GetByIdAsync(command.Id, cancellationToken);
+
+        Console.WriteLine(category?.Id);
 
         if (category is null)
         {

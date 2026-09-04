@@ -1,8 +1,329 @@
 ﻿@page "/"
-@layout Layout.AnonymousLayout
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Fenicia - O Sistema que Cresce com Você</PageTitle>
 
-<h1>Hello, world!</h1>
+<nav class="navbar is-link is-fixed-top" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <div class="logo-placeholder">
+                    <span class="logo-text">FENICIA</span>
+                </div>
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div id="navbarBasic" class="navbar-menu">
+            <div class="navbar-start"></div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-light" href="/login">
+                            Login
+                        </a>
+                        <a class="button is-primary" href="/signup">
+                            Criar minha conta
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
 
-Welcome to your new app.
+<section class="hero is-link is-medium">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="logo-placeholder hero-logo">
+                <span class="logo-text">FENICIA</span>
+            </div>
+            <h1 class="title is-1 has-text-white">
+                Seu sistema, suas regras.
+            </h1>
+            <h2 class="subtitle is-4 has-text-white-ter">
+                O ERP modular open source que cresce junto com sua empresa.
+            </h2>
+            <div class="buttons is-centered">
+                <a class="button is-primary is-large" href="/signup">
+                    <span class="icon is-small">
+                        <i class="fas fa-rocket"></i>
+                    </span>
+                    <span>Criar minha conta</span>
+                </a>
+                <a class="button is-light is-large" href="#modulos">
+                    <span class="icon is-small">
+                        <i class="fas fa-cubes"></i>
+                    </span>
+                    <span>Conhecer todos os módulos</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="content has-text-centered">
+            <h2 class="title is-2">Você já pagou por um ERP inteiro pra usar 20% dele?</h2>
+            <p class="subtitle is-5 has-text-grey">
+                A maioria dos sistemas de gestão empresarial chega pronto — inchado, com módulos que você nunca vai abrir, telas que confundem sua equipe, e uma mensalidade calculada como se sua empresa precisasse de tudo aquilo. Você não precisa. Nenhuma empresa precisa.
+            </p>
+            <h3 class="title is-3 has-text-link">O Fenicia nasceu de uma pergunta simples:</h3>
+            <p class="title is-4 has-text-grey-dark">
+                <em>E se você pudesse montar o seu próprio sistema, peça por peça, do jeito que sua operação realmente funciona?</em>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="modulos" class="section has-background-light">
+    <div class="container">
+        <div class="content has-text-centered">
+            <h2 class="title is-2">Modular de verdade, não modular no papel</h2>
+            <p class="subtitle is-5 has-text-grey">
+                Esqueça pacotes fechados. No Fenicia, cada área da sua empresa é um bloco independente — você escolhe quais ativar, quando ativar, e paga (ou nem paga, se for o caso) só pelo que está realmente usando.
+            </p>
+        </div>
+        <div class="columns is-multiline">
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-success"><i class="fas fa-calculator fa-2x"></i></span></p>
+                            <p class="title is-5">Financeiro & Contábil</p>
+                            <p class="has-text-grey">controle total do seu caixa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-info"><i class="fas fa-file-contract fa-2x"></i></span></p>
+                            <p class="title is-5">Contratos</p>
+                            <p class="has-text-grey">gestão de vigência, renovação e cláusulas sem planilha</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-warning"><i class="fas fa-headset fa-2x"></i></span></p>
+                            <p class="title is-5">Atendimento ao Cliente</p>
+                            <p class="has-text-grey">cada ticket, cada cliente, no lugar certo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-danger"><i class="fas fa-shopping-cart fa-2x"></i></span></p>
+                            <p class="title is-5">E-commerce</p>
+                            <p class="has-text-grey">sua loja conectada ao resto do seu negócio</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-primary"><i class="fas fa-users fa-2x"></i></span></p>
+                            <p class="title is-5">RH</p>
+                            <p class="has-text-grey">da admissão à folha, sem sistemas soltos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-link"><i class="fas fa-cash-register fa-2x"></i></span></p>
+                            <p class="title is-5">PDV</p>
+                            <p class="has-text-grey">ponto de venda que fala com seu estoque em tempo real</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-dark"><i class="fas fa-chart-line fa-2x"></i></span></p>
+                            <p class="title is-5">Avaliação de Desempenho</p>
+                            <p class="has-text-grey">sua equipe crescendo com metas claras</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-success-dark"><i class="fas fa-project-diagram fa-2x"></i></span></p>
+                            <p class="title is-5">Projetos</p>
+                            <p class="has-text-grey">prazos, entregas e times organizados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="card module-card">
+                    <div class="card-content">
+                        <div class="content has-text-centered">
+                            <p class="title is-4"><span class="icon is-large has-text-info-dark"><i class="fas fa-comments fa-2x"></i></span></p>
+                            <p class="title is-5">Rede Social Corporativa</p>
+                            <p class="has-text-grey">comunicação interna sem depender de grupo de WhatsApp</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="has-text-centered mt-5">
+            <em>E o que vier depois — porque o Fenicia foi construído pra crescer junto com você, não pra te prender no que ele era no dia da compra.</em>
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="columns is-vcentered">
+            <div class="column is-5">
+                <h2 class="title is-2">Uma conta, várias empresas</h2>
+                <p class="subtitle is-5">
+                    Administra mais de um negócio? Contador com vários clientes? Grupo com holdings diferentes? O Fenicia deixa você transitar entre empresas com a mesma conta, sem precisar logar e deslogar o dia inteiro — cada empresa com seus próprios dados, seu próprio time, isolados e seguros.
+                </p>
+            </div>
+            <div class="column is-7">
+                <div class="box has-text-centered">
+                    <span class="icon is-large has-text-link"><i class="fas fa-building fa-3x"></i></span>
+                    <p class="title is-4 mt-4">Multi-empresa nativo</p>
+                    <p class="has-text-grey">Troque de empresa em um clique. Dados isolados. Segurança total.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section has-background-dark">
+    <div class="container">
+        <div class="content has-text-centered has-text-white">
+            <h2 class="title is-2">Código aberto. Confiança de verdade.</h2>
+            <p class="subtitle is-5 has-text-grey-light">
+                Diferente da maioria dos ERPs do mercado, o Fenicia é <strong>open source</strong>. Isso não é só um detalhe técnico — é uma promessa: você pode auditar cada linha do que gerencia os dados da sua empresa, ninguém prende seus dados atrás de uma licença fechada, e a comunidade que usa o sistema ajuda a construir o sistema.
+            </p>
+            <div class="tags is-centered mt-5">
+                <span class="tag is-black is-medium"><span class="icon"><i class="fas fa-code"></i></span> &nbsp;Auditável</span>
+                <span class="tag is-black is-medium"><span class="icon"><i class="fas fa-lock-open"></i></span> &nbsp;Sem vendor lock-in</span>
+                <span class="tag is-black is-medium"><span class="icon"><i class="fas fa-users"></i></span> &nbsp;Comunidade</span>
+                <span class="tag is-black is-medium"><span class="icon"><i class="fas fa-file-alt"></i></span> &nbsp;Sem letra miúda</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="content has-text-centered">
+            <h2 class="title is-2">Pague pelo que usa. Cresça no seu ritmo.</h2>
+            <p class="subtitle is-5 has-text-grey">
+                Empresa pequena não deveria pagar preço de multinacional só pra ter acesso a um sistema decente. Com o Fenicia, você ativa módulo por módulo, conforme sua operação pede — sem contrato engessado, sem "pacote completo" empurrado goela abaixo.
+            </p>
+            <p class="title is-4 has-text-link">
+                Comece pequeno. Cresça do seu jeito. O Fenicia acompanha.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section has-background-primary">
+    <div class="container">
+        <div class="content has-text-centered has-text-white">
+            <h2 class="title is-2">Pronto pra montar o sistema que sua empresa merece?</h2>
+            <div class="buttons is-centered mt-5">
+                <a class="button is-light is-large" href="/login">
+                    <span class="icon is-small">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </span>
+                    <span>Login</span>
+                </a>
+                <a class="button is-warning is-large" href="/signup">
+                    <span class="icon is-small">
+                        <i class="fas fa-user-plus"></i>
+                    </span>
+                    <span>Criar minha conta</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.
+        </p>
+    </div>
+</footer>
+
+<style>
+    .logo-placeholder {
+        width: 80px;
+        height: 80px;
+        border: 3px solid #ffffff;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(4px);
+    }
+
+    .hero-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        border-width: 4px;
+    }
+
+    .logo-text {
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        line-height: 1.1;
+        text-align: center;
+    }
+
+    .hero-logo .logo-text {
+        font-size: 1.2rem;
+    }
+
+    .module-card {
+        height: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
+    }
+
+    .navbar-burger span {
+        height: 2px;
+    }
+</style>
+
+

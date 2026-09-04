@@ -1,64 +1,152 @@
 @page "/signup"
 @rendermode InteractiveServer
-@layout Layout.AnonymousLayout
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 
-<PageTitle>Sign Up - Fenicia</PageTitle>
+<PageTitle>Criar conta - Fenicia</PageTitle>
 
-<div style="max-width: 500px; margin: 50px auto; padding: 0 20px;">
-    <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
-        <h3 style="margin-top: 0;">Create Account</h3>
-
-        <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="signup-form">
-            <DataAnnotationsValidator />
-
-            <div style="margin-bottom: 15px;">
-                <input class="form-control" @bind="model.Name" placeholder="Full Name" />
-                <ValidationMessage For="@(() => model.Name)" />
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <input class="form-control" @bind="model.Email" placeholder="Email" type="email" />
-                <ValidationMessage For="@(() => model.Email)" />
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <input class="form-control" @bind="model.Password" placeholder="Password" type="password" />
-                <ValidationMessage For="@(() => model.Password)" />
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <input class="form-control" @bind="model.CompanyName" placeholder="Company Name" />
-                <ValidationMessage For="@(() => model.CompanyName)" />
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <input class="form-control" @bind="model.Cnpj" placeholder="CNPJ" />
-                <ValidationMessage For="@(() => model.Cnpj)" />
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width:100%;" disabled="@isLoading">
-                @if (isLoading)
-                {
-                    <text>Submitting...</text>
-                }
-                else
-                {
-                    <text>Sign Up</text>
-                }
-            </button>
-        </EditForm>
-
-        @if (!string.IsNullOrEmpty(message))
-        {
-            <div style="margin-top: 15px; padding: 10px; border-radius: 4px; background-color: @(isSuccess ? "#d4edda" : "#f8d7da"); color: @(isSuccess ? "#155724" : "#721c24");">
-                @message
-            </div>
-        }
+<nav class="navbar is-link" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <div class="logo-placeholder">
+                    <span class="logo-text">FENICIA</span>
+                </div>
+            </a>
+        </div>
     </div>
-</div>
+</nav>
+
+<section class="hero is-link is-small">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <h1 class="title is-3 has-text-white">Criar minha conta</h1>
+            <p class="subtitle is-6 has-text-white-ter">Monte o sistema que sua empresa merece</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="card">
+                    <div class="card-content">
+                        <h3 class="title is-4 has-text-centered">Cadastro</h3>
+
+                        <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="signup-form">
+                            <DataAnnotationsValidator />
+
+                            <div class="field">
+                                <label class="label">Nome completo</label>
+                                <div class="control has-icons-left">
+                                    <input class="input" @bind="model.Name" placeholder="João Silva" />
+                                    <span class="icon is-small is-left"><i class="fas fa-user"></i></span>
+                                </div>
+                                <ValidationMessage For="@(() => model.Name)" />
+                            </div>
+
+                            <div class="field">
+                                <label class="label">Email</label>
+                                <div class="control has-icons-left">
+                                    <input class="input" @bind="model.Email" placeholder="seu@email.com" type="email" />
+                                    <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                                </div>
+                                <ValidationMessage For="@(() => model.Email)" />
+                            </div>
+
+                            <div class="field">
+                                <label class="label">Senha</label>
+                                <div class="control has-icons-left">
+                                    <input class="input" @bind="model.Password" placeholder="••••••••" type="password" />
+                                    <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <ValidationMessage For="@(() => model.Password)" />
+                            </div>
+
+                            <hr />
+
+                            <div class="field">
+                                <label class="label">Nome da empresa</label>
+                                <div class="control has-icons-left">
+                                    <input class="input" @bind="model.CompanyName" placeholder="Minha Empresa Ltda" />
+                                    <span class="icon is-small is-left"><i class="fas fa-building"></i></span>
+                                </div>
+                                <ValidationMessage For="@(() => model.CompanyName)" />
+                            </div>
+
+                            <div class="field">
+                                <label class="label">CNPJ</label>
+                                <div class="control has-icons-left">
+                                    <input class="input" @bind="model.Cnpj" placeholder="00.000.000/0000-00" />
+                                    <span class="icon is-small is-left"><i class="fas fa-id-card"></i></span>
+                                </div>
+                                <ValidationMessage For="@(() => model.Cnpj)" />
+                            </div>
+
+                            <div class="field mt-5">
+                                <div class="control">
+                                    <button type="submit" class="button is-link is-fullwidth" disabled="@isLoading">
+                                        @if (isLoading)
+                                        {
+                                            <text>Criando conta...</text>
+                                        }
+                                        else
+                                        {
+                                            <text>Criar minha conta</text>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
+
+                        @if (!string.IsNullOrEmpty(message))
+                        {
+                            <div class="notification mt-4 @(isSuccess ? "is-success" : "is-danger")">
+                                @message
+                            </div>
+                        }
+
+                        <p class="has-text-centered mt-5">
+                            Já tem conta? <a href="/login" class="has-text-link"><strong>Entrar</strong></a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p><strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.</p>
+    </div>
+</footer>
+
+<style>
+    .logo-placeholder {
+        width: 48px;
+        height: 48px;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(4px);
+    }
+
+    .logo-text {
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 0.7rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        line-height: 1.1;
+        text-align: center;
+    }
+</style>
 
 @code {
     private SignupModel model = new();
@@ -101,7 +189,7 @@
         catch (Exception ex)
         {
             isSuccess = false;
-            message = $"Error: {ex.Message}";
+            message = $"Erro: {ex.Message}";
         }
         finally
         {
