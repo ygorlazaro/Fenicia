@@ -23,6 +23,7 @@ builder.Services.AddHttpClient("FeniciaBasic", client =>
 
 builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
 builder.Services.AddScoped<CompanyHeaderHandler>();
+builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
