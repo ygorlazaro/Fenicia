@@ -1,5 +1,9 @@
 ﻿<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
+        <MudThemeProvider Theme="@FeniciaTheme.Current" />
+        <MudDialogProvider />
+        <MudSnackbarProvider />
+        <MudPopoverProvider />
         <RouteView RouteData="routeData" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>

@@ -6,41 +6,35 @@
 <PageTitle>Painel - Fenicia</PageTitle>
 
 <MainLayout>
-    <section class="section">
-        <div class="container">
-            <div class="columns">
-                <div class="column is-12">
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="title is-4">Painel</h3>
-                            <p class="subtitle is-6">Bem-vindo ao seu painel de controle</p>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudText Typo="Typo.h4" Class="mb-2">Painel</MudText>
+                <MudText Typo="Typo.subtitle1" Color="Color.Default" Class="mb-6">Bem-vindo ao seu painel de controle</MudText>
 
-                            <div class="columns is-multiline">
-                                <div class="column is-4">
-                                    <div class="box has-text-centered">
-                                        <p class="title is-3 has-text-link">0</p>
-                                        <p class="subtitle is-7">Empresas</p>
-                                    </div>
-                                </div>
-                                <div class="column is-4">
-                                    <div class="box has-text-centered">
-                                        <p class="title is-3 has-text-success">0</p>
-                                        <p class="subtitle is-7">Módulos ativos</p>
-                                    </div>
-                                </div>
-                                <div class="column is-4">
-                                    <div class="box has-text-centered">
-                                        <p class="title is-3 has-text-warning">0</p>
-                                        <p class="subtitle is-7">Assinaturas</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                <MudGrid Spacing="4">
+                    <MudItem xs="12" sm="4">
+                        <MudPaper Elevation="1" Class="pa-6 d-flex flex-column align-center text-center">
+                            <MudText Typo="Typo.h3" Color="Color.Primary">0</MudText>
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Empresas</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudPaper Elevation="1" Class="pa-6 d-flex flex-column align-center text-center">
+                            <MudText Typo="Typo.h3" Color="Color.Success">0</MudText>
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Módulos ativos</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudPaper Elevation="1" Class="pa-6 d-flex flex-column align-center text-center">
+                            <MudText Typo="Typo.h3" Color="Color.Warning">0</MudText>
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Assinaturas</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 </MainLayout>
 
 @code {

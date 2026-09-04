@@ -7,135 +7,59 @@
 
 <PageTitle>Criar conta - Fenicia</PageTitle>
 
-<nav class="navbar is-link" role="navigation" aria-label="main navigation">
-    <div class="container">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="/">
-                <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
-            </a>
+<div class="auth-page">
+    <MudPaper Class="auth-card" Elevation="0">
+        <div class="d-flex flex-column align-center">
+            <img src="/images/logo.svg" alt="Fenicia" class="auth-logo" />
         </div>
-    </div>
-</nav>
+        <MudText Typo="Typo.h4" Align="Align.Center" Class="auth-title">Criar minha conta</MudText>
+        <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="auth-subtitle">Monte o sistema que sua empresa merece</MudText>
 
-<section class="hero is-link is-small">
-    <div class="hero-body">
-        <div class="container has-text-centered">
-            <h1 class="title is-3 has-text-white">Criar minha conta</h1>
-            <p class="subtitle is-6 has-text-white-ter">Monte o sistema que sua empresa merece</p>
-        </div>
-    </div>
-</section>
+        <MudForm @bind-IsValid="@formIsValid">
+            <MudTextField @bind-Value="model.Name" Label="Nome completo" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome é obrigatório!" autocomplete="name" />
+            <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="email" />
+            <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="new-password" OnKeyDown="HandleKeyDown" />
+            <MudDivider Class="my-4" />
+            <MudTextField @bind-Value="model.CompanyName" Label="Nome da empresa" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome da empresa é obrigatório!" />
+            <MudTextField @bind-Value="model.Cnpj" Label="CNPJ" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="CNPJ é obrigatório!" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Disabled="@(isLoading || !formIsValid)" OnClick="HandleSubmit" Class="mt-2">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+                    <span>Criando conta...</span>
+                }
+                else
+                {
+                    <span>Criar minha conta</span>
+                }
+            </MudButton>
+        </MudForm>
 
-<section class="section">
-    <div class="container">
-        <div class="columns is-centered">
-            <div class="column is-half">
-                <div class="card">
-                    <div class="card-content">
-                        <h3 class="title is-4 has-text-centered">Cadastro</h3>
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <MudAlert Severity="@(isSuccess ? Severity.Success : Severity.Error)" Class="mt-4" Dense="true" Variant="Variant.Filled">@message</MudAlert>
+        }
 
-                        <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="signup-form">
-                            <DataAnnotationsValidator />
-
-                            <div class="field">
-                                <label class="label">Nome completo</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.Name" placeholder="João Silva" />
-                                </div>
-                                <ValidationMessage For="@(() => model.Name)" />
-                            </div>
-
-                            <div class="field">
-                                <label class="label">Email</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.Email" placeholder="seu@email.com" Type="InputType.Email" />
-                                </div>
-                                <ValidationMessage For="@(() => model.Email)" />
-                            </div>
-
-                            <div class="field">
-                                <label class="label">Senha</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.Password" placeholder="••••••••" Type="InputType.Password" />
-                                </div>
-                                <ValidationMessage For="@(() => model.Password)" />
-                            </div>
-
-                            <hr />
-
-                            <div class="field">
-                                <label class="label">Nome da empresa</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.CompanyName" placeholder="Minha Empresa Ltda" />
-                                </div>
-                                <ValidationMessage For="@(() => model.CompanyName)" />
-                            </div>
-
-                            <div class="field">
-                                <label class="label">CNPJ</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.Cnpj" placeholder="00.000.000/0000-00" />
-                                </div>
-                                <ValidationMessage For="@(() => model.Cnpj)" />
-                            </div>
-
-                            <div class="field mt-5">
-                                <div class="control">
-                                    <button type="submit" class="button is-link is-fullwidth" disabled="@isLoading">
-                                        @if (isLoading)
-                                        {
-                                            <span class="icon is-small">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                            <span>Criando conta...</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Criar minha conta</span>
-                                        }
-                                    </button>
-                                </div>
-                            </div>
-                        </EditForm>
-
-                        @if (!string.IsNullOrEmpty(message))
-                        {
-                            <Notification Color="@(isSuccess ? NotificationColor.Success : NotificationColor.Danger)" HideCloseButton="true">
-                                @message
-                            </Notification>
-                        }
-
-                        <p class="has-text-centered mt-5">
-                            Já tem conta? <a href="/login" class="has-text-link"><strong>Entrar</strong></a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="content has-text-centered">
-        <p><strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.</p>
-    </div>
-</footer>
-
-<style>
-    .logo-img {
-        height: 48px;
-        width: auto;
-    }
-</style>
+        <MudText Typo="Typo.body2" Align="Align.Center" Class="mt-6">
+            Já tem conta? <MudLink Href="/login" Color="Color.Primary" Underline="Underline.Always">Entrar</MudLink>
+        </MudText>
+    </MudPaper>
+</div>
 
 @code {
     private SignupModel model = new();
     private string? message;
     private bool isSuccess;
     private bool isLoading;
+    private bool formIsValid;
 
     private async Task HandleSubmit()
     {
+        if (isLoading || !formIsValid)
+        {
+            return;
+        }
+
         message = null;
         isLoading = true;
         StateHasChanged();
@@ -158,26 +82,34 @@
             {
                 isSuccess = true;
                 message = "Conta criada com sucesso! Você já pode fazer login.";
-                NotificationService.Show("Conta criada com sucesso!", NotificationColor.Success);
+                NotificationService.Show("Conta criada com sucesso!", Severity.Success);
                 model = new SignupModel();
             }
             else
             {
                 isSuccess = false;
                 message = $"Falha no cadastro ({(int)response.StatusCode}): {body}";
-                NotificationService.Show($"Falha no cadastro ({(int)response.StatusCode})", NotificationColor.Danger);
+                NotificationService.Show($"Falha no cadastro ({(int)response.StatusCode})", Severity.Error);
             }
         }
         catch (Exception ex)
         {
             isSuccess = false;
             message = $"Erro: {ex.Message}";
-            NotificationService.Show($"Erro: {ex.Message}", NotificationColor.Danger);
+            NotificationService.Show($"Erro: {ex.Message}", Severity.Error);
         }
         finally
         {
             isLoading = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !isLoading && formIsValid)
+        {
+            await HandleSubmit();
         }
     }
 

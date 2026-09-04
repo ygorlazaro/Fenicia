@@ -8,20 +8,15 @@
 <PageTitle>Saindo - Fenicia</PageTitle>
 
 <MainLayout>
-    <section class="section">
-        <div class="container">
-            <div class="columns is-centered">
-                <div class="column is-half">
-                    <div class="card">
-                        <div class="card-content has-text-centered">
-                            <h3 class="title is-4">Saindo</h3>
-                            <p>Encerrando sua sessão...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <MudGrid Justify="Justify.Center" Class="mt-16">
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-8 d-flex flex-column align-center text-center">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" Class="mb-4" />
+                <MudText Typo="Typo.h5">Saindo</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Default">Encerrando sua sessão...</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 </MainLayout>
 
 @code {
@@ -31,7 +26,7 @@
         {
             await AuthState.ClearTokenAsync();
             await JSRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
-            NotificationService.Show("Você saiu da sua conta.", NotificationColor.Info);
+            NotificationService.Show("Você saiu da sua conta.", Severity.Info);
             await Task.Delay(300);
             NavigationManager.NavigateTo("/");
         }

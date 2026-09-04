@@ -1,4 +1,0 @@
-{
-    "Src/Front/**/*.{js,jsx,ts,tsx,mjs,cjs}": ["prettier --write", "eslint --fix"],
-    "Src/Front/**/*.{json,css,scss,md,html}": ["prettier --write"]
-}

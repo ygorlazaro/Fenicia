@@ -1,7 +1,7 @@
-using BlazorExpress.Bulma;
 using Fenicia.Web;
 using Fenicia.Web.Components;
 using Fenicia.Web.Services;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +27,8 @@ builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMudServices();
 
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
 

@@ -8,109 +8,55 @@
 
 <PageTitle>Login - Fenicia</PageTitle>
 
-<nav class="navbar is-link" role="navigation" aria-label="main navigation">
-    <div class="container">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="/">
-                <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
-            </a>
+<div class="auth-page">
+    <MudPaper Class="auth-card" Elevation="0">
+        <div class="d-flex flex-column align-center">
+            <img src="/images/logo.svg" alt="Fenicia" class="auth-logo" />
         </div>
-    </div>
-</nav>
+        <MudText Typo="Typo.h4" Align="Align.Center" Class="auth-title">Bem-vindo de volta</MudText>
+        <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="auth-subtitle">Acesse sua conta para continuar</MudText>
 
-<section class="hero is-link is-small">
-    <div class="hero-body">
-        <div class="container has-text-centered">
-            <h1 class="title is-3 has-text-white">Bem-vindo de volta</h1>
-            <p class="subtitle is-6 has-text-white-ter">Acesse sua conta para continuar</p>
-        </div>
-    </div>
-</section>
+        <MudForm @bind-IsValid="@formIsValid">
+            <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="username" />
+            <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="current-password" OnKeyDown="HandleKeyDown" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Disabled="@(isLoading || !formIsValid)" OnClick="HandleSubmit" Class="mt-2">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+                    <span>Entrando...</span>
+                }
+                else
+                {
+                    <span>Entrar</span>
+                }
+            </MudButton>
+        </MudForm>
 
-<section class="section">
-    <div class="container">
-        <div class="columns is-centered">
-            <div class="column is-half">
-                <div class="card">
-                    <div class="card-content">
-                        <h3 class="title is-4 has-text-centered">Login</h3>
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <MudAlert Severity="@(isSuccess ? Severity.Success : Severity.Error)" Class="mt-4" Dense="true" Variant="Variant.Filled">@message</MudAlert>
+        }
 
-                        <EditForm Model="@model" OnValidSubmit="HandleSubmit" FormName="login-form">
-                            <DataAnnotationsValidator />
-
-                            <div class="field">
-                                <label class="label">Email</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.Email" placeholder="seu@email.com" />
-                                </div>
-                                <ValidationMessage For="@(() => model.Email)" />
-                            </div>
-
-                            <div class="field">
-                                <label class="label">Senha</label>
-                                <div class="control">
-                                    <TextInput @bind-Value="model.Password" placeholder="••••••••" Type="InputType.Password" />
-                                </div>
-                                <ValidationMessage For="@(() => model.Password)" />
-                            </div>
-
-                            <div class="field mt-5">
-                                <div class="control">
-                                    <button type="submit" class="button is-link is-fullwidth" disabled="@isLoading">
-                                        @if (isLoading)
-                                        {
-                                            <span class="icon is-small">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                            <span>Entrando...</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Entrar</span>
-                                        }
-                                    </button>
-                                </div>
-                            </div>
-                        </EditForm>
-
-                        @if (!string.IsNullOrEmpty(message))
-                        {
-                            <Notification Color="@(isSuccess ? NotificationColor.Success : NotificationColor.Danger)" HideCloseButton="true">
-                                @message
-                            </Notification>
-                        }
-
-                        <p class="has-text-centered mt-5">
-                            Ainda não tem conta? <a href="/signup" class="has-text-link"><strong>Criar minha conta</strong></a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="content has-text-centered">
-        <p><strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.</p>
-    </div>
-</footer>
-
-<style>
-    .logo-img {
-        height: 48px;
-        width: auto;
-    }
-</style>
+        <MudText Typo="Typo.body2" Align="Align.Center" Class="mt-6">
+            Ainda não tem conta? <MudLink Href="/signup" Color="Color.Primary" Underline="Underline.Always">Criar minha conta</MudLink>
+        </MudText>
+    </MudPaper>
+</div>
 
 @code {
     private LoginModel model = new();
     private string? message;
     private bool isSuccess;
     private bool isLoading;
+    private bool formIsValid;
 
     private async Task HandleSubmit()
     {
+        if (isLoading || !formIsValid)
+        {
+            return;
+        }
+
         message = null;
         isLoading = true;
         StateHasChanged();
@@ -135,7 +81,7 @@
                     await AuthState.SetTokenAsync(tokenData.AccessToken, 60 * 60 * 3);
                     isSuccess = true;
                     message = "Login realizado com sucesso! Redirecionando...";
-                    NotificationService.Show("Login realizado com sucesso!", NotificationColor.Success);
+                    NotificationService.Show("Login realizado com sucesso!", Severity.Success);
                     await Task.Delay(500);
                     NavigationManager.NavigateTo("/dashboard");
                 }
@@ -143,26 +89,34 @@
                 {
                     isSuccess = false;
                     message = "Resposta inválida do servidor.";
-                    NotificationService.Show("Resposta inválida do servidor.", NotificationColor.Danger);
+                    NotificationService.Show("Resposta inválida do servidor.", Severity.Error);
                 }
             }
             else
             {
                 isSuccess = false;
                 message = $"Falha no login ({(int)response.StatusCode}): {body}";
-                NotificationService.Show($"Falha no login ({(int)response.StatusCode})", NotificationColor.Danger);
+                NotificationService.Show($"Falha no login ({(int)response.StatusCode})", Severity.Error);
             }
         }
         catch (Exception ex)
         {
             isSuccess = false;
             message = $"Erro: {ex.Message}";
-            NotificationService.Show($"Erro: {ex.Message}", NotificationColor.Danger);
+            NotificationService.Show($"Erro: {ex.Message}", Severity.Error);
         }
         finally
         {
             isLoading = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !isLoading && formIsValid)
+        {
+            await HandleSubmit();
         }
     }
 
