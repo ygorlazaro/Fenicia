@@ -16,7 +16,7 @@ public static class FeniciaTheme
             SecondaryDarken = "#e65100",
             SecondaryLighten = "#ff8f00",
             SecondaryContrastText = "#ffffff",
-            Tertiary = "#00bfa5",
+            Tertiary = "#00b0ff",
             Success = "#2e7d32",
             Info = "#1565c0",
             Warning = "#ef6c00",
@@ -26,7 +26,7 @@ public static class FeniciaTheme
             Surface = "#ffffff",
             DrawerBackground = "#ffffff",
             DrawerText = "rgba(0,0,0,0.87)",
-            AppbarBackground = "#00695c",
+            AppbarBackground = "#5e35b1",
             TextPrimary = "rgba(0,0,0,0.87)",
             TextSecondary = "rgba(0,0,0,0.6)",
             ActionDefault = "rgba(0,0,0,0.54)",
@@ -41,7 +41,7 @@ public static class FeniciaTheme
         {
             Primary = "#9575cd",
             Secondary = "#ff8f00",
-            Tertiary = "#00bfa5",
+            Tertiary = "#00b0ff",
         },
         LayoutProperties = new LayoutProperties
         {
