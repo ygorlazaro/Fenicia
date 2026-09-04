@@ -39,27 +39,24 @@
 
                             <div class="field">
                                 <label class="label">Nome completo</label>
-                                <div class="control has-icons-left">
-                                    <input class="input" @bind="model.Name" placeholder="João Silva" />
-                                    <span class="icon is-small is-left"><i class="fas fa-user"></i></span>
+                                <div class="control">
+                                    <TextInput @bind-Value="model.Name" placeholder="João Silva" />
                                 </div>
                                 <ValidationMessage For="@(() => model.Name)" />
                             </div>
 
                             <div class="field">
                                 <label class="label">Email</label>
-                                <div class="control has-icons-left">
-                                    <input class="input" @bind="model.Email" placeholder="seu@email.com" type="email" />
-                                    <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                                <div class="control">
+                                    <TextInput @bind-Value="model.Email" placeholder="seu@email.com" Type="InputType.Email" />
                                 </div>
                                 <ValidationMessage For="@(() => model.Email)" />
                             </div>
 
                             <div class="field">
                                 <label class="label">Senha</label>
-                                <div class="control has-icons-left">
-                                    <input class="input" @bind="model.Password" placeholder="••••••••" type="password" />
-                                    <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                                <div class="control">
+                                    <TextInput @bind-Value="model.Password" placeholder="••••••••" Type="InputType.Password" />
                                 </div>
                                 <ValidationMessage For="@(() => model.Password)" />
                             </div>
@@ -68,18 +65,16 @@
 
                             <div class="field">
                                 <label class="label">Nome da empresa</label>
-                                <div class="control has-icons-left">
-                                    <input class="input" @bind="model.CompanyName" placeholder="Minha Empresa Ltda" />
-                                    <span class="icon is-small is-left"><i class="fas fa-building"></i></span>
+                                <div class="control">
+                                    <TextInput @bind-Value="model.CompanyName" placeholder="Minha Empresa Ltda" />
                                 </div>
                                 <ValidationMessage For="@(() => model.CompanyName)" />
                             </div>
 
                             <div class="field">
                                 <label class="label">CNPJ</label>
-                                <div class="control has-icons-left">
-                                    <input class="input" @bind="model.Cnpj" placeholder="00.000.000/0000-00" />
-                                    <span class="icon is-small is-left"><i class="fas fa-id-card"></i></span>
+                                <div class="control">
+                                    <TextInput @bind-Value="model.Cnpj" placeholder="00.000.000/0000-00" />
                                 </div>
                                 <ValidationMessage For="@(() => model.Cnpj)" />
                             </div>
@@ -89,11 +84,14 @@
                                     <button type="submit" class="button is-link is-fullwidth" disabled="@isLoading">
                                         @if (isLoading)
                                         {
-                                            <text>Criando conta...</text>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </span>
+                                            <span>Criando conta...</span>
                                         }
                                         else
                                         {
-                                            <text>Criar minha conta</text>
+                                            <span>Criar minha conta</span>
                                         }
                                     </button>
                                 </div>

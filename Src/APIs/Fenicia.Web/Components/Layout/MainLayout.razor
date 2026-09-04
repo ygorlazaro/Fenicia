@@ -23,27 +23,31 @@
         <div id="navbarBasic" class="navbar-menu @(isNavbarActive ? "is-active" : "")">
             <div class="navbar-start">
                 <a class="navbar-item" href="/">
-                    Início
+                    <span class="icon"><i class="fas fa-home"></i></span>
+                    <span>Início</span>
                 </a>
 
                 @if (isLoggedIn)
                 {
                     <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link">
-                            Básico
+                            <span class="icon"><i class="fas fa-cubes"></i></span>
+                            <span>Básico</span>
                         </a>
                         <div class="navbar-dropdown">
                             <a class="navbar-item" href="/productcategories">
-                                Categorias de Produtos
+                                <span class="icon"><i class="fas fa-tags"></i></span>
+                                <span>Categorias de Produtos</span>
                             </a>
                         </div>
                     </div>
 
                     <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link">
+                            <span class="icon"><i class="fas fa-building"></i></span>
                             @if (!string.IsNullOrEmpty(selectedCompanyName))
                             {
-                                @selectedCompanyName
+                                <span>@selectedCompanyName</span>
                             }
                             else
                             {
@@ -54,7 +58,8 @@
                             @if (companies.Count == 0)
                             {
                                 <a class="navbar-item">
-                                    Nenhuma empresa encontrada.
+                                    <span class="icon"><i class="fas fa-exclamation-circle"></i></span>
+                                    <span>Nenhuma empresa encontrada.</span>
                                 </a>
                             }
                             else
@@ -73,25 +78,31 @@
                         </div>
                     </div>
                     <a class="navbar-item" href="/profile">
-                        Meu Perfil (@userName)
+                        <span class="icon"><i class="fas fa-user"></i></span>
+                        <span>Meu Perfil (@userName)</span>
                     </a>
                     <a class="navbar-item" href="/dashboard">
-                        Painel
+                        <span class="icon"><i class="fas fa-chart-pie"></i></span>
+                        <span>Painel</span>
                     </a>
                     <a class="navbar-item" href="/shop">
-                        Loja
+                        <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                        <span>Loja</span>
                     </a>
                     <a class="navbar-item" href="/logout">
-                        Sair
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span>Sair</span>
                     </a>
                 }
                 else
                 {
                     <a class="navbar-item" href="/signup">
-                        Criar Conta
+                        <span class="icon"><i class="fas fa-user-plus"></i></span>
+                        <span>Criar Conta</span>
                     </a>
                     <a class="navbar-item" href="/login">
-                        Entrar
+                        <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+                        <span>Entrar</span>
                     </a>
                 }
             </div>
@@ -99,11 +110,58 @@
     </div>
 </nav>
 
-@if (notificationVisible)
+@if (notifications.Count > 0)
 {
-    <Notification Color="@notificationColor" HideCloseButton="true">
-        @notificationMessage
-    </Notification>
+    <div class="notification-stack">
+        @foreach (var notification in notifications)
+        {
+            <Notification Color="@notification.Color" HideCloseButton="false" @key="notification.Id">
+                <div class="level is-mobile">
+                    <div class="level-left">
+                        <div class="level-item">
+                            @notification.Message
+                        </div>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <button class="delete" aria-label="close" @onclick="() => NotificationService.Remove(notification.Id)"></button>
+                        </div>
+                    </div>
+                </div>
+            </Notification>
+        }
+    </div>
+}
+
+@if (showCompanyModal)
+{
+    <Modal Title="Selecionar Empresa" BodyCssClass="has-text-centered" HideCloseButton="true">
+        <p>Selecione uma empresa para continuar:</p>
+        <div class="select is-fullwidth mt-4">
+            <select @bind="selectedCompanyIdModal" class="select">
+                <option value="">-- Selecione --</option>
+                @foreach (var company in companies)
+                {
+                    <option value="@company.Id">@company.Name (@FormatCnpj(company.Cnpj))</option>
+                }
+            </select>
+        </div>
+    </Modal>
+    <Modal FootCssClass="has-text-centered">
+        <button class="button is-link" @onclick="ConfirmCompanySelection" disabled="@isSelectingCompany">
+            @if (isSelectingCompany)
+            {
+                <span class="icon is-small">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+                <span>Selecionando...</span>
+            }
+            else
+            {
+                <span>Confirmar</span>
+            }
+        </button>
+    </Modal>
 }
 
 @ChildContent
@@ -125,9 +183,10 @@
     private string companyError = string.Empty;
     private List<UserCompanyItem> companies = [];
     private bool _companiesLoaded;
-    private bool notificationVisible;
-    private string? notificationMessage;
-    private NotificationColor notificationColor = NotificationColor.Info;
+    private List<NotificationService.NotificationItem> notifications = [];
+    private bool showCompanyModal;
+    private Guid? selectedCompanyIdModal;
+    private bool isSelectingCompany;
 
     protected override void OnInitialized()
     {
@@ -137,9 +196,7 @@
 
     private void HandleNotificationChange()
     {
-        notificationVisible = NotificationService.IsVisible;
-        notificationMessage = NotificationService.Message;
-        notificationColor = NotificationService.Color;
+        notifications = NotificationService.Notifications.ToList();
         InvokeAsync(StateHasChanged);
     }
 
@@ -247,6 +304,12 @@
             {
                 companyError = $"Erro: {(int)response.StatusCode} {response.StatusCode}";
             }
+
+            if (isLoggedIn && companies.Count > 0 && !selectedCompanyId.HasValue)
+            {
+                showCompanyModal = true;
+                await InvokeAsync(StateHasChanged);
+            }
         }
         catch (Exception ex)
         {
@@ -267,6 +330,7 @@
                 if (match is not null)
                 {
                     selectedCompanyName = match.Name;
+                    showCompanyModal = false;
                 }
             }
         }
@@ -326,6 +390,35 @@
             return $"{cnpj[..2]}.{cnpj[2..5]}.{cnpj[5..8]}/{cnpj[8..12]}-{cnpj[12..]}";
         }
         return cnpj;
+    }
+
+    private async Task ConfirmCompanySelection()
+    {
+        if (!selectedCompanyIdModal.HasValue) return;
+
+        try
+        {
+            isSelectingCompany = true;
+            StateHasChanged();
+
+            var company = companies.FirstOrDefault(c => c.Id == selectedCompanyIdModal.Value);
+            if (company != null)
+            {
+                await SelectCompany(company);
+                showCompanyModal = false;
+                selectedCompanyIdModal = null;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Confirm company error: {ex.Message}");
+        }
+        finally
+        {
+            isSelectingCompany = false;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private class UserCompanyItem

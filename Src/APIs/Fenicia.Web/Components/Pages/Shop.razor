@@ -20,7 +20,13 @@
             else if (isLoading)
             {
                 <div class="notification is-info is-light">
-                    <p>Carregando módulos...</p>
+                    <div class="level is-mobile">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <Spinner Size="SpinnerSize.Small" Label="Carregando módulos..." />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
             else if (!string.IsNullOrEmpty(errorMessage))

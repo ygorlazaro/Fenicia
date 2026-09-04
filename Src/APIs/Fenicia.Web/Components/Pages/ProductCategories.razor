@@ -20,7 +20,13 @@
             else if (isLoading)
             {
                 <div class="notification is-info is-light">
-                    <p>Carregando categorias...</p>
+                    <div class="level is-mobile">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <Spinner Size="SpinnerSize.Small" Label="Carregando categorias..." />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
             else if (!string.IsNullOrEmpty(errorMessage))
@@ -58,38 +64,55 @@
                         }
                         else
                         {
-                            <div class="table-container">
-                                <table class="table is-fullwidth is-hoverable">
-                                    <thead>
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th class="has-text-right">Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var category in categories)
-                                        {
-                                            <tr>
-                                                <td>@category.Name</td>
-                                                <td class="has-text-right">
-                                                    <button class="button is-small is-info is-light" @onclick="() => EditCategory(category)">
-                                                        <span class="icon is-small">
-                                                            <i class="fas fa-edit"></i>
-                                                        </span>
-                                                        <span>Editar</span>
-                                                    </button>
-                                                    <button class="button is-small is-danger is-light" @onclick="() => DeleteCategory(category)">
-                                                        <span class="icon is-small">
-                                                            <i class="fas fa-trash"></i>
-                                                        </span>
-                                                        <span>Excluir</span>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
+                            <Grid TItem="CategoryDto"
+                                  Items="categories"
+                                  AllowPaging="true"
+                                  PageSize="10"
+                                  ItemsPerPageText="Itens por página"
+                                  PageSizeSelectorVisible="true"
+                                  IsStriped="true"
+                                  IsHoverable="true"
+                                  IsFullWidth="true">
+                                <GridColumns>
+                                    <GridColumn TItem="CategoryDto" HeaderText="Nome">
+                                        @context.Name
+                                    </GridColumn>
+                                    <GridColumn TItem="CategoryDto" HeaderText="Ações">
+                                        <div class="buttons is-right">
+                                            <button class="button is-small is-info is-light" @onclick="() => EditCategory(context)">
+                                                @if (isSaving)
+                                                {
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-spinner fa-spin"></i>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-edit"></i>
+                                                    </span>
+                                                }
+                                                <span>Editar</span>
+                                            </button>
+                                            <button class="button is-small is-danger is-light" @onclick="() => DeleteCategory(context)">
+                                                @if (isDeleting)
+                                                {
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-spinner fa-spin"></i>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-trash"></i>
+                                                    </span>
+                                                }
+                                                <span>Excluir</span>
+                                            </button>
+                                        </div>
+                                    </GridColumn>
+                                </GridColumns>
+                            </Grid>
                         }
                     </div>
                 </div>
@@ -145,36 +168,14 @@
 
     @if (showDeleteConfirm)
     {
-        <div class="modal is-active">
-            <div class="modal-background" @onclick="CloseDeleteModal"></div>
-            <div class="modal-card" @onclick:stopPropagation="true" style="max-width: 400px;">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Excluir Categoria</p>
-                    <button class="delete" aria-label="close" @onclick="CloseDeleteModal"></button>
-                </header>
-                <section class="modal-card-body">
-                    <p>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</p>
-                </section>
-                <footer class="modal-card-foot">
-                    <div class="buttons">
-                        <button class="button" @onclick="CloseDeleteModal">Cancelar</button>
-                        <button class="button is-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
-                            @if (isDeleting)
-                            {
-                                <span class="icon is-small">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                                <span>Excluindo...</span>
-                            }
-                            else
-                            {
-                                <span>Excluir</span>
-                            }
-                        </button>
-                    </div>
-                </footer>
-            </div>
-        </div>
+        <ConfirmDialog Title="Excluir Categoria"
+                       YesButtonText="Excluir"
+                       NoButtonText="Cancelar"
+                       YesButtonColor="ButtonColor.Danger"
+                       OnConfirm="ConfirmDelete"
+                       OnCancel="CloseDeleteModal">
+            <p>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</p>
+        </ConfirmDialog>
     }
 </MainLayout>
 

@@ -17,11 +17,11 @@ public interface ICompanyContextService
 
 public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextService
 {
-    private const string CompanyIdKey = "selected_company_id";
+    private const string _companyIdKey = "selected_company_id";
 
     public async Task<Guid?> GetSelectedCompanyIdAsync()
     {
-        var value = await jsRuntime.InvokeAsync<string>("storageHelper.get", CompanyIdKey);
+        var value = await jsRuntime.InvokeAsync<string>("storageHelper.get", _companyIdKey);
         if (Guid.TryParse(value, out var companyId))
         {
             return companyId;
@@ -34,11 +34,11 @@ public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextServic
     {
         if (companyId.HasValue)
         {
-            await jsRuntime.InvokeVoidAsync("storageHelper.set", CompanyIdKey, companyId.Value.ToString());
+            await jsRuntime.InvokeVoidAsync("storageHelper.set", _companyIdKey, companyId.Value.ToString());
         }
         else
         {
-            await jsRuntime.InvokeVoidAsync("storageHelper.remove", CompanyIdKey);
+            await jsRuntime.InvokeVoidAsync("storageHelper.remove", _companyIdKey);
         }
     }
 

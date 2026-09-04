@@ -46,3 +46,20 @@ h1:focus {
     max-width: 500px !important;
     box-shadow: 0 0.5em 1em -0.125em rgba(10,10,10,0.1), 0 0 0 1px rgba(10,10,10,0.02) !important;
 }
+
+.notification-stack {
+    position: fixed !important;
+    bottom: 1rem !important;
+    right: 1rem !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 0.75rem !important;
+    pointer-events: none !important;
+}
+
+.notification-stack > * {
+    pointer-events: auto !important;
+    min-width: 320px !important;
+    max-width: 520px !important;
+}
