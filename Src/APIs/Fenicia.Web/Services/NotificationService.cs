@@ -1,4 +1,4 @@
-using BlazorExpress.Bulma;
+using MudBlazor;
 
 namespace Fenicia.Web.Services;
 
@@ -11,10 +11,10 @@ public class NotificationService
 
     public IReadOnlyList<NotificationItem> Notifications => _notifications;
 
-    public void Show(string message, NotificationColor color, int durationMs = 5000)
+    public void Show(string message, Severity severity, int durationMs = 5000)
     {
         var id = ++_idCounter;
-        var item = new NotificationItem(id, message, color);
+        var item = new NotificationItem(id, message, severity);
         _notifications.Add(item);
         NotifyStateChanged();
 
@@ -44,16 +44,5 @@ public class NotificationService
     private void NotifyStateChanged()
     {
         OnChange?.Invoke();
-    }
-
-    public class NotificationItem(int id, string message, NotificationColor color)
-    {
-        public int Id { get; } = id;
-
-        public string Message { get; } = message;
-
-        public NotificationColor Color { get; } = color;
-
-        public DateTime CreatedAt { get; } = DateTime.Now;
     }
 }

@@ -9,123 +9,83 @@
 <PageTitle>Loja - Fenicia</PageTitle>
 
 <MainLayout>
-    <section class="section">
-        <div class="container">
+    <MudGrid>
+        <MudItem xs="12">
             @if (!isLoggedIn)
             {
-                <div class="notification is-danger">
-                    <p>Faça login para assinar módulos.</p>
-                </div>
+                <MudAlert Severity="Severity.Error">Faça login para assinar módulos.</MudAlert>
             }
             else if (isLoading)
             {
-                <div class="notification is-info is-light">
-                    <div class="level is-mobile">
-                        <div class="level-left">
-                            <div class="level-item">
-                                <Spinner Size="SpinnerSize.Small" Label="Carregando módulos..." />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-16" Size="Size.Large" />
             }
             else if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="notification is-danger">
-                    <p>@errorMessage</p>
-                </div>
+                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
             }
             else if (modules == null || modules.Count == 0)
             {
-                <div class="notification is-warning is-light">
-                    <p>Nenhum módulo disponível no momento.</p>
-                </div>
+                <MudAlert Severity="Severity.Warning">Nenhum módulo disponível no momento.</MudAlert>
             }
             else
             {
-                <div class="card">
-                    <div class="card-content">
-                        <h2 class="title is-4">Módulos Disponíveis</h2>
-                        <p class="subtitle is-6">Selecione um ou mais módulos para assinar.</p>
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudText Typo="Typo.h5" Class="mb-2">Módulos Disponíveis</MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Default" Class="mb-6">Selecione um ou mais módulos para assinar.</MudText>
 
-                        <div class="columns is-multiline">
-                            @foreach (var module in modules)
-                            {
-                                <div class="column is-4">
-                                    <div class="box module-card">
-                                        <div class="level">
-                                            <div class="level-left">
-                                                <div>
-                                                    <p class="title is-5">@module.Name</p>
-                                                    @if (!string.IsNullOrEmpty(module.Description))
-                                                    {
-                                                        <p class="subtitle is-7">@module.Description</p>
-                                                    }
-                                                </div>
-                                            </div>
-                                            <div class="level-right">
-                                                <label class="checkbox">
-                                                    <input type="checkbox" checked="@selectedModules.Contains(module.Id)" @onchange="() => ToggleModule(module.Id)" />
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="tags">
-                                            <span class="tag is-info is-light">Type: @module.Type</span>
+                    <MudGrid Spacing="4">
+                        @foreach (var module in modules)
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudCard Elevation="2" Class="h-100">
+                                    <MudCardContent>
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                                            <MudStack Spacing="1">
+                                                <MudText Typo="Typo.h6">@module.Name</MudText>
+                                                @if (!string.IsNullOrEmpty(module.Description))
+                                                {
+                                                    <MudText Typo="Typo.body2" Color="Color.Default">@module.Description</MudText>
+                                                }
+                                            </MudStack>
+                                            <MudCheckBox T="bool" Checked="@selectedModules.Contains(module.Id)" CheckedChanged="@((bool checkedVal) => ToggleModule(module.Id))" Color="Color.Primary" />
+                                        </MudStack>
+                                        <MudStack Row="true" Spacing="1" Class="mt-4">
+                                            <MudBadge Color="Color.Info" Class="pa-2">Tipo: @module.Type</MudBadge>
                                             @if (module.Price.HasValue)
                                             {
-                                                <span class="tag is-success is-light">Price: $@module.Price.Value.ToString("F2")</span>
+                                                <MudBadge Color="Color.Success" Class="pa-2">Preço: $@module.Price.Value.ToString("F2")</MudBadge>
                                             }
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+                                        </MudStack>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    </MudGrid>
 
-                        <div class="field is-grouped is-justify-content-flex-end mt-5">
-                            <div class="control">
-                                <button class="button is-link" @onclick="SubscribeAsync" disabled="@isSubmitting">
-                                    @if (isSubmitting)
-                                    {
-                                        <span class="icon is-small">
-                                            <i class="fas fa-spinner fa-spin"></i>
-                                        </span>
-                                        <span>Assinando...</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="icon is-small">
-                                            <i class="fas fa-shopping-cart"></i>
-                                        </span>
-                                        <span>Assinar (@selectedModules.Count selecionados)</span>
-                                    }
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubscribeAsync" Disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                                <span>Assinando...</span>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+                                <span>Assinar (@selectedModules.Count selecionados)</span>
+                            }
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
 
                 @if (!string.IsNullOrEmpty(resultMessage))
                 {
-                    <Notification Color="@(isSuccess ? NotificationColor.Success : NotificationColor.Danger)" HideCloseButton="true">
-                        @resultMessage
-                    </Notification>
+                    <MudAlert Severity="@(isSuccess ? Severity.Success : Severity.Error)" Class="mt-4" Dense="true">@resultMessage</MudAlert>
                 }
             }
-        </div>
-    </section>
+        </MudItem>
+    </MudGrid>
 </MainLayout>
-
-<style>
-    .module-card {
-        height: 100%;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .module-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
-    }
-</style>
 
 @code {
     private bool isLoggedIn = false;
@@ -239,7 +199,7 @@
         {
             resultMessage = "Selecione pelo menos um módulo.";
             isSuccess = false;
-            NotificationService.Show("Selecione pelo menos um módulo.", NotificationColor.Warning);
+            NotificationService.Show("Selecione pelo menos um módulo.", Severity.Warning);
             return;
         }
 
@@ -256,7 +216,7 @@
             {
                 resultMessage = "Selecione uma empresa antes de assinar.";
                 isSuccess = false;
-                NotificationService.Show("Selecione uma empresa antes de assinar.", NotificationColor.Warning);
+                NotificationService.Show("Selecione uma empresa antes de assinar.", Severity.Warning);
                 return;
             }
 
@@ -285,13 +245,13 @@
                 var body = await response.Content.ReadAsStringAsync();
                 resultMessage = $"Falha ao assinar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                 isSuccess = false;
-                NotificationService.Show("Falha ao assinar módulos.", NotificationColor.Danger);
+                NotificationService.Show("Falha ao assinar módulos.", Severity.Error);
             }
             else
             {
                 resultMessage = "Assinatura criada com sucesso! Redirecionando para o perfil...";
                 isSuccess = true;
-                NotificationService.Show("Assinatura criada com sucesso!", NotificationColor.Success);
+                NotificationService.Show("Assinatura criada com sucesso!", Severity.Success);
                 StateHasChanged();
                 await Task.Delay(1500);
                 NavigationManager.NavigateTo("/profile");
@@ -301,7 +261,7 @@
         {
             resultMessage = $"Erro: {ex.Message}";
             isSuccess = false;
-            NotificationService.Show($"Erro: {ex.Message}", NotificationColor.Danger);
+            NotificationService.Show($"Erro: {ex.Message}", Severity.Error);
         }
         finally
         {

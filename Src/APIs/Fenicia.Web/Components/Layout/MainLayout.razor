@@ -1,197 +1,131 @@
-﻿@inherits ComponentBase
+﻿@inherits LayoutComponentBase
 @implements IDisposable
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject NotificationService NotificationService
+@inject ISnackbar Snackbar
 
-<nav class="navbar is-link" role="navigation" aria-label="main navigation">
-    <div class="container">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="/dashboard">
-                <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
-            </a>
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic" @onclick="ToggleNavbar">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-        </div>
-
-        <div id="navbarBasic" class="navbar-menu @(isNavbarActive ? "is-active" : "")">
-            <div class="navbar-start">
-                <a class="navbar-item" href="/">
-                    <span class="icon"><i class="fas fa-home"></i></span>
-                    <span>Início</span>
-                </a>
-
+<MudLayout>
+    <MudAppBar Elevation="0" Class="fenicia-appbar" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" Class="mr-2" />
+        <MudLink Href="/dashboard" Underline="Underline.None" Color="Color.Inherit" Class="d-flex align-center">
+            <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
+        </MudLink>
+        <MudSpacer />
+        <MudHidden Breakpoint="Breakpoint.MdAndDown" Invert="true">
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
                 @if (isLoggedIn)
                 {
-                    <div class="navbar-item has-dropdown is-hoverable">
-                        <a class="navbar-link">
-                            <span class="icon"><i class="fas fa-cubes"></i></span>
-                            <span>Básico</span>
-                        </a>
-                        <div class="navbar-dropdown">
-                            <a class="navbar-item" href="/productcategories">
-                                <span class="icon"><i class="fas fa-tags"></i></span>
-                                <span>Categorias de Produtos</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="navbar-item has-dropdown is-hoverable">
-                        <a class="navbar-link">
-                            <span class="icon"><i class="fas fa-building"></i></span>
-                            @if (!string.IsNullOrEmpty(selectedCompanyName))
-                            {
-                                <span>@selectedCompanyName</span>
-                            }
-                            else
-                            {
-                                <span>Selecionar Empresa</span>
-                            }
-                        </a>
-                        <div class="navbar-dropdown">
+                    <MudMenu Label="@(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)" Color="Color.Inherit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.ArrowDropDown">
+                        <MudMenuItem>
                             @if (companies.Count == 0)
                             {
-                                <a class="navbar-item">
-                                    <span class="icon"><i class="fas fa-exclamation-circle"></i></span>
-                                    <span>Nenhuma empresa encontrada.</span>
-                                </a>
+                                <MudText Typo="Typo.body2" Color="Color.Error">Nenhuma empresa encontrada.</MudText>
                             }
                             else
                             {
                                 @foreach (var company in companies)
                                 {
-                                    <a class="navbar-item @(IsCompanySelected(company) ? "is-active" : "")" @onclick="() => SelectCompany(company)">
+                                    <MudMenuItem OnClick="@(() => SelectCompany(company))">
                                         <div>
-                                            <strong>@company.Name</strong>
-                                            <div class="is-size-7 has-text-grey">@company.Role</div>
-                                            <div class="is-size-7 has-text-grey">@FormatCnpj(company.Cnpj)</div>
+                                            <MudText Typo="Typo.body1">@company.Name</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Default">@company.Role</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Default">@FormatCnpj(company.Cnpj)</MudText>
                                         </div>
-                                    </a>
+                                    </MudMenuItem>
                                 }
                             }
-                        </div>
-                    </div>
-                    <a class="navbar-item" href="/profile">
-                        <span class="icon"><i class="fas fa-user"></i></span>
-                        <span>Meu Perfil (@userName)</span>
-                    </a>
-                    <a class="navbar-item" href="/dashboard">
-                        <span class="icon"><i class="fas fa-chart-pie"></i></span>
-                        <span>Painel</span>
-                    </a>
-                    <a class="navbar-item" href="/shop">
-                        <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                        <span>Loja</span>
-                    </a>
-                    <a class="navbar-item" href="/logout">
-                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
-                        <span>Sair</span>
-                    </a>
+                        </MudMenuItem>
+                        <MudDivider />
+                        <MudMenuItem Href="/profile">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-2" />Meu Perfil (@userName)
+                        </MudMenuItem>
+                        <MudMenuItem Href="/dashboard">
+                            <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-2" />Painel
+                        </MudMenuItem>
+                        <MudMenuItem Href="/shop">
+                            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />Loja
+                        </MudMenuItem>
+                        <MudDivider />
+                        <MudMenuItem Href="/logout">
+                            <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-2" />Sair
+                        </MudMenuItem>
+                    </MudMenu>
                 }
                 else
                 {
-                    <a class="navbar-item" href="/signup">
-                        <span class="icon"><i class="fas fa-user-plus"></i></span>
-                        <span>Criar Conta</span>
-                    </a>
-                    <a class="navbar-item" href="/login">
-                        <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
-                        <span>Entrar</span>
-                    </a>
+                    <MudLink Href="/signup" Underline="Underline.None" Color="Color.Inherit">
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudButton>
+                    </MudLink>
+                    <MudLink Href="/login" Underline="Underline.None" Color="Color.Inherit">
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Login">Entrar</MudButton>
+                    </MudLink>
                 }
-            </div>
-        </div>
-    </div>
-</nav>
+            </MudStack>
+        </MudHidden>
+    </MudAppBar>
 
-@if (notifications.Count > 0)
-{
-    <div class="notification-stack">
-        @foreach (var notification in notifications)
-        {
-            <Notification Color="@notification.Color" HideCloseButton="false" @key="notification.Id">
-                <div class="level is-mobile">
-                    <div class="level-left">
-                        <div class="level-item">
-                            @notification.Message
-                        </div>
-                    </div>
-                    <div class="level-right">
-                        <div class="level-item">
-                            <button class="delete" aria-label="close" @onclick="() => NotificationService.Remove(notification.Id)"></button>
-                        </div>
-                    </div>
-                </div>
-            </Notification>
-        }
-    </div>
-}
+    <MudDrawer @bind-Open="_drawerOpen" Anchor="Anchor.Left" Variant="DrawerVariant.Temporary" Breakpoint="Breakpoint.Md">
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Início</MudNavLink>
+            @if (isLoggedIn)
+            {
+                <MudNavGroup Title="Básico" Icon="@Icons.Material.Filled.Category" Expanded="false">
+                    <MudNavLink Href="/productcategories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category">Categorias de Produtos</MudNavLink>
+                </MudNavGroup>
+                <MudNavLink Href="/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">Meu Perfil (@userName)</MudNavLink>
+                <MudNavLink Href="/dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Painel</MudNavLink>
+                <MudNavLink Href="/shop" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Loja</MudNavLink>
+                <MudNavLink Href="/logout" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout">Sair</MudNavLink>
+            }
+            else
+            {
+                <MudNavLink Href="/signup" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudNavLink>
+                <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Entrar</MudNavLink>
+            }
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+            @ChildContent
+        </MudContainer>
+    </MudMainContent>
+
+    <MudPaper Class="pa-4" Elevation="0" Style="background: #1a237e; color: white; border-radius: 0;">
+        <MudText Typo="Typo.caption" Align="Align.Center" Style="color: rgba(255,255,255,0.7);">
+            <strong style="color: white;">Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.
+        </MudText>
+    </MudPaper>
+</MudLayout>
 
 @if (showCompanyModal)
 {
-    <Modal Title="Selecionar Empresa" 
-           BodyCssClass="has-text-centered" 
-           FootCssClass="has-text-centered"
-           HideCloseButton="true">
-        <BodyContent>
-            <p>Selecione uma empresa para continuar:</p>
-            <div class="select is-fullwidth mt-4">
-                <select @bind="selectedCompanyIdModal" class="select">
-                    <option value="">-- Selecione --</option>
-                    @foreach (var company in companies)
-                    {
-                        <option value="@company.Id">@company.Name (@FormatCnpj(company.Cnpj))</option>
-                    }
-                </select>
-            </div>
-        </BodyContent>
-        <FootContent>
-            <button class="button is-link" @onclick="ConfirmCompanySelection" disabled="@isSelectingCompany">
-                @if (isSelectingCompany)
-                {
-                    <span class="icon is-small">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </span>
-                    <span>Selecionando...</span>
-                }
-                else
-                {
-                    <span>Confirmar</span>
-                }
-            </button>
-        </FootContent>
-    </Modal>
+    <MudDialogProvider />
 }
 
-@ChildContent
-
-<div id="blazor-error-ui" data-nosnippet>
-    Ocorreu um erro não tratado.
-    <a href="." class="reload">Recarregar</a>
-    <span class="dismiss">🗙</span>
-</div>
+<style>
+    .logo-img {
+        height: 40px;
+        width: auto;
+    }
+</style>
 
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
     private bool isLoggedIn = false;
     private string userName = string.Empty;
     private bool _jsAvailable;
-    private bool isNavbarActive;
+    private bool _drawerOpen;
     private string selectedCompanyName = string.Empty;
     private Guid? selectedCompanyId;
     private string companyError = string.Empty;
     private List<UserCompanyItem> companies = [];
     private bool _companiesLoaded;
-    private List<NotificationService.NotificationItem> notifications = [];
     private bool showCompanyModal;
     private Guid? selectedCompanyIdModal;
-    private bool isSelectingCompany;
 
     protected override void OnInitialized()
     {
@@ -201,7 +135,6 @@
 
     private void HandleNotificationChange()
     {
-        notifications = NotificationService.Notifications.ToList();
         InvokeAsync(StateHasChanged);
     }
 
@@ -248,9 +181,9 @@
         }
     }
 
-    private void ToggleNavbar()
+    private void ToggleDrawer()
     {
-        isNavbarActive = !isNavbarActive;
+        _drawerOpen = !_drawerOpen;
     }
 
     private async Task RefreshAuthAsync()
@@ -345,11 +278,6 @@
         }
     }
 
-    private bool IsCompanySelected(UserCompanyItem company)
-    {
-        return selectedCompanyId.HasValue && selectedCompanyId.Value == company.Id;
-    }
-
     private async Task SelectCompany(UserCompanyItem company)
     {
         try
@@ -363,6 +291,33 @@
         catch (Exception ex)
         {
             Console.WriteLine($"[MainLayout] Select error: {ex.Message}");
+        }
+    }
+
+    private async Task ConfirmCompanySelection()
+    {
+        if (!selectedCompanyIdModal.HasValue) return;
+
+        try
+        {
+            StateHasChanged();
+
+            var company = companies.FirstOrDefault(c => c.Id == selectedCompanyIdModal.Value);
+            if (company != null)
+            {
+                await SelectCompany(company);
+                showCompanyModal = false;
+                selectedCompanyIdModal = null;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Confirm company error: {ex.Message}");
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -397,35 +352,6 @@
         return cnpj;
     }
 
-    private async Task ConfirmCompanySelection()
-    {
-        if (!selectedCompanyIdModal.HasValue) return;
-
-        try
-        {
-            isSelectingCompany = true;
-            StateHasChanged();
-
-            var company = companies.FirstOrDefault(c => c.Id == selectedCompanyIdModal.Value);
-            if (company != null)
-            {
-                await SelectCompany(company);
-                showCompanyModal = false;
-                selectedCompanyIdModal = null;
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[MainLayout] Confirm company error: {ex.Message}");
-        }
-        finally
-        {
-            isSelectingCompany = false;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
     private class UserCompanyItem
     {
         public Guid Id { get; set; }
@@ -439,12 +365,4 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         NotificationService.OnChange -= HandleNotificationChange;
     }
-
 }
-
-<style>
-    .logo-img {
-        height: 40px;
-        width: auto;
-    }
-</style>

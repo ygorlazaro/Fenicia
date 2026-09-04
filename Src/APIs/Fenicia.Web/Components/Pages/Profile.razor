@@ -8,116 +8,76 @@
 <PageTitle>Meu Perfil - Fenicia</PageTitle>
 
 <MainLayout>
-    <section class="section">
-        <div class="container">
+    <MudGrid>
+        <MudItem xs="12">
             @if (isLoading)
             {
-                <div class="notification is-info is-light">
-                    <div class="level is-mobile">
-                        <div class="level-left">
-                            <div class="level-item">
-                                <Spinner Size="SpinnerSize.Small" Label="Carregando perfil..." />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-16" Size="Size.Large" />
             }
             else if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="notification is-danger">
-                    <p>@errorMessage</p>
-                </div>
+                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
             }
             else if (profile != null)
             {
-                <div class="card">
-                    <div class="card-content">
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <div class="avatar">
-                                        @profile.Name.Substring(0, 1).ToUpper()
-                                    </div>
-                                    <div class="ml-4">
-                                        <h2 class="title is-4">@profile.Name</h2>
-                                        <p class="subtitle is-6">@profile.Email</p>
-                                        <p class="is-size-7 has-text-grey">ID: @profile.Id</p>
-                                    </div>
-                                </div>
-                            </div>
+                <MudPaper Elevation="2" Class="pa-6 mb-6">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+                        <MudAvatar Color="Color.Primary" Size="Size.Large">@profile.Name.Substring(0, 1).ToUpper()</MudAvatar>
+                        <div>
+                            <MudText Typo="Typo.h5">@profile.Name</MudText>
+                            <MudText Typo="Typo.body1" Color="Color.Default">@profile.Email</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">ID: @profile.Id</MudText>
                         </div>
-                    </div>
-                </div>
+                    </MudStack>
+                </MudPaper>
 
-                <div class="card mt-5">
-                    <div class="card-content">
-                        <h3 class="title is-4">Minhas Assinaturas</h3>
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudText Typo="Typo.h5" Class="mb-4">Minhas Assinaturas</MudText>
 
-                        @if (profile.Subscriptions != null && profile.Subscriptions.Any())
+                    @if (profile.Subscriptions != null && profile.Subscriptions.Any())
+                    {
+                        @foreach (var subscription in profile.Subscriptions)
                         {
-                            @foreach (var subscription in profile.Subscriptions)
-                            {
-                                <div class="box mb-4">
-                                    <div class="level">
-                                        <div class="level-left">
-                                            <div>
-                                                <h4 class="title is-5">@subscription.CompanyName</h4>
-                                                <p class="subtitle is-7">
-                                                    Status: <span class="tag @GetStatusTagClass(subscription.Status)">@subscription.Status</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="level-right">
-                                            <div class="is-size-7 has-text-grey">
-                                                @subscription.StartDate.ToString("yyyy-MM-dd")
-                                                @if (subscription.EndDate.HasValue)
-                                                {
-                                                    <span> - @subscription.EndDate.Value.ToString("yyyy-MM-dd")</span>
-                                                }
-                                            </div>
-                                        </div>
+                            <MudPaper Elevation="1" Class="pa-4 mb-4">
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                                    <div>
+                                        <MudText Typo="Typo.h6">@subscription.CompanyName</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">
+                                            Status: <MudBadge Color="@GetStatusColor(subscription.Status)" Class="pa-2">@subscription.Status</MudBadge>
+                                        </MudText>
                                     </div>
+                                    <MudText Typo="Typo.caption" Color="Color.Default">
+                                        @subscription.StartDate.ToString("yyyy-MM-dd")
+                                        @if (subscription.EndDate.HasValue)
+                                        {
+                                            <span> - @subscription.EndDate.Value.ToString("yyyy-MM-dd")</span>
+                                        }
+                                    </MudText>
+                                </MudStack>
 
-                                    @if (subscription.Modules != null && subscription.Modules.Any())
-                                    {
-                                        <div class="tags mt-3">
-                                            @foreach (var module in subscription.Modules)
-                                            {
-                                                <span class="tag is-info is-light">@module.Name</span>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            }
+                                @if (subscription.Modules != null && subscription.Modules.Any())
+                                {
+                                    <MudStack Row="true" Spacing="1" Class="mt-3" Wrap="Wrap.Wrap">
+                                        @foreach (var module in subscription.Modules)
+                                        {
+                                            <MudBadge Color="Color.Info" Class="pa-2">@module.Name</MudBadge>
+                                        }
+                                    </MudStack>
+                                }
+                            </MudPaper>
                         }
-                        else
-                        {
-                            <div class="notification is-warning is-light">
-                                <p>Nenhuma assinatura ainda.</p>
-                                <a href="/shop" class="has-text-link"><strong>Ver módulos na loja</strong></a>
-                            </div>
-                        }
-                    </div>
-                </div>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Warning">
+                            Nenhuma assinatura ainda. <MudLink Href="/shop" Color="Color.Primary">Ver módulos na loja</MudLink>
+                        </MudAlert>
+                    }
+                </MudPaper>
             }
-        </div>
-    </section>
+        </MudItem>
+    </MudGrid>
 </MainLayout>
-
-<style>
-    .avatar {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background: #3f51b5;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-</style>
 
 @code {
     private bool isLoading = true;
@@ -185,14 +145,14 @@
         }
     }
 
-    private static string GetStatusTagClass(string status)
+    private static Color GetStatusColor(string status)
     {
         return status.ToLower() switch
         {
-            "active" => "is-success",
-            "pending" => "is-warning",
-            "cancelled" => "is-danger",
-            _ => "is-light"
+            "active" => Color.Success,
+            "pending" => Color.Warning,
+            "cancelled" => Color.Error,
+            _ => Color.Default
         };
     }
 

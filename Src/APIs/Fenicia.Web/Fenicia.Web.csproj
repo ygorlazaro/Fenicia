@@ -5,10 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <NoWarn>MUD0002</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorExpress.Bulma" Version="1.2.0" />
+    <PackageReference Include="MudBlazor" Version="9.9.0" />
   </ItemGroup>
 
 </Project>

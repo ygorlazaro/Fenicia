@@ -9,181 +9,109 @@
 <PageTitle>Categorias de Produtos - Fenicia</PageTitle>
 
 <MainLayout>
-    <section class="section">
-        <div class="container">
+    <MudGrid>
+        <MudItem xs="12">
             @if (!isLoggedIn)
             {
-                <div class="notification is-danger">
-                    <p>Faça login para gerenciar categorias de produtos.</p>
-                </div>
+                <MudAlert Severity="Severity.Error">Faça login para gerenciar categorias de produtos.</MudAlert>
             }
             else if (isLoading)
             {
-                <div class="notification is-info is-light">
-                    <div class="level is-mobile">
-                        <div class="level-left">
-                            <div class="level-item">
-                                <Spinner Size="SpinnerSize.Small" Label="Carregando categorias..." />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-16" Size="Size.Large" />
             }
             else if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="notification is-danger">
-                    <p>@errorMessage</p>
-                </div>
+                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
             }
             else
             {
-                <div class="card">
-                    <div class="card-content">
-                        <div class="level">
-                            <div class="level-left">
-                                <div>
-                                    <h2 class="title is-4">Categorias de Produtos</h2>
-                                    <p class="subtitle is-6">Gerencie suas categorias de produtos</p>
-                                </div>
-                            </div>
-                            <div class="level-right">
-                                <button class="button is-primary" @onclick="OpenAddModal">
-                                    <span class="icon is-small">
-                                        <i class="fas fa-plus"></i>
-                                    </span>
-                                    <span>Adicionar Categoria</span>
-                                </button>
-                            </div>
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-6">
+                        <div>
+                            <MudText Typo="Typo.h5">Categorias de Produtos</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Default">Gerencie suas categorias de produtos</MudText>
                         </div>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddModal">
+                            Adicionar Categoria
+                        </MudButton>
+                    </MudStack>
 
-                        @if (categories == null || categories.Count == 0)
-                        {
-                            <div class="notification is-warning is-light">
-                                <p>Nenhuma categoria encontrada. Crie sua primeira categoria!</p>
-                            </div>
-                        }
-                        else
-                        {
-                            <Grid TItem="CategoryDto"
-                                  Data="categories"
-                                  AllowPaging="true"
-                                  PageSize="10"
-                                  ItemsPerPageText="Itens por página"
-                                  PageSizeSelectorVisible="true"
-                                  IsStriped="true"
-                                  IsHoverable="true"
-                                  IsFullWidth="true">
-                                <GridColumns>
-                                    <GridColumn TItem="CategoryDto" HeaderText="Nome">
-                                        @context.Name
-                                    </GridColumn>
-                                    <GridColumn TItem="CategoryDto" HeaderText="Ações">
-                                        <div class="buttons is-right">
-                                            <button class="button is-small is-info is-light" @onclick="() => EditCategory(context)">
-                                                @if (isSaving)
-                                                {
-                                                    <span class="icon is-small">
-                                                        <i class="fas fa-spinner fa-spin"></i>
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="icon is-small">
-                                                        <i class="fas fa-edit"></i>
-                                                    </span>
-                                                }
-                                                <span>Editar</span>
-                                            </button>
-                                            <button class="button is-small is-danger is-light" @onclick="() => DeleteCategory(context)">
-                                                @if (isDeleting)
-                                                {
-                                                    <span class="icon is-small">
-                                                        <i class="fas fa-spinner fa-spin"></i>
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="icon is-small">
-                                                        <i class="fas fa-trash"></i>
-                                                    </span>
-                                                }
-                                                <span>Excluir</span>
-                                            </button>
-                                        </div>
-                                    </GridColumn>
-                                </GridColumns>
-                            </Grid>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
-    </section>
-
-    @if (showModal)
-    {
-        <div class="modal is-active">
-            <div class="modal-background" @onclick="CloseModal"></div>
-            <div class="modal-card" @onclick:stopPropagation="true">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">@(isEditing ? "Editar Categoria" : "Adicionar Categoria")</p>
-                    <button class="delete" aria-label="close" @onclick="CloseModal"></button>
-                </header>
-                <section class="modal-card-body">
-                    @if (!string.IsNullOrEmpty(modalError))
+                    @if (categories == null || categories.Count == 0)
                     {
-                        <div class="notification is-danger is-light">
-                            @modalError
-                        </div>
+                        <MudAlert Severity="Severity.Warning">Nenhuma categoria encontrada. Crie sua primeira categoria!</MudAlert>
                     }
-
-                    <div class="field">
-                        <label class="label">Nome da Categoria</label>
-                        <div class="control">
-                            <input class="input" type="text" @bind="categoryName" placeholder="Digite o nome da categoria" />
-                        </div>
-                    </div>
-                </section>
-                <footer class="modal-card-foot">
-                    <div class="buttons">
-                        <button class="button" @onclick="CloseModal">Cancelar</button>
-                        <button class="button is-primary" @onclick="SaveCategory" disabled="@isSaving">
-                            @if (isSaving)
-                            {
-                                <span class="icon is-small">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                                <span>Salvando...</span>
-                            }
-                            else
-                            {
-                                <span>@(isEditing ? "Atualizar" : "Criar")</span>
-                            }
-                        </button>
-                    </div>
-                </footer>
-            </div>
-        </div>
-    }
-
-    @if (showDeleteConfirm)
-    {
-        <ConfirmDialog Title="Excluir Categoria"
-                       YesButtonText="Excluir"
-                       NoButtonText="Cancelar"
-                       YesButtonColor="ButtonColor.Danger"
-                       OnConfirm="ConfirmDelete"
-                       OnCancel="CloseDeleteModal">
-            <p>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</p>
-        </ConfirmDialog>
-    }
+                    else
+                    {
+                        <MudTable T="CategoryDto" Items="categories" Dense="true" Hover="true" Bordered="true" Striped="true">
+                            <HeaderContent>
+                                <MudTr>
+                                    <MudTd><MudText Typo="Typo.subtitle2">Nome</MudText></MudTd>
+                                    <MudTd Class="text-right"><MudText Typo="Typo.subtitle2">Ações</MudText></MudTd>
+                                </MudTr>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTr>
+                                    <MudTd>@context.Name</MudTd>
+                                    <MudTd Class="text-right">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small" OnClick="@(() => EditCategory(context))" Disabled="@isSaving" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteCategory(context))" Disabled="@isDeleting" />
+                                    </MudTd>
+                                </MudTr>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                </MudPaper>
+            }
+        </MudItem>
+    </MudGrid>
 </MainLayout>
 
-@if (!string.IsNullOrEmpty(notificationMessage))
+@if (showModal)
 {
-    <Notification Color="@notificationColor" HideCloseButton="true">
-        @notificationMessage
-    </Notification>
+    <MudDialog @bind-Visible="showModal" Options="dialogOptions">
+        <TitleContent>
+            <MudText Typo="Typo.h6">@(isEditing ? "Editar Categoria" : "Adicionar Categoria")</MudText>
+        </TitleContent>
+        <DialogContent>
+            @if (!string.IsNullOrEmpty(modalError))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@modalError</MudAlert>
+            }
+            <MudTextField @bind-Value="categoryName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseModal">Cancelar</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveCategory" Disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                }
+                @(isEditing ? "Atualizar" : "Criar")
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+
+@if (showDeleteConfirm)
+{
+    <MudDialog @bind-Visible="showDeleteConfirm" Options="dialogOptions">
+        <TitleContent>
+            <MudText Typo="Typo.h6">Excluir Categoria</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseDeleteModal">Cancelar</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ConfirmDelete" Disabled="@isDeleting">
+                @if (isDeleting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                }
+                Excluir
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
 }
 
 @code {
@@ -195,8 +123,6 @@
     private string? modalError;
     private List<CategoryDto>? categories;
     private CategoryDto? categoryToDelete;
-    private string? notificationMessage;
-    private NotificationColor notificationColor = NotificationColor.Info;
 
     private bool showModal;
     private bool isEditing;
@@ -204,6 +130,8 @@
     private string categoryName = string.Empty;
 
     private bool showDeleteConfirm;
+
+    private DialogOptions dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
 
     protected override async Task OnInitializedAsync()
     {
@@ -354,13 +282,12 @@
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     modalError = $"Falha ao atualizar: {(int)response.StatusCode} {response.StatusCode} - {body}";
-                    notificationMessage = "Falha ao atualizar categoria.";
-                    notificationColor = NotificationColor.Danger;
+                    NotificationService.Show("Falha ao atualizar categoria.", Severity.Error);
                     StateHasChanged();
                     return;
                 }
 
-                NotificationService.Show("Categoria atualizada com sucesso!", NotificationColor.Success);
+                NotificationService.Show("Categoria atualizada com sucesso!", Severity.Success);
             }
             else
             {
@@ -370,13 +297,12 @@
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     modalError = $"Falha ao criar: {(int)response.StatusCode} {response.StatusCode} - {body}";
-                    notificationMessage = "Falha ao criar categoria.";
-                    notificationColor = NotificationColor.Danger;
+                    NotificationService.Show("Falha ao criar categoria.", Severity.Error);
                     StateHasChanged();
                     return;
                 }
 
-                NotificationService.Show("Categoria criada com sucesso!", NotificationColor.Success);
+                NotificationService.Show("Categoria criada com sucesso!", Severity.Success);
             }
 
             CloseModal();
@@ -436,13 +362,11 @@
             {
                 var body = await response.Content.ReadAsStringAsync();
                 errorMessage = $"Falha ao excluir: {(int)response.StatusCode} {response.StatusCode} - {body}";
-                notificationMessage = "Falha ao excluir categoria.";
-                notificationColor = NotificationColor.Danger;
-                StateHasChanged();
+                NotificationService.Show("Falha ao excluir categoria.", Severity.Error);
             }
             else
             {
-                NotificationService.Show("Categoria excluída com sucesso!", NotificationColor.Success);
+                NotificationService.Show("Categoria excluída com sucesso!", Severity.Success);
             }
 
             CloseDeleteModal();

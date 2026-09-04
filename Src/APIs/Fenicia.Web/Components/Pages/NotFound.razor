@@ -3,11 +3,17 @@
 
 <PageTitle>Página não encontrada - Fenicia</PageTitle>
 
-<section class="section">
-    <div class="container has-text-centered">
-        <h1 class="title is-1">404</h1>
-        <h2 class="subtitle is-4">Página não encontrada</h2>
-        <p>Desculpe, o conteúdo que você está procurando não existe.</p>
-        <a href="/" class="button is-link mt-4">Voltar para o início</a>
-    </div>
-</section>
+<MudGrid Justify="Justify.Center" Class="mt-16">
+    <MudItem xs="12" sm="8" md="6">
+        <MudPaper Elevation="2" Class="pa-8 d-flex flex-column align-center text-center">
+            <MudText Typo="Typo.h1" Color="Color.Primary">404</MudText>
+            <MudText Typo="Typo.h4" Class="mb-4">Página não encontrada</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Default" Class="mb-6">
+                Desculpe, o conteúdo que você está procurando não existe.
+            </MudText>
+            <MudLink Href="/" Underline="Underline.None">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Home">Voltar para o início</MudButton>
+            </MudLink>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
