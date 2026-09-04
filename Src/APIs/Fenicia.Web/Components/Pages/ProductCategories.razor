@@ -227,6 +227,18 @@
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
 
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+                Console.WriteLine($"[ProductCategories] Added CompanyId header: {selectedCompanyId.Value}");
+            }
+            else
+            {
+                Console.WriteLine("[ProductCategories] No company selected, CompanyId header not set");
+            }
+
             var response = await client.GetAsync("productcategory?page=1&perPage=100");
             var body = await response.Content.ReadAsStringAsync();
 
@@ -294,6 +306,7 @@
 
     private async Task SaveCategory()
     {
+        Console.WriteLine($"[ProductCategories] SaveCategory START editing={isEditing} editingId={editingId} name={categoryName}");
         if (string.IsNullOrWhiteSpace(categoryName))
         {
             modalError = "Category name is required.";
@@ -314,16 +327,30 @@
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
 
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+                Console.WriteLine($"[ProductCategories] SaveCategory Added CompanyId header: {selectedCompanyId.Value}");
+            }
+
             if (isEditing && editingId.HasValue)
             {
                 var command = new { Id = editingId.Value, Name = categoryName };
-                var response = await client.PatchAsJsonAsync($"productcategory/{editingId.Value}", command);
+                var json = System.Text.Json.JsonSerializer.Serialize(command);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var request = new HttpRequestMessage(HttpMethod.Patch, $"productcategory/{editingId.Value}") { Content = content };
+                var response = await client.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     modalError = $"Failed to update: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                    Console.WriteLine($"[ProductCategories] SaveCategory PATCH failed: {(int)response.StatusCode} {response.StatusCode} {body}");
                     return;
                 }
+
+                Console.WriteLine($"[ProductCategories] SaveCategory PATCH success");
             }
             else
             {
@@ -333,8 +360,11 @@
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     modalError = $"Failed to create: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                    Console.WriteLine($"[ProductCategories] SaveCategory POST failed: {(int)response.StatusCode} {response.StatusCode} {body}");
                     return;
                 }
+
+                Console.WriteLine($"[ProductCategories] SaveCategory POST success");
             }
 
             CloseModal();
@@ -383,11 +413,25 @@
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
 
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+                Console.WriteLine($"[ProductCategories] ConfirmDelete Added CompanyId header: {selectedCompanyId.Value}");
+            }
+
+            Console.WriteLine($"[ProductCategories] ConfirmDelete START id={categoryToDelete.Id}");
             var response = await client.DeleteAsync($"productcategory/{categoryToDelete.Id}");
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
                 errorMessage = $"Failed to delete: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                Console.WriteLine($"[ProductCategories] ConfirmDelete DELETE failed: {(int)response.StatusCode} {response.StatusCode} {body}");
+            }
+            else
+            {
+                Console.WriteLine($"[ProductCategories] ConfirmDelete DELETE success");
             }
 
             CloseDeleteModal();
