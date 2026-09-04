@@ -95,7 +95,7 @@
     {
         <div class="modal is-active">
             <div class="modal-background" @onclick="CloseModal"></div>
-            <div class="modal-card">
+            <div class="modal-card" @onclick:stopPropagation="true">
                 <header class="modal-card-head">
                     <p class="modal-card-title">@(isEditing ? "Edit Category" : "Add Category")</p>
                     <button class="delete" aria-label="close" @onclick="CloseModal"></button>
@@ -141,7 +141,7 @@
     {
         <div class="modal is-active">
             <div class="modal-background" @onclick="CloseDeleteModal"></div>
-            <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-card" @onclick:stopPropagation="true" style="max-width: 400px;">
                 <header class="modal-card-head">
                     <p class="modal-card-title">Delete Category</p>
                     <button class="delete" aria-label="close" @onclick="CloseDeleteModal"></button>
@@ -290,6 +290,7 @@
 
     private void EditCategory(CategoryDto category)
     {
+        Console.WriteLine($"[ProductCategories] EditCategory id={category.Id} name={category.Name}");
         isEditing = true;
         editingId = category.Id;
         categoryName = category.Name;
@@ -384,6 +385,7 @@
 
     private void DeleteCategory(CategoryDto category)
     {
+        Console.WriteLine($"[ProductCategories] DeleteCategory id={category.Id} name={category.Name}");
         categoryToDelete = category;
         showDeleteConfirm = true;
         StateHasChanged();
