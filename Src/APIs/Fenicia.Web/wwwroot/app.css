@@ -288,9 +288,17 @@ h1:focus {
     }
 }
 
+/*. ============================================
+    MudTable pager dropdown fix
+    ============================================ */
+.mud-table-pagination .mud-popover {
+    position: fixed !important;
+    z-index: calc(var(--mud-zindex-popover) + 100) !important;
+}
+
 /* ============================================
-   Misc
-   ============================================ */
+    Misc
+    ============================================ */
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
