@@ -1,7 +1,19 @@
 namespace Fenicia.Common;
 
-public class Pagination<T>(T data, int total, int page, int perPage)
+public class Pagination<T>
 {
+    public Pagination()
+    {
+    }
+
+    public Pagination(T data, int total, int page, int perPage)
+    {
+        Data = data;
+        Total = total;
+        Page = page;
+        PerPage = perPage;
+    }
+
     public Pagination(T data, int total, PaginationQuery query)
         : this(data, total, 0, 0)
     {
@@ -10,13 +22,13 @@ public class Pagination<T>(T data, int total, int page, int perPage)
         PerPage = query.PerPage;
     }
 
-    public T Data { get; init; } = data;
+    public T Data { get; set; } = default!;
 
-    public int Total { get; init; } = total;
+    public int Total { get; set; }
 
-    public int Page { get; init; } = page;
+    public int Page { get; set; }
 
-    public int PerPage { get; init; } = perPage;
+    public int PerPage { get; set; }
 
     public int Pages => (int)Math.Ceiling(Total / (double)PerPage);
 }

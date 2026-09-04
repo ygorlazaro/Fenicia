@@ -17,7 +17,7 @@
         <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="auth-subtitle">Acesse sua conta para continuar</MudText>
 
         <MudForm @bind-IsValid="@formIsValid">
-            <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="username" />
+            <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="username" OnKeyDown="HandleKeyDown" />
             <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="current-password" OnKeyDown="HandleKeyDown" />
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Disabled="@(isLoading || !formIsValid)" OnClick="HandleSubmit" Class="mt-2">
                 @if (isLoading)
