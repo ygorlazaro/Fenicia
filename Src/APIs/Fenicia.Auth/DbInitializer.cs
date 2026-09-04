@@ -15,7 +15,37 @@ public static class DbInitializer
         var context = scope.ServiceProvider.GetRequiredService<DefaultContext>();
 
         await context.Database.MigrateAsync();
+        await CreateMissingIndexesAsync(context);
         Seed(context);
+    }
+
+    private static async Task CreateMissingIndexesAsync(DefaultContext context)
+    {
+#pragma warning disable CA2100
+        var connection = context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync();
+        }
+
+        var commands = new[]
+        {
+            @"CREATE INDEX IF NOT EXISTS ix_product_categories_company_id ON basic.product_categories (company_id);",
+            @"CREATE INDEX IF NOT EXISTS ix_positions_company_id ON basic.positions (company_id);",
+            @"CREATE INDEX IF NOT EXISTS ix_suppliers_company_id ON basic.suppliers (company_id);",
+            @"CREATE INDEX IF NOT EXISTS ix_employees_company_id ON basic.employees (company_id);",
+            @"CREATE INDEX IF NOT EXISTS ix_customers_company_id ON basic.customers (company_id);",
+            @"CREATE INDEX IF NOT EXISTS ix_products_company_id ON basic.products (company_id);",
+            @"CREATE INDEX IF NOT EXISTS ix_stock_movements_company_id ON basic.stock_movements (company_id);"
+        };
+
+        foreach (var command in commands)
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = command;
+            await cmd.ExecuteNonQueryAsync();
+        }
+#pragma warning restore CA2100
     }
 
     private static void Seed(DefaultContext context)

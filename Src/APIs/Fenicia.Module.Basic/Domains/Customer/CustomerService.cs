@@ -35,8 +35,7 @@ public sealed class CustomerService(
             .ThenInclude(pa => pa.Address)
             .ThenInclude(a => a.State);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

@@ -26,8 +26,7 @@ public sealed class UserService(
         CancellationToken cancellationToken = default)
     {
         var baseQuery = userRepository.Query().OrderBy(u => u.Name);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var totalCountTask = filteredQuery.CountAsync(cancellationToken);
         var usersTask = filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)

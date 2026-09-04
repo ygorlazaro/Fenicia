@@ -33,8 +33,7 @@ public sealed class StockMovementService(
             .Include(m => m.Employee!).ThenInclude(e => e.Person)
             .Where(m => m.Date >= startDate && m.Date <= endDate);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var movements = await filteredQuery
             .Skip((query.Page - 1) * query.PerPage)

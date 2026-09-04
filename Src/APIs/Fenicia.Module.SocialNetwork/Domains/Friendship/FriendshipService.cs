@@ -85,8 +85,7 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         CancellationToken cancellationToken = default)
     {
         var baseQuery = friendshipRepository.Query().Where(f => f.TargetUserId == targetUserId && f.IsActive);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
@@ -103,8 +102,7 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         CancellationToken cancellationToken = default)
     {
         var baseQuery = friendshipRepository.Query().Where(f => f.UserId == userId && f.IsActive);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)

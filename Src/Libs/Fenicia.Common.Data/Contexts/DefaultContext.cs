@@ -129,7 +129,7 @@ public partial class DefaultContext : DbContext
         where TEntity : BaseCompanyModel
     {
         modelBuilder.Entity<TEntity>().HasQueryFilter(e =>
-            (CurrentCompanyId == null || e.CompanyId == CurrentCompanyId) && e.Deleted == null);
+            (CurrentCompanyId == null || CurrentCompanyId == Guid.Empty || e.CompanyId == CurrentCompanyId) && e.Deleted == null);
     }
 
     private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder)

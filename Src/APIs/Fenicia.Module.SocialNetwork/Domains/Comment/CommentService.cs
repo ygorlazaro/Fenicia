@@ -14,8 +14,7 @@ public class CommentService(CommentRepository repository)
     {
         var baseQuery = repository.Query().Where(c => c.FeedId == feedId && c.ParentCommentId == null)
             .OrderBy(c => c.CommentDate);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var comments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
@@ -136,8 +135,7 @@ public class CommentService(CommentRepository repository)
     {
         var baseQuery = repository.Query().Where(c => c.ParentCommentId == query.ParentCommentId)
             .OrderBy(c => c.CommentDate);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var replies = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return

@@ -13,8 +13,7 @@ public class NotificationService(INotificationRepository repository) : INotifica
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().OrderByDescending(n => n.Date);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
 
         var totalTask = filteredQuery.CountAsync(cancellationToken);
         var itemsTask = filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)

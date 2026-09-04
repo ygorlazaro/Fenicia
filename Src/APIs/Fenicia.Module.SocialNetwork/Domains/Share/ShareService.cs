@@ -39,8 +39,7 @@ public class ShareService(ShareRepository repository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(s => s.OriginalFeedId == feedId);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var shares = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return

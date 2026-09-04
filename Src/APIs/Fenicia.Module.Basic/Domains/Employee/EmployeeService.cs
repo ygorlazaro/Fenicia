@@ -36,12 +36,9 @@ public sealed class EmployeeService(
             .ThenInclude(a => a.State)
             .Include(e => e.Position);
 
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var total = await filteredQuery.CountAsync(cancellationToken);
-
-        var employees = await filteredQuery
+        var employees = await baseQuery
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);

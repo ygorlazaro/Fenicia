@@ -17,7 +17,7 @@ public class DefaultContextFactory : IDesignTimeDbContextFactory<DefaultContext>
             .Build();
 
         var connectionString = configuration.GetConnectionString("Auth")
-            ?? "Host=localhost;Database=FeniciaAuth;Username=postgres;Password=postgres";
+            ?? throw new InvalidOperationException("Connection string 'Auth' not found in configuration");
 
         var optionsBuilder = new DbContextOptionsBuilder<DefaultContext>();
         optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))

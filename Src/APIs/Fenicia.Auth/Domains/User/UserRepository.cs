@@ -10,7 +10,10 @@ public class UserRepository(DefaultContext context) : Repository<UserModel>(cont
 {
     public Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return DbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        return DbSet
+            .Include(u => u.UsersRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
     public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)

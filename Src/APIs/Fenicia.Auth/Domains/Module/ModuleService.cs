@@ -19,8 +19,7 @@ public class ModuleService(
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(m => m.Type != ModuleType.Auth && m.IsActive);
-        var filters = AdvancedQueryParser.Parse(query.Query);
-        var filteredQuery = baseQuery.ApplyAdvancedQuery(filters, query.Sort);
+        var filteredQuery = baseQuery;
         var orderedQuery = filteredQuery.OrderBy(m => m.SortOrder);
 
         var total = await orderedQuery.CountAsync(cancellationToken);
