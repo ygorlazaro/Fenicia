@@ -153,33 +153,25 @@
 
     private bool showDeleteConfirm;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine($"[ProductCategories] OnAfterRenderAsync firstRender={firstRender}");
-        if (firstRender)
+        try
         {
-            try
-            {
-                isLoggedIn = await AuthState.IsAuthenticatedAsync();
-                Console.WriteLine($"[ProductCategories] isLoggedIn={isLoggedIn}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ProductCategories] AuthState error: {ex.Message}");
-                isLoggedIn = false;
-            }
+            isLoggedIn = await AuthState.IsAuthenticatedAsync();
+        }
+        catch
+        {
+            isLoggedIn = false;
+        }
 
-            await InvokeAsync(StateHasChanged);
-
-            if (isLoggedIn)
-            {
-                await LoadCategoriesAsync();
-            }
-            else
-            {
-                isLoading = false;
-                await InvokeAsync(StateHasChanged);
-            }
+        if (isLoggedIn)
+        {
+            await LoadCategoriesAsync();
+        }
+        else
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
