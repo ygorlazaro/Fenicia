@@ -135,32 +135,37 @@
 
 @if (showCompanyModal)
 {
-    <Modal Title="Selecionar Empresa" BodyCssClass="has-text-centered" HideCloseButton="true">
-        <p>Selecione uma empresa para continuar:</p>
-        <div class="select is-fullwidth mt-4">
-            <select @bind="selectedCompanyIdModal" class="select">
-                <option value="">-- Selecione --</option>
-                @foreach (var company in companies)
+    <Modal Title="Selecionar Empresa" 
+           BodyCssClass="has-text-centered" 
+           FootCssClass="has-text-centered"
+           HideCloseButton="true">
+        <BodyContent>
+            <p>Selecione uma empresa para continuar:</p>
+            <div class="select is-fullwidth mt-4">
+                <select @bind="selectedCompanyIdModal" class="select">
+                    <option value="">-- Selecione --</option>
+                    @foreach (var company in companies)
+                    {
+                        <option value="@company.Id">@company.Name (@FormatCnpj(company.Cnpj))</option>
+                    }
+                </select>
+            </div>
+        </BodyContent>
+        <FootContent>
+            <button class="button is-link" @onclick="ConfirmCompanySelection" disabled="@isSelectingCompany">
+                @if (isSelectingCompany)
                 {
-                    <option value="@company.Id">@company.Name (@FormatCnpj(company.Cnpj))</option>
+                    <span class="icon is-small">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                    <span>Selecionando...</span>
                 }
-            </select>
-        </div>
-    </Modal>
-    <Modal FootCssClass="has-text-centered">
-        <button class="button is-link" @onclick="ConfirmCompanySelection" disabled="@isSelectingCompany">
-            @if (isSelectingCompany)
-            {
-                <span class="icon is-small">
-                    <i class="fas fa-spinner fa-spin"></i>
-                </span>
-                <span>Selecionando...</span>
-            }
-            else
-            {
-                <span>Confirmar</span>
-            }
-        </button>
+                else
+                {
+                    <span>Confirmar</span>
+                }
+            </button>
+        </FootContent>
     </Modal>
 }
 
