@@ -3,15 +3,44 @@
 @inject NavigationManager NavigationManager
 @inject IAuthStateService AuthState
 
-<PageTitle>Dashboard - Fenicia</PageTitle>
+<PageTitle>Painel - Fenicia</PageTitle>
 
 <MainLayout>
-    <div style="max-width: 1200px; margin: 50px auto; padding: 0 20px;">
-        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; background: white;">
-            <h3 style="margin-top: 0;">Dashboard</h3>
-            <p>Welcome to your dashboard!</p>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <h3 class="title is-4">Painel</h3>
+                            <p class="subtitle is-6">Bem-vindo ao seu painel de controle</p>
+
+                            <div class="columns is-multiline">
+                                <div class="column is-4">
+                                    <div class="box has-text-centered">
+                                        <p class="title is-3 has-text-link">0</p>
+                                        <p class="subtitle is-7">Empresas</p>
+                                    </div>
+                                </div>
+                                <div class="column is-4">
+                                    <div class="box has-text-centered">
+                                        <p class="title is-3 has-text-success">0</p>
+                                        <p class="subtitle is-7">Módulos ativos</p>
+                                    </div>
+                                </div>
+                                <div class="column is-4">
+                                    <div class="box has-text-centered">
+                                        <p class="title is-3 has-text-warning">0</p>
+                                        <p class="subtitle is-7">Assinaturas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 </MainLayout>
 
 @code {

@@ -36,7 +36,7 @@
   &lt;Assembly Path="/home/ygor/.nuget/packages/serilog.enrichers.context/4.6.5/lib/net7.0/Serilog.Enrichers.Context.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:Boolean x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/RunBuildOnSolutionLoaded/@EntryValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/Environment/Hierarchy/Build/SolutionBuilderNext/ShouldRestoreNugetPackages/@EntryValue">True</s:Boolean>
+	
 	
 	
 	

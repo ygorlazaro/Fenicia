@@ -44,7 +44,9 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
 
         context.Entry(existing).CurrentValues.SetValues(model);
         existing.Updated = DateTime.UtcNow;
+        context.Entry(existing).State = EntityState.Modified;
         await SaveChangesAsync(cancellationToken);
+
         return existing;
     }
 
@@ -57,6 +59,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
         }
 
         entity.Deleted = DateTime.UtcNow;
+        context.Entry(entity).State = EntityState.Modified;
         return await SaveChangesAsync(cancellationToken);
     }
 
@@ -71,6 +74,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
         foreach (var entity in entities)
         {
             entity.Deleted = DateTime.UtcNow;
+            context.Entry(entity).State = EntityState.Modified;
         }
 
         return await SaveChangesAsync(cancellationToken);

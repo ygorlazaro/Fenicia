@@ -25,7 +25,7 @@ public class ProductCategoryServiceTests : IDisposable
             .Options;
         _mockRepository = new Mock<IProductCategoryRepository>();
         _mockCompanyContext = new Mock<ICompanyContext>();
-        _service = new ProductCategoryService(_mockRepository.Object, _mockCompanyContext.Object);
+        _service = new ProductCategoryService(_mockRepository.Object);
         _faker = new Faker();
     }
 
