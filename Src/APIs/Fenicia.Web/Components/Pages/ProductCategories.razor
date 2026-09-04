@@ -102,43 +102,43 @@
         <div class="modal is-active">
             <div class="modal-background" @onclick="CloseModal"></div>
             <div class="modal-card" @onclick:stopPropagation="true">
-<header class="modal-card-head">
-                        <p class="modal-card-title">@(isEditing ? "Editar Categoria" : "Adicionar Categoria")</p>
-                        <button class="delete" aria-label="close" @onclick="CloseModal"></button>
-                    </header>
-                    <section class="modal-card-body">
-                        @if (!string.IsNullOrEmpty(modalError))
-                        {
-                            <div class="notification is-danger is-light">
-                                @modalError
-                            </div>
-                        }
+                <header class="modal-card-head">
+                    <p class="modal-card-title">@(isEditing ? "Editar Categoria" : "Adicionar Categoria")</p>
+                    <button class="delete" aria-label="close" @onclick="CloseModal"></button>
+                </header>
+                <section class="modal-card-body">
+                    @if (!string.IsNullOrEmpty(modalError))
+                    {
+                        <div class="notification is-danger is-light">
+                            @modalError
+                        </div>
+                    }
 
-                        <div class="field">
-                            <label class="label">Nome da Categoria</label>
-                            <div class="control">
-                                <input class="input" type="text" @bind="categoryName" placeholder="Digite o nome da categoria" />
-                            </div>
+                    <div class="field">
+                        <label class="label">Nome da Categoria</label>
+                        <div class="control">
+                            <input class="input" type="text" @bind="categoryName" placeholder="Digite o nome da categoria" />
                         </div>
-                    </section>
-                    <footer class="modal-card-foot">
-                        <div class="buttons">
-                            <button class="button" @onclick="CloseModal">Cancelar</button>
-                            <button class="button is-primary" @onclick="SaveCategory" disabled="@isSaving">
-                                @if (isSaving)
-                                {
-                                    <span class="icon is-small">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                    </span>
-                                    <span>Salvando...</span>
-                                }
-                                else
-                                {
-                                    <span>@(isEditing ? "Atualizar" : "Criar")</span>
-                                }
-                            </button>
-                        </div>
-                    </footer>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <div class="buttons">
+                        <button class="button" @onclick="CloseModal">Cancelar</button>
+                        <button class="button is-primary" @onclick="SaveCategory" disabled="@isSaving">
+                            @if (isSaving)
+                            {
+                                <span class="icon is-small">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                                <span>Salvando...</span>
+                            }
+                            else
+                            {
+                                <span>@(isEditing ? "Atualizar" : "Criar")</span>
+                            }
+                        </button>
+                    </div>
+                </footer>
             </div>
         </div>
     }
@@ -148,34 +148,34 @@
         <div class="modal is-active">
             <div class="modal-background" @onclick="CloseDeleteModal"></div>
             <div class="modal-card" @onclick:stopPropagation="true" style="max-width: 400px;">
-<header class="modal-card-head">
-                        <p class="modal-card-title">Excluir Categoria</p>
-                        <button class="delete" aria-label="close" @onclick="CloseDeleteModal"></button>
-                    </header>
-                    <section class="modal-card-body">
-                        <p>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</p>
-                    </section>
-                    <footer class="modal-card-foot">
-                        <div class="buttons">
-                            <button class="button" @onclick="CloseDeleteModal">Cancelar</button>
-                            <button class="button is-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
-                                @if (isDeleting)
-                                {
-                                    <span class="icon is-small">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                    </span>
-                                    <span>Excluindo...</span>
-                                }
-                                else
-                                {
-                                    <span>Excluir</span>
-                                }
-                            </button>
-                        </div>
-                    </footer>
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Excluir Categoria</p>
+                    <button class="delete" aria-label="close" @onclick="CloseDeleteModal"></button>
+                </header>
+                <section class="modal-card-body">
+                    <p>Tem certeza que deseja excluir <strong>@categoryToDelete?.Name</strong>?</p>
+                </section>
+                <footer class="modal-card-foot">
+                    <div class="buttons">
+                        <button class="button" @onclick="CloseDeleteModal">Cancelar</button>
+                        <button class="button is-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                            @if (isDeleting)
+                            {
+                                <span class="icon is-small">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                                <span>Excluindo...</span>
+                            }
+                            else
+                            {
+                                <span>Excluir</span>
+                            }
+                        </button>
+                    </div>
+                </footer>
             </div>
         </div>
-    </div>
+    }
 </MainLayout>
 
 @if (!string.IsNullOrEmpty(notificationMessage))
@@ -356,12 +356,6 @@
                     notificationMessage = "Falha ao atualizar categoria.";
                     notificationColor = NotificationColor.Danger;
                     StateHasChanged();
-                    _ = Task.Run(async () =>
-                    {
-                        await Task.Delay(5000);
-                        notificationMessage = null;
-                        InvokeAsync(StateHasChanged);
-                    });
                     return;
                 }
 
@@ -378,12 +372,6 @@
                     notificationMessage = "Falha ao criar categoria.";
                     notificationColor = NotificationColor.Danger;
                     StateHasChanged();
-                    _ = Task.Run(async () =>
-                    {
-                        await Task.Delay(5000);
-                        notificationMessage = null;
-                        InvokeAsync(StateHasChanged);
-                    });
                     return;
                 }
 
@@ -450,12 +438,6 @@
                 notificationMessage = "Falha ao excluir categoria.";
                 notificationColor = NotificationColor.Danger;
                 StateHasChanged();
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(5000);
-                    notificationMessage = null;
-                    InvokeAsync(StateHasChanged);
-                });
             }
             else
             {
