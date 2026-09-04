@@ -8,6 +8,8 @@ public class NotificationService
     private NotificationColor _color = NotificationColor.Info;
     private bool _isVisible;
 
+    public event Action? OnChange;
+
     public string? Message
     {
         get => _message;
@@ -37,8 +39,6 @@ public class NotificationService
             NotifyStateChanged();
         }
     }
-
-    public event Action? OnChange;
 
     public void Show(string message, NotificationColor color, int durationMs = 5000)
     {
