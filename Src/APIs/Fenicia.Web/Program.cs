@@ -1,3 +1,4 @@
+using BlazorExpress.Bulma;
 using Fenicia.Web;
 using Fenicia.Web.Components;
 using Fenicia.Web.Services;

@@ -4,6 +4,7 @@
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
+@inject NotificationService NotificationService
 
 <nav class="navbar is-link" role="navigation" aria-label="main navigation">
     <div class="container">
@@ -98,6 +99,13 @@
     </div>
 </nav>
 
+@if (notificationVisible)
+{
+    <Notification Color="@notificationColor" HideCloseButton="true">
+        @notificationMessage
+    </Notification>
+}
+
 @ChildContent
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -117,10 +125,22 @@
     private string companyError = string.Empty;
     private List<UserCompanyItem> companies = [];
     private bool _companiesLoaded;
+    private bool notificationVisible;
+    private string? notificationMessage;
+    private NotificationColor notificationColor = NotificationColor.Info;
 
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
+        NotificationService.OnChange += HandleNotificationChange;
+    }
+
+    private void HandleNotificationChange()
+    {
+        notificationVisible = NotificationService.IsVisible;
+        notificationMessage = NotificationService.Message;
+        notificationColor = NotificationService.Color;
+        InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -319,6 +339,7 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+        NotificationService.OnChange -= HandleNotificationChange;
     }
 
 }
