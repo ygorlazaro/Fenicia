@@ -13,7 +13,13 @@
             @if (isLoading)
             {
                 <div class="notification is-info is-light">
-                    <p>Carregando perfil...</p>
+                    <div class="level is-mobile">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <Spinner Size="SpinnerSize.Small" Label="Carregando perfil..." />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
             else if (!string.IsNullOrEmpty(errorMessage))
