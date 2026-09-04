@@ -4,6 +4,7 @@
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
 
 <PageTitle>Categorias de Produtos - Fenicia</PageTitle>
 
@@ -174,8 +175,15 @@
                     </footer>
             </div>
         </div>
-    }
+    </div>
 </MainLayout>
+
+@if (!string.IsNullOrEmpty(notificationMessage))
+{
+    <Notification Color="@notificationColor" HideCloseButton="true">
+        @notificationMessage
+    </Notification>
+}
 
 @code {
     private bool isLoggedIn = false;
@@ -186,6 +194,8 @@
     private string? modalError;
     private List<CategoryDto>? categories;
     private CategoryDto? categoryToDelete;
+    private string? notificationMessage;
+    private NotificationColor notificationColor = NotificationColor.Info;
 
     private bool showModal;
     private bool isEditing;
@@ -343,8 +353,19 @@
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     modalError = $"Falha ao atualizar: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                    notificationMessage = "Falha ao atualizar categoria.";
+                    notificationColor = NotificationColor.Danger;
+                    StateHasChanged();
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(5000);
+                        notificationMessage = null;
+                        InvokeAsync(StateHasChanged);
+                    });
                     return;
                 }
+
+                NotificationService.Show("Categoria atualizada com sucesso!", NotificationColor.Success);
             }
             else
             {
@@ -354,8 +375,19 @@
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     modalError = $"Falha ao criar: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                    notificationMessage = "Falha ao criar categoria.";
+                    notificationColor = NotificationColor.Danger;
+                    StateHasChanged();
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(5000);
+                        notificationMessage = null;
+                        InvokeAsync(StateHasChanged);
+                    });
                     return;
                 }
+
+                NotificationService.Show("Categoria criada com sucesso!", NotificationColor.Success);
             }
 
             CloseModal();
@@ -415,6 +447,19 @@
             {
                 var body = await response.Content.ReadAsStringAsync();
                 errorMessage = $"Falha ao excluir: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                notificationMessage = "Falha ao excluir categoria.";
+                notificationColor = NotificationColor.Danger;
+                StateHasChanged();
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(5000);
+                    notificationMessage = null;
+                    InvokeAsync(StateHasChanged);
+                });
+            }
+            else
+            {
+                NotificationService.Show("Categoria excluída com sucesso!", NotificationColor.Success);
             }
 
             CloseDeleteModal();

@@ -3,6 +3,7 @@
 @inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject NotificationService NotificationService
 
 <PageTitle>Saindo - Fenicia</PageTitle>
 
@@ -30,6 +31,8 @@
         {
             await AuthState.ClearTokenAsync();
             await JSRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
+            NotificationService.Show("Você saiu da sua conta.", NotificationColor.Info);
+            await Task.Delay(300);
             NavigationManager.NavigateTo("/");
         }
     }

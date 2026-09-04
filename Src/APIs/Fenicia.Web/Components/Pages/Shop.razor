@@ -4,6 +4,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
+@inject NotificationService NotificationService
 
 <PageTitle>Loja - Fenicia</PageTitle>
 
@@ -99,9 +100,9 @@
 
                 @if (!string.IsNullOrEmpty(resultMessage))
                 {
-                    <div class="notification mt-4 @(isSuccess ? "is-success" : "is-danger")">
+                    <Notification Color="@(isSuccess ? NotificationColor.Success : NotificationColor.Danger)" HideCloseButton="true">
                         @resultMessage
-                    </div>
+                    </Notification>
                 }
             }
         </div>
@@ -232,6 +233,7 @@
         {
             resultMessage = "Selecione pelo menos um módulo.";
             isSuccess = false;
+            NotificationService.Show("Selecione pelo menos um módulo.", NotificationColor.Warning);
             return;
         }
 
@@ -248,6 +250,7 @@
             {
                 resultMessage = "Selecione uma empresa antes de assinar.";
                 isSuccess = false;
+                NotificationService.Show("Selecione uma empresa antes de assinar.", NotificationColor.Warning);
                 return;
             }
 
@@ -274,13 +277,15 @@
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                resultMessage = $"Failed to subscribe: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                resultMessage = $"Falha ao assinar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                 isSuccess = false;
+                NotificationService.Show("Falha ao assinar módulos.", NotificationColor.Danger);
             }
             else
             {
                 resultMessage = "Assinatura criada com sucesso! Redirecionando para o perfil...";
                 isSuccess = true;
+                NotificationService.Show("Assinatura criada com sucesso!", NotificationColor.Success);
                 StateHasChanged();
                 await Task.Delay(1500);
                 NavigationManager.NavigateTo("/profile");
@@ -290,6 +295,7 @@
         {
             resultMessage = $"Erro: {ex.Message}";
             isSuccess = false;
+            NotificationService.Show($"Erro: {ex.Message}", NotificationColor.Danger);
         }
         finally
         {
