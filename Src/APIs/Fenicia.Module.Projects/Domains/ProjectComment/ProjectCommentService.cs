@@ -15,12 +15,22 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
     {
         var baseQuery = repository.Query();
         var filteredQuery = baseQuery;
-        var comments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var comments = await filteredQuery
+            .Include(c => c.User)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [
             .. comments.Select(pc =>
-                new GetAllProjectCommentResponse(pc.Id, pc.TaskId, pc.UserId, pc.Content, pc.CompanyId))
+                new GetAllProjectCommentResponse(
+                    pc.Id,
+                    pc.TaskId,
+                    pc.UserId,
+                    pc.User.Name,
+                    pc.Content,
+                    pc.Created,
+                    pc.CompanyId))
         ];
     }
 
@@ -28,7 +38,9 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
         GetProjectCommentByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var projectComment = await repository.GetByIdAsync(query.Id, cancellationToken);
+        var projectComment = await repository.Query()
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == query.Id, cancellationToken);
 
         return projectComment switch
         {
@@ -37,7 +49,9 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
                 projectComment.Id,
                 projectComment.TaskId,
                 projectComment.UserId,
+                projectComment.User.Name,
                 projectComment.Content,
+                projectComment.Created,
                 projectComment.CompanyId)
         };
     }
@@ -61,7 +75,9 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
             created.Id,
             created.TaskId,
             created.UserId,
+            command.UserName ?? string.Empty,
             created.Content,
+            created.Created,
             created.CompanyId);
     }
 
@@ -70,7 +86,9 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await repository.GetByIdAsync(command.Id, cancellationToken);
+        var existing = await repository.Query()
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == command.Id, cancellationToken);
         if (existing is null)
         {
             return null;
@@ -86,7 +104,9 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
                 updated.Id,
                 updated.TaskId,
                 updated.UserId,
+                updated.User.Name,
                 updated.Content,
+                updated.Created,
                 updated.CompanyId);
     }
 

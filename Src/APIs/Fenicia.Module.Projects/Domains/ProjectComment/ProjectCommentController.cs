@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectComment;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectCommentController(IProjectCommentService projectCommentService) : ControllerBase
+public class ProjectCommentController(
+    IProjectCommentService projectCommentService,
+    ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Gets a paginated list of project comments.
@@ -100,8 +103,7 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to create project comments</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProjectCommentResponse))]
+    [ProducesResponseType(typeof(AddProjectCommentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -113,7 +115,18 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await projectCommentService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var nameClaim = User.FindFirst("name")?.Value
+                        ?? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+                        ?? User.Identity?.Name;
+
+        var projectComment = await projectCommentService.AddAsync(
+            command with
+            {
+                UserId = ClaimReader.UserId(User),
+                UserName = nameClaim,
+            },
+            companyContext.CompanyId,
+            cancellationToken);
 
         return new CreatedResult(string.Empty, projectComment);
     }
@@ -134,8 +147,7 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to update project comments</exception>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProjectCommentResponse))]
+    [ProducesResponseType(typeof(UpdateProjectCommentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -151,7 +163,7 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
 
         var projectComment = await projectCommentService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
@@ -169,7 +181,6 @@ public class ProjectCommentController(IProjectCommentService projectCommentServi
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to delete project comments</exception>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

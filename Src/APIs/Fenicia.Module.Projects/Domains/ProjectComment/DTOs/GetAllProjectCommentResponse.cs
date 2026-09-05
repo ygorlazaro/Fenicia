@@ -6,5 +6,7 @@ public record GetAllProjectCommentResponse(
     [Required] Guid Id,
     [Required] Guid TaskId,
     [Required] Guid UserId,
-    [Required] [MaxLength(200)] string Content,
+    [Required] string UserName,
+    [Required] [MaxLength(4096)] string Content,
+    DateTime Created,
     [Required] Guid CompanyId);
