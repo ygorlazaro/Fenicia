@@ -18,6 +18,7 @@ public sealed class ProjectStatusModel : BaseCompanyModel
 
     public bool IsFinal { get; init; } = false;
 
+    [ForeignKey(nameof(ProjectId))]
     public ProjectModel ProjectModel { get; init; } = default!;
 
     public List<ProjectTaskModel> Tasks { get; init; } = [];
