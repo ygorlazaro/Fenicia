@@ -11,7 +11,7 @@ public sealed class ProjectStatusModel : BaseCompanyModel
     [MaxLength(30)]
     public string Name { get; init; } = string.Empty;
 
-    [MaxLength(7)]
+    [MaxLength(30)]
     public string Color { get; init; } = string.Empty;
 
     public int Order { get; init; } = 0;

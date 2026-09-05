@@ -239,7 +239,12 @@
 
     private void OnColorPicked(MudColor value)
     {
-        statusEditModel.Color = value.Value;
+        var hex = value.Value;
+        if (hex.StartsWith("rgba", StringComparison.OrdinalIgnoreCase) || hex.StartsWith("rgb", StringComparison.OrdinalIgnoreCase))
+        {
+            hex = $"#{value.R:x2}{value.G:x2}{value.B:x2}";
+        }
+        statusEditModel.Color = hex;
         colorPickerOpen = false;
     }
 
