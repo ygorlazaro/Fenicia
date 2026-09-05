@@ -256,7 +256,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Default">Total a receber</MudText>
-                            <MudText Typo="Typo.h5">@(_financial.AccountsReceivable.TotalPending + _financial.AccountsReceivable.TotalApproved).ToString("C")</MudText>
+                            <MudText Typo="Typo.h5">@((_financial.AccountsReceivable.TotalPending + _financial.AccountsReceivable.TotalApproved).ToString("C"))</MudText>
                         </div>
                         <MudLink Href="/basic/order" Underline="Underline.Hover">
                             <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Filled.ReceiptLong">
