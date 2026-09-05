@@ -284,7 +284,7 @@
                         }
                     </MudStack>
                     <MudAutocomplete T="UserSummaryDto" Label="Adicionar responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Class="mt-2"
-                                     SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults.AsEnumerable(); })" ToStringFunc="@(u => u.Name)" ValueChanged="@(async (UserSummaryDto u) => await AddAssigneeAsync(u))"
+                                     SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults.AsEnumerable(); })" ToStringFunc="@(u => u is null ? string.Empty : u.Name)" ValueChanged="@(async (UserSummaryDto? u) => await AddAssigneeAsync(u))"
                                      ResetValueOnEmptyText="true" Clearable="true" MaxItems="10" />
                 </MudItem>
             }
