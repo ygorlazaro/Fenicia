@@ -1,10 +1,11 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
+using Fenicia.Module.SocialNetwork.Domains.Feed;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
-public class CommentService(CommentRepository repository)
+public class CommentService(CommentRepository repository, FeedRepository feedRepository)
 {
     public async Task<List<GetAllCommentResponse>> GetAllByFeedAsync(
         GetAllCommentByFeedQuery query,
@@ -67,6 +68,7 @@ public class CommentService(CommentRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
+        await IncrementFeedTotalCommentsAsync(command.FeedId, cancellationToken);
         return new AddCommentResponse(
             created.Id,
             created.ProfileId,
@@ -126,6 +128,7 @@ public class CommentService(CommentRepository repository)
         }
 
         await repository.DeleteAsync(command.Id, cancellationToken);
+        await DecrementFeedTotalCommentsAsync(existing.FeedId, cancellationToken);
     }
 
     public async Task<List<GetRepliesResponse>> GetRepliesAsync(
@@ -148,5 +151,29 @@ public class CommentService(CommentRepository repository)
                 r.CommentDate,
                 r.UpdatedDate))
         ];
+    }
+
+    private async Task IncrementFeedTotalCommentsAsync(Guid feedId, CancellationToken cancellationToken)
+    {
+        var feed = await feedRepository.GetByIdAsync(feedId, cancellationToken);
+        if (feed is null)
+        {
+            return;
+        }
+
+        feed.TotalComments++;
+        await feedRepository.UpdateAsync(feedId, feed, cancellationToken);
+    }
+
+    private async Task DecrementFeedTotalCommentsAsync(Guid feedId, CancellationToken cancellationToken)
+    {
+        var feed = await feedRepository.GetByIdAsync(feedId, cancellationToken);
+        if (feed is null)
+        {
+            return;
+        }
+
+        feed.TotalComments = Math.Max(0, feed.TotalComments - 1);
+        await feedRepository.UpdateAsync(feedId, feed, cancellationToken);
     }
 }

@@ -1,10 +1,11 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Module.SocialNetwork.Domains.Feed;
 using Fenicia.Module.SocialNetwork.Domains.Share.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
-public class ShareService(ShareRepository repository)
+public class ShareService(ShareRepository repository, FeedRepository feedRepository)
 {
     public async Task<AddShareResponse> ShareAsync(
         ShareCommand command,
@@ -23,6 +24,7 @@ public class ShareService(ShareRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
+        await IncrementFeedTotalSharesAsync(command.OriginalFeedId, cancellationToken);
         return new AddShareResponse(
             created.Id,
             created.OriginalFeedId,
@@ -51,5 +53,17 @@ public class ShareService(ShareRepository repository)
                 s.ProfileId,
                 s.ShareDate))
         ];
+    }
+
+    private async Task IncrementFeedTotalSharesAsync(Guid feedId, CancellationToken cancellationToken)
+    {
+        var feed = await feedRepository.GetByIdAsync(feedId, cancellationToken);
+        if (feed is null)
+        {
+            return;
+        }
+
+        feed.TotalShares++;
+        await feedRepository.UpdateAsync(feedId, feed, cancellationToken);
     }
 }

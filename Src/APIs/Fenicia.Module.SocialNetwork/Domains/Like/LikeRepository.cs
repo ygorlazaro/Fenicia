@@ -15,4 +15,18 @@ public class LikeRepository(DefaultContext context) : Repository<LikeModel>(cont
         return DbSet
             .FirstOrDefaultAsync(e => e.ProfileId == profileId && e.FeedId == feedId, cancellationToken);
     }
+
+    public Task<List<LikeModel>> GetByProfileIdAsync(
+        Guid profileId,
+        int page,
+        int perPage,
+        CancellationToken cancellationToken = default)
+    {
+        return DbSet
+            .Where(l => l.ProfileId == profileId)
+            .OrderByDescending(l => l.LikeDate)
+            .Skip((page - 1) * perPage)
+            .Take(perPage)
+            .ToListAsync(cancellationToken);
+    }
 }

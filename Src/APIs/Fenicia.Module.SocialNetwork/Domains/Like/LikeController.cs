@@ -96,6 +96,26 @@ public class LikeController(
         return Ok(result);
     }
 
+    [HttpGet("profile/{profileId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetLikedFeedsResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetLikedFeedsResponse>>> GetLikedFeedsByProfileAsync(
+        [FromRoute] Guid profileId,
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        CancellationToken cancellationToken = default)
+    {
+        wide.UserId = ClaimReader.UserId(User).ToString();
+
+        var result = await likeService.GetLikedFeedsByProfileAsync(
+            new GetLikedFeedsByProfileQuery(page, perPage, profileId),
+            cancellationToken);
+
+        return Ok(result);
+    }
+
     private async Task<Guid> GetCurrentProfileIdAsync(CancellationToken cancellationToken)
     {
         var userId = ClaimReader.UserId(User);
