@@ -16,7 +16,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-internal sealed class ProfileController(IProfileService profileService) : ControllerBase
+public sealed class ProfileController(IProfileService profileService) : ControllerBase
 {
     /// <summary>
     ///     Obtém um perfil pelo ID.
