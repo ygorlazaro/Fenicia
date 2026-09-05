@@ -50,6 +50,7 @@ public class Program
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
         app.UseAuthentication();
         app.UseAuthorization();
+        app.MapControllers();
         app.Run();
     }
 }
