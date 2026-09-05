@@ -80,6 +80,8 @@ public sealed class EmployeeService(
             CompanyId = companyId
         };
 
+        Guid? addressId = null;
+
         if (command.Address != null)
         {
             var addressCommand = new AddressCommand(
@@ -92,15 +94,10 @@ public sealed class EmployeeService(
                 command.Address.City,
                 command.Address.Country);
             var createdAddress = await addressService.AddAsync(addressCommand, cancellationToken);
-
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = createdAddress.Id
-            };
-            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+            addressId = createdAddress.Id;
         }
+
+        await personService.InsertAsync(person, companyId, cancellationToken);
 
         var employee = new EmployeeModel
         {
@@ -111,8 +108,18 @@ public sealed class EmployeeService(
             CompanyId = companyId
         };
 
-        await personService.InsertAsync(person, companyId, cancellationToken);
         var created = await employeeRepository.InsertAsync(employee, cancellationToken);
+
+        if (addressId.HasValue)
+        {
+            var personAddress = new PersonAddressModel
+            {
+                Id = Guid.NewGuid(),
+                PersonId = person.Id,
+                AddressId = addressId.Value
+            };
+            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+        }
 
         return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
     }
