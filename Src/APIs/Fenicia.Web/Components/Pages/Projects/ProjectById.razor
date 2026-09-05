@@ -1,5 +1,6 @@
 @page "/project/{Id:guid}"
 @rendermode InteractiveServer
+@using MudBlazor.Utilities
 @inject NavigationManager NavigationManager
 @inject IAuthStateService AuthState
 @inject IHttpClientFactory HttpClientFactory
@@ -125,7 +126,17 @@
                 <MudTextField @bind-Value="statusEditModel.Name" Label="Nome" Variant="Variant.Outlined" MaxLength="100" Required="true" RequiredError="Nome é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="statusEditModel.Color" Label="Cor" Variant="Variant.Outlined" MaxLength="20" Placeholder="#6366f1" />
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudPaper Elevation="0" Style="@($"width:36px;height:36px;border-radius:8px;background-color:{statusEditModel.Color};border:1px solid rgba(0,0,0,0.1);cursor:pointer;")"
+                             @onclick="@(() => colorPickerOpen = !colorPickerOpen)" />
+                    <MudTextField @bind-Value="statusEditModel.Color" Label="Cor" Variant="Variant.Outlined" MaxLength="20" Placeholder="#6366f1" Style="flex-grow:1" />
+                </MudStack>
+                @if (colorPickerOpen)
+                {
+                    <MudPaper Elevation="4" Class="pa-3 mt-2" Style="position:relative; z-index:10;">
+                        <MudColorPicker Value="@statusEditModel.Color" ValueChanged="@(v => OnColorPicked(v))" ShowAlpha="false" ShowInputs="true" PickerVariant="PickerVariant.Inline" />
+                    </MudPaper>
+                }
             </MudItem>
             <MudItem xs="12" sm="6">
                 <MudNumericField T="int" @bind-Value="statusEditModel.Order" Label="Ordem" Variant="Variant.Outlined" Min="0" />
@@ -224,6 +235,13 @@
     private bool statusDialogVisible;
     private StatusFormModel statusEditModel = new();
     private bool statusSaving;
+    private bool colorPickerOpen;
+
+    private void OnColorPicked(MudColor value)
+    {
+        statusEditModel.Color = value.Value;
+        colorPickerOpen = false;
+    }
 
     private bool taskDialogVisible;
     private TaskFormModel taskEditModel = new();

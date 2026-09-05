@@ -38,9 +38,12 @@ public sealed class ProjectTaskModel : BaseCompanyModel
 
     public List<TaskAssigneeModel> Assignees { get; init; } = [];
 
+    [ForeignKey(nameof(StatusId))]
     public ProjectStatusModel StatusModel { get; init; } = default!;
 
+    [ForeignKey(nameof(CreatedBy))]
     public UserModel User { get; init; } = default!;
 
+    [ForeignKey(nameof(ProjectId))]
     public ProjectModel ProjectModel { get; init; } = default!;
 }

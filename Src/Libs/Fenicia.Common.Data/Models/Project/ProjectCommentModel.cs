@@ -14,8 +14,10 @@ public sealed class ProjectCommentModel : BaseCompanyModel
     [MaxLength(4096)]
     public string Content { get; set; } = string.Empty;
 
+    [ForeignKey(nameof(TaskId))]
     public ProjectTaskModel TaskModel { get; init; } = default!;
 
+    [ForeignKey(nameof(UserId))]
     public UserModel User { get; init; } = default!;
 
     public Guid AuthorId { get; init; }
