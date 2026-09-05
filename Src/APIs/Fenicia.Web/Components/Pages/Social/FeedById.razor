@@ -31,15 +31,34 @@
                 <MudPaper Elevation="2" Class="pa-4 post-card mb-4">
                     <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
                         <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile/" + post.ProfileId))">
-                            @GetInitial(post.Text)
+                            @GetInitial(post.AuthorUserName ?? post.Text)
                         </MudAvatar>
                         <div class="flex-grow-1">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
                                 <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
-                                    <MudText Typo="Typo.subtitle2"><b>Usuário</b></MudText>
+                                    <MudText Typo="Typo.subtitle2"><b>@GetDisplayName(post)</b></MudText>
                                 </MudLink>
-                                <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                                @if (!string.IsNullOrEmpty(post.AuthorUserName))
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                                }
                             </MudStack>
+                            @if (post.OriginalFeedId.HasValue)
+                            {
+                                <MudPaper Elevation="0" Class="pa-2 mb-2" Style="background-color: rgba(0,0,0,0.03); border-left: 3px solid var(--mud-palette-primary); border-radius: 8px;">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                        <MudIcon Icon="@Icons.Material.Outlined.Repeat" Size="Size.Small" Color="Color.Default" />
+                                        <MudText Typo="Typo.caption" Color="Color.Default">compartilhou um post</MudText>
+                                    </MudStack>
+                                    <MudLink Href="@($"/socialnetwork/feed/{post.OriginalFeedId}")" Color="Color.Default" Underline="Underline.None">
+                                        <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">Ver post original →</MudText>
+                                    </MudLink>
+                                </MudPaper>
+                            }
                             <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                                 <MudButton Size="Size.Small"
@@ -646,7 +665,13 @@
     private static string GetInitial(string? source)
     {
         if (string.IsNullOrEmpty(source)) return "?";
-        return source[..1].ToUpper();
+        return source.TrimStart('@')[..1].ToUpper();
+    }
+
+    private static string GetDisplayName(PostDto post)
+    {
+        if (!string.IsNullOrEmpty(post.AuthorUserName)) return "@" + post.AuthorUserName;
+        return "Usuário";
     }
 
     private static string FormatRelativeTime(DateTime date)
@@ -669,6 +694,8 @@
         public int TotalLikes { get; set; }
         public int TotalComments { get; set; }
         public int TotalShares { get; set; }
+        public Guid? OriginalFeedId { get; set; }
+        public string? AuthorUserName { get; set; }
         public bool IsLikedByMe { get; set; }
     }
 

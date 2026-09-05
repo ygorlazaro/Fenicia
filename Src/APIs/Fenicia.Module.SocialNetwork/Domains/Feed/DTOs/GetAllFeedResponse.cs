@@ -10,4 +10,6 @@ public record GetAllFeedResponse(
     [Required] Guid CompanyId,
     int TotalLikes,
     int TotalComments,
-    int TotalShares);
+    int TotalShares,
+    Guid? OriginalFeedId,
+    [MaxLength(64)] string? AuthorUserName);

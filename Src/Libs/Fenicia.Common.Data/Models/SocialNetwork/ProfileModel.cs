@@ -13,6 +13,9 @@ public class ProfileModel : BaseModel
     [ForeignKey(nameof(UserId))]
     public UserModel User { get; init; } = default!;
 
+    [MaxLength(64)]
+    public string? UserName { get; set; }
+
     [MaxLength(160)]
     public string? Bio { get; set; }
 

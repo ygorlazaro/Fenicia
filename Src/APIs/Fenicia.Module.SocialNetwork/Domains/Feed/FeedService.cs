@@ -24,7 +24,9 @@ public class FeedService(FeedRepository repository)
                 f.CompanyId,
                 f.TotalLikes,
                 f.TotalComments,
-                f.TotalShares))
+                f.TotalShares,
+                f.OriginalFeedId,
+                f.Profile?.UserName))
         ];
     }
 
@@ -33,6 +35,7 @@ public class FeedService(FeedRepository repository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query()
+            .Include(f => f.Profile)
             .Where(f => f.ProfileId == query.ProfileId)
             .OrderByDescending(f => f.Date);
         var feeds = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
@@ -47,7 +50,9 @@ public class FeedService(FeedRepository repository)
                 f.CompanyId,
                 f.TotalLikes,
                 f.TotalComments,
-                f.TotalShares))
+                f.TotalShares,
+                f.OriginalFeedId,
+                f.Profile?.UserName))
         ];
     }
 
@@ -68,7 +73,9 @@ public class FeedService(FeedRepository repository)
                 feed.CompanyId,
                 feed.TotalLikes,
                 feed.TotalComments,
-                feed.TotalShares)
+                feed.TotalShares,
+                feed.OriginalFeedId,
+                feed.Profile?.UserName)
         };
     }
 
@@ -83,6 +90,7 @@ public class FeedService(FeedRepository repository)
             Date = command.Date,
             Text = command.Text,
             ProfileId = command.ProfileId,
+            OriginalFeedId = command.OriginalFeedId,
             CompanyId = companyId,
             TotalLikes = 0,
             TotalComments = 0,
@@ -90,7 +98,7 @@ public class FeedService(FeedRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddFeedResponse(created.Id, created.Date, created.Text, created.ProfileId, created.CompanyId);
+        return new AddFeedResponse(created.Id, created.Date, created.Text, created.ProfileId, created.CompanyId, created.OriginalFeedId);
     }
 
     public async Task<UpdateFeedResponse?> UpdateAsync(
@@ -111,7 +119,7 @@ public class FeedService(FeedRepository repository)
         var updated = await repository.UpdateAsync(command.Id, existing, cancellationToken);
         return updated is null
             ? null
-            : new UpdateFeedResponse(updated.Id, updated.Date, updated.Text, updated.ProfileId, updated.CompanyId);
+            : new UpdateFeedResponse(updated.Id, updated.Date, updated.Text, updated.ProfileId, updated.CompanyId, updated.OriginalFeedId);
     }
 
     public async Task DeleteAsync(DeleteFeedCommand command, CancellationToken cancellationToken = default)
