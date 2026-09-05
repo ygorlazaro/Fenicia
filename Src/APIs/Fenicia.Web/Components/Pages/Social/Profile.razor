@@ -1,0 +1,365 @@
+@page "/socialnetwork/profile"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IAuthStateService AuthState
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject ISnackbar Snackbar
+
+<PageTitle>Meu Perfil - Fenicia Social</PageTitle>
+
+<MainLayout>
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                    <MudAvatar Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
+                        @GetInitial()
+                    </MudAvatar>
+                    <MudText Typo="Typo.h5" Align="Align.Center">@DisplayName()</MudText>
+                    @if (!string.IsNullOrEmpty(profile?.Location))
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Color="Color.Default" />
+                            <MudText Typo="Typo.body2" Color="Color.Default">@profile.Location</MudText>
+                        </MudStack>
+                    }
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Color="Color.Default" />
+                        <MudText Typo="Typo.caption" Color="Color.Default">
+                            Entrou em @(profile?.Created.ToString("MMMM yyyy") ?? "-")
+                        </MudText>
+                    </MudStack>
+                    <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
+                    <MudStack Row="true" Justify="Justify.SpaceEvenly" Style="width:100%">
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">0</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Posts</MudText>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">0</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Seguidores</MudText>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">0</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Seguindo</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                    <MudText Typo="Typo.h5">Perfil</MudText>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               OnClick="OpenEditModal"
+                               Disabled="@(profile is null)">
+                        Editar
+                    </MudButton>
+                </MudStack>
+
+                @if (isLoading)
+                {
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                }
+                else if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+                }
+                else if (profile is not null)
+                {
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Biografia</MudText>
+                            <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(profile.Bio) ? "Sem biografia." : profile.Bio)</MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Website</MudText>
+                            @if (!string.IsNullOrEmpty(profile.Website))
+                            {
+                                <MudLink Href="@profile.Website" Target="_blank" Color="Color.Primary">@profile.Website</MudLink>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Default">—</MudText>
+                            }
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Telefone</MudText>
+                            <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(profile.Phone) ? "—" : profile.Phone)</MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Localização</MudText>
+                            <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(profile.Location) ? "—" : profile.Location)</MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Data de Nascimento</MudText>
+                            <MudText Typo="Typo.body2">@(profile.BirthDate?.ToString("dd/MM/yyyy") ?? "—")</MudText>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MainLayout>
+
+<MudDialog @bind-Visible="editDialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Editar Perfil</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editModel.Bio" Label="Biografia" Variant="Variant.Outlined" Lines="3" MaxLength="160" Counter="160" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" MaxLength="48" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.Website" Label="Website" Variant="Variant.Outlined" MaxLength="120" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.Location" Label="Localização" Variant="Variant.Outlined" MaxLength="64" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.Phone" Label="Telefone" Variant="Variant.Outlined" MaxLength="24" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudDatePicker @bind-Date="editModel.BirthDateValue" Label="Data de Nascimento" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseEditModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveProfileAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@isSaving">
+            @if (isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string? errorMessage;
+    private ProfileDto? profile;
+    private bool editDialogVisible;
+    private EditProfileModel editModel = new();
+    private bool _autoOpened;
+
+    private readonly DialogOptions dialogOptions = new()
+    {
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+    };
+
+    [SupplyParameterFromQuery(Name = "edit")]
+    public string? EditQuery { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            await LoadOrCreateProfileAsync();
+
+            if (!_autoOpened && !string.IsNullOrEmpty(EditQuery) && Guid.TryParse(EditQuery, out _))
+            {
+                _autoOpened = true;
+                OpenEditModal();
+            }
+        }
+    }
+
+    private async Task LoadOrCreateProfileAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var client = await CreateSocialClientAsync();
+
+            var response = await client.GetAsync("/profile");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                var createResponse = await client.PostAsync("/profile",
+                    new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+                if (createResponse.IsSuccessStatusCode)
+                {
+                    var json = await createResponse.Content.ReadAsStringAsync();
+                    profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (profile is not null)
+                    {
+                        editDialogVisible = true;
+                        PopulateEditModel();
+                    }
+                }
+                else
+                {
+                    errorMessage = $"Falha ao criar perfil: {(int)createResponse.StatusCode}";
+                }
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar perfil: {(int)response.StatusCode} {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task<HttpClient> CreateSocialClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        return client;
+    }
+
+    private void OpenEditModal()
+    {
+        if (profile is null) return;
+        PopulateEditModel();
+        editDialogVisible = true;
+    }
+
+    private void CloseEditModal()
+    {
+        editDialogVisible = false;
+    }
+
+    private void PopulateEditModel()
+    {
+        if (profile is null) return;
+        editModel = new EditProfileModel
+        {
+            Bio = profile.Bio,
+            ImageUrl = profile.ImageUrl,
+            Website = profile.Website,
+            Location = profile.Location,
+            Phone = profile.Phone,
+            BirthDateValue = profile.BirthDate,
+        };
+    }
+
+    private async Task SaveProfileAsync()
+    {
+        if (profile is null) return;
+        try
+        {
+            isSaving = true;
+
+            var client = await CreateSocialClientAsync();
+            var updateCommand = new
+            {
+                Id = profile.Id,
+                Bio = editModel.Bio,
+                ImageUrl = editModel.ImageUrl,
+                Website = editModel.Website,
+                Location = editModel.Location,
+                Phone = editModel.Phone,
+                BirthDate = editModel.BirthDateValue,
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(updateCommand);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PatchAsync($"/profile/{profile.Id}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(responseJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                editDialogVisible = false;
+                Snackbar.Add("Perfil atualizado com sucesso!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add($"Falha ao atualizar: {(int)response.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetInitial()
+    {
+        if (profile is null) return "?";
+        var name = profile.UserName ?? profile.Bio;
+        if (string.IsNullOrEmpty(name)) return "?";
+        return name[..1].ToUpper();
+    }
+
+    private string DisplayName()
+    {
+        if (profile is null) return "Carregando...";
+        return profile.UserName ?? "Usuário";
+    }
+
+    private class ProfileDto
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string? UserName { get; set; }
+        public string? Bio { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Website { get; set; }
+        public string? Location { get; set; }
+        public string? Phone { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
+    }
+
+    private class EditProfileModel
+    {
+        public string? Bio { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Website { get; set; }
+        public string? Location { get; set; }
+        public string? Phone { get; set; }
+        public DateTime? BirthDateValue { get; set; }
+    }
+}

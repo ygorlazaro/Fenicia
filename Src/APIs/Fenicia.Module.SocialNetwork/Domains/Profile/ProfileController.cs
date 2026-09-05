@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
+using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-internal sealed class ProfileController(ProfileService profileService) : ControllerBase
+internal sealed class ProfileController(IProfileService profileService) : ControllerBase
 {
     /// <summary>
     ///     Obtém um perfil pelo ID.
@@ -68,13 +69,57 @@ internal sealed class ProfileController(ProfileService profileService) : Control
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
+        var userId = ClaimReader.UserId(User);
+        wide.UserId = userId.ToString();
 
-        var profile = await profileService.GetByIdAsync(
-            new GetProfileByIdQuery(ClaimReader.UserId(User)),
-            cancellationToken);
+        var profile = await profileService.GetByUserIdAsync(userId, cancellationToken);
 
         return profile is null ? NotFound() : Ok(profile);
+    }
+
+    /// <summary>
+    ///     Cria o perfil do usuário autenticado caso ainda não exista.
+    /// </summary>
+    /// <param name="command">Dados iniciais do perfil</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Perfil criado (ou existente)</returns>
+    /// <response code="201">Perfil criado com sucesso</response>
+    /// <response code="200">Perfil já existia, retornado o existente</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpPost]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(AddProfileResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AddProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AddProfileResponse>> PostAsync(
+        [FromBody] AddProfileCommand command,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = ClaimReader.UserId(User);
+        wide.UserId = userId.ToString();
+
+        var existing = await profileService.GetByUserIdAsync(userId, cancellationToken);
+        if (existing is not null)
+        {
+            return Ok(new AddProfileResponse(
+                existing.Id,
+                existing.UserId,
+                existing.Bio,
+                existing.ImageUrl,
+                existing.Website,
+                existing.Location,
+                existing.Phone,
+                existing.BirthDate));
+        }
+
+        var created = await profileService.CreateAsync(command, userId, cancellationToken);
+        return new CreatedResult(string.Empty, created);
     }
 
     /// <summary>
