@@ -55,6 +55,26 @@ public class FeedController(
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("profile/{profileId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllFeedResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetAllFeedResponse>>> GetByProfileIdAsync(
+        [FromRoute] Guid profileId,
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 20,
+        CancellationToken cancellationToken = default)
+    {
+        wide.UserId = ClaimReader.UserId(User).ToString();
+
+        var result = await feedService.GetByProfileIdAsync(
+            new GetFeedsByProfileQuery(page, perPage, profileId),
+            cancellationToken);
+
+        return Ok(result);
+    }
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddFeedResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -54,7 +54,7 @@
                         <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
                         <MudStack Row="true" Justify="Justify.SpaceEvenly" Style="width:100%">
                             <MudStack AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.h6">0</MudText>
+                                <MudText Typo="Typo.h6">@posts.Count</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">Posts</MudText>
                             </MudStack>
                             <MudStack AlignItems="AlignItems.Center">
@@ -93,7 +93,7 @@
 
             <MudItem xs="12" md="8">
                 <MudPaper Elevation="2" Class="pa-6">
-                    <MudTabs Elevation="0" Rounded="true" Centered="false" ApplyEffectsToContainer="true">
+                    <MudTabs Elevation="0" Rounded="true" Centered="false" ApplyEffectsToContainer="true" KeepPanelsAlive="true">
                         <MudTabPanel Text="Sobre" Icon="@Icons.Material.Filled.Person">
                             <MudGrid Class="mt-3">
                                 <MudItem xs="12">
@@ -122,7 +122,63 @@
                             </MudGrid>
                         </MudTabPanel>
                         <MudTabPanel Text="Posts" Icon="@Icons.Material.Filled.Article">
-                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma postagem ainda.</MudAlert>
+                            @if (isLoadingPosts)
+                            {
+                                <div class="d-flex justify-content-center pa-8">
+                                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                                </div>
+                            }
+                            else if (posts.Count == 0)
+                            {
+                                <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma postagem ainda.</MudAlert>
+                            }
+                            else
+                            {
+                                <div class="mt-3">
+                                    @foreach (var post in posts)
+                                    {
+                                        <MudPaper Elevation="0" Class="pa-4 post-card">
+                                            <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
+                                                <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile/" + post.ProfileId))">
+                                                    @GetPostInitial()
+                                                </MudAvatar>
+                                                <div class="flex-grow-1">
+                                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                                        <MudText Typo="Typo.subtitle2"><b>Usuário</b></MudText>
+                                                        <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                                                    </MudStack>
+                                                    <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Text"
+                                                                   Color="Color.Default"
+                                                                   StartIcon="@Icons.Material.Outlined.ChatBubbleOutline"
+                                                                   OnClick="@(() => OpenPostDetail(post.Id))">
+                                                            @post.CommentsCount
+                                                        </MudButton>
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Text"
+                                                                   Color="@(post.IsLikedByMe ? Color.Error : Color.Default)"
+                                                                   StartIcon="@(post.IsLikedByMe ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
+                                                                   OnClick="@(() => ToggleLikeAsync(post))"
+                                                                   Disabled="@(likingFeedId == post.Id || currentProfileId == Guid.Empty)">
+                                                            @post.LikesCount
+                                                        </MudButton>
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Text"
+                                                                   Color="Color.Default"
+                                                                   StartIcon="@Icons.Material.Outlined.Repeat"
+                                                                   Disabled="true">
+                                                            @post.SharesCount
+                                                        </MudButton>
+                                                    </MudStack>
+                                                </div>
+                                            </MudStack>
+                                        </MudPaper>
+                                        <MudDivider />
+                                    }
+                                </div>
+                            }
                         </MudTabPanel>
                         <MudTabPanel Text="Mídia" Icon="@Icons.Material.Filled.Image">
                             <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma mídia ainda.</MudAlert>
@@ -141,9 +197,13 @@
     [Parameter] public Guid Id { get; set; }
 
     private bool isLoading = true;
+    private bool isLoadingPosts = false;
     private string? errorMessage;
     private ProfileDto? profile;
     private bool isOwnProfile;
+    private List<PostDto> posts = [];
+    private Guid currentProfileId;
+    private Guid? likingFeedId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -157,7 +217,27 @@
             }
 
             await LoadProfileAsync();
+            await LoadPostsAsync();
         }
+    }
+
+    private async Task<HttpClient> CreateClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+
+        return client;
     }
 
     private async Task LoadProfileAsync()
@@ -168,12 +248,7 @@
             errorMessage = null;
             StateHasChanged();
 
-            var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
-            var token = await CompanyContext.GetTokenAsync();
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
+            var client = await CreateClientAsync();
 
             var currentProfileResponse = await client.GetAsync("/profile");
             if (currentProfileResponse.IsSuccessStatusCode)
@@ -181,7 +256,11 @@
                 var currentProfileJson = await currentProfileResponse.Content.ReadAsStringAsync();
                 var currentProfile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(currentProfileJson,
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                isOwnProfile = currentProfile?.Id == Id;
+                if (currentProfile is not null)
+                {
+                    currentProfileId = currentProfile.Id;
+                    isOwnProfile = currentProfile.Id == Id;
+                }
             }
 
             var response = await client.GetAsync($"/profile/{Id}");
@@ -211,6 +290,109 @@
         }
     }
 
+    private async Task LoadPostsAsync()
+    {
+        try
+        {
+            isLoadingPosts = true;
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync($"/feed/profile/{Id}?page=1&perPage=20");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<PostDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                posts = items ?? [];
+
+                if (currentProfileId != Guid.Empty)
+                {
+                    foreach (var post in posts)
+                    {
+                        try
+                        {
+                            var likeResponse = await client.GetAsync($"/like/isfollowed/{currentProfileId}/{post.Id}");
+                            if (likeResponse.IsSuccessStatusCode)
+                            {
+                                var likeJson = await likeResponse.Content.ReadAsStringAsync();
+                                if (bool.TryParse(likeJson, out var liked))
+                                {
+                                    post.IsLikedByMe = liked;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar posts: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoadingPosts = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ToggleLikeAsync(PostDto post)
+    {
+        if (likingFeedId == post.Id || currentProfileId == Guid.Empty) return;
+        try
+        {
+            likingFeedId = post.Id;
+            var client = await CreateClientAsync();
+
+            if (post.IsLikedByMe)
+            {
+                var response = await client.DeleteAsync($"/like/{post.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    post.IsLikedByMe = false;
+                    post.LikesCount = Math.Max(0, post.LikesCount - 1);
+                }
+                else
+                {
+                    Snackbar.Add($"Falha ao descurtir: {(int)response.StatusCode}", Severity.Error);
+                }
+            }
+            else
+            {
+                var command = new { FeedId = post.Id };
+                var json = System.Text.Json.JsonSerializer.Serialize(command);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("/like", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    post.IsLikedByMe = true;
+                    post.LikesCount++;
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha ao curtir: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            likingFeedId = null;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OpenPostDetail(Guid feedId)
+    {
+        Snackbar.Add("Detalhes do post em breve.", Severity.Info);
+    }
+
     private void FollowUser()
     {
         Snackbar.Add("Funcionalidade de seguir em breve!", Severity.Info);
@@ -222,6 +404,18 @@
         var source = profile.Bio ?? "";
         if (string.IsNullOrEmpty(source)) return "?";
         return source[..1].ToUpper();
+    }
+
+    private string GetPostInitial() => "?";
+
+    private static string FormatRelativeTime(DateTime date)
+    {
+        var diff = DateTime.UtcNow - date.ToUniversalTime();
+        if (diff.TotalSeconds < 60) return "agora";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}min";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays}d";
+        return date.ToString("dd MMM yyyy");
     }
 
     private class ProfileDto
@@ -237,4 +431,26 @@
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
     }
+
+    private class PostDto
+    {
+        public Guid Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public Guid ProfileId { get; set; }
+        public Guid CompanyId { get; set; }
+        public int CommentsCount { get; set; }
+        public int LikesCount { get; set; }
+        public int SharesCount { get; set; }
+        public bool IsLikedByMe { get; set; }
+    }
 }
+
+<style>
+    .post-card {
+        transition: background-color 0.15s ease;
+    }
+    .post-card:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>
