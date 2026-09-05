@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CustomerController(ICustomerService customerService) : ControllerBase
+public class CustomerController(ICustomerService customerService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém uma lista paginada de clientes.
@@ -111,7 +112,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customer = await customerService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var customer = await customerService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
         return new CreatedResult(string.Empty, customer);
     }
@@ -146,7 +147,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
 
         var customer = await customerService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return customer switch
@@ -177,7 +178,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await customerService.DeleteAsync(new DeleteCustomerCommand(id), ClaimReader.UserId(User), cancellationToken);
+        await customerService.DeleteAsync(new DeleteCustomerCommand(id), companyContext.CompanyId, cancellationToken);
 
         return NoContent();
     }

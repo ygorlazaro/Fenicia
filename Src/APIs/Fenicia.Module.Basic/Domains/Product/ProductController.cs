@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductController(IProductService productService) : ControllerBase
+public class ProductController(IProductService productService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém uma lista paginada de produtos.
@@ -119,7 +120,7 @@ public class ProductController(IProductService productService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var product = await productService.AddAsync(command, companyId, cancellationToken);
 
             return new CreatedResult(string.Empty, product);
@@ -160,7 +161,7 @@ public class ProductController(IProductService productService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var product = await productService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
 
             return product is null ? NotFound() : Ok(product);
@@ -193,7 +194,7 @@ public class ProductController(IProductService productService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             await productService.DeleteAsync(new DeleteProductCommand(id), companyId, cancellationToken);
 
             return NoContent();
