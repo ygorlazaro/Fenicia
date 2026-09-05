@@ -28,6 +28,29 @@ public class FeedService(FeedRepository repository)
         ];
     }
 
+    public async Task<List<GetAllFeedResponse>> GetByProfileIdAsync(
+        GetFeedsByProfileQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = repository.Query()
+            .Where(f => f.ProfileId == query.ProfileId)
+            .OrderByDescending(f => f.Date);
+        var feeds = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+        return
+        [
+            .. feeds.Select(f => new GetAllFeedResponse(
+                f.Id,
+                f.Date,
+                f.Text,
+                f.ProfileId,
+                f.CompanyId,
+                f.Comments.Count,
+                f.Likes.Count,
+                f.Shares.Count))
+        ];
+    }
+
     public async Task<GetFeedByIdResponse?> GetByIdAsync(
         GetFeedByIdQuery query,
         CancellationToken cancellationToken = default)
