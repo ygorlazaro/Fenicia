@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectTaskAssigneeController(IProjectTaskAssigneeService projectTaskAssigneeService) : ControllerBase
+public class ProjectTaskAssigneeController(
+    IProjectTaskAssigneeService projectTaskAssigneeService,
+    ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Gets a paginated list of project task assignees.
@@ -114,7 +117,7 @@ public class ProjectTaskAssigneeController(IProjectTaskAssigneeService projectTa
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var assignee = await projectTaskAssigneeService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
         return new CreatedResult(string.Empty, assignee);
     }
@@ -151,7 +154,7 @@ public class ProjectTaskAssigneeController(IProjectTaskAssigneeService projectTa
 
         var assignee = await projectTaskAssigneeService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return assignee is null ? NotFound() : Ok(assignee);
