@@ -7,6 +7,9 @@ public record GetAllCommentResponse(
     [Required] Guid ProfileId,
     [Required] Guid FeedId,
     Guid? ParentCommentId,
-    [Required] [MaxLength(200)] string Text,
+    [Required] [MaxLength(1024)] string Text,
     [Required] DateTime CommentDate,
-    DateTime? UpdatedDate);
+    DateTime? UpdatedDate,
+    int TotalLikes,
+    int TotalReplies,
+    bool IsMine);
