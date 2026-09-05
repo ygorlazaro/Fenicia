@@ -15,7 +15,11 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
     {
         var baseQuery = repository.Query();
         var filteredQuery = baseQuery;
-        var tasks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var tasks = await filteredQuery
+            .Include(pt => pt.Assignees)
+            .ThenInclude(a => a.User)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [
@@ -31,7 +35,11 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                 pt.EstimatePoints,
                 pt.DueDate,
                 pt.CreatedBy,
-                pt.CompanyId))
+                pt.CompanyId,
+                [
+                    .. pt.Assignees.Select(a =>
+                        new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))
+                ]))
         ];
     }
 

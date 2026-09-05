@@ -102,8 +102,7 @@ public class ProjectTaskAssigneeController(IProjectTaskAssigneeService projectTa
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to create project task assignees</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProjectTaskAssigneeResponse))]
+    [ProducesResponseType(typeof(AddProjectTaskAssigneeResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -136,8 +135,7 @@ public class ProjectTaskAssigneeController(IProjectTaskAssigneeService projectTa
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to update project task assignees</exception>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProjectTaskAssigneeResponse))]
+    [ProducesResponseType(typeof(UpdateProjectTaskAssigneeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -171,7 +169,6 @@ public class ProjectTaskAssigneeController(IProjectTaskAssigneeService projectTa
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to delete project task assignees</exception>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
