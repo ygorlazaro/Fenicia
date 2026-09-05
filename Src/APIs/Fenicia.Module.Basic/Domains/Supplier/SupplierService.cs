@@ -108,6 +108,8 @@ public sealed class SupplierService(
             CompanyId = companyId
         };
 
+        await supplierRepository.InsertAsync(supplier, cancellationToken);
+
         if (addressId.HasValue)
         {
             var personAddress = new PersonAddressModel
@@ -119,8 +121,6 @@ public sealed class SupplierService(
             };
             await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
         }
-
-        await supplierRepository.InsertAsync(supplier, cancellationToken);
 
         return supplier.MapToAddSupplierResponse();
     }
