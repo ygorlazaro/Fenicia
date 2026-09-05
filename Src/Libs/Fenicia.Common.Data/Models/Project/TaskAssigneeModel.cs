@@ -15,7 +15,9 @@ public sealed class TaskAssigneeModel : BaseCompanyModel
 
     public DateTime AssignedAt { get; init; } = DateTime.UtcNow;
 
+    [ForeignKey(nameof(UserId))]
     public UserModel User { get; init; } = default!;
 
+    [ForeignKey(nameof(TaskId))]
     public ProjectTaskModel TaskModel { get; init; } = default!;
 }

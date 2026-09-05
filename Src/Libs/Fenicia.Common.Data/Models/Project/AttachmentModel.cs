@@ -19,8 +19,10 @@ public sealed class AttachmentModel : BaseCompanyModel
 
     public Guid UploadedBy { get; init; } = Guid.Empty;
 
+    [ForeignKey(nameof(TaskId))]
     public ProjectTaskModel TaskModel { get; init; } = default!;
 
+    [ForeignKey(nameof(UploadedBy))]
     public UserModel User { get; init; } = default!;
 
     [MaxLength(50)]

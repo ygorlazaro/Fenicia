@@ -17,6 +17,7 @@ public sealed class ProjectSubtaskModel : BaseCompanyModel
 
     public DateTime? CompletedAt { get; init; }
 
+    [ForeignKey(nameof(TaskId))]
     public ProjectTaskModel TaskModel { get; init; } = default!;
 
     public DateTime? DueDate { get; init; }
