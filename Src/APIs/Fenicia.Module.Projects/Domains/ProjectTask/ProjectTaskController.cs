@@ -101,8 +101,7 @@ public class ProjectTaskController(
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to create project tasks</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProjectTaskResponse))]
+    [ProducesResponseType(typeof(AddProjectTaskResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -135,8 +134,7 @@ public class ProjectTaskController(
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to update project tasks</exception>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProjectTaskResponse))]
+    [ProducesResponseType(typeof(UpdateProjectTaskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -170,7 +168,6 @@ public class ProjectTaskController(
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to delete project tasks</exception>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
