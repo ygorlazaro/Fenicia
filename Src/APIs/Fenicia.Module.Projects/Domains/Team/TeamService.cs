@@ -1,11 +1,15 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.Team.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Team;
 
-public class TeamService(ITeamRepository teamRepository, ITeamUserRepository teamUserRepository)
+public class TeamService(
+    ITeamRepository teamRepository,
+    ITeamUserRepository teamUserRepository,
+    IRepository<ProjectModel> projectRepository)
 {
     public async Task<List<GetAllTeamResponse>> GetAllByProjectAsync(
         Guid projectId,
@@ -267,6 +271,12 @@ public class TeamService(ITeamRepository teamRepository, ITeamUserRepository tea
         Guid projectId,
         CancellationToken cancellationToken = default)
     {
+        var project = await projectRepository.GetByIdAsync(projectId, cancellationToken);
+        if (project is not null && project.Owner == userId)
+        {
+            return true;
+        }
+
         var teamIds = await teamRepository.Query()
             .Where(t => t.ProjectId == projectId)
             .Select(t => t.Id)

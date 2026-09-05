@@ -545,8 +545,9 @@
                 teams = [];
             }
 
+            var isOwner = project is not null && project.Owner == currentUserId;
             isCurrentUserProjectAdmin = currentUserId != Guid.Empty &&
-                teams.Any(t => t.Members.Any(m => m.UserId == currentUserId && m.Role == "Admin"));
+                (isOwner || teams.Any(t => t.Members.Any(m => m.UserId == currentUserId && m.Role == "Admin")));
         }
         catch (Exception ex)
         {
