@@ -105,42 +105,35 @@
     </MudGrid>
 </MainLayout>
 
-@if (_showModal)
-{
-    <MudDialog @bind-Visible="_showModal" Options="_dialogOptions">
-        <TitleContent>
-            <MudText Typo="Typo.h6">@(_activeTab == 0 ? AddDialogTitle : EditDialogTitle)</MudText>
-        </TitleContent>
-        <DialogContent>
-            <MudTabs @bind-Value="_activeTab" Elevation="1" Rounded="true" Centered="true">
-                <MudTabPanel Text="@AddTabText" Value="0">
-                    @if (!string.IsNullOrEmpty(_modalError) && _activeTab == 0)
-                    {
-                        <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
-                    }
-                    @AddModalBody(new CrudModalContext<TItem>(CrudModalMode.Add, _editingItem, this))
-                </MudTabPanel>
-                <MudTabPanel Text="@EditTabText" Value="1">
-                    @if (!string.IsNullOrEmpty(_modalError) && _activeTab == 1)
-                    {
-                        <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
-                    }
-                    @EditModalBody(new CrudModalContext<TItem>(CrudModalMode.Edit, _editingItem, this))
-                </MudTabPanel>
-            </MudTabs>
-        </DialogContent>
-        <DialogActions>
-            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseModal">Cancelar</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveFromModal" Disabled="_isSaving">
-                @if (_isSaving)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
-                }
-                @(_activeTab == 0 ? CreateButtonLabel : UpdateButtonLabel)
-            </MudButton>
-        </DialogActions>
-    </MudDialog>
-}
+<MudDialog @bind-Visible="_showModal" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_activeTab == 0 ? AddDialogTitle : EditDialogTitle)</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (!string.IsNullOrEmpty(_modalError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
+        }
+        @if (_activeTab == 0)
+        {
+            @AddModalBody(new CrudModalContext<TItem>(CrudModalMode.Add, _editingItem, this))
+        }
+        else
+        {
+            @EditModalBody(new CrudModalContext<TItem>(CrudModalMode.Edit, _editingItem, this))
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseModal">Cancelar</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveFromModal" Disabled="_isSaving">
+            @if (_isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            @(_activeTab == 0 ? CreateButtonLabel : UpdateButtonLabel)
+        </MudButton>
+    </DialogActions>
+</MudDialog>
 
 <MudDialog @bind-Visible="_showDeleteConfirm" Options="_dialogOptions">
     <TitleContent>
@@ -187,6 +180,8 @@
     [Parameter] public IEqualityComparer<TItem>? Comparer { get; set; }
     [Parameter] public Func<TItem?, string> FormatForDelete { get; set; } = item => item?.ToString() ?? string.Empty;
     [Parameter] public Func<CrudModalContext<TItem>, object>? CreatePayloadFactory { get; set; }
+    [Parameter] public Action? OnAdd { get; set; }
+    [Parameter] public Action<TItem>? OnEdit { get; set; }
 
     private bool _isLoggedIn;
     private bool _isLoading;
@@ -258,6 +253,7 @@
         _activeTab = 0;
         _editingItem = default;
         _modalError = null;
+        OnAdd?.Invoke();
         _showModal = true;
         StateHasChanged();
     }
@@ -267,6 +263,7 @@
         _activeTab = 1;
         _editingItem = item;
         _modalError = null;
+        OnEdit?.Invoke(item);
         _showModal = true;
         StateHasChanged();
     }
@@ -305,9 +302,9 @@
             }
             else
             {
-                if (_editingItem is null || RowEditingTemplate is null)
+                if (_editingItem is null)
                 {
-                    throw new InvalidOperationException("RowEditingTemplate must be supplied to support edit operations.");
+                    throw new InvalidOperationException("No item selected for edit.");
                 }
 
                 await CrudClient.PatchAsync(Endpoint, _editingItem.Id, payload, CancellationToken.None);
