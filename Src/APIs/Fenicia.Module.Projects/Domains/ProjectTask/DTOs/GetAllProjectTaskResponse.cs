@@ -14,4 +14,5 @@ public record GetAllProjectTaskResponse(
     int? EstimatePoints,
     DateTime? DueDate,
     [Required] Guid CreatedBy,
-    [Required] Guid CompanyId);
+    [Required] Guid CompanyId,
+    List<ProjectTaskAssigneeResponse> Assignees);

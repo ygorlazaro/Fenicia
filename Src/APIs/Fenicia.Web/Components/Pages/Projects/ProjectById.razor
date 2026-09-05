@@ -101,6 +101,21 @@
                                 {
                                     <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@task.EstimatePoints pts</MudChip>
                                 }
+                                @if (task.Assignees.Count > 0)
+                                {
+                                    <MudStack Row="true" Spacing="-1" AlignItems="AlignItems.Center" Class="ml-auto">
+                                        @foreach (var a in task.Assignees.Take(3))
+                                        {
+                                            <MudTooltip Text="@($"{a.UserName} ({a.UserEmail})")">
+                                                <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(a.UserName)</MudAvatar>
+                                            </MudTooltip>
+                                        }
+                                        @if (task.Assignees.Count > 3)
+                                        {
+                                            <MudAvatar Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="assignee-avatar">+@(task.Assignees.Count - 3)</MudAvatar>
+                                        }
+                                    </MudStack>
+                                }
                             </MudPaper>
                         }
                         <MudButton Variant="Variant.Text"
@@ -254,6 +269,25 @@
             <MudItem xs="12" sm="6">
                 <MudDatePicker @bind-Date="taskEditModel.DueDateValue" Label="Data de Entrega" Variant="Variant.Outlined" />
             </MudItem>
+            @if (taskEditModel.Id != Guid.Empty)
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mt-2 mb-1">Responsáveis</MudText>
+                    <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center">
+                        @if (taskEditModel.Assignees.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Default">Ninguém atribuído ainda.</MudText>
+                        }
+                        @foreach (var a in taskEditModel.Assignees)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" OnClose="@(() => RemoveAssigneeAsync(a))" CloseIcon="@Icons.Material.Filled.Close">@a.UserName</MudChip>
+                        }
+                    </MudStack>
+                    <MudAutocomplete T="UserSummaryDto" Label="Adicionar responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Class="mt-2"
+                                     SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults.AsEnumerable(); })" ToStringFunc="@(u => u.Name)" ValueChanged="@(async (UserSummaryDto u) => await AddAssigneeAsync(u))"
+                                     ResetValueOnEmptyText="true" Clearable="true" MaxItems="10" />
+                </MudItem>
+            }
         </MudGrid>
     </DialogContent>
     <DialogActions>
@@ -718,8 +752,109 @@
             EstimatePoints = task.EstimatePoints,
             DueDateValue = task.DueDate,
             CreatedBy = task.CreatedBy,
+            Assignees =
+            [
+                .. task.Assignees.Select(a => new AssigneeFormModel
+                {
+                    Id = a.Id,
+                    UserId = a.UserId,
+                    UserName = a.UserName,
+                    UserEmail = a.UserEmail,
+                })
+            ],
         };
         taskDialogVisible = true;
+    }
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return "?";
+        if (parts.Length == 1) return parts[0][..Math.Min(2, parts[0].Length)].ToUpperInvariant();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpperInvariant();
+    }
+
+    private async Task AddAssigneeAsync(UserSummaryDto? user)
+    {
+        if (user is null || user.Id == Guid.Empty) return;
+        if (taskEditModel.Assignees.Any(a => a.UserId == user.Id)) return;
+        try
+        {
+            var client = await CreateClientAsync();
+            var payload = new
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskEditModel.Id,
+                UserId = user.Id,
+                Role = "Owner",
+                AssignedAt = DateTime.UtcNow,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var response = await client.PostAsync("/projecttaskassignee", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                var respJson = await response.Content.ReadAsStringAsync();
+                var created = System.Text.Json.JsonSerializer.Deserialize<AddProjectTaskAssigneeResponse>(respJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (created is not null)
+                {
+                    taskEditModel.Assignees.Add(new AssigneeFormModel
+                    {
+                        Id = created.Id,
+                        UserId = created.UserId,
+                        UserName = user.Name,
+                        UserEmail = user.Email,
+                    });
+                    var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                    if (t is not null)
+                    {
+                        t.Assignees.Add(new AssigneeDto
+                        {
+                            Id = created.Id,
+                            UserId = created.UserId,
+                            UserName = user.Name,
+                            UserEmail = user.Email,
+                        });
+                    }
+                    Snackbar.Add($"{user.Name} atribuído à tarefa.", Severity.Success);
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao atribuir: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task RemoveAssigneeAsync(AssigneeFormModel assignee)
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/projecttaskassignee/{assignee.Id}");
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                taskEditModel.Assignees.RemoveAll(a => a.Id == assignee.Id);
+                var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                t?.Assignees.RemoveAll(a => a.Id == assignee.Id);
+                Snackbar.Add($"{assignee.UserName} removido da tarefa.", Severity.Info);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
     }
 
     private void CloseTaskModal() => taskDialogVisible = false;
@@ -1064,6 +1199,15 @@
         public int? EstimatePoints { get; set; }
         public DateTime? DueDate { get; set; }
         public Guid CreatedBy { get; set; }
+        public List<AssigneeDto> Assignees { get; set; } = [];
+    }
+
+    private class AssigneeDto
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
     }
 
     private class StatusFormModel
@@ -1089,6 +1233,15 @@
         public int? EstimatePoints { get; set; }
         public DateTime? DueDateValue { get; set; }
         public Guid CreatedBy { get; set; }
+        public List<AssigneeFormModel> Assignees { get; set; } = [];
+    }
+
+    private class AssigneeFormModel
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
     }
 
     private class TeamDto
@@ -1126,6 +1279,16 @@
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+    }
+
+    private class AddProjectTaskAssigneeResponse
+    {
+        public Guid Id { get; set; }
+        public Guid TaskId { get; set; }
+        public Guid UserId { get; set; }
+        public string Role { get; set; } = "Owner";
+        public DateTime AssignedAt { get; set; }
+        public Guid CompanyId { get; set; }
     }
 }
 
