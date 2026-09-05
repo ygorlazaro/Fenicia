@@ -48,7 +48,6 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
     {
         var position = new PositionModel
         {
-            Id = command.Id,
             Name = command.Name,
             CompanyId = companyId
         };

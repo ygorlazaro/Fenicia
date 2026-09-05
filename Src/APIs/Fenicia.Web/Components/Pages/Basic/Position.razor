@@ -1,0 +1,94 @@
+@page "/basic/position"
+@rendermode InteractiveServer
+@using Fenicia.Web.Services
+@using Fenicia.Web.Components.Shared
+
+<CrudPage TItem="PositionDto"
+          PageTitle="Cargos"
+          PageSubtitle="Gerencie os cargos da sua empresa"
+          EntityNamePlural="cargos"
+          EntityNameSingular="Cargo"
+          Endpoint="position"
+          ColumnCount="2"
+          AddButtonLabel="Adicionar Cargo"
+          AddDialogTitle="Adicionar Cargo"
+          EditDialogTitle="Editar Cargo"
+          CreateButtonLabel="Criar"
+          UpdateButtonLabel="Atualizar"
+          DeleteDialogTitle="Excluir Cargo"
+          DeleteSelectedLabel="Excluir Selecionados"
+          Comparer="PositionDtoComparer.Instance"
+          FormatForDelete="(p) => p?.Name ?? string.Empty"
+          CreatePayloadFactory="CreatePayload"
+          OnAdd="ResetForm"
+          OnEdit="LoadForm">
+    <HeaderContent>
+        <MudTh>Nome</MudTh>
+        <MudTh Style="text-align: right">Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
+        <MudTd Style="text-align: right">
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Info"
+                           Size="Size.Small"
+                           OnClick="@(() => context.Page.OpenEditModal(context.Item))" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Size="Size.Small"
+                           OnClick="@(() => context.Page.RequestDelete(context.Item))" />
+        </MudTd>
+    </RowTemplate>
+    <AddModalBody>
+        <MudTextField @bind-Value="_addName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+    </AddModalBody>
+    <EditModalBody>
+        <MudTextField @bind-Value="_editName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+    </EditModalBody>
+</CrudPage>
+
+@code {
+    private string _addName = string.Empty;
+    private string _editName = string.Empty;
+
+    private void ResetForm() => _addName = string.Empty;
+
+    private void LoadForm(PositionDto item) => _editName = item?.Name ?? string.Empty;
+
+    private object CreatePayload(CrudModalContext<PositionDto> ctx)
+    {
+        var name = ctx.IsAdd ? _addName : _editName;
+        return new
+        {
+            Name = name
+        };
+    }
+
+    private sealed class PositionDtoComparer : IEqualityComparer<PositionDto>
+    {
+        public static readonly PositionDtoComparer Instance = new();
+
+        public bool Equals(PositionDto? x, PositionDto? y)
+        {
+            return x is not null && y is not null && x.Id == y.Id;
+        }
+
+        public int GetHashCode(PositionDto obj) => obj.Id.GetHashCode();
+    }
+
+    public class PositionDto : IEquatable<PositionDto>, ICrudItem
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+
+        public bool Equals(PositionDto? other)
+        {
+            if (other is null) return false;
+            return Id == other.Id && Name == other.Name;
+        }
+
+        public override bool Equals(object? obj) => Equals(obj as PositionDto);
+
+        public override int GetHashCode() => HashCode.Combine(Id, Name);
+    }
+}
