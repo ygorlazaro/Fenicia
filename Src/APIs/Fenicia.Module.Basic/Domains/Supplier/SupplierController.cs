@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SupplierController(ISupplierService supplierService) : ControllerBase
+public class SupplierController(ISupplierService supplierService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém uma lista paginada de fornecedores.
@@ -119,7 +120,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var supplier = await supplierService.AddAsync(command, companyId, cancellationToken);
 
             return new CreatedResult(string.Empty, supplier);
@@ -160,7 +161,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var supplier = await supplierService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
 
             return supplier is null ? NotFound() : Ok(supplier);
@@ -193,7 +194,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             await supplierService.DeleteAsync(new DeleteSupplierCommand(id), companyId, cancellationToken);
 
             return NoContent();
