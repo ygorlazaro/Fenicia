@@ -71,82 +71,80 @@
         }
         else
         {
-            <MudDropContainer T="TaskDto" Items="@tasks" ItemsSelector="@((TaskDto t, string zone) => t.StatusId.ToString() == zone)" ItemDropped="OnTaskDroppedAsync">
+            <MudDropContainer T="TaskDto" Items="@tasks" ItemsSelector="@((TaskDto t, string zone) => t.StatusId.ToString() == zone)" ItemDropped="OnTaskDroppedAsync" Class="kanban-board">
                 <ChildContent>
-                    <div class="kanban-board">
-                        @foreach (var status in orderedStatuses)
-                        {
-                            <MudPaper Elevation="1" Class="kanban-column">
-                                <div class="kanban-column-header" style="background-color: @status.Color;">
-                                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                            <MudText Typo="Typo.subtitle2" Style="color:white;"><b>@status.Name</b></MudText>
-                                            <MudChip T="string" Size="Size.Small" Style="background-color: rgba(255,255,255,0.25); color: white;">@GetTasksByStatus(status.Id).Count</MudChip>
-                                        </MudStack>
-                                        @if (isCurrentUserProjectAdmin)
-                                        {
-                                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                                           Size="Size.Small"
-                                                           Style="color:white;"
-                                                           OnClick="@(() => OpenStatusEditModal(status))" />
-                                        }
+                    @foreach (var status in orderedStatuses)
+                    {
+                        <MudPaper Elevation="1" Class="kanban-column">
+                            <div class="kanban-column-header" style="background-color: @status.Color;">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText Typo="Typo.subtitle2" Style="color:white;"><b>@status.Name</b></MudText>
+                                        <MudChip T="string" Size="Size.Small" Style="background-color: rgba(255,255,255,0.25); color: white;">@GetTasksByStatus(status.Id).Count</MudChip>
                                     </MudStack>
-                                </div>
-                                <MudDropZone T="TaskDto" Identifier="@status.Id.ToString()" Class="kanban-column-body">
-                                    @foreach (var task in GetTasksByStatus(status.Id))
+                                    @if (isCurrentUserProjectAdmin)
                                     {
-                                        <MudPaper Elevation="1" Class="@GetTaskCardClass(task, status)" @onclick="@(() => OpenTaskModal(task))">
-                                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-1">
-                                                <MudChip T="string" Size="Size.Small" Color="@GetPriorityColor(task.Priority)">@task.Priority</MudChip>
-                                                @if (task.DueDate.HasValue)
-                                                {
-                                                    <MudText Typo="Typo.caption" Color="@(task.DueDate.Value < DateTime.UtcNow ? Color.Error : Color.Default)">
-                                                        @task.DueDate.Value.ToString("dd/MM")
-                                                    </MudText>
-                                                }
-                                            </MudStack>
-                                            <MudText Typo="Typo.subtitle2" Class="mb-1" Style="@(status.IsFinal ? "text-decoration: line-through; opacity:0.6;" : "")">@task.Title</MudText>
-                                            @if (!string.IsNullOrEmpty(task.Description))
-                                            {
-                                                <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-1" Style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                                                    @task.Description
-                                                </MudText>
-                                            }
-                                            @if (task.EstimatePoints.HasValue)
-                                            {
-                                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@task.EstimatePoints pts</MudChip>
-                                            }
-                                            @if (task.Assignees.Count > 0)
-                                            {
-                                                <MudStack Row="true" Spacing="-1" AlignItems="AlignItems.Center" Class="ml-auto">
-                                                    @foreach (var a in task.Assignees.Take(3))
-                                                    {
-                                                        <MudTooltip Text="@($"{a.UserName} ({a.UserEmail})")">
-                                                            <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(a.UserName)</MudAvatar>
-                                                        </MudTooltip>
-                                                    }
-                                                    @if (task.Assignees.Count > 3)
-                                                    {
-                                                        <MudAvatar Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="assignee-avatar">+@(task.Assignees.Count - 3)</MudAvatar>
-                                                    }
-                                                </MudStack>
-                                            }
-                                        </MudPaper>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                       Size="Size.Small"
+                                                       Style="color:white;"
+                                                       OnClick="@(() => OpenStatusEditModal(status))" />
                                     }
-                                    <MudButton Variant="Variant.Text"
-                                               Color="Color.Primary"
-                                               StartIcon="@Icons.Material.Filled.Add"
-                                               FullWidth="true"
-                                               OnClick="@(() => OpenTaskCreateModal(status.Id))">
-                                        Adicionar Tarefa
-                                    </MudButton>
-                                </MudDropZone>
-                            </MudPaper>
-                        }
-                    </div>
+                                </MudStack>
+                            </div>
+                            <MudDropZone T="TaskDto" Identifier="@status.Id.ToString()" Class="kanban-column-body" CanDrop="@((TaskDto t) => !t.IsFinal)" />
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.Add"
+                                       FullWidth="true"
+                                       Class="kanban-column-add"
+                                       OnClick="@(() => OpenTaskCreateModal(status.Id))">
+                                Adicionar Tarefa
+                            </MudButton>
+                        </MudPaper>
+                    }
                 </ChildContent>
                 <ItemRenderer>
-                    @* unused; we render items inside MudDropZone above *@
+                    @{
+                        var task = context;
+                        var status = orderedStatuses.FirstOrDefault(s => s.Id == task.StatusId);
+                    }
+                    <MudPaper Elevation="1" Class="@GetTaskCardClass(task, status ?? new StatusDto { Id = task.StatusId, Name = string.Empty, Color = "#6366f1", Order = 0, IsFinal = false })" @onclick="@(() => OpenTaskModal(task))">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-1">
+                            <MudChip T="string" Size="Size.Small" Color="@GetPriorityColor(task.Priority)">@task.Priority</MudChip>
+                            @if (task.DueDate.HasValue)
+                            {
+                                <MudText Typo="Typo.caption" Color="@(task.DueDate.Value < DateTime.UtcNow ? Color.Error : Color.Default)">
+                                    @task.DueDate.Value.ToString("dd/MM")
+                                </MudText>
+                            }
+                        </MudStack>
+                        <MudText Typo="Typo.subtitle2" Class="mb-1" Style="@((status?.IsFinal ?? false) ? "text-decoration: line-through; opacity:0.6;" : "")">@task.Title</MudText>
+                        @if (!string.IsNullOrEmpty(task.Description))
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-1" Style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                                @task.Description
+                            </MudText>
+                        }
+                        @if (task.EstimatePoints.HasValue)
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@task.EstimatePoints pts</MudChip>
+                        }
+                        @if (task.Assignees.Count > 0)
+                        {
+                            <MudStack Row="true" Spacing="-1" AlignItems="AlignItems.Center" Class="ml-auto">
+                                @foreach (var a in task.Assignees.Take(3))
+                                {
+                                    <MudTooltip Text="@($"{a.UserName} ({a.UserEmail})")">
+                                        <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(a.UserName)</MudAvatar>
+                                    </MudTooltip>
+                                }
+                                @if (task.Assignees.Count > 3)
+                                {
+                                    <MudAvatar Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="assignee-avatar">+@(task.Assignees.Count - 3)</MudAvatar>
+                                }
+                            </MudStack>
+                        }
+                    </MudPaper>
                 </ItemRenderer>
             </MudDropContainer>
         }
@@ -592,6 +590,10 @@
                 var json = await tasksTask.Result.Content.ReadAsStringAsync();
                 tasks = System.Text.Json.JsonSerializer.Deserialize<List<TaskDto>>(json,
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+                foreach (var t in tasks)
+                {
+                    t.IsFinal = statuses.Any(s => s.Id == t.StatusId && s.IsFinal);
+                }
             }
             if (teamsTask.Result.IsSuccessStatusCode)
             {
