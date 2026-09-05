@@ -26,12 +26,14 @@
                                  TransformOrigin="Origin.TopRight"
                                  OffsetY="4"
                                  Dense="true"
-                                 Disabled="@(companies.Count == 0)">
+                                 Disabled="@(companies.Count == 0)"
+                                 ActivationEvent="MouseEvent.LeftClick">
                             <ActivatorContent>
                                 <MudButton Variant="Variant.Text"
                                            Color="Color.Inherit"
                                            StartIcon="@Icons.Material.Filled.Business"
-                                           EndIcon="@Icons.Material.Filled.ArrowDropDown">
+                                           EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                                           OnClick="@(async () => await context.ToggleAsync())">
                                     <span class="topbar-company-name">
                                         @(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)
                                     </span>
