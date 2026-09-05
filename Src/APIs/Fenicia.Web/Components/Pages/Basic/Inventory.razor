@@ -1,0 +1,531 @@
+@page "/basic/inventory"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject ISnackbar Snackbar
+@using System.Net.Http.Json
+@using System.Text.Json
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h4">Inventário</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                Visão geral do estoque, saúde e distribuição de valor por categoria e fornecedor.
+            </MudText>
+        </MudStack>
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+            <MudNumericField T="int" @bind-Value="_zeroMovementDays" Label="Dias sem movimento" Variant="Variant.Outlined" Margin="Margin.Dense" Min="1" Style="width: 180px" />
+            <MudNumericField T="double" @bind-Value="_overstockMultiplier" Label="Multiplicador Overstock" Variant="Variant.Outlined" Margin="Margin.Dense" Min="0.1" Step="0.1" Style="width: 200px" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync" Disabled="_loading">
+                Atualizar
+            </MudButton>
+        </MudStack>
+    </MudStack>
+
+    @if (_loading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="my-8">
+            <MudProgressCircular Indeterminate="true" />
+            <MudText Typo="Typo.body2">Carregando dados do inventário...</MudText>
+        </MudStack>
+    }
+    else if (_dashboard is null)
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+            Não foi possível carregar os dados do inventário. Verifique a conexão e tente novamente.
+        </MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Color="Color.Info" Variant="Variant.Outlined">
+                            <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.overline">Custo Total</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.h5" Class="mt-2">@_dashboard.TotalCostValue.ToString("C")</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Color="Color.Success" Variant="Variant.Outlined">
+                            <MudIcon Icon="@Icons.Material.Filled.TrendingUp" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.overline">Venda Total</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.h5" Class="mt-2">@_dashboard.TotalSalesValue.ToString("C")</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Color="@ProfitColor" Variant="Variant.Outlined">
+                            <MudIcon Icon="@Icons.Material.Filled.Savings" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.overline">Lucro Potencial</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.h5" Color="@ProfitColor" Class="mt-2">@_dashboard.ProfitPotential.ToString("C")</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Color="Color.Warning" Variant="Variant.Outlined">
+                            <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.overline">Quantidade Total</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.h5" Class="mt-2">@_dashboard.TotalQuantity.ToString("N0")</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4" Elevation="2">
+                    <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Categoria</MudText>
+                    @if (_dashboard.CategoryBreakdown.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de categoria.</MudText>
+                    }
+                    else
+                    {
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  InputData="@CategoryChartData"
+                                  InputLabels="@CategoryChartLabels"
+                                  Width="100%"
+                                  Height="300px" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4" Elevation="2">
+                    <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Fornecedor</MudText>
+                    @if (_dashboard.SupplierBreakdown.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de fornecedor.</MudText>
+                    }
+                    else
+                    {
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  InputData="@SupplierChartData"
+                                  InputLabels="@SupplierChartLabels"
+                                  Width="100%"
+                                  Height="300px" />
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <MudPaper Class="pa-4 mb-4" Elevation="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+                <MudText Typo="Typo.h6">Produtos com Estoque Baixo</MudText>
+                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">
+                    @_dashboard.LowStockItems.Count item(s)
+                </MudChip>
+            </MudStack>
+            @if (_dashboard.LowStockItems.Count == 0)
+            {
+                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
+                    Nenhum produto com estoque baixo detectado.
+                </MudAlert>
+            }
+            else
+            {
+                <MudTable T="LowStockItem" Items="@_dashboard.LowStockItems" Dense="true" Hover="true" Bordered="false" Elevation="0">
+                    <HeaderContent>
+                        <MudTh>Produto</MudTh>
+                        <MudTh>Categoria</MudTh>
+                        <MudTh Style="text-align: right">Quantidade</MudTh>
+                        <MudTh Style="text-align: right">Custo</MudTh>
+                        <MudTh Style="text-align: right">Venda</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Produto">@context.Name</MudTd>
+                        <MudTd DataLabel="Categoria">@context.CategoryName</MudTd>
+                        <MudTd DataLabel="Quantidade" Style="text-align: right">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@context.Quantity</MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Custo" Style="text-align: right">@((context.CostPrice ?? 0).ToString("C"))</MudTd>
+                        <MudTd DataLabel="Venda" Style="text-align: right">@context.SalesPrice.ToString("C")</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudPaper>
+
+        <MudText Typo="Typo.h5" Class="mb-2 mt-6">Saúde do Inventário</MudText>
+
+        @if (_health is null)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+                Não foi possível carregar a saúde do inventário.
+            </MudAlert>
+        }
+        else
+        {
+            <MudGrid Spacing="3" Class="mb-4">
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Color="Color.Success" Variant="Variant.Outlined">
+                                <MudIcon Icon="@Icons.Material.Filled.Favorite" />
+                            </MudAvatar>
+                            <MudText Typo="Typo.overline">Saudáveis</MudText>
+                        </MudStack>
+                        <MudText Typo="Typo.h5" Class="mt-2">@_health.Summary.HealthyProducts</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            de @_health.Summary.TotalProducts produto(s) em estoque
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Color="Color.Error" Variant="Variant.Outlined">
+                                <MudIcon Icon="@Icons.Material.Filled.Warning" />
+                            </MudAvatar>
+                            <MudText Typo="Typo.overline">Em Overstock</MudText>
+                        </MudStack>
+                        <MudText Typo="Typo.h5" Class="mt-2">@_health.OverstockAlert.TotalOverstockProducts</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @_health.Summary.OverstockPercentage.ToString("N1")% do estoque
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Color="Color.Default" Variant="Variant.Outlined">
+                                <MudIcon Icon="@Icons.Material.Filled.HourglassEmpty" />
+                            </MudAvatar>
+                            <MudText Typo="Typo.overline">Sem Movimento</MudText>
+                        </MudStack>
+                        <MudText Typo="Typo.h5" Class="mt-2">@_health.Summary.ZeroMovementProducts</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @_health.Summary.ZeroMovementPercentage.ToString("N1")% do estoque
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Color="Color.Primary" Variant="Variant.Outlined">
+                                <MudIcon Icon="@Icons.Material.Filled.Paid" />
+                            </MudAvatar>
+                            <MudText Typo="Typo.overline">Valor em Estoque</MudText>
+                        </MudStack>
+                        <MudText Typo="Typo.h5" Class="mt-2">@_health.Summary.TotalStockValue.ToString("C")</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+
+            <MudGrid Spacing="3" Class="mb-4">
+                <MudItem xs="12" md="6">
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+                            <MudText Typo="Typo.h6">Valor em Estoque por Categoria</MudText>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                                @_health.Summary.TotalStockValue.ToString("C")
+                            </MudChip>
+                        </MudStack>
+                        @if (_health.StockValueByCategory.Count == 0)
+                        {
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados.</MudText>
+                        }
+                        else
+                        {
+                            <MudChart T="double" ChartType="ChartType.Bar"
+                                      InputData="@StockValueByCategoryData"
+                                      InputLabels="@StockValueByCategoryLabels"
+                                      Width="100%"
+                                      Height="320px" />
+                        }
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+                            <MudText Typo="Typo.h6">Alerta de Overstock</MudText>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Outlined">
+                                @_health.OverstockAlert.TotalOverstockValue.ToString("C")
+                            </MudChip>
+                        </MudStack>
+                        @if (_health.OverstockAlert.Products.Count == 0)
+                        {
+                            <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
+                                Nenhum produto em overstock com os parâmetros atuais.
+                            </MudAlert>
+                        }
+                        else
+                        {
+                            <MudTable T="OverstockItem" Items="@_health.OverstockAlert.Products" Dense="true" Hover="true" Bordered="false" Elevation="0">
+                                <HeaderContent>
+                                    <MudTh>Produto</MudTh>
+                                    <MudTh Style="text-align: right">Qtd. Atual</MudTh>
+                                    <MudTh Style="text-align: right">Qtd. Recomendada</MudTh>
+                                    <MudTh Style="text-align: right">Excesso (R$)</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Produto">@context.ProductName</MudTd>
+                                    <MudTd DataLabel="Qtd. Atual" Style="text-align: right">@context.CurrentQuantity.ToString("N0")</MudTd>
+                                    <MudTd DataLabel="Qtd. Recomendada" Style="text-align: right">@context.RecommendedQuantity.ToString("N0")</MudTd>
+                                    <MudTd DataLabel="Excesso (R$)" Style="text-align: right">@context.ExcessValue.ToString("C")</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+                    <MudText Typo="Typo.h6">Produtos Sem Movimentação</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">
+                        Últimos @_zeroMovementDays dias
+                    </MudChip>
+                </MudStack>
+                @if (_health.ZeroMovementProducts.Count == 0)
+                {
+                    <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
+                        Todos os produtos tiveram movimentação no período.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudTable T="ZeroMovementItem" Items="@_health.ZeroMovementProducts" Dense="true" Hover="true" Bordered="false" Elevation="0">
+                        <HeaderContent>
+                            <MudTh>Produto</MudTh>
+                            <MudTh>Categoria</MudTh>
+                            <MudTh>Fornecedor</MudTh>
+                            <MudTh Style="text-align: right">Estoque</MudTh>
+                            <MudTh Style="text-align: right">Valor</MudTh>
+                            <MudTh Style="text-align: right">Dias sem mover</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Produto">@context.ProductName</MudTd>
+                            <MudTd DataLabel="Categoria">@context.CategoryName</MudTd>
+                            <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(context.SupplierName) ? "—" : context.SupplierName)</MudTd>
+                            <MudTd DataLabel="Estoque" Style="text-align: right">@context.CurrentStock.ToString("N0")</MudTd>
+                            <MudTd DataLabel="Valor" Style="text-align: right">@context.StockValue.ToString("C")</MudTd>
+                            <MudTd DataLabel="Dias sem mover" Style="text-align: right">
+                                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">@context.DaysWithoutMovement</MudChip>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        }
+    }
+</MudContainer>
+
+@code {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private int _zeroMovementDays = 90;
+    private double _overstockMultiplier = 3.0;
+    private bool _loading = true;
+
+    private DashboardData? _dashboard;
+    private HealthData? _health;
+
+    private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
+
+    private double[] CategoryChartData => _dashboard?.CategoryBreakdown
+        .Select(c => (double)c.TotalSalesValue).ToArray() ?? [];
+
+    private string[] CategoryChartLabels => _dashboard?.CategoryBreakdown
+        .Select(c => c.CategoryName).ToArray() ?? [];
+
+    private double[] SupplierChartData => _dashboard?.SupplierBreakdown
+        .Select(s => (double)s.TotalSalesValue).ToArray() ?? [];
+
+    private string[] SupplierChartLabels => _dashboard?.SupplierBreakdown
+        .Select(s => s.SupplierName).ToArray() ?? [];
+
+    private double[] StockValueByCategoryData => _health?.StockValueByCategory
+        .Select(c => (double)c.TotalStockValue).ToArray() ?? [];
+
+    private string[] StockValueByCategoryLabels => _health?.StockValueByCategory
+        .Select(c => c.CategoryName).ToArray() ?? [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            var client = await BuildClientAsync();
+
+            var dashboardTask = client.GetAsync("inventory/dashboard");
+            var healthTask = client.GetAsync($"inventory/health?zeroMovementDays={_zeroMovementDays}&overstockMultiplier={_overstockMultiplier.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+
+            await Task.WhenAll(dashboardTask, healthTask);
+
+            var dashboardResponse = await dashboardTask;
+            if (dashboardResponse.IsSuccessStatusCode)
+            {
+                var body = await dashboardResponse.Content.ReadAsStringAsync();
+                _dashboard = JsonSerializer.Deserialize<DashboardData>(body, JsonOptions);
+            }
+            else
+            {
+                _dashboard = null;
+                Snackbar.Add($"Falha ao carregar painel: {(int)dashboardResponse.StatusCode}", Severity.Error);
+            }
+
+            var healthResponse = await healthTask;
+            if (healthResponse.IsSuccessStatusCode)
+            {
+                var body = await healthResponse.Content.ReadAsStringAsync();
+                _health = JsonSerializer.Deserialize<HealthData>(body, JsonOptions);
+            }
+            else
+            {
+                _health = null;
+                Snackbar.Add($"Falha ao carregar saúde do inventário: {(int)healthResponse.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar inventário: {ex.Message}", Severity.Error);
+            _dashboard = null;
+            _health = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task<HttpClient> BuildClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaBasic");
+
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+
+        return client;
+    }
+
+    private sealed class DashboardData
+    {
+        public List<LowStockItem> LowStockItems { get; set; } = [];
+        public int TotalCustomers { get; set; }
+        public int TotalEmployees { get; set; }
+        public decimal TotalCostValue { get; set; }
+        public decimal TotalSalesValue { get; set; }
+        public double TotalQuantity { get; set; }
+        public decimal ProfitPotential { get; set; }
+        public List<CategoryData> CategoryBreakdown { get; set; } = [];
+        public List<SupplierData> SupplierBreakdown { get; set; } = [];
+    }
+
+    private sealed class LowStockItem
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public double Quantity { get; set; }
+        public decimal? CostPrice { get; set; }
+        public decimal SalesPrice { get; set; }
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+    }
+
+    private sealed class CategoryData
+    {
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public decimal TotalCostValue { get; set; }
+        public decimal TotalSalesValue { get; set; }
+        public double TotalQuantity { get; set; }
+    }
+
+    private sealed class SupplierData
+    {
+        public Guid SupplierId { get; set; }
+        public string SupplierName { get; set; } = string.Empty;
+        public decimal TotalCostValue { get; set; }
+        public decimal TotalSalesValue { get; set; }
+        public double TotalQuantity { get; set; }
+    }
+
+    private sealed class HealthData
+    {
+        public OverstockData OverstockAlert { get; set; } = new();
+        public List<ZeroMovementItem> ZeroMovementProducts { get; set; } = [];
+        public List<StockValueData> StockValueByCategory { get; set; } = [];
+        public SummaryData Summary { get; set; } = new();
+    }
+
+    private sealed class OverstockData
+    {
+        public int TotalOverstockProducts { get; set; }
+        public decimal TotalOverstockValue { get; set; }
+        public List<OverstockItem> Products { get; set; } = [];
+    }
+
+    private sealed class OverstockItem
+    {
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
+        public double CurrentQuantity { get; set; }
+        public double RecommendedQuantity { get; set; }
+        public decimal ExcessValue { get; set; }
+        public decimal CostPrice { get; set; }
+    }
+
+    private sealed class ZeroMovementItem
+    {
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
+        public string? SupplierName { get; set; }
+        public double CurrentStock { get; set; }
+        public decimal StockValue { get; set; }
+        public DateTime? LastMovementDate { get; set; }
+        public int DaysWithoutMovement { get; set; }
+    }
+
+    private sealed class StockValueData
+    {
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public int ProductCount { get; set; }
+        public decimal TotalStockValue { get; set; }
+        public double Percentage { get; set; }
+    }
+
+    private sealed class SummaryData
+    {
+        public int TotalProducts { get; set; }
+        public int HealthyProducts { get; set; }
+        public int OverstockProducts { get; set; }
+        public int ZeroMovementProducts { get; set; }
+        public decimal TotalStockValue { get; set; }
+        public decimal OverstockPercentage { get; set; }
+        public decimal ZeroMovementPercentage { get; set; }
+    }
+}
