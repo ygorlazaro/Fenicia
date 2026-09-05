@@ -33,12 +33,21 @@
                 <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(project.Status)">@project.Status</MudChip>
             </MudStack>
             <MudStack Row="true" Spacing="2">
-                <MudButton Variant="Variant.Outlined"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Add"
-                           OnClick="OpenStatusModal">
-                    Nova Coluna
-                </MudButton>
+                @if (isCurrentUserProjectAdmin)
+                {
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               OnClick="OpenStatusModal">
+                        Nova Coluna
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Secondary"
+                               StartIcon="@Icons.Material.Filled.GroupAdd"
+                               OnClick="OpenTeamModal">
+                        Nova Equipe
+                    </MudButton>
+                }
             </MudStack>
         </MudStack>
 
@@ -59,10 +68,13 @@
                                 <MudText Typo="Typo.subtitle2" Style="color:white;"><b>@status.Name</b></MudText>
                                 <MudChip T="string" Size="Size.Small" Style="background-color: rgba(255,255,255,0.25); color: white;">@GetTasksByStatus(status.Id).Count</MudChip>
                             </MudStack>
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                           Size="Size.Small"
-                                           Style="color:white;"
-                                           OnClick="@(() => OpenStatusEditModal(status))" />
+                            @if (isCurrentUserProjectAdmin)
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Small"
+                                               Style="color:white;"
+                                               OnClick="@(() => OpenStatusEditModal(status))" />
+                            }
                         </MudStack>
                     </div>
                     <div class="kanban-column-body">
@@ -113,6 +125,44 @@
                 </MudPaper>
             }
         </div>
+
+        <MudPaper Elevation="1" Class="pa-4 mt-6">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-3">
+                <MudText Typo="Typo.h6">Equipes</MudText>
+            </MudStack>
+            @if (teams.Count == 0)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Default">Nenhuma equipe cadastrada. @if (isCurrentUserProjectAdmin) { <text>Clique em "Nova Equipe" para começar.</text> }</MudText>
+            }
+            else
+            {
+                <MudGrid>
+                    @foreach (var team in teams)
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudPaper Elevation="1" Class="pa-3" Style="@($"border-left: 6px solid {team.Color}; border-radius: 8px;")">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText Typo="Typo.subtitle1"><b>@team.Name</b></MudText>
+                                        <MudChip T="string" Size="Size.Small">@team.MemberCount membros</MudChip>
+                                    </MudStack>
+                                    <MudButton Size="Size.Small"
+                                               Variant="Variant.Outlined"
+                                               StartIcon="@Icons.Material.Filled.People"
+                                               OnClick="@(() => OpenMembersModalAsync(team))">
+                                        Membros
+                                    </MudButton>
+                                </MudStack>
+                                @if (!string.IsNullOrEmpty(team.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Default" Class="mt-1">@team.Description</MudText>
+                                }
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+        </MudPaper>
     }
 </MainLayout>
 
@@ -222,6 +272,110 @@
     </DialogActions>
 </MudDialog>
 
+<MudDialog @bind-Visible="teamDialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Nova Equipe</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="teamEditModel.Name" Label="Nome" Variant="Variant.Outlined" MaxLength="128" Required="true" RequiredError="Nome é obrigatório!" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="teamEditModel.Description" Label="Descrição" Variant="Variant.Outlined" Lines="2" MaxLength="2000" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudPaper Elevation="0" Style="@($"width:36px;height:36px;border-radius:8px;background-color:{teamEditModel.Color};border:1px solid rgba(0,0,0,0.1);cursor:pointer;")" @onclick="@(() => colorPickerOpen = !colorPickerOpen)" />
+                    <MudTextField @bind-Value="teamEditModel.Color" Label="Cor" Variant="Variant.Outlined" MaxLength="30" Placeholder="#6366f1" Style="flex-grow:1" />
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseTeamModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveTeamAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@teamSaving">
+            @if (teamSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<MudDialog @bind-Visible="teamMembersDialogVisible" Options="teamMembersDialogOptions">
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudPaper Elevation="0" Style="@($"width:14px;height:14px;border-radius:50%;background-color:{membersTarget?.Color};")" />
+            <MudText Typo="Typo.h6">@(membersTarget?.Name ?? "Equipe")</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.subtitle2" Class="mb-2">Membros</MudText>
+        @if (teamMembers.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-3">Nenhum membro ainda.</MudText>
+        }
+        else
+        {
+            <MudList T="TeamMemberDto" Dense="true" Class="mb-3">
+                @foreach (var member in teamMembers)
+                {
+                    <MudListItem T="TeamMemberDto" Icon="@Icons.Material.Filled.Person">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Style="width:100%">
+                            <div>
+                                <MudText Typo="Typo.body2"><b>@member.UserName</b></MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Default">@member.Email</MudText>
+                            </div>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudChip T="string" Size="Size.Small" Color="@(member.Role == "Admin" ? Color.Primary : Color.Default)">@member.Role</MudChip>
+                                <MudIconButton Size="Size.Small"
+                                               Icon="@Icons.Material.Outlined.PersonRemove"
+                                               Color="Color.Error"
+                                               Disabled="@(!isCurrentUserProjectAdmin && member.UserId != currentUserId)"
+                                               OnClick="@(() => RemoveTeamMemberAsync(member))" />
+                            </MudStack>
+                        </MudStack>
+                    </MudListItem>
+                }
+            </MudList>
+        }
+
+        @if (isCurrentUserProjectAdmin)
+        {
+            <MudDivider Class="my-3" />
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Adicionar membro</MudText>
+            <MudAutocomplete T="UserSummaryDto"
+                             Label="Buscar usuário por nome ou e-mail"
+                             Variant="Variant.Outlined"
+                             SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults; })"
+                             ToStringFunc="@(u => u is null ? string.Empty : $"{u.Name} ({u.Email})")"
+                             OnValueChanged="@(async (UserSummaryDto? u) => { if (u is not null) await AddTeamMemberAsync(u, "User"); })"
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="@Icons.Material.Filled.Search"
+                             Clearable="true"
+                             ResetValueOnEmptyText="true"
+                             MaxItems="10">
+                <ItemTemplate Context="userCtx">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Style="width:100%">
+                        <div>
+                            <MudText Typo="Typo.body2"><b>@userCtx.Name</b></MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">@userCtx.Email</MudText>
+                        </div>
+                    </MudStack>
+                </ItemTemplate>
+            </MudAutocomplete>
+            <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-2">
+                <MudButton Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.PersonAdd" OnClick="@(() => PromoteFirstToAdmin())" Disabled="@(teamMembers.Count != 1)">Tornar primeiro Admin</MudButton>
+            </MudStack>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => teamMembersDialogVisible = false)" Variant="Variant.Text">Fechar</MudButton>
+    </DialogActions>
+</MudDialog>
+
 @code {
     [Parameter] public Guid Id { get; set; }
 
@@ -252,12 +406,61 @@
     private TaskFormModel taskEditModel = new();
     private bool taskSaving;
 
+    private List<TeamDto> teams = [];
+    private bool teamDialogVisible;
+    private TeamFormModel teamEditModel = new();
+    private bool teamSaving;
+    private bool teamMembersDialogVisible;
+    private TeamDto? membersTarget;
+    private List<TeamMemberDto> teamMembers = [];
+    private string userSearchQuery = string.Empty;
+    private List<UserSummaryDto> userSearchResults = [];
+    private CancellationTokenSource? userSearchCts;
+    private bool isCurrentUserProjectAdmin;
+
     private readonly DialogOptions dialogOptions = new()
     {
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.Small,
         FullWidth = true,
     };
+
+    private readonly DialogOptions teamMembersDialogOptions = new()
+    {
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Medium,
+        FullWidth = true,
+    };
+
+    private async Task PromoteFirstToAdmin()
+    {
+        if (membersTarget is null) return;
+        var first = teamMembers.FirstOrDefault();
+        if (first is null) return;
+        try
+        {
+            var client = await CreateClientAsync();
+            var payload = new { Role = "Admin" };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PatchAsync($"/team/{membersTarget.Id}/members/{first.UserId}/role", content);
+            if (response.IsSuccessStatusCode)
+            {
+                first.Role = "Admin";
+                isCurrentUserProjectAdmin = true;
+                Snackbar.Add($"{first.UserName} agora é Admin.", Severity.Success);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
 
     private List<StatusDto> orderedStatuses => statuses.Where(s => s.ProjectId == Id).OrderBy(s => s.Order).ToList();
 
@@ -304,7 +507,8 @@
             var projectTask = client.GetAsync($"/project/{Id}");
             var statusesTask = client.GetAsync("/projectstatus?page=1&perPage=200");
             var tasksTask = client.GetAsync("/projecttask?page=1&perPage=500");
-            await Task.WhenAll(projectTask, statusesTask, tasksTask);
+            var teamsTask = client.GetAsync($"/team/project/{Id}");
+            await Task.WhenAll(projectTask, statusesTask, tasksTask, teamsTask);
 
             if (projectTask.Result.IsSuccessStatusCode)
             {
@@ -330,6 +534,19 @@
                 tasks = System.Text.Json.JsonSerializer.Deserialize<List<TaskDto>>(json,
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
             }
+            if (teamsTask.Result.IsSuccessStatusCode)
+            {
+                var json = await teamsTask.Result.Content.ReadAsStringAsync();
+                teams = System.Text.Json.JsonSerializer.Deserialize<List<TeamDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+            }
+            else
+            {
+                teams = [];
+            }
+
+            isCurrentUserProjectAdmin = currentUserId != Guid.Empty &&
+                teams.Any(t => t.Members.Any(m => m.UserId == currentUserId && m.Role == "Admin"));
         }
         catch (Exception ex)
         {
@@ -616,6 +833,193 @@
         _ => Color.Default,
     };
 
+    private void OpenTeamModal()
+    {
+        teamEditModel = new TeamFormModel
+        {
+            ProjectId = Id,
+            Color = "#6366f1",
+        };
+        teamDialogVisible = true;
+    }
+
+    private void CloseTeamModal() => teamDialogVisible = false;
+
+    private async Task SaveTeamAsync()
+    {
+        if (string.IsNullOrWhiteSpace(teamEditModel.Name)) return;
+        try
+        {
+            teamSaving = true;
+            var client = await CreateClientAsync();
+            var payload = new
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = teamEditModel.ProjectId,
+                Name = teamEditModel.Name,
+                Description = teamEditModel.Description,
+                Color = teamEditModel.Color,
+                CreatedBy = currentUserId,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/team", content);
+            if (response.IsSuccessStatusCode)
+            {
+                var created = System.Text.Json.JsonSerializer.Deserialize<TeamDto>(await response.Content.ReadAsStringAsync(),
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (created is not null)
+                {
+                    var adminPayload = new
+                    {
+                        Id = Guid.NewGuid(),
+                        TeamId = created.Id,
+                        UserId = currentUserId,
+                        Role = "Admin",
+                    };
+                    var adminJson = System.Text.Json.JsonSerializer.Serialize(adminPayload);
+                    var adminContent = new StringContent(adminJson, System.Text.Encoding.UTF8, "application/json");
+                    await client.PostAsync("/team/members", adminContent);
+                }
+                Snackbar.Add("Equipe criada!", Severity.Success);
+                teamDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            teamSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OpenMembersModalAsync(TeamDto team)
+    {
+        membersTarget = team;
+        teamMembers = team.Members;
+        userSearchQuery = string.Empty;
+        userSearchResults = [];
+        teamMembersDialogVisible = true;
+        await Task.CompletedTask;
+    }
+
+    private async Task SearchUsersAsync(string value)
+    {
+        userSearchQuery = value;
+        userSearchCts?.Cancel();
+        userSearchCts = new CancellationTokenSource();
+        var token = userSearchCts.Token;
+        try
+        {
+            var client = await CreateClientAsync();
+            var url = string.IsNullOrWhiteSpace(value) ? "/user" : $"/user?query={Uri.EscapeDataString(value)}";
+            var response = await client.GetAsync(url, token);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync(token);
+                userSearchResults = System.Text.Json.JsonSerializer.Deserialize<List<UserSummaryDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+            }
+            else
+            {
+                userSearchResults = [];
+            }
+        }
+        catch (TaskCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro na busca: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task AddTeamMemberAsync(UserSummaryDto user, string role)
+    {
+        if (membersTarget is null) return;
+        try
+        {
+            var client = await CreateClientAsync();
+            var payload = new
+            {
+                Id = Guid.NewGuid(),
+                TeamId = membersTarget.Id,
+                UserId = user.Id,
+                Role = role,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/team/members", content);
+            if (response.IsSuccessStatusCode)
+            {
+                teamMembers.Add(new TeamMemberDto
+                {
+                    UserId = user.Id,
+                    UserName = user.Name,
+                    Email = user.Email,
+                    Role = role,
+                    JoinedAt = DateTime.UtcNow,
+                });
+                userSearchResults.RemoveAll(u => u.Id == user.Id);
+                Snackbar.Add($"{user.Name} adicionado como {role}!", Severity.Success);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task RemoveTeamMemberAsync(TeamMemberDto member)
+    {
+        if (membersTarget is null) return;
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/team/{membersTarget.Id}/members/{member.UserId}");
+            if (response.IsSuccessStatusCode)
+            {
+                teamMembers.RemoveAll(m => m.UserId == member.UserId);
+                Snackbar.Add("Membro removido.", Severity.Success);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
     private static Color GetPriorityColor(string priority) => priority switch
     {
         "Critical" => Color.Error,
@@ -684,6 +1088,43 @@
         public int? EstimatePoints { get; set; }
         public DateTime? DueDateValue { get; set; }
         public Guid CreatedBy { get; set; }
+    }
+
+    private class TeamDto
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Color { get; set; } = "#6366f1";
+        public Guid CreatedBy { get; set; }
+        public int MemberCount { get; set; }
+        public List<TeamMemberDto> Members { get; set; } = [];
+    }
+
+    private class TeamMemberDto
+    {
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Role { get; set; } = "User";
+        public DateTime JoinedAt { get; set; }
+    }
+
+    private class TeamFormModel
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Color { get; set; } = "#6366f1";
+    }
+
+    private class UserSummaryDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }
 

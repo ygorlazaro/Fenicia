@@ -24,4 +24,6 @@ public sealed class ProjectModel : BaseCompanyModel
     public List<ProjectStatusModel> Statuses { get; init; } = [];
 
     public List<ProjectTaskModel> Tasks { get; init; } = [];
+
+    public List<TeamModel> Teams { get; init; } = [];
 }
