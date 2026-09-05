@@ -7,6 +7,7 @@
 @using System.Text.Json
 @using Fenicia.Common.Enums.Basic
 
+<MainLayout>
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
         <MudStack Spacing="0">
@@ -110,6 +111,7 @@
         }
     </MudPaper>
 </MudContainer>
+</MainLayout>
 
 <MudDialog @bind-Visible="_modalOpen" Options="@_modalOptions">
     <TitleContent>
@@ -203,8 +205,8 @@
         FullWidth = true
     };
 
-    private DateTime? _startDate;
-    private DateTime? _endDate;
+    private DateTime? _startDate = DateTime.Today.AddDays(-30);
+    private DateTime? _endDate = DateTime.Today.AddDays(1);
     private TypeFilter _typeFilter = TypeFilter.All;
 
     private bool _loading = true;
@@ -221,12 +223,13 @@
 
     private MovementFormModel _form = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _startDate = DateTime.Today.AddDays(-30);
-        _endDate = DateTime.Today.AddDays(1);
-        await LoadOptionsAsync();
-        await LoadMovementsAsync();
+        if (firstRender)
+        {
+            await LoadOptionsAsync();
+            await LoadMovementsAsync();
+        }
     }
 
     private async Task LoadOptionsAsync()
