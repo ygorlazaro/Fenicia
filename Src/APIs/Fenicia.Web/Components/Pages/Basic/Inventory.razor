@@ -6,6 +6,7 @@
 @using System.Net.Http.Json
 @using System.Text.Json
 
+<MainLayout>
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
         <MudStack Spacing="0">
@@ -322,6 +323,7 @@
         }
     }
 </MudContainer>
+</MainLayout>
 
 @code {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -356,9 +358,12 @@
     private string[] StockValueByCategoryLabels => _health?.StockValueByCategory
         .Select(c => c.CategoryName).ToArray() ?? [];
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadAsync();
+        if (firstRender)
+        {
+            await LoadAsync();
+        }
     }
 
     private async Task LoadAsync()
