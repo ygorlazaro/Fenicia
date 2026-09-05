@@ -71,7 +71,7 @@
         }
         else
         {
-            <MudDropContainer T="TaskDto" Items="@tasks" ItemsSelector="@((TaskDto t, string zone) => t.StatusId.ToString() == zone)" ItemDropped="OnTaskDroppedAsync" Class="kanban-board">
+            <MudDropContainer @ref="_dropContainer" T="TaskDto" Items="@tasks" ItemsSelector="@((TaskDto t, string zone) => t.StatusId.ToString() == zone)" ItemDropped="OnTaskDroppedAsync" Class="kanban-board">
                 <ChildContent>
                     @foreach (var status in orderedStatuses)
                     {
@@ -435,6 +435,7 @@
 
 @code {
     [Parameter] public Guid Id { get; set; }
+    private MudDropContainer<TaskDto>? _dropContainer;
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -667,6 +668,8 @@
         drop.Item.StatusId = newStatusId;
         var newOrder = GetTasksByStatus(newStatusId).Count;
         drop.Item.Order = newOrder;
+        drop.Item.IsFinal = targetStatus.IsFinal;
+        await InvokeAsync(StateHasChanged);
 
         try
         {
@@ -692,6 +695,7 @@
                 var body = await response.Content.ReadAsStringAsync();
                 Snackbar.Add($"Falha ao mover tarefa: {(int)response.StatusCode} {body}", Severity.Error);
                 drop.Item.StatusId = oldStatusId;
+                drop.Item.IsFinal = statuses.Any(s => s.Id == oldStatusId && s.IsFinal);
             }
             else
             {
@@ -702,6 +706,11 @@
         {
             Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
             drop.Item.StatusId = oldStatusId;
+            drop.Item.IsFinal = statuses.Any(s => s.Id == oldStatusId && s.IsFinal);
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
         }
     }
 
