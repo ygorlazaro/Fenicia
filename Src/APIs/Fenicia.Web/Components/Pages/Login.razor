@@ -4,7 +4,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inject IAuthStateService AuthState
-@inject NotificationService NotificationService
+@inject ISnackbar Snackbar
 
 <PageTitle>Login - Fenicia</PageTitle>
 
@@ -81,7 +81,7 @@
                     await AuthState.SetTokenAsync(tokenData.AccessToken, 60 * 60 * 3);
                     isSuccess = true;
                     message = "Login realizado com sucesso! Redirecionando...";
-                    NotificationService.Show("Login realizado com sucesso!", Severity.Success);
+                    Snackbar.Add("Login realizado com sucesso!", Severity.Success);
                     await Task.Delay(500);
                     NavigationManager.NavigateTo("/dashboard");
                 }
@@ -89,21 +89,21 @@
                 {
                     isSuccess = false;
                     message = "Resposta inválida do servidor.";
-                    NotificationService.Show("Resposta inválida do servidor.", Severity.Error);
+                    Snackbar.Add("Resposta inválida do servidor.", Severity.Error);
                 }
             }
             else
             {
                 isSuccess = false;
                 message = $"Falha no login ({(int)response.StatusCode}): {body}";
-                NotificationService.Show($"Falha no login ({(int)response.StatusCode})", Severity.Error);
+                Snackbar.Add($"Falha no login ({(int)response.StatusCode})", Severity.Error);
             }
         }
         catch (Exception ex)
         {
             isSuccess = false;
             message = $"Erro: {ex.Message}";
-            NotificationService.Show($"Erro: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
         }
         finally
         {

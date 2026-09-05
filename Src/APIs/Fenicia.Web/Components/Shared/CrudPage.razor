@@ -1,7 +1,7 @@
 @typeparam TItem where TItem : ICrudItem
 @inject ICrudClient CrudClient
 @inject IAuthStateService AuthState
-@inject NotificationService NotificationService
+@inject ISnackbar Snackbar
 @inject ICompanyContextService CompanyContext
 
 @using System.Threading
@@ -298,7 +298,7 @@
             if (_activeTab == 0)
             {
                 await CrudClient.PostAsync(Endpoint, payload, CancellationToken.None);
-                NotificationService.Show($"{EntityNameSingular} criado(a) com sucesso!", Severity.Success);
+                Snackbar.Add($"{EntityNameSingular} criado(a) com sucesso!", Severity.Success);
             }
             else
             {
@@ -308,7 +308,7 @@
                 }
 
                 await CrudClient.PatchAsync(Endpoint, _editingItem.Id, payload, CancellationToken.None);
-                NotificationService.Show($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
+                Snackbar.Add($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
             }
 
             CloseModal();
@@ -317,7 +317,7 @@
         catch (Exception ex)
         {
             _modalError = ex.Message;
-            NotificationService.Show($"Falha ao salvar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
+            Snackbar.Add($"Falha ao salvar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
         }
         finally
         {
@@ -350,7 +350,7 @@
             StateHasChanged();
 
             await CrudClient.DeleteAsync(Endpoint, _itemToDelete.Id, CancellationToken.None);
-            NotificationService.Show($"{EntityNameSingular} excluído(a) com sucesso!", Severity.Success);
+            Snackbar.Add($"{EntityNameSingular} excluído(a) com sucesso!", Severity.Success);
 
             CloseDeleteModal();
             await _table.ReloadServerData();
@@ -358,7 +358,7 @@
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
-            NotificationService.Show($"Falha ao excluir {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
+            Snackbar.Add($"Falha ao excluir {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
         }
         finally
         {
@@ -384,12 +384,12 @@
                 try
                 {
                     await CrudClient.DeleteAsync(Endpoint, item.Id, CancellationToken.None);
-                    NotificationService.Show($"{FormatForDelete(item)} excluído(a) com sucesso!", Severity.Success);
+                    Snackbar.Add($"{FormatForDelete(item)} excluído(a) com sucesso!", Severity.Success);
                 }
                 catch (Exception ex)
                 {
                     _errorMessage = $"Falha ao excluir {FormatForDelete(item)}: {ex.Message}";
-                    NotificationService.Show($"Falha ao excluir {FormatForDelete(item)}.", Severity.Error);
+                    Snackbar.Add($"Falha ao excluir {FormatForDelete(item)}.", Severity.Error);
                 }
             }
 
@@ -430,13 +430,13 @@
             var ctx = new CrudModalContext<TItem>(CrudModalMode.Edit, item, this);
             var payload = CreatePayloadFactory(ctx);
             await CrudClient.PatchAsync(Endpoint, item.Id, payload, CancellationToken.None);
-            NotificationService.Show($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
+            Snackbar.Add($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
             await _table.ReloadServerData();
         }
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
-            NotificationService.Show($"Falha ao atualizar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
+            Snackbar.Add($"Falha ao atualizar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
         }
         finally
         {

@@ -6,11 +6,10 @@
 @inject ICompanyContextService CompanyContext
 @inject ICompanySelectionState CompanyState
 @inject ICompanyChangeNotifier CompanyNotifier
-@inject NotificationService NotificationService
 @inject ISnackbar Snackbar
 <MudPopoverProvider />
 <MudDialogProvider />
-<MudSnackbarProvider />
+<MudSnackbarProvider Position="MudBlazor.SnackbarPosition.TopRight" Timeout="5000" ShowCloseIcon="true" />
 
 <MudLayout>
         <MudAppBar Elevation="0" Class="fenicia-appbar" Dense="true">
@@ -136,13 +135,7 @@
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
-        NotificationService.OnChange += HandleNotificationChange;
         CompanyNotifier.Changed += HandleCompanyChanged;
-    }
-
-    private void HandleNotificationChange()
-    {
-        InvokeAsync(StateHasChanged);
     }
 
     private async void HandleCompanyChanged()
@@ -343,7 +336,6 @@ if (companyId.HasValue)
 public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
-        NotificationService.OnChange -= HandleNotificationChange;
         CompanyNotifier.Changed -= HandleCompanyChanged;
     }
 }

@@ -3,7 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
-@inject NotificationService NotificationService
+@inject ISnackbar Snackbar
 
 <PageTitle>Criar conta - Fenicia</PageTitle>
 
@@ -82,21 +82,21 @@
             {
                 isSuccess = true;
                 message = "Conta criada com sucesso! Você já pode fazer login.";
-                NotificationService.Show("Conta criada com sucesso!", Severity.Success);
+                Snackbar.Add("Conta criada com sucesso!", Severity.Success);
                 model = new SignupModel();
             }
             else
             {
                 isSuccess = false;
                 message = $"Falha no cadastro ({(int)response.StatusCode}): {body}";
-                NotificationService.Show($"Falha no cadastro ({(int)response.StatusCode})", Severity.Error);
+                Snackbar.Add($"Falha no cadastro ({(int)response.StatusCode})", Severity.Error);
             }
         }
         catch (Exception ex)
         {
             isSuccess = false;
             message = $"Erro: {ex.Message}";
-            NotificationService.Show($"Erro: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
         }
         finally
         {

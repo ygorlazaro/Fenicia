@@ -238,66 +238,6 @@ h1:focus {
 }
 
 /* ============================================
-   Notification toasts
-   ============================================ */
-.notification-stack {
-    position: fixed;
-    top: 80px;
-    right: 24px;
-    z-index: 1400;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 380px;
-}
-
-.notification-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 18px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    color: white;
-    font-weight: 500;
-    min-width: 280px;
-    animation: slideInRight 0.3s ease-out;
-    cursor: pointer;
-}
-
-    .notification-item.severity-success {
-        background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
-    }
-
-    .notification-item.severity-error {
-        background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
-    }
-
-    .notification-item.severity-warning {
-        background: linear-gradient(135deg, #ef6c00 0%, #fb8c00 100%);
-    }
-
-    .notification-item.severity-info {
-        background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
-    }
-
-    .notification-item i {
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* ============================================
     MudTable pager dropdown fix
     ============================================ */
 .mud-table-pagination {
