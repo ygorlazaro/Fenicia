@@ -14,4 +14,6 @@ public record AddProjectTaskResponse(
     int? EstimatePoints,
     DateTime? DueDate,
     [Required] Guid CreatedBy,
-    [Required] Guid CompanyId);
+    [Required] Guid CompanyId,
+    Guid? SprintId,
+    string? SprintName);

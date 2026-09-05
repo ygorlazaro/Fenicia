@@ -58,11 +58,23 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
             filteredQuery = filteredQuery.Where(t => t.Priority.ToString() == prio);
         }
 
+        if (query.SprintId.HasValue)
+        {
+            var sid = query.SprintId.Value;
+            filteredQuery = filteredQuery.Where(t => t.SprintId == sid);
+        }
+
+        if (query.WithoutSprint == true)
+        {
+            filteredQuery = filteredQuery.Where(t => !t.SprintId.HasValue);
+        }
+
         var tasks = await filteredQuery
             .Include(pt => pt.Assignees)
             .ThenInclude(a => a.User)
             .Include(pt => pt.Comments)
             .Include(pt => pt.Subtasks)
+            .Include(pt => pt.SprintModel)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
@@ -87,7 +99,9 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                 ],
                 pt.Comments.Count,
                 pt.Subtasks.Count,
-                pt.Subtasks.Count(s => s.IsCompleted)))
+                pt.Subtasks.Count(s => s.IsCompleted),
+                pt.SprintId,
+                pt.SprintModel != null ? pt.SprintModel.Name : null))
         ];
     }
 
@@ -132,7 +146,9 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                 [
                     .. projectTask.Assignees.Select(a =>
                         new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))
-                ])
+                ],
+                projectTask.SprintId,
+                projectTask.SprintModel != null ? projectTask.SprintModel.Name : null)
         };
     }
 
@@ -154,6 +170,7 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
             EstimatePoints = command.EstimatePoints,
             DueDate = command.DueDate,
             CreatedBy = command.CreatedBy,
+            SprintId = command.SprintId,
             CompanyId = companyId
         };
 
@@ -170,7 +187,9 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
             created.EstimatePoints,
             created.DueDate,
             created.CreatedBy,
-            created.CompanyId);
+            created.CompanyId,
+            created.SprintId,
+            created.SprintModel != null ? created.SprintModel.Name : null);
     }
 
     public async Task<UpdateProjectTaskResponse?> UpdateAsync(
@@ -191,7 +210,7 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
             EstimatePoints = command.EstimatePoints,
             DueDate = command.DueDate,
             CreatedBy = command.CreatedBy,
-            CompanyId = companyId
+            SprintId = command.SprintId
         };
 
         var updated = await repository.UpdateAsync(command.Id, projectTask, cancellationToken);
@@ -209,7 +228,9 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                 updated.EstimatePoints,
                 updated.DueDate,
                 updated.CreatedBy,
-                updated.CompanyId);
+                updated.CompanyId,
+                updated.SprintId,
+                updated.SprintModel != null ? updated.SprintModel.Name : null);
     }
 
     public async Task DeleteAsync(DeleteProjectTaskCommand command, CancellationToken cancellationToken = default)

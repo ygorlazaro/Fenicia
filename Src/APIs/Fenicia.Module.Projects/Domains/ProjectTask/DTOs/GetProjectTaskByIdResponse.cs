@@ -18,4 +18,6 @@ public record GetProjectTaskByIdResponse(
     List<ProjectAttachmentResponse> Attachments,
     List<ProjectCommentResponse> Comments,
     List<ProjectSubtaskResponse> Subtasks,
-    List<ProjectTaskAssigneeResponse> Assignees);
+    List<ProjectTaskAssigneeResponse> Assignees,
+    Guid? SprintId,
+    string? SprintName);

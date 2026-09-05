@@ -18,4 +18,6 @@ public record GetAllProjectTaskResponse(
     List<ProjectTaskAssigneeResponse> Assignees,
     int TotalComments,
     int TotalSubtasks,
-    int CompletedSubtasks);
+    int CompletedSubtasks,
+    Guid? SprintId,
+    string? SprintName);
