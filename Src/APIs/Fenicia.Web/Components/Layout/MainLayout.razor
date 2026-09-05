@@ -22,13 +22,64 @@
                 @if (isLoggedIn)
                 {
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="topbar-actions">
-                        <MudLink Href="/dashboard" Underline="Underline.None" Color="Color.Inherit">
-                            <MudButton Variant="Variant.Text"
-                                       Color="Color.Inherit"
-                                       StartIcon="@Icons.Material.Filled.Business">
-                                @(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)
-                            </MudButton>
-                        </MudLink>
+                        <MudMenu AnchorOrigin="Origin.BottomRight"
+                                 TransformOrigin="Origin.TopRight"
+                                 OffsetY="4"
+                                 Dense="true"
+                                 Disabled="@(companies.Count == 0)">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Inherit"
+                                           StartIcon="@Icons.Material.Filled.Business"
+                                           EndIcon="@Icons.Material.Filled.ArrowDropDown">
+                                    <span class="topbar-company-name">
+                                        @(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)
+                                    </span>
+                                </MudButton>
+                            </ActivatorContent>
+                            <ChildContent>
+                                <MudMenuItem Disabled="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Default">Selecione a empresa</MudText>
+                                </MudMenuItem>
+                                <MudDivider />
+                                @if (companies.Count == 0)
+                                {
+                                    <MudMenuItem Disabled="true">
+                                        <MudText Typo="Typo.body2">Nenhuma empresa disponível</MudText>
+                                    </MudMenuItem>
+                                }
+                                else
+                                {
+                                    @foreach (var company in companies)
+                                    {
+                                        var isCurrent = selectedCompanyId.HasValue && company.Id == selectedCompanyId.Value;
+                                        <MudMenuItem OnClick="@(() => SelectCompanyAsync(company))">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="w-100">
+                                                @if (isCurrent)
+                                                {
+                                                    <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success" Size="Size.Small" />
+                                                }
+                                                else
+                                                {
+                                                    <MudIcon Icon="@Icons.Material.Filled.Circle" Color="Color.Default" Size="Size.Small" Style="visibility:hidden" />
+                                                }
+                                                <div class="d-flex flex-column flex-grow-1" style="min-width:0">
+                                                    <MudText Typo="Typo.body2" Style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                                        <strong>@company.Name</strong>
+                                                    </MudText>
+                                                    @if (!string.IsNullOrEmpty(company.Role))
+                                                    {
+                                                        <MudText Typo="Typo.caption" Color="Color.Default" Style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                                            @company.Role · @FormatCnpj(company.Cnpj)
+                                                        </MudText>
+                                                    }
+                                                </div>
+                                            </MudStack>
+                                        </MudMenuItem>
+                                    }
+                                }
+                            </ChildContent>
+                        </MudMenu>
                         <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
                         <MudLink Href="/profile" Underline="Underline.None" Color="Color.Inherit">
                             <MudButton Variant="Variant.Text"
@@ -117,6 +168,15 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         color: white !important;
+    }
+
+    .topbar-company-name {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: middle;
     }
 
     .topbar-divider {
@@ -329,6 +389,40 @@ if (companyId.HasValue)
             Console.WriteLine($"[MainLayout] Parse error: {ex.Message}");
             return null;
         }
+    }
+
+    private async Task SelectCompanyAsync(UserCompanyItem company)
+    {
+        try
+        {
+            await CompanyContext.SetSelectedCompanyIdAsync(company.Id);
+            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", company.Id.ToString(), 7);
+
+            selectedCompanyId = company.Id;
+            selectedCompanyName = company.Name;
+            CompanyState.Set(company.Id, company.Name);
+            CompanyNotifier.Notify();
+
+            Snackbar.Add($"Empresa \"{company.Name}\" selecionada.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Select company error: {ex.Message}");
+            Snackbar.Add($"Erro ao selecionar empresa: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private static string FormatCnpj(string cnpj)
+    {
+        if (string.IsNullOrEmpty(cnpj))
+        {
+            return string.Empty;
+        }
+        if (cnpj.Length == 14)
+        {
+            return $"{cnpj[..2]}.{cnpj[2..5]}.{cnpj[5..8]}/{cnpj[8..12]}-{cnpj[12..]}";
+        }
+        return cnpj;
     }
 
     public class UserCompanyItem
