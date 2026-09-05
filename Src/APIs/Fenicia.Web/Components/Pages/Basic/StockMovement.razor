@@ -288,7 +288,7 @@
             }
             if (_typeFilter != TypeFilter.All)
             {
-                query.Add($"type={(int)MapType(_typeFilter)}");
+                query.Add($"type={MapType(_typeFilter)}");
             }
             query.Add("page=1");
             query.Add("perPage=200");
