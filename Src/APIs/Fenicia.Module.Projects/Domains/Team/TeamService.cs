@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.Team.DTOs;
+using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Team;
@@ -9,7 +10,7 @@ namespace Fenicia.Module.Projects.Domains.Team;
 public class TeamService(
     ITeamRepository teamRepository,
     ITeamUserRepository teamUserRepository,
-    IRepository<ProjectModel> projectRepository)
+    IRepository<ProjectModel> projectRepository) : ITeamService
 {
     public async Task<List<GetAllTeamResponse>> GetAllByProjectAsync(
         Guid projectId,
