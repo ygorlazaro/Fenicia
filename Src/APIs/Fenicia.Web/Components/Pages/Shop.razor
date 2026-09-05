@@ -4,7 +4,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
-@inject NotificationService NotificationService
+@inject ISnackbar Snackbar
 
 <PageTitle>Loja - Fenicia</PageTitle>
 
@@ -199,7 +199,7 @@
         {
             resultMessage = "Selecione pelo menos um módulo.";
             isSuccess = false;
-            NotificationService.Show("Selecione pelo menos um módulo.", Severity.Warning);
+            Snackbar.Add("Selecione pelo menos um módulo.", Severity.Warning);
             return;
         }
 
@@ -216,7 +216,7 @@
             {
                 resultMessage = "Selecione uma empresa antes de assinar.";
                 isSuccess = false;
-                NotificationService.Show("Selecione uma empresa antes de assinar.", Severity.Warning);
+                Snackbar.Add("Selecione uma empresa antes de assinar.", Severity.Warning);
                 return;
             }
 
@@ -245,13 +245,13 @@
                 var body = await response.Content.ReadAsStringAsync();
                 resultMessage = $"Falha ao assinar: {(int)response.StatusCode} {response.StatusCode} - {body}";
                 isSuccess = false;
-                NotificationService.Show("Falha ao assinar módulos.", Severity.Error);
+                Snackbar.Add("Falha ao assinar módulos.", Severity.Error);
             }
             else
             {
                 resultMessage = "Assinatura criada com sucesso! Redirecionando para o perfil...";
                 isSuccess = true;
-                NotificationService.Show("Assinatura criada com sucesso!", Severity.Success);
+                Snackbar.Add("Assinatura criada com sucesso!", Severity.Success);
                 StateHasChanged();
                 await Task.Delay(1500);
                 NavigationManager.NavigateTo("/profile");
@@ -261,7 +261,7 @@
         {
             resultMessage = $"Erro: {ex.Message}";
             isSuccess = false;
-            NotificationService.Show($"Erro: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
         }
         finally
         {

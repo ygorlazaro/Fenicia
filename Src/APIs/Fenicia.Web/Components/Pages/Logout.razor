@@ -3,7 +3,7 @@
 @inject IAuthStateService AuthState
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@inject NotificationService NotificationService
+@inject ISnackbar Snackbar
 
 <PageTitle>Saindo - Fenicia</PageTitle>
 
@@ -26,7 +26,7 @@
         {
             await AuthState.ClearTokenAsync();
             await JSRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
-            NotificationService.Show("Você saiu da sua conta.", Severity.Info);
+            Snackbar.Add("Você saiu da sua conta.", Severity.Info);
             await Task.Delay(300);
             NavigationManager.NavigateTo("/");
         }

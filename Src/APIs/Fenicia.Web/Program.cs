@@ -25,7 +25,6 @@ builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
 builder.Services.AddScoped<ICompanySelectionState, CompanySelectionState>();
 builder.Services.AddScoped<ICompanyChangeNotifier, CompanyChangeNotifier>();
 builder.Services.AddScoped<CompanyHeaderHandler>();
-builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
