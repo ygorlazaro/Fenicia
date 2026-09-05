@@ -37,7 +37,11 @@
                         <MudAvatar Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
                             @GetInitial()
                         </MudAvatar>
-                        <MudText Typo="Typo.h5" Align="Align.Center">Usuário</MudText>
+                        <MudText Typo="Typo.h5" Align="Align.Center">@GetDisplayName()</MudText>
+                        @if (!string.IsNullOrEmpty(profile.UserName))
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Default">@@@profile.UserName</MudText>
+                        }
                         @if (!string.IsNullOrEmpty(profile.Location))
                         {
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
@@ -58,11 +62,11 @@
                                 <MudText Typo="Typo.caption" Color="Color.Default">Posts</MudText>
                             </MudStack>
                             <MudStack AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.h6">0</MudText>
+                                <MudText Typo="Typo.h6">@followerCount</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">Seguidores</MudText>
                             </MudStack>
                             <MudStack AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.h6">0</MudText>
+                                <MudText Typo="Typo.h6">@followingCount</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">Seguindo</MudText>
                             </MudStack>
                         </MudStack>
@@ -79,12 +83,13 @@
                         }
                         else
                         {
-                            <MudButton Variant="Variant.Filled"
+                            <MudButton Variant="@(isFollowing ? Variant.Outlined : Variant.Filled)"
                                        Color="Color.Primary"
-                                       StartIcon="@Icons.Material.Filled.PersonAdd"
-                                       OnClick="FollowUser"
+                                       StartIcon="@(isFollowing ? Icons.Material.Filled.Check : Icons.Material.Filled.PersonAdd)"
+                                       OnClick="ToggleFollowAsync"
+                                       Disabled="@(currentProfileId == Guid.Empty || followBusy)"
                                        FullWidth="true">
-                                Seguir
+                                @(isFollowing ? "Seguindo" : "Seguir")
                             </MudButton>
                         }
                     </MudStack>
@@ -240,6 +245,10 @@
     private List<PostDto> likedPosts = [];
     private Guid currentProfileId;
     private Guid? likingFeedId;
+    private bool isFollowing;
+    private bool followBusy;
+    private int followerCount;
+    private int followingCount;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -255,6 +264,8 @@
             await LoadProfileAsync();
             await LoadPostsAsync();
             await LoadLikedPostsAsync();
+            await LoadFollowStateAsync();
+            await LoadFollowCountsAsync();
         }
     }
 
@@ -465,12 +476,128 @@
         Snackbar.Add("Funcionalidade de seguir em breve!", Severity.Info);
     }
 
+    private async Task LoadFollowStateAsync()
+    {
+        if (isOwnProfile || currentProfileId == Guid.Empty) return;
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync($"/friendship/isfollowing/{currentProfileId}/{Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (bool.TryParse(json, out var following))
+                {
+                    isFollowing = following;
+                }
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task LoadFollowCountsAsync()
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var followersTask = client.GetAsync($"/friendship/followers/{Id}?page=1&perPage=1");
+            var followingTask = client.GetAsync($"/friendship/following/{Id}?page=1&perPage=1");
+            await Task.WhenAll(followersTask, followingTask);
+            var followersResp = await followersTask;
+            var followingResp = await followingTask;
+            followerCount = ExtractTotal(followersResp);
+            followingCount = ExtractTotal(followingResp);
+        }
+        catch
+        {
+        }
+    }
+
+    private static int ExtractTotal(HttpResponseMessage response)
+    {
+        if (!response.IsSuccessStatusCode) return 0;
+        var json = response.Content.ReadAsStringAsync().Result;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("total", out var total))
+            {
+                return total.GetInt32();
+            }
+        }
+        catch
+        {
+        }
+        return 0;
+    }
+
+    private async Task ToggleFollowAsync()
+    {
+        if (isOwnProfile || currentProfileId == Guid.Empty || followBusy) return;
+        try
+        {
+            followBusy = true;
+            var client = await CreateClientAsync();
+            if (isFollowing)
+            {
+                var response = await client.DeleteAsync($"/friendship/unfollow/{Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    isFollowing = false;
+                    followerCount = Math.Max(0, followerCount - 1);
+                    Snackbar.Add("Deixou de seguir.", Severity.Success);
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+            else
+            {
+                var command = new { TargetProfileId = Id };
+                var json = System.Text.Json.JsonSerializer.Serialize(command);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("/friendship/follow", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    isFollowing = true;
+                    followerCount++;
+                    Snackbar.Add("Seguindo!", Severity.Success);
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            followBusy = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
     private string GetInitial()
     {
         if (profile is null) return "?";
-        var source = profile.Bio ?? "";
+        var source = profile.UserName ?? profile.Bio ?? "";
         if (string.IsNullOrEmpty(source)) return "?";
-        return source[..1].ToUpper();
+        return source.TrimStart('@')[..1].ToUpper();
+    }
+
+    private string GetDisplayName()
+    {
+        if (profile is null) return "Usuário";
+        if (!string.IsNullOrEmpty(profile.UserName)) return "@" + profile.UserName;
+        return "Usuário";
     }
 
     private string GetPostInitial() => "?";
@@ -489,6 +616,7 @@
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
+        public string? UserName { get; set; }
         public string? Bio { get; set; }
         public string? ImageUrl { get; set; }
         public string? Website { get; set; }

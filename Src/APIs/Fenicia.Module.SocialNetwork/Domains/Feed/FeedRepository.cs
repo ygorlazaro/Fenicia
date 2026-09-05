@@ -13,6 +13,7 @@ public class FeedRepository(DefaultContext context) : Repository<FeedModel>(cont
         CancellationToken cancellationToken = default)
     {
         return await DbSet
+            .Include(f => f.Profile)
             .OrderByDescending(f => f.Date)
             .Skip((page - 1) * perPage)
             .Take(perPage)
@@ -22,6 +23,7 @@ public class FeedRepository(DefaultContext context) : Repository<FeedModel>(cont
     public Task<FeedModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet
+            .Include(f => f.Profile)
             .Include(f => f.Comments)
             .Include(f => f.Likes)
             .Include(f => f.Shares)

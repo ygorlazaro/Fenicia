@@ -110,6 +110,7 @@ public sealed class ProfileController(IProfileService profileService) : Controll
             return Ok(new AddProfileResponse(
                 existing.Id,
                 existing.UserId,
+                existing.UserName,
                 existing.Bio,
                 existing.ImageUrl,
                 existing.Website,

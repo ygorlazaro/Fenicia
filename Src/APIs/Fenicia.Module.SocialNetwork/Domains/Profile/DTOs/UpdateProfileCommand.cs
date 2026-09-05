@@ -4,6 +4,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
 
 public record UpdateProfileCommand(
     [Required] Guid Id,
+    [MaxLength(64)] string? UserName,
     [MaxLength(200)] string? Bio,
     [MaxLength(200)] string? ImageUrl,
     [MaxLength(200)] string? Website,

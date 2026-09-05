@@ -74,6 +74,10 @@
                 {
                     <MudGrid>
                         <MudItem xs="12">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Nome de Usuário</MudText>
+                            <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(profile.UserName) ? "—" : "@" + profile.UserName)</MudText>
+                        </MudItem>
+                        <MudItem xs="12">
                             <MudText Typo="Typo.subtitle2" Color="Color.Default">Biografia</MudText>
                             <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(profile.Bio) ? "Sem biografia." : profile.Bio)</MudText>
                         </MudItem>
@@ -113,6 +117,9 @@
     </TitleContent>
     <DialogContent>
         <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editModel.UserName" Label="Nome de Usuário" Variant="Variant.Outlined" MaxLength="64" Counter="64" />
+            </MudItem>
             <MudItem xs="12">
                 <MudTextField @bind-Value="editModel.Bio" Label="Biografia" Variant="Variant.Outlined" Lines="3" MaxLength="160" Counter="160" />
             </MudItem>
@@ -268,6 +275,7 @@
         if (profile is null) return;
         editModel = new EditProfileModel
         {
+            UserName = profile.UserName,
             Bio = profile.Bio,
             ImageUrl = profile.ImageUrl,
             Website = profile.Website,
@@ -288,6 +296,7 @@
             var updateCommand = new
             {
                 Id = profile.Id,
+                UserName = editModel.UserName,
                 Bio = editModel.Bio,
                 ImageUrl = editModel.ImageUrl,
                 Website = editModel.Website,
@@ -355,6 +364,7 @@
 
     private class EditProfileModel
     {
+        public string? UserName { get; set; }
         public string? Bio { get; set; }
         public string? ImageUrl { get; set; }
         public string? Website { get; set; }

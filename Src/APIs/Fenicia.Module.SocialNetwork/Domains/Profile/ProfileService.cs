@@ -41,21 +41,14 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
         var existing = await profileRepository.GetByUserIdAsync(userId, cancellationToken);
         if (existing is not null)
         {
-            return new AddProfileResponse(
-                existing.Id,
-                existing.UserId,
-                existing.Bio,
-                existing.ImageUrl,
-                existing.Website,
-                existing.Location,
-                existing.Phone,
-                existing.BirthDate);
+            return MapToAddResponse(existing);
         }
 
         var model = new ProfileModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
+            UserName = command.UserName,
             Bio = command.Bio,
             ImageUrl = command.ImageUrl,
             Website = command.Website,
@@ -66,15 +59,7 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
 
         var created = await profileRepository.InsertAsync(model, cancellationToken);
 
-        return new AddProfileResponse(
-            created.Id,
-            created.UserId,
-            created.Bio,
-            created.ImageUrl,
-            created.Website,
-            created.Location,
-            created.Phone,
-            created.BirthDate);
+        return MapToAddResponse(created);
     }
 
     public async Task<UpdateProfileResponse?> UpdateAsync(
@@ -89,6 +74,7 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             return null;
         }
 
+        profile.UserName = command.UserName;
         profile.Bio = command.Bio;
         profile.ImageUrl = command.ImageUrl;
         profile.Website = command.Website;
@@ -101,6 +87,7 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
         return new UpdateProfileResponse(
             profile.Id,
             profile.UserId,
+            profile.UserName,
             profile.Bio,
             profile.ImageUrl,
             profile.Website,
@@ -114,6 +101,21 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
         return new GetProfileByIdResponse(
             profile.Id,
             profile.UserId,
+            profile.UserName,
+            profile.Bio,
+            profile.ImageUrl,
+            profile.Website,
+            profile.Location,
+            profile.Phone,
+            profile.BirthDate);
+    }
+
+    private static AddProfileResponse MapToAddResponse(ProfileModel profile)
+    {
+        return new AddProfileResponse(
+            profile.Id,
+            profile.UserId,
+            profile.UserName,
             profile.Bio,
             profile.ImageUrl,
             profile.Website,

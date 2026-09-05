@@ -79,11 +79,27 @@
                                 </MudAvatar>
                                 <div class="flex-grow-1">
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
-                                        <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
-                                            <MudText Typo="Typo.subtitle2"><b>@GetPostDisplayName(post)</b></MudText>
-                                        </MudLink>
-                                        <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
-                                    </MudStack>
+                                                <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
+                                                    <MudText Typo="Typo.subtitle2"><b>@GetPostDisplayName(post)</b></MudText>
+                                                </MudLink>
+                                                @if (!string.IsNullOrEmpty(post.AuthorUserName))
+                                                {
+                                                    <MudText Typo="Typo.caption" Color="Color.Default">@@@post.AuthorUserName</MudText>
+                                                }
+                                                <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                                            </MudStack>
+                                            @if (post.OriginalFeedId.HasValue)
+                                            {
+                                                <MudPaper Elevation="0" Class="pa-2 mb-2" Style="background-color: rgba(0,0,0,0.03); border-left: 3px solid var(--mud-palette-primary); border-radius: 8px;">
+                                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                                        <MudIcon Icon="@Icons.Material.Outlined.Repeat" Size="Size.Small" Color="Color.Default" />
+                                                        <MudText Typo="Typo.caption" Color="Color.Default">compartilhou um post</MudText>
+                                                    </MudStack>
+                                                    <MudLink Href="@($"/socialnetwork/feed/{post.OriginalFeedId}")" Color="Color.Default" Underline="Underline.None">
+                                                        <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">Ver post original →</MudText>
+                                                    </MudLink>
+                                                </MudPaper>
+                                            }
                                     <MudLink Href="@($"/socialnetwork/feed/{post.Id}")" Color="Color.Default" Underline="Underline.None">
                                         <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
                                     </MudLink>
@@ -107,7 +123,7 @@
                                                                    Variant="Variant.Text"
                                                                    Color="Color.Default"
                                                                    StartIcon="@Icons.Material.Outlined.Repeat"
-                                                                   OnClick="@(() => SharePostAsync(post))">
+                                                                   OnClick="@(() => OpenShareDialog(post))">
                                                             @post.TotalShares
                                                         </MudButton>
                                     </MudStack>
@@ -425,9 +441,70 @@
         }
     }
 
-    private void SharePostAsync(PostDto post)
+    private bool shareDialogVisible;
+    private PostDto? shareTarget;
+    private string shareText = string.Empty;
+    private bool isSharing;
+
+    private readonly DialogOptions shareDialogOptions = new()
     {
-        Snackbar.Add("Funcionalidade de compartilhamento em breve!", Severity.Info);
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+    };
+
+    private void OpenShareDialog(PostDto post)
+    {
+        shareTarget = post;
+        shareText = string.Empty;
+        shareDialogVisible = true;
+    }
+
+    private void CloseShareDialog()
+    {
+        shareDialogVisible = false;
+        shareTarget = null;
+        shareText = string.Empty;
+    }
+
+    private async Task ConfirmShareAsync()
+    {
+        if (shareTarget is null) return;
+        try
+        {
+            isSharing = true;
+            var client = await CreateClientAsync();
+            var command = new
+            {
+                Id = Guid.NewGuid(),
+                OriginalFeedId = shareTarget.Id,
+                Text = string.IsNullOrWhiteSpace(shareText) ? null : shareText,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(command);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/share", content);
+            if (response.IsSuccessStatusCode)
+            {
+                shareTarget.TotalShares++;
+                Snackbar.Add("Post compartilhado!", Severity.Success);
+                CloseShareDialog();
+                await LoadFeedAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao compartilhar: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSharing = false;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private void NavigateToFeedDetail(Guid feedId)
@@ -448,14 +525,15 @@
 
     private static string GetPostDisplayName(PostDto post)
     {
+        if (!string.IsNullOrEmpty(post.AuthorUserName)) return "@" + post.AuthorUserName;
         return post.DisplayName ?? "Usuário";
     }
 
     private static string GetPostInitial(PostDto post)
     {
-        var name = post.DisplayName ?? post.Text ?? "";
+        var name = post.AuthorUserName ?? post.DisplayName ?? post.Text ?? "";
         if (string.IsNullOrEmpty(name)) return "?";
-        return name[..1].ToUpper();
+        return name.TrimStart('@')[..1].ToUpper();
     }
 
     private static string FormatRelativeTime(DateTime date)
@@ -478,6 +556,8 @@
         public int TotalLikes { get; set; }
         public int TotalComments { get; set; }
         public int TotalShares { get; set; }
+        public Guid? OriginalFeedId { get; set; }
+        public string? AuthorUserName { get; set; }
         public string? DisplayName { get; set; }
         public bool IsLikedByMe { get; set; }
     }
@@ -488,6 +568,42 @@
         public Guid UserId { get; set; }
     }
 }
+
+<MudDialog @bind-Visible="shareDialogVisible" Options="shareDialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Compartilhar post</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (shareTarget is not null)
+        {
+            <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background-color: rgba(0,0,0,0.03); border-radius: 8px;">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                    <MudText Typo="Typo.caption"><b>@GetPostDisplayName(shareTarget)</b></MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(shareTarget.Date)</MudText>
+                </MudStack>
+                <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">@shareTarget.Text</MudText>
+            </MudPaper>
+        }
+        <MudTextField @bind-Value="shareText"
+                      Label="Adicione um comentário (opcional)"
+                      Variant="Variant.Outlined"
+                      Lines="3"
+                      MaxLength="512"
+                      Counter="512"
+                      Immediate="true"
+                      FullWidth="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseShareDialog" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="ConfirmShareAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@isSharing">
+            @if (isSharing)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Compartilhar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
 
 <style>
     .post-card {

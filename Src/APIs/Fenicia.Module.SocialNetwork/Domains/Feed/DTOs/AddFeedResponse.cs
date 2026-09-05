@@ -7,4 +7,5 @@ public record AddFeedResponse(
     [Required] DateTime Date,
     [Required] [MaxLength(200)] string Text,
     [Required] Guid ProfileId,
-    [Required] Guid CompanyId);
+    [Required] Guid CompanyId,
+    Guid? OriginalFeedId);

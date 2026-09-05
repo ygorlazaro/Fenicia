@@ -13,6 +13,9 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
+        var original = await feedRepository.GetByIdAsync(command.OriginalFeedId, cancellationToken)
+            ?? throw new InvalidOperationException("Post original não encontrado.");
+
         var model = new ShareModel
         {
             Id = command.Id,
@@ -24,14 +27,31 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
+
+        var shareFeed = new FeedModel
+        {
+            Id = Guid.NewGuid(),
+            Date = created.ShareDate,
+            Text = command.Text ?? string.Empty,
+            ProfileId = profileId,
+            OriginalFeedId = command.OriginalFeedId,
+            CompanyId = companyId,
+            TotalLikes = 0,
+            TotalComments = 0,
+            TotalShares = 0,
+        };
+        await feedRepository.InsertAsync(shareFeed, cancellationToken);
+
         await IncrementFeedTotalSharesAsync(command.OriginalFeedId, cancellationToken);
+
         return new AddShareResponse(
             created.Id,
             created.OriginalFeedId,
             created.Text,
             created.CompanyId,
             created.ProfileId,
-            created.ShareDate);
+            created.ShareDate,
+            shareFeed.Id);
     }
 
     public async Task<List<GetSharesResponse>> GetSharesByFeedAsync(
