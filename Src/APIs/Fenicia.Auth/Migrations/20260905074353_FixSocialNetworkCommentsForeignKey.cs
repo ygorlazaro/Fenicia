@@ -10,38 +10,27 @@ public partial class FixSocialNetworkCommentsForeignKey : Migration
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropForeignKey(
-            name: "fk_comments_users_user_id",
-            schema: "social_network",
-            table: "comments");
-
-        migrationBuilder.AddForeignKey(
-            name: "fk_comments_profiles_profile_id",
-            schema: "social_network",
-            table: "comments",
-            column: "profile_id",
-            principalSchema: "social_network",
-            principalTable: "profiles",
-            principalColumn: "id",
-            onDelete: ReferentialAction.Cascade);
+        migrationBuilder.Sql(@"
+            ALTER TABLE social_network.comments DROP CONSTRAINT IF EXISTS fk_comments_users_user_id;
+            ALTER TABLE social_network.comments DROP CONSTRAINT IF EXISTS fk_comments_profiles_profile_id;
+            ALTER TABLE social_network.comments
+                ADD CONSTRAINT fk_comments_profiles_profile_id
+                FOREIGN KEY (profile_id)
+                REFERENCES social_network.profiles (id)
+                ON DELETE CASCADE;
+        ");
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropForeignKey(
-            name: "fk_comments_profiles_profile_id",
-            schema: "social_network",
-            table: "comments");
-
-        migrationBuilder.AddForeignKey(
-            name: "fk_comments_users_user_id",
-            schema: "social_network",
-            table: "comments",
-            column: "user_id",
-            principalSchema: "auth",
-            principalTable: "users",
-            principalColumn: "id",
-            onDelete: ReferentialAction.Cascade);
+        migrationBuilder.Sql(@"
+            ALTER TABLE social_network.comments DROP CONSTRAINT IF EXISTS fk_comments_profiles_profile_id;
+            ALTER TABLE social_network.comments
+                ADD CONSTRAINT fk_comments_users_user_id
+                FOREIGN KEY (user_id)
+                REFERENCES auth.users (id)
+                ON DELETE CASCADE;
+        ");
     }
 }
