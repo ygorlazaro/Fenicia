@@ -39,15 +39,6 @@
     }
     else
     {
-    <MudPaper Class="pa-4 mb-4" Elevation="0" Style="background: #fff3e0">
-        <MudText Typo="Typo.subtitle2">DEBUG</MudText>
-        <MudText Typo="Typo.caption">Dashboard rows: categorias=@(_dashboard?.CategoryBreakdown.Count ?? -1), fornecedores=@(_dashboard?.SupplierBreakdown.Count ?? -1)</MudText>
-        <MudText Typo="Typo.caption">Chart series count: cat=@_categoryChartSeries.Count, sup=@_supplierChartSeries.Count</MudText>
-        <MudText Typo="Typo.caption">Chart labels: cat=@_categoryChartLabels.Length, sup=@_supplierChartLabels.Length</MudText>
-        <MudText Typo="Typo.caption">Chart data (cat): @string.Join(",", _categoryChartSeries.FirstOrDefault()?.Data ?? new double[0])</MudText>
-        <MudText Typo="Typo.caption">Chart labels (cat): @string.Join(",", _categoryChartLabels)</MudText>
-    </MudPaper>
-
     <MudGrid Spacing="3" Class="mb-4">
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
@@ -388,9 +379,9 @@
                     [
                         new ChartSeries<double>
                         {
-                            Name = "Vendas",
+                            Name = "Quantidade em Estoque",
                             Data = _dashboard?.CategoryBreakdown
-                                .Select(c => (double)c.TotalSalesValue).ToArray() ?? []
+                                .Select(c => c.TotalQuantity).ToArray() ?? []
                         }
                     ];
                     _categoryChartLabels = _dashboard?.CategoryBreakdown
@@ -399,9 +390,9 @@
                     [
                         new ChartSeries<double>
                         {
-                            Name = "Vendas",
+                            Name = "Quantidade em Estoque",
                             Data = _dashboard?.SupplierBreakdown
-                                .Select(s => (double)s.TotalSalesValue).ToArray() ?? []
+                                .Select(s => s.TotalQuantity).ToArray() ?? []
                         }
                     ];
                     _supplierChartLabels = _dashboard?.SupplierBreakdown
