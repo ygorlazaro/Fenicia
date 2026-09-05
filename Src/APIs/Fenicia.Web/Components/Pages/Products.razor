@@ -210,8 +210,8 @@
                 client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
             }
 
-            var categoriesTask = client.GetAsync("productcategory?page=1&perPage=200");
-            var suppliersTask = client.GetAsync("supplier?page=1&perPage=200");
+            var categoriesTask = client.GetAsync("datasource/productcategory");
+            var suppliersTask = client.GetAsync("datasource/supplier");
 
             await Task.WhenAll(categoriesTask, suppliersTask);
 
@@ -219,16 +219,16 @@
             if (categoriesResponse.IsSuccessStatusCode)
             {
                 var body = await categoriesResponse.Content.ReadAsStringAsync();
-                var paginated = JsonSerializer.Deserialize<Pagination<List<CategoryOption>>>(body, JsonOptions);
-                _categories = paginated?.Data ?? new();
+                var items = JsonSerializer.Deserialize<List<CategoryOption>>(body, JsonOptions);
+                _categories = items ?? new();
             }
 
             var suppliersResponse = await suppliersTask;
             if (suppliersResponse.IsSuccessStatusCode)
             {
                 var body = await suppliersResponse.Content.ReadAsStringAsync();
-                var paginated = JsonSerializer.Deserialize<Pagination<List<SupplierOption>>>(body, JsonOptions);
-                _suppliers = paginated?.Data ?? new();
+                var items = JsonSerializer.Deserialize<List<SupplierOption>>(body, JsonOptions);
+                _suppliers = items ?? new();
             }
         }
         catch
