@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectStatusController(IProjectStatusService projectStatusService) : ControllerBase
+public class ProjectStatusController(
+    IProjectStatusService projectStatusService,
+    ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Gets a paginated list of project statuses.
@@ -111,7 +114,7 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var status = await projectStatusService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var status = await projectStatusService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
         return new CreatedResult(string.Empty, status);
     }
@@ -149,7 +152,7 @@ public class ProjectStatusController(IProjectStatusService projectStatusService)
 
         var status = await projectStatusService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return status is null ? NotFound() : Ok(status);

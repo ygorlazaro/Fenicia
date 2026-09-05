@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,9 @@ namespace Fenicia.Module.Projects.Domains.Project;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectController(IProjectService projectService) : ControllerBase
+public class ProjectController(
+    IProjectService projectService,
+    ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Gets all projects with pagination.
@@ -162,7 +165,7 @@ public class ProjectController(IProjectService projectService) : ControllerBase
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var project = await projectService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var project = await projectService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
         return new CreatedResult(string.Empty, project);
     }
@@ -227,7 +230,7 @@ public class ProjectController(IProjectService projectService) : ControllerBase
 
         var project = await projectService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return project is null ? NotFound() : Ok(project);

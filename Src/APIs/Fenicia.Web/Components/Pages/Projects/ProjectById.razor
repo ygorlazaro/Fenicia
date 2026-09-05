@@ -1,4 +1,4 @@
-@page "/projects/{Id:guid}"
+@page "/project/{Id:guid}"
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IAuthStateService AuthState
@@ -27,7 +27,7 @@
     {
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/projects"))" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/project"))" />
                 <MudText Typo="Typo.h4">@project.Title</MudText>
                 <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(project.Status)">@project.Status</MudChip>
             </MudStack>
