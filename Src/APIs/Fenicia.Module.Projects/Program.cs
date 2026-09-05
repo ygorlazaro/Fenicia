@@ -35,6 +35,7 @@ public abstract class Program
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
                 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+                builder.Services.AddScoped<IRepository<ProjectModel>, ProjectRepository>();
                 builder.Services.AddScoped<IRepository<AttachmentModel>, ProjectAttachmentRepository>();
                 builder.Services.AddScoped<IRepository<ProjectCommentModel>, ProjectCommentRepository>();
                 builder.Services.AddScoped<IRepository<ProjectSubtaskModel>, ProjectSubtaskRepository>();
