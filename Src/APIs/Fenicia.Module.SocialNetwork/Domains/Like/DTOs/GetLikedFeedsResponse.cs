@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Fenicia.Module.SocialNetwork.Domains.Feed.DTOs;
+namespace Fenicia.Module.SocialNetwork.Domains.Like.DTOs;
 
-public record GetAllFeedResponse(
+public record GetLikedFeedsResponse(
     [Required] Guid Id,
     [Required] DateTime Date,
-    [Required] [MaxLength(200)] string Text,
+    [Required] [MaxLength(512)] string Text,
     [Required] Guid ProfileId,
     [Required] Guid CompanyId,
     int TotalLikes,

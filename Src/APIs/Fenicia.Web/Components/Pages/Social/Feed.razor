@@ -86,28 +86,28 @@
                                     </MudStack>
                                     <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                                        <MudButton Size="Size.Small"
-                                                   Variant="Variant.Text"
-                                                   Color="Color.Default"
-                                                   StartIcon="@Icons.Material.Outlined.ChatBubbleOutline"
-                                                   OnClick="@(() => OpenPostDetail(post.Id))">
-                                            @post.CommentsCount
-                                        </MudButton>
-                                        <MudButton Size="Size.Small"
-                                                   Variant="Variant.Text"
-                                                   Color="@(post.IsLikedByMe ? Color.Error : Color.Default)"
-                                                   StartIcon="@(post.IsLikedByMe ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
-                                                   OnClick="@(() => ToggleLikeAsync(post))"
-                                                   Disabled="@(likingFeedId == post.Id)">
-                                            @post.LikesCount
-                                        </MudButton>
-                                        <MudButton Size="Size.Small"
-                                                   Variant="Variant.Text"
-                                                   Color="Color.Default"
-                                                   StartIcon="@Icons.Material.Outlined.Repeat"
-                                                   OnClick="@(() => SharePostAsync(post))">
-                                            @post.SharesCount
-                                        </MudButton>
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Text"
+                                                                   Color="Color.Default"
+                                                                   StartIcon="@Icons.Material.Outlined.ChatBubbleOutline"
+                                                                   OnClick="@(() => NavigateToFeedDetail(post.Id))">
+                                                            @post.TotalComments
+                                                        </MudButton>
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Text"
+                                                                   Color="@(post.IsLikedByMe ? Color.Error : Color.Default)"
+                                                                   StartIcon="@(post.IsLikedByMe ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
+                                                                   OnClick="@(() => ToggleLikeAsync(post))"
+                                                                   Disabled="@(likingFeedId == post.Id)">
+                                                            @post.TotalLikes
+                                                        </MudButton>
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Text"
+                                                                   Color="Color.Default"
+                                                                   StartIcon="@Icons.Material.Outlined.Repeat"
+                                                                   OnClick="@(() => SharePostAsync(post))">
+                                                            @post.TotalShares
+                                                        </MudButton>
                                     </MudStack>
                                 </div>
                             </MudStack>
@@ -396,7 +396,7 @@
                 if (response.IsSuccessStatusCode)
                 {
                     post.IsLikedByMe = false;
-                    post.LikesCount = Math.Max(0, post.LikesCount - 1);
+                    post.TotalLikes = Math.Max(0, post.TotalLikes - 1);
                 }
             }
             else
@@ -408,7 +408,7 @@
                 if (response.IsSuccessStatusCode)
                 {
                     post.IsLikedByMe = true;
-                    post.LikesCount++;
+                    post.TotalLikes++;
                 }
             }
         }
@@ -428,7 +428,7 @@
         Snackbar.Add("Funcionalidade de compartilhamento em breve!", Severity.Info);
     }
 
-    private void OpenPostDetail(Guid feedId)
+    private void NavigateToFeedDetail(Guid feedId)
     {
         NavigationManager.NavigateTo($"/socialnetwork/feed/{feedId}");
     }
@@ -473,9 +473,9 @@
         public string Text { get; set; } = string.Empty;
         public Guid ProfileId { get; set; }
         public Guid CompanyId { get; set; }
-        public int CommentsCount { get; set; }
-        public int LikesCount { get; set; }
-        public int SharesCount { get; set; }
+        public int TotalLikes { get; set; }
+        public int TotalComments { get; set; }
+        public int TotalShares { get; set; }
         public string? DisplayName { get; set; }
         public bool IsLikedByMe { get; set; }
     }

@@ -153,8 +153,8 @@
                                                                    Variant="Variant.Text"
                                                                    Color="Color.Default"
                                                                    StartIcon="@Icons.Material.Outlined.ChatBubbleOutline"
-                                                                   OnClick="@(() => OpenPostDetail(post.Id))">
-                                                            @post.CommentsCount
+                                                                   OnClick="@(() => NavigateToFeedDetail(post.Id))">
+                                                            @post.TotalComments
                                                         </MudButton>
                                                         <MudButton Size="Size.Small"
                                                                    Variant="Variant.Text"
@@ -162,14 +162,14 @@
                                                                    StartIcon="@(post.IsLikedByMe ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
                                                                    OnClick="@(() => ToggleLikeAsync(post))"
                                                                    Disabled="@(likingFeedId == post.Id || currentProfileId == Guid.Empty)">
-                                                            @post.LikesCount
+                                                            @post.TotalLikes
                                                         </MudButton>
                                                         <MudButton Size="Size.Small"
                                                                    Variant="Variant.Text"
                                                                    Color="Color.Default"
                                                                    StartIcon="@Icons.Material.Outlined.Repeat"
                                                                    Disabled="true">
-                                                            @post.SharesCount
+                                                            @post.TotalShares
                                                         </MudButton>
                                                     </MudStack>
                                                 </div>
@@ -184,7 +184,41 @@
                             <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma mídia ainda.</MudAlert>
                         </MudTabPanel>
                         <MudTabPanel Text="Curtidas" Icon="@Icons.Material.Filled.Favorite">
-                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma curtida ainda.</MudAlert>
+                            @if (isLoadingLiked)
+                            {
+                                <div class="d-flex justify-content-center pa-6">
+                                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                                </div>
+                            }
+                            else if (likedPosts.Count == 0)
+                            {
+                                <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma curtida ainda.</MudAlert>
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-column gap-3 mt-3">
+                                    @foreach (var post in likedPosts)
+                                    {
+                                        <MudPaper Elevation="1" Class="pa-3 post-card" @onclick="@(() => NavigateToFeedDetail(post.Id))" Style="cursor:pointer">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                                <MudText Typo="Typo.caption" Color="Color.Default">@FormatRelativeTime(post.Date)</MudText>
+                                            </MudStack>
+                                            <MudText Typo="Typo.body1" Class="mb-2" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                                <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Outlined.ChatBubbleOutline">
+                                                    @post.TotalComments
+                                                </MudButton>
+                                                <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" StartIcon="@Icons.Material.Filled.Favorite">
+                                                    @post.TotalLikes
+                                                </MudButton>
+                                                <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Outlined.Repeat" Disabled="true">
+                                                    @post.TotalShares
+                                                </MudButton>
+                                            </MudStack>
+                                        </MudPaper>
+                                    }
+                                </div>
+                            }
                         </MudTabPanel>
                     </MudTabs>
                 </MudPaper>
@@ -198,10 +232,12 @@
 
     private bool isLoading = true;
     private bool isLoadingPosts = false;
+    private bool isLoadingLiked = false;
     private string? errorMessage;
     private ProfileDto? profile;
     private bool isOwnProfile;
     private List<PostDto> posts = [];
+    private List<PostDto> likedPosts = [];
     private Guid currentProfileId;
     private Guid? likingFeedId;
 
@@ -218,6 +254,7 @@
 
             await LoadProfileAsync();
             await LoadPostsAsync();
+            await LoadLikedPostsAsync();
         }
     }
 
@@ -352,7 +389,7 @@
                 if (response.IsSuccessStatusCode)
                 {
                     post.IsLikedByMe = false;
-                    post.LikesCount = Math.Max(0, post.LikesCount - 1);
+                    post.TotalLikes = Math.Max(0, post.TotalLikes - 1);
                 }
                 else
                 {
@@ -368,7 +405,7 @@
                 if (response.IsSuccessStatusCode)
                 {
                     post.IsLikedByMe = true;
-                    post.LikesCount++;
+                    post.TotalLikes++;
                 }
                 else
                 {
@@ -388,9 +425,39 @@
         }
     }
 
-    private void OpenPostDetail(Guid feedId)
+    private void NavigateToFeedDetail(Guid feedId)
     {
-        Snackbar.Add("Detalhes do post em breve.", Severity.Info);
+        NavigationManager.NavigateTo($"/socialnetwork/feed/{feedId}");
+    }
+
+    private async Task LoadLikedPostsAsync()
+    {
+        try
+        {
+            isLoadingLiked = true;
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync($"/like/profile/{Id}?page=1&perPage=20");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<PostDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                likedPosts = items ?? [];
+                foreach (var lp in likedPosts)
+                {
+                    lp.IsLikedByMe = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar curtidas: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoadingLiked = false;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private void FollowUser()
@@ -439,9 +506,9 @@
         public string Text { get; set; } = string.Empty;
         public Guid ProfileId { get; set; }
         public Guid CompanyId { get; set; }
-        public int CommentsCount { get; set; }
-        public int LikesCount { get; set; }
-        public int SharesCount { get; set; }
+        public int TotalLikes { get; set; }
+        public int TotalComments { get; set; }
+        public int TotalShares { get; set; }
         public bool IsLikedByMe { get; set; }
     }
 }

@@ -1,0 +1,272 @@
+@page "/socialnetwork/feed/{Id:guid}"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IAuthStateService AuthState
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject ISnackbar Snackbar
+
+<PageTitle>Post - Fenicia Social</PageTitle>
+
+<MainLayout>
+    <MudGrid>
+        <MudItem xs="12" md="8" Class="mx-auto">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/socialnetwork/feed"))" />
+                <MudText Typo="Typo.h5">Post</MudText>
+            </MudStack>
+
+            @if (isLoading)
+            {
+                <div class="d-flex justify-content-center pa-8">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+            }
+            else if (post is not null)
+            {
+                <MudPaper Elevation="2" Class="pa-4 post-card">
+                    <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
+                        <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile/" + post.ProfileId))">
+                            @GetPostInitial()
+                        </MudAvatar>
+                        <div class="flex-grow-1">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
+                                    <MudText Typo="Typo.subtitle2"><b>Usuário</b></MudText>
+                                </MudLink>
+                                <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                            </MudStack>
+                            <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Text"
+                                           Color="Color.Default"
+                                           StartIcon="@Icons.Material.Outlined.ChatBubbleOutline">
+                                    @post.TotalComments
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Text"
+                                           Color="@(post.IsLikedByMe ? Color.Error : Color.Default)"
+                                           StartIcon="@(post.IsLikedByMe ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
+                                           OnClick="ToggleLikeAsync"
+                                           Disabled="@(liking || currentProfileId == Guid.Empty)">
+                                    @post.TotalLikes
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Text"
+                                           Color="Color.Default"
+                                           StartIcon="@Icons.Material.Outlined.Repeat">
+                                    @post.TotalShares
+                                </MudButton>
+                            </MudStack>
+                        </div>
+                    </MudStack>
+                </MudPaper>
+            }
+        </MudItem>
+    </MudGrid>
+</MainLayout>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private bool isLoading = true;
+    private bool liking;
+    private string? errorMessage;
+    private PostDto? post;
+    private Guid currentProfileId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            await LoadCurrentProfileIdAsync();
+            await LoadPostAsync();
+        }
+    }
+
+    private async Task<HttpClient> CreateClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+
+        return client;
+    }
+
+    private async Task LoadCurrentProfileIdAsync()
+    {
+        var client = await CreateClientAsync();
+        var response = await client.GetAsync("/profile");
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(json,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (profile is not null)
+            {
+                currentProfileId = profile.Id;
+            }
+        }
+    }
+
+    private async Task LoadPostAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync($"/feed/{Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                post = System.Text.Json.JsonSerializer.Deserialize<PostDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (post is not null && currentProfileId != Guid.Empty)
+                {
+                    var likeResponse = await client.GetAsync($"/like/isfollowed/{currentProfileId}/{post.Id}");
+                    if (likeResponse.IsSuccessStatusCode)
+                    {
+                        var likeJson = await likeResponse.Content.ReadAsStringAsync();
+                        if (bool.TryParse(likeJson, out var liked))
+                        {
+                            post.IsLikedByMe = liked;
+                        }
+                    }
+                }
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                errorMessage = "Post não encontrado.";
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar post: {(int)response.StatusCode} {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ToggleLikeAsync()
+    {
+        if (post is null || liking || currentProfileId == Guid.Empty) return;
+        try
+        {
+            liking = true;
+            var client = await CreateClientAsync();
+
+            if (post.IsLikedByMe)
+            {
+                var response = await client.DeleteAsync($"/like/{post.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    post.IsLikedByMe = false;
+                    post.TotalLikes = Math.Max(0, post.TotalLikes - 1);
+                }
+                else
+                {
+                    Snackbar.Add($"Falha ao descurtir: {(int)response.StatusCode}", Severity.Error);
+                }
+            }
+            else
+            {
+                var command = new { FeedId = post.Id };
+                var json = System.Text.Json.JsonSerializer.Serialize(command);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("/like", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    post.IsLikedByMe = true;
+                    post.TotalLikes++;
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha ao curtir: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            liking = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetPostInitial() => "?";
+
+    private static string FormatRelativeTime(DateTime date)
+    {
+        var diff = DateTime.UtcNow - date.ToUniversalTime();
+        if (diff.TotalSeconds < 60) return "agora";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}min";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays}d";
+        return date.ToString("dd MMM yyyy");
+    }
+
+    private class PostDto
+    {
+        public Guid Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public Guid ProfileId { get; set; }
+        public Guid CompanyId { get; set; }
+        public int TotalLikes { get; set; }
+        public int TotalComments { get; set; }
+        public int TotalShares { get; set; }
+        public bool IsLikedByMe { get; set; }
+    }
+
+    private class ProfileDto
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+    }
+}
+
+<style>
+    .post-card {
+        transition: background-color 0.15s ease;
+    }
+    .post-card:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>

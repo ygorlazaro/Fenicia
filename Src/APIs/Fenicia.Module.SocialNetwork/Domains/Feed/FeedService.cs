@@ -22,9 +22,9 @@ public class FeedService(FeedRepository repository)
                 f.Text,
                 f.ProfileId,
                 f.CompanyId,
-                f.Comments.Count,
-                f.Likes.Count,
-                f.Shares.Count))
+                f.TotalLikes,
+                f.TotalComments,
+                f.TotalShares))
         ];
     }
 
@@ -45,9 +45,9 @@ public class FeedService(FeedRepository repository)
                 f.Text,
                 f.ProfileId,
                 f.CompanyId,
-                f.Comments.Count,
-                f.Likes.Count,
-                f.Shares.Count))
+                f.TotalLikes,
+                f.TotalComments,
+                f.TotalShares))
         ];
     }
 
@@ -66,9 +66,9 @@ public class FeedService(FeedRepository repository)
                 feed.Text,
                 feed.ProfileId,
                 feed.CompanyId,
-                feed.Comments.Count,
-                feed.Likes.Count,
-                feed.Shares.Count)
+                feed.TotalLikes,
+                feed.TotalComments,
+                feed.TotalShares)
         };
     }
 
@@ -83,7 +83,10 @@ public class FeedService(FeedRepository repository)
             Date = command.Date,
             Text = command.Text,
             ProfileId = command.ProfileId,
-            CompanyId = companyId
+            CompanyId = companyId,
+            TotalLikes = 0,
+            TotalComments = 0,
+            TotalShares = 0,
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);

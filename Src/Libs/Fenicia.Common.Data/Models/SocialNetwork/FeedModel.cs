@@ -19,6 +19,12 @@ public class FeedModel : BaseCompanyModel
     [ForeignKey(nameof(ProfileId))]
     public ProfileModel Profile { get; init; } = default!;
 
+    public int TotalLikes { get; set; }
+
+    public int TotalComments { get; set; }
+
+    public int TotalShares { get; set; }
+
     public List<CommentModel> Comments { get; init; } = [];
 
     public List<LikeModel> Likes { get; init; } = [];

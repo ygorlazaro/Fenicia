@@ -8,6 +8,6 @@ public record GetFeedByIdResponse(
     [Required] [MaxLength(200)] string Text,
     [Required] Guid ProfileId,
     [Required] Guid CompanyId,
-    int CommentsCount,
-    int LikesCount,
-    int SharesCount);
+    int TotalLikes,
+    int TotalComments,
+    int TotalShares);
