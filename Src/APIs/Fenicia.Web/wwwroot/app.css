@@ -115,6 +115,7 @@ h1:focus {
     .fenicia-appbar {
         background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%) !important;
         backdrop-filter: blur(10px);
+        overflow: visible !important;
     }
 
     .mud-layout {
