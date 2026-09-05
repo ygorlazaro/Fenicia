@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
@@ -28,7 +29,11 @@ public sealed class AddressService(IAddressRepository addressRepository) : IAddr
             Country = command.Country
         };
 
-        var created = await addressRepository.InsertAsync(address, cancellationToken);
+        await addressRepository.InsertAsync(address, cancellationToken);
+
+        var created = await addressRepository.Query()
+            .Include(a => a.State)
+            .FirstAsync(a => a.Id == address.Id, cancellationToken);
 
         return created.MapToAddressResponse();
     }
@@ -52,13 +57,23 @@ public sealed class AddressService(IAddressRepository addressRepository) : IAddr
         };
 
         var updated = await addressRepository.UpdateAsync(id, address, cancellationToken);
+        if (updated is null)
+        {
+            return null;
+        }
 
-        return updated?.MapToAddressResponse();
+        var reloaded = await addressRepository.Query()
+            .Include(a => a.State)
+            .FirstAsync(a => a.Id == id, cancellationToken);
+
+        return reloaded.MapToAddressResponse();
     }
 
     public async Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var address = await addressRepository.GetByIdAsync(id, cancellationToken);
+        var address = await addressRepository.Query()
+            .Include(a => a.State)
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 
         return address?.MapToAddressResponse();
     }
