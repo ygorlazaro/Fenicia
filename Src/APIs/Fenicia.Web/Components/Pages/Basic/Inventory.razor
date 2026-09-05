@@ -153,8 +153,16 @@
                         <MudTh Style="text-align: right">Venda</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Produto">@context.Name</MudTd>
-                        <MudTd DataLabel="Categoria">@context.CategoryName</MudTd>
+                        <MudTd DataLabel="Produto">
+                            <MudLink Href="@($"/basic/product?edit={context.Id}")" Underline="Underline.Hover">
+                                @context.Name
+                            </MudLink>
+                        </MudTd>
+                        <MudTd DataLabel="Categoria">
+                            <MudLink Href="@($"/basic/productcategory?edit={context.CategoryId}")" Underline="Underline.Hover">
+                                @context.CategoryName
+                            </MudLink>
+                        </MudTd>
                         <MudTd DataLabel="Quantidade" Style="text-align: right">
                             <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@context.Quantity</MudChip>
                         </MudTd>
@@ -280,12 +288,16 @@
                                     <MudTh Style="text-align: right">Qtd. Recomendada</MudTh>
                                     <MudTh Style="text-align: right">Excesso (R$)</MudTh>
                                 </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Produto">@context.ProductName</MudTd>
-                                    <MudTd DataLabel="Qtd. Atual" Style="text-align: right">@context.CurrentQuantity.ToString("N0")</MudTd>
-                                    <MudTd DataLabel="Qtd. Recomendada" Style="text-align: right">@context.RecommendedQuantity.ToString("N0")</MudTd>
-                                    <MudTd DataLabel="Excesso (R$)" Style="text-align: right">@context.ExcessValue.ToString("C")</MudTd>
-                                </RowTemplate>
+                    <RowTemplate>
+                        <MudTd DataLabel="Produto">
+                            <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
+                                @context.ProductName
+                            </MudLink>
+                        </MudTd>
+                        <MudTd DataLabel="Qtd. Atual" Style="text-align: right">@context.CurrentQuantity.ToString("N0")</MudTd>
+                        <MudTd DataLabel="Qtd. Recomendada" Style="text-align: right">@context.RecommendedQuantity.ToString("N0")</MudTd>
+                        <MudTd DataLabel="Excesso (R$)" Style="text-align: right">@context.ExcessValue.ToString("C")</MudTd>
+                    </RowTemplate>
                             </MudTable>
                         }
                     </MudPaper>
@@ -316,10 +328,25 @@
                             <MudTh Style="text-align: right">Valor</MudTh>
                             <MudTh Style="text-align: right">Dias sem mover</MudTh>
                         </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="Produto">@context.ProductName</MudTd>
-                            <MudTd DataLabel="Categoria">@context.CategoryName</MudTd>
-                            <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(context.SupplierName) ? "—" : context.SupplierName)</MudTd>
+                    <RowTemplate>
+                        <MudTd DataLabel="Produto">
+                            <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
+                                @context.ProductName
+                            </MudLink>
+                        </MudTd>
+                        <MudTd DataLabel="Categoria">@context.CategoryName</MudTd>
+                        <MudTd DataLabel="Fornecedor">
+                            @if (!string.IsNullOrEmpty(context.SupplierName))
+                            {
+                                <MudLink Href="@($"/basic/supplier")" Underline="Underline.Hover">
+                                    @context.SupplierName
+                                </MudLink>
+                            }
+                            else
+                            {
+                                <text>—</text>
+                            }
+                        </MudTd>
                             <MudTd DataLabel="Estoque" Style="text-align: right">@context.CurrentStock.ToString("N0")</MudTd>
                             <MudTd DataLabel="Valor" Style="text-align: right">@context.StockValue.ToString("C")</MudTd>
                             <MudTd DataLabel="Dias sem mover" Style="text-align: right">

@@ -1,0 +1,344 @@
+@page "/basic/order/{Id:guid}"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject IAuthStateService AuthState
+@inject ISnackbar Snackbar
+
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Fenicia.Common.Enums.Auth
+@using Fenicia.Common.Enums.Basic
+
+<PageTitle>Pedido @(_order?.OrderNumber ?? "...") - Fenicia</PageTitle>
+
+<MainLayout>
+    @if (!isLoggedIn)
+    {
+        <MudAlert Severity="Severity.Error">Faça login para visualizar pedidos.</MudAlert>
+    }
+    else if (_isLoading)
+    {
+        <div class="d-flex justify-center my-16">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        </div>
+    }
+    else if (_order is null)
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+            Pedido não encontrado.
+            <MudLink Href="/basic/order" Class="ml-2">Voltar para pedidos</MudLink>
+        </MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            <MudItem xs="12">
+                <MudPaper Elevation="2" Class="pa-4">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3 flex-wrap">
+                        <div>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                                               Color="Color.Default"
+                                               OnClick="@(() => NavigationManager.NavigateTo("/basic/order"))" />
+                                <div>
+                                    <MudText Typo="Typo.h5">Pedido @_order.OrderNumber</MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Default">
+                                        Realizado em @_order.SaleDate.ToString("dd/MM/yyyy HH:mm")
+                                    </MudText>
+                                </div>
+                            </MudStack>
+                        </div>
+                        <MudStack Row="true" Spacing="2">
+                            <MudChip T="string"
+                                     Color="@StatusColor(_order.Status)"
+                                     Variant="Variant.Filled"
+                                     Size="Size.Medium">
+                                @_order.Status
+                            </MudChip>
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Default"
+                                       StartIcon="@Icons.Material.Filled.Print"
+                                       OnClick="PrintInvoice">
+                                Imprimir
+                            </MudButton>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="8">
+                <MudPaper Elevation="2" Class="pa-4 invoice-section">
+                    <MudText Typo="Typo.h6" Class="mb-3">Itens do pedido</MudText>
+
+                    @if (!_details.Any())
+                    {
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">Nenhum item registrado neste pedido.</MudAlert>
+                    }
+                    else
+                    {
+                        <MudSimpleTable Hover="true" Dense="true" Striped="true" Bordered="false">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th style="text-align:right">Qtd.</th>
+                                    <th style="text-align:right">Preço</th>
+                                    <th style="text-align:right">Desc.</th>
+                                    <th style="text-align:right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in _details)
+                                {
+                                    <tr>
+                                        <td>
+                                    <MudLink Href="@($"/basic/product?edit={item.ProductId}")" Underline="Underline.Hover">
+                                        @item.ProductName
+                                    </MudLink>
+                                </td>
+                                        <td style="text-align:right">@item.Quantity.ToString("0.##")</td>
+                                        <td style="text-align:right">@item.Price.ToString("C")</td>
+                                        <td style="text-align:right">@(item.DiscountAmount > 0 ? "-" + item.DiscountAmount.ToString("C") : "—")</td>
+                                        <td style="text-align:right"><strong>@item.Subtotal.ToString("C")</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="2" Class="pa-4 invoice-section">
+                    <MudText Typo="Typo.h6" Class="mb-3">Resumo</MudText>
+
+                    <MudStack Spacing="2">
+                        <div class="invoice-row">
+                            <MudText>Cliente:</MudText>
+                            <MudLink Href="@($"/basic/customer?edit={_order.CustomerId}")" Underline="Underline.Hover">
+                                <strong>@_order.CustomerName</strong>
+                            </MudLink>
+                        </div>
+                        <div class="invoice-row">
+                            <MudText>Pagamento:</MudText>
+                            <MudText>@PaymentLabel(_order.PaymentMethod)</MudText>
+                        </div>
+                        @if (_order.EmployeeId.HasValue)
+                        {
+                            <div class="invoice-row">
+                                <MudText>Vendedor:</MudText>
+                                <MudLink Href="@($"/basic/employee?edit={_order.EmployeeId}")" Underline="Underline.Hover">
+                                    @_order.EmployeeId.Value.ToString()[..8]
+                                </MudLink>
+                            </div>
+                        }
+                        <MudDivider Class="my-2" />
+                        <div class="invoice-row">
+                            <MudText>Itens:</MudText>
+                            <MudText>@_order.TotalQuantity.ToString("0.##")</MudText>
+                        </div>
+                        <div class="invoice-row">
+                            <MudText>Subtotal:</MudText>
+                            <MudText>@((_order.TotalAmount + _order.DiscountAmount).ToString("C"))</MudText>
+                        </div>
+                        @if (_order.DiscountAmount > 0)
+                        {
+                            <div class="invoice-row">
+                                <MudText>Desconto:</MudText>
+                                <MudText Color="Color.Warning">- @_order.DiscountAmount.ToString("C")</MudText>
+                            </div>
+                        }
+                        <MudDivider Class="my-2" />
+                        <div class="invoice-row">
+                            <MudText Typo="Typo.h6">Total:</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary">@_order.TotalAmount.ToString("C")</MudText>
+                        </div>
+                    </MudStack>
+
+                    @if (!string.IsNullOrEmpty(_order.Notes))
+                    {
+                        <MudDivider Class="my-3" />
+                        <MudText Typo="Typo.subtitle2">Observações</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Default">@_order.Notes</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+</MainLayout>
+
+<style>
+    .invoice-section {
+        min-height: 200px;
+    }
+
+    .invoice-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    @@media print {
+        .mud-appbar, .mud-drawer, .fenicia-footer, .mud-button, .mud-icon-button {
+            display: none !important;
+        }
+
+        .invoice-section {
+            box-shadow: none !important;
+            border: 1px solid #ddd;
+        }
+    }
+</style>
+
+@code {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+    };
+
+    [Parameter] public Guid Id { get; set; }
+
+    private bool isLoggedIn;
+    private bool _isLoading = true;
+    private OrderDto? _order;
+    private List<OrderDetailDto> _details = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            isLoggedIn = await AuthState.IsAuthenticatedAsync();
+        }
+        catch
+        {
+            isLoggedIn = false;
+        }
+
+        if (isLoggedIn)
+        {
+            await LoadOrderAsync();
+        }
+        else
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (_order is not null && _order.Id != Id)
+        {
+            _order = null;
+            _details = [];
+        }
+    }
+
+    private async Task LoadOrderAsync()
+    {
+        try
+        {
+            _isLoading = true;
+            StateHasChanged();
+
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var orderTask = client.GetAsync($"order/{Id}");
+            var detailsTask = client.GetAsync($"order/{Id}/orderdetail");
+
+            await Task.WhenAll(orderTask, detailsTask);
+
+            if (orderTask.Result.IsSuccessStatusCode)
+            {
+                var body = await orderTask.Result.Content.ReadAsStringAsync();
+                _order = JsonSerializer.Deserialize<OrderDto>(body, JsonOptions);
+            }
+
+            if (detailsTask.Result.IsSuccessStatusCode)
+            {
+                var body = await detailsTask.Result.Content.ReadAsStringAsync();
+                _details = JsonSerializer.Deserialize<List<OrderDetailDto>>(body, JsonOptions) ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar pedido: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void PrintInvoice()
+    {
+        NavigationManager.NavigateTo("javascript:window.print()", forceLoad: false);
+    }
+
+    private static Color StatusColor(string status) => status switch
+    {
+        "Approved" => Color.Success,
+        "Pending" => Color.Warning,
+        "Cancelled" => Color.Error,
+        _ => Color.Default
+    };
+
+    private static string PaymentLabel(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Cash => "Dinheiro",
+        PaymentMethod.CreditCard => "Cartão de Crédito",
+        PaymentMethod.DebitCard => "Cartão de Débito",
+        PaymentMethod.Pix => "PIX",
+        PaymentMethod.Boleto => "Boleto",
+        PaymentMethod.BankTransfer => "Transferência",
+        _ => method.ToString()
+    };
+
+    public class OrderDto
+    {
+        public Guid Id { get; set; }
+        public string OrderNumber { get; set; } = string.Empty;
+        public Guid CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public int TotalQuantity { get; set; }
+        public DateTime SaleDate { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public PaymentMethod PaymentMethod { get; set; }
+        public string? Notes { get; set; }
+        public Guid? EmployeeId { get; set; }
+    }
+
+    public class OrderDetailDto
+    {
+        public Guid Id { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public double Quantity { get; set; }
+        public decimal Subtotal { get; set; }
+    }
+}

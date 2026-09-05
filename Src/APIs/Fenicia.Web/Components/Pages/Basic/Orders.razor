@@ -1,0 +1,870 @@
+@page "/basic/order"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject IAuthStateService AuthState
+@inject ISnackbar Snackbar
+
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Fenicia.Common.Enums.Auth
+@using Fenicia.Common.Enums.Basic
+
+<PageTitle>Pedidos - Fenicia</PageTitle>
+
+<MainLayout>
+    @if (!isLoggedIn)
+    {
+        <MudAlert Severity="Severity.Error">Faça login para gerenciar pedidos.</MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            <MudItem xs="12">
+                <MudPaper Elevation="2" Class="pa-4">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <div>
+                            <MudText Typo="Typo.h5">Pedidos</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Default">Selecione os produtos e finalize a venda.</MudText>
+                        </div>
+                        <MudStack Row="true" Spacing="2">
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Default"
+                                       StartIcon="@Icons.Material.Filled.Refresh"
+                                       OnClick="LoadAllAsync"
+                                       Disabled="_isLoading">
+                                Atualizar
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Warning"
+                                       StartIcon="@Icons.Material.Filled.ClearAll"
+                                       OnClick="ClearCart"
+                                       Disabled="!_cart.Any()">
+                                Limpar Carrinho
+                            </MudButton>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="7" lg="8">
+                <MudPaper Elevation="2" Class="pa-4">
+                    <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+                        <MudItem xs="12" sm="10">
+                            <MudTextField @bind-Value="_search"
+                                          Label="Buscar produto (nome, SKU ou código de barras)"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          Immediate="true"
+                                          OnKeyDown="OnSearchKeyDown" />
+                        </MudItem>
+                        <MudItem xs="12" sm="2">
+                            <MudStack Row="true" Justify="Justify.FlexEnd">
+                                <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined">
+                                    @((FilteredProducts as IList<DashboardProductDto> ?? FilteredProducts.ToList()).Count + " produto(s)")
+                                </MudChip>
+                            </MudStack>
+                        </MudItem>
+                    </MudGrid>
+
+                    <MudDivider Class="my-3" />
+
+                    @if (_isLoading)
+                    {
+                        <div class="d-flex justify-center my-8">
+                            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+                        </div>
+                    }
+                    else if (!FilteredProducts.Any())
+                    {
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">Nenhum produto disponível.</MudAlert>
+                    }
+                    else
+                    {
+                        <div class="pdv-product-grid">
+                            @foreach (var product in FilteredProducts)
+                            {
+                                <MudCard Elevation="1"
+                                         Class="@($"pdv-product-card {(product.Quantity <= 0 ? "pdv-product-disabled" : string.Empty)}")"
+                                         @onclick="@(() => AddToCart(product))">
+                                    <MudCardContent Class="pa-3">
+                                        <MudStack Spacing="1">
+                                            <MudText Typo="Typo.subtitle2" Class="pdv-product-name">@product.Name</MudText>
+                                            @if (!string.IsNullOrEmpty(product.SKU))
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Default">SKU: @product.SKU</MudText>
+                                            }
+                                            @if (!string.IsNullOrEmpty(product.Barcode))
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Default">Cód: @product.Barcode</MudText>
+                                            }
+                                            <MudText Typo="Typo.caption" Color="Color.Default">@product.CategoryName</MudText>
+                                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-1">
+                                                <MudChip T="string"
+                                                         Size="Size.Small"
+                                                         Color="@(product.Quantity > 0 ? Color.Success : Color.Error)"
+                                                         Variant="Variant.Filled">
+                                                    @(product.Quantity > 0 ? $"Estoque: {product.Quantity:0.##}" : "Sem estoque")
+                                                </MudChip>
+                                                <MudText Typo="Typo.h6" Color="Color.Primary">
+                                                    @product.SalesPrice.ToString("C")
+                                                </MudText>
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudCardContent>
+                                </MudCard>
+                            }
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="5" lg="4">
+                <MudPaper Elevation="2" Class="pa-4 pdv-cart">
+                    <MudText Typo="Typo.h6" Class="mb-3">
+                        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+                        Carrinho (@_cart.Count)
+                    </MudText>
+
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12">
+                            <MudSelect T="Guid"
+                                       @bind-Value="_cartCustomerId"
+                                       Label="Cliente"
+                                       Variant="Variant.Outlined"
+                                       Required="true"
+                                       RequiredError="Selecione um cliente">
+                                @foreach (var c in _customers)
+                                {
+                                    <MudSelectItem T="Guid" Value="@c.Id">@c.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="Guid?" @bind-Value="_cartEmployeeId" Label="Vendedor" Variant="Variant.Outlined" Clearable="true">
+                                @foreach (var e in _employees)
+                                {
+                                    <MudSelectItem T="Guid?" Value="@e.Id">@e.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="PaymentMethod" @bind-Value="_cartPaymentMethod" Label="Pagamento" Variant="Variant.Outlined" Required="true">
+                                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Cash">Dinheiro</MudSelectItem>
+                                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.CreditCard">Cartão de Crédito</MudSelectItem>
+                                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.DebitCard">Cartão de Débito</MudSelectItem>
+                                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Pix">PIX</MudSelectItem>
+                                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Boleto">Boleto</MudSelectItem>
+                                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.BankTransfer">Transferência</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="OrderStatus" @bind-Value="_cartStatus" Label="Status" Variant="Variant.Outlined">
+                                <MudSelectItem T="OrderStatus" Value="OrderStatus.Approved">Aprovado</MudSelectItem>
+                                <MudSelectItem T="OrderStatus" Value="OrderStatus.Pending">Pendente</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudNumericField T="decimal" @bind-Value="_cartDiscount" Label="Desconto (R$)" Variant="Variant.Outlined" Min="0" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="_cartNotes" Label="Observações" Variant="Variant.Outlined" Lines="2" />
+                        </MudItem>
+                    </MudGrid>
+
+                    <MudDivider Class="my-3" />
+
+                    @if (!_cart.Any())
+                    {
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Class="mb-3">
+                            Clique nos produtos para adicionar ao carrinho.
+                        </MudAlert>
+                    }
+                    else
+                    {
+                        <div class="pdv-cart-items">
+                            @foreach (var item in _cart)
+                            {
+                                <MudPaper Elevation="0" Class="pa-2 mb-2 pdv-cart-item">
+                                    <MudStack Spacing="1">
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                                            <MudText Typo="Typo.subtitle2" Class="pdv-cart-item-name">@item.Name</MudText>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                                           Size="Size.Small"
+                                                           Color="Color.Error"
+                                                           OnClick="@(() => RemoveFromCart(item.ProductId))" />
+                                        </MudStack>
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                                <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                                               Size="Size.Small"
+                                                               Color="Color.Default"
+                                                               OnClick="@(() => DecreaseQty(item.ProductId))" />
+                                                <MudNumericField T="double"
+                                                                 Value="@item.Quantity"
+                                                                 ValueChanged="@((double v) => UpdateQty(item.ProductId, v))"
+                                                                 Variant="Variant.Outlined"
+                                                                 Margin="Margin.Dense"
+                                                                 Min="0.01"
+                                                                 Style="width:90px" />
+                                                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                               Size="Size.Small"
+                                                               Color="Color.Default"
+                                                               OnClick="@(() => IncreaseQty(item.ProductId))" />
+                                            </MudStack>
+                                            <MudStack Spacing="0" AlignItems="AlignItems.End">
+                                                <MudText Typo="Typo.caption" Color="Color.Default">
+                                                    @item.UnitPrice.ToString("C") x @item.Quantity.ToString("0.##")
+                                                </MudText>
+                                                <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                                                    @item.Subtotal.ToString("C")
+                                                </MudText>
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            }
+                        </div>
+                    }
+
+                    <MudDivider Class="my-3" />
+
+                    <MudStack Spacing="0">
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText>Itens:</MudText>
+                            <MudText>@_totalQuantity.ToString("0.##")</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText>Subtotal:</MudText>
+                            <MudText>@_subtotal.ToString("C")</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText>Desconto:</MudText>
+                            <MudText Color="Color.Warning">- @_cartDiscount.ToString("C")</MudText>
+                        </MudStack>
+                        <MudDivider Class="my-2" />
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText Typo="Typo.h6">Total:</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary">@_total.ToString("C")</MudText>
+                        </MudStack>
+                    </MudStack>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Success"
+                               FullWidth="true"
+                               Size="Size.Large"
+                               StartIcon="@Icons.Material.Filled.PointOfSale"
+                               OnClick="FinalizeSaleAsync"
+                               Disabled="!CanFinalize || _isSubmitting"
+                               Class="mt-4">
+                        @if (_isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+                            <span>Finalizando...</span>
+                        }
+                        else
+                        {
+                            <span>Finalizar Pedido</span>
+                        }
+                    </MudButton>
+
+                    <MudDivider Class="my-4" />
+
+                    <MudText Typo="Typo.h6" Class="mb-2">
+                        <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" />
+                        Pedidos recentes
+                    </MudText>
+
+                    @if (_recentOrders is null)
+                    {
+                        <div class="d-flex justify-center my-2">
+                            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+                        </div>
+                    }
+                    else if (!_recentOrders.Any())
+                    {
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">Nenhum pedido registrado.</MudAlert>
+                    }
+                    else
+                    {
+                        <div class="pdv-recent-orders">
+                            @foreach (var o in _recentOrders)
+                            {
+                                <MudPaper Elevation="0" Class="pa-2 mb-2 pdv-recent-order">
+                                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                        <MudStack Spacing="0">
+                                            <MudLink Href="@($"/basic/order/{o.Id}")" Underline="Underline.Hover">
+                                                <MudText Typo="Typo.subtitle2">@o.OrderNumber</MudText>
+                                            </MudLink>
+                                            <MudLink Href="@($"/basic/customer?edit={o.CustomerId}")" Underline="Underline.Hover">
+                                                <MudText Typo="Typo.caption" Color="Color.Default">@o.CustomerName</MudText>
+                                            </MudLink>
+                                            <MudText Typo="Typo.caption" Color="Color.Default">@o.TotalQuantity.ToString("0.##") itens · @o.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                        </MudStack>
+                                        <MudStack Spacing="0" AlignItems="AlignItems.End">
+                                            <MudChip T="string"
+                                                     Size="Size.Small"
+                                                     Color="@(o.Status == "Approved" ? Color.Success : o.Status == "Cancelled" ? Color.Error : Color.Warning)"
+                                                     Variant="Variant.Filled">
+                                                @o.Status
+                                            </MudChip>
+                                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">@o.TotalAmount.ToString("C")</MudText>
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            }
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <MudDialog @bind-Visible="_showSuccessDialog" Options="_dialogOptions">
+            <TitleContent>
+                <MudText Typo="Typo.h6">
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Class="mr-2" />
+                    Pedido finalizado
+                </MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudStack Spacing="2">
+                    <MudText>Pedido <strong>@_lastOrderNumber</strong> criado com sucesso!</MudText>
+                    <MudText>Total: <strong>@_lastOrderTotal.ToString("C")</strong></MudText>
+                </MudStack>
+            </DialogContent>
+            <DialogActions>
+                <MudButton Variant="Variant.Text" OnClick="StartNewSale">Novo Pedido</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => NavigationManager.NavigateTo($"/basic/order/{_lastOrderId}"))">Ver Pedido</MudButton>
+            </DialogActions>
+        </MudDialog>
+    }
+</MainLayout>
+
+<style>
+    .pdv-product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        max-height: calc(100vh - 340px);
+        overflow-y: auto;
+        padding: 4px;
+    }
+
+    .pdv-product-card {
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .pdv-product-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(94, 53, 177, 0.18) !important;
+    }
+
+    .pdv-product-disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .pdv-product-disabled:hover {
+        transform: none;
+        box-shadow: none !important;
+    }
+
+    .pdv-product-name {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 36px;
+        line-height: 1.2;
+    }
+
+    .pdv-cart {
+        position: sticky;
+        top: 80px;
+    }
+
+    .pdv-cart-items {
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    .pdv-cart-item-name {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.2;
+        flex: 1;
+    }
+
+    .pdv-recent-orders {
+        max-height: 260px;
+        overflow-y: auto;
+    }
+</style>
+
+@code {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+    };
+
+    private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
+
+    private bool isLoggedIn;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    private string? _search;
+
+    private List<DashboardProductDto> _products = [];
+    private List<CustomerOption> _customers = [];
+    private List<EmployeeOption> _employees = [];
+    private List<RecentOrderDto>? _recentOrders;
+
+    private List<CartItem> _cart = [];
+
+    private Guid _cartCustomerId;
+    private Guid? _cartEmployeeId;
+    private PaymentMethod _cartPaymentMethod = PaymentMethod.Cash;
+    private OrderStatus _cartStatus = OrderStatus.Approved;
+    private decimal _cartDiscount;
+    private string? _cartNotes;
+
+    private bool _showSuccessDialog;
+    private string? _lastOrderNumber;
+    private decimal _lastOrderTotal;
+    private Guid _lastOrderId;
+
+    private IEnumerable<DashboardProductDto> FilteredProducts
+    {
+        get
+        {
+            var query = _products.Where(p => p.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(_search))
+            {
+                var term = _search.Trim();
+                query = query.Where(p =>
+                    (p.Name ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (p.SKU ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (p.Barcode ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return query.OrderBy(p => p.Name).ToList();
+        }
+    }
+
+    private int _totalQuantity => (int)_cart.Sum(c => c.Quantity);
+    private decimal _subtotal => _cart.Sum(c => c.Subtotal);
+    private decimal _total => Math.Max(0, _subtotal - _cartDiscount);
+
+    private bool CanFinalize => _cart.Any() && _cartCustomerId != Guid.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            isLoggedIn = await AuthState.IsAuthenticatedAsync();
+        }
+        catch
+        {
+            isLoggedIn = false;
+        }
+
+        if (isLoggedIn)
+        {
+            await LoadAllAsync();
+        }
+        else
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadAllAsync()
+    {
+        try
+        {
+            _isLoading = true;
+            StateHasChanged();
+
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var productsTask = client.GetAsync("datasource/dashboard/product");
+            var customersTask = client.GetAsync("datasource/customer");
+            var employeesTask = client.GetAsync("datasource/employee");
+            var recentOrdersTask = client.GetAsync("order?page=1&perPage=5");
+
+            await Task.WhenAll(productsTask, customersTask, employeesTask, recentOrdersTask);
+
+            if (productsTask.Result.IsSuccessStatusCode)
+            {
+                var body = await productsTask.Result.Content.ReadAsStringAsync();
+                _products = JsonSerializer.Deserialize<List<DashboardProductDto>>(body, JsonOptions) ?? [];
+            }
+
+            if (customersTask.Result.IsSuccessStatusCode)
+            {
+                var body = await customersTask.Result.Content.ReadAsStringAsync();
+                _customers = JsonSerializer.Deserialize<List<CustomerOption>>(body, JsonOptions) ?? [];
+            }
+
+            if (employeesTask.Result.IsSuccessStatusCode)
+            {
+                var body = await employeesTask.Result.Content.ReadAsStringAsync();
+                _employees = JsonSerializer.Deserialize<List<EmployeeOption>>(body, JsonOptions) ?? [];
+            }
+
+            _recentOrders = [];
+            if (recentOrdersTask.Result.IsSuccessStatusCode)
+            {
+                var body = await recentOrdersTask.Result.Content.ReadAsStringAsync();
+                var paginated = JsonSerializer.Deserialize<PaginationWrapper<RecentOrderDto>>(body, JsonOptions);
+                _recentOrders = paginated?.Data ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnSearchKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void AddToCart(DashboardProductDto product)
+    {
+        if (product.Quantity <= 0)
+        {
+            Snackbar.Add("Produto sem estoque.", Severity.Warning);
+            return;
+        }
+
+        var existing = _cart.FirstOrDefault(c => c.ProductId == product.Id);
+        if (existing is not null)
+        {
+            if (existing.Quantity + 1 > product.Quantity)
+            {
+                Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
+                return;
+            }
+
+            existing.Quantity += 1;
+            existing.Subtotal = existing.UnitPrice * (decimal)existing.Quantity - existing.DiscountAmount;
+        }
+        else
+        {
+            _cart.Add(new CartItem
+            {
+                ProductId = product.Id,
+                Name = product.Name,
+                UnitPrice = product.SalesPrice,
+                Quantity = 1,
+                DiscountAmount = 0,
+                Subtotal = product.SalesPrice
+            });
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveFromCart(Guid productId)
+    {
+        _cart.RemoveAll(c => c.ProductId == productId);
+        StateHasChanged();
+    }
+
+    private void IncreaseQty(Guid productId)
+    {
+        var item = _cart.FirstOrDefault(c => c.ProductId == productId);
+        if (item is null)
+        {
+            return;
+        }
+
+        var product = _products.FirstOrDefault(p => p.Id == productId);
+        if (product is not null && item.Quantity + 1 > product.Quantity)
+        {
+            Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
+            return;
+        }
+
+        item.Quantity += 1;
+        item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
+        StateHasChanged();
+    }
+
+    private void DecreaseQty(Guid productId)
+    {
+        var item = _cart.FirstOrDefault(c => c.ProductId == productId);
+        if (item is null)
+        {
+            return;
+        }
+
+        item.Quantity -= 1;
+        if (item.Quantity <= 0)
+        {
+            _cart.RemoveAll(c => c.ProductId == productId);
+        }
+        else
+        {
+            item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
+        }
+
+        StateHasChanged();
+    }
+
+    private void UpdateQty(Guid productId, double newQty)
+    {
+        var item = _cart.FirstOrDefault(c => c.ProductId == productId);
+        if (item is null)
+        {
+            return;
+        }
+
+        if (newQty <= 0)
+        {
+            _cart.RemoveAll(c => c.ProductId == productId);
+            StateHasChanged();
+            return;
+        }
+
+        var product = _products.FirstOrDefault(p => p.Id == productId);
+        if (product is not null && newQty > product.Quantity)
+        {
+            Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
+            item.Quantity = product.Quantity;
+        }
+        else
+        {
+            item.Quantity = newQty;
+        }
+
+        item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
+        StateHasChanged();
+    }
+
+    private void ClearCart()
+    {
+        _cart.Clear();
+        _cartDiscount = 0;
+        _cartNotes = null;
+        StateHasChanged();
+    }
+
+    private void StartNewSale()
+    {
+        _showSuccessDialog = false;
+        ClearCart();
+        _ = LoadRecentOrdersAsync();
+    }
+
+    private async Task LoadRecentOrdersAsync()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var response = await client.GetAsync("order?page=1&perPage=5");
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                var paginated = JsonSerializer.Deserialize<PaginationWrapper<RecentOrderDto>>(body, JsonOptions);
+                _recentOrders = paginated?.Data ?? [];
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch
+        {
+            // best-effort
+        }
+    }
+
+    private async Task FinalizeSaleAsync()
+    {
+        if (!CanFinalize)
+        {
+            return;
+        }
+
+        try
+        {
+            _isSubmitting = true;
+            StateHasChanged();
+
+            var userId = await CompanyContext.GetUserIdAsync();
+
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var payload = new
+            {
+                UserId = userId,
+                CustomerId = _cartCustomerId,
+                SaleDate = DateTime.UtcNow,
+                Status = _cartStatus,
+                PaymentMethod = _cartPaymentMethod,
+                EmployeeId = _cartEmployeeId,
+                Notes = _cartNotes,
+                DiscountAmount = _cartDiscount,
+                Details = _cart.Select(c => new
+                {
+                    ProductId = c.ProductId,
+                    Price = c.UnitPrice,
+                    Quantity = c.Quantity,
+                    DiscountAmount = c.DiscountAmount
+                }).ToList()
+            };
+
+            var response = await client.PostAsJsonAsync("order", payload, JsonOptions);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao criar pedido: {(int)response.StatusCode} - {body}", Severity.Error);
+                return;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var created = JsonSerializer.Deserialize<CreateOrderResponseDto>(json, JsonOptions);
+            if (created is not null)
+            {
+                _lastOrderId = created.Id;
+                _lastOrderNumber = created.OrderNumber;
+                _lastOrderTotal = created.TotalAmount;
+            }
+
+            _showSuccessDialog = true;
+            Snackbar.Add("Pedido criado com sucesso!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isSubmitting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public class DashboardProductDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? SKU { get; set; }
+        public string? Barcode { get; set; }
+        public decimal? CostPrice { get; set; }
+        public decimal SalesPrice { get; set; }
+        public double Quantity { get; set; }
+        public string? UnitOfMeasure { get; set; }
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+    }
+
+    public class CustomerOption
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class EmployeeOption
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class CreateOrderResponseDto
+    {
+        public Guid Id { get; set; }
+        public string OrderNumber { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+    }
+
+    public class RecentOrderDto
+    {
+        public Guid Id { get; set; }
+        public string OrderNumber { get; set; } = string.Empty;
+        public Guid CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+        public int TotalQuantity { get; set; }
+        public int TotalItems { get; set; }
+        public DateTime SaleDate { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+
+    public class PaginationWrapper<T>
+    {
+        public List<T> Data { get; set; } = [];
+    }
+
+    public class CartItem
+    {
+        public Guid ProductId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public decimal UnitPrice { get; set; }
+        public double Quantity { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal Subtotal { get; set; }
+    }
+}

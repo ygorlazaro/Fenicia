@@ -1,6 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
 
 namespace Fenicia.Module.Basic.Domains.Order.Interfaces;
 
@@ -11,6 +12,10 @@ public interface IOrderService
         CancellationToken cancellationToken = default);
 
     Task<GetOrderByIdResponse?> GetByIdAsync(GetOrderByIdQuery query, CancellationToken cancellationToken = default);
+
+    Task<List<GetOrderDetailsByOrderIdResponse>> GetDetailsByOrderIdAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default);
 
     Task<CreateOrderResponse> CreateAsync(
         CreateOrderCommand command,

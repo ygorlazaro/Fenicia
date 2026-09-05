@@ -1,19 +1,20 @@
 ﻿@page "/not-found"
-@layout Layout.AnonymousLayout
 
 <PageTitle>Página não encontrada - Fenicia</PageTitle>
 
-<MudGrid Justify="Justify.Center" Class="mt-16">
-    <MudItem xs="12" sm="8" md="6">
-        <MudPaper Elevation="2" Class="pa-8 d-flex flex-column align-center text-center">
-            <MudText Typo="Typo.h1" Color="Color.Primary">404</MudText>
-            <MudText Typo="Typo.h4" Class="mb-4">Página não encontrada</MudText>
-            <MudText Typo="Typo.body1" Color="Color.Default" Class="mb-6">
-                Desculpe, o conteúdo que você está procurando não existe.
-            </MudText>
-            <MudLink Href="/" Underline="Underline.None">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Home">Voltar para o início</MudButton>
-            </MudLink>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+<MainLayout>
+    <MudGrid Justify="Justify.Center" Class="mt-16">
+        <MudItem xs="12" sm="8" md="6">
+            <MudPaper Elevation="2" Class="pa-8 d-flex flex-column align-center text-center">
+                <MudText Typo="Typo.h1" Color="Color.Primary">404</MudText>
+                <MudText Typo="Typo.h4" Class="mb-4">Página não encontrada</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Default" Class="mb-6">
+                    Desculpe, o conteúdo que você está procurando não existe.
+                </MudText>
+                <MudLink Href="/" Underline="Underline.None">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Home">Voltar para o início</MudButton>
+                </MudLink>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MainLayout>

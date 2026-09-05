@@ -13,7 +13,12 @@ public interface IDataSourceService
     Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(CancellationToken cancellationToken = default);
+    Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(
+        CancellationToken cancellationToken = default);
 
-    Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(CancellationToken cancellationToken = default);
+    Task<List<GetAllDashboardProductForDataSourceResponse>> GetDashboardProductsAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(
+        CancellationToken cancellationToken = default);
 }

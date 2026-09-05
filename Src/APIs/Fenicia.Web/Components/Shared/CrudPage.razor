@@ -3,6 +3,8 @@
 @inject IAuthStateService AuthState
 @inject ISnackbar Snackbar
 @inject ICompanyContextService CompanyContext
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
 
 @using System.Threading
 @using Fenicia.Web.Services
@@ -195,6 +197,8 @@
     public TItem? EditingItem => _editingItem;
     private bool _showDeleteConfirm;
     private TItem? _itemToDelete;
+    private bool _autoOpenEditHandled;
+    private TItem? _itemToOpen;
 
     private MudTable<TItem> _table = default!;
     private HashSet<TItem> _selectedItems = new();
@@ -224,6 +228,76 @@
         {
             _isLoggedIn = false;
         }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_autoOpenEditHandled)
+        {
+            return;
+        }
+
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var editIdRaw = query["edit"];
+        if (!string.IsNullOrEmpty(editIdRaw) && Guid.TryParse(editIdRaw, out var editId))
+        {
+            _autoOpenEditHandled = true;
+            await TryAutoOpenEditAsync(editId);
+        }
+    }
+
+    private async Task TryAutoOpenEditAsync(Guid id)
+    {
+        try
+        {
+            var client = await CreateClientForLookupAsync();
+            var response = await client.GetAsync($"{Endpoint}/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                var item = System.Text.Json.JsonSerializer.Deserialize<TItem>(body, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (item is not null)
+                {
+                    _itemToOpen = item;
+                    OpenEditModal(item);
+                    return;
+                }
+            }
+
+            _errorMessage = $"Item {id} não encontrado.";
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erro ao carregar item: {ex.Message}";
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task<HttpClient> CreateClientForLookupAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaBasic");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+
+        return client;
     }
 
     private async Task<TableData<TItem>> ServerReload(TableState state, CancellationToken ct)
