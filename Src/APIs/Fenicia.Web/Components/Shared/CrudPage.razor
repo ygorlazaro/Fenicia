@@ -1,0 +1,459 @@
+@typeparam TItem where TItem : ICrudItem
+@inject ICrudClient CrudClient
+@inject IAuthStateService AuthState
+@inject NotificationService NotificationService
+@inject ICompanyContextService CompanyContext
+
+@using System.Threading
+@using Fenicia.Web.Services
+
+<PageTitle>@PageTitle - Fenicia</PageTitle>
+
+<MainLayout>
+    <MudGrid>
+        <MudItem xs="12">
+            @if (!_isLoggedIn)
+            {
+                <MudAlert Severity="Severity.Error">Faça login para gerenciar @EntityNamePlural.</MudAlert>
+            }
+            else if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+            }
+            else
+            {
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-6">
+                        <div>
+                            <MudText Typo="Typo.h5">@PageTitle</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Default">@PageSubtitle</MudText>
+                        </div>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddModal">
+                            @AddButtonLabel
+                        </MudButton>
+                    </MudStack>
+
+                    @if (_selectedItems is { Count: > 0 })
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.Delete"
+                                   OnClick="DeleteSelectedAsync"
+                                   Disabled="_isDeleting"
+                                   Class="mb-4">
+                            @if (_isDeleting)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                            }
+                            @DeleteSelectedLabel (_selectedItems.Count)
+                        </MudButton>
+                    }
+
+                    <MudTable @ref="_table"
+                              T="TItem"
+                              MultiSelection="true"
+                              Comparer="Comparer"
+                              @bind-SelectedItems="_selectedItems"
+                              FixedHeader="true"
+                              FixedFooter="true"
+                              Height="400px"
+                              Striped="true"
+                              Hover="true"
+                              Dense="true"
+                              Loading="_isLoading"
+                              LoadingContent="_loadingContent"
+                              ServerData="ServerReload"
+                              CanCancelEdit="true"
+                              EditTrigger="TableEditTrigger.RowClick"
+                              RowEditPreview="BackupItem"
+                              RowEditCommit="ItemHasBeenCommitted"
+                              RowEditCancel="ResetItemToOriginalValues">
+                        <HeaderContent>
+                            @HeaderContent
+                        </HeaderContent>
+                        <RowTemplate>
+                            @RowTemplate(new CrudRowContext<TItem>(context, this))
+                        </RowTemplate>
+                        <RowEditingTemplate>
+                            @if (RowEditingTemplate is not null)
+                            {
+                                @RowEditingTemplate(context)
+                            }
+                        </RowEditingTemplate>
+                        <FooterContent>
+                            <MudTd colspan="@ColumnCount">
+                                @if (_selectedItems is { Count: > 0 })
+                                {
+                                    <MudText Typo="Typo.body2">@_selectedItems.Count item(s) selecionado(s)</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">Nenhum item selecionado</MudText>
+                                }
+                            </MudTd>
+                        </FooterContent>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new int[] { 5, 10, 20, 50, 100 }"
+                                           RowsPerPageString="Itens por página:"
+                                           InfoFormat="{first_item}-{last_item} de {all_items}"
+                                           AllItemsText="Todos" />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+            }
+        </MudItem>
+    </MudGrid>
+</MainLayout>
+
+@if (_showModal)
+{
+    <MudDialog @bind-Visible="_showModal" Options="_dialogOptions">
+        <TitleContent>
+            <MudText Typo="Typo.h6">@(_activeTab == 0 ? AddDialogTitle : EditDialogTitle)</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudTabs @bind-Value="_activeTab" Elevation="1" Rounded="true" Centered="true">
+                <MudTabPanel Text="@AddTabText" Value="0">
+                    @if (!string.IsNullOrEmpty(_modalError) && _activeTab == 0)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
+                    }
+                    @AddModalBody(new CrudModalContext<TItem>(CrudModalMode.Add, _editingItem, this))
+                </MudTabPanel>
+                <MudTabPanel Text="@EditTabText" Value="1">
+                    @if (!string.IsNullOrEmpty(_modalError) && _activeTab == 1)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_modalError</MudAlert>
+                    }
+                    @EditModalBody(new CrudModalContext<TItem>(CrudModalMode.Edit, _editingItem, this))
+                </MudTabPanel>
+            </MudTabs>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseModal">Cancelar</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveFromModal" Disabled="_isSaving">
+                @if (_isSaving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                }
+                @(_activeTab == 0 ? CreateButtonLabel : UpdateButtonLabel)
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+
+@if (_showDeleteConfirm)
+{
+    <MudDialog @bind-Visible="_showDeleteConfirm" Options="_dialogOptions">
+        <TitleContent>
+            <MudText Typo="Typo.h6">@DeleteDialogTitle</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Tem certeza que deseja excluir <strong>@FormatForDelete(_itemToDelete)</strong>?</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="CloseDeleteModal">Cancelar</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ConfirmDelete" Disabled="_isDeleting">
+                @if (_isDeleting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                }
+                Excluir
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+
+@code {
+    [Parameter, EditorRequired] public string PageTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string PageSubtitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string EntityNamePlural { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string EntityNameSingular { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Endpoint { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public int ColumnCount { get; set; } = 2;
+
+    [Parameter, EditorRequired] public RenderFragment HeaderContent { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<CrudRowContext<TItem>> RowTemplate { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<CrudModalContext<TItem>> AddModalBody { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<CrudModalContext<TItem>> EditModalBody { get; set; } = null!;
+    [Parameter] public RenderFragment<TItem>? RowEditingTemplate { get; set; }
+
+    [Parameter] public string AddButtonLabel { get; set; } = "Adicionar";
+    [Parameter] public string AddTabText { get; set; } = "Novo";
+    [Parameter] public string EditTabText { get; set; } = "Editar";
+    [Parameter] public string AddDialogTitle { get; set; } = "Adicionar";
+    [Parameter] public string EditDialogTitle { get; set; } = "Editar";
+    [Parameter] public string DeleteDialogTitle { get; set; } = "Excluir";
+    [Parameter] public string CreateButtonLabel { get; set; } = "Criar";
+    [Parameter] public string UpdateButtonLabel { get; set; } = "Atualizar";
+    [Parameter] public string DeleteSelectedLabel { get; set; } = "Excluir Selecionados";
+    [Parameter] public IEqualityComparer<TItem>? Comparer { get; set; }
+    [Parameter] public Func<TItem?, string> FormatForDelete { get; set; } = item => item?.ToString() ?? string.Empty;
+    [Parameter] public Func<CrudModalContext<TItem>, object>? CreatePayloadFactory { get; set; }
+
+    private bool _isLoggedIn;
+    private bool _isLoading;
+    private bool _isSaving;
+    private bool _isDeleting;
+    private string? _errorMessage;
+    private string? _modalError;
+    private bool _showModal;
+    private int _activeTab;
+    private TItem? _editingItem;
+    public TItem? EditingItem => _editingItem;
+    private bool _showDeleteConfirm;
+    private TItem? _itemToDelete;
+
+    private MudTable<TItem> _table = default!;
+    private HashSet<TItem> _selectedItems = new();
+    private TItem? _inlineBackup;
+
+    private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
+
+    private RenderFragment _loadingContent => @<text>
+        @for (int i = 0; i < 5; i++)
+        {
+            <MudTr>
+                @for (int c = 0; c < ColumnCount; c++)
+                {
+                    <MudTd><MudSkeleton /></MudTd>
+                }
+            </MudTr>
+        }
+    </text>;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _isLoggedIn = await AuthState.IsAuthenticatedAsync();
+        }
+        catch
+        {
+            _isLoggedIn = false;
+        }
+    }
+
+    private async Task<TableData<TItem>> ServerReload(TableState state, CancellationToken ct)
+    {
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+            StateHasChanged();
+
+            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, ct);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erro: {ex.Message}";
+            return new TableData<TItem> { TotalItems = 0, Items = new List<TItem>() };
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OpenAddModal()
+    {
+        _activeTab = 0;
+        _editingItem = default;
+        _modalError = null;
+        _showModal = true;
+        StateHasChanged();
+    }
+
+    public void OpenEditModal(TItem item)
+    {
+        _activeTab = 1;
+        _editingItem = item;
+        _modalError = null;
+        _showModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        _showModal = false;
+        _editingItem = default;
+        StateHasChanged();
+    }
+
+    private async Task SaveFromModal()
+    {
+        try
+        {
+            _isSaving = true;
+            _modalError = null;
+            StateHasChanged();
+
+            if (CreatePayloadFactory is null)
+            {
+                throw new InvalidOperationException("CreatePayloadFactory must be supplied to support add/edit operations.");
+            }
+
+            var ctx = new CrudModalContext<TItem>(
+                _activeTab == 0 ? CrudModalMode.Add : CrudModalMode.Edit,
+                _editingItem,
+                this);
+
+            var payload = CreatePayloadFactory(ctx);
+
+            if (_activeTab == 0)
+            {
+                await CrudClient.PostAsync(Endpoint, payload, CancellationToken.None);
+                NotificationService.Show($"{EntityNameSingular} criado(a) com sucesso!", Severity.Success);
+            }
+            else
+            {
+                if (_editingItem is null || RowEditingTemplate is null)
+                {
+                    throw new InvalidOperationException("RowEditingTemplate must be supplied to support edit operations.");
+                }
+
+                await CrudClient.PatchAsync(Endpoint, _editingItem.Id, payload, CancellationToken.None);
+                NotificationService.Show($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
+            }
+
+            CloseModal();
+            await _table.ReloadServerData();
+        }
+        catch (Exception ex)
+        {
+            _modalError = ex.Message;
+            NotificationService.Show($"Falha ao salvar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
+        }
+        finally
+        {
+            _isSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void RequestDelete(TItem item)
+    {
+        _itemToDelete = item;
+        _showDeleteConfirm = true;
+        StateHasChanged();
+    }
+
+    private void CloseDeleteModal()
+    {
+        _showDeleteConfirm = false;
+        _itemToDelete = default;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (_itemToDelete is null) return;
+
+        try
+        {
+            _isDeleting = true;
+            StateHasChanged();
+
+            await CrudClient.DeleteAsync(Endpoint, _itemToDelete.Id, CancellationToken.None);
+            NotificationService.Show($"{EntityNameSingular} excluído(a) com sucesso!", Severity.Success);
+
+            CloseDeleteModal();
+            await _table.ReloadServerData();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            NotificationService.Show($"Falha ao excluir {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
+        }
+        finally
+        {
+            _isDeleting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DeleteSelectedAsync()
+    {
+        if (_selectedItems is not { Count: > 0 })
+        {
+            return;
+        }
+
+        try
+        {
+            _isDeleting = true;
+            StateHasChanged();
+
+            foreach (var item in _selectedItems.ToList())
+            {
+                try
+                {
+                    await CrudClient.DeleteAsync(Endpoint, item.Id, CancellationToken.None);
+                    NotificationService.Show($"{FormatForDelete(item)} excluído(a) com sucesso!", Severity.Success);
+                }
+                catch (Exception ex)
+                {
+                    _errorMessage = $"Falha ao excluir {FormatForDelete(item)}: {ex.Message}";
+                    NotificationService.Show($"Falha ao excluir {FormatForDelete(item)}.", Severity.Error);
+                }
+            }
+
+            _selectedItems.Clear();
+            await _table.ReloadServerData();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            _isDeleting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void BackupItem(object element)
+    {
+        if (element is TItem item)
+        {
+            _inlineBackup = item;
+        }
+    }
+
+    private async void ItemHasBeenCommitted(object element)
+    {
+        if (element is not TItem item || CreatePayloadFactory is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _isSaving = true;
+            StateHasChanged();
+
+            var ctx = new CrudModalContext<TItem>(CrudModalMode.Edit, item, this);
+            var payload = CreatePayloadFactory(ctx);
+            await CrudClient.PatchAsync(Endpoint, item.Id, payload, CancellationToken.None);
+            NotificationService.Show($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
+            await _table.ReloadServerData();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            NotificationService.Show($"Falha ao atualizar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
+        }
+        finally
+        {
+            _isSaving = false;
+            _inlineBackup = default;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        _inlineBackup = default;
+    }
+}
