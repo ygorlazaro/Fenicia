@@ -175,6 +175,38 @@ public class DataSourceController(IDataSourceService dataSourceService) : Contro
     }
 
     /// <summary>
+    ///     Obtém a lista de produtos para o PDV, com estoque e preço de venda.
+    /// </summary>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de produtos com estoque e preço</returns>
+    /// <response code="200">Lista de produtos retornada com sucesso</response>
+    /// <response code="401">Usuário não autorizado</response>
+    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os produtos</exception>
+    [HttpGet("dashboard/product")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllDashboardProductForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetAllDashboardProductForDataSourceResponse>>> GetDashboardProductsAsync(
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            wide.UserId = ClaimReader.UserId(User).ToString();
+
+            var products = await dataSourceService.GetDashboardProductsAsync(cancellationToken);
+
+            return Ok(products);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+    }
+
+    /// <summary>
     ///     Obtém a lista de funcionários para datasource.
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>

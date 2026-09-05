@@ -92,10 +92,38 @@
                             <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">—</MudChip>
                         }
                     </MudTd>
-                    <MudTd DataLabel="Produto">@context.ProductName</MudTd>
+                    <MudTd DataLabel="Produto">
+                        <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
+                            @context.ProductName
+                        </MudLink>
+                    </MudTd>
                     <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Quantity.ToString("N2")</MudTd>
                     <MudTd DataLabel="Preço" Style="text-align: right">@((context.Price ?? 0).ToString("C"))</MudTd>
-                    <MudTd DataLabel="Origem">@ResolveOrigin(context)</MudTd>
+                    <MudTd DataLabel="Origem">
+                        @{
+                            var origin = ResolveOrigin(context);
+                        }
+                        @if (context.SupplierId.HasValue && origin.StartsWith("Fornecedor"))
+                        {
+                            <MudLink Href="@($"/basic/supplier?edit={context.SupplierId}")" Underline="Underline.Hover">@origin</MudLink>
+                        }
+                        else if (context.CustomerId.HasValue && origin.StartsWith("Cliente"))
+                        {
+                            <MudLink Href="@($"/basic/customer?edit={context.CustomerId}")" Underline="Underline.Hover">@origin</MudLink>
+                        }
+                        else if (context.EmployeeId.HasValue && origin.StartsWith("Funcionário"))
+                        {
+                            <MudLink Href="@($"/basic/employee?edit={context.EmployeeId}")" Underline="Underline.Hover">@origin</MudLink>
+                        }
+                        else if (context.OrderId.HasValue)
+                        {
+                            <MudLink Href="@($"/basic/order/{context.OrderId}")" Underline="Underline.Hover">Pedido @context.OrderId.Value.ToString()[..8]</MudLink>
+                        }
+                        else
+                        {
+                            @origin
+                        }
+                    </MudTd>
                     <MudTd DataLabel="Motivo">@(string.IsNullOrEmpty(context.Reason) ? "—" : context.Reason)</MudTd>
                     <MudTd DataLabel="Ações" Style="text-align: right">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"

@@ -4,6 +4,7 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
+using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -87,6 +88,40 @@ public class OrderController(IOrderService orderService, ICompanyContext company
             var order = await orderService.GetByIdAsync(new GetOrderByIdQuery(id), cancellationToken);
 
             return order is null ? NotFound() : Ok(order);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+    }
+
+    /// <summary>
+    ///     Obtém os itens de um pedido pelo ID do pedido.
+    /// </summary>
+    /// <param name="id">ID do pedido</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Itens do pedido</returns>
+    /// <response code="200">Itens retornados com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpGet("{id:guid}/orderdetail")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetOrderDetailsByOrderIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetOrderDetailsByOrderIdResponse>>> GetOrderDetailsAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            wide.UserId = ClaimReader.UserId(User).ToString();
+
+            var details = await orderService.GetDetailsByOrderIdAsync(id, cancellationToken);
+
+            return Ok(details);
         }
         catch (UnauthorizedAccessException ex)
         {

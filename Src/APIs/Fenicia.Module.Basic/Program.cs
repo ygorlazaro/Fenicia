@@ -59,6 +59,7 @@ public class Program
                 builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
                 builder.Services.AddScoped<IStockMovementRepository, StockMovementRepository>();
                 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+                builder.Services.AddScoped<IOrderRepository, OrderRepository>();
                 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
                 builder.Services.AddScoped<IStateRepository, StateRepository>();
                 builder.Services.AddScoped<IAddressService, AddressService>();

@@ -91,22 +91,34 @@ public sealed class OrderService(
         return order?.MapToGetOrderByIdResponse();
     }
 
+    public Task<List<Fenicia.Module.Basic.Domains.OrderDetail.DTOs.GetOrderDetailsByOrderIdResponse>>
+        GetDetailsByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
+    {
+        return orderDetailService.GetByOrderIdAsync(
+            new Fenicia.Module.Basic.Domains.OrderDetail.DTOs.GetOrderDetailsByOrderIdQuery(orderId),
+            cancellationToken);
+    }
+
     public async Task<CreateOrderResponse> CreateAsync(
         CreateOrderCommand command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
+        var orderId = Guid.NewGuid();
+
         var details = command.Details.Select(d =>
         {
             var subtotal = (d.Price * (decimal)d.Quantity) - d.DiscountAmount;
             return new OrderDetailModel
             {
                 Id = Guid.NewGuid(),
+                OrderId = orderId,
                 ProductId = d.ProductId,
                 Price = d.Price,
                 Quantity = d.Quantity,
                 DiscountAmount = d.DiscountAmount,
-                Subtotal = subtotal
+                Subtotal = subtotal,
+                CompanyId = companyId
             };
         }).ToList();
 
@@ -116,7 +128,7 @@ public sealed class OrderService(
 
         var order = new OrderModel
         {
-            Id = Guid.NewGuid(),
+            Id = orderId,
             OrderNumber = orderNumber,
             UserId = command.UserId,
             CustomerId = command.CustomerId,

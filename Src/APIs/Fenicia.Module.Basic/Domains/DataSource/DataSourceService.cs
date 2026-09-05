@@ -24,6 +24,12 @@ public sealed class DataSourceService(
     {
     }
 
+    public Task<List<GetAllDashboardProductForDataSourceResponse>> GetDashboardProductsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return productService.GetAllDashboardForDataSourceAsync(cancellationToken);
+    }
+
     public Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(
         CancellationToken cancellationToken = default)
     {
