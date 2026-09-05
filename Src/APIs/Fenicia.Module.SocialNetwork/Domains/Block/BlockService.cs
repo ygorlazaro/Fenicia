@@ -14,11 +14,11 @@ public sealed class BlockService(IBlockRepository blockRepository)
 
     public async Task<AddBlockResponse> BlockAsync(
         BlockCommand command,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var existing = await blockRepository.FindAsync(
-            b => b.UserId == userId && b.BlockedUserId == command.BlockedUserId,
+            b => b.ProfileId == profileId && b.BlockedProfileId == command.BlockedProfileId,
             cancellationToken);
 
         var block = existing.FirstOrDefault();
@@ -28,8 +28,8 @@ public sealed class BlockService(IBlockRepository blockRepository)
             {
                 return new AddBlockResponse(
                     block.Id,
-                    block.UserId,
-                    block.BlockedUserId,
+                    block.ProfileId,
+                    block.BlockedProfileId,
                     block.BlockDate,
                     block.Reason,
                     block.IsActive);
@@ -41,8 +41,8 @@ public sealed class BlockService(IBlockRepository blockRepository)
             await blockRepository.UpdateAsync(block.Id, block, cancellationToken);
             return new AddBlockResponse(
                 block.Id,
-                block.UserId,
-                block.BlockedUserId,
+                block.ProfileId,
+                block.BlockedProfileId,
                 block.BlockDate,
                 block.Reason,
                 block.IsActive);
@@ -50,8 +50,8 @@ public sealed class BlockService(IBlockRepository blockRepository)
 
         var newBlock = new BlockModel
         {
-            UserId = userId,
-            BlockedUserId = command.BlockedUserId,
+            ProfileId = profileId,
+            BlockedProfileId = command.BlockedProfileId,
             BlockDate = DateTime.UtcNow,
             IsActive = true
         };
@@ -59,8 +59,8 @@ public sealed class BlockService(IBlockRepository blockRepository)
         var created = await blockRepository.InsertAsync(newBlock, cancellationToken);
         return new AddBlockResponse(
             created.Id,
-            created.UserId,
-            created.BlockedUserId,
+            created.ProfileId,
+            created.BlockedProfileId,
             created.BlockDate,
             created.Reason,
             created.IsActive);
@@ -68,11 +68,11 @@ public sealed class BlockService(IBlockRepository blockRepository)
 
     public async Task UnblockAsync(
         UnblockCommand command,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var existing = await blockRepository.FindAsync(
-            b => b.UserId == userId && b.BlockedUserId == command.BlockedUserId && b.IsActive,
+            b => b.ProfileId == profileId && b.BlockedProfileId == command.BlockedProfileId && b.IsActive,
             cancellationToken);
 
         var block = existing.FirstOrDefault();
@@ -85,16 +85,16 @@ public sealed class BlockService(IBlockRepository blockRepository)
 
     public async Task<Pagination<List<GetBlockedResponse>>> GetBlockedAsync(
         GetBlockedQuery query,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = blockRepository.Query().Where(b => b.UserId == userId && b.IsActive);
+        var baseQuery = blockRepository.Query().Where(b => b.ProfileId == profileId && b.IsActive);
         var filteredQuery = baseQuery;
         var total = await filteredQuery.CountAsync(cancellationToken);
         var blocks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = blocks.Select(b => new GetBlockedResponse(b.Id, b.BlockedUserId, b.BlockDate, b.Reason))
+        var response = blocks.Select(b => new GetBlockedResponse(b.Id, b.BlockedProfileId, b.BlockDate, b.Reason))
             .ToList();
 
         return new Pagination<List<GetBlockedResponse>>(response, total, query.Page, query.PerPage);
@@ -102,11 +102,11 @@ public sealed class BlockService(IBlockRepository blockRepository)
 
     public Task<bool> IsBlockedAsync(
         IsBlockedQuery query,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         return blockRepository.AnyAsync(
-            b => b.UserId == userId && b.BlockedUserId == query.BlockedUserId && b.IsActive,
+            b => b.ProfileId == profileId && b.BlockedProfileId == query.BlockedProfileId && b.IsActive,
             cancellationToken);
     }
 }

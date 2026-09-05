@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
@@ -8,13 +7,13 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class LikeModel : BaseCompanyModel
 {
     [Required]
-    public Guid UserId { get; init; }
+    public Guid ProfileId { get; init; }
 
     [Required]
     public Guid FeedId { get; init; }
 
-    [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    [ForeignKey(nameof(ProfileId))]
+    public ProfileModel Profile { get; init; } = default!;
 
     [ForeignKey(nameof(FeedId))]
     public FeedModel Feed { get; init; } = default!;

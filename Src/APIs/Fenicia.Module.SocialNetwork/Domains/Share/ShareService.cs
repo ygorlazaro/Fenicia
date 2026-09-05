@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Share.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +9,13 @@ public class ShareService(ShareRepository repository)
     public async Task<AddShareResponse> ShareAsync(
         ShareCommand command,
         Guid companyId,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var model = new ShareModel
         {
             Id = command.Id,
-            UserId = userId,
+            ProfileId = profileId,
             OriginalFeedId = command.OriginalFeedId,
             Text = command.Text,
             CompanyId = companyId,
@@ -29,7 +28,7 @@ public class ShareService(ShareRepository repository)
             created.OriginalFeedId,
             created.Text,
             created.CompanyId,
-            created.UserId,
+            created.ProfileId,
             created.ShareDate);
     }
 
@@ -49,7 +48,7 @@ public class ShareService(ShareRepository repository)
                 s.OriginalFeedId,
                 s.Text,
                 s.CompanyId,
-                s.UserId,
+                s.ProfileId,
                 s.ShareDate))
         ];
     }

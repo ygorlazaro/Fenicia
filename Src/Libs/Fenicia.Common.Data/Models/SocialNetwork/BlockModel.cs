@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
@@ -8,16 +7,16 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class BlockModel : BaseModel
 {
     [Required]
-    public Guid UserId { get; init; }
+    public Guid ProfileId { get; init; }
 
     [Required]
-    public Guid BlockedUserId { get; init; }
+    public Guid BlockedProfileId { get; init; }
 
-    [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    [ForeignKey(nameof(ProfileId))]
+    public ProfileModel Profile { get; init; } = default!;
 
-    [ForeignKey(nameof(BlockedUserId))]
-    public UserModel BlockedUser { get; init; } = default!;
+    [ForeignKey(nameof(BlockedProfileId))]
+    public ProfileModel BlockedProfile { get; init; } = default!;
 
     [MaxLength(256)]
     public string? Reason { get; set; }

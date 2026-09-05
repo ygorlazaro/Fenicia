@@ -7,5 +7,5 @@ public record AddShareResponse(
     [Required] Guid OriginalFeedId,
     [MaxLength(200)] string? Text,
     [Required] Guid CompanyId,
-    [Required] Guid UserId,
+    [Required] Guid ProfileId,
     [Required] DateTime ShareDate);

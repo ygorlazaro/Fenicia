@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
@@ -8,7 +7,7 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class CommentModel : BaseCompanyModel
 {
     [Required]
-    public Guid UserId { get; init; }
+    public Guid ProfileId { get; init; }
 
     [Required]
     public Guid FeedId { get; init; }
@@ -19,8 +18,8 @@ public class CommentModel : BaseCompanyModel
     [MaxLength(1024)]
     public string Text { get; init; } = string.Empty;
 
-    [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    [ForeignKey(nameof(ProfileId))]
+    public ProfileModel Profile { get; init; } = default!;
 
     [ForeignKey(nameof(FeedId))]
     public FeedModel Feed { get; init; } = default!;

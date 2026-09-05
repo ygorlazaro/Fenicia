@@ -168,14 +168,20 @@
             errorMessage = null;
             StateHasChanged();
 
-            var userId = await CompanyContext.GetUserIdAsync();
-            isOwnProfile = userId == Id;
-
             var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
             var token = await CompanyContext.GetTokenAsync();
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var currentProfileResponse = await client.GetAsync("/profile");
+            if (currentProfileResponse.IsSuccessStatusCode)
+            {
+                var currentProfileJson = await currentProfileResponse.Content.ReadAsStringAsync();
+                var currentProfile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(currentProfileJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                isOwnProfile = currentProfile?.Id == Id;
             }
 
             var response = await client.GetAsync($"/profile/{Id}");

@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Feed.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,7 @@ public class FeedService(FeedRepository repository)
                 f.Id,
                 f.Date,
                 f.Text,
-                f.UserId,
+                f.ProfileId,
                 f.CompanyId,
                 f.Comments.Count,
                 f.Likes.Count,
@@ -42,7 +41,7 @@ public class FeedService(FeedRepository repository)
                 feed.Id,
                 feed.Date,
                 feed.Text,
-                feed.UserId,
+                feed.ProfileId,
                 feed.CompanyId,
                 feed.Comments.Count,
                 feed.Likes.Count,
@@ -60,12 +59,12 @@ public class FeedService(FeedRepository repository)
             Id = command.Id,
             Date = command.Date,
             Text = command.Text,
-            UserId = command.UserId,
+            ProfileId = command.ProfileId,
             CompanyId = companyId
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddFeedResponse(created.Id, created.Date, created.Text, created.UserId, created.CompanyId);
+        return new AddFeedResponse(created.Id, created.Date, created.Text, created.ProfileId, created.CompanyId);
     }
 
     public async Task<UpdateFeedResponse?> UpdateAsync(
@@ -86,7 +85,7 @@ public class FeedService(FeedRepository repository)
         var updated = await repository.UpdateAsync(command.Id, existing, cancellationToken);
         return updated is null
             ? null
-            : new UpdateFeedResponse(updated.Id, updated.Date, updated.Text, updated.UserId, updated.CompanyId);
+            : new UpdateFeedResponse(updated.Id, updated.Date, updated.Text, updated.ProfileId, updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteFeedCommand command, CancellationToken cancellationToken = default)
