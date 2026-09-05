@@ -58,6 +58,60 @@
             </MudPaper>
         }
 
+        <MudPaper Elevation="1" Class="pa-3 mb-4">
+            <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+                <MudItem xs="12" sm="6" md="2">
+                    <MudSelect T="Guid?" @bind-Value="filterCreatedBy" Label="Criador" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                        @foreach (var u in projectCreators)
+                        {
+                            <MudSelectItem T="Guid?" Value="@((Guid?)u.Key)">@u.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="2">
+                    <MudSelect T="Guid?" @bind-Value="filterAssignee" Label="Responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                        @foreach (var u in projectAssignees)
+                        {
+                            <MudSelectItem T="Guid?" Value="@((Guid?)u.Key)">@u.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="6" sm="3" md="2">
+                    <MudDatePicker Date="filterDueFromValue" DateChanged="@(async (DateTime? _) => await OnDueFilterChangedAsync())" Label="Entrega de" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
+                </MudItem>
+                <MudItem xs="6" sm="3" md="2">
+                    <MudDatePicker Date="filterDueToValue" DateChanged="@(async (DateTime? _) => await OnDueFilterChangedAsync())" Label="Entrega até" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
+                </MudItem>
+                <MudItem xs="6" sm="3" md="1">
+                    <MudSelect T="string" @bind-Value="filterType" Label="Tipo" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                        <MudSelectItem T="string" Value="@("Task")">Tarefa</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Bug")">Bug</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Feature")">Feature</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Improvement")">Melhoria</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="6" sm="3" md="1">
+                    <MudSelect T="string" @bind-Value="filterPriority" Label="Prioridade" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                        <MudSelectItem T="string" Value="@("Low")">Baixa</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Medium")">Média</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("High")">Alta</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Critical")">Crítica</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="6" sm="3" md="1">
+                    <MudSelect T="Guid?" @bind-Value="filterStatusId" Label="Coluna" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                        @foreach (var s in orderedStatuses)
+                        {
+                            <MudSelectItem T="Guid?" Value="@((Guid?)s.Id)">@s.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="1" Class="d-flex justify-end">
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAltOff" OnClick="ClearFiltersAsync">Limpar</MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
         @if (orderedStatuses.Count == 0)
         {
             <MudPaper Elevation="0" Class="pa-6 text-center" Style="border: 2px dashed rgba(0,0,0,0.1); border-radius: 12px; min-width: 300px;">
@@ -129,22 +183,43 @@
                         {
                             <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@task.EstimatePoints pts</MudChip>
                         }
-                        @if (task.Assignees.Count > 0)
-                        {
-                            <MudStack Row="true" Spacing="-1" AlignItems="AlignItems.Center" Class="ml-auto">
-                                @foreach (var a in task.Assignees.Take(3))
-                                {
-                                    <MudTooltip Text="@($"{a.UserName} ({a.UserEmail})")">
-                                        <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(a.UserName)</MudAvatar>
-                                    </MudTooltip>
-                                }
-                                @if (task.Assignees.Count > 3)
-                                {
-                                    <MudAvatar Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="assignee-avatar">+@(task.Assignees.Count - 3)</MudAvatar>
-                                }
-                            </MudStack>
-                        }
-                    </MudPaper>
+                         @if (task.Assignees.Count > 0)
+                         {
+                             <MudStack Row="true" Spacing="-1" AlignItems="AlignItems.Center" Class="ml-auto">
+                                 @foreach (var a in task.Assignees.Take(3))
+                                 {
+                                     <MudTooltip Text="@($"{a.UserName} ({a.UserEmail})")">
+                                         <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(a.UserName)</MudAvatar>
+                                     </MudTooltip>
+                                 }
+                                 @if (task.Assignees.Count > 3)
+                                 {
+                                     <MudAvatar Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="assignee-avatar">+@(task.Assignees.Count - 3)</MudAvatar>
+                                 }
+                             </MudStack>
+                         }
+                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mt-2">
+                             @if (task.TotalComments > 0)
+                             {
+                                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0">
+                                     <MudIcon Icon="@Icons.Material.Outlined.ChatBubbleOutline" Size="Size.Small" Color="Color.Default" />
+                                     <MudText Typo="Typo.caption" Color="Color.Default">@task.TotalComments</MudText>
+                                 </MudStack>
+                             }
+                             @if (task.TotalSubtasks > 0)
+                             {
+                                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0">
+                                     <MudIcon Icon="@Icons.Material.Outlined.CheckBox" Size="Size.Small" Color="Color.Default" />
+                                     <MudText Typo="Typo.caption" Color="Color.Default">@task.CompletedSubtasks/@task.TotalSubtasks</MudText>
+                                 </MudStack>
+                             }
+                         </MudStack>
+                         @if (task.TotalSubtasks > 0)
+                         {
+                             var pct = (int)Math.Round(task.TotalSubtasks == 0 ? 0 : (task.CompletedSubtasks * 100.0 / task.TotalSubtasks));
+                             <MudProgressLinear Value="@pct" Color="@(pct == 100 ? Color.Success : Color.Primary)" Size="Size.Small" Rounded="true" Class="mt-1" />
+                         }
+                     </MudPaper>
                 </ItemRenderer>
             </MudDropContainer>
         }
@@ -488,6 +563,15 @@
     private string? errorMessage;
     private ProjectDto? project;
     private List<StatusDto> statuses = [];
+    private Guid? filterCreatedBy;
+    private Guid? filterAssignee;
+    private DateTime? filterDueFromValue;
+    private DateTime? filterDueToValue;
+    private string? filterType;
+    private string? filterPriority;
+    private Guid? filterStatusId;
+    private Dictionary<Guid, string> projectCreators = [];
+    private Dictionary<Guid, string> projectAssignees = [];
     private List<TaskDto> tasks = [];
     private Guid currentUserId;
 
@@ -615,7 +699,7 @@
             var client = await CreateClientAsync();
             var projectTask = client.GetAsync($"/project/{Id}");
             var statusesTask = client.GetAsync("/projectstatus?page=1&perPage=200");
-            var tasksTask = client.GetAsync("/projecttask?page=1&perPage=500");
+            var tasksTask = client.GetAsync(BuildTasksQuery());
             var teamsTask = client.GetAsync($"/team/project/{Id}");
             await Task.WhenAll(projectTask, statusesTask, tasksTask, teamsTask);
 
@@ -646,6 +730,15 @@
                 {
                     t.IsFinal = statuses.Any(s => s.Id == t.StatusId && s.IsFinal);
                 }
+
+                projectCreators = tasks
+                    .Where(t => t.CreatedBy != Guid.Empty)
+                    .GroupBy(t => t.CreatedBy)
+                    .ToDictionary(g => g.Key, g => $"Criador #{g.Key.ToString()[..8]}");
+                projectAssignees = tasks
+                    .SelectMany(t => t.Assignees)
+                    .GroupBy(a => a.UserId)
+                    .ToDictionary(g => g.Key, g => string.IsNullOrWhiteSpace(g.First().UserName) ? g.First().UserEmail : g.First().UserName);
             }
             if (teamsTask.Result.IsSuccessStatusCode)
             {
@@ -677,6 +770,65 @@
         .Where(t => t.StatusId == statusId && t.ProjectId == Id)
         .OrderBy(t => t.Order)
         .ToList();
+
+    private string BuildTasksQuery()
+    {
+        var qs = new List<string> { "page=1", "perPage=500" };
+        if (filterStatusId.HasValue) qs.Add($"statusId={filterStatusId.Value}");
+        if (filterCreatedBy.HasValue) qs.Add($"createdBy={filterCreatedBy.Value}");
+        if (filterAssignee.HasValue) qs.Add($"assigneeId={filterAssignee.Value}");
+        if (filterDueFromValue.HasValue) qs.Add($"dueFrom={filterDueFromValue.Value:O}");
+        if (filterDueToValue.HasValue) qs.Add($"dueTo={filterDueToValue.Value:O}");
+        if (!string.IsNullOrWhiteSpace(filterType)) qs.Add($"type={Uri.EscapeDataString(filterType)}");
+        if (!string.IsNullOrWhiteSpace(filterPriority)) qs.Add($"priority={Uri.EscapeDataString(filterPriority)}");
+        return "/projecttask?" + string.Join("&", qs);
+    }
+
+    private async Task ReloadTasksAsync()
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync(BuildTasksQuery());
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                tasks = System.Text.Json.JsonSerializer.Deserialize<List<TaskDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+                foreach (var t in tasks)
+                {
+                    t.IsFinal = statuses.Any(s => s.Id == t.StatusId && s.IsFinal);
+                }
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao filtrar: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task ClearFiltersAsync()
+    {
+        filterStatusId = null;
+        filterCreatedBy = null;
+        filterAssignee = null;
+        filterDueFromValue = null;
+        filterDueToValue = null;
+        filterType = null;
+        filterPriority = null;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnDueFilterChangedAsync()
+    {
+        if (filterDueFromValue.HasValue && filterDueToValue.HasValue && filterDueFromValue > filterDueToValue)
+        {
+            Snackbar.Add("Data 'de' não pode ser maior que 'até'.", Severity.Warning);
+            return;
+        }
+        await ReloadTasksAsync();
+    }
 
     private string GetTaskCardClass(TaskDto task, StatusDto status)
     {
@@ -1593,6 +1745,9 @@
         public List<AssigneeDto> Assignees { get; set; } = [];
         public List<SubtaskDto> Subtasks { get; set; } = [];
         public List<CommentDto> Comments { get; set; } = [];
+        public int TotalComments { get; set; }
+        public int TotalSubtasks { get; set; }
+        public int CompletedSubtasks { get; set; }
         public bool IsFinal { get; set; }
     }
 

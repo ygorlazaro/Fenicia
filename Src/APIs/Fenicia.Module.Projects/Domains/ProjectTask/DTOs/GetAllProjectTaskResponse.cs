@@ -15,4 +15,7 @@ public record GetAllProjectTaskResponse(
     DateTime? DueDate,
     [Required] Guid CreatedBy,
     [Required] Guid CompanyId,
-    List<ProjectTaskAssigneeResponse> Assignees);
+    List<ProjectTaskAssigneeResponse> Assignees,
+    int TotalComments,
+    int TotalSubtasks,
+    int CompletedSubtasks);
