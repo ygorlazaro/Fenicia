@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Like.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +9,15 @@ public class LikeService(LikeRepository repository)
     public async Task<AddLikeResponse> LikeAsync(
         LikeCommand command,
         Guid companyId,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await repository.GetByUserAndFeedAsync(userId, command.FeedId, cancellationToken);
+        var existing = await repository.GetByProfileAndFeedAsync(profileId, command.FeedId, cancellationToken);
         if (existing is not null)
         {
             return new AddLikeResponse(
                 existing.Id,
-                existing.UserId,
+                existing.ProfileId,
                 existing.FeedId,
                 existing.LikeDate,
                 existing.CompanyId);
@@ -26,19 +25,19 @@ public class LikeService(LikeRepository repository)
 
         var model = new LikeModel
         {
-            UserId = userId,
+            ProfileId = profileId,
             FeedId = command.FeedId,
             LikeDate = DateTime.UtcNow,
             CompanyId = companyId
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddLikeResponse(created.Id, created.UserId, created.FeedId, created.LikeDate, created.CompanyId);
+        return new AddLikeResponse(created.Id, created.ProfileId, created.FeedId, created.LikeDate, created.CompanyId);
     }
 
-    public async Task UnlikeAsync(UnlikeCommand command, Guid userId, CancellationToken cancellationToken = default)
+    public async Task UnlikeAsync(UnlikeCommand command, Guid profileId, CancellationToken cancellationToken = default)
     {
-        var existing = await repository.GetByUserAndFeedAsync(userId, command.FeedId, cancellationToken);
+        var existing = await repository.GetByProfileAndFeedAsync(profileId, command.FeedId, cancellationToken);
         if (existing is not null)
         {
             await repository.DeleteAsync(existing.Id, cancellationToken);
@@ -53,16 +52,16 @@ public class LikeService(LikeRepository repository)
         var filteredQuery = baseQuery;
         var likes = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. likes.Select(l => new GetLikesResponse(l.Id, l.UserId, l.FeedId, l.LikeDate))];
+        return [.. likes.Select(l => new GetLikesResponse(l.Id, l.ProfileId, l.FeedId, l.LikeDate))];
     }
 
     public async Task<bool> IsLikedAsync(
         IsLikedQuery query,
-        Guid userId,
+        Guid profileId,
         Guid feedId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await repository.GetByUserAndFeedAsync(userId, feedId, cancellationToken);
+        var existing = await repository.GetByProfileAndFeedAsync(profileId, feedId, cancellationToken);
         return existing is not null;
     }
 }

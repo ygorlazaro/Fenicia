@@ -4,8 +4,8 @@ namespace Fenicia.Module.SocialNetwork.Domains.Block.DTOs;
 
 public record AddBlockResponse(
     [Required] Guid Id,
-    [Required] Guid UserId,
-    [Required] Guid BlockedUserId,
+    [Required] Guid ProfileId,
+    [Required] Guid BlockedProfileId,
     [Required] DateTime BlockDate,
     [MaxLength(200)] string? Reason,
     bool IsActive);

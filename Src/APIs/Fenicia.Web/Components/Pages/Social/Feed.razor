@@ -74,12 +74,12 @@
                     {
                         <MudPaper Elevation="0" Class="pa-4 post-card">
                             <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
-                                <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigateToProfile(post.UserId))">
+                                <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigateToProfile(post.ProfileId))">
                                     @GetPostInitial(post)
                                 </MudAvatar>
                                 <div class="flex-grow-1">
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
-                                        <MudLink Href="@($"/socialnetwork/profile/{post.UserId}")" Color="Color.Default" Underline="Underline.None">
+                                        <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
                                             <MudText Typo="Typo.subtitle2"><b>@GetPostDisplayName(post)</b></MudText>
                                         </MudLink>
                                         <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
@@ -148,6 +148,7 @@
     private Guid? likingFeedId;
     private string currentUserName = string.Empty;
     private Guid currentUserId;
+    private Guid currentProfileId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -162,7 +163,25 @@
 
             currentUserId = await CompanyContext.GetUserIdAsync();
             currentUserName = await GetCurrentUserNameAsync();
+            await EnsureCurrentProfileIdAsync();
             await LoadFeedAsync();
+        }
+    }
+
+    private async Task EnsureCurrentProfileIdAsync()
+    {
+        if (currentProfileId != Guid.Empty) return;
+        var client = await CreateClientAsync();
+        var response = await client.GetAsync("/profile");
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var profile = System.Text.Json.JsonSerializer.Deserialize<CurrentProfileDto>(json,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (profile is not null && profile.Id != Guid.Empty)
+            {
+                currentProfileId = profile.Id;
+            }
         }
     }
 
@@ -288,12 +307,13 @@
 
     private async Task CheckLikesAsync()
     {
+        if (currentProfileId == Guid.Empty) return;
         var client = await CreateClientAsync();
         foreach (var post in posts.Where(p => !p.IsLikedByMe))
         {
             try
             {
-                var response = await client.GetAsync($"/like/isfollowed/{currentUserId}/{post.Id}");
+                var response = await client.GetAsync($"/like/isfollowed/{currentProfileId}/{post.Id}");
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
@@ -313,6 +333,15 @@
     private async Task PostAsync()
     {
         if (string.IsNullOrWhiteSpace(newPostText) || newPostText.Length > 512) return;
+        if (currentProfileId == Guid.Empty)
+        {
+            await EnsureCurrentProfileIdAsync();
+            if (currentProfileId == Guid.Empty)
+            {
+                Snackbar.Add("Não foi possível identificar o seu perfil social.", Severity.Error);
+                return;
+            }
+        }
         try
         {
             isPosting = true;
@@ -323,7 +352,7 @@
                 Id = Guid.NewGuid(),
                 Date = DateTime.UtcNow,
                 Text = newPostText,
-                UserId = currentUserId,
+                ProfileId = currentProfileId,
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(command);
@@ -442,13 +471,19 @@
         public Guid Id { get; set; }
         public DateTime Date { get; set; }
         public string Text { get; set; } = string.Empty;
-        public Guid UserId { get; set; }
+        public Guid ProfileId { get; set; }
         public Guid CompanyId { get; set; }
         public int CommentsCount { get; set; }
         public int LikesCount { get; set; }
         public int SharesCount { get; set; }
         public string? DisplayName { get; set; }
         public bool IsLikedByMe { get; set; }
+    }
+
+    private class CurrentProfileDto
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
     }
 }
 

@@ -14,11 +14,11 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
 
     public async Task<AddFriendshipResponse> FollowAsync(
         FollowCommand command,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var existing = await friendshipRepository.FindAsync(
-            f => f.UserId == userId && f.TargetUserId == command.TargetUserId,
+            f => f.ProfileId == profileId && f.TargetProfileId == command.TargetProfileId,
             cancellationToken);
 
         var friendship = existing.FirstOrDefault();
@@ -28,8 +28,8 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
             {
                 return new AddFriendshipResponse(
                     friendship.Id,
-                    friendship.UserId,
-                    friendship.TargetUserId,
+                    friendship.ProfileId,
+                    friendship.TargetProfileId,
                     friendship.FollowDate,
                     friendship.IsActive);
             }
@@ -39,16 +39,16 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
             await friendshipRepository.UpdateAsync(friendship.Id, friendship, cancellationToken);
             return new AddFriendshipResponse(
                 friendship.Id,
-                friendship.UserId,
-                friendship.TargetUserId,
+                friendship.ProfileId,
+                friendship.TargetProfileId,
                 friendship.FollowDate,
                 friendship.IsActive);
         }
 
         var newFriendship = new FriendshipModel
         {
-            UserId = userId,
-            TargetUserId = command.TargetUserId,
+            ProfileId = profileId,
+            TargetProfileId = command.TargetProfileId,
             FollowDate = DateTime.UtcNow,
             IsActive = true
         };
@@ -56,19 +56,19 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         var created = await friendshipRepository.InsertAsync(newFriendship, cancellationToken);
         return new AddFriendshipResponse(
             created.Id,
-            created.UserId,
-            created.TargetUserId,
+            created.ProfileId,
+            created.TargetProfileId,
             created.FollowDate,
             created.IsActive);
     }
 
     public async Task UnfollowAsync(
         UnfollowCommand command,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var existing = await friendshipRepository.FindAsync(
-            f => f.UserId == userId && f.TargetUserId == command.TargetUserId && f.IsActive,
+            f => f.ProfileId == profileId && f.TargetProfileId == command.TargetProfileId && f.IsActive,
             cancellationToken);
 
         var friendship = existing.FirstOrDefault();
@@ -81,45 +81,45 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
 
     public async Task<Pagination<List<GetFollowersResponse>>> GetFollowersAsync(
         GetFollowersQuery query,
-        Guid targetUserId,
+        Guid targetProfileId,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = friendshipRepository.Query().Where(f => f.TargetUserId == targetUserId && f.IsActive);
+        var baseQuery = friendshipRepository.Query().Where(f => f.TargetProfileId == targetProfileId && f.IsActive);
         var filteredQuery = baseQuery;
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = friendships.Select(f => new GetFollowersResponse(f.Id, f.UserId, f.FollowDate)).ToList();
+        var response = friendships.Select(f => new GetFollowersResponse(f.Id, f.ProfileId, f.FollowDate)).ToList();
 
         return new Pagination<List<GetFollowersResponse>>(response, total, query.Page, query.PerPage);
     }
 
     public async Task<Pagination<List<GetFollowingResponse>>> GetFollowingAsync(
         GetFollowingQuery query,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = friendshipRepository.Query().Where(f => f.UserId == userId && f.IsActive);
+        var baseQuery = friendshipRepository.Query().Where(f => f.ProfileId == profileId && f.IsActive);
         var filteredQuery = baseQuery;
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = friendships.Select(f => new GetFollowingResponse(f.Id, f.TargetUserId, f.FollowDate)).ToList();
+        var response = friendships.Select(f => new GetFollowingResponse(f.Id, f.TargetProfileId, f.FollowDate)).ToList();
 
         return new Pagination<List<GetFollowingResponse>>(response, total, query.Page, query.PerPage);
     }
 
     public Task<bool> IsFollowingAsync(
         IsFollowingQuery query,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         return friendshipRepository.AnyAsync(
-            f => f.UserId == userId && f.TargetUserId == query.TargetUserId && f.IsActive,
+            f => f.ProfileId == profileId && f.TargetProfileId == query.TargetProfileId && f.IsActive,
             cancellationToken);
     }
 }

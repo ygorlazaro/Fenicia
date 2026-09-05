@@ -4,7 +4,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
 
 public record AddFriendshipResponse(
     [Required] Guid Id,
-    [Required] Guid UserId,
-    [Required] Guid TargetUserId,
+    [Required] Guid ProfileId,
+    [Required] Guid TargetProfileId,
     [Required] DateTime FollowDate,
     bool IsActive);

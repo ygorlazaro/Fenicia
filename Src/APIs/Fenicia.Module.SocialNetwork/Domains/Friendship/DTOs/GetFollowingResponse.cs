@@ -4,5 +4,5 @@ namespace Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
 
 public record GetFollowingResponse(
     [Required] Guid Id,
-    [Required] Guid TargetUserId,
+    [Required] Guid TargetProfileId,
     [Required] DateTime FollowDate);

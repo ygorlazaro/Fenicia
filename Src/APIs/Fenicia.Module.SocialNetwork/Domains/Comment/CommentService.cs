@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,7 @@ public class CommentService(CommentRepository repository)
         [
             .. comments.Select(c => new GetAllCommentResponse(
                 c.Id,
-                c.UserId,
+                c.ProfileId,
                 c.FeedId,
                 c.ParentCommentId,
                 c.Text,
@@ -41,7 +40,7 @@ public class CommentService(CommentRepository repository)
             null => null,
             _ => new GetCommentByIdResponse(
                 comment.Id,
-                comment.UserId,
+                comment.ProfileId,
                 comment.FeedId,
                 comment.ParentCommentId,
                 comment.Text,
@@ -53,13 +52,13 @@ public class CommentService(CommentRepository repository)
     public async Task<AddCommentResponse> AddAsync(
         AddCommentCommand command,
         Guid companyId,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var model = new CommentModel
         {
             Id = command.Id,
-            UserId = userId,
+            ProfileId = profileId,
             FeedId = command.FeedId,
             ParentCommentId = command.ParentCommentId,
             Text = command.Text,
@@ -70,7 +69,7 @@ public class CommentService(CommentRepository repository)
         var created = await repository.InsertAsync(model, cancellationToken);
         return new AddCommentResponse(
             created.Id,
-            created.UserId,
+            created.ProfileId,
             created.FeedId,
             created.ParentCommentId,
             created.Text,
@@ -80,11 +79,11 @@ public class CommentService(CommentRepository repository)
 
     public async Task<UpdateCommentResponse?> UpdateAsync(
         UpdateCommentCommand command,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var existing = await repository.GetByIdAsync(command.Id, cancellationToken);
-        if (existing is null || existing.UserId != userId)
+        if (existing is null || existing.ProfileId != profileId)
         {
             return null;
         }
@@ -92,7 +91,7 @@ public class CommentService(CommentRepository repository)
         var model = new CommentModel
         {
             Id = command.Id,
-            UserId = existing.UserId,
+            ProfileId = existing.ProfileId,
             FeedId = existing.FeedId,
             ParentCommentId = existing.ParentCommentId,
             Text = command.Text,
@@ -106,7 +105,7 @@ public class CommentService(CommentRepository repository)
             ? null
             : new UpdateCommentResponse(
                 updated.Id,
-                updated.UserId,
+                updated.ProfileId,
                 updated.FeedId,
                 updated.ParentCommentId,
                 updated.Text,
@@ -117,11 +116,11 @@ public class CommentService(CommentRepository repository)
 
     public async Task DeleteAsync(
         DeleteCommentCommand command,
-        Guid userId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var existing = await repository.GetByIdAsync(command.Id, cancellationToken);
-        if (existing is null || existing.UserId != userId)
+        if (existing is null || existing.ProfileId != profileId)
         {
             return;
         }
@@ -142,7 +141,7 @@ public class CommentService(CommentRepository repository)
         [
             .. replies.Select(r => new GetRepliesResponse(
                 r.Id,
-                r.UserId,
+                r.ProfileId,
                 r.FeedId,
                 r.ParentCommentId,
                 r.Text,

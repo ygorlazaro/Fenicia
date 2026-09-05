@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
@@ -8,16 +7,16 @@ namespace Fenicia.Common.Data.Models.SocialNetwork;
 public class FriendshipModel : BaseModel
 {
     [Required]
-    public Guid UserId { get; init; }
+    public Guid ProfileId { get; init; }
 
     [Required]
-    public Guid TargetUserId { get; init; }
+    public Guid TargetProfileId { get; init; }
 
-    [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    [ForeignKey(nameof(ProfileId))]
+    public ProfileModel Profile { get; init; } = default!;
 
-    [ForeignKey(nameof(TargetUserId))]
-    public UserModel TargetUser { get; init; } = default!;
+    [ForeignKey(nameof(TargetProfileId))]
+    public ProfileModel TargetProfile { get; init; } = default!;
 
     public DateTime FollowDate { get; set; } = DateTime.UtcNow;
 

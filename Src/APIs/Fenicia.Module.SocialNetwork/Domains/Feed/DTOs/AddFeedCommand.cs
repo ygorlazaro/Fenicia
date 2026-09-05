@@ -6,4 +6,4 @@ public record AddFeedCommand(
     Guid Id,
     [Required] DateTime Date,
     [Required] [MaxLength(512)] string Text,
-    [Required] Guid UserId);
+    [Required] Guid ProfileId);

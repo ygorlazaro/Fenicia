@@ -2,36 +2,20 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
+using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
-/// <inheritdoc />
-/// <summary>
-///     Gerencia operações de amizades e seguidores.
-/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class FriendshipController(FriendshipService friendshipService) : ControllerBase
+public class FriendshipController(FriendshipService friendshipService, IProfileService profileService) : ControllerBase
 {
-    /// <summary>
-    ///     Segue um usuário.
-    /// </summary>
-    /// <param name="command">Dados do usuário a ser seguido</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Amizade criada ou reativada</returns>
-    /// <response code="201">Amizade criada com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a seguir</exception>
     [HttpPost("follow")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(AddFriendshipResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -44,65 +28,39 @@ public class FriendshipController(FriendshipService friendshipService) : Control
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var friendship = await friendshipService.FollowAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var profileId = await GetCurrentProfileIdAsync(cancellationToken);
+        var friendship = await friendshipService.FollowAsync(command, profileId, cancellationToken);
 
         return new CreatedResult(string.Empty, friendship);
     }
 
-    /// <summary>
-    ///     Deixa de seguir um usuário.
-    /// </summary>
-    /// <param name="targetUserId">ID do usuário a deixar de seguir</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <response code="204">Amizade removida com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a deixar de seguir</exception>
-    [HttpDelete("unfollow/{targetUserId:guid}")]
-    [Authorize(Roles = "Admin")]
+    [HttpDelete("unfollow/{targetProfileId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> UnfollowAsync(
-        [FromRoute] Guid targetUserId,
+        [FromRoute] Guid targetProfileId,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
+        var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         await friendshipService.UnfollowAsync(
-            new UnfollowCommand(targetUserId),
-            ClaimReader.UserId(User),
+            new UnfollowCommand(targetProfileId),
+            profileId,
             cancellationToken);
 
         return NoContent();
     }
 
-    /// <summary>
-    ///     Obtém a lista de seguidores de um usuário.
-    /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="page">Número da página</param>
-    /// <param name="perPage">Itens por página</param>
-    /// <param name="query"></param>
-    /// <param name="sort"></param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de seguidores</returns>
-    /// <response code="200">Lista de seguidores retornada com sucesso</response>
-    /// <response code="400">ID inválido</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os seguidores</exception>
-    [HttpGet("followers/{userId:guid}")]
+    [HttpGet("followers/{targetProfileId:guid}")]
     [ProducesResponseType(typeof(Pagination<List<GetFollowersResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollowersAsync(
-        [FromRoute] Guid userId,
+        [FromRoute] Guid targetProfileId,
         WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
@@ -114,35 +72,19 @@ public class FriendshipController(FriendshipService friendshipService) : Control
 
         var result = await friendshipService.GetFollowersAsync(
             new GetFollowersQuery(page, perPage, query, sort),
-            userId,
+            targetProfileId,
             cancellationToken);
 
         return Ok(result);
     }
 
-    /// <summary>
-    ///     Obtém a lista de usuários que um usuário está seguindo.
-    /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="page">Número da página</param>
-    /// <param name="perPage">Itens por página</param>
-    /// <param name="query"></param>
-    /// <param name="sort"></param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de usuários seguidos</returns>
-    /// <response code="200">Lista de usuários seguidos retornada com sucesso</response>
-    /// <response code="400">ID inválido</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os seguidos</exception>
-    [HttpGet("following/{userId:guid}")]
+    [HttpGet("following/{profileId:guid}")]
     [ProducesResponseType(typeof(Pagination<List<GetFollowingResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollowingAsync(
-        [FromRoute] Guid userId,
+        [FromRoute] Guid profileId,
         WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
@@ -154,43 +96,38 @@ public class FriendshipController(FriendshipService friendshipService) : Control
 
         var result = await friendshipService.GetFollowingAsync(
             new GetFollowingQuery(page, perPage, query, sort),
-            userId,
+            profileId,
             cancellationToken);
 
         return Ok(result);
     }
 
-    /// <summary>
-    ///     Verifica se um usuário está seguindo outro.
-    /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="targetUserId">ID do usuário alvo</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Verdadeiro se está seguindo</returns>
-    /// <response code="200">Verificação realizada com sucesso</response>
-    /// <response code="400">ID inválido</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a verificar o relacionamento</exception>
-    [HttpGet("isfollowing/{userId:guid}/{targetUserId:guid}")]
+    [HttpGet("isfollowing/{profileId:guid}/{targetProfileId:guid}")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<bool>> IsFollowingAsync(
-        [FromRoute] Guid userId,
-        [FromRoute] Guid targetUserId,
+        [FromRoute] Guid profileId,
+        [FromRoute] Guid targetProfileId,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await friendshipService.IsFollowingAsync(
-            new IsFollowingQuery(targetUserId),
-            userId,
+            new IsFollowingQuery(targetProfileId),
+            profileId,
             cancellationToken);
 
         return Ok(result);
+    }
+
+    private async Task<Guid> GetCurrentProfileIdAsync(CancellationToken cancellationToken)
+    {
+        var userId = ClaimReader.UserId(User);
+        var profile = await profileService.GetByUserIdAsync(userId, cancellationToken)
+            ?? throw new InvalidOperationException("Perfil social não encontrado para o usuário atual.");
+        return profile.Id;
     }
 }
