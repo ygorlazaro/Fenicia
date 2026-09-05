@@ -33,6 +33,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMudServices();
 
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
+builder.Services.AddScoped<ICrudClient, CrudClient>();
 
 var app = builder.Build();
 
