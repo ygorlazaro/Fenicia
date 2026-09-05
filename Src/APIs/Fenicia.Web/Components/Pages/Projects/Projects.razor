@@ -1,0 +1,330 @@
+@page "/projects"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IAuthStateService AuthState
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject ISnackbar Snackbar
+
+<PageTitle>Projetos - Fenicia</PageTitle>
+
+<MainLayout>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">Projetos</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OpenCreateModal">
+            Novo Projeto
+        </MudButton>
+    </MudStack>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center pa-8">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+    }
+    else if (projects.Count == 0)
+    {
+        <MudPaper Elevation="0" Class="pa-8 text-center" Style="border: 2px dashed rgba(0,0,0,0.1); border-radius: 12px;">
+            <MudIcon Icon="@Icons.Material.Filled.FolderOpen" Size="Size.Large" Color="Color.Default" />
+            <MudText Typo="Typo.h6" Class="mt-2">Nenhum projeto ainda</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-4">Crie seu primeiro projeto para começar.</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateModal">
+                Criar Projeto
+            </MudButton>
+        </MudPaper>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var project in projects)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudPaper Elevation="2" Class="pa-4 project-card" Style="cursor:pointer; height:100%; display:flex; flex-direction:column;"
+                              @onclick="@(() => NavigationManager.NavigateTo("/projects/" + project.Id))">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+                            <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(project.Status)">@project.Status</MudChip>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Size="Size.Small"
+                                           Color="Color.Default"
+                                           OnClick="@(e => OpenEditModal(project, e))" />
+                        </MudStack>
+                        <MudText Typo="Typo.h6" Class="mb-1">@project.Title</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-3" Style="flex-grow:1;">
+                            @(string.IsNullOrEmpty(project.Description) ? "Sem descrição." : Truncate(project.Description, 140))
+                        </MudText>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            @if (project.StartDate.HasValue)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Color="Color.Default" />
+                                <MudText Typo="Typo.caption" Color="Color.Default">
+                                    @(project.StartDate?.ToString("dd/MM/yyyy"))
+                                    @if (project.EndDate.HasValue)
+                                    {
+                                        <span> - @(project.EndDate?.ToString("dd/MM/yyyy"))</span>
+                                    }
+                                </MudText>
+                            }
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MainLayout>
+
+<MudDialog @bind-Visible="dialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(editModel.Id == Guid.Empty ? "Novo Projeto" : "Editar Projeto")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editModel.Title" Label="Título" Variant="Variant.Outlined" MaxLength="200" Required="true" RequiredError="Título é obrigatório!" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editModel.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" MaxLength="2000" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" @bind-Value="editModel.Status" Label="Status" Variant="Variant.Outlined" Required="true">
+                    <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                    <MudSelectItem Value="@("Planned")">Planned</MudSelectItem>
+                    <MudSelectItem Value="@("Paused")">Paused</MudSelectItem>
+                    <MudSelectItem Value="@("Completed")">Completed</MudSelectItem>
+                    <MudSelectItem Value="@("Cancelled")">Cancelled</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="editModel.StartDateValue" Label="Data de Início" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="editModel.EndDateValue" Label="Data de Término" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@isSaving">
+            @if (isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+    private List<ProjectDto> projects = [];
+    private bool dialogVisible;
+    private ProjectFormModel editModel = new();
+    private Guid currentUserId;
+
+    private readonly DialogOptions dialogOptions = new()
+    {
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+            currentUserId = await CompanyContext.GetUserIdAsync();
+            await LoadProjectsAsync();
+        }
+    }
+
+    private async Task<HttpClient> CreateClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaProjects");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+        return client;
+    }
+
+    private async Task LoadProjectsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync("/project?page=1&perPage=100");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<ProjectDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                projects = items ?? [];
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar projetos: {(int)response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OpenCreateModal()
+    {
+        editModel = new ProjectFormModel
+        {
+            Status = "Active",
+            StartDateValue = DateTime.UtcNow,
+        };
+        dialogVisible = true;
+    }
+
+    private void OpenEditModal(ProjectDto project, MouseEventArgs e)
+    {
+        editModel = new ProjectFormModel
+        {
+            Id = project.Id,
+            Title = project.Title,
+            Description = project.Description,
+            Status = project.Status,
+            StartDateValue = project.StartDate,
+            EndDateValue = project.EndDate,
+        };
+        dialogVisible = true;
+    }
+
+    private void CloseModal()
+    {
+        dialogVisible = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(editModel.Title)) return;
+        try
+        {
+            isSaving = true;
+            var client = await CreateClientAsync();
+            object payload = editModel.Id == Guid.Empty
+                ? new
+                {
+                    Id = Guid.NewGuid(),
+                    Title = editModel.Title,
+                    Description = editModel.Description,
+                    Status = editModel.Status,
+                    StartDate = editModel.StartDateValue,
+                    EndDate = editModel.EndDateValue,
+                    Owner = currentUserId,
+                }
+                : new
+                {
+                    Id = editModel.Id,
+                    Title = editModel.Title,
+                    Description = editModel.Description,
+                    Status = editModel.Status,
+                    StartDate = editModel.StartDateValue,
+                    EndDate = editModel.EndDateValue,
+                    Owner = currentUserId,
+                };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            HttpResponseMessage response = editModel.Id == Guid.Empty
+                ? await client.PostAsync("/project", content)
+                : await client.PatchAsync($"/project/{editModel.Id}", content);
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add(editModel.Id == Guid.Empty ? "Projeto criado!" : "Projeto atualizado!", Severity.Success);
+                dialogVisible = false;
+                await LoadProjectsAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static Color GetStatusColor(string status) => status switch
+    {
+        "Active" => Color.Success,
+        "Planned" => Color.Info,
+        "Paused" => Color.Warning,
+        "Completed" => Color.Primary,
+        "Cancelled" => Color.Default,
+        _ => Color.Default,
+    };
+
+    private static string Truncate(string s, int len) => s.Length <= len ? s : s[..len] + "…";
+
+    private class ProjectDto
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Status { get; set; } = "Active";
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public Guid Owner { get; set; }
+    }
+
+    private class ProjectFormModel
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Status { get; set; } = "Active";
+        public DateTime? StartDateValue { get; set; }
+        public DateTime? EndDateValue { get; set; }
+    }
+}
+
+<style>
+    .project-card {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .project-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+</style>
