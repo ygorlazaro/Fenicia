@@ -19,6 +19,7 @@ using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 using Fenicia.Module.Projects.Domains.Team;
+using Fenicia.Module.Projects.Domains.Team.Interfaces;
 
 namespace Fenicia.Module.Projects;
 
@@ -49,7 +50,7 @@ public abstract class Program
                 builder.Services.AddScoped<IProjectStatusService, ProjectStatusService>();
                 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
                 builder.Services.AddScoped<ITeamUserRepository, TeamUserRepository>();
-                builder.Services.AddScoped<TeamService>();
+                builder.Services.AddScoped<ITeamService, TeamService>();
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         builder.Start("/projects", "projects");

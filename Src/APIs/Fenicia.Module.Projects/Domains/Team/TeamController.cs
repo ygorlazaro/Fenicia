@@ -2,6 +2,7 @@ using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.Team.DTOs;
+using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Projects.Domains.Team;
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class TeamController(
-    TeamService teamService,
+    ITeamService teamService,
     ICompanyContext companyContext) : ControllerBase
 {
     [HttpGet("project/{projectId:guid}")]
