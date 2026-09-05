@@ -6,4 +6,5 @@ public record AddProjectCommentCommand(
     [Required] Guid Id,
     [Required] Guid TaskId,
     [Required] Guid UserId,
-    [Required] [MaxLength(200)] string Content);
+    [Required] [MaxLength(4096)] string Content,
+    string? UserName = null);

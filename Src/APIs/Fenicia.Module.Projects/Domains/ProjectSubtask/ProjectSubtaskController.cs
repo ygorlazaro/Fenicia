@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectSubtaskController(IProjectSubtaskService projectSubtaskService) : ControllerBase
+public class ProjectSubtaskController(
+    IProjectSubtaskService projectSubtaskService,
+    ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Gets a paginated list of project subtasks.
@@ -100,8 +103,7 @@ public class ProjectSubtaskController(IProjectSubtaskService projectSubtaskServi
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to create project subtasks</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProjectSubtaskResponse))]
+    [ProducesResponseType(typeof(AddProjectSubtaskResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -113,7 +115,10 @@ public class ProjectSubtaskController(IProjectSubtaskService projectSubtaskServi
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await projectSubtaskService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var projectSubtask = await projectSubtaskService.AddAsync(
+            command,
+            companyContext.CompanyId,
+            cancellationToken);
 
         return new CreatedResult(string.Empty, projectSubtask);
     }
@@ -134,8 +139,7 @@ public class ProjectSubtaskController(IProjectSubtaskService projectSubtaskServi
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to update project subtasks</exception>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProjectSubtaskResponse))]
+    [ProducesResponseType(typeof(UpdateProjectSubtaskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -151,7 +155,7 @@ public class ProjectSubtaskController(IProjectSubtaskService projectSubtaskServi
 
         var projectSubtask = await projectSubtaskService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
@@ -169,7 +173,6 @@ public class ProjectSubtaskController(IProjectSubtaskService projectSubtaskServi
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to delete project subtasks</exception>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

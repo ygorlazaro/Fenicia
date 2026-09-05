@@ -310,6 +310,53 @@
                                      SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults.AsEnumerable(); })" ToStringFunc="@(u => u is null ? string.Empty : u.Name)" ValueChanged="@(async (UserSummaryDto? u) => await AddAssigneeAsync(u))"
                                      ResetValueOnEmptyText="true" Clearable="true" MaxItems="10" />
                 </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">Subtarefas (@taskEditModel.Subtasks.Count(s => s.IsCompleted)/@taskEditModel.Subtasks.Count)</MudText>
+                    <MudStack Spacing="1">
+                        @foreach (var s in taskEditModel.Subtasks.OrderBy(x => x.Order))
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudCheckBox T="bool" Value="@s.IsCompleted" ValueChanged="@(async (bool v) => await ToggleSubtaskAsync(s, v))" Dense="true" />
+                                <MudText Typo="Typo.body2" Style="@(s.IsCompleted ? "text-decoration: line-through; opacity:0.6; flex-grow:1;" : "flex-grow:1;")">@s.Title</MudText>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Default" OnClick="@(() => RemoveSubtaskAsync(s))" />
+                            </MudStack>
+                        }
+                    </MudStack>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-1">
+                        <MudTextField @bind-Value="newSubtaskTitle" Label="Nova subtarefa" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" MaxLength="200" Style="flex-grow:1;"
+                                      OnKeyDown="@(async (KeyboardEventArgs e) => { if (e.Key == "Enter") { await AddSubtaskAsync(); } })" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="AddSubtaskAsync" Disabled="@(string.IsNullOrWhiteSpace(newSubtaskTitle) || isAddingSubtask)">Adicionar</MudButton>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">Comentários (@taskEditModel.Comments.Count)</MudText>
+                    <MudPaper Elevation="0" Class="pa-2" Style="max-height: 240px; overflow-y: auto; background-color: rgba(0,0,0,0.02); border-radius: 8px;">
+                        @if (taskEditModel.Comments.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Default">Nenhum comentário ainda.</MudText>
+                        }
+                        @foreach (var c in taskEditModel.Comments.OrderBy(x => x.Created))
+                        {
+                            <MudStack Row="false" Spacing="0" Class="mb-2">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                    <MudAvatar Size="Size.Small" Color="Color.Secondary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(c.UserName)</MudAvatar>
+                                    <MudText Typo="Typo.caption"><b>@(string.IsNullOrWhiteSpace(c.UserName) ? "Usuário" : c.UserName)</b></MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Default">· @c.Created.ToLocalTime().ToString("dd/MM HH:mm")</MudText>
+                                    @if (c.UserId == currentUserId)
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Default" OnClick="@(() => RemoveCommentAsync(c))" />
+                                    }
+                                </MudStack>
+                                <MudText Typo="Typo.body2" Class="ml-7" Style="white-space: pre-wrap;">@c.Content</MudText>
+                            </MudStack>
+                        }
+                    </MudPaper>
+                    <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="1" Class="mt-1">
+                        <MudTextField @bind-Value="newCommentContent" Label="Escrever comentário" Variant="Variant.Outlined" Lines="2" MaxLength="4096" Style="flex-grow:1;"
+                                      OnKeyDown="@(async (KeyboardEventArgs e) => { if (e.Key == "Enter" && !e.ShiftKey) { await AddCommentAsync(); } })" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Send" OnClick="AddCommentAsync" Disabled="@(string.IsNullOrWhiteSpace(newCommentContent) || isAddingComment)">Enviar</MudButton>
+                    </MudStack>
+                </MudItem>
             }
         </MudGrid>
     </DialogContent>
@@ -463,6 +510,10 @@
     private bool taskDialogVisible;
     private TaskFormModel taskEditModel = new();
     private bool taskSaving;
+    private string newSubtaskTitle = string.Empty;
+    private string newCommentContent = string.Empty;
+    private bool isAddingSubtask;
+    private bool isAddingComment;
 
     private List<TeamDto> teams = [];
     private bool teamDialogVisible;
@@ -852,7 +903,7 @@
         taskDialogVisible = true;
     }
 
-    private void OpenTaskModal(TaskDto task)
+    private async Task OpenTaskModal(TaskDto task)
     {
         taskEditModel = new TaskFormModel
         {
@@ -877,8 +928,47 @@
                     UserEmail = a.UserEmail,
                 })
             ],
+            Subtasks = [.. task.Subtasks],
+            Comments = [.. task.Comments],
         };
         taskDialogVisible = true;
+        newSubtaskTitle = string.Empty;
+        newCommentContent = string.Empty;
+        if (task.Id != Guid.Empty)
+        {
+            await LoadTaskDetailsAsync(task.Id);
+        }
+    }
+
+    private async Task LoadTaskDetailsAsync(Guid taskId)
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var subTask = client.GetAsync($"/projectsubtask?perPage=500&query=taskId[=]{taskId}");
+            var comTask = client.GetAsync($"/projectcomment?perPage=500&query=taskId[=]{taskId}");
+            await Task.WhenAll(subTask, comTask);
+
+            if (subTask.Result.IsSuccessStatusCode)
+            {
+                var json = await subTask.Result.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<SubtaskDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                taskEditModel.Subtasks = items ?? [];
+            }
+            if (comTask.Result.IsSuccessStatusCode)
+            {
+                var json = await comTask.Result.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<CommentDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                taskEditModel.Comments = items ?? [];
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar detalhes: {ex.Message}", Severity.Error);
+        }
     }
 
     private static string GetInitials(string? name)
@@ -959,6 +1049,192 @@
                 var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
                 t?.Assignees.RemoveAll(a => a.Id == assignee.Id);
                 Snackbar.Add($"{assignee.UserName} removido da tarefa.", Severity.Info);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task AddSubtaskAsync()
+    {
+        if (string.IsNullOrWhiteSpace(newSubtaskTitle) || taskEditModel.Id == Guid.Empty) return;
+        try
+        {
+            isAddingSubtask = true;
+            var client = await CreateClientAsync();
+            var payload = new
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskEditModel.Id,
+                Title = newSubtaskTitle.Trim(),
+                IsCompleted = false,
+                Order = taskEditModel.Subtasks.Count,
+                CompletedAt = (DateTime?)null,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var response = await client.PostAsync("/projectsubtask", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                var respJson = await response.Content.ReadAsStringAsync();
+                var created = System.Text.Json.JsonSerializer.Deserialize<SubtaskDto>(respJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (created is not null)
+                {
+                    taskEditModel.Subtasks.Add(created);
+                    var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                    t?.Subtasks.Add(created);
+                    newSubtaskTitle = string.Empty;
+                    Snackbar.Add("Subtarefa adicionada.", Severity.Success);
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isAddingSubtask = false;
+        }
+    }
+
+    private async Task ToggleSubtaskAsync(SubtaskDto subtask, bool isCompleted)
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var payload = new
+            {
+                Id = subtask.Id,
+                TaskId = subtask.TaskId,
+                Title = subtask.Title,
+                IsCompleted = isCompleted,
+                Order = subtask.Order,
+                CompletedAt = isCompleted ? (DateTime?)DateTime.UtcNow : null,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var response = await client.PatchAsync($"/projectsubtask/{subtask.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                subtask.IsCompleted = isCompleted;
+                subtask.CompletedAt = isCompleted ? DateTime.UtcNow : null;
+                var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                var s = t?.Subtasks.FirstOrDefault(x => x.Id == subtask.Id);
+                if (s is not null)
+                {
+                    s.IsCompleted = isCompleted;
+                    s.CompletedAt = subtask.CompletedAt;
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task RemoveSubtaskAsync(SubtaskDto subtask)
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/projectsubtask/{subtask.Id}");
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                taskEditModel.Subtasks.RemoveAll(s => s.Id == subtask.Id);
+                var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                t?.Subtasks.RemoveAll(s => s.Id == subtask.Id);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task AddCommentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(newCommentContent) || taskEditModel.Id == Guid.Empty || currentUserId == Guid.Empty) return;
+        try
+        {
+            isAddingComment = true;
+            var client = await CreateClientAsync();
+            var payload = new
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskEditModel.Id,
+                UserId = currentUserId,
+                Content = newCommentContent.Trim(),
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var response = await client.PostAsync("/projectcomment", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                var respJson = await response.Content.ReadAsStringAsync();
+                var created = System.Text.Json.JsonSerializer.Deserialize<CommentDto>(respJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (created is not null)
+                {
+                    if (string.IsNullOrWhiteSpace(created.UserName))
+                    {
+                        created.UserName = "Você";
+                    }
+                    taskEditModel.Comments.Add(created);
+                    var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                    t?.Comments.Add(created);
+                    newCommentContent = string.Empty;
+                    Snackbar.Add("Comentário enviado.", Severity.Success);
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isAddingComment = false;
+        }
+    }
+
+    private async Task RemoveCommentAsync(CommentDto comment)
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/projectcomment/{comment.Id}");
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                taskEditModel.Comments.RemoveAll(c => c.Id == comment.Id);
+                var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
+                t?.Comments.RemoveAll(c => c.Id == comment.Id);
             }
             else
             {
@@ -1315,6 +1591,8 @@
         public DateTime? DueDate { get; set; }
         public Guid CreatedBy { get; set; }
         public List<AssigneeDto> Assignees { get; set; } = [];
+        public List<SubtaskDto> Subtasks { get; set; } = [];
+        public List<CommentDto> Comments { get; set; } = [];
         public bool IsFinal { get; set; }
     }
 
@@ -1324,6 +1602,26 @@
         public Guid UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string UserEmail { get; set; } = string.Empty;
+    }
+
+    private class SubtaskDto
+    {
+        public Guid Id { get; set; }
+        public Guid TaskId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public bool IsCompleted { get; set; }
+        public int Order { get; set; }
+        public DateTime? CompletedAt { get; set; }
+    }
+
+    private class CommentDto
+    {
+        public Guid Id { get; set; }
+        public Guid TaskId { get; set; }
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public DateTime Created { get; set; }
     }
 
     private class StatusFormModel
@@ -1350,6 +1648,8 @@
         public DateTime? DueDateValue { get; set; }
         public Guid CreatedBy { get; set; }
         public List<AssigneeFormModel> Assignees { get; set; } = [];
+        public List<SubtaskDto> Subtasks { get; set; } = [];
+        public List<CommentDto> Comments { get; set; } = [];
     }
 
     private class AssigneeFormModel
