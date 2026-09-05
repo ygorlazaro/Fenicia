@@ -363,6 +363,7 @@
         if (firstRender)
         {
             await LoadAsync();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
