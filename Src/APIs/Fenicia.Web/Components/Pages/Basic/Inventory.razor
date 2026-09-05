@@ -90,15 +90,15 @@
             <MudItem xs="12" md="6">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Categoria</MudText>
-                    @if (_categoryChartData.Length == 0)
+                    @if (_categoryChartLabels.Length == 0)
                     {
                         <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de categoria.</MudText>
                     }
                     else
                     {
                         <MudChart T="double" ChartType="ChartType.Donut"
-                                  InputData="@_categoryChartData"
-                                  InputLabels="@_categoryChartLabels"
+                                  ChartSeries="@_categoryChartSeries"
+                                  ChartLabels="@_categoryChartLabels"
                                   Width="100%"
                                   Height="300px" />
                     }
@@ -107,15 +107,15 @@
             <MudItem xs="12" md="6">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Fornecedor</MudText>
-                    @if (_supplierChartData.Length == 0)
+                    @if (_supplierChartLabels.Length == 0)
                     {
                         <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de fornecedor.</MudText>
                     }
                     else
                     {
                         <MudChart T="double" ChartType="ChartType.Donut"
-                                  InputData="@_supplierChartData"
-                                  InputLabels="@_supplierChartLabels"
+                                  ChartSeries="@_supplierChartSeries"
+                                  ChartLabels="@_supplierChartLabels"
                                   Width="100%"
                                   Height="300px" />
                     }
@@ -234,15 +234,15 @@
                                 @_health.Summary.TotalStockValue.ToString("C")
                             </MudChip>
                         </MudStack>
-                        @if (_stockValueByCategoryData.Length == 0)
+                        @if (_stockValueByCategoryLabels.Length == 0)
                         {
                             <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados.</MudText>
                         }
                         else
                         {
                             <MudChart T="double" ChartType="ChartType.Bar"
-                                      InputData="@_stockValueByCategoryData"
-                                      InputLabels="@_stockValueByCategoryLabels"
+                                      ChartSeries="@_stockValueByCategorySeries"
+                                      ChartLabels="@_stockValueByCategoryLabels"
                                       Width="100%"
                                       Height="320px" />
                         }
@@ -338,11 +338,11 @@
     private DashboardData? _dashboard;
     private HealthData? _health;
 
-    private double[] _categoryChartData = [];
+    private List<ChartSeries<double>> _categoryChartSeries = [];
     private string[] _categoryChartLabels = [];
-    private double[] _supplierChartData = [];
+    private List<ChartSeries<double>> _supplierChartSeries = [];
     private string[] _supplierChartLabels = [];
-    private double[] _stockValueByCategoryData = [];
+    private List<ChartSeries<double>> _stockValueByCategorySeries = [];
     private string[] _stockValueByCategoryLabels = [];
 
     private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
@@ -375,12 +375,26 @@
                 try
                 {
                     _dashboard = JsonSerializer.Deserialize<DashboardData>(body, JsonOptions);
-                    _categoryChartData = _dashboard?.CategoryBreakdown
-                        .Select(c => (double)c.TotalSalesValue).ToArray() ?? [];
+                    _categoryChartSeries =
+                    [
+                        new ChartSeries<double>
+                        {
+                            Name = "Vendas",
+                            Data = _dashboard?.CategoryBreakdown
+                                .Select(c => (double)c.TotalSalesValue).ToArray() ?? []
+                        }
+                    ];
                     _categoryChartLabels = _dashboard?.CategoryBreakdown
                         .Select(c => c.CategoryName).ToArray() ?? [];
-                    _supplierChartData = _dashboard?.SupplierBreakdown
-                        .Select(s => (double)s.TotalSalesValue).ToArray() ?? [];
+                    _supplierChartSeries =
+                    [
+                        new ChartSeries<double>
+                        {
+                            Name = "Vendas",
+                            Data = _dashboard?.SupplierBreakdown
+                                .Select(s => (double)s.TotalSalesValue).ToArray() ?? []
+                        }
+                    ];
                     _supplierChartLabels = _dashboard?.SupplierBreakdown
                         .Select(s => s.SupplierName).ToArray() ?? [];
                 }
@@ -403,8 +417,15 @@
                 try
                 {
                     _health = JsonSerializer.Deserialize<HealthData>(body, JsonOptions);
-                    _stockValueByCategoryData = _health?.StockValueByCategory
-                        .Select(c => (double)c.TotalStockValue).ToArray() ?? [];
+                    _stockValueByCategorySeries =
+                    [
+                        new ChartSeries<double>
+                        {
+                            Name = "Valor em Estoque",
+                            Data = _health?.StockValueByCategory
+                                .Select(c => (double)c.TotalStockValue).ToArray() ?? []
+                        }
+                    ];
                     _stockValueByCategoryLabels = _health?.StockValueByCategory
                         .Select(c => c.CategoryName).ToArray() ?? [];
                 }
