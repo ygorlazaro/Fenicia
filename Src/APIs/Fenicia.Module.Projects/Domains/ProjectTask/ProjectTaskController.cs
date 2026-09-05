@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,9 @@ namespace Fenicia.Module.Projects.Domains.ProjectTask;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectTaskController(IProjectTaskService projectTaskService) : ControllerBase
+public class ProjectTaskController(
+    IProjectTaskService projectTaskService,
+    ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Gets a paginated list of project tasks.
@@ -111,7 +114,7 @@ public class ProjectTaskController(IProjectTaskService projectTaskService) : Con
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectTask = await projectTaskService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+        var projectTask = await projectTaskService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
         return new CreatedResult(string.Empty, projectTask);
     }
@@ -149,7 +152,7 @@ public class ProjectTaskController(IProjectTaskService projectTaskService) : Con
 
         var projectTask = await projectTaskService.UpdateAsync(
             command with { Id = id },
-            ClaimReader.UserId(User),
+            companyContext.CompanyId,
             cancellationToken);
 
         return projectTask is null ? NotFound() : Ok(projectTask);
