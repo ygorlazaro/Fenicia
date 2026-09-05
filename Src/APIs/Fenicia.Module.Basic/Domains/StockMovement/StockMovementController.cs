@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
+using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="startDate">Data inicial</param>
     /// <param name="endDate">Data final</param>
+    /// <param name="type">Tipo de movimentação (In/Out)</param>
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Consulta avançada para filtros</param>
@@ -39,6 +41,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
         WideEventContext wide,
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate,
+        [FromQuery] StockMovementType? type,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
@@ -50,7 +53,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var stockMovement = await stockMovementService.GetAsync(
-                new GetStockMovementQuery(startDate, endDate, page, perPage, query, sort),
+                new GetStockMovementQuery(startDate, endDate, type, page, perPage, query, sort),
                 cancellationToken);
 
             return Ok(stockMovement);

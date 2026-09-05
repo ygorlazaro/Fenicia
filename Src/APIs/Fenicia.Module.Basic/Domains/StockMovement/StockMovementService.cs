@@ -33,9 +33,12 @@ public sealed class StockMovementService(
             .Include(m => m.Employee!).ThenInclude(e => e.Person)
             .Where(m => m.Date >= startDate && m.Date <= endDate);
 
-        var filteredQuery = baseQuery;
+        if (query.Type is { } type && type != StockMovementType.None)
+        {
+            baseQuery = baseQuery.Where(m => m.Type == type);
+        }
 
-        var movements = await filteredQuery
+        var movements = await baseQuery
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);

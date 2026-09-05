@@ -90,15 +90,15 @@
             <MudItem xs="12" md="6">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Categoria</MudText>
-                    @if (_dashboard.CategoryBreakdown.Count == 0)
+                    @if (_categoryChartData.Length == 0)
                     {
                         <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de categoria.</MudText>
                     }
                     else
                     {
                         <MudChart T="double" ChartType="ChartType.Donut"
-                                  InputData="@CategoryChartData"
-                                  InputLabels="@CategoryChartLabels"
+                                  InputData="@_categoryChartData"
+                                  InputLabels="@_categoryChartLabels"
                                   Width="100%"
                                   Height="300px" />
                     }
@@ -107,15 +107,15 @@
             <MudItem xs="12" md="6">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Fornecedor</MudText>
-                    @if (_dashboard.SupplierBreakdown.Count == 0)
+                    @if (_supplierChartData.Length == 0)
                     {
                         <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de fornecedor.</MudText>
                     }
                     else
                     {
                         <MudChart T="double" ChartType="ChartType.Donut"
-                                  InputData="@SupplierChartData"
-                                  InputLabels="@SupplierChartLabels"
+                                  InputData="@_supplierChartData"
+                                  InputLabels="@_supplierChartLabels"
                                   Width="100%"
                                   Height="300px" />
                     }
@@ -234,15 +234,15 @@
                                 @_health.Summary.TotalStockValue.ToString("C")
                             </MudChip>
                         </MudStack>
-                        @if (_health.StockValueByCategory.Count == 0)
+                        @if (_stockValueByCategoryData.Length == 0)
                         {
                             <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados.</MudText>
                         }
                         else
                         {
                             <MudChart T="double" ChartType="ChartType.Bar"
-                                      InputData="@StockValueByCategoryData"
-                                      InputLabels="@StockValueByCategoryLabels"
+                                      InputData="@_stockValueByCategoryData"
+                                      InputLabels="@_stockValueByCategoryLabels"
                                       Width="100%"
                                       Height="320px" />
                         }
@@ -338,25 +338,14 @@
     private DashboardData? _dashboard;
     private HealthData? _health;
 
+    private double[] _categoryChartData = [];
+    private string[] _categoryChartLabels = [];
+    private double[] _supplierChartData = [];
+    private string[] _supplierChartLabels = [];
+    private double[] _stockValueByCategoryData = [];
+    private string[] _stockValueByCategoryLabels = [];
+
     private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
-
-    private double[] CategoryChartData => _dashboard?.CategoryBreakdown
-        .Select(c => (double)c.TotalSalesValue).ToArray() ?? [];
-
-    private string[] CategoryChartLabels => _dashboard?.CategoryBreakdown
-        .Select(c => c.CategoryName).ToArray() ?? [];
-
-    private double[] SupplierChartData => _dashboard?.SupplierBreakdown
-        .Select(s => (double)s.TotalSalesValue).ToArray() ?? [];
-
-    private string[] SupplierChartLabels => _dashboard?.SupplierBreakdown
-        .Select(s => s.SupplierName).ToArray() ?? [];
-
-    private double[] StockValueByCategoryData => _health?.StockValueByCategory
-        .Select(c => (double)c.TotalStockValue).ToArray() ?? [];
-
-    private string[] StockValueByCategoryLabels => _health?.StockValueByCategory
-        .Select(c => c.CategoryName).ToArray() ?? [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -383,7 +372,23 @@
             if (dashboardResponse.IsSuccessStatusCode)
             {
                 var body = await dashboardResponse.Content.ReadAsStringAsync();
-                _dashboard = JsonSerializer.Deserialize<DashboardData>(body, JsonOptions);
+                try
+                {
+                    _dashboard = JsonSerializer.Deserialize<DashboardData>(body, JsonOptions);
+                    _categoryChartData = _dashboard?.CategoryBreakdown
+                        .Select(c => (double)c.TotalSalesValue).ToArray() ?? [];
+                    _categoryChartLabels = _dashboard?.CategoryBreakdown
+                        .Select(c => c.CategoryName).ToArray() ?? [];
+                    _supplierChartData = _dashboard?.SupplierBreakdown
+                        .Select(s => (double)s.TotalSalesValue).ToArray() ?? [];
+                    _supplierChartLabels = _dashboard?.SupplierBreakdown
+                        .Select(s => s.SupplierName).ToArray() ?? [];
+                }
+                catch (Exception ex)
+                {
+                    Snackbar.Add($"Erro ao interpretar painel: {ex.Message}", Severity.Error);
+                    _dashboard = null;
+                }
             }
             else
             {
@@ -395,7 +400,19 @@
             if (healthResponse.IsSuccessStatusCode)
             {
                 var body = await healthResponse.Content.ReadAsStringAsync();
-                _health = JsonSerializer.Deserialize<HealthData>(body, JsonOptions);
+                try
+                {
+                    _health = JsonSerializer.Deserialize<HealthData>(body, JsonOptions);
+                    _stockValueByCategoryData = _health?.StockValueByCategory
+                        .Select(c => (double)c.TotalStockValue).ToArray() ?? [];
+                    _stockValueByCategoryLabels = _health?.StockValueByCategory
+                        .Select(c => c.CategoryName).ToArray() ?? [];
+                }
+                catch (Exception ex)
+                {
+                    Snackbar.Add($"Erro ao interpretar saúde: {ex.Message}", Severity.Error);
+                    _health = null;
+                }
             }
             else
             {
