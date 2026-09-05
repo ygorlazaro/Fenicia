@@ -3,6 +3,7 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
+using Fenicia.Module.Projects.Domains.Team;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,8 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectStatusController(
     IProjectStatusService projectStatusService,
-    ICompanyContext companyContext) : ControllerBase
+    ICompanyContext companyContext,
+    TeamService teamService) : ControllerBase
 {
     /// <summary>
     ///     Gets a paginated list of project statuses.
@@ -101,7 +103,6 @@ public class ProjectStatusController(
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to create project statuses</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProjectStatusResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -113,6 +114,11 @@ public class ProjectStatusController(
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
+
+        if (!await teamService.IsProjectAdminAsync(ClaimReader.UserId(User), command.ProjectId, cancellationToken))
+        {
+            return Forbid();
+        }
 
         var status = await projectStatusService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
@@ -135,7 +141,6 @@ public class ProjectStatusController(
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to update project statuses</exception>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProjectStatusResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -149,6 +154,17 @@ public class ProjectStatusController(
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
+
+        var existing = await projectStatusService.GetByIdAsync(new GetProjectStatusByIdQuery(id), cancellationToken);
+        if (existing is null)
+        {
+            return NotFound();
+        }
+
+        if (!await teamService.IsProjectAdminAsync(ClaimReader.UserId(User), existing.ProjectId, cancellationToken))
+        {
+            return Forbid();
+        }
 
         var status = await projectStatusService.UpdateAsync(
             command with { Id = id },
@@ -170,9 +186,9 @@ public class ProjectStatusController(
     /// <response code="500">Internal server error</response>
     /// <exception cref="UnauthorizedAccessException">User not authorized to delete project statuses</exception>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,
@@ -180,6 +196,17 @@ public class ProjectStatusController(
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
+
+        var existing = await projectStatusService.GetByIdAsync(new GetProjectStatusByIdQuery(id), cancellationToken);
+        if (existing is null)
+        {
+            return NotFound();
+        }
+
+        if (!await teamService.IsProjectAdminAsync(ClaimReader.UserId(User), existing.ProjectId, cancellationToken))
+        {
+            return Forbid();
+        }
 
         await projectStatusService.DeleteAsync(new DeleteProjectStatusCommand(id), cancellationToken);
 
