@@ -80,6 +80,8 @@ public sealed class CustomerService(
             PhoneNumber = command.PhoneNumber
         };
 
+        Guid? addressId = null;
+
         if (command.Address != null)
         {
             var addressCommand = new AddressCommand(
@@ -92,15 +94,10 @@ public sealed class CustomerService(
                 command.Address.City,
                 command.Address.Country);
             var createdAddress = await addressService.AddAsync(addressCommand, cancellationToken);
-
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = createdAddress.Id
-            };
-            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+            addressId = createdAddress.Id;
         }
+
+        await personService.InsertAsync(person, companyId, cancellationToken);
 
         var customer = new CustomerModel
         {
@@ -108,10 +105,20 @@ public sealed class CustomerService(
             PersonId = person.Id
         };
 
-        await personService.InsertAsync(person, companyId, cancellationToken);
-        var created = await customerRepository.InsertAsync(customer, cancellationToken);
+        await customerRepository.InsertAsync(customer, cancellationToken);
 
-        return new AddCustomerResponse(created.Id, person.Id);
+        if (addressId.HasValue)
+        {
+            var personAddress = new PersonAddressModel
+            {
+                Id = Guid.NewGuid(),
+                PersonId = person.Id,
+                AddressId = addressId.Value
+            };
+            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+        }
+
+        return new AddCustomerResponse(customer.Id, person.Id);
     }
 
     public async Task<UpdateCustomerResponse?> UpdateAsync(
