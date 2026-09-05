@@ -15,9 +15,54 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
     {
         var baseQuery = repository.Query();
         var filteredQuery = baseQuery;
+
+        if (query.StatusId.HasValue)
+        {
+            var sid = query.StatusId.Value;
+            filteredQuery = filteredQuery.Where(t => t.StatusId == sid);
+        }
+
+        if (query.CreatedBy.HasValue)
+        {
+            var cid = query.CreatedBy.Value;
+            filteredQuery = filteredQuery.Where(t => t.CreatedBy == cid);
+        }
+
+        if (query.AssigneeId.HasValue)
+        {
+            var aid = query.AssigneeId.Value;
+            filteredQuery = filteredQuery.Where(t => t.Assignees.Any(a => a.UserId == aid));
+        }
+
+        if (query.DueFrom.HasValue)
+        {
+            var from = query.DueFrom.Value;
+            filteredQuery = filteredQuery.Where(t => t.DueDate.HasValue && t.DueDate.Value >= from);
+        }
+
+        if (query.DueTo.HasValue)
+        {
+            var to = query.DueTo.Value;
+            filteredQuery = filteredQuery.Where(t => t.DueDate.HasValue && t.DueDate.Value <= to);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Type))
+        {
+            var type = query.Type;
+            filteredQuery = filteredQuery.Where(t => t.Type.ToString() == type);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Priority))
+        {
+            var prio = query.Priority;
+            filteredQuery = filteredQuery.Where(t => t.Priority.ToString() == prio);
+        }
+
         var tasks = await filteredQuery
             .Include(pt => pt.Assignees)
             .ThenInclude(a => a.User)
+            .Include(pt => pt.Comments)
+            .Include(pt => pt.Subtasks)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
@@ -39,7 +84,10 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                 [
                     .. pt.Assignees.Select(a =>
                         new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))
-                ]))
+                ],
+                pt.Comments.Count,
+                pt.Subtasks.Count,
+                pt.Subtasks.Count(s => s.IsCompleted)))
         ];
     }
 
