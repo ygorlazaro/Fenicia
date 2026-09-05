@@ -1,0 +1,699 @@
+@page "/projects/{Id:guid}"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IAuthStateService AuthState
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject ISnackbar Snackbar
+
+<PageTitle>@(project?.Title ?? "Projeto") - Fenicia</PageTitle>
+
+<MainLayout>
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center pa-8">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+    }
+    else if (project is null)
+    {
+        <MudAlert Severity="Severity.Warning">Projeto não encontrado.</MudAlert>
+    }
+    else
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/projects"))" />
+                <MudText Typo="Typo.h4">@project.Title</MudText>
+                <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(project.Status)">@project.Status</MudChip>
+            </MudStack>
+            <MudStack Row="true" Spacing="2">
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenStatusModal">
+                    Nova Coluna
+                </MudButton>
+            </MudStack>
+        </MudStack>
+
+        @if (!string.IsNullOrEmpty(project.Description))
+        {
+            <MudPaper Elevation="0" Class="pa-3 mb-4" Style="background-color: rgba(0,0,0,0.02); border-radius: 8px;">
+                <MudText Typo="Typo.body2" Color="Color.Default">@project.Description</MudText>
+            </MudPaper>
+        }
+
+        <div class="kanban-board">
+            @foreach (var status in orderedStatuses)
+            {
+                <MudPaper Elevation="1" Class="kanban-column">
+                    <div class="kanban-column-header" style="background-color: @status.Color;">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudText Typo="Typo.subtitle2" Style="color:white;"><b>@status.Name</b></MudText>
+                                <MudChip T="string" Size="Size.Small" Style="background-color: rgba(255,255,255,0.25); color: white;">@GetTasksByStatus(status.Id).Count</MudChip>
+                            </MudStack>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Size="Size.Small"
+                                           Style="color:white;"
+                                           OnClick="@(() => OpenStatusEditModal(status))" />
+                        </MudStack>
+                    </div>
+                    <div class="kanban-column-body">
+                        @foreach (var task in GetTasksByStatus(status.Id))
+                        {
+                            <MudPaper Elevation="1" Class="pa-3 mb-2 kanban-task" @onclick="@(() => OpenTaskModal(task))">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-1">
+                                    <MudChip T="string" Size="Size.Small" Color="@GetPriorityColor(task.Priority)">@task.Priority</MudChip>
+                                    @if (task.DueDate.HasValue)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="@(task.DueDate.Value < DateTime.UtcNow ? Color.Error : Color.Default)">
+                                            @task.DueDate.Value.ToString("dd/MM")
+                                        </MudText>
+                                    }
+                                </MudStack>
+                                <MudText Typo="Typo.subtitle2" Class="mb-1">@task.Title</MudText>
+                                @if (!string.IsNullOrEmpty(task.Description))
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-1" Style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                                        @task.Description
+                                    </MudText>
+                                }
+                                @if (task.EstimatePoints.HasValue)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@task.EstimatePoints pts</MudChip>
+                                }
+                            </MudPaper>
+                        }
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   FullWidth="true"
+                                   OnClick="@(() => OpenTaskCreateModal(status.Id))">
+                            Adicionar Tarefa
+                        </MudButton>
+                    </div>
+                </MudPaper>
+            }
+            @if (orderedStatuses.Count == 0)
+            {
+                <MudPaper Elevation="0" Class="pa-6 text-center" Style="border: 2px dashed rgba(0,0,0,0.1); border-radius: 12px; min-width: 300px;">
+                    <MudIcon Icon="@Icons.Material.Filled.ViewColumn" Size="Size.Large" Color="Color.Default" />
+                    <MudText Typo="Typo.h6" Class="mt-2">Nenhuma coluna ainda</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-3">Crie a primeira coluna do seu kanban.</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenStatusModal">
+                        Nova Coluna
+                    </MudButton>
+                </MudPaper>
+            }
+        </div>
+    }
+</MainLayout>
+
+<MudDialog @bind-Visible="statusDialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(statusEditModel.Id == Guid.Empty ? "Nova Coluna" : "Editar Coluna")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="statusEditModel.Name" Label="Nome" Variant="Variant.Outlined" MaxLength="100" Required="true" RequiredError="Nome é obrigatório!" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="statusEditModel.Color" Label="Cor" Variant="Variant.Outlined" MaxLength="20" Placeholder="#6366f1" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="int" @bind-Value="statusEditModel.Order" Label="Ordem" Variant="Variant.Outlined" Min="0" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudSwitch T="bool" @bind-Value="statusEditModel.IsFinal" Label="Coluna final (concluída)" Color="Color.Success" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        @if (statusEditModel.Id != Guid.Empty)
+        {
+            <MudButton OnClick="DeleteStatusAsync" Variant="Variant.Text" Color="Color.Error" Disabled="@statusSaving">Excluir</MudButton>
+        }
+        <MudButton OnClick="CloseStatusModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveStatusAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@statusSaving">
+            @if (statusSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<MudDialog @bind-Visible="taskDialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(taskEditModel.Id == Guid.Empty ? "Nova Tarefa" : "Editar Tarefa")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="taskEditModel.Title" Label="Título" Variant="Variant.Outlined" MaxLength="200" Required="true" RequiredError="Título é obrigatório!" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="taskEditModel.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" MaxLength="2000" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" @bind-Value="taskEditModel.Priority" Label="Prioridade" Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("Low")">Baixa</MudSelectItem>
+                    <MudSelectItem Value="@("Medium")">Média</MudSelectItem>
+                    <MudSelectItem Value="@("High")">Alta</MudSelectItem>
+                    <MudSelectItem Value="@("Critical")">Crítica</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" @bind-Value="taskEditModel.Type" Label="Tipo" Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("Task")">Tarefa</MudSelectItem>
+                    <MudSelectItem Value="@("Bug")">Bug</MudSelectItem>
+                    <MudSelectItem Value="@("Feature")">Feature</MudSelectItem>
+                    <MudSelectItem Value="@("Improvement")">Melhoria</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="Guid" @bind-Value="taskEditModel.StatusId" Label="Coluna" Variant="Variant.Outlined" Required="true">
+                    @foreach (var s in orderedStatuses)
+                    {
+                        <MudSelectItem T="Guid" Value="@s.Id">@s.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="int?" @bind-Value="taskEditModel.EstimatePoints" Label="Pontos Estimados" Variant="Variant.Outlined" Min="0" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="taskEditModel.DueDateValue" Label="Data de Entrega" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        @if (taskEditModel.Id != Guid.Empty)
+        {
+            <MudButton OnClick="DeleteTaskAsync" Variant="Variant.Text" Color="Color.Error" Disabled="@taskSaving">Excluir</MudButton>
+        }
+        <MudButton OnClick="CloseTaskModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveTaskAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@taskSaving">
+            @if (taskSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private bool isLoading = true;
+    private string? errorMessage;
+    private ProjectDto? project;
+    private List<StatusDto> statuses = [];
+    private List<TaskDto> tasks = [];
+    private Guid currentUserId;
+
+    private bool statusDialogVisible;
+    private StatusFormModel statusEditModel = new();
+    private bool statusSaving;
+
+    private bool taskDialogVisible;
+    private TaskFormModel taskEditModel = new();
+    private bool taskSaving;
+
+    private readonly DialogOptions dialogOptions = new()
+    {
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+    };
+
+    private List<StatusDto> orderedStatuses => statuses.Where(s => s.ProjectId == Id).OrderBy(s => s.Order).ToList();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+            currentUserId = await CompanyContext.GetUserIdAsync();
+            await LoadAllAsync();
+        }
+    }
+
+    private async Task<HttpClient> CreateClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaProjects");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+        return client;
+    }
+
+    private async Task LoadAllAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+            var client = await CreateClientAsync();
+            var projectTask = client.GetAsync($"/project/{Id}");
+            var statusesTask = client.GetAsync("/projectstatus?page=1&perPage=200");
+            var tasksTask = client.GetAsync("/projecttask?page=1&perPage=500");
+            await Task.WhenAll(projectTask, statusesTask, tasksTask);
+
+            if (projectTask.Result.IsSuccessStatusCode)
+            {
+                var json = await projectTask.Result.Content.ReadAsStringAsync();
+                project = System.Text.Json.JsonSerializer.Deserialize<ProjectDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else if (projectTask.Result.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                errorMessage = "Projeto não encontrado.";
+                return;
+            }
+
+            if (statusesTask.Result.IsSuccessStatusCode)
+            {
+                var json = await statusesTask.Result.Content.ReadAsStringAsync();
+                statuses = System.Text.Json.JsonSerializer.Deserialize<List<StatusDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+            }
+            if (tasksTask.Result.IsSuccessStatusCode)
+            {
+                var json = await tasksTask.Result.Content.ReadAsStringAsync();
+                tasks = System.Text.Json.JsonSerializer.Deserialize<List<TaskDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private List<TaskDto> GetTasksByStatus(Guid statusId) => tasks
+        .Where(t => t.StatusId == statusId && t.ProjectId == Id)
+        .OrderBy(t => t.Order)
+        .ToList();
+
+    private void OpenStatusModal()
+    {
+        statusEditModel = new StatusFormModel
+        {
+            ProjectId = Id,
+            Color = "#6366f1",
+            Order = orderedStatuses.Count,
+        };
+        statusDialogVisible = true;
+    }
+
+    private void OpenStatusEditModal(StatusDto status)
+    {
+        statusEditModel = new StatusFormModel
+        {
+            Id = status.Id,
+            ProjectId = status.ProjectId,
+            Name = status.Name,
+            Color = status.Color,
+            Order = status.Order,
+            IsFinal = status.IsFinal,
+        };
+        statusDialogVisible = true;
+    }
+
+    private void CloseStatusModal() => statusDialogVisible = false;
+
+    private async Task SaveStatusAsync()
+    {
+        if (string.IsNullOrWhiteSpace(statusEditModel.Name)) return;
+        try
+        {
+            statusSaving = true;
+            var client = await CreateClientAsync();
+            HttpResponseMessage response;
+            if (statusEditModel.Id == Guid.Empty)
+            {
+                var payload = new
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = statusEditModel.ProjectId,
+                    Name = statusEditModel.Name,
+                    Color = statusEditModel.Color,
+                    Order = statusEditModel.Order,
+                    IsFinal = statusEditModel.IsFinal,
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                response = await client.PostAsync("/projectstatus", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            }
+            else
+            {
+                var payload = new
+                {
+                    Id = statusEditModel.Id,
+                    ProjectId = statusEditModel.ProjectId,
+                    Name = statusEditModel.Name,
+                    Color = statusEditModel.Color,
+                    Order = statusEditModel.Order,
+                    IsFinal = statusEditModel.IsFinal,
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                response = await client.PatchAsync($"/projectstatus/{statusEditModel.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            }
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Coluna salva!", Severity.Success);
+                statusDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            statusSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DeleteStatusAsync()
+    {
+        if (statusEditModel.Id == Guid.Empty) return;
+        var hasTasks = tasks.Any(t => t.StatusId == statusEditModel.Id);
+        if (hasTasks)
+        {
+            Snackbar.Add("Não é possível excluir uma coluna com tarefas.", Severity.Warning);
+            return;
+        }
+        try
+        {
+            statusSaving = true;
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/projectstatus/{statusEditModel.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Coluna excluída.", Severity.Success);
+                statusDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            statusSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OpenTaskCreateModal(Guid statusId)
+    {
+        if (currentUserId == Guid.Empty) return;
+        taskEditModel = new TaskFormModel
+        {
+            ProjectId = Id,
+            StatusId = statusId,
+            Priority = "Medium",
+            Type = "Task",
+            Order = GetTasksByStatus(statusId).Count,
+            CreatedBy = currentUserId,
+        };
+        taskDialogVisible = true;
+    }
+
+    private void OpenTaskModal(TaskDto task)
+    {
+        taskEditModel = new TaskFormModel
+        {
+            Id = task.Id,
+            ProjectId = task.ProjectId,
+            StatusId = task.StatusId,
+            Title = task.Title,
+            Description = task.Description,
+            Priority = task.Priority,
+            Type = task.Type,
+            Order = task.Order,
+            EstimatePoints = task.EstimatePoints,
+            DueDateValue = task.DueDate,
+            CreatedBy = task.CreatedBy,
+        };
+        taskDialogVisible = true;
+    }
+
+    private void CloseTaskModal() => taskDialogVisible = false;
+
+    private async Task SaveTaskAsync()
+    {
+        if (string.IsNullOrWhiteSpace(taskEditModel.Title) || taskEditModel.StatusId == Guid.Empty) return;
+        try
+        {
+            taskSaving = true;
+            var client = await CreateClientAsync();
+            HttpResponseMessage response;
+            if (taskEditModel.Id == Guid.Empty)
+            {
+                var payload = new
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = taskEditModel.ProjectId,
+                    StatusId = taskEditModel.StatusId,
+                    Title = taskEditModel.Title,
+                    Description = taskEditModel.Description,
+                    Priority = taskEditModel.Priority,
+                    Type = taskEditModel.Type,
+                    Order = taskEditModel.Order,
+                    EstimatePoints = taskEditModel.EstimatePoints,
+                    DueDate = taskEditModel.DueDateValue,
+                    CreatedBy = currentUserId,
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                response = await client.PostAsync("/projecttask", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            }
+            else
+            {
+                var payload = new
+                {
+                    Id = taskEditModel.Id,
+                    ProjectId = taskEditModel.ProjectId,
+                    StatusId = taskEditModel.StatusId,
+                    Title = taskEditModel.Title,
+                    Description = taskEditModel.Description,
+                    Priority = taskEditModel.Priority,
+                    Type = taskEditModel.Type,
+                    Order = taskEditModel.Order,
+                    EstimatePoints = taskEditModel.EstimatePoints,
+                    DueDate = taskEditModel.DueDateValue,
+                    CreatedBy = taskEditModel.CreatedBy,
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                response = await client.PatchAsync($"/projecttask/{taskEditModel.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            }
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Tarefa salva!", Severity.Success);
+                taskDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            taskSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DeleteTaskAsync()
+    {
+        if (taskEditModel.Id == Guid.Empty) return;
+        try
+        {
+            taskSaving = true;
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/projecttask/{taskEditModel.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Tarefa excluída.", Severity.Success);
+                taskDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            taskSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static Color GetStatusColor(string status) => status switch
+    {
+        "Active" => Color.Success,
+        "Planned" => Color.Info,
+        "Paused" => Color.Warning,
+        "Completed" => Color.Primary,
+        "Cancelled" => Color.Default,
+        _ => Color.Default,
+    };
+
+    private static Color GetPriorityColor(string priority) => priority switch
+    {
+        "Critical" => Color.Error,
+        "High" => Color.Warning,
+        "Medium" => Color.Info,
+        "Low" => Color.Default,
+        _ => Color.Default,
+    };
+
+    private class ProjectDto
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Status { get; set; } = "Active";
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public Guid Owner { get; set; }
+    }
+
+    private class StatusDto
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Color { get; set; } = "#6366f1";
+        public int Order { get; set; }
+        public bool IsFinal { get; set; }
+    }
+
+    private class TaskDto
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public Guid StatusId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Priority { get; set; } = "Medium";
+        public string Type { get; set; } = "Task";
+        public int Order { get; set; }
+        public int? EstimatePoints { get; set; }
+        public DateTime? DueDate { get; set; }
+        public Guid CreatedBy { get; set; }
+    }
+
+    private class StatusFormModel
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Color { get; set; } = "#6366f1";
+        public int Order { get; set; }
+        public bool IsFinal { get; set; }
+    }
+
+    private class TaskFormModel
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public Guid StatusId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Priority { get; set; } = "Medium";
+        public string Type { get; set; } = "Task";
+        public int Order { get; set; }
+        public int? EstimatePoints { get; set; }
+        public DateTime? DueDateValue { get; set; }
+        public Guid CreatedBy { get; set; }
+    }
+}
+
+<style>
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding-bottom: 16px;
+        min-height: 60vh;
+    }
+    .kanban-column {
+        min-width: 280px;
+        max-width: 320px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .kanban-column-header {
+        padding: 10px 12px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+    .kanban-column-body {
+        padding: 8px;
+        flex-grow: 1;
+        background-color: rgba(0,0,0,0.02);
+    }
+    .kanban-task {
+        cursor: pointer;
+        transition: transform 0.1s ease;
+    }
+    .kanban-task:hover {
+        transform: translateY(-1px);
+    }
+</style>
