@@ -46,7 +46,7 @@
             @foreach (var project in projects)
             {
                 <MudItem xs="12" sm="6" md="4">
-                    <MudPaper Elevation="2" Class="pa-4 project-card" Style="cursor:pointer; height:100%; display:flex; flex-direction:column;"
+                    <MudPaper Elevation="2" Class="@GetProjectCardClass(project)" Style="cursor:pointer; height:100%; display:flex; flex-direction:column;"
                               @onclick="@(() => NavigationManager.NavigateTo("/project/" + project.Id))">
                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
                             <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(project.Status)">@project.Status</MudChip>
@@ -59,7 +59,7 @@
                         <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-3" Style="flex-grow:1;">
                             @(string.IsNullOrEmpty(project.Description) ? "Sem descrição." : Truncate(project.Description, 140))
                         </MudText>
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
                             @if (project.StartDate.HasValue)
                             {
                                 <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Color="Color.Default" />
@@ -72,6 +72,24 @@
                                 </MudText>
                             }
                         </MudStack>
+                        @{
+                            var members = GetProjectMembers(project.Id);
+                        }
+                        @if (members.Count > 0)
+                        {
+                            <MudStack Row="true" Spacing="-1" AlignItems="AlignItems.Center" Class="mt-auto">
+                                @foreach (var m in members.Take(5))
+                                {
+                                    <MudTooltip Text="@($"{m.UserName} ({m.Email})")">
+                                        <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" Class="assignee-avatar">@GetInitials(m.UserName)</MudAvatar>
+                                    </MudTooltip>
+                                }
+                                @if (members.Count > 5)
+                                {
+                                    <MudAvatar Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="assignee-avatar">+@(members.Count - 5)</MudAvatar>
+                                }
+                            </MudStack>
+                        }
                     </MudPaper>
                 </MudItem>
             }
@@ -125,6 +143,7 @@
     private bool isSaving;
     private string? errorMessage;
     private List<ProjectDto> projects = [];
+    private readonly Dictionary<Guid, List<MemberSummaryDto>> projectMembers = new();
     private bool dialogVisible;
     private ProjectFormModel editModel = new();
     private Guid currentUserId;
@@ -183,6 +202,37 @@
                 var items = System.Text.Json.JsonSerializer.Deserialize<List<ProjectDto>>(json,
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 projects = items ?? [];
+
+                projectMembers.Clear();
+                if (projects.Count > 0)
+                {
+                    var memberTasks = projects.Select(async p =>
+                    {
+                        try
+                        {
+                            var r = await client.GetAsync($"/team/project/{p.Id}");
+                            if (r.IsSuccessStatusCode)
+                            {
+                                var tj = await r.Content.ReadAsStringAsync();
+                                var teams = System.Text.Json.JsonSerializer.Deserialize<List<TeamListDto>>(tj,
+                                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+                                var members = teams
+                                    .SelectMany(t => t.Members ?? [])
+                                    .GroupBy(m => m.UserId)
+                                    .Select(g => g.First())
+                                    .ToList();
+                                lock (projectMembers)
+                                {
+                                    projectMembers[p.Id] = members;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    });
+                    await Task.WhenAll(memberTasks);
+                }
             }
             else
             {
@@ -198,6 +248,42 @@
             isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private List<MemberSummaryDto> GetProjectMembers(Guid projectId)
+    {
+        return projectMembers.TryGetValue(projectId, out var list) ? list : [];
+    }
+
+    private string GetProjectCardClass(ProjectDto project)
+    {
+        var classes = new List<string> { "pa-4", "project-card" };
+        if (project.EndDate.HasValue)
+        {
+            var daysLeft = (project.EndDate.Value.Date - DateTime.UtcNow.Date).TotalDays;
+            if (daysLeft < 0)
+            {
+                classes.Add("task-overdue");
+            }
+            else if (daysLeft <= 3)
+            {
+                classes.Add("task-due-soon");
+            }
+            else
+            {
+                classes.Add("task-on-track");
+            }
+        }
+        return string.Join(" ", classes);
+    }
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return "?";
+        if (parts.Length == 1) return parts[0][..Math.Min(2, parts[0].Length)].ToUpperInvariant();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpperInvariant();
     }
 
     private void OpenCreateModal()
@@ -317,6 +403,24 @@
         public DateTime? StartDateValue { get; set; }
         public DateTime? EndDateValue { get; set; }
     }
+
+    private class TeamListDto
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Color { get; set; } = "#6366f1";
+        public int MemberCount { get; set; }
+        public List<MemberSummaryDto>? Members { get; set; }
+    }
+
+    private class MemberSummaryDto
+    {
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+    }
 }
 
 <style>
@@ -327,4 +431,23 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
     }
+    .task-overdue {
+        background-color: rgba(244, 67, 54, 0.10);
+        border-left: 3px solid rgba(244, 67, 54, 0.6);
+    }
+    .task-due-soon {
+        background-color: rgba(255, 193, 7, 0.10);
+        border-left: 3px solid rgba(255, 193, 7, 0.6);
+    }
+    .task-on-track {
+        background-color: rgba(76, 175, 80, 0.06);
+        border-left: 3px solid rgba(76, 175, 80, 0.3);
+    }
+    .assignee-avatar {
+        border: 2px solid #fff;
+        margin-left: -6px;
+    }
+        .assignee-avatar:first-child {
+            margin-left: 0;
+        }
 </style>
