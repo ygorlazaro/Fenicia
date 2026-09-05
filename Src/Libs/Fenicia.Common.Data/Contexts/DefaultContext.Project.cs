@@ -11,6 +11,8 @@ public partial class DefaultContext
 
     public DbSet<ProjectStatusModel> ProjectStatuses { get; set; }
 
+    public DbSet<SprintModel> Sprints { get; set; }
+
     public DbSet<ProjectTaskModel> ProjectTasks { get; set; }
 
     public DbSet<ProjectSubtaskModel> ProjectSubtasks { get; set; }

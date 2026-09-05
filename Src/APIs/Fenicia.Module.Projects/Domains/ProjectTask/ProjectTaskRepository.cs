@@ -19,6 +19,7 @@ public class ProjectTaskRepository(DefaultContext context)
             .Include(pt => pt.Subtasks)
             .Include(pt => pt.Assignees)
             .ThenInclude(a => a.User)
+            .Include(pt => pt.SprintModel)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 }

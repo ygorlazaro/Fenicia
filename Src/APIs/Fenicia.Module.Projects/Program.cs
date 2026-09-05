@@ -18,6 +18,8 @@ using Fenicia.Module.Projects.Domains.ProjectTask;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
+using Fenicia.Module.Projects.Domains.Sprint;
+using Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 using Fenicia.Module.Projects.Domains.Team;
 using Fenicia.Module.Projects.Domains.Team.Interfaces;
 
@@ -49,6 +51,9 @@ public abstract class Program
                 builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
                 builder.Services.AddScoped<IProjectTaskAssigneeService, ProjectTaskAssigneeService>();
                 builder.Services.AddScoped<IProjectStatusService, ProjectStatusService>();
+                builder.Services.AddScoped<IRepository<SprintModel>, SprintRepository>();
+                builder.Services.AddScoped<ISprintRepository, SprintRepository>();
+                builder.Services.AddScoped<ISprintService, SprintService>();
                 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
                 builder.Services.AddScoped<ITeamUserRepository, TeamUserRepository>();
                 builder.Services.AddScoped<ITeamService, TeamService>();

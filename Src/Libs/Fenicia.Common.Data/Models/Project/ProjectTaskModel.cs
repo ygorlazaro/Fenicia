@@ -30,6 +30,8 @@ public sealed class ProjectTaskModel : BaseCompanyModel
 
     public Guid CreatedBy { get; init; } = Guid.Empty;
 
+    public Guid? SprintId { get; init; } = null;
+
     public List<AttachmentModel> Attachments { get; init; } = [];
 
     public List<ProjectCommentModel> Comments { get; init; } = [];
@@ -46,4 +48,7 @@ public sealed class ProjectTaskModel : BaseCompanyModel
 
     [ForeignKey(nameof(ProjectId))]
     public ProjectModel ProjectModel { get; init; } = default!;
+
+    [ForeignKey(nameof(SprintId))]
+    public SprintModel? SprintModel { get; init; }
 }

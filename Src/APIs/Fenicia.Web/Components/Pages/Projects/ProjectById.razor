@@ -47,6 +47,12 @@
                                OnClick="OpenTeamModal">
                         Nova Equipe
                     </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Info"
+                               StartIcon="@Icons.Material.Filled.CalendarMonth"
+                               OnClick="OpenSprintModal">
+                        Nova Sprint
+                    </MudButton>
                 }
             </MudStack>
         </MudStack>
@@ -61,7 +67,7 @@
         <MudPaper Elevation="1" Class="pa-3 mb-4">
             <MudGrid Spacing="2" AlignItems="AlignItems.Center">
                 <MudItem xs="12" sm="6" md="2">
-                    <MudSelect T="Guid?" @bind-Value="filterCreatedBy" Label="Criador" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                    <MudSelect T="Guid?" Value="filterCreatedBy" ValueChanged="@(async (Guid? v) => await OnCreatedByChanged(v))" Label="Criador" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         @foreach (var u in projectCreators)
                         {
                             <MudSelectItem T="Guid?" Value="@((Guid?)u.Key)">@u.Value</MudSelectItem>
@@ -69,7 +75,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6" md="2">
-                    <MudSelect T="Guid?" @bind-Value="filterAssignee" Label="Responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                    <MudSelect T="Guid?" Value="filterAssignee" ValueChanged="@(async (Guid? v) => await OnAssigneeChanged(v))" Label="Responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         @foreach (var u in projectAssignees)
                         {
                             <MudSelectItem T="Guid?" Value="@((Guid?)u.Key)">@u.Value</MudSelectItem>
@@ -77,13 +83,13 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="2">
-                    <MudDatePicker Date="filterDueFromValue" DateChanged="@(async (DateTime? _) => await OnDueFilterChangedAsync())" Label="Entrega de" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
+                    <MudDatePicker Date="filterDueFromValue" DateChanged="@(async (DateTime? v) => await OnDueFromChanged(v))" Label="Entrega de" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
                 </MudItem>
                 <MudItem xs="6" sm="3" md="2">
-                    <MudDatePicker Date="filterDueToValue" DateChanged="@(async (DateTime? _) => await OnDueFilterChangedAsync())" Label="Entrega até" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
+                    <MudDatePicker Date="filterDueToValue" DateChanged="@(async (DateTime? v) => await OnDueToChanged(v))" Label="Entrega até" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="string" @bind-Value="filterType" Label="Tipo" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                    <MudSelect T="string" Value="filterType" ValueChanged="@(async (string v) => await OnTypeChanged(v))" Label="Tipo" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         <MudSelectItem T="string" Value="@("Task")">Tarefa</MudSelectItem>
                         <MudSelectItem T="string" Value="@("Bug")">Bug</MudSelectItem>
                         <MudSelectItem T="string" Value="@("Feature")">Feature</MudSelectItem>
@@ -91,7 +97,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="string" @bind-Value="filterPriority" Label="Prioridade" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                    <MudSelect T="string" Value="filterPriority" ValueChanged="@(async (string v) => await OnPriorityChanged(v))" Label="Prioridade" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         <MudSelectItem T="string" Value="@("Low")">Baixa</MudSelectItem>
                         <MudSelectItem T="string" Value="@("Medium")">Média</MudSelectItem>
                         <MudSelectItem T="string" Value="@("High")">Alta</MudSelectItem>
@@ -99,15 +105,25 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="Guid?" @bind-Value="filterStatusId" Label="Coluna" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" @bind-Value:after="ReloadTasksAsync">
+                    <MudSelect T="Guid?" Value="filterStatusId" ValueChanged="@(async (Guid? v) => await OnStatusFilterChanged(v))" Label="Coluna" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         @foreach (var s in orderedStatuses)
                         {
                             <MudSelectItem T="Guid?" Value="@((Guid?)s.Id)">@s.Name</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="12" sm="6" md="1" Class="d-flex justify-end">
-                    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAltOff" OnClick="ClearFiltersAsync">Limpar</MudButton>
+                <MudItem xs="6" sm="3" md="1">
+                    <MudSelect T="Guid?" Value="filterSprintId" ValueChanged="@(async (Guid? v) => await OnSprintFilterChanged(v))" Label="Sprint" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                        <MudSelectItem T="Guid?" Value="@(Guid.Empty)">Sem sprint</MudSelectItem>
+                        @foreach (var sp in sprints)
+                        {
+                            <MudSelectItem T="Guid?" Value="@((Guid?)sp.Id)">@sp.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAlt" OnClick="ReloadTasksAsync" Class="mr-2">Aplicar</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Filled.FilterAltOff" OnClick="ClearFiltersAsync">Limpar</MudButton>
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -279,6 +295,42 @@
     }
 </MainLayout>
 
+<MudDialog @bind-Visible="sprintDialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(sprintEditModel.Id == Guid.Empty ? "Nova Sprint" : "Editar Sprint")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="sprintEditModel.Name" Label="Nome" Variant="Variant.Outlined" MaxLength="256" Required="true" RequiredError="Nome é obrigatório!" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker Date="sprintEditModel.StartDateValue" DateChanged="@(async (DateTime? v) => await OnSprintStartDateChanged(v))" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker Date="sprintEditModel.EndDateValue" DateChanged="@(async (DateTime? v) => await OnSprintEndDateChanged(v))" Label="Data final" Variant="Variant.Outlined" Clearable="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="sprintEditModel.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" MaxLength="4096" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        @if (sprintEditModel.Id != Guid.Empty)
+        {
+            <MudButton OnClick="DeleteSprintAsync" Variant="Variant.Text" Color="Color.Error" Disabled="@sprintSaving">Excluir</MudButton>
+        }
+        <MudButton OnClick="CloseSprintModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveSprintAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@sprintSaving">
+            @if (sprintSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
 <MudDialog @bind-Visible="statusDialogVisible" Options="dialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">@(statusEditModel.Id == Guid.Empty ? "Nova Coluna" : "Editar Coluna")</MudText>
@@ -366,6 +418,15 @@
             </MudItem>
             <MudItem xs="12" sm="6">
                 <MudDatePicker @bind-Date="taskEditModel.DueDateValue" Label="Data de Entrega" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="Guid?" @bind-Value="taskEditModel.SprintId" Label="Sprint" Variant="Variant.Outlined" Clearable="true">
+                    <MudSelectItem T="Guid?" Value="@(Guid.Empty)">Sem sprint</MudSelectItem>
+                    @foreach (var sp in sprints)
+                    {
+                        <MudSelectItem T="Guid?" Value="@sp.Id">@sp.Name</MudSelectItem>
+                    }
+                </MudSelect>
             </MudItem>
             @if (taskEditModel.Id != Guid.Empty)
             {
@@ -570,15 +631,21 @@
     private string? filterType;
     private string? filterPriority;
     private Guid? filterStatusId;
+    private Guid? filterSprintId;
     private Dictionary<Guid, string> projectCreators = [];
     private Dictionary<Guid, string> projectAssignees = [];
     private List<TaskDto> tasks = [];
+    private List<SprintDto> sprints = [];
     private Guid currentUserId;
 
     private bool statusDialogVisible;
     private StatusFormModel statusEditModel = new();
     private bool statusSaving;
     private bool colorPickerOpen;
+
+    private bool sprintDialogVisible;
+    private SprintFormModel sprintEditModel = new();
+    private bool sprintSaving;
 
     private void OnColorPicked(MudColor value)
     {
@@ -701,7 +768,8 @@
             var statusesTask = client.GetAsync("/projectstatus?page=1&perPage=200");
             var tasksTask = client.GetAsync(BuildTasksQuery());
             var teamsTask = client.GetAsync($"/team/project/{Id}");
-            await Task.WhenAll(projectTask, statusesTask, tasksTask, teamsTask);
+            var sprintsTask = client.GetAsync($"/sprint?projectId={Id}&page=1&perPage=200");
+            await Task.WhenAll(projectTask, statusesTask, tasksTask, teamsTask, sprintsTask);
 
             if (projectTask.Result.IsSuccessStatusCode)
             {
@@ -751,6 +819,17 @@
                 teams = [];
             }
 
+            if (sprintsTask.Result.IsSuccessStatusCode)
+            {
+                var json = await sprintsTask.Result.Content.ReadAsStringAsync();
+                sprints = System.Text.Json.JsonSerializer.Deserialize<List<SprintDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+            }
+            else
+            {
+                sprints = [];
+            }
+
             var isOwner = project is not null && project.Owner == currentUserId;
             isCurrentUserProjectAdmin = currentUserId != Guid.Empty &&
                 (isOwner || teams.Any(t => t.Members.Any(m => m.UserId == currentUserId && m.Role == "Admin")));
@@ -781,6 +860,17 @@
         if (filterDueToValue.HasValue) qs.Add($"dueTo={filterDueToValue.Value:O}");
         if (!string.IsNullOrWhiteSpace(filterType)) qs.Add($"type={Uri.EscapeDataString(filterType)}");
         if (!string.IsNullOrWhiteSpace(filterPriority)) qs.Add($"priority={Uri.EscapeDataString(filterPriority)}");
+        if (filterSprintId.HasValue)
+        {
+            if (filterSprintId.Value == Guid.Empty)
+            {
+                qs.Add("withoutSprint=true");
+            }
+            else
+            {
+                qs.Add($"sprintId={filterSprintId.Value}");
+            }
+        }
         return "/projecttask?" + string.Join("&", qs);
     }
 
@@ -808,6 +898,64 @@
         }
     }
 
+    private async Task OnCreatedByChanged(Guid? value)
+    {
+        filterCreatedBy = value;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnAssigneeChanged(Guid? value)
+    {
+        filterAssignee = value;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnStatusFilterChanged(Guid? value)
+    {
+        filterStatusId = value;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnSprintFilterChanged(Guid? value)
+    {
+        filterSprintId = value;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnSprintStartDateChanged(DateTime? value)
+    {
+        sprintEditModel.StartDateValue = value;
+    }
+
+    private async Task OnSprintEndDateChanged(DateTime? value)
+    {
+        sprintEditModel.EndDateValue = value;
+    }
+
+    private async Task OnTypeChanged(string? value)
+    {
+        filterType = value;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnPriorityChanged(string? value)
+    {
+        filterPriority = value;
+        await ReloadTasksAsync();
+    }
+
+    private async Task OnDueFromChanged(DateTime? value)
+    {
+        filterDueFromValue = value;
+        await OnDueFilterChangedAsync();
+    }
+
+    private async Task OnDueToChanged(DateTime? value)
+    {
+        filterDueToValue = value;
+        await OnDueFilterChangedAsync();
+    }
+
     private async Task ClearFiltersAsync()
     {
         filterStatusId = null;
@@ -817,6 +965,7 @@
         filterDueToValue = null;
         filterType = null;
         filterPriority = null;
+        filterSprintId = null;
         await ReloadTasksAsync();
     }
 
@@ -890,6 +1039,7 @@
                 EstimatePoints = drop.Item.EstimatePoints,
                 DueDate = drop.Item.DueDate,
                 CreatedBy = drop.Item.CreatedBy,
+                SprintId = drop.Item.SprintId
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var response = await client.PatchAsync($"/projecttask/{drop.Item.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1040,6 +1190,108 @@
         }
     }
 
+    private void OpenSprintModal()
+    {
+        sprintEditModel = new SprintFormModel
+        {
+            ProjectId = Id,
+            CreatedBy = currentUserId
+        };
+        sprintDialogVisible = true;
+    }
+
+    private void CloseSprintModal() => sprintDialogVisible = false;
+
+    private async Task SaveSprintAsync()
+    {
+        if (string.IsNullOrWhiteSpace(sprintEditModel.Name)) return;
+        try
+        {
+            sprintSaving = true;
+            var client = await CreateClientAsync();
+            HttpResponseMessage response;
+            if (sprintEditModel.Id == Guid.Empty)
+            {
+                var payload = new
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = sprintEditModel.ProjectId,
+                    Name = sprintEditModel.Name,
+                    StartDate = sprintEditModel.StartDateValue,
+                    EndDate = sprintEditModel.EndDateValue,
+                    Description = sprintEditModel.Description,
+                    CreatedBy = sprintEditModel.CreatedBy
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                response = await client.PostAsync("/sprint", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            }
+            else
+            {
+                var payload = new
+                {
+                    Id = sprintEditModel.Id,
+                    Name = sprintEditModel.Name,
+                    StartDate = sprintEditModel.StartDateValue,
+                    EndDate = sprintEditModel.EndDateValue,
+                    Description = sprintEditModel.Description
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                response = await client.PatchAsync($"/sprint/{sprintEditModel.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            }
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Sprint salva!", Severity.Success);
+                sprintDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            sprintSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DeleteSprintAsync()
+    {
+        if (sprintEditModel.Id == Guid.Empty) return;
+        try
+        {
+            sprintSaving = true;
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/sprint/{sprintEditModel.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Sprint excluída.", Severity.Success);
+                sprintDialogVisible = false;
+                await LoadAllAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            sprintSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
     private void OpenTaskCreateModal(Guid statusId)
     {
         if (currentUserId == Guid.Empty) return;
@@ -1051,6 +1303,7 @@
             Type = "Task",
             Order = GetTasksByStatus(statusId).Count,
             CreatedBy = currentUserId,
+            SprintId = filterSprintId
         };
         taskDialogVisible = true;
     }
@@ -1070,6 +1323,7 @@
             EstimatePoints = task.EstimatePoints,
             DueDateValue = task.DueDate,
             CreatedBy = task.CreatedBy,
+            SprintId = task.SprintId,
             Assignees =
             [
                 .. task.Assignees.Select(a => new AssigneeFormModel
@@ -1425,6 +1679,7 @@
                     EstimatePoints = taskEditModel.EstimatePoints,
                     DueDate = taskEditModel.DueDateValue,
                     CreatedBy = currentUserId,
+                    SprintId = taskEditModel.SprintId == Guid.Empty ? null : taskEditModel.SprintId
                 };
                 var json = System.Text.Json.JsonSerializer.Serialize(payload);
                 response = await client.PostAsync("/projecttask", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1444,6 +1699,7 @@
                     EstimatePoints = taskEditModel.EstimatePoints,
                     DueDate = taskEditModel.DueDateValue,
                     CreatedBy = taskEditModel.CreatedBy,
+                    SprintId = taskEditModel.SprintId == Guid.Empty ? null : taskEditModel.SprintId
                 };
                 var json = System.Text.Json.JsonSerializer.Serialize(payload);
                 response = await client.PatchAsync($"/projecttask/{taskEditModel.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1742,6 +1998,8 @@
         public int? EstimatePoints { get; set; }
         public DateTime? DueDate { get; set; }
         public Guid CreatedBy { get; set; }
+        public Guid? SprintId { get; set; }
+        public string? SprintName { get; set; }
         public List<AssigneeDto> Assignees { get; set; } = [];
         public List<SubtaskDto> Subtasks { get; set; } = [];
         public List<CommentDto> Comments { get; set; } = [];
@@ -1789,6 +2047,29 @@
         public bool IsFinal { get; set; }
     }
 
+    private class SprintDto
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Description { get; set; }
+        public Guid CreatedBy { get; set; }
+        public Guid CompanyId { get; set; }
+    }
+
+    private class SprintFormModel
+    {
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public DateTime? StartDateValue { get; set; }
+        public DateTime? EndDateValue { get; set; }
+        public string? Description { get; set; }
+        public Guid CreatedBy { get; set; }
+    }
+
     private class TaskFormModel
     {
         public Guid Id { get; set; }
@@ -1802,6 +2083,7 @@
         public int? EstimatePoints { get; set; }
         public DateTime? DueDateValue { get; set; }
         public Guid CreatedBy { get; set; }
+        public Guid? SprintId { get; set; }
         public List<AssigneeFormModel> Assignees { get; set; } = [];
         public List<SubtaskDto> Subtasks { get; set; } = [];
         public List<CommentDto> Comments { get; set; } = [];

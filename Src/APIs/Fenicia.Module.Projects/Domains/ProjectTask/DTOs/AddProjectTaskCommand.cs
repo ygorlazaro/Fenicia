@@ -13,4 +13,5 @@ public record AddProjectTaskCommand(
     int Order,
     int? EstimatePoints,
     DateTime? DueDate,
-    [Required] Guid CreatedBy);
+    [Required] Guid CreatedBy,
+    Guid? SprintId);

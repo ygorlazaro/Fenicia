@@ -11,4 +11,6 @@ public record GetAllProjectTaskQuery(
     DateTime? DueFrom = null,
     DateTime? DueTo = null,
     string? Type = null,
-    string? Priority = null);
+    string? Priority = null,
+    Guid? SprintId = null,
+    bool? WithoutSprint = null);
