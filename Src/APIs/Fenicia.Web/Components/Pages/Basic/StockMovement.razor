@@ -194,7 +194,8 @@
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
     private static readonly DialogOptions _modalOptions = new()
@@ -420,7 +421,7 @@
                     Quantity = _form.Quantity,
                     Date = _form.Date,
                     Price = (decimal?)_form.Price,
-                    Type = (int)_form.Type,
+                    Type = _form.Type,
                     ProductId = _form.ProductId,
                     CustomerId = _form.Type == StockMovementType.Out ? _form.CustomerId : null,
                     SupplierId = _form.Type == StockMovementType.In ? _form.SupplierId : null,
@@ -434,7 +435,7 @@
                     Quantity = _form.Quantity,
                     Date = _form.Date,
                     Price = _form.Price,
-                    Type = (int)_form.Type,
+                    Type = _form.Type,
                     ProductId = _form.ProductId,
                     CustomerId = _form.Type == StockMovementType.Out ? _form.CustomerId : null,
                     SupplierId = _form.Type == StockMovementType.In ? _form.SupplierId : null,
