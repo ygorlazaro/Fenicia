@@ -21,6 +21,13 @@ builder.Services.AddHttpClient("FeniciaBasic", client =>
 })
 .AddHttpMessageHandler<CompanyHeaderHandler>();
 
+builder.Services.AddHttpClient("FeniciaSocialNetwork", client =>
+{
+    var apiBaseUrl = builder.Configuration["SocialNetworkApiBaseUrl"] ?? "http://localhost:5026";
+    client.BaseAddress = new Uri(apiBaseUrl);
+})
+.AddHttpMessageHandler<CompanyHeaderHandler>();
+
 builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
 builder.Services.AddScoped<ICompanySelectionState, CompanySelectionState>();
 builder.Services.AddScoped<ICompanyChangeNotifier, CompanyChangeNotifier>();

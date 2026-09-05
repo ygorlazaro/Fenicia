@@ -2,6 +2,8 @@ using Fenicia.Common.API;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Module.SocialNetwork.Domains.Profile;
+using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 
 namespace Fenicia.Module.SocialNetwork;
 
@@ -17,6 +19,8 @@ public class Program
             {
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+                builder.Services.AddScoped<IProfileService, ProfileService>();
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();

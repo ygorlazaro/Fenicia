@@ -1,0 +1,234 @@
+@page "/socialnetwork/profile/{Id:guid}"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IAuthStateService AuthState
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject ISnackbar Snackbar
+
+<PageTitle>Perfil - Fenicia Social</PageTitle>
+
+<MainLayout>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile"))" />
+                <MudText Typo="Typo.h5">Perfil</MudText>
+            </MudStack>
+        </MudItem>
+
+        @if (isLoading)
+        {
+            <MudItem xs="12">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            </MudItem>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+            </MudItem>
+        }
+        else if (profile is not null)
+        {
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
+                            @GetInitial()
+                        </MudAvatar>
+                        <MudText Typo="Typo.h5" Align="Align.Center">Usuário</MudText>
+                        @if (!string.IsNullOrEmpty(profile.Location))
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Color="Color.Default" />
+                                <MudText Typo="Typo.body2" Color="Color.Default">@profile.Location</MudText>
+                            </MudStack>
+                        }
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Color="Color.Default" />
+                            <MudText Typo="Typo.caption" Color="Color.Default">
+                                Membro desde @(profile.Created.ToString("MMMM yyyy"))
+                            </MudText>
+                        </MudStack>
+                        <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
+                        <MudStack Row="true" Justify="Justify.SpaceEvenly" Style="width:100%">
+                            <MudStack AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h6">0</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Default">Posts</MudText>
+                            </MudStack>
+                            <MudStack AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h6">0</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Default">Seguidores</MudText>
+                            </MudStack>
+                            <MudStack AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h6">0</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Default">Seguindo</MudText>
+                            </MudStack>
+                        </MudStack>
+                        <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
+                        @if (isOwnProfile)
+                        {
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.Edit"
+                                       OnClick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile?edit=" + profile.Id))"
+                                       FullWidth="true">
+                                Editar Perfil
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                                       OnClick="FollowUser"
+                                       FullWidth="true">
+                                Seguir
+                            </MudButton>
+                        }
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="8">
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudTabs Elevation="0" Rounded="true" Centered="false" ApplyEffectsToContainer="true">
+                        <MudTabPanel Text="Sobre" Icon="@Icons.Material.Filled.Person">
+                            <MudGrid Class="mt-3">
+                                <MudItem xs="12">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Biografia</MudText>
+                                    <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(profile.Bio) ? "Sem biografia." : profile.Bio)</MudText>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Website</MudText>
+                                    @if (!string.IsNullOrEmpty(profile.Website))
+                                    {
+                                        <MudLink Href="@profile.Website" Target="_blank" Color="Color.Primary">@profile.Website</MudLink>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body2" Color="Color.Default">—</MudText>
+                                    }
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Localização</MudText>
+                                    <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(profile.Location) ? "—" : profile.Location)</MudText>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Data de Nascimento</MudText>
+                                    <MudText Typo="Typo.body2">@(profile.BirthDate?.ToString("dd/MM/yyyy") ?? "—")</MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudTabPanel>
+                        <MudTabPanel Text="Posts" Icon="@Icons.Material.Filled.Article">
+                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma postagem ainda.</MudAlert>
+                        </MudTabPanel>
+                        <MudTabPanel Text="Mídia" Icon="@Icons.Material.Filled.Image">
+                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma mídia ainda.</MudAlert>
+                        </MudTabPanel>
+                        <MudTabPanel Text="Curtidas" Icon="@Icons.Material.Filled.Favorite">
+                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma curtida ainda.</MudAlert>
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MainLayout>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private bool isLoading = true;
+    private string? errorMessage;
+    private ProfileDto? profile;
+    private bool isOwnProfile;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            await LoadProfileAsync();
+        }
+    }
+
+    private async Task LoadProfileAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var userId = await CompanyContext.GetUserIdAsync();
+            isOwnProfile = userId == Id;
+
+            var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var response = await client.GetAsync($"/profile/{Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                errorMessage = "Perfil não encontrado.";
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar perfil: {(int)response.StatusCode} {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void FollowUser()
+    {
+        Snackbar.Add("Funcionalidade de seguir em breve!", Severity.Info);
+    }
+
+    private string GetInitial()
+    {
+        if (profile is null) return "?";
+        var source = profile.Bio ?? "";
+        if (string.IsNullOrEmpty(source)) return "?";
+        return source[..1].ToUpper();
+    }
+
+    private class ProfileDto
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string? Bio { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Website { get; set; }
+        public string? Location { get; set; }
+        public string? Phone { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
+    }
+}
