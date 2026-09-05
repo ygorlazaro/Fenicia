@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Employee.DTOs;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class EmployeeController(IEmployeeService employeeService) : ControllerBase
+public class EmployeeController(IEmployeeService employeeService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém a lista de funcionários.
@@ -119,7 +120,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await employeeService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
+            var employee = await employeeService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
             return new CreatedResult(string.Empty, employee);
         }
@@ -161,7 +162,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
 
             var employee = await employeeService.UpdateAsync(
                 command with { Id = id },
-                ClaimReader.UserId(User),
+                companyContext.CompanyId,
                 cancellationToken);
 
             return employee is null ? NotFound() : Ok(employee);
@@ -198,7 +199,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
 
             await employeeService.DeleteAsync(
                 new DeleteEmployeeCommand(id),
-                ClaimReader.UserId(User),
+                companyContext.CompanyId,
                 cancellationToken);
 
             return NoContent();

@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class PositionController(IPositionService positionService) : ControllerBase
+public class PositionController(IPositionService positionService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém uma lista paginada de posições.
@@ -119,7 +120,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var position = await positionService.AddAsync(command, companyId, cancellationToken);
 
             return new CreatedResult(string.Empty, position);
@@ -160,7 +161,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var position = await positionService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
 
             return position is null ? NotFound() : Ok(position);
@@ -195,7 +196,7 @@ public class PositionController(IPositionService positionService) : ControllerBa
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             await positionService.DeleteAsync(new DeletePositionCommand(id), companyId, cancellationToken);
 
             return NoContent();

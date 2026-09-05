@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(IOrderService orderService) : ControllerBase
+public class OrderController(IOrderService orderService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém uma lista paginada de pedidos.
@@ -122,7 +123,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
             var userId = ClaimReader.UserId(User);
             var order = await orderService.CreateAsync(
                 command with { UserId = userId },
-                ClaimReader.UserId(User),
+                companyContext.CompanyId,
                 cancellationToken);
 
             return new CreatedResult(string.Empty, order);
@@ -158,7 +159,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await orderService.DeleteAsync(new DeleteOrderCommand(id), ClaimReader.UserId(User), cancellationToken);
+            await orderService.DeleteAsync(new DeleteOrderCommand(id), companyContext.CompanyId, cancellationToken);
 
             return NoContent();
         }

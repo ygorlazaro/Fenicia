@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StockMovementController(IStockMovementService stockMovementService) : ControllerBase
+public class StockMovementController(IStockMovementService stockMovementService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Obtém movimentações de estoque por período.
@@ -86,7 +87,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var stockMovement = await stockMovementService.AddAsync(command, companyId, cancellationToken);
 
             return new CreatedResult(string.Empty, stockMovement);
@@ -130,7 +131,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var companyId = ClaimReader.UserId(User);
+            var companyId = companyContext.CompanyId;
             var stockMovement = await stockMovementService.UpdateAsync(
                 command with { Id = id },
                 companyId,
