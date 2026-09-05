@@ -10,13 +10,27 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
     public async Task<List<GetAllCommentResponse>> GetAllByFeedAsync(
         GetAllCommentByFeedQuery query,
         Guid feedId,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = repository.Query().Where(c => c.FeedId == feedId && c.ParentCommentId == null)
+        var baseQuery = repository.Query()
+            .Where(c => c.FeedId == feedId && c.ParentCommentId == null)
             .OrderBy(c => c.CommentDate);
-        var filteredQuery = baseQuery;
-        var comments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var comments = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
+
+        if (comments.Count == 0)
+        {
+            return [];
+        }
+
+        var commentIds = comments.Select(c => c.Id).ToList();
+        var replyCounts = await repository.Query()
+            .Where(c => c.ParentCommentId != null && commentIds.Contains(c.ParentCommentId.Value))
+            .GroupBy(c => c.ParentCommentId!.Value)
+            .Select(g => new { ParentId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.ParentId, x => x.Count, cancellationToken);
+
         return
         [
             .. comments.Select(c => new GetAllCommentResponse(
@@ -26,7 +40,10 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
                 c.ParentCommentId,
                 c.Text,
                 c.CommentDate,
-                c.UpdatedDate))
+                c.UpdatedDate,
+                c.Likes?.Count ?? 0,
+                replyCounts.GetValueOrDefault(c.Id, 0),
+                c.ProfileId == profileId))
         ];
     }
 
@@ -133,12 +150,12 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
 
     public async Task<List<GetRepliesResponse>> GetRepliesAsync(
         GetRepliesQuery query,
+        Guid profileId,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(c => c.ParentCommentId == query.ParentCommentId)
             .OrderBy(c => c.CommentDate);
-        var filteredQuery = baseQuery;
-        var replies = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var replies = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [
@@ -149,7 +166,9 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
                 r.ParentCommentId,
                 r.Text,
                 r.CommentDate,
-                r.UpdatedDate))
+                r.UpdatedDate,
+                r.Likes?.Count ?? 0,
+                r.ProfileId == profileId))
         ];
     }
 

@@ -84,7 +84,9 @@
                                         </MudLink>
                                         <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
                                     </MudStack>
-                                    <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                                    <MudLink Href="@($"/socialnetwork/feed/{post.Id}")" Color="Color.Default" Underline="Underline.None">
+                                        <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                                    </MudLink>
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                                                         <MudButton Size="Size.Small"
                                                                    Variant="Variant.Text"

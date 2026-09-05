@@ -28,10 +28,10 @@
             }
             else if (post is not null)
             {
-                <MudPaper Elevation="2" Class="pa-4 post-card">
+                <MudPaper Elevation="2" Class="pa-4 post-card mb-4">
                     <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
                         <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile/" + post.ProfileId))">
-                            @GetPostInitial()
+                            @GetInitial(post.Text)
                         </MudAvatar>
                         <div class="flex-grow-1">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
@@ -66,6 +66,164 @@
                         </div>
                     </MudStack>
                 </MudPaper>
+
+                <MudPaper Elevation="1" Class="pa-4">
+                    <MudText Typo="Typo.h6" Class="mb-3">Comentários</MudText>
+
+                    <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2" Class="mb-4">
+                        <MudAvatar Color="Color.Primary" Size="Size.Small">@GetCurrentUserInitial()</MudAvatar>
+                        <div class="flex-grow-1">
+                            <MudTextField @bind-Value="newCommentText"
+                                          Placeholder="Escreva um comentário..."
+                                          Variant="Variant.Outlined"
+                                          Lines="2"
+                                          MaxLength="1024"
+                                          Counter="1024"
+                                          Immediate="true"
+                                          FullWidth="true" />
+                            <MudStack Row="true" Justify="Justify.FlexEnd" AlignItems="AlignItems.Center" Class="mt-2">
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Send"
+                                           OnClick="PostCommentAsync"
+                                           Disabled="@(string.IsNullOrWhiteSpace(newCommentText) || newCommentText.Length > 1024 || isPostingComment)">
+                                    @if (isPostingComment)
+                                    {
+                                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                                    }
+                                    Comentar
+                                </MudButton>
+                            </MudStack>
+                        </div>
+                    </MudStack>
+
+                    <MudDivider Class="mb-3" />
+
+                    @if (isLoadingComments && comments.Count == 0)
+                    {
+                        <div class="d-flex justify-content-center pa-4">
+                            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+                        </div>
+                    }
+                    else if (comments.Count == 0)
+                    {
+                        <div class="pa-4 text-center">
+                            <MudText Typo="Typo.body2" Color="Color.Default">Nenhum comentário ainda. Seja o primeiro!</MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var comment in comments)
+                        {
+                            <div class="comment-item">
+                                <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
+                                    <MudAvatar Color="Color.Secondary" Size="Size.Small">@GetInitial(comment.Text)</MudAvatar>
+                                    <div class="flex-grow-1">
+                                        <MudPaper Elevation="0" Class="pa-2 mb-1" Style="background-color: rgba(0,0,0,0.03); border-radius: 12px;">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                                <MudText Typo="Typo.caption"><b>Usuário</b></MudText>
+                                                <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(comment.CommentDate)</MudText>
+                                            </MudStack>
+                                            <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">@comment.Text</MudText>
+                                        </MudPaper>
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="ms-2">
+                                            <MudButton Size="Size.Small"
+                                                       Variant="Variant.Text"
+                                                       Color="Color.Default"
+                                                       StartIcon="@Icons.Material.Outlined.Reply"
+                                                       OnClick="@(() => StartReply(comment.Id))">
+                                                Responder
+                                            </MudButton>
+                                            @if (comment.TotalReplies > 0)
+                                            {
+                                                <MudButton Size="Size.Small"
+                                                           Variant="Variant.Text"
+                                                           Color="Color.Primary"
+                                                           OnClick="@(() => ToggleRepliesAsync(comment))">
+                                                    @(expandedCommentIds.Contains(comment.Id) ? "Ocultar" : "Ver") @comment.TotalReplies @(comment.TotalReplies == 1 ? "resposta" : "respostas")
+                                                </MudButton>
+                                            }
+                                            @if (comment.IsMine)
+                                            {
+                                                <MudIconButton Size="Size.Small"
+                                                               Icon="@Icons.Material.Outlined.Delete"
+                                                               Color="Color.Default"
+                                                               OnClick="@(() => DeleteCommentAsync(comment))" />
+                                            }
+                                        </MudStack>
+
+                                        @if (replyingToCommentId == comment.Id)
+                                        {
+                                            <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2" Class="mt-2 ms-4">
+                                                <MudAvatar Color="Color.Primary" Size="Size.Small">@GetCurrentUserInitial()</MudAvatar>
+                                                <div class="flex-grow-1">
+                                                    <MudTextField @bind-Value="replyText"
+                                                                  Placeholder="Sua resposta..."
+                                                                  Variant="Variant.Outlined"
+                                                                  Lines="2"
+                                                                  MaxLength="1024"
+                                                                  Counter="1024"
+                                                                  Immediate="true"
+                                                                  FullWidth="true" />
+                                                    <MudStack Row="true" Justify="Justify.FlexEnd" AlignItems="AlignItems.Center" Spacing="1" Class="mt-1">
+                                                        <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="CancelReply">Cancelar</MudButton>
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Filled"
+                                                                   Color="Color.Primary"
+                                                                   OnClick="@(() => PostReplyAsync(comment.Id))"
+                                                                   Disabled="@(string.IsNullOrWhiteSpace(replyText) || isPostingReply)">
+                                                            Responder
+                                                        </MudButton>
+                                                    </MudStack>
+                                                </div>
+                                            </MudStack>
+                                        }
+
+                                        @if (expandedCommentIds.Contains(comment.Id))
+                                        {
+                                            <div class="ms-4 mt-2">
+                                                @if (loadingRepliesCommentId == comment.Id)
+                                                {
+                                                    <div class="d-flex justify-content-center pa-2">
+                                                        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+                                                    </div>
+                                                }
+                                                else if (repliesByParent.TryGetValue(comment.Id, out var replies) && replies.Count > 0)
+                                                {
+                                                    @foreach (var reply in replies)
+                                                    {
+                                                        <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2" Class="mb-2">
+                                                            <MudAvatar Color="Color.Secondary" Size="Size.Small">@GetInitial(reply.Text)</MudAvatar>
+                                                            <div class="flex-grow-1">
+                                                                <MudPaper Elevation="0" Class="pa-2" Style="background-color: rgba(0,0,0,0.03); border-radius: 12px;">
+                                                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                                                        <MudText Typo="Typo.caption"><b>Usuário</b></MudText>
+                                                                        <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(reply.CommentDate)</MudText>
+                                                                    </MudStack>
+                                                                    <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">@reply.Text</MudText>
+                                                                </MudPaper>
+                                                                @if (reply.IsMine)
+                                                                {
+                                                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="ms-2 mt-1">
+                                                                        <MudIconButton Size="Size.Small"
+                                                                                       Icon="@Icons.Material.Outlined.Delete"
+                                                                                       Color="Color.Default"
+                                                                                       OnClick="@(() => DeleteCommentAsync(new CommentDto { Id = reply.Id, FeedId = reply.FeedId, IsMine = true }))" />
+                                                                    </MudStack>
+                                                                }
+                                                            </div>
+                                                        </MudStack>
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </MudStack>
+                            </div>
+                        }
+                    }
+                </MudPaper>
             }
         </MudItem>
     </MudGrid>
@@ -79,6 +237,20 @@
     private string? errorMessage;
     private PostDto? post;
     private Guid currentProfileId;
+    private string currentUserName = string.Empty;
+
+    private List<CommentDto> comments = [];
+    private bool isLoadingComments;
+    private bool isPostingComment;
+    private string newCommentText = string.Empty;
+
+    private Guid? replyingToCommentId;
+    private string replyText = string.Empty;
+    private bool isPostingReply;
+
+    private HashSet<Guid> expandedCommentIds = new();
+    private Guid? loadingRepliesCommentId;
+    private Dictionary<Guid, List<CommentDto>> repliesByParent = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -91,9 +263,37 @@
                 return;
             }
 
+            currentUserName = await GetCurrentUserNameAsync();
             await LoadCurrentProfileIdAsync();
             await LoadPostAsync();
+            await LoadCommentsAsync();
         }
+    }
+
+    private async Task<string> GetCurrentUserNameAsync()
+    {
+        var token = await CompanyContext.GetTokenAsync();
+        if (string.IsNullOrEmpty(token)) return string.Empty;
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length < 2) return string.Empty;
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+            using var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            if (doc.RootElement.TryGetProperty("unique_name", out var n))
+            {
+                return n.GetString() ?? string.Empty;
+            }
+        }
+        catch
+        {
+        }
+        return string.Empty;
     }
 
     private async Task<HttpClient> CreateClientAsync()
@@ -180,6 +380,213 @@
         }
     }
 
+    private async Task LoadCommentsAsync()
+    {
+        try
+        {
+            isLoadingComments = true;
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync($"/comment/feed/{Id}?page=1&perPage=20");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<CommentDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                comments = items ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar comentários: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoadingComments = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task PostCommentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(newCommentText) || newCommentText.Length > 1024) return;
+        if (post is null) return;
+
+        try
+        {
+            isPostingComment = true;
+            var client = await CreateClientAsync();
+            var command = new
+            {
+                Id = Guid.NewGuid(),
+                ProfileId = currentProfileId,
+                FeedId = post.Id,
+                ParentCommentId = (Guid?)null,
+                Text = newCommentText,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(command);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/comment", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                newCommentText = string.Empty;
+                post.TotalComments++;
+                await LoadCommentsAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao comentar: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isPostingComment = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void StartReply(Guid commentId)
+    {
+        replyingToCommentId = commentId;
+        replyText = string.Empty;
+    }
+
+    private void CancelReply()
+    {
+        replyingToCommentId = null;
+        replyText = string.Empty;
+    }
+
+    private async Task PostReplyAsync(Guid parentCommentId)
+    {
+        if (string.IsNullOrWhiteSpace(replyText) || post is null) return;
+
+        try
+        {
+            isPostingReply = true;
+            var client = await CreateClientAsync();
+            var command = new
+            {
+                Id = Guid.NewGuid(),
+                ProfileId = currentProfileId,
+                FeedId = post.Id,
+                ParentCommentId = parentCommentId,
+                Text = replyText,
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(command);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/comment", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                replyText = string.Empty;
+                replyingToCommentId = null;
+                post.TotalComments++;
+                await LoadCommentsAsync();
+                if (expandedCommentIds.Contains(parentCommentId))
+                {
+                    await LoadRepliesAsync(parentCommentId);
+                }
+                else
+                {
+                    expandedCommentIds.Add(parentCommentId);
+                    await LoadRepliesAsync(parentCommentId);
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao responder: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isPostingReply = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ToggleRepliesAsync(CommentDto comment)
+    {
+        if (expandedCommentIds.Contains(comment.Id))
+        {
+            expandedCommentIds.Remove(comment.Id);
+        }
+        else
+        {
+            expandedCommentIds.Add(comment.Id);
+            await LoadRepliesAsync(comment.Id);
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadRepliesAsync(Guid parentCommentId)
+    {
+        try
+        {
+            loadingRepliesCommentId = parentCommentId;
+            var client = await CreateClientAsync();
+            var response = await client.GetAsync($"/comment/replies/{parentCommentId}?page=1&perPage=20");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<CommentDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                repliesByParent[parentCommentId] = items ?? [];
+
+                var parent = comments.FirstOrDefault(c => c.Id == parentCommentId);
+                if (parent is not null)
+                {
+                    parent.TotalReplies = items?.Count ?? 0;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar respostas: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            loadingRepliesCommentId = null;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DeleteCommentAsync(CommentDto comment)
+    {
+        try
+        {
+            var client = await CreateClientAsync();
+            var response = await client.DeleteAsync($"/comment/{comment.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                if (post is not null) post.TotalComments = Math.Max(0, post.TotalComments - 1);
+                comments.RemoveAll(c => c.Id == comment.Id);
+                repliesByParent.Remove(comment.Id);
+                expandedCommentIds.Remove(comment.Id);
+                await LoadCommentsAsync();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao excluir: {(int)response.StatusCode} {body}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
     private async Task ToggleLikeAsync()
     {
         if (post is null || liking || currentProfileId == Guid.Empty) return;
@@ -230,7 +637,17 @@
         }
     }
 
-    private string GetPostInitial() => "?";
+    private string GetCurrentUserInitial()
+    {
+        if (string.IsNullOrEmpty(currentUserName)) return "?";
+        return currentUserName[..1].ToUpper();
+    }
+
+    private static string GetInitial(string? source)
+    {
+        if (string.IsNullOrEmpty(source)) return "?";
+        return source[..1].ToUpper();
+    }
 
     private static string FormatRelativeTime(DateTime date)
     {
@@ -260,6 +677,20 @@
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
     }
+
+    private class CommentDto
+    {
+        public Guid Id { get; set; }
+        public Guid ProfileId { get; set; }
+        public Guid FeedId { get; set; }
+        public Guid? ParentCommentId { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public DateTime CommentDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public int TotalLikes { get; set; }
+        public int TotalReplies { get; set; }
+        public bool IsMine { get; set; }
+    }
 }
 
 <style>
@@ -268,5 +699,11 @@
     }
     .post-card:hover {
         background-color: rgba(0, 0, 0, 0.02);
+    }
+    .comment-item {
+        padding: 8px 0;
+    }
+    .comment-item + .comment-item {
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 </style>

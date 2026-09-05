@@ -34,9 +34,11 @@ public class CommentController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
+        var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var result = await commentService.GetAllByFeedAsync(
             new GetAllCommentByFeedQuery(page, perPage, feedId, query, sort),
             feedId,
+            profileId,
             cancellationToken);
 
         return Ok(result);
@@ -135,8 +137,10 @@ public class CommentController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
+        var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var result = await commentService.GetRepliesAsync(
             new GetRepliesQuery(page, perPage, parentCommentId, query, sort),
+            profileId,
             cancellationToken);
 
         return Ok(result);
