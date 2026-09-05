@@ -96,11 +96,14 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
-                                  ChartSeries="@_categoryChartSeries"
-                                  ChartLabels="@_categoryChartLabels"
-                                  Width="100%"
-                                  Height="300px" />
+                        <div class="chart-wrap">
+                            <MudChart T="double" ChartType="ChartType.Donut"
+                                      ChartSeries="@_categoryChartSeries"
+                                      ChartLabels="@_categoryChartLabels"
+                                      ChartOptions="@_donutOptions"
+                                      Width="100%"
+                                      Height="280px" />
+                        </div>
                     }
                 </MudPaper>
             </MudItem>
@@ -113,11 +116,14 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
-                                  ChartSeries="@_supplierChartSeries"
-                                  ChartLabels="@_supplierChartLabels"
-                                  Width="100%"
-                                  Height="300px" />
+                        <div class="chart-wrap">
+                            <MudChart T="double" ChartType="ChartType.Donut"
+                                      ChartSeries="@_supplierChartSeries"
+                                      ChartLabels="@_supplierChartLabels"
+                                      ChartOptions="@_donutOptions"
+                                      Width="100%"
+                                      Height="280px" />
+                        </div>
                     }
                 </MudPaper>
             </MudItem>
@@ -240,11 +246,14 @@
                         }
                         else
                         {
-                            <MudChart T="double" ChartType="ChartType.Bar"
-                                      ChartSeries="@_stockValueByCategorySeries"
-                                      ChartLabels="@_stockValueByCategoryLabels"
-                                      Width="100%"
-                                      Height="320px" />
+                            <div class="chart-wrap">
+                                <MudChart T="double" ChartType="ChartType.Bar"
+                                          ChartSeries="@_stockValueByCategorySeries"
+                                          ChartLabels="@_stockValueByCategoryLabels"
+                                          ChartOptions="@_barOptions"
+                                          Width="100%"
+                                          Height="320px" />
+                            </div>
                         }
                     </MudPaper>
                 </MudItem>
@@ -325,6 +334,23 @@
 </MudContainer>
 </MainLayout>
 
+<style>
+    .chart-wrap {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .chart-wrap .mud-chart {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    .chart-wrap .mud-chart svg {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
 @code {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -344,6 +370,17 @@
     private string[] _supplierChartLabels = [];
     private List<ChartSeries<double>> _stockValueByCategorySeries = [];
     private string[] _stockValueByCategoryLabels = [];
+
+    private readonly DonutChartOptions _donutOptions = new()
+    {
+        ShowValues = false,
+        ShowLegend = true
+    };
+
+    private readonly BarChartOptions _barOptions = new()
+    {
+        ShowLegend = false
+    };
 
     private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
 
