@@ -119,10 +119,8 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// </exception>
     /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while inserting the feed.</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddFeedResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddFeedResponse>> PostAsync(
@@ -165,10 +163,8 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// </exception>
     /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while updating the feed.</exception>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateFeedResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
@@ -210,9 +206,7 @@ public class FeedController(FeedService feedService) : ControllerBase
     /// </exception>
     /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while deleting the feed.</exception>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,

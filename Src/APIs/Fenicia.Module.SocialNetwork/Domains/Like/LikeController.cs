@@ -36,10 +36,8 @@ public class LikeController(LikeService likeService) : ControllerBase
     /// </exception>
     /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while inserting the like.</exception>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddLikeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddLikeResponse>> PostAsync(
@@ -80,9 +78,7 @@ public class LikeController(LikeService likeService) : ControllerBase
     /// </exception>
     /// <exception cref="DbUpdateException">Thrown by the repository when a database error occurs while deleting the like.</exception>
     [HttpDelete("{feedId:guid}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> UnlikeAsync(
         [FromRoute] Guid feedId,
