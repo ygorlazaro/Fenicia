@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Fenicia.Common.Validations;
+namespace Fenicia.Common;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
 public sealed class CpfAttribute : ValidationAttribute
 {
+    private static readonly int[] CpfWeightsFirst = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+    private static readonly int[] CpfWeightsSecond = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+
     public CpfAttribute()
     {
     }
@@ -22,7 +25,7 @@ public sealed class CpfAttribute : ValidationAttribute
         }
 
         var cpf = value.ToString() ?? string.Empty;
-        cpf = new string(cpf.Where(char.IsDigit).ToArray());
+        cpf = new string([.. cpf.Where(char.IsDigit)]);
 
         if (cpf.Length != 11)
         {
@@ -34,8 +37,8 @@ public sealed class CpfAttribute : ValidationAttribute
             return new ValidationResult("CPF inválido.");
         }
 
-        var firstCheckDigit = CalculateCheckDigit(cpf[..9], new[] { 10, 9, 8, 7, 6, 5, 4, 3, 2 });
-        var secondCheckDigit = CalculateCheckDigit(cpf[..10], new[] { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 });
+        var firstCheckDigit = CalculateCheckDigit(cpf[..9], CpfWeightsFirst);
+        var secondCheckDigit = CalculateCheckDigit(cpf[..10], CpfWeightsSecond);
 
         var firstDigit = cpf[9].ToString();
         var secondDigit = cpf[10].ToString();
