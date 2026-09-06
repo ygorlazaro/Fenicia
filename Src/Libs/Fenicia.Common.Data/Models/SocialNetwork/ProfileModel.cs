@@ -19,7 +19,7 @@ public class ProfileModel : BaseModel
     [MaxLength(160)]
     public string? Bio { get; set; }
 
-    [MaxLength(48)]
+    [MaxLength(200)]
     public string? ImageUrl { get; set; }
 
     [MaxLength(120)]
