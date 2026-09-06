@@ -12,7 +12,7 @@
     <MudGrid>
         <MudItem xs="12">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile"))" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/profile"))" />
                 <MudText Typo="Typo.h5">Perfil</MudText>
             </MudStack>
         </MudItem>
@@ -76,7 +76,7 @@
                             <MudButton Variant="Variant.Outlined"
                                        Color="Color.Primary"
                                        StartIcon="@Icons.Material.Filled.Edit"
-                                       OnClick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile?edit=" + profile.Id))"
+                                        OnClick="@(() => NavigationManager.NavigateTo("/profile?edit=" + profile.Id))"
                                        FullWidth="true">
                                 Editar Perfil
                             </MudButton>

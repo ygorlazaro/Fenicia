@@ -29,7 +29,7 @@
                         @(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)
                     </MudButton>
                     <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
-                    <MudLink Href="/socialnetwork/profile" Underline="Underline.None" Color="Color.Inherit">
+                    <MudLink Href="/profile" Underline="Underline.None" Color="Color.Inherit">
                         <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Person">
                             @userName@(!string.IsNullOrEmpty(userRole) ? $" ({userRole})" : "")
                         </MudButton>
@@ -87,7 +87,7 @@
                 </MudNavGroup>
                 <MudNavGroup Title="Rede Social" Icon="@Icons.Material.Filled.Share" Expanded="true">
                     <MudNavLink Href="/socialnetwork/feed" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Feed</MudNavLink>
-                    <MudNavLink Href="/socialnetwork/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">
+                    <MudNavLink Href="/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">
                         Meu Perfil</MudNavLink>
                 </MudNavGroup>
                 <MudNavGroup Title="Projetos" Icon="@Icons.Material.Filled.Folder" Expanded="true">
