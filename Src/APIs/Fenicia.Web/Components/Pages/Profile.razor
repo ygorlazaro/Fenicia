@@ -117,36 +117,40 @@
 
                 @if (authProfile != null && authProfile.Subscriptions != null && authProfile.Subscriptions.Any())
                 {
-                    @foreach (var subscription in authProfile.Subscriptions)
-                    {
-                        <MudPaper Elevation="1" Class="pa-4 mb-4">
-                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
-                                <div>
-                                    <MudText Typo="Typo.h6">@subscription.CompanyName</MudText>
-                                    <MudText Typo="Typo.body2" Color="Color.Default">
-                                        Status: <MudBadge Color="@GetStatusColor(subscription.Status)" Class="pa-2">@subscription.Status</MudBadge>
-                                    </MudText>
-                                </div>
-                                <MudText Typo="Typo.caption" Color="Color.Default">
-                                    @subscription.StartDate.ToString("yyyy-MM-dd")
-                                    @if (subscription.EndDate.HasValue)
-                                    {
-                                        <span> - @subscription.EndDate.Value.ToString("yyyy-MM-dd")</span>
-                                    }
-                                </MudText>
-                            </MudStack>
-
-                            @if (subscription.Modules != null && subscription.Modules.Any())
-                            {
-                                <MudStack Row="true" Spacing="1" Class="mt-3" Wrap="Wrap.Wrap">
-                                    @foreach (var module in subscription.Modules)
-                                    {
-                                        <MudBadge Color="Color.Info" Class="pa-2">@module.Name</MudBadge>
-                                    }
-                                </MudStack>
-                            }
-                        </MudPaper>
-                    }
+                    <MudGrid Spacing="4">
+                        @foreach (var subscription in authProfile.Subscriptions)
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudCard Elevation="2" Class="h-100 subscription-card">
+                                    <MudCardContent>
+                                        <MudStack Spacing="1">
+                                            <MudText Typo="Typo.h6">@subscription.CompanyName</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Default">
+                                                <MudBadge Color="@GetStatusColor(subscription.Status)" Class="pa-2">@subscription.Status</MudBadge>
+                                            </MudText>
+                                            <MudText Typo="Typo.body2" Color="Color.Default" Class="mt-2">
+                                                <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mr-1" />
+                                                @subscription.StartDate.ToString("dd/MM/yyyy")
+                                                @if (subscription.EndDate.HasValue)
+                                                {
+                                                    <span> — @subscription.EndDate.Value.ToString("dd/MM/yyyy")</span>
+                                                }
+                                            </MudText>
+                                            @if (subscription.Modules != null && subscription.Modules.Any())
+                                            {
+                                                <MudStack Row="true" Spacing="1" Class="mt-3" Wrap="Wrap.Wrap">
+                                                    @foreach (var module in subscription.Modules)
+                                                    {
+                                                        <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined">@module.Name</MudChip>
+                                                    }
+                                                </MudStack>
+                                            }
+                                        </MudStack>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    </MudGrid>
                 }
                 else
                 {
@@ -511,3 +515,14 @@
         public DateTime? BirthDateValue { get; set; }
     }
 }
+
+<style>
+    .subscription-card {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .subscription-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+</style>
