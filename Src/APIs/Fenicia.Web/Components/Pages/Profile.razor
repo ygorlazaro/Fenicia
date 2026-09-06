@@ -251,12 +251,11 @@
 
             var token = await CompanyContext.GetTokenAsync();
             var authClient = HttpClientFactory.CreateClient("FeniciaAuth");
-            var socialClient = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+            var socialClient = await CreateSocialClientAsync();
 
             if (!string.IsNullOrEmpty(token))
             {
                 authClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                socialClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
 
             var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
@@ -357,6 +356,25 @@
         };
     }
 
+    private async Task<HttpClient> CreateSocialClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+
+        return client;
+    }
+
     private async Task SaveProfileAsync()
     {
         if (socialProfile is null) return;
@@ -364,7 +382,7 @@
         {
             isSaving = true;
 
-            var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+            var client = await CreateSocialClientAsync();
             var updateCommand = new
             {
                 Id = socialProfile.Id,
