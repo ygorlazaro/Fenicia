@@ -16,8 +16,7 @@
         <MudText Typo="Typo.h4" Align="Align.Center" Class="auth-title">Criar minha conta</MudText>
         <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="auth-subtitle">Monte o sistema que sua empresa merece</MudText>
 
-        <EditForm Model="model" OnSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
+        <MudForm Model="model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
             <MudTextField @bind-Value="model.Name" Label="Nome completo" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome é obrigatório!" autocomplete="name" Immediate="true" />
             <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="email" Immediate="true" />
             <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="new-password" Immediate="true" />
@@ -35,7 +34,7 @@
                     <span>Criar minha conta</span>
                 }
             </MudButton>
-        </EditForm>
+        </MudForm>
 
         @if (!string.IsNullOrEmpty(message))
         {
@@ -54,9 +53,9 @@
     private bool isSuccess;
     private bool isLoading;
 
-    private async Task HandleSubmit(EditContext editContext)
+    private async Task HandleValidSubmit()
     {
-        if (isLoading || !editContext.Validate())
+        if (isLoading)
         {
             return;
         }
@@ -104,6 +103,12 @@
             isLoading = false;
             StateHasChanged();
         }
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        message = null;
+        StateHasChanged();
     }
 
     private class SignupModel
