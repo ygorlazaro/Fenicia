@@ -79,7 +79,7 @@
                                 </MudAvatar>
                                 <div class="flex-grow-1">
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
-                                                <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
+                                                 <MudLink Href="@($"/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
                                                     <MudText Typo="Typo.subtitle2"><b>@GetPostDisplayName(post)</b></MudText>
                                                 </MudLink>
                                                 @if (!string.IsNullOrEmpty(post.AuthorUserName))
@@ -514,7 +514,7 @@
 
     private void NavigateToProfile(Guid userId)
     {
-        NavigationManager.NavigateTo($"/socialnetwork/profile/{userId}");
+        NavigationManager.NavigateTo($"/profile/{userId}");
     }
 
     private string GetUserInitial()

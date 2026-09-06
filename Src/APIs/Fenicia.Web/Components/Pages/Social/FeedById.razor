@@ -30,12 +30,12 @@
             {
                 <MudPaper Elevation="2" Class="pa-4 post-card mb-4">
                     <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
-                        <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/socialnetwork/profile/" + post.ProfileId))">
+                        <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/profile/" + post.ProfileId))">
                             @GetInitial(post.AuthorUserName ?? post.Text)
                         </MudAvatar>
                         <div class="flex-grow-1">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
-                                <MudLink Href="@($"/socialnetwork/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
+                                <MudLink Href="@($"/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
                                     <MudText Typo="Typo.subtitle2"><b>@GetDisplayName(post)</b></MudText>
                                 </MudLink>
                                 @if (!string.IsNullOrEmpty(post.AuthorUserName))
