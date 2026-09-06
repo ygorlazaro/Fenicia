@@ -37,24 +37,21 @@
                         @foreach (var module in modules)
                         {
                             <MudItem xs="12" sm="6" md="4">
-                                <MudCard Elevation="2" Class="h-100">
+                                <MudCard Elevation="2" Class="h-100 module-card" @onclick="() => ToggleModule(module.Id)">
                                     <MudCardContent>
-                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
-                                            <MudStack Spacing="1">
-                                                <MudText Typo="Typo.h6">@module.Name</MudText>
-                                                @if (!string.IsNullOrEmpty(module.Description))
+                                        <MudStack Spacing="1">
+                                            <MudText Typo="Typo.h6">@TranslateModuleName(module.Name)</MudText>
+                                            @if (!string.IsNullOrEmpty(module.Description))
+                                            {
+                                                <MudText Typo="Typo.body2" Color="Color.Default">@module.Description</MudText>
+                                            }
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-3">
+                                                <MudText Typo="Typo.caption" Color="Color.Default">Tipo: @TranslateModuleType(module.Type)</MudText>
+                                                @if (module.Price.HasValue)
                                                 {
-                                                    <MudText Typo="Typo.body2" Color="Color.Default">@module.Description</MudText>
+                                                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="module-price">@($"${module.Price.Value:F2}")</MudText>
                                                 }
                                             </MudStack>
-                                            <MudCheckBox T="bool" Checked="@selectedModules.Contains(module.Id)" CheckedChanged="@((bool checkedVal) => ToggleModule(module.Id))" Color="Color.Primary" />
-                                        </MudStack>
-                                        <MudStack Row="true" Spacing="1" Class="mt-4">
-                                            <MudBadge Color="Color.Info" Class="pa-2">Tipo: @module.Type</MudBadge>
-                                            @if (module.Price.HasValue)
-                                            {
-                                                <MudBadge Color="Color.Success" Class="pa-2">Preço: $@module.Price.Value.ToString("F2")</MudBadge>
-                                            }
                                         </MudStack>
                                     </MudCardContent>
                                 </MudCard>
@@ -87,6 +84,24 @@
     </MudGrid>
 </MainLayout>
 
+<style>
+    .module-card {
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .module-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-price {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-left: auto;
+    }
+</style>
+
 @code {
     private bool isLoggedIn;
     private bool isLoading = true;
@@ -96,6 +111,44 @@
     private bool isSuccess;
     private List<ModuleDto>? modules;
     private HashSet<Guid> selectedModules = new();
+
+    private static string TranslateModuleName(string name)
+    {
+        return name.ToLowerInvariant() switch
+        {
+            "basic" => "Básico",
+            "socialnetwork" => "Rede Social",
+            "project" => "Projetos",
+            "performanceevaluation" => "Avaliação de Desempenho",
+            "accounting" => "Contabilidade",
+            "hr" => "Recursos Humanos",
+            "pos" => "PDV",
+            "contracts" => "Contratos",
+            "ecommerce" => "E-commerce",
+            "customersupport" => "Suporte ao Cliente",
+            "plus" => "Plus",
+            _ => name
+        };
+    }
+
+    private static string TranslateModuleType(string type)
+    {
+        return type.ToLowerInvariant() switch
+        {
+            "basic" => "Básico",
+            "socialnetwork" => "Rede Social",
+            "project" => "Projetos",
+            "performanceevaluation" => "Avaliação de Desempenho",
+            "accounting" => "Contabilidade",
+            "hr" => "Recursos Humanos",
+            "pos" => "PDV",
+            "contracts" => "Contratos",
+            "ecommerce" => "E-commerce",
+            "customersupport" => "Suporte ao Cliente",
+            "plus" => "Plus",
+            _ => type
+        };
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
