@@ -2382,8 +2382,8 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("deleted");
 
                     b.Property<string>("ImageUrl")
-                        .HasMaxLength(48)
-                        .HasColumnType("character varying(48)")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("image_url");
 
                     b.Property<string>("Location")
@@ -3400,6 +3400,58 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Likes");
 
                     b.Navigation("Shares");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.UploadModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("original_file_name");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("stored_file_name");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("url");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.HasKey("Id")
+                        .HasName("pk_uploads");
+
+                    b.ToTable("uploads", "public");
                 });
 #pragma warning restore 612, 618
         }
