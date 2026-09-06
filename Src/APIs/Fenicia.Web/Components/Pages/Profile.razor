@@ -1,5 +1,5 @@
-@page "/socialProfile"
-@page "/socialProfile/{Id:guid}"
+@page "/profile"
+@page "/profile/{Id:guid}"
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IAuthStateService AuthState
@@ -14,7 +14,7 @@
     {
         <MudItem xs="12">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/socialProfile"))" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/profile"))" />
                 <MudText Typo="Typo.h5">Perfil</MudText>
             </MudStack>
         </MudItem>
@@ -215,7 +215,7 @@
                         <MudButton Variant="Variant.Outlined"
                                    Color="Color.Primary"
                                    StartIcon="@Icons.Material.Filled.Edit"
-                                   OnClick="@(() => NavigationManager.NavigateTo("/socialProfile?edit=" + socialProfile?.Id))"
+                                   OnClick="@(() => NavigationManager.NavigateTo("/profile?edit=" + socialProfile?.Id))"
                                    FullWidth="true">
                             Editar Perfil
                         </MudButton>
@@ -294,7 +294,7 @@
                                 {
                                     <MudPaper Elevation="0" Class="pa-4 post-card">
                                         <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
-                                            <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/socialProfile/" + post.ProfileId))">
+                                            <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/profile/" + post.ProfileId))">
                                                 @GetPostInitial()
                                             </MudAvatar>
                                             <div class="flex-grow-1">
@@ -533,7 +533,7 @@
             }
 
             var authTask = authClient.GetAsync("/subscription");
-            var socialTask = socialClient.GetAsync("/socialProfile");
+            var socialTask = socialClient.GetAsync("/profile");
 
             await Task.WhenAll(authTask, socialTask);
 
@@ -558,7 +558,7 @@
             }
             else if (socialResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                var createResponse = await socialClient.PostAsync("/socialProfile",
+                var createResponse = await socialClient.PostAsync("/profile",
                     new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
                 if (createResponse.IsSuccessStatusCode)
                 {
@@ -605,7 +605,7 @@
             StateHasChanged();
 
             var client = await CreateSocialClientAsync();
-            var currentResponse = await client.GetAsync("/socialProfile");
+            var currentResponse = await client.GetAsync("/profile");
             if (currentResponse.IsSuccessStatusCode)
             {
                 var currentJson = await currentResponse.Content.ReadAsStringAsync();
@@ -618,7 +618,7 @@
                 }
             }
 
-            var response = await client.GetAsync($"/socialProfile/{Id}");
+            var response = await client.GetAsync($"/profile/{Id}");
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -721,7 +721,7 @@
 
             var json = System.Text.Json.JsonSerializer.Serialize(updateCommand);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await client.PatchAsync($"/socialProfile/{socialProfile.Id}", content);
+            var response = await client.PatchAsync($"/profile/{socialProfile.Id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -786,7 +786,7 @@
         {
             isLoadingPosts = true;
             var client = await CreateSocialClientAsync();
-            var response = await client.GetAsync($"/feed/socialProfile/{Id}?page=1&perPage=20");
+            var response = await client.GetAsync($"/feed/profile/{Id}?page=1&perPage=20");
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -889,7 +889,7 @@
         {
             isLoadingLiked = true;
             var client = await CreateSocialClientAsync();
-            var response = await client.GetAsync($"/like/socialProfile/{Id}?page=1&perPage=20");
+            var response = await client.GetAsync($"/like/profile/{Id}?page=1&perPage=20");
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
