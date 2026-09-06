@@ -16,25 +16,28 @@
         <MudText Typo="Typo.h4" Align="Align.Center" Class="auth-title">Criar minha conta</MudText>
         <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="auth-subtitle">Monte o sistema que sua empresa merece</MudText>
 
-        <MudForm Model="model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <EditForm Model="model" OnSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
             <MudTextField @bind-Value="model.Name" Label="Nome completo" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome é obrigatório!" autocomplete="name" Immediate="true" />
             <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="email" Immediate="true" />
             <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="new-password" Immediate="true" />
             <MudDivider Class="my-4" />
             <MudTextField @bind-Value="model.CompanyName" Label="Nome da empresa" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="Nome da empresa é obrigatório!" Immediate="true" />
             <MudTextField @bind-Value="model.Cnpj" Label="CNPJ" Variant="Variant.Outlined" Class="mb-3" Required="true" RequiredError="CNPJ é obrigatório!" Immediate="true" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Disabled="@isLoading" Type="Submit" Class="mt-2">
+            <button type="submit" class="mud-button mud-button-filled mud-button-filled-primary mud-button-size-large mud-button-color-primary" disabled="@isLoading" style="width:100%;margin-top:0.5rem;">
                 @if (isLoading)
                 {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
-                    <span>Criando conta...</span>
+                    <span class="mud-button-label" style="display:inline-flex;align-items:center;gap:0.5rem;">
+                        <span class="mud-progress-linear" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></span>
+                        Criando conta...
+                    </span>
                 }
                 else
                 {
-                    <span>Criar minha conta</span>
+                    <span class="mud-button-label">Criar minha conta</span>
                 }
-            </MudButton>
-        </MudForm>
+            </button>
+        </EditForm>
 
         @if (!string.IsNullOrEmpty(message))
         {
@@ -53,7 +56,7 @@
     private bool isSuccess;
     private bool isLoading;
 
-    private async Task HandleValidSubmit()
+    private async Task HandleSubmit(EditContext editContext)
     {
         if (isLoading)
         {
@@ -130,8 +133,6 @@
         [MaxLength(200)]
         public string CompanyName { get; set; } = string.Empty;
 
-        [Required]
-        [Cnpj]
         [MaxLength(200)]
         public string Cnpj { get; set; } = string.Empty;
     }

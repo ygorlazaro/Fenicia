@@ -5,161 +5,171 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ICompanySelectionState CompanyState
-@inject ICompanyChangeNotifier CompanyNotifier
 @inject ISnackbar Snackbar
+
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider Position="MudBlazor.SnackbarPosition.TopRight" Timeout="5000" ShowCloseIcon="true" />
 
 <MudLayout>
-        <MudAppBar Elevation="0" Class="fenicia-appbar" Dense="true">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" Class="mr-2" />
-            <MudLink Href="/dashboard" Underline="Underline.None" Color="Color.Inherit" Class="d-flex align-center">
-                <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
-            </MudLink>
-            <MudSpacer />
-            <MudHidden Breakpoint="Breakpoint.MdAndDown">
-                @if (isLoggedIn)
+    <MudAppBar Elevation="0" Class="fenicia-appbar" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" Class="mr-2" />
+        <MudLink Href="/dashboard" Underline="Underline.None" Color="Color.Inherit" Class="d-flex align-center">
+            <img src="/images/logo.svg" alt="Fenicia" class="logo-img" />
+        </MudLink>
+        <MudSpacer />
+        <MudHidden Breakpoint="Breakpoint.MdAndDown">
+            @if (isLoggedIn)
+            {
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="topbar-actions">
+                    <MudButton Variant="Variant.Text" Color="Color.Inherit"
+                               OnClick="@OpenCompanyModal"
+                               Disabled="@(companies.Count == 0)">
+                        @(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)
+                    </MudButton>
+                    <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
+                    <MudLink Href="/socialnetwork/profile" Underline="Underline.None" Color="Color.Inherit">
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Person">
+                            @userName@(!string.IsNullOrEmpty(userRole) ? $" ({userRole})" : "")
+                        </MudButton>
+                    </MudLink>
+                    <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
+                    <MudLink Href="/logout" Underline="Underline.None" Color="Color.Inherit">
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Logout">
+                            Sair
+                        </MudButton>
+                    </MudLink>
+                </MudStack>
+            }
+            else
+            {
+                <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                    <MudLink Href="/signup" Underline="Underline.None" Color="Color.Inherit">
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit"
+                                   StartIcon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudButton>
+                    </MudLink>
+                    <MudLink Href="/login" Underline="Underline.None" Color="Color.Inherit">
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Login">
+                            Entrar</MudButton>
+                    </MudLink>
+                </MudStack>
+            }
+        </MudHidden>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="drawerOpen" Anchor="Anchor.Left" Variant="DrawerVariant.Temporary"
+               Breakpoint="Breakpoint.Md">
+        <MudNavMenu>
+            @if (isLoggedIn)
+            {
+                <MudNavLink Href="/dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Painel</MudNavLink>
+                <MudNavLink Href="/shop" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Loja</MudNavLink>
+                <MudNavGroup Title="Básico" Icon="@Icons.Material.Filled.Category" Expanded="true">
+                    <MudNavLink Href="/basic/productcategory" Match="NavLinkMatch.All"
+                                Icon="@Icons.Material.Filled.Category">Categorias de Produtos</MudNavLink>
+                    <MudNavLink Href="/basic/position" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.WorkOutline">
+                        Cargos</MudNavLink>
+                    <MudNavLink Href="/basic/supplier" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LocalShipping">
+                        Fornecedores</MudNavLink>
+                    <MudNavLink Href="/basic/customer" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.People">
+                        Clientes</MudNavLink>
+                    <MudNavLink Href="/basic/employee" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Badge">
+                        Funcionários</MudNavLink>
+                    <MudNavLink Href="/basic/product" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Inventory">
+                        Produtos</MudNavLink>
+                    <MudNavLink Href="/basic/stockmovement" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SwapVert">
+                        Movimentações</MudNavLink>
+                    <MudNavLink Href="/basic/inventory" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Assessment">
+                        Inventário</MudNavLink>
+                    <MudNavLink Href="/basic/order" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PointOfSale">
+                        Pedidos</MudNavLink>
+                </MudNavGroup>
+                <MudNavGroup Title="Rede Social" Icon="@Icons.Material.Filled.Share" Expanded="true">
+                    <MudNavLink Href="/socialnetwork/feed" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Feed</MudNavLink>
+                    <MudNavLink Href="/socialnetwork/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">
+                        Meu Perfil</MudNavLink>
+                </MudNavGroup>
+                <MudNavGroup Title="Projetos" Icon="@Icons.Material.Filled.Folder" Expanded="true">
+                    <MudNavLink Href="/project" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ViewModule">Quadros</MudNavLink>
+                </MudNavGroup>
+            }
+            else
+            {
+                <MudNavLink Href="/signup" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudNavLink>
+                <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Entrar</MudNavLink>
+            }
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+            @ChildContent
+        </MudContainer>
+    </MudMainContent>
+
+    <MudPaper Class="pa-4 fenicia-footer" Elevation="0">
+        <MudText Typo="Typo.caption" Align="Align.Right">
+            <strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.
+        </MudText>
+    </MudPaper>
+</MudLayout>
+
+<MudDialog @bind-Visible="showCompanyModal" Options="companyDialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Selecione uma empresa</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (companiesLoading)
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="pa-4">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                <MudText Typo="Typo.body2" Class="mt-2">Carregando empresas...</MudText>
+            </MudStack>
+        }
+        else if (companies.Count == 0)
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="pa-4">
+                <MudText Typo="Typo.body2" Color="Color.Error">Nenhuma empresa disponível.</MudText>
+                <MudButton OnClick="RetryLoadCompanies" Variant="Variant.Text" Color="Color.Primary" Class="mt-2">
+                    Tentar novamente
+                </MudButton>
+            </MudStack>
+        }
+        else
+        {
+            <MudStack Spacing="0">
+                @foreach (var company in companies)
                 {
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="topbar-actions">
-                        <MudMenu AnchorOrigin="Origin.BottomRight"
-                                 TransformOrigin="Origin.TopRight"
-                                 OffsetY="4"
-                                 Dense="true"
-                                 Disabled="@(companies.Count == 0)"
-                                 ActivationEvent="MouseEvent.LeftClick">
-                            <ActivatorContent>
-                                <MudButton Variant="Variant.Text"
-                                           Color="Color.Inherit"
-                                           StartIcon="@Icons.Material.Filled.Business"
-                                           EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                                           OnClick="@(async () => await context.ToggleAsync())">
-                                    <span class="topbar-company-name">
-                                        @(string.IsNullOrEmpty(selectedCompanyName) ? "Selecionar Empresa" : selectedCompanyName)
-                                    </span>
-                                </MudButton>
-                            </ActivatorContent>
-                            <ChildContent>
-                                <MudMenuItem Disabled="true">
-                                    <MudText Typo="Typo.caption" Color="Color.Default">Selecione a empresa</MudText>
-                                </MudMenuItem>
-                                <MudDivider />
-                                @if (companies.Count == 0)
+                    var isCurrent = selectedCompanyId.HasValue && company.Id == selectedCompanyId.Value;
+                    <MudButton OnClick="@(() => SelectCompanyAsync(company))"
+                               Variant="Variant.Text"
+                               FullWidth="true"
+                               Class="pa-2">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Style="width:100%">
+                            <MudIcon Icon="@(isCurrent ? Icons.Material.Filled.Check : Icons.Material.Filled.Circle)"
+                                     Color="@(isCurrent ? Color.Success : Color.Default)"
+                                     Size="Size.Small" />
+                            <div class="d-flex flex-column flex-grow-1" style="min-width:0">
+                                <MudText Typo="Typo.body2"
+                                         Style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                    <strong>@company.CompanyName</strong>
+                                </MudText>
+                                @if (!string.IsNullOrEmpty(company.Role))
                                 {
-                                    <MudMenuItem Disabled="true">
-                                        <MudText Typo="Typo.body2">Nenhuma empresa disponível</MudText>
-                                    </MudMenuItem>
+                                    <MudText Typo="Typo.caption" Color="Color.Default"
+                                             Style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                        @company.CompanyName @company.Role · @FormatCnpj(company.Cnpj)
+                                    </MudText>
                                 }
-                                else
-                                {
-                                    @foreach (var company in companies)
-                                    {
-                                        var isCurrent = selectedCompanyId.HasValue && company.Id == selectedCompanyId.Value;
-                                        <MudMenuItem OnClick="@(() => SelectCompanyAsync(company))">
-                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="w-100">
-                                                @if (isCurrent)
-                                                {
-                                                    <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success" Size="Size.Small" />
-                                                }
-                                                else
-                                                {
-                                                    <MudIcon Icon="@Icons.Material.Filled.Circle" Color="Color.Default" Size="Size.Small" Style="visibility:hidden" />
-                                                }
-                                                <div class="d-flex flex-column flex-grow-1" style="min-width:0">
-                                                    <MudText Typo="Typo.body2" Style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                                                        <strong>@company.Name</strong>
-                                                    </MudText>
-                                                    @if (!string.IsNullOrEmpty(company.Role))
-                                                    {
-                                                        <MudText Typo="Typo.caption" Color="Color.Default" Style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                                                            @company.Role · @FormatCnpj(company.Cnpj)
-                                                        </MudText>
-                                                    }
-                                                </div>
-                                            </MudStack>
-                                        </MudMenuItem>
-                                    }
-                                }
-                            </ChildContent>
-                        </MudMenu>
-                        <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
-                        <MudLink Href="/socialnetwork/profile" Underline="Underline.None" Color="Color.Inherit">
-                            <MudButton Variant="Variant.Text"
-                                       Color="Color.Inherit"
-                                       StartIcon="@Icons.Material.Filled.Person">
-                                @userName
-                            </MudButton>
-                        </MudLink>
-                        <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
-                        <MudLink Href="/logout" Underline="Underline.None" Color="Color.Inherit">
-                            <MudButton Variant="Variant.Text"
-                                       Color="Color.Inherit"
-                                       StartIcon="@Icons.Material.Filled.Logout">
-                                Sair
-                            </MudButton>
-                        </MudLink>
-                    </MudStack>
+                            </div>
+                        </MudStack>
+                    </MudButton>
                 }
-                else
-                {
-                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-                        <MudLink Href="/signup" Underline="Underline.None" Color="Color.Inherit">
-                            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudButton>
-                        </MudLink>
-                        <MudLink Href="/login" Underline="Underline.None" Color="Color.Inherit">
-                            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Login">Entrar</MudButton>
-                        </MudLink>
-                    </MudStack>
-                }
-            </MudHidden>
-        </MudAppBar>
-
-        <MudDrawer @bind-Open="_drawerOpen" Anchor="Anchor.Left" Variant="DrawerVariant.Temporary" Breakpoint="Breakpoint.Md">
-            <MudNavMenu>
-                <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Início</MudNavLink>
-                @if (isLoggedIn)
-                {
-                    <MudNavGroup Title="Básico" Icon="@Icons.Material.Filled.Category" Expanded="true">
-                        <MudNavLink Href="/basic/productcategory" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category">Categorias de Produtos</MudNavLink>
-                        <MudNavLink Href="/basic/position" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.WorkOutline">Cargos</MudNavLink>
-                        <MudNavLink Href="/basic/supplier" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LocalShipping">Fornecedores</MudNavLink>
-                        <MudNavLink Href="/basic/customer" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.People">Clientes</MudNavLink>
-                        <MudNavLink Href="/basic/employee" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Badge">Funcionários</MudNavLink>
-                        <MudNavLink Href="/basic/product" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Inventory">Produtos</MudNavLink>
-                        <MudNavLink Href="/basic/stockmovement" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SwapVert">Movimentações</MudNavLink>
-                        <MudNavLink Href="/basic/inventory" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Assessment">Inventário</MudNavLink>
-                        <MudNavLink Href="/basic/order" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PointOfSale">Pedidos</MudNavLink>
-                    </MudNavGroup>
-                    <MudNavGroup Title="Rede Social" Icon="@Icons.Material.Filled.Share" Expanded="true">
-                        <MudNavLink Href="/socialnetwork/feed" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Feed</MudNavLink>
-                        <MudNavLink Href="/socialnetwork/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">Meu Perfil</MudNavLink>
-                    </MudNavGroup>
-                    <MudNavGroup Title="Projetos" Icon="@Icons.Material.Filled.Folder" Expanded="true">
-                        <MudNavLink Href="/project" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ViewModule">Quadros</MudNavLink>
-                    </MudNavGroup>
-                    <MudNavLink Href="/dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Painel</MudNavLink>
-                    <MudNavLink Href="/shop" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Loja</MudNavLink>
-                }
-                else
-                {
-                    <MudNavLink Href="/signup" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudNavLink>
-                    <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Entrar</MudNavLink>
-                }
-            </MudNavMenu>
-        </MudDrawer>
-
-        <MudMainContent>
-            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-                @ChildContent
-            </MudContainer>
-        </MudMainContent>
-
-        <MudPaper Class="pa-4 fenicia-footer" Elevation="0">
-            <MudText Typo="Typo.caption" Align="Align.Right">
-                <strong>Fenicia</strong> &copy; @DateTime.Now.Year — O Sistema Modular Open Source para sua Empresa.
-            </MudText>
-        </MudPaper>
-    </MudLayout>
+            </MudStack>
+        }
+    </DialogContent>
+</MudDialog>
 
 <style>
     .logo-img {
@@ -198,66 +208,62 @@
 
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    private bool isLoggedIn = false;
+    private bool isLoggedIn;
     private string userName = string.Empty;
-    private bool _jsAvailable;
-    private bool _drawerOpen;
-    private string selectedCompanyName = string.Empty;
-    private Guid? selectedCompanyId;
+    private string userRole = string.Empty;
+    private bool jsAvailable;
+    private bool drawerOpen;
+    private bool showCompanyModal;
+    private bool companiesLoading;
+    private bool companiesLoaded;
     private List<UserCompanyItem> companies = [];
-    private bool _companiesLoaded;
+    private Guid? selectedCompanyId;
+    private string selectedCompanyName = string.Empty;
+
+    private static readonly DialogOptions companyDialogOptions = new()
+    {
+        CloseButton = false,
+        BackdropClick = false,
+        CloseOnEscapeKey = false,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true
+    };
 
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
-        CompanyNotifier.Changed += HandleCompanyChanged;
-    }
-
-    private async void HandleCompanyChanged()
-    {
-        try
-        {
-            var companyId = CompanyState.SelectedCompanyId ?? await CompanyContext.GetSelectedCompanyIdAsync();
-            selectedCompanyId = companyId;
-            if (companyId.HasValue)
-            {
-                selectedCompanyName = !string.IsNullOrEmpty(CompanyState.SelectedCompanyName)
-                    ? CompanyState.SelectedCompanyName
-                    : (companies.FirstOrDefault(c => c.Id == companyId.Value)?.Name ?? selectedCompanyName);
-            }
-            else
-            {
-                selectedCompanyName = string.Empty;
-            }
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[MainLayout] Company change error: {ex.Message}");
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_jsAvailable)
+        if (jsAvailable)
         {
             await RefreshAuthAsync();
-            if (!_companiesLoaded)
+            if (companiesLoaded)
             {
-                _companiesLoaded = true;
-                await LoadCompaniesAsync();
+                return;
             }
+            companiesLoaded = true;
+            if (isLoggedIn)
+            {
+                showCompanyModal = true;
+            }
+            await LoadCompaniesAsync();
             return;
         }
 
         try
         {
             await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
-            _jsAvailable = true;
+            jsAvailable = true;
             await RefreshAuthAsync();
-            if (!_companiesLoaded)
+            if (!companiesLoaded)
             {
-                _companiesLoaded = true;
+                companiesLoaded = true;
+                if (isLoggedIn)
+                {
+                    showCompanyModal = true;
+                }
                 await LoadCompaniesAsync();
             }
         }
@@ -274,7 +280,7 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        if (_jsAvailable)
+        if (jsAvailable)
         {
             _ = RefreshAuthAsync();
         }
@@ -282,7 +288,7 @@
 
     private void ToggleDrawer()
     {
-        _drawerOpen = !_drawerOpen;
+        drawerOpen = !drawerOpen;
     }
 
     private async Task RefreshAuthAsync()
@@ -294,13 +300,21 @@
             if (loggedIn != isLoggedIn)
             {
                 isLoggedIn = loggedIn;
-                userName = loggedIn ? ParseUserName(token) ?? string.Empty : string.Empty;
-                if (!loggedIn)
+                if (loggedIn)
                 {
+                    userName = ParseUserName(token) ?? string.Empty;
+                    userRole = ParseUserRole(token) ?? string.Empty;
+                }
+                else
+                {
+                    userName = string.Empty;
+                    userRole = string.Empty;
                     selectedCompanyId = null;
                     selectedCompanyName = string.Empty;
                     companies = [];
-                    _companiesLoaded = false;
+                    companiesLoaded = false;
+                    showCompanyModal = false;
+                    companiesLoading = false;
                 }
                 await InvokeAsync(StateHasChanged);
             }
@@ -313,6 +327,14 @@
 
     private async Task LoadCompaniesAsync()
     {
+        if (!isLoggedIn || companies.Count > 0)
+        {
+            return;
+        }
+
+        companiesLoading = true;
+        await InvokeAsync(StateHasChanged);
+
         try
         {
             var userId = await CompanyContext.GetUserIdAsync();
@@ -349,6 +371,11 @@
         {
             Console.WriteLine($"[MainLayout] Load error: {ex.Message}");
         }
+        finally
+        {
+            companiesLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private async Task LoadSelectedCompanyAsync()
@@ -356,26 +383,70 @@
         try
         {
             var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
-if (companyId.HasValue)
+            if (companyId.HasValue)
+            {
+                selectedCompanyId = companyId;
+                var match = companies.FirstOrDefault(c => c.Id == companyId.Value);
+                if (match is not null)
                 {
-                    selectedCompanyId = companyId;
-                    var match = companies.FirstOrDefault(c => c.Id == companyId.Value);
-                    if (match is not null)
-                    {
-                        selectedCompanyName = match.Name;
-                        CompanyState.Set(match.Id, match.Name);
-                        await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", companyId.Value.ToString(), 7);
-                    }
-                    else if (CompanyState.SelectedCompanyId == companyId && !string.IsNullOrEmpty(CompanyState.SelectedCompanyName))
-                    {
-                        selectedCompanyName = CompanyState.SelectedCompanyName;
-                    }
+                    selectedCompanyName = match.CompanyName;
+                    CompanyState.Set(match.Id, match.CompanyName);
+                    await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", companyId.Value.ToString(), 7);
+                    showCompanyModal = false;
                 }
+                else
+                {
+                    selectedCompanyName = CompanyState.SelectedCompanyId == companyId && !string.IsNullOrEmpty(CompanyState.SelectedCompanyName)
+                        ? CompanyState.SelectedCompanyName
+                        : string.Empty;
+                    showCompanyModal = true;
+                }
+            }
+            else
+            {
+                showCompanyModal = true;
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[MainLayout] Load selected error: {ex.Message}");
         }
+    }
+
+    private async Task SelectCompanyAsync(UserCompanyItem company)
+    {
+        try
+        {
+            await CompanyContext.SetSelectedCompanyIdAsync(company.Id);
+            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", company.Id.ToString(), 7);
+
+            selectedCompanyId = company.Id;
+            selectedCompanyName = company.CompanyName;
+            CompanyState.Set(company.Id, company.CompanyName);
+
+            showCompanyModal = false;
+            await InvokeAsync(StateHasChanged);
+
+            Snackbar.Add($"Empresa \"{company.CompanyName}\" selecionada.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MainLayout] Select company error: {ex.Message}");
+            Snackbar.Add($"Erro ao selecionar empresa: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void OpenCompanyModal()
+    {
+        if (companies.Count > 0 && !showCompanyModal)
+        {
+            showCompanyModal = true;
+        }
+    }
+
+    private void RetryLoadCompanies()
+    {
+        companiesLoaded = false;
     }
 
     private static string? ParseUserName(string token)
@@ -390,7 +461,8 @@ if (companyId.HasValue)
                 case 2: payload += "=="; break;
                 case 3: payload += "="; break;
             }
-            using var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            using var doc =
+                System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
             return doc.RootElement.TryGetProperty("unique_name", out var n) ? n.GetString() : null;
         }
         catch (Exception ex)
@@ -400,25 +472,39 @@ if (companyId.HasValue)
         }
     }
 
-    private async Task SelectCompanyAsync(UserCompanyItem company)
+    private static string? ParseUserRole(string token)
     {
         try
         {
-            await CompanyContext.SetSelectedCompanyIdAsync(company.Id);
-            await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", company.Id.ToString(), 7);
-
-            selectedCompanyId = company.Id;
-            selectedCompanyName = company.Name;
-            CompanyState.Set(company.Id, company.Name);
-            CompanyNotifier.Notify();
-
-            Snackbar.Add($"Empresa \"{company.Name}\" selecionada.", Severity.Success);
+            var parts = token.Split('.');
+            if (parts.Length < 2) return null;
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+            using var doc =
+                System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            if (doc.RootElement.TryGetProperty("role", out var roleElement))
+            {
+                var roleJson = roleElement.GetString();
+                if (!string.IsNullOrEmpty(roleJson))
+                {
+                    if (roleJson.StartsWith("["))
+                    {
+                        var roles = System.Text.Json.JsonSerializer.Deserialize<List<string>>(roleJson);
+                        return roles is { Count: > 0 } ? roles[0] : null;
+                    }
+                    return roleJson;
+                }
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[MainLayout] Select company error: {ex.Message}");
-            Snackbar.Add($"Erro ao selecionar empresa: {ex.Message}", Severity.Error);
+            Console.WriteLine($"[MainLayout] Parse role error: {ex.Message}");
         }
+        return null;
     }
 
     private static string FormatCnpj(string cnpj)
@@ -427,24 +513,19 @@ if (companyId.HasValue)
         {
             return string.Empty;
         }
-        if (cnpj.Length == 14)
-        {
-            return $"{cnpj[..2]}.{cnpj[2..5]}.{cnpj[5..8]}/{cnpj[8..12]}-{cnpj[12..]}";
-        }
-        return cnpj;
+        return cnpj.Length == 14 ? $"{cnpj[..2]}.{cnpj[2..5]}.{cnpj[5..8]}/{cnpj[8..12]}-{cnpj[12..]}" : cnpj;
     }
 
     public class UserCompanyItem
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
         public string Cnpj { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
     }
 
-public void Dispose()
+    public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
-        CompanyNotifier.Changed -= HandleCompanyChanged;
     }
 }

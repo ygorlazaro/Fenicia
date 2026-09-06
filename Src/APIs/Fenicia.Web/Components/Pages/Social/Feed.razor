@@ -157,8 +157,8 @@
 @code {
     private List<PostDto> posts = [];
     private string newPostText = string.Empty;
-    private bool isLoading = false;
-    private bool isPosting = false;
+    private bool isLoading;
+    private bool isPosting;
     private string? errorMessage;
     private int currentPage = 1;
     private const int PageSize = 20;

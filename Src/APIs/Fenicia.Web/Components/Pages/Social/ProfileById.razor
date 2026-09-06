@@ -236,8 +236,8 @@
     [Parameter] public Guid Id { get; set; }
 
     private bool isLoading = true;
-    private bool isLoadingPosts = false;
-    private bool isLoadingLiked = false;
+    private bool isLoadingPosts;
+    private bool isLoadingLiked;
     private string? errorMessage;
     private ProfileDto? profile;
     private bool isOwnProfile;

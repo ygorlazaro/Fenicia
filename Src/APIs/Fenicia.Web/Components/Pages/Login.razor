@@ -20,17 +20,19 @@
             <DataAnnotationsValidator />
             <MudTextField @bind-Value="model.Email" Label="Email" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Email é obrigatório!" InputType="InputType.Email" autocomplete="username" Immediate="true" @ref="emailField" />
             <MudTextField @bind-Value="model.Password" Label="Senha" Variant="Variant.Outlined" Class="mb-4" Required="true" RequiredError="Senha é obrigatória!" InputType="InputType.Password" autocomplete="current-password" Immediate="true" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Disabled="@isLoading" Type="Submit" Class="mt-2">
+            <button type="submit" class="mud-button mud-button-filled mud-button-filled-primary mud-button-size-large mud-button-color-primary" disabled="@isLoading" style="width:100%;margin-top:0.5rem;">
                 @if (isLoading)
                 {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
-                    <span>Entrando...</span>
+                    <span class="mud-button-label" style="display:inline-flex;align-items:center;gap:0.5rem;">
+                        <span class="mud-progress-linear" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></span>
+                        Entrando...
+                    </span>
                 }
                 else
                 {
-                    <span>Entrar</span>
+                    <span class="mud-button-label">Entrar</span>
                 }
-            </MudButton>
+            </button>
         </EditForm>
 
         @if (!string.IsNullOrEmpty(message))
@@ -89,6 +91,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var tokenData = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                Console.WriteLine("[Login] tokenData: " + (tokenData == null ? "null" : "not null"));
                 if (tokenData != null && !string.IsNullOrEmpty(tokenData.AccessToken))
                 {
                     await AuthState.SetTokenAsync(tokenData.AccessToken, 60 * 60 * 3);
