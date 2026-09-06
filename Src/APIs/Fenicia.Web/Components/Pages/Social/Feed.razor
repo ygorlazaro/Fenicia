@@ -6,7 +6,7 @@
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
 
-<PageTitle>Feed - Fenicia Social</PageTitle>
+<PageTitle>Publicações - Fenicia Social</PageTitle>
 
 <MainLayout>
     <MudGrid>
@@ -45,7 +45,7 @@
 
             <MudPaper Elevation="0" Class="pa-0">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="px-4 py-2">
-                    <MudText Typo="Typo.h6">Feed</MudText>
+                    <MudText Typo="Typo.h6">Publicações</MudText>
                     <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Small" OnClick="LoadFeedAsync" />
                 </MudStack>
                 <MudDivider />
@@ -64,8 +64,8 @@
                 {
                     <div class="pa-8 text-center">
                         <MudIcon Icon="@Icons.Material.Filled.Forum" Size="Size.Large" Color="Color.Default" />
-                        <MudText Typo="Typo.h6" Class="mt-2">Nenhuma postagem ainda</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Default">Seja o primeiro a postar algo!</MudText>
+                        <MudText Typo="Typo.h6" Class="mt-2">Nenhuma publicação ainda</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Default">Seja o primeiro a publicar algo!</MudText>
                     </div>
                 }
                 else
@@ -389,7 +389,7 @@
             if (response.IsSuccessStatusCode)
             {
                 newPostText = string.Empty;
-                Snackbar.Add("Post publicado!", Severity.Success);
+                    Snackbar.Add("Publicação publicada!", Severity.Success);
                 await LoadFeedAsync();
             }
             else
@@ -495,7 +495,7 @@
             if (response.IsSuccessStatusCode)
             {
                 shareTarget.TotalShares++;
-                Snackbar.Add("Post compartilhado!", Severity.Success);
+                    Snackbar.Add("Publicação compartilhada!", Severity.Success);
                 CloseShareDialog();
                 await LoadFeedAsync();
             }
@@ -581,7 +581,7 @@
 
 <MudDialog @bind-Visible="shareDialogVisible" Options="shareDialogOptions">
     <TitleContent>
-        <MudText Typo="Typo.h6">Compartilhar post</MudText>
+        <MudText Typo="Typo.h6">Compartilhar publicação</MudText>
     </TitleContent>
     <DialogContent>
         @if (shareTarget is not null)

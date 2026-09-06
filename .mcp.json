@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "arko": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "arko-mcp@latest"
+      ]
+    }
+  }
+}

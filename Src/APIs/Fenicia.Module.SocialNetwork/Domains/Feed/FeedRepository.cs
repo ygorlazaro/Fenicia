@@ -14,6 +14,7 @@ public class FeedRepository(DefaultContext context) : Repository<FeedModel>(cont
     {
         return await DbSet
             .Include(f => f.Profile)
+                .ThenInclude(p => p.Upload)
             .OrderByDescending(f => f.Date)
             .Skip((page - 1) * perPage)
             .Take(perPage)
@@ -24,6 +25,7 @@ public class FeedRepository(DefaultContext context) : Repository<FeedModel>(cont
     {
         return DbSet
             .Include(f => f.Profile)
+                .ThenInclude(p => p.Upload)
             .Include(f => f.Comments)
             .Include(f => f.Likes)
             .Include(f => f.Shares)

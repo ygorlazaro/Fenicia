@@ -14,6 +14,15 @@ public class ProfileRepository(DefaultContext context) : Repository<ProfileModel
 {
     public async Task<ProfileModel?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(p => p.UserId == userId && p.Deleted == null, cancellationToken);
+        return await DbSet
+            .Include(p => p.Upload)
+            .FirstOrDefaultAsync(p => p.UserId == userId && p.Deleted == null, cancellationToken);
+    }
+
+    public override async Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .Include(p => p.Upload)
+            .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, cancellationToken);
     }
 }

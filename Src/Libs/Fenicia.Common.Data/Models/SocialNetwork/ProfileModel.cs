@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
@@ -19,8 +20,10 @@ public class ProfileModel : BaseModel
     [MaxLength(160)]
     public string? Bio { get; set; }
 
-    [MaxLength(200)]
-    public string? ImageUrl { get; set; }
+    public Guid? UploadId { get; set; }
+
+    [ForeignKey(nameof(UploadId))]
+    public UploadModel? Upload { get; init; }
 
     [MaxLength(120)]
     public string? Website { get; set; }

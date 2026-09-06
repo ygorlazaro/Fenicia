@@ -19,7 +19,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     /// <param name="command">
     ///     Report data. Example:
     ///     <c>
-    ///         { "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description":
+    ///         { "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Publicação", "reason": "Spam", "description":
     ///         "This feed contains spam content" }
     ///     </c>
     /// </param>
@@ -33,7 +33,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     ///     Report created successfully. Example:
     ///     <c>
     ///         { "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333",
-    ///         "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description":
+    ///         "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Publicação", "reason": "Spam", "description":
     ///         "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }
     ///     </c>
     /// </response>
@@ -134,7 +134,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     ///     Reports retrieved successfully. Example:
     ///     <c>
     ///         [{ "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333",
-    ///         "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description":
+    ///         "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Publicação", "reason": "Spam", "description":
     ///         "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }]
     ///     </c>
     /// </response>
@@ -184,7 +184,7 @@ public class ReportController(ReportService reportService) : ControllerBase
     ///     Report found. Example:
     ///     <c>
     ///         { "id": "11111111-1111-1111-1111-111111111111", "reporterId": "33333333-3333-3333-3333-333333333333",
-    ///         "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Feed", "reason": "Spam", "description":
+    ///         "targetId": "22222222-2222-2222-2222-222222222222", "targetType": "Publicação", "reason": "Spam", "description":
     ///         "This feed contains spam content", "status": "Pending", "reportDate": "2024-01-15T00:00:00Z" }
     ///     </c>
     /// </response>

@@ -50,7 +50,7 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             UserId = userId,
             UserName = command.UserName,
             Bio = command.Bio,
-            ImageUrl = command.ImageUrl,
+            UploadId = command.UploadId,
             Website = command.Website,
             Location = command.Location,
             Phone = command.Phone,
@@ -76,7 +76,7 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
 
         profile.UserName = command.UserName;
         profile.Bio = command.Bio;
-        profile.ImageUrl = command.ImageUrl;
+        profile.UploadId = command.UploadId;
         profile.Website = command.Website;
         profile.Location = command.Location;
         profile.Phone = command.Phone;
@@ -89,7 +89,8 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             profile.UserId,
             profile.UserName,
             profile.Bio,
-            profile.ImageUrl,
+            profile.Upload?.Url,
+            profile.UploadId,
             profile.Website,
             profile.Location,
             profile.Phone,
@@ -103,7 +104,8 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             profile.UserId,
             profile.UserName,
             profile.Bio,
-            profile.ImageUrl,
+            profile.Upload?.Url,
+            profile.UploadId,
             profile.Website,
             profile.Location,
             profile.Phone,
@@ -117,7 +119,8 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             profile.UserId,
             profile.UserName,
             profile.Bio,
-            profile.ImageUrl,
+            profile.Upload?.Url,
+            profile.UploadId,
             profile.Website,
             profile.Location,
             profile.Phone,

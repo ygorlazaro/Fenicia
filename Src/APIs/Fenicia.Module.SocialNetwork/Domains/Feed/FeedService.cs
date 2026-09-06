@@ -10,10 +10,7 @@ public class FeedService(FeedRepository repository)
         GetAllFeedQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = repository.Query().OrderByDescending(f => f.Date);
-        var filteredQuery = baseQuery;
-        var feeds = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
-            .ToListAsync(cancellationToken);
+        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         return
         [
             .. feeds.Select(f => new GetAllFeedResponse(
@@ -27,7 +24,7 @@ public class FeedService(FeedRepository repository)
                 f.TotalShares,
                 f.OriginalFeedId,
                 f.Profile?.UserName,
-                f.Profile?.ImageUrl))
+                f.Profile?.Upload?.Url))
         ];
     }
 
@@ -35,15 +32,11 @@ public class FeedService(FeedRepository repository)
         GetFeedsByProfileQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = repository.Query()
-            .Include(f => f.Profile)
-            .Where(f => f.ProfileId == query.ProfileId)
-            .OrderByDescending(f => f.Date);
-        var feeds = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
-            .ToListAsync(cancellationToken);
+        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var filtered = feeds.Where(f => f.ProfileId == query.ProfileId).ToList();
         return
         [
-            .. feeds.Select(f => new GetAllFeedResponse(
+            .. filtered.Select(f => new GetAllFeedResponse(
                 f.Id,
                 f.Date,
                 f.Text,
@@ -54,7 +47,7 @@ public class FeedService(FeedRepository repository)
                 f.TotalShares,
                 f.OriginalFeedId,
                 f.Profile?.UserName,
-                f.Profile?.ImageUrl))
+                f.Profile?.Upload?.Url))
         ];
     }
 
@@ -78,7 +71,7 @@ public class FeedService(FeedRepository repository)
                 feed.TotalShares,
                 feed.OriginalFeedId,
                 feed.Profile?.UserName,
-                feed.Profile?.ImageUrl)
+                feed.Profile?.Upload?.Url)
         };
     }
 

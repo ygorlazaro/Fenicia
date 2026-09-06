@@ -113,6 +113,7 @@ public sealed class ProfileController(IProfileService profileService) : Controll
                 existing.UserName,
                 existing.Bio,
                 existing.ImageUrl,
+                existing.UploadId,
                 existing.Website,
                 existing.Location,
                 existing.Phone,

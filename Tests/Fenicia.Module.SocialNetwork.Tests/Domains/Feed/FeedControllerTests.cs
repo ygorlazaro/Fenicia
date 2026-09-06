@@ -4,7 +4,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.SocialNetworkModels;
+using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Tests;
 using Fenicia.Module.SocialNetwork.Domains.Feed;
 using Fenicia.Module.SocialNetwork.Domains.Feed.DTOs;

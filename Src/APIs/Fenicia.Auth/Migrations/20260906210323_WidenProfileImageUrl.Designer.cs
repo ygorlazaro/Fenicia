@@ -3,6 +3,7 @@ using System;
 using Fenicia.Common.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fenicia.Auth.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20260906210323_WidenProfileImageUrl")]
+    partial class WidenProfileImageUrl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2381,6 +2384,11 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("image_url");
+
                     b.Property<string>("Location")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
@@ -2394,10 +2402,6 @@ namespace Fenicia.Auth.Migrations
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
-
-                    b.Property<Guid?>("UploadId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("upload_id");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -2415,9 +2419,6 @@ namespace Fenicia.Auth.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_profiles");
-
-                    b.HasIndex("UploadId")
-                        .HasDatabaseName("ix_profiles_upload_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_profiles_user_id");
@@ -2536,58 +2537,6 @@ namespace Fenicia.Auth.Migrations
                         .HasDatabaseName("ix_shares_profile_id");
 
                     b.ToTable("shares", "social_network");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.UploadModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("content_type");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)")
-                        .HasColumnName("original_file_name");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint")
-                        .HasColumnName("size_bytes");
-
-                    b.Property<string>("StoredFileName")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)")
-                        .HasColumnName("stored_file_name");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated");
-
-                    b.Property<string>("Url")
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)")
-                        .HasColumnName("url");
-
-                    b.HasKey("Id")
-                        .HasName("pk_uploads");
-
-                    b.ToTable("uploads", "auth");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.AddressModel", b =>
@@ -3253,19 +3202,12 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.UploadModel", "Upload")
-                        .WithMany()
-                        .HasForeignKey("UploadId")
-                        .HasConstraintName("fk_profiles_uploads_upload_id");
-
                     b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_profiles_users_user_id");
-
-                    b.Navigation("Upload");
 
                     b.Navigation("User");
                 });

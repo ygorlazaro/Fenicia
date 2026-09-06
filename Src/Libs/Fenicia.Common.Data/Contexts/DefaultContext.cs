@@ -1,5 +1,7 @@
 using System.Reflection;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models.SocialNetwork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,6 +51,13 @@ public partial class DefaultContext : DbContext
 
         modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee)
             .HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProfileModel>()
+            .HasOne(p => p.Upload)
+            .WithMany()
+            .HasForeignKey(p => p.UploadId);
+
+        modelBuilder.Entity<UploadModel>().ToTable("uploads", "auth");
 
         base.OnModelCreating(modelBuilder);
     }

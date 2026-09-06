@@ -6,14 +6,14 @@
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
 
-<PageTitle>Post - Fenicia Social</PageTitle>
+<PageTitle>Publicação - Fenicia Social</PageTitle>
 
 <MainLayout>
     <MudGrid>
         <MudItem xs="12" md="8" Class="mx-auto">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/socialnetwork/feed"))" />
-                <MudText Typo="Typo.h5">Post</MudText>
+                <MudText Typo="Typo.h5">Publicação</MudText>
             </MudStack>
 
             @if (isLoading)
@@ -61,7 +61,7 @@
                                 <MudPaper Elevation="0" Class="pa-2 mb-2" Style="background-color: rgba(0,0,0,0.03); border-left: 3px solid var(--mud-palette-primary); border-radius: 8px;">
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
                                         <MudIcon Icon="@Icons.Material.Outlined.Repeat" Size="Size.Small" Color="Color.Default" />
-                                        <MudText Typo="Typo.caption" Color="Color.Default">compartilhou um post</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Default">compartilhou uma publicação</MudText>
                                     </MudStack>
                                     <MudLink Href="@($"/socialnetwork/feed/{post.OriginalFeedId}")" Color="Color.Default" Underline="Underline.None">
                                         <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">Ver post original →</MudText>
@@ -390,7 +390,7 @@
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                errorMessage = "Post não encontrado.";
+                errorMessage = "Publicação não encontrada.";
             }
             else
             {

@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.SocialNetworkModels;
+using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Tests;
 using Fenicia.Module.SocialNetwork.Domains.Profile;
 using Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
@@ -68,19 +68,19 @@ public class ProfileServiceTests : IDisposable
         _db.SocialNetworkProfiles.Add(profile);
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProfileCommand(profile.Id, "Updated Bio", "https://example.com/image.jpg", "https://example.com", "New York", "1234567890", new DateTime(1990, 1, 1));
+        var command = new UpdateProfileCommand(profile.Id, "Updated Bio", null, null, "https://example.com", "New York", "1234567890", new DateTime(1990, 1, 1));
 
         var result = await _service.UpdateAsync(command, profile.UserId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result!.Bio.Should().Be("Updated Bio");
-        result.ImageUrl.Should().Be("https://example.com/image.jpg");
+        result.ImageUrl.Should().BeNull();
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProfileDoesNotExist_ReturnsNull()
     {
-        var command = new UpdateProfileCommand(Guid.NewGuid(), "Updated Bio", null, null, null, null, null);
+        var command = new UpdateProfileCommand(Guid.NewGuid(), "Updated Bio", null, null, null, null, null, null);
 
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 

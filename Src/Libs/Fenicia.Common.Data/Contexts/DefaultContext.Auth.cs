@@ -1,3 +1,4 @@
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,4 +35,6 @@ public partial class DefaultContext
     public DbSet<ForgotPasswordModel> AuthForgottenPasswords { get; set; }
 
     public DbSet<NotificationModel> AuthNotifications { get; set; }
+
+    public DbSet<UploadModel> AuthUploads { get; set; }
 }

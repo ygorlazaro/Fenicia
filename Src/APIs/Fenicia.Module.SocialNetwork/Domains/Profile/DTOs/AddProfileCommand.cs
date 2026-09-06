@@ -5,7 +5,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
 public record AddProfileCommand(
     [MaxLength(64)] string? UserName,
     [MaxLength(160)] string? Bio,
-    [MaxLength(200)] string? ImageUrl,
+    Guid? UploadId,
     [MaxLength(120)] string? Website,
     [MaxLength(64)] string? Location,
     [MaxLength(24)] string? Phone,

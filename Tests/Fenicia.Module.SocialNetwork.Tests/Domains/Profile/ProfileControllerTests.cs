@@ -73,7 +73,7 @@ public class ProfileControllerTests : IDisposable
     public async Task PatchAsync_WhenProfileExists_ReturnsOk()
     {
         var wide = new WideEventContext();
-        var command = new UpdateProfileCommand(Guid.NewGuid(), "Bio", null, null, null, null, null);
+        var command = new UpdateProfileCommand(Guid.NewGuid(), "Bio", null, null, null, null, null, null);
 
         var result = await _controller.PatchAsync(command, Guid.NewGuid(), wide, CancellationToken.None);
 
@@ -84,7 +84,7 @@ public class ProfileControllerTests : IDisposable
     public async Task PatchAsync_WhenProfileDoesNotExist_ReturnsNotFound()
     {
         var wide = new WideEventContext();
-        var command = new UpdateProfileCommand(Guid.NewGuid(), "Bio", null, null, null, null, null);
+        var command = new UpdateProfileCommand(Guid.NewGuid(), "Bio", null, null, null, null, null, null);
 
         _mockService.Setup(s => s.UpdateAsync(It.Is<UpdateProfileCommand>(c => c.Id != It.IsAny<Guid>()), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProfileResponse?)null);
@@ -97,10 +97,10 @@ public class ProfileControllerTests : IDisposable
     private void SetupServiceMocks()
     {
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProfileByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetProfileByIdQuery q, CancellationToken cancellationToken) => new GetProfileByIdResponse(q.Id, Guid.NewGuid(), "Bio", null, null, null, null, null));
+            .ReturnsAsync((GetProfileByIdQuery q, CancellationToken cancellationToken) => new GetProfileByIdResponse(q.Id, Guid.NewGuid(), "Bio", null, null, null, null, null, null, null));
 
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateProfileCommand>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UpdateProfileCommand cmd, Guid userId, CancellationToken cancellationToken) => new UpdateProfileResponse(cmd.Id, userId, cmd.Bio, cmd.ImageUrl, cmd.Website, cmd.Location, cmd.Phone, cmd.BirthDate));
+            .ReturnsAsync((UpdateProfileCommand cmd, Guid userId, CancellationToken cancellationToken) => new UpdateProfileResponse(cmd.Id, userId, null, cmd.Bio, null, cmd.UploadId, cmd.Website, cmd.Location, cmd.Phone, cmd.BirthDate));
     }
 
     private void SetupUserClaims(Guid userId)

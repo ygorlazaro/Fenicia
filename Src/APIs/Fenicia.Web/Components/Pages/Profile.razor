@@ -26,7 +26,7 @@
     {
         <MudItem xs="12" md="4">
             <MudPaper Elevation="2" Class="pa-6">
-                <MudStack AlignItems="AlignItems.Start" Spacing="3">
+                <MudStack AlignItems="AlignItems.Center" Spacing="3">
                     @if (!string.IsNullOrEmpty(socialProfile?.ImageUrl))
                     {
                         <MudAvatar Size="Size.Large" Style="height:120px;width:120px;border-radius:50%;overflow:hidden;cursor:pointer;" @onclick="TriggerUpload">
@@ -41,6 +41,10 @@
                     }
                     <InputFile id="profileImageInput" OnChange="HandleImageUpload" accept="image/*" hidden />
                     <MudText Typo="Typo.h5" Align="Align.Center">@DisplayName()</MudText>
+                    @if (!string.IsNullOrEmpty(socialProfile?.UserName))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Default" Align="Align.Center">@@@socialProfile.UserName</MudText>
+                    }
                     @if (!string.IsNullOrEmpty(socialProfile?.Location))
                     {
                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
@@ -132,56 +136,6 @@
                 }
             </MudPaper>
         </MudItem>
-
-        @if (!string.IsNullOrEmpty(userRole) && userRole != "User" && authProfile != null && authProfile.Subscriptions != null && authProfile.Subscriptions.Any())
-        {
-            <MudItem xs="12">
-                <MudGrid Class="mt-4" Spacing="4">
-                    <MudItem xs="12">
-                        <MudPaper Elevation="2" Class="pa-6">
-                            <MudText Typo="Typo.h5" Class="mb-4">Minhas Assinaturas</MudText>
-                            <MudGrid Spacing="4">
-                                @foreach (var subscription in authProfile.Subscriptions)
-                                {
-                                    <MudItem xs="12" sm="6" md="4">
-                                        <MudCard Elevation="2" Class="h-100 subscription-card">
-                                            <MudCardContent>
-                                                <MudStack Spacing="1">
-                                                    <MudText Typo="Typo.h6">@subscription.CompanyName</MudText>
-                                                    <MudText Typo="Typo.caption" Color="Color.Default">
-                                                        <MudBadge Color="@GetStatusColor(subscription.Status)" Class="pa-2">@subscription.Status</MudBadge>
-                                                    </MudText>
-                                                    <MudText Typo="Typo.body2" Color="Color.Default" Class="mt-2">
-                                                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mr-1" />
-                                                        @subscription.StartDate.ToString("dd/MM/yyyy")
-                                                        @if (subscription.EndDate.HasValue)
-                                                        {
-                                                            <span> — @subscription.EndDate.Value.ToString("dd/MM/yyyy")</span>
-                                                        }
-                                                    </MudText>
-                                                    @if (subscription.Modules != null && subscription.Modules.Any())
-                                                    {
-                                                        <MudStack Row="true" Spacing="1" Class="mt-3" Wrap="Wrap.Wrap">
-                                                            @foreach (var module in subscription.Modules)
-                                                            {
-                                                                <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined">@module.Name</MudChip>
-                                                            }
-                                                        </MudStack>
-                                                    }
-                                                </MudStack>
-                                            </MudCardContent>
-                                        </MudCard>
-                                    </MudItem>
-                                }
-                            </MudGrid>
-                        </MudPaper>
-                    </MudItem>
-                </MudGrid>
-            </MudItem>
-        }
-    }
-    else
-    {
         <MudItem xs="12" md="4">
             <MudPaper Elevation="2" Class="pa-6">
                 <MudStack AlignItems="AlignItems.Center" Spacing="3">
@@ -399,6 +353,73 @@
                 </MudTabs>
             </MudPaper>
         </MudItem>
+
+        @if (authProfile is not null && (authProfile.Companies.Count > 0 || authProfile.Subscriptions.Count > 0))
+        {
+            <MudItem xs="12">
+                <MudGrid Spacing="3">
+                    @if (authProfile.Companies.Count > 0)
+                    {
+                        var companies = authProfile.Companies.ToList();
+                        var firstTwo = companies.Take(2).ToList();
+                        var rest = companies.Skip(2).ToList();
+
+                        @foreach (var company in firstTwo)
+                        {
+                            <MudItem xs="12" md="6">
+                                <MudPaper Elevation="2" Class="pa-4 subscription-card">
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.h6">@company.Name</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">CNPJ: @company.Cnpj</MudText>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @foreach (var company in rest)
+                        {
+                            <MudItem xs="12">
+                                <MudPaper Elevation="2" Class="pa-4 subscription-card">
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.h6">@company.Name</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">CNPJ: @company.Cnpj</MudText>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                    }
+                    @if (authProfile.Subscriptions.Count > 0)
+                    {
+                        @foreach (var subscription in authProfile.Subscriptions)
+                        {
+                            <MudItem xs="12">
+                                <MudPaper Elevation="2" Class="pa-4 subscription-card">
+                                    <MudStack Spacing="2">
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                            <MudText Typo="Typo.h6">@subscription.CompanyName</MudText>
+                                            <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(subscription.Status)">@subscription.Status</MudChip>
+                                        </MudStack>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">
+                                            @subscription.StartDate.ToString("dd/MM/yyyy") — @(subscription.EndDate?.ToString("dd/MM/yyyy") ?? "Sem data de término")
+                                        </MudText>
+                                        @if (subscription.Modules.Count > 0)
+                                        {
+                                            <MudDivider />
+                                            <MudText Typo="Typo.subtitle2">Módulos</MudText>
+                                            <MudStack Row="true" Spacing="1" Class="flex-wrap">
+                                                @foreach (var module in subscription.Modules)
+                                                {
+                                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@module.Name</MudChip>
+                                                }
+                                            </MudStack>
+                                        }
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                    }
+                </MudGrid>
+            </MudItem>
+        }
     }
 </MainLayout>
 
@@ -413,9 +434,6 @@
             </MudItem>
             <MudItem xs="12">
                 <MudTextField @bind-Value="editModel.Bio" Label="Biografia" Variant="Variant.Outlined" Lines="3" MaxLength="160" Counter="160" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="editModel.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" MaxLength="48" />
             </MudItem>
             <MudItem xs="12" sm="6">
                 <MudTextField @bind-Value="editModel.Website" Label="Website" Variant="Variant.Outlined" MaxLength="120" />
@@ -712,7 +730,7 @@
         {
             UserName = socialProfile.UserName,
             Bio = socialProfile.Bio,
-            ImageUrl = socialProfile.ImageUrl,
+            UploadId = socialProfile.UploadId,
             Website = socialProfile.Website,
             Location = socialProfile.Location,
             Phone = socialProfile.Phone,
@@ -759,7 +777,7 @@
                 if (uploadResult is not null && !string.IsNullOrEmpty(uploadResult.Url))
                 {
                     socialProfile!.ImageUrl = uploadResult.Url;
-                    editModel.ImageUrl = uploadResult.Url;
+                    editModel.UploadId = uploadResult.Id;
                     await SaveProfileAsync();
                 }
             }
@@ -789,7 +807,7 @@
                 Id = socialProfile.Id,
                 UserName = editModel.UserName,
                 Bio = editModel.Bio,
-                ImageUrl = editModel.ImageUrl,
+                UploadId = editModel.UploadId,
                 Website = editModel.Website,
                 Location = editModel.Location,
                 Phone = editModel.Phone,
@@ -1186,6 +1204,7 @@
         public string? UserName { get; set; }
         public string? Bio { get; set; }
         public string? ImageUrl { get; set; }
+        public Guid? UploadId { get; set; }
         public string? Website { get; set; }
         public string? Location { get; set; }
         public string? Phone { get; set; }
@@ -1201,7 +1220,7 @@
     {
         public string? UserName { get; set; }
         public string? Bio { get; set; }
-        public string? ImageUrl { get; set; }
+        public Guid? UploadId { get; set; }
         public string? Website { get; set; }
         public string? Location { get; set; }
         public string? Phone { get; set; }
