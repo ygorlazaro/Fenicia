@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Fenicia.Common.Validations;
+using Fenicia.Common;
 
 namespace Fenicia.Auth.Domains.User.DTOs;
 
