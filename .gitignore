@@ -20,3 +20,4 @@ Src/Front/.env.local
 Docker/.env
 Fenicia.Module.Basic.Tests/TestResults/*
 .idea/
+Src/APIs/Fenicia.Auth/uploads/
