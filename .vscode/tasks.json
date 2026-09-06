@@ -2,148 +2,200 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build-auth",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Auth",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Auth/Fenicia.Auth.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build: Web",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceRoot}/Src/APIs/Fenicia.Web/Fenicia.Web.csproj",
+        "-c",
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-basic",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Basic",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.Basic/Fenicia.Module.Basic.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-projects",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Projects",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-accounting",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Accounting",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.Accounting/Fenicia.Module.Accounting.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-contracts",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Contracts",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.Contracts/Fenicia.Module.Contracts.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-customersupport",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: CustomerSupport",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-ecommerce",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Ecommerce",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.Ecommerce/Fenicia.Module.Ecommerce.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-hr",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: HR",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.HR/Fenicia.Module.HR.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-performanceevaluation",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: PerformanceEvaluation",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-pos",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: POS",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.POS/Fenicia.Module.POS.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-plus",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: Plus",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.Plus/Fenicia.Module.Plus.csproj",
         "-c",
-        "Debug"
+        "Debug",
+        "--no-restore"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-socialnetwork",
-      "type": "dotnet",
-      "command": "dotnet build",
+      "label": "build: SocialNetwork",
+      "type": "shell",
+      "command": "dotnet",
       "args": [
+        "build",
         "${workspaceRoot}/Src/APIs/Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj",
+        "-c",
+        "Debug",
+        "--no-restore"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build: All APIs",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceRoot}/Fenicia.sln",
         "-c",
         "Debug"
       ],
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "group": "build"
     },
     {
-      "label": "npm: dev",
-      "type": "npm",
-      "script": "dev",
-      "path": "Src/Front",
-      "problemMatcher": {
-        "background": {
-          "activeOnStart": true,
-          "endsPattern": "ready in"
-        }
-      }
+      "label": "restore",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "restore",
+        "${workspaceRoot}/Fenicia.sln"
+      ],
+      "problemMatcher": []
     }
   ]
 }

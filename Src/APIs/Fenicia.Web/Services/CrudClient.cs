@@ -19,7 +19,7 @@ public interface ICrudClient
 
 public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextService companyContext) : ICrudClient
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
@@ -47,7 +47,7 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
             throw new CrudApiException($"Falha ao carregar: {(int)response.StatusCode} {response.StatusCode} - {body}", response.StatusCode);
         }
 
-        var paginated = JsonSerializer.Deserialize<Pagination<List<TItem>>>(body, JsonOptions);
+        var paginated = JsonSerializer.Deserialize<Pagination<List<TItem>>>(body, _jsonOptions);
         return new TableData<TItem>
         {
             TotalItems = paginated?.Total ?? 0,
@@ -58,7 +58,7 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
     public async Task<HttpResponseMessage> PostAsync<TPayload>(string endpoint, TPayload payload, CancellationToken ct)
     {
         var client = await CreateClientAsync();
-        var response = await client.PostAsJsonAsync(endpoint, payload, JsonOptions, ct);
+        var response = await client.PostAsJsonAsync(endpoint, payload, _jsonOptions, ct);
         await EnsureSuccessAsync(response, "criar");
         return response;
     }
@@ -66,7 +66,7 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
     public async Task<HttpResponseMessage> PatchAsync<TPayload>(string endpoint, Guid id, TPayload payload, CancellationToken ct)
     {
         var client = await CreateClientAsync();
-        var json = JsonSerializer.Serialize(payload, JsonOptions);
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var request = new HttpRequestMessage(HttpMethod.Patch, $"{endpoint}/{id}") { Content = content };
         var response = await client.SendAsync(request, ct);
