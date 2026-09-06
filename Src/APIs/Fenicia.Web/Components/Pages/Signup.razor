@@ -1,5 +1,6 @@
 @page "/signup"
 @rendermode InteractiveServer
+@using Fenicia.Common.Validations
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
@@ -125,6 +126,7 @@
         public string CompanyName { get; set; } = string.Empty;
 
         [Required]
+        [Cnpj]
         [MaxLength(200)]
         public string Cnpj { get; set; } = string.Empty;
     }
