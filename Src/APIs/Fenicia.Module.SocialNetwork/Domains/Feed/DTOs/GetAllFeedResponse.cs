@@ -12,4 +12,5 @@ public record GetAllFeedResponse(
     int TotalComments,
     int TotalShares,
     Guid? OriginalFeedId,
-    [MaxLength(64)] string? AuthorUserName);
+    [MaxLength(64)] string? AuthorUserName,
+    [MaxLength(200)] string? AuthorImageUrl);

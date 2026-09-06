@@ -30,9 +30,17 @@
                     </MudButton>
                     <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
                     <MudLink Href="/profile" Underline="Underline.None" Color="Color.Inherit">
-                        <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Person">
-                            @userName@(!string.IsNullOrEmpty(userRole) ? $" ({userRole})" : "")
-                        </MudButton>
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            @if (!string.IsNullOrEmpty(userImageUrl))
+                            {
+                                <MudAvatar Size="Size.Small" Style="height:28px;width:28px;overflow:hidden;">
+                                    <img src="@userImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                                </MudAvatar>
+                            }
+                            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Person">
+                                @userName@(!string.IsNullOrEmpty(userRole) ? $" ({userRole})" : "")
+                            </MudButton>
+                        </MudStack>
                     </MudLink>
                     <MudDivider Vertical="true" FlexItem="true" Class="topbar-divider" />
                     <MudLink Href="/logout" Underline="Underline.None" Color="Color.Inherit">
@@ -211,6 +219,7 @@
     private bool isLoggedIn;
     private string userName = string.Empty;
     private string userRole = string.Empty;
+    private string? userImageUrl;
     private bool jsAvailable;
     private bool drawerOpen;
     private bool showCompanyModal;
@@ -304,11 +313,13 @@
                 {
                     userName = ParseUserName(token) ?? string.Empty;
                     userRole = ParseUserRole(token) ?? string.Empty;
+                    userImageUrl = await LoadUserImageAsync();
                 }
                 else
                 {
                     userName = string.Empty;
                     userRole = string.Empty;
+                    userImageUrl = null;
                     selectedCompanyId = null;
                     selectedCompanyName = string.Empty;
                     companies = [];
@@ -323,6 +334,60 @@
         {
             Console.WriteLine($"[MainLayout] Auth check error: {ex.GetType().Name}: {ex.Message}");
         }
+    }
+
+    private async Task<string?> LoadUserImageAsync()
+    {
+        try
+        {
+            var token = await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
+
+            var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var response = await client.GetAsync("/profile");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var profile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileRef>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                return profile?.ImageUrl;
+            }
+        }
+        catch
+        {
+        }
+        return null;
+    }
+
+    private class SocialProfileRef
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string? UserName { get; set; }
+        public string? Bio { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Website { get; set; }
+        public string? Location { get; set; }
+        public string? Phone { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
+        public int PostsCount { get; set; }
+        public int FollowersCount { get; set; }
+        public int FollowingCount { get; set; }
     }
 
     private async Task LoadCompaniesAsync()

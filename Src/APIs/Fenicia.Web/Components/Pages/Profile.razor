@@ -6,6 +6,8 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 <PageTitle>@(IsOwnProfile ? "Meu Perfil" : "Perfil") - Fenicia</PageTitle>
 
@@ -24,10 +26,20 @@
     {
         <MudItem xs="12" md="4">
             <MudPaper Elevation="2" Class="pa-6">
-                <MudStack AlignItems="AlignItems.Center" Spacing="3">
-                    <MudAvatar Color="Color.Primary" Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
-                        @GetInitial()
-                    </MudAvatar>
+                <MudStack AlignItems="AlignItems.Start" Spacing="3">
+                    @if (!string.IsNullOrEmpty(socialProfile?.ImageUrl))
+                    {
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;border-radius:50%;overflow:hidden;cursor:pointer;" @onclick="TriggerUpload">
+                            <img src="@socialProfile.ImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Color="Color.Primary" Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;cursor:pointer;" @onclick="TriggerUpload">
+                            @GetInitial()
+                        </MudAvatar>
+                    }
+                    <InputFile id="profileImageInput" OnChange="HandleImageUpload" accept="image/*" hidden />
                     <MudText Typo="Typo.h5" Align="Align.Center">@DisplayName()</MudText>
                     @if (!string.IsNullOrEmpty(socialProfile?.Location))
                     {
@@ -173,9 +185,18 @@
         <MudItem xs="12" md="4">
             <MudPaper Elevation="2" Class="pa-6">
                 <MudStack AlignItems="AlignItems.Center" Spacing="3">
-                    <MudAvatar Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
-                        @GetInitial()
-                    </MudAvatar>
+                    @if (!string.IsNullOrEmpty(socialProfile?.ImageUrl))
+                    {
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;border-radius:50%;overflow:hidden;">
+                            <img src="@socialProfile.ImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
+                            @GetInitial()
+                        </MudAvatar>
+                    }
                     <MudText Typo="Typo.h5" Align="Align.Center">@GetDisplayName()</MudText>
                     @if (!string.IsNullOrEmpty(socialProfile?.UserName))
                     {
@@ -698,6 +719,62 @@
             BirthDateValue = socialProfile.BirthDate,
         };
     }
+
+    private void TriggerUpload()
+    {
+        if (!IsOwnProfile) return;
+        JSRuntime.InvokeVoidAsync("eval", "document.getElementById('profileImageInput').click()");
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs args)
+    {
+        if (!IsOwnProfile || socialProfile is null || args.FileCount == 0) return;
+
+        try
+        {
+            var file = args.File;
+            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            var content = new MultipartFormDataContent();
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.Name);
+
+            var authApiBaseUrl = new Uri(Configuration["ApiBaseUrl"] ?? "http://localhost:5000");
+            var uploadUrl = new Uri(authApiBaseUrl, "upload").ToString();
+
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var response = await client.PostAsync(uploadUrl, content);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var uploadResult = System.Text.Json.JsonSerializer.Deserialize<UploadResult>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (uploadResult is not null && !string.IsNullOrEmpty(uploadResult.Url))
+                {
+                    socialProfile!.ImageUrl = uploadResult.Url;
+                    editModel.ImageUrl = uploadResult.Url;
+                    await SaveProfileAsync();
+                }
+            }
+            else
+            {
+                Snackbar.Add($"Falha ao enviar imagem: {(int)response.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private record UploadResult(Guid Id, string OriginalFileName, string StoredFileName, string ContentType, long SizeBytes, string Url);
 
     private async Task SaveProfileAsync()
     {

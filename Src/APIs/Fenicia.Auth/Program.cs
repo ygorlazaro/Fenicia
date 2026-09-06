@@ -24,10 +24,12 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.Interfaces;
+using Fenicia.Auth.Domains.Upload;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
+using Fenicia.Common.API;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -87,6 +89,7 @@ public class Program
                 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
                 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
                 builder.Services.AddScoped<IOrderService, OrderService>();
+                builder.Services.Configure<UploadOptions>(configuration.GetSection("Upload"));
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
@@ -98,6 +101,7 @@ public class Program
         }
 
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
+        app.UseStaticFiles();
         app.UseAuthentication();
         app.UseAuthorization();
 

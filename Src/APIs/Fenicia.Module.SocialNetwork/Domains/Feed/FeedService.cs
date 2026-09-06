@@ -26,7 +26,8 @@ public class FeedService(FeedRepository repository)
                 f.TotalComments,
                 f.TotalShares,
                 f.OriginalFeedId,
-                f.Profile?.UserName))
+                f.Profile?.UserName,
+                f.Profile?.ImageUrl))
         ];
     }
 
@@ -52,7 +53,8 @@ public class FeedService(FeedRepository repository)
                 f.TotalComments,
                 f.TotalShares,
                 f.OriginalFeedId,
-                f.Profile?.UserName))
+                f.Profile?.UserName,
+                f.Profile?.ImageUrl))
         ];
     }
 
@@ -75,7 +77,8 @@ public class FeedService(FeedRepository repository)
                 feed.TotalComments,
                 feed.TotalShares,
                 feed.OriginalFeedId,
-                feed.Profile?.UserName)
+                feed.Profile?.UserName,
+                feed.Profile?.ImageUrl)
         };
     }
 

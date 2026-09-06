@@ -30,9 +30,18 @@
             {
                 <MudPaper Elevation="2" Class="pa-4 post-card mb-4">
                     <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
-                        <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/profile/" + post.ProfileId))">
-                            @GetInitial(post.AuthorUserName ?? post.Text)
-                        </MudAvatar>
+                        @if (!string.IsNullOrEmpty(post.AuthorImageUrl))
+                        {
+                            <MudAvatar Size="Size.Medium" Style="cursor:pointer;overflow:hidden;" @onclick="@(() => NavigationManager.NavigateTo("/profile/" + post.ProfileId))">
+                                <img src="@post.AuthorImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                            </MudAvatar>
+                        }
+                        else
+                        {
+                            <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/profile/" + post.ProfileId))">
+                                @GetInitial(post.AuthorUserName ?? post.Text)
+                            </MudAvatar>
+                        }
                         <div class="flex-grow-1">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
                                 <MudLink Href="@($"/profile/{post.ProfileId}")" Color="Color.Default" Underline="Underline.None">
@@ -696,6 +705,7 @@
         public int TotalShares { get; set; }
         public Guid? OriginalFeedId { get; set; }
         public string? AuthorUserName { get; set; }
+        public string? AuthorImageUrl { get; set; }
         public bool IsLikedByMe { get; set; }
     }
 
