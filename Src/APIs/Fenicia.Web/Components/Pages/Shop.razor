@@ -36,8 +36,9 @@
                     <MudGrid Spacing="4">
                         @foreach (var module in modules)
                         {
+                            var isSelected = selectedModules.Contains(module.Id);
                             <MudItem xs="12" sm="6" md="4">
-                                <MudCard Elevation="2" Class="h-100 module-card" @onclick="() => ToggleModule(module.Id)">
+                                <MudCard Elevation="2" Class="@($"h-100 module-card {(isSelected ? "module-card-selected" : "")}")" @onclick="() => ToggleModule(module.Id)">
                                     <MudCardContent>
                                         <MudStack Spacing="1">
                                             <MudText Typo="Typo.h6">@TranslateModuleName(module.Name)</MudText>
@@ -87,12 +88,17 @@
 <style>
     .module-card {
         cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
     }
 
     .module-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-card-selected {
+        background-color: rgba(25, 118, 210, 0.08);
+        border: 2px solid rgba(25, 118, 210, 0.4);
     }
 
     .module-price {
