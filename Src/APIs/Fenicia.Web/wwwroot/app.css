@@ -113,9 +113,13 @@ h1:focus {
    AppBar / MainLayout
    ============================================ */
     .fenicia-appbar {
-        background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%) !important;
+        background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
         backdrop-filter: blur(10px);
         overflow: visible !important;
+    }
+
+    .home-appbar {
+        background: white !important;
     }
 
     .mud-layout {
@@ -134,6 +138,7 @@ h1:focus {
         border-radius: 0 !important;
         flex-shrink: 0;
         margin-top: auto;
+        text-align: right;
     }
 
     .fenicia-footer .mud-typography {
@@ -187,17 +192,17 @@ h1:focus {
 /* Outlined buttons meant to sit on dark/colored backgrounds */
 .btn-on-dark,
 .btn-on-dark.mud-button-outlined {
-    color: white !important;
-    border-color: white !important;
+    color: #ff6f00 !important;
+    border-color: #ff6f00 !important;
     text-transform: none !important;
     font-weight: 600 !important;
 }
 
     .btn-on-dark:hover,
     .btn-on-dark.mud-button-outlined:hover {
-        background: rgba(255, 255, 255, 0.12) !important;
-        border-color: white !important;
-        color: white !important;
+        background: rgba(255, 111, 0, 0.12) !important;
+        border-color: #ff6f00 !important;
+        color: #ff6f00 !important;
     }
 
 /* ============================================

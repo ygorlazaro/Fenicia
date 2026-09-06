@@ -1,150 +1,249 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Auth",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "npm: dev",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Auth/Fenicia.Auth.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Basic",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.Basic/Fenicia.Module.Basic.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Projects",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Accounting",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.Accounting/Fenicia.Module.Accounting.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Contracts",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.Contracts/Fenicia.Module.Contracts.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "CustomerSupport",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Ecommerce",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.Ecommerce/Fenicia.Module.Ecommerce.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "HR",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.HR/Fenicia.Module.HR.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "PerformanceEvaluation",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "POS",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.POS/Fenicia.Module.POS.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Plus",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.Plus/Fenicia.Module.Plus.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "SocialNetwork",
-      "type": "coreclr",
-      "request": "launch",
-      "projectPath": "${workspaceRoot}/Src/APIs/Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj",
-      "launchProfile": "http",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Full Stack",
-      "configurations": [
-        "Auth",
-        "Basic",
-        "Projects",
-        "Accounting",
-        "Contracts",
-        "CustomerSupport",
-        "Ecommerce",
-        "HR",
-        "PerformanceEvaluation",
-        "POS",
-        "Plus",
-        "SocialNetwork"
-      ],
-      "presentation": {
-        "hidden": false,
-        "group": "1_fullstack",
-        "order": 1
-      }
-    }
-  ]
+    "compounds": [
+        {
+            "configurations": [
+                ".NET Core Launch (Auth)",
+                ".NET Core Launch (Web)",
+                ".NET Core Launch (Basic)",
+                ".NET Core Launch (Projects)",
+                ".NET Core Launch (Accounting)",
+                ".NET Core Launch (Contracts)",
+                ".NET Core Launch (CustomerSupport)",
+                ".NET Core Launch (Ecommerce)",
+                ".NET Core Launch (HR)",
+                ".NET Core Launch (PerformanceEvaluation)",
+                ".NET Core Launch (POS)",
+                ".NET Core Launch (Plus)",
+                ".NET Core Launch (SocialNetwork)"
+            ],
+            "name": "All APIs"
+        },
+        {
+            "configurations": [
+                ".NET Core Launch (Basic)",
+                ".NET Core Launch (Projects)",
+                ".NET Core Launch (Accounting)",
+                ".NET Core Launch (Contracts)",
+                ".NET Core Launch (CustomerSupport)",
+                ".NET Core Launch (Ecommerce)",
+                ".NET Core Launch (HR)",
+                ".NET Core Launch (PerformanceEvaluation)",
+                ".NET Core Launch (POS)",
+                ".NET Core Launch (Plus)",
+                ".NET Core Launch (SocialNetwork)"
+            ],
+            "name": "All Modules"
+        }
+    ],
+    "configurations": [
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Auth/bin/Debug/net10.0/Fenicia.Auth.dll",
+                "--urls",
+                "http://localhost:5000"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Auth",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Auth)",
+            "preLaunchTask": "build: Auth",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Web/bin/Debug/net10.0/Fenicia.Web.dll",
+                "--urls",
+                "http://localhost:5104"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Web",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Web)",
+            "preLaunchTask": "build: Web",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.Basic/bin/Debug/net10.0/Fenicia.Module.Basic.dll",
+                "--urls",
+                "http://localhost:5083"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.Basic",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Basic)",
+            "preLaunchTask": "build: Basic",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.Projects/bin/Debug/net10.0/Fenicia.Module.Projects.dll",
+                "--urls",
+                "http://localhost:5144"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.Projects",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Projects)",
+            "preLaunchTask": "build: Projects",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.Accounting/bin/Debug/net10.0/Fenicia.Module.Accounting.dll",
+                "--urls",
+                "http://localhost:5010"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.Accounting",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Accounting)",
+            "preLaunchTask": "build: Accounting",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.Contracts/bin/Debug/net10.0/Fenicia.Module.Contracts.dll",
+                "--urls",
+                "http://localhost:5012"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.Contracts",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Contracts)",
+            "preLaunchTask": "build: Contracts",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.CustomerSupport/bin/Debug/net10.0/Fenicia.Module.CustomerSupport.dll",
+                "--urls",
+                "http://localhost:5014"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.CustomerSupport",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (CustomerSupport)",
+            "preLaunchTask": "build: CustomerSupport",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.Ecommerce/bin/Debug/net10.0/Fenicia.Module.Ecommerce.dll",
+                "--urls",
+                "http://localhost:5016"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.Ecommerce",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Ecommerce)",
+            "preLaunchTask": "build: Ecommerce",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.HR/bin/Debug/net10.0/Fenicia.Module.HR.dll",
+                "--urls",
+                "http://localhost:5018"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.HR",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (HR)",
+            "preLaunchTask": "build: HR",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.PerformanceEvaluation/bin/Debug/net10.0/Fenicia.Module.PerformanceEvaluation.dll",
+                "--urls",
+                "http://localhost:5020"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.PerformanceEvaluation",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (PerformanceEvaluation)",
+            "preLaunchTask": "build: PerformanceEvaluation",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.POS/bin/Debug/net10.0/Fenicia.Module.POS.dll",
+                "--urls",
+                "http://localhost:5022"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.POS",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (POS)",
+            "preLaunchTask": "build: POS",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.Plus/bin/Debug/net10.0/Fenicia.Module.Plus.dll",
+                "--urls",
+                "http://localhost:5024"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.Plus",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (Plus)",
+            "preLaunchTask": "build: Plus",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        },
+        {
+            "args": [
+                "${workspaceFolder}/Src/APIs/Fenicia.Module.SocialNetwork/bin/Debug/net10.0/Fenicia.Module.SocialNetwork.dll",
+                "--urls",
+                "http://localhost:5026"
+            ],
+            "cwd": "${workspaceFolder}/Src/APIs/Fenicia.Module.SocialNetwork",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "name": ".NET Core Launch (SocialNetwork)",
+            "preLaunchTask": "build: SocialNetwork",
+            "program": "dotnet",
+            "request": "launch",
+            "type": "coreclr"
+        }
+    ],
+    "version": "0.2.0"
 }
