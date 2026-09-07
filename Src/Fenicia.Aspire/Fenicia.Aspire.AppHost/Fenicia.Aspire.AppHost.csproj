@@ -1,0 +1,38 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>34404a0a-55d2-4df9-92a4-6266b495ed4f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fenicia.Aspire.ApiService\Fenicia.Aspire.ApiService.csproj" />
+    <ProjectReference Include="..\Fenicia.Aspire.Web\Fenicia.Aspire.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\APIs\Fenicia.Auth\Fenicia.Auth.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.Accounting\Fenicia.Module.Accounting.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.Contracts\Fenicia.Module.Contracts.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.CustomerSupport\Fenicia.Module.CustomerSupport.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.Ecommerce\Fenicia.Module.Ecommerce.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.HR\Fenicia.Module.HR.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.PerformanceEvaluation\Fenicia.Module.PerformanceEvaluation.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.Plus\Fenicia.Module.Plus.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.POS\Fenicia.Module.POS.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.Projects\Fenicia.Module.Projects.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Module.SocialNetwork\Fenicia.Module.SocialNetwork.csproj" />
+    <ProjectReference Include="..\..\APIs\Fenicia.Web\Fenicia.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.5.3" />
+    <PackageReference Include="Aspire.Hosting.PostgreSql" Version="13.5.3" />
+  </ItemGroup>
+
+</Project>
