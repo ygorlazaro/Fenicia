@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
@@ -23,7 +24,7 @@ public class PositionControllerTests : IDisposable
     {
         _mockService = new Mock<IPositionService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new PositionController(_mockService.Object)
+        _controller = new PositionController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());
@@ -39,7 +40,7 @@ public class PositionControllerTests : IDisposable
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         // Arrange
-        var command = new AddPositionCommand(Guid.NewGuid(), _faker.Commerce.Department());
+        var command = new AddPositionCommand(_faker.Commerce.Department());
         var wide = new WideEventContext();
 
         // Act
@@ -156,7 +157,7 @@ public class PositionControllerTests : IDisposable
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((AddPositionCommand cmd, Guid _, CancellationToken _) =>
-                new AddPositionResponse(cmd.Id, cmd.Name));
+                new AddPositionResponse(Guid.NewGuid(), cmd.Name));
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdatePositionCommand>(),

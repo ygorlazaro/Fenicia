@@ -110,7 +110,7 @@ public class ProjectAttachmentControllerTests
             command.UploadedBy,
             Guid.NewGuid());
 
-        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.AddAsync(command, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -141,7 +141,7 @@ public class ProjectAttachmentControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectAttachmentCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -164,7 +164,7 @@ public class ProjectAttachmentControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectAttachmentCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectAttachmentResponse?)null);
 

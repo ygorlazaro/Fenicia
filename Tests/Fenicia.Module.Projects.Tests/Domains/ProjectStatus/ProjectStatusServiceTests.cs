@@ -33,7 +33,7 @@ public class ProjectStatusServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectStatusModel>(statuses));
+        _mockRepository.Setup(r => r.Query()).Returns(statuses.AsAsyncQueryable());
 
         var result = await _service.GetAllAsync(new GetAllProjectStatusQuery(), CancellationToken.None);
 

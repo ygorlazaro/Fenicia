@@ -31,7 +31,7 @@ public class ProjectTaskAssigneeServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<TaskAssigneeModel>(assignees));
+        _mockRepository.Setup(r => r.Query()).Returns(assignees.AsAsyncQueryable());
 
         var result = await _service.GetAllAsync(new GetAllProjectTaskAssigneeQuery(), CancellationToken.None);
 

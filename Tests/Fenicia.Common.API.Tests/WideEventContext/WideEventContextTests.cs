@@ -10,8 +10,8 @@ public class WideEventContextTests
     {
         var wide = new API.WideEventContext();
 
-        wide.Path.Should().BeNull();
-        wide.Method.Should().BeNull();
+        wide.Path.Should().BeEmpty();
+        wide.Method.Should().BeEmpty();
         wide.StatusCode.Should().Be(0);
         wide.DurationMs.Should().Be(0);
         wide.UserId.Should().BeNull();

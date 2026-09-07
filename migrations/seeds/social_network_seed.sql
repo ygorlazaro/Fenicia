@@ -63,40 +63,41 @@ BEGIN;
 -- ============================================================
 INSERT INTO auth.states (id, name, uf, created, updated)
 SELECT
-  md5('estado-' || i::text)::uuid,
-  nome,
-  uf,
-  now() - (random() * interval '365 days'),
-  now() - (random() * interval '365 days')
+   md5('estado-' || i::text)::uuid,
+   nome,
+   uf,
+   now() - (random() * interval '365 days'),
+   now() - (random() * interval '365 days')
 FROM (VALUES
-  (1, 'Acre', 'AC'),
-  (2, 'Alagoas', 'AL'),
-  (3, 'Amapá', 'AP'),
-  (4, 'Amazonas', 'AM'),
-  (5, 'Bahia', 'BA'),
-  (6, 'Ceará', 'CE'),
-  (7, 'Distrito Federal', 'DF'),
-  (8, 'Espírito Santo', 'ES'),
-  (9, 'Goiás', 'GO'),
-  (10, 'Maranhão', 'MA'),
-  (11, 'Mato Grosso', 'MT'),
-  (12, 'Mato Grosso do Sul', 'MS'),
-  (13, 'Minas Gerais', 'MG'),
-  (14, 'Pará', 'PA'),
-  (15, 'Paraíba', 'PB'),
-  (16, 'Paraná', 'PR'),
-  (17, 'Pernambuco', 'PE'),
-  (18, 'Piauí', 'PI'),
-  (19, 'Rio de Janeiro', 'RJ'),
-  (20, 'Rio Grande do Norte', 'RN'),
-  (21, 'Rio Grande do Sul', 'RS'),
-  (22, 'Rondônia', 'RO'),
-  (23, 'Roraima', 'RR'),
-  (24, 'Santa Catarina', 'SC'),
-  (25, 'São Paulo', 'SP'),
-  (26, 'Sergipe', 'SE'),
-  (27, 'Tocantins', 'TO')
-) AS t(i, nome, uf);
+   (1, 'Acre', 'AC'),
+   (2, 'Alagoas', 'AL'),
+   (3, 'Amapá', 'AP'),
+   (4, 'Amazonas', 'AM'),
+   (5, 'Bahia', 'BA'),
+   (6, 'Ceará', 'CE'),
+   (7, 'Distrito Federal', 'DF'),
+   (8, 'Espírito Santo', 'ES'),
+   (9, 'Goiás', 'GO'),
+   (10, 'Maranhão', 'MA'),
+   (11, 'Mato Grosso', 'MT'),
+   (12, 'Mato Grosso do Sul', 'MS'),
+   (13, 'Minas Gerais', 'MG'),
+   (14, 'Pará', 'PA'),
+   (15, 'Paraíba', 'PB'),
+   (16, 'Paraná', 'PR'),
+   (17, 'Pernambuco', 'PE'),
+   (18, 'Piauí', 'PI'),
+   (19, 'Rio de Janeiro', 'RJ'),
+   (20, 'Rio Grande do Norte', 'RN'),
+   (21, 'Rio Grande do Sul', 'RS'),
+   (22, 'Rondônia', 'RO'),
+   (23, 'Roraima', 'RR'),
+   (24, 'Santa Catarina', 'SC'),
+   (25, 'São Paulo', 'SP'),
+   (26, 'Sergipe', 'SE'),
+   (27, 'Tocantins', 'TO')
+) AS t(i, nome, uf)
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 2. EMPRESA
@@ -104,12 +105,13 @@ FROM (VALUES
 INSERT INTO auth.companies (id, name, cnpj, is_active, created, updated)
 VALUES (
   '00000000-0000-0000-0000-000000000001'::uuid,
-  'Fenicia Tech Ltda',
-  '12345678000190',
+  'Gato Ninja',
+  '23351185000184',
   true,
   now() - interval '365 days',
   now()
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 3. ROLES (4 roles)
@@ -125,7 +127,8 @@ SELECT
   END,
   now() - interval '365 days',
   now()
-FROM generate_series(1, 4) AS i;
+FROM generate_series(1, 4) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 4. USUÁRIOS (100)
@@ -139,7 +142,8 @@ SELECT
   CASE WHEN i % 5 = 0 THEN 'https://i.pravatar.cc/150?u=' || i ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 5. USERS_ROLES (100)
@@ -152,7 +156,8 @@ SELECT
   '00000000-0000-0000-0000-000000000001'::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 6. CARGOS (100)
@@ -265,7 +270,8 @@ SELECT
   END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 7. MÓDULOS (12)
@@ -295,7 +301,8 @@ SELECT
   i,
   now() - interval '365 days',
   now()
-FROM generate_series(0, 11) AS i;
+FROM generate_series(0, 11) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 8. ENDEREÇOS (100)
@@ -366,7 +373,8 @@ CROSS JOIN LATERAL (
     (39, 'Caxias do Sul'),
     (40, 'Maringá')
 ) AS cidades(seed, cidade)
-WHERE i = cidades.seed OR (i % 40) + 1 = cidades.seed;
+WHERE i = cidades.seed OR (i % 40) + 1 = cidades.seed
+ON CONFLICT (id) DO NOTHING;
 
 -- Vincula endereço à empresa
 UPDATE auth.companies SET address_id = md5('addr-1')::uuid WHERE id = '00000000-0000-0000-0000-000000000001'::uuid;
@@ -401,7 +409,8 @@ SELECT
   md5('estado-' || ((i % 27) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 200) AS i;
+FROM generate_series(1, 200) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 10. CATEGORIAS DE PRODUTO (50)
@@ -464,7 +473,8 @@ SELECT
   END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 50) AS i;
+FROM generate_series(1, 50) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 11. FORNECEDORES (30)
@@ -477,7 +487,8 @@ SELECT
   lpad((i % 90000000000000 + 10000000000000)::text, 14, '0'),
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 30) AS i;
+FROM generate_series(1, 30) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 12. CLIENTES (50)
@@ -489,7 +500,8 @@ SELECT
   md5('person-' || (i + 100)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 50) AS i;
+FROM generate_series(1, 50) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 13. FUNCIONÁRIOS (80)
@@ -502,7 +514,8 @@ SELECT
   md5('pos-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 80) AS i;
+FROM generate_series(1, 80) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 14. PERSON_ADDRESSES (100)
@@ -515,7 +528,8 @@ SELECT
   md5('addr-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 15. PRODUTOS (100)
@@ -557,7 +571,8 @@ SELECT
   true,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 16. PEDIDOS BASIC (80)
@@ -583,7 +598,8 @@ SELECT
   CASE WHEN i % 5 = 0 THEN 'Observação do pedido ' || i ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 80) AS i;
+FROM generate_series(1, 80) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 17. ITENS DE PEDIDO BASIC (200)
@@ -602,7 +618,8 @@ SELECT
   (random() * 5 + 1)::double precision,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 200) AS i;
+FROM generate_series(1, 200) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 18. MOVIMENTAÇÕES DE ESTOQUE (100)
@@ -631,7 +648,8 @@ SELECT
   CASE WHEN i % 3 = 0 THEN md5('ord-' || ((i % 80) + 1)::text)::uuid ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 19. PEDIDOS AUTH (40)
@@ -654,7 +672,8 @@ SELECT
   CASE WHEN i % 5 = 0 THEN 'Pedido módulo ' || i ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 40) AS i;
+FROM generate_series(1, 40) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 20. DETALHES DE PEDIDO AUTH (100)
@@ -671,7 +690,8 @@ SELECT
   (random() * 500 + 50)::numeric(10,2),
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 21. SUBSCRIPTIONS (30)
@@ -688,7 +708,8 @@ SELECT
   md5('authord-' || ((i % 40) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 30) AS i;
+FROM generate_series(1, 30) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 22. SUBSCRIPTION CREDITS (60)
@@ -707,7 +728,8 @@ SELECT
   md5('authod-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 60) AS i;
+FROM generate_series(1, 60) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 23. CONFIGURAÇÕES (100)
@@ -726,7 +748,8 @@ SELECT
   md5('user-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 24. NOTIFICAÇÕES (80)
@@ -744,7 +767,8 @@ SELECT
   i % 3 = 0,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 80) AS i;
+FROM generate_series(1, 80) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 25. FORGOT PASSWORDS (20)
@@ -762,7 +786,8 @@ SELECT
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
   now() - (random() * interval '7 days'),
   now() - (random() * interval '7 days')
-FROM generate_series(1, 20) AS i;
+FROM generate_series(1, 20) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 26. UPLOADS (100) — schema public
@@ -779,7 +804,8 @@ SELECT
   'https://fenicia.s3.amazonaws.com/uploads/stored-' || i || '.jpg',
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 27. PROFILES (100) — social_network
@@ -799,7 +825,8 @@ SELECT
   date '1990-01-01' + (i % 12000),
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 28. PROJECTS (20)
@@ -824,7 +851,8 @@ SELECT
   md5('user-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 20) AS i;
+FROM generate_series(1, 20) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 29. PROJECT STATUSES (60)
@@ -856,7 +884,8 @@ SELECT
   ((i-1) % 6) = 4,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 60) AS i;
+FROM generate_series(1, 60) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 30. SPRINTS (40)
@@ -875,7 +904,8 @@ SELECT
   md5('user-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '180 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 40) AS i;
+FROM generate_series(1, 40) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 31. TASKS (100)
@@ -906,7 +936,8 @@ SELECT
   CASE WHEN i % 2 = 0 THEN md5('spr-' || ((i % 40) + 1)::text)::uuid ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 32. SUBTASKS (200)
@@ -925,7 +956,8 @@ SELECT
   CASE WHEN i % 3 = 0 THEN now() - (random() * interval '30 days') ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 200) AS i;
+FROM generate_series(1, 200) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 33. TASK ASSIGNEES (200)
@@ -942,7 +974,8 @@ SELECT
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 200) AS i;
+FROM generate_series(1, 200) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 34. PROJECT COMMENTS (100)
@@ -959,7 +992,8 @@ SELECT
   'Comentário no task ' || ((i % 100) + 1) || ' pelo usuário ' || ((i % 100) + 1) || '.',
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 35. PROJECT ATTACHMENTS (50)
@@ -980,7 +1014,8 @@ SELECT
   md5('user-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 50) AS i;
+FROM generate_series(1, 50) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 36. TEAMS (20)
@@ -1010,7 +1045,8 @@ SELECT
   md5('user-' || ((i % 100) + 1)::text)::uuid,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 20) AS i;
+FROM generate_series(1, 20) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 37. TEAM USERS (60)
@@ -1027,7 +1063,8 @@ SELECT
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 60) AS i;
+FROM generate_series(1, 60) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 38. FEEDS (200)
@@ -1054,7 +1091,8 @@ SELECT
   (random() * 20)::int,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 200) AS i;
+FROM generate_series(1, 200) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 39. SOCIAL COMMENTS (300)
@@ -1078,7 +1116,8 @@ SELECT
   CASE WHEN i % 4 = 0 THEN now() - (random() * interval '30 days') ELSE NULL END,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 300) AS i;
+FROM generate_series(1, 300) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 40. LIKES (400)
@@ -1095,7 +1134,8 @@ SELECT
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 400) AS i;
+FROM generate_series(1, 400) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 41. SHARES (50)
@@ -1112,7 +1152,8 @@ SELECT
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 50) AS i;
+FROM generate_series(1, 50) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 42. FRIENDSHIPS (100)
@@ -1128,7 +1169,8 @@ SELECT
   i % 10 <> 0,
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 43. BLOCKS (10)
@@ -1149,7 +1191,8 @@ SELECT
   i % 2 = 0,
   now() - (random() * interval '180 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 10) AS i;
+FROM generate_series(1, 10) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 44. REPORTS (20)
@@ -1172,7 +1215,8 @@ SELECT
   now() - (random() * interval '180 days'),
   now() - (random() * interval '180 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 20) AS i;
+FROM generate_series(1, 20) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 45. SOCIAL ATTACHMENTS (50)
@@ -1190,7 +1234,8 @@ SELECT
   now() - (random() * interval '365 days'),
   now() - (random() * interval '30 days'),
   now() - (random() * interval '30 days')
-FROM generate_series(1, 50) AS i;
+FROM generate_series(1, 50) AS i
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- VALIDAÇÃO FINAL

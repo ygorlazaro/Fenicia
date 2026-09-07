@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
@@ -23,7 +24,7 @@ public class ProductControllerTests : IDisposable
     {
         _mockService = new Mock<IProductService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new ProductController(_mockService.Object)
+        _controller = new ProductController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         _faker = new Faker();
         SetupUserClaims(Guid.NewGuid());

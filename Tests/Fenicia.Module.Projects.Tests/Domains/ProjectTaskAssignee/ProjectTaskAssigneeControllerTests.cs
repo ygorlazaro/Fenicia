@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
@@ -24,7 +25,7 @@ public class ProjectTaskAssigneeControllerTests
         _mockService = new Mock<IProjectTaskAssigneeService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectTaskAssigneeController(_mockService.Object)
+        _controller = new ProjectTaskAssigneeController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -102,7 +103,7 @@ public class ProjectTaskAssigneeControllerTests
             command.AssignedAt,
             Guid.NewGuid());
 
-        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.AddAsync(command, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -131,7 +132,7 @@ public class ProjectTaskAssigneeControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectTaskAssigneeCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -153,7 +154,7 @@ public class ProjectTaskAssigneeControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectTaskAssigneeCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectTaskAssigneeResponse?)null);
 

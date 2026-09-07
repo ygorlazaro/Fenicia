@@ -33,7 +33,7 @@ public class ProjectAttachmentServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<AttachmentModel>(attachments));
+        _mockRepository.Setup(r => r.Query()).Returns(attachments.AsAsyncQueryable());
 
         var result = await _service.GetAllAsync(new GetAllProjectAttachmentQuery(), CancellationToken.None);
 

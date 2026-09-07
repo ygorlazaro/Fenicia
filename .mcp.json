@@ -6,6 +6,13 @@
         "-y",
         "arko-mcp@latest"
       ]
+    },
+    "aspire": {
+      "command": "aspire",
+      "args": [
+        "agent",
+        "mcp"
+      ]
     }
   }
 }

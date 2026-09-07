@@ -38,7 +38,7 @@ public class ProjectServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectModel>(projects));
+        _mockRepository.Setup(r => r.Query()).Returns(projects.AsAsyncQueryable());
 
         var result = await _service.GetAllAsync(new GetAllProjectQuery(), CancellationToken.None);
 

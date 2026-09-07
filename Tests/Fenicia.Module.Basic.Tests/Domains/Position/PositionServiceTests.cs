@@ -83,7 +83,7 @@ public class PositionServiceTests : IDisposable
     public async Task AddAsync_WhenCommandIsValid_CreatesPosition()
     {
         // Arrange
-        var command = new AddPositionCommand(Guid.NewGuid(), _faker.Commerce.Department());
+        var command = new AddPositionCommand(_faker.Commerce.Department());
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<PositionModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PositionModel p, CancellationToken _) => p);
 

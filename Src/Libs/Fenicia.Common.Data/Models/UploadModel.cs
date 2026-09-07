@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fenicia.Common.Data.Models;
 
-[Table("uploads", Schema = "public")]
+[Table("uploads", Schema = "auth")]
 public sealed class UploadModel : BaseModel
 {
     [Required]

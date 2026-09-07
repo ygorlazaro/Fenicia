@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Enums.Project;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTask;
 using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
@@ -25,7 +26,7 @@ public class ProjectTaskControllerTests
         _mockService = new Mock<IProjectTaskService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectTaskController(_mockService.Object)
+        _controller = new ProjectTaskController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -49,7 +50,13 @@ public class ProjectTaskControllerTests
                 null,
                 null,
                 _testUserId,
-                Guid.NewGuid())
+                Guid.NewGuid(),
+                [],
+                0,
+                0,
+                0,
+                null,
+                null)
         };
 
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectTaskQuery>(), It.IsAny<CancellationToken>()))
@@ -80,7 +87,9 @@ public class ProjectTaskControllerTests
             [],
             [],
             [],
-            []);
+            [],
+            null,
+            null);
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectTaskByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(task);
@@ -117,7 +126,8 @@ public class ProjectTaskControllerTests
             1,
             null,
             null,
-            _testUserId);
+            _testUserId,
+            null);
         var response = new AddProjectTaskResponse(
             command.Id,
             command.ProjectId,
@@ -130,9 +140,11 @@ public class ProjectTaskControllerTests
             command.EstimatePoints,
             command.DueDate,
             command.CreatedBy,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null,
+            null);
 
-        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.AddAsync(command, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -156,7 +168,8 @@ public class ProjectTaskControllerTests
             2,
             null,
             null,
-            _testUserId);
+            _testUserId,
+            null);
         var response = new UpdateProjectTaskResponse(
             command.Id,
             command.ProjectId,
@@ -169,11 +182,13 @@ public class ProjectTaskControllerTests
             command.EstimatePoints,
             command.DueDate,
             command.CreatedBy,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null,
+            null);
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectTaskCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -197,11 +212,12 @@ public class ProjectTaskControllerTests
             1,
             null,
             null,
-            _testUserId);
+            _testUserId,
+            null);
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectTaskCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectTaskResponse?)null);
 

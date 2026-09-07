@@ -1,23 +1,29 @@
 using AwesomeAssertions;
 using Bogus;
+using Fenicia.Common.Data;
+using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Module.Basic.Domains.Address.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Address;
 
 public class AddressServiceTests : IDisposable
 {
+    private readonly DbContextOptions<DefaultContext> _dbOptions;
     private readonly Faker _faker;
-    private readonly Mock<IAddressRepository> _mockRepository;
-    private readonly AddressService _service;
+    private readonly Mock<ICompanyContext> _mockCompanyContext;
 
     public AddressServiceTests()
     {
-        _mockRepository = new Mock<IAddressRepository>();
-        _service = new AddressService(_mockRepository.Object);
+        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         _faker = new Faker();
+        _mockCompanyContext = new Mock<ICompanyContext>();
     }
 
     public void Dispose()
@@ -39,25 +45,15 @@ public class AddressServiceTests : IDisposable
             _faker.Address.City(),
             _faker.Address.Country());
         var state = new StateModel { Id = command.StateId, Name = "State", Uf = "ST" };
-        var address = new AddressModel
-        {
-            Id = Guid.NewGuid(),
-            Street = command.Street,
-            Number = command.Number,
-            Complement = command.Complement,
-            Neighborhood = command.Neighborhood,
-            ZipCode = command.ZipCode,
-            StateId = command.StateId,
-            State = state,
-            City = command.City,
-            Country = command.Country
-        };
 
-        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<AddressModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(address);
+        var db = NewDb();
+        db.AuthStates.Add(state);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var service = CreateService(db);
 
         // Act
-        var result = await _service.AddAsync(command, CancellationToken.None);
+        var result = await service.AddAsync(command, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -87,17 +83,28 @@ public class AddressServiceTests : IDisposable
             Neighborhood = "Old Neighborhood",
             ZipCode = "00000000",
             StateId = stateId,
-            State = state,
             City = "Old City",
             Country = "Old Country"
         };
 
-        _mockRepository.Setup(r => r.UpdateAsync(address.Id, It.IsAny<AddressModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, AddressModel a, CancellationToken _) =>
+        var db = NewDb();
+        db.AuthStates.Add(state);
+        db.AuthAddresses.Add(address);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var mockRepo = new Mock<IAddressRepository>();
+        mockRepo.Setup(r => r.Query()).Returns(() => db.AuthAddresses);
+        mockRepo.Setup(r => r.UpdateAsync(address.Id, It.IsAny<AddressModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, AddressModel a, CancellationToken _) =>
             {
-                a.State = new StateModel { Id = a.StateId, Name = "State", Uf = "ST" };
-                return a;
+                var dbAddress = db.AuthAddresses.First(x => x.Id == id);
+                db.Entry(dbAddress).CurrentValues.SetValues(a);
+                dbAddress.State = state;
+                db.SaveChanges();
+                return dbAddress;
             });
+
+        var service = new AddressService(mockRepo.Object);
 
         var command = new AddressCommand(
             "Updated Street",
@@ -110,7 +117,7 @@ public class AddressServiceTests : IDisposable
             "Updated Country");
 
         // Act
-        var result = await _service.UpdateAsync(address.Id, command, CancellationToken.None);
+        var result = await service.UpdateAsync(address.Id, command, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -123,11 +130,8 @@ public class AddressServiceTests : IDisposable
     public async Task UpdateAsync_WhenAddressDoesNotExist_ReturnsNull()
     {
         // Arrange
-        _mockRepository.Setup(r => r.UpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<AddressModel>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddressModel?)null);
+        var db = NewDb();
+        var service = CreateService(db);
 
         var command = new AddressCommand(
             "Updated Street",
@@ -140,7 +144,7 @@ public class AddressServiceTests : IDisposable
             "Updated Country");
 
         // Act
-        var result = await _service.UpdateAsync(Guid.NewGuid(), command, CancellationToken.None);
+        var result = await service.UpdateAsync(Guid.NewGuid(), command, CancellationToken.None);
 
         // Assert
         result.Should().BeNull();
@@ -161,16 +165,19 @@ public class AddressServiceTests : IDisposable
             Neighborhood = _faker.Address.City(),
             ZipCode = _faker.Address.ZipCode(),
             StateId = stateId,
-            State = state,
             City = _faker.Address.City(),
             Country = _faker.Address.Country()
         };
 
-        _mockRepository.Setup(r => r.GetByIdAsync(address.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(address);
+        var db = NewDb();
+        db.AuthStates.Add(state);
+        db.AuthAddresses.Add(address);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var service = CreateService(db);
 
         // Act
-        var result = await _service.GetByIdAsync(address.Id, CancellationToken.None);
+        var result = await service.GetByIdAsync(address.Id, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -182,13 +189,23 @@ public class AddressServiceTests : IDisposable
     public async Task GetByIdAsync_WhenAddressDoesNotExist_ReturnsNull()
     {
         // Arrange
-        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AddressModel?)null);
+        var db = NewDb();
+        var service = CreateService(db);
 
         // Act
-        var result = await _service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
+        var result = await service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         result.Should().BeNull();
+    }
+
+    private DefaultContext NewDb()
+    {
+        return new DefaultContext(_dbOptions, _mockCompanyContext.Object);
+    }
+
+    private AddressService CreateService(DefaultContext db)
+    {
+        return new AddressService(new AddressRepository(db));
     }
 }

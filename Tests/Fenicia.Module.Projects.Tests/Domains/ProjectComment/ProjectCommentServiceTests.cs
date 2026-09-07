@@ -1,41 +1,52 @@
 using AwesomeAssertions;
 using Bogus;
+using Fenicia.Common.Data;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Data.Repositories;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
 public class ProjectCommentServiceTests
 {
+    private readonly DbContextOptions<DefaultContext> _dbOptions;
     private readonly Faker _faker;
-    private readonly Mock<IRepository<ProjectCommentModel>> _mockRepository;
-    private readonly ProjectCommentService _service;
+    private readonly Mock<ICompanyContext> _mockCompanyContext;
 
     public ProjectCommentServiceTests()
     {
+        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
         _faker = new Faker();
-        _mockRepository = new Mock<IRepository<ProjectCommentModel>>();
-        _service = new ProjectCommentService(_mockRepository.Object);
+        _mockCompanyContext = new Mock<ICompanyContext>();
     }
 
     [Fact]
     public async Task GetAllAsync_WhenCommentsExist_ReturnsComments()
     {
+        var user = new UserModel { Id = Guid.NewGuid(), Name = "Test User" };
         var comments = new List<ProjectCommentModel>
         {
             new()
             {
-                Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(),
-                Content = _faker.Lorem.Sentence(), CompanyId = Guid.NewGuid()
+                Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = user.Id,
+                Content = _faker.Lorem.Sentence(), CompanyId = Guid.NewGuid(), User = user
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectCommentModel>(comments));
+        var db = NewDb();
+        db.AuthUsers.Add(user);
+        db.ProjectComments.AddRange(comments);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetAllAsync(new GetAllProjectCommentQuery(), CancellationToken.None);
+        var service = CreateService(db);
+
+        var result = await service.GetAllAsync(new GetAllProjectCommentQuery(), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result.First().Id.Should().Be(comments[0].Id);
@@ -44,16 +55,21 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenCommentExists_ReturnsComment()
     {
+        var user = new UserModel { Id = Guid.NewGuid(), Name = "Test User" };
         var comment = new ProjectCommentModel
         {
-            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "hello",
-            CompanyId = Guid.NewGuid()
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = user.Id, Content = "hello",
+            CompanyId = Guid.NewGuid(), User = user
         };
 
-        _mockRepository.Setup(r => r.GetByIdAsync(comment.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(comment);
+        var db = NewDb();
+        db.AuthUsers.Add(user);
+        db.ProjectComments.Add(comment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _service.GetByIdAsync(new GetProjectCommentByIdQuery(comment.Id), CancellationToken.None);
+        var service = CreateService(db);
+
+        var result = await service.GetByIdAsync(new GetProjectCommentByIdQuery(comment.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Id.Should().Be(comment.Id);
@@ -63,10 +79,10 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenCommentDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ProjectCommentModel?)null);
+        var db = NewDb();
+        var service = CreateService(db);
 
-        var result = await _service.GetByIdAsync(
+        var result = await service.GetByIdAsync(
             new GetProjectCommentByIdQuery(Guid.NewGuid()),
             CancellationToken.None);
 
@@ -79,10 +95,10 @@ public class ProjectCommentServiceTests
         var companyId = Guid.NewGuid();
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "new comment");
 
-        _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProjectCommentModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ProjectCommentModel m, CancellationToken _) => m);
+        var db = NewDb();
+        var service = CreateService(db);
 
-        var result = await _service.AddAsync(command, companyId, CancellationToken.None);
+        var result = await service.AddAsync(command, companyId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Id.Should().Be(command.Id);
@@ -92,23 +108,23 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task UpdateAsync_WhenCommentExists_ReturnsUpdatedComment()
     {
+        var user = new UserModel { Id = Guid.NewGuid(), Name = "Test User" };
         var comment = new ProjectCommentModel
         {
-            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = "updated",
-            CompanyId = Guid.NewGuid()
+            Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = user.Id, Content = "updated",
+            CompanyId = Guid.NewGuid(), User = user
         };
 
-        _mockRepository.Setup(r => r.GetByIdAsync(comment.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(comment);
-        _mockRepository.Setup(r => r.UpdateAsync(
-                comment.Id,
-                It.IsAny<ProjectCommentModel>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(comment);
+        var db = NewDb();
+        db.AuthUsers.Add(user);
+        db.ProjectComments.Add(comment);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var service = CreateService(db);
 
         var command = new UpdateProjectCommentCommand(comment.Id, "updated");
 
-        var result = await _service.UpdateAsync(command, comment.CompanyId, CancellationToken.None);
+        var result = await service.UpdateAsync(command, comment.CompanyId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Content.Should().Be("updated");
@@ -117,12 +133,12 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task UpdateAsync_WhenCommentDoesNotExist_ReturnsNull()
     {
-        _mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ProjectCommentModel?)null);
+        var db = NewDb();
+        var service = CreateService(db);
 
         var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "x");
 
-        var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
+        var result = await service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 
         result.Should().BeNull();
     }
@@ -130,13 +146,20 @@ public class ProjectCommentServiceTests
     [Fact]
     public async Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
     {
+        var db = NewDb();
+        var service = CreateService(db);
         var id = Guid.NewGuid();
 
-        _mockRepository.Setup(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
+        await service.DeleteAsync(new DeleteProjectCommentCommand(id), CancellationToken.None);
+    }
 
-        await _service.DeleteAsync(new DeleteProjectCommentCommand(id), CancellationToken.None);
+    private DefaultContext NewDb()
+    {
+        return new DefaultContext(_dbOptions, _mockCompanyContext.Object);
+    }
 
-        _mockRepository.Verify(r => r.DeleteAsync(id, It.IsAny<CancellationToken>()), Times.Once);
+    private ProjectCommentService CreateService(DefaultContext db)
+    {
+        return new ProjectCommentService(new ProjectCommentRepository(db));
     }
 }

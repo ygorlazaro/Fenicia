@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Fenicia.Common.API;
 using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
@@ -21,7 +22,7 @@ public class StockMovementControllerTests : IDisposable
     {
         _mockService = new Mock<IStockMovementService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new StockMovementController(_mockService.Object)
+        _controller = new StockMovementController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();
@@ -121,7 +122,7 @@ public class StockMovementControllerTests : IDisposable
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetAsync(wide, null, null, 1, 10, null, null, CancellationToken.None);
+        var result = await _controller.GetAsync(wide, null, null, null, 1, 10, null, null, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

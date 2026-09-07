@@ -41,7 +41,7 @@ public class ProductCategoryServiceTests : IDisposable
         var companyId = Guid.NewGuid();
         _mockCompanyContext.Setup(c => c.CompanyId).Returns(companyId);
 
-        var db = NewDb();
+        var db = new DefaultContext(_dbOptions, _mockCompanyContext.Object);
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = _faker.Commerce.Categories(1).First(), CompanyId = companyId };
         db.BasicProductCategories.Add(category);
         await db.SaveChangesAsync(CancellationToken.None);

@@ -33,7 +33,7 @@ public class ProjectSubtaskServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectSubtaskModel>(subtasks));
+        _mockRepository.Setup(r => r.Query()).Returns(subtasks.AsAsyncQueryable());
 
         var result = await _service.GetAllAsync(new GetAllProjectSubtaskQuery(), CancellationToken.None);
 

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
@@ -24,7 +25,7 @@ public class ProjectCommentControllerTests
         _mockService = new Mock<IProjectCommentService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectCommentController(_mockService.Object)
+        _controller = new ProjectCommentController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -36,7 +37,7 @@ public class ProjectCommentControllerTests
         var wide = new WideEventContext();
         var comments = new List<GetAllProjectCommentResponse>
         {
-            new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), _faker.Lorem.Sentence(), Guid.NewGuid())
+            new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Test", _faker.Lorem.Sentence(), DateTime.UtcNow, Guid.NewGuid())
         };
 
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllProjectCommentQuery>(), It.IsAny<CancellationToken>()))
@@ -55,7 +56,9 @@ public class ProjectCommentControllerTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid(),
+            "Test",
             "hello",
+            DateTime.UtcNow,
             Guid.NewGuid());
 
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectCommentByIdQuery>(), It.IsAny<CancellationToken>()))
@@ -87,10 +90,12 @@ public class ProjectCommentControllerTests
             command.Id,
             command.TaskId,
             command.UserId,
+            "Test",
             command.Content,
+            DateTime.UtcNow,
             Guid.NewGuid());
 
-        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.AddAsync(command, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -108,12 +113,14 @@ public class ProjectCommentControllerTests
             command.Id,
             Guid.NewGuid(),
             _testUserId,
+            "Test",
             command.Content,
+            DateTime.UtcNow,
             Guid.NewGuid());
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectCommentCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -130,7 +137,7 @@ public class ProjectCommentControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectCommentCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectCommentResponse?)null);
 

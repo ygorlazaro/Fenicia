@@ -4,6 +4,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
@@ -23,7 +24,7 @@ public class OrderControllerTests : IDisposable
     {
         _mockService = new Mock<IOrderService>();
         _mockHttpContext = new Mock<HttpContext>();
-        _controller = new OrderController(_mockService.Object)
+        _controller = new OrderController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(Guid.NewGuid());
         SetupServiceMocks();

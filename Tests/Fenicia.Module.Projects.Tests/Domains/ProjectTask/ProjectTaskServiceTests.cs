@@ -35,7 +35,7 @@ public class ProjectTaskServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.Query()).Returns(new TestAsyncEnumerable<ProjectTaskModel>(tasks));
+        _mockRepository.Setup(r => r.Query()).Returns(tasks.AsAsyncQueryable());
 
         var result = await _service.GetAllAsync(new GetAllProjectTaskQuery(), CancellationToken.None);
 
@@ -89,7 +89,8 @@ public class ProjectTaskServiceTests
             1,
             null,
             null,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<ProjectTaskModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProjectTaskModel m, CancellationToken _) => m);
@@ -125,7 +126,8 @@ public class ProjectTaskServiceTests
             2,
             null,
             null,
-            task.CreatedBy);
+            task.CreatedBy,
+            null);
 
         var result = await _service.UpdateAsync(command, task.CompanyId, CancellationToken.None);
 
@@ -153,7 +155,8 @@ public class ProjectTaskServiceTests
             1,
             null,
             null,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         var result = await _service.UpdateAsync(command, Guid.NewGuid(), CancellationToken.None);
 

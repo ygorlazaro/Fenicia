@@ -2,9 +2,13 @@ using System.Security.Claims;
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
+using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.Data.Repositories;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectStatus;
 using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
+using Fenicia.Module.Projects.Domains.Team;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -18,13 +22,23 @@ public class ProjectStatusControllerTests
     private readonly Mock<HttpContext> _mockHttpContext;
     private readonly Mock<IProjectStatusService> _mockService;
     private readonly Guid _testUserId;
+    private readonly TeamService _teamService;
 
     public ProjectStatusControllerTests()
     {
         _mockService = new Mock<IProjectStatusService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectStatusController(_mockService.Object)
+
+        var mockProjectRepo = new Mock<IRepository<ProjectModel>>();
+        mockProjectRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ProjectModel { Owner = _testUserId });
+        _teamService = new TeamService(
+            new Mock<ITeamRepository>().Object,
+            new Mock<ITeamUserRepository>().Object,
+            mockProjectRepo.Object);
+
+        _controller = new ProjectStatusController(_mockService.Object, new TestCompanyContext(), _teamService)
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -119,7 +133,7 @@ public class ProjectStatusControllerTests
             command.IsFinal,
             Guid.NewGuid());
 
-        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.AddAsync(command, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -144,9 +158,12 @@ public class ProjectStatusControllerTests
             command.IsFinal,
             Guid.NewGuid());
 
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectStatusByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetProjectStatusByIdResponse(statusId, Guid.NewGuid(), "Active", "#FF0000", 1, false, Guid.NewGuid()));
+
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectStatusCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -165,7 +182,7 @@ public class ProjectStatusControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectStatusCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectStatusResponse?)null);
 
@@ -179,6 +196,9 @@ public class ProjectStatusControllerTests
     {
         var wide = new WideEventContext();
         var id = Guid.NewGuid();
+
+        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<GetProjectStatusByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetProjectStatusByIdResponse(id, Guid.NewGuid(), "Active", "#FF0000", 1, false, Guid.NewGuid()));
 
         _mockService.Setup(s => s.DeleteAsync(It.IsAny<DeleteProjectStatusCommand>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

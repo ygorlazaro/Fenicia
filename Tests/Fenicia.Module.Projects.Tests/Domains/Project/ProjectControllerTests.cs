@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Enums.Project;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.Project.DTOs;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
@@ -25,7 +26,7 @@ public class ProjectControllerTests
         _mockService = new Mock<IProjectService>();
         _mockHttpContext = new Mock<HttpContext>();
         _testUserId = Guid.NewGuid();
-        _controller = new ProjectController(_mockService.Object)
+        _controller = new ProjectController(_mockService.Object, new TestCompanyContext())
             { ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object } };
         SetupUserClaims(_testUserId);
         _faker = new Faker();
@@ -135,7 +136,7 @@ public class ProjectControllerTests
             _testUserId,
             Guid.NewGuid());
 
-        _mockService.Setup(s => s.AddAsync(command, _testUserId, It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.AddAsync(command, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.PostAsync(command, wide, CancellationToken.None);
@@ -170,7 +171,7 @@ public class ProjectControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -196,7 +197,7 @@ public class ProjectControllerTests
 
         _mockService.Setup(s => s.UpdateAsync(
                 It.IsAny<UpdateProjectCommand>(),
-                _testUserId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateProjectResponse?)null);
 

@@ -40,7 +40,7 @@ public sealed class TokenService(
             await loginAttemptService.ResetAsync(query.Email);
 
             var companies = await userService.GetCompaniesAsync(user.Id, cancellationToken);
-            var companyId = companies.Count == 1 ? companies[0].CompanyId : Guid.Empty;
+            var companyId = companies?.Count == 1 ? companies[0].CompanyId : Guid.Empty;
             var roles = user.UsersRoles?
                 .Where(ur => ur.Role is not null)
                 .Select(ur => ur.Role!.Name)
