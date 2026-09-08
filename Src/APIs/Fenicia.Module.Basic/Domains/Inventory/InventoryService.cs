@@ -98,7 +98,14 @@ public sealed class InventoryService(
         GetInventoryDashboardQuery query,
         CancellationToken cancellationToken = default)
     {
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-query.Days);
+
         var lowStockItems = await productService.GetLowStockAsync(cancellationToken);
+        var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
+        var soldProductIds = orderDetails.Select(d => d.ProductId).Distinct().ToHashSet();
+        var filteredLowStock = lowStockItems.Where(p => soldProductIds.Contains(p.Id)).Take(10).ToList();
+
         var totalCustomers = await customerService.GetCountAsync(cancellationToken);
         var totalEmployees = await employeeService.GetTotalEmployeesAsync(cancellationToken);
         var totalCostValue = await productService.GetTotalCostValueAsync(cancellationToken);
@@ -110,7 +117,7 @@ public sealed class InventoryService(
 
         return new InventoryDashboardResponse
         {
-            LowStockItems = [.. lowStockItems.Select(p => p.MapToInventoryDashboardItemResponse())],
+            LowStockItems = [.. filteredLowStock.Select(p => p.MapToInventoryDashboardItemResponse())],
             TotalCustomers = totalCustomers,
             TotalEmployees = totalEmployees,
             TotalCostValue = totalCostValue,

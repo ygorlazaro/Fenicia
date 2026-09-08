@@ -129,9 +129,10 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     }
 
     /// <summary>
-    ///     Obtém o dashboard do inventário.
+    /// Obtém os dados do dashboard do inventário
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="days">Período em dias</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do dashboard do inventário</returns>
     /// <response code="200">Dashboard retornado com sucesso</response>
@@ -144,6 +145,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<InventoryDashboardResponse>> GetInventoryDashboardAsync(
         WideEventContext wide,
+        [FromQuery] int days = 90,
         CancellationToken cancellationToken = default)
     {
         try
@@ -151,7 +153,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var dashboard = await inventoryService.GetDashboardAsync(
-                new GetInventoryDashboardQuery(),
+                new GetInventoryDashboardQuery(days),
                 cancellationToken);
 
             return Ok(dashboard);

@@ -211,6 +211,46 @@ public sealed class OrderService(
         };
     }
 
+    public Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return orderRepository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+    }
+
+    public Task<decimal> GetTotalRevenueAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return orderRepository.GetTotalRevenueAsync(startDate, endDate, cancellationToken);
+    }
+
+    public Task<decimal> GetTotalCostAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return orderRepository.GetTotalCostAsync(startDate, endDate, cancellationToken);
+    }
+
+    public Task<int> GetTotalOrdersCountAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return orderRepository.GetTotalOrdersCountAsync(startDate, endDate, cancellationToken);
+    }
+
+    public Task<List<DateTime>> GetOrderDatesAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return orderRepository.GetOrderDatesAsync(startDate, endDate, cancellationToken);
+    }
+
     public Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
     {
         return orderRepository.GetTotalRevenueAsync(cancellationToken);

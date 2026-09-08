@@ -38,7 +38,7 @@ public class InventoryControllerTests : IDisposable
         var wide = new WideEventContext();
 
         // Act
-        var result = await _controller.GetInventoryDashboardAsync(wide, CancellationToken.None);
+        var result = await _controller.GetInventoryDashboardAsync(wide, 90, CancellationToken.None);
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();

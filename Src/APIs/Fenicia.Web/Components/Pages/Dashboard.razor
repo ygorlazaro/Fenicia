@@ -8,6 +8,7 @@
 
 @using System.Net.Http.Json
 @using System.Text.Json
+@using System.Globalization
 
 <PageTitle>Painel Financeiro - Fenicia</PageTitle>
 
@@ -131,7 +132,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3">
                         <MudText Typo="Typo.h6">Receita vs Custo</MudText>
                         <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
-                            @_revenueChartLabels.Length período(s)
+                            @_revenueChartLabels.Length períodos
                         </MudChip>
                     </MudStack>
                     @if (_revenueChartLabels.Length == 0)
@@ -140,12 +141,28 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Line"
-                                  ChartSeries="@_revenueChartSeries"
-                                  ChartLabels="@_revenueChartLabels"
-                                  ChartOptions="@_lineOptions"
-                                  Width="100%"
-                                  Height="320px" />
+                        <MudStack Row="true" AlignItems="AlignItems.Start" Class="chart-with-legend">
+                            <MudStack Row="false" Spacing="2" Class="chart-legend" Style="min-width: 80px;">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                    <div style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; background-color: #5e35b1; border-radius: 50%;" />
+                                    <MudText Typo="Typo.body2">Receita</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                    <div style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; background-color: #e57373; border-radius: 50%;" />
+                                    <MudText Typo="Typo.body2">Custo</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                    <div style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; background-color: #81c784; border-radius: 50%;" />
+                                    <MudText Typo="Typo.body2">Lucro</MudText>
+                                </MudStack>
+                            </MudStack>
+                            <MudChart T="double" ChartType="ChartType.Line"
+                                      ChartSeries="@_revenueChartSeries"
+                                      ChartLabels="@_revenueChartLabels"
+                                      ChartOptions="@_lineOptions"
+                                      Width="100%"
+                                      Height="320px" />
+                        </MudStack>
                     }
                 </MudPaper>
             </MudItem>
@@ -159,11 +176,24 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
-                                  ChartSeries="@_statusSeries"
-                                  ChartLabels="@_statusLabels"
-                                  ChartOptions="@_donutOptions"
-                                  Width="100%" Height="220px" />
+                        <MudStack Row="true" AlignItems="AlignItems.Start" Class="chart-with-legend">
+                            <MudStack Row="false" Spacing="1" Class="chart-legend" Style="min-width: 100px;">
+                                @foreach (var label in _statusLabels)
+                                {
+                                    var index = Array.IndexOf(_statusLabels, label);
+                                    var color = _donutOptions.ChartPalette.ElementAtOrDefault(index % _donutOptions.ChartPalette.Length);
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <div style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; background-color: @color; border-radius: 50%;" />
+                                        <MudText Typo="Typo.body2">@label</MudText>
+                                    </MudStack>
+                                }
+                            </MudStack>
+                            <MudChart T="double" ChartType="ChartType.Donut"
+                                      ChartSeries="@_statusSeries"
+                                      ChartLabels="@_statusLabels"
+                                      ChartOptions="@_donutOptions"
+                                      Width="100%" Height="220px" />
+                        </MudStack>
                     }
                 </MudPaper>
             </MudItem>
@@ -513,6 +543,21 @@
         border: 1px solid rgba(94, 53, 177, 0.1);
     }
 
+    .chart-with-legend {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .chart-legend {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        padding-top: 8px;
+    }
+
 </style>
 
 @code {
@@ -540,7 +585,8 @@
     private DonutChartOptions _donutOptions = new()
     {
         ShowValues = false,
-        ShowLegend = true
+        ShowLegend = false,
+        ChartPalette = new[] { "#5e35b1", "#00bcd4", "#e57373", "#81c784", "#ffb74d", "#64b5f6", "#ba68c8", "#a1887f" }
     };
 
     private string[] _revenueChartLabels = [];
@@ -621,7 +667,7 @@
 
             var financialTask = client.GetAsync($"dashboard/financial?days={_days}");
             var orderAnalyticsTask = client.GetAsync($"order/analytics?days={_days}&topCustomersLimit=10");
-            var inventoryTask = client.GetAsync($"inventory/dashboard");
+            var inventoryTask = client.GetAsync($"inventory/dashboard?days={_days}");
             var productPerformanceTask = client.GetAsync($"product/performance?days={_days}&topLimit=10");
 
             await Task.WhenAll(financialTask, orderAnalyticsTask, inventoryTask, productPerformanceTask);
@@ -653,7 +699,7 @@
     private void BuildRevenueChart()
     {
         var data = _financial.RevenueVsCost.OrderBy(r => r.Date).ToList();
-        _revenueChartLabels = data.Select(r => r.Date.ToString("dd/MM")).ToArray();
+        _revenueChartLabels = data.Select(r => r.Period).ToArray();
         _revenueChartSeries = new List<ChartSeries<double>>
         {
             new() { Name = "Receita", Data = data.Select(r => (double)r.Revenue).ToArray() },

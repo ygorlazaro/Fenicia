@@ -1,5 +1,6 @@
 using System.Globalization;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
@@ -22,10 +23,10 @@ public sealed class DashboardService(
         GetFinancialDashboardQuery query,
         CancellationToken cancellationToken = default)
     {
-        var kpi = await CalculateKpiSummaryAsync(cancellationToken);
-        var revenueVsCost = await CalculateRevenueVsCostAsync(cancellationToken);
-        var profitMarginTrend = await CalculateProfitMarginTrendAsync(cancellationToken);
-        var accountsReceivable = await CalculateAccountsReceivableAsync(cancellationToken);
+        var kpi = await CalculateKpiSummaryAsync(query.Days, cancellationToken);
+        var revenueVsCost = await CalculateRevenueVsCostAsync(query.Days, cancellationToken);
+        var profitMarginTrend = await CalculateProfitMarginTrendAsync(query.Days, cancellationToken);
+        var accountsReceivable = await CalculateAccountsReceivableAsync(query.Days, cancellationToken);
         var dailySales = await CalculateDailySalesSummaryAsync(cancellationToken);
 
         return DashboardMapper.MapToFinancialDashboardResponse(
@@ -123,31 +124,48 @@ public sealed class DashboardService(
     }
 
     private async Task<AccountsReceivableResponse> CalculateAccountsReceivableAsync(
+        int days,
         CancellationToken cancellationToken = default)
     {
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-days);
+        var orders = await orderService.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orderList = orders.ToList();
+
         var accountsReceivable = new AccountsReceivableResponse
         {
-            TotalPending = await orderService.GetPendingAmountAsync(cancellationToken),
-            PendingOrdersCount = await orderService.GetPendingOrdersCountAsync(cancellationToken),
-            TotalApproved = await orderService.GetApprovedAmountAsync(cancellationToken),
-            ApprovedOrdersCount = await orderService.GetApprovedOrdersCountAsync(cancellationToken)
+            TotalPending = orderList.Where(o => o.Status == OrderStatus.Pending).Sum(o => o.TotalAmount),
+            PendingOrdersCount = orderList.Count(o => o.Status == OrderStatus.Pending),
+            TotalApproved = orderList.Where(o => o.Status == OrderStatus.Approved).Sum(o => o.TotalAmount),
+            ApprovedOrdersCount = orderList.Count(o => o.Status == OrderStatus.Approved)
         };
 
         return accountsReceivable;
     }
 
     private async Task<List<ProfitMarginTrendResponse>> CalculateProfitMarginTrendAsync(
+        int days,
         CancellationToken cancellationToken = default)
     {
-        var weeks = await orderService.GetOrderWeeksAsync(cancellationToken);
-        var orders = await orderService.GetTopCustomerOrdersAsync(cancellationToken);
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-days);
+        var orders = await orderService.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orderList = orders.ToList();
+
+        var weeks = orderList
+            .Select(o => o.SaleDate.Date)
+            .Distinct()
+            .Select(date => date.AddDays(-(int)date.DayOfWeek))
+            .Distinct()
+            .OrderBy(w => w)
+            .ToList();
 
         var response = new List<ProfitMarginTrendResponse>();
 
         foreach (var week in weeks)
         {
             var weekNumber = GetWeekNumber(week);
-            var weekOrders = orders.Where(o => GetWeekNumber(o.SaleDate) == weekNumber).ToList();
+            var weekOrders = orderList.Where(o => GetWeekNumber(o.SaleDate) == weekNumber).ToList();
 
             var revenue = weekOrders.Sum(o => o.TotalAmount);
             var cost = weekOrders.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m));
@@ -169,32 +187,72 @@ public sealed class DashboardService(
     }
 
     private async Task<List<RevenueVsCostResponse>> CalculateRevenueVsCostAsync(
+        int days,
         CancellationToken cancellationToken = default)
     {
-        var dates = await orderService.GetOrderDatesAsync(cancellationToken);
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-days);
+        var orders = await orderService.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orderList = orders.ToList();
+
+        var dailyData = orderList
+            .GroupBy(o => o.SaleDate.Date)
+            .OrderBy(g => g.Key)
+            .Select(g => new
+            {
+                Date = g.Key,
+                Revenue = g.Sum(o => o.TotalAmount),
+                Cost = g.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m)),
+                Profit = g.Sum(o => o.TotalAmount) - g.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m))
+            })
+            .ToList();
+
+        var bucketCount = 6;
+        var bucketSize = dailyData.Count / bucketCount;
+        var remainder = dailyData.Count % bucketCount;
 
         var response = new List<RevenueVsCostResponse>();
+        var index = 0;
 
-        foreach (var date in dates)
+        for (var i = 0; i < bucketCount; i++)
         {
-            var key = date.ToString("yyyy MMMM dd");
-            var revenue = await orderService.GetTotalRevenueAsync(cancellationToken);
-            var cost = await orderService.GetTotalCostAsync(cancellationToken);
-            var profit = revenue - cost;
+            var currentBucketSize = bucketSize + (i < remainder ? 1 : 0);
+            if (currentBucketSize == 0)
+            {
+                break;
+            }
 
-            response.Add(new RevenueVsCostResponse(key, date, revenue, cost, profit));
+            var bucket = dailyData.Skip(index).Take(currentBucketSize).ToList();
+            index += currentBucketSize;
+
+            var bucketRevenue = bucket.Sum(b => b.Revenue);
+            var bucketCost = bucket.Sum(b => b.Cost);
+            var bucketProfit = bucket.Sum(b => b.Profit);
+
+            var start = bucket.First().Date;
+            var end = bucket.Last().Date;
+            var key = $"{start:dd/MM} - {end:dd/MM}";
+
+            response.Add(new RevenueVsCostResponse(key, start, bucketRevenue, bucketCost, bucketProfit));
         }
 
         return response;
     }
 
-    private async Task<KpiSummaryResponse> CalculateKpiSummaryAsync(CancellationToken cancellationToken = default)
+    private async Task<KpiSummaryResponse> CalculateKpiSummaryAsync(
+        int days,
+        CancellationToken cancellationToken = default)
     {
-        var totalRevenue = await orderService.GetTotalRevenueAsync(cancellationToken);
-        var totalCost = await orderService.GetTotalCostAsync(cancellationToken);
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-days);
+        var orders = await orderService.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orderList = orders.ToList();
+
+        var totalRevenue = orderList.Sum(o => o.TotalAmount);
+        var totalCost = orderList.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m));
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
-        var totalOrders = await orderService.GetTotalOrdersCountAsync(cancellationToken);
+        var totalOrders = orderList.Count;
         var totalProducts = await productService.GetTotalProductsAsync(cancellationToken);
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 

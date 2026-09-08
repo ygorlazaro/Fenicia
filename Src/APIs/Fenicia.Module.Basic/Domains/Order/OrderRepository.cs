@@ -53,6 +53,47 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
             .ToListAsync(cancellationToken);
     }
 
+    public Task<decimal> GetTotalRevenueAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return DbSet
+            .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
+            .SumAsync(o => o.TotalAmount, cancellationToken);
+    }
+
+    public Task<decimal> GetTotalCostAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return DbSet
+            .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
+            .SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), cancellationToken);
+    }
+
+    public Task<int> GetTotalOrdersCountAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return DbSet.CountAsync(o => o.SaleDate >= startDate && o.SaleDate <= endDate, cancellationToken);
+    }
+
+    public Task<List<DateTime>> GetOrderDatesAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return DbSet
+            .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
+            .OrderBy(o => o.SaleDate)
+            .Select(o => o.SaleDate.Date)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
     {
         return DbSet.SumAsync(o => o.TotalAmount, cancellationToken);

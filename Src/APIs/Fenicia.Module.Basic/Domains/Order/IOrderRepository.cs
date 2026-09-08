@@ -22,6 +22,26 @@ public interface IOrderRepository : IRepository<OrderModel>
         DateTime endDate,
         CancellationToken cancellationToken = default);
 
+    Task<decimal> GetTotalRevenueAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
+
+    Task<decimal> GetTotalCostAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
+
+    Task<int> GetTotalOrdersCountAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
+
+    Task<List<DateTime>> GetOrderDatesAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
+
     Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default);
 
     Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default);
