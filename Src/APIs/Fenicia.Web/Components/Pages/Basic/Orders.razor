@@ -1,26 +1,21 @@
 @page "/basic/order"
 @rendermode InteractiveServer
-@inject IHttpClientFactory HttpClientFactory
-@inject ICompanyContextService CompanyContext
-@inject IAuthStateService AuthState
-@inject ISnackbar Snackbar
 
 @using System.Net.Http.Json
 @using System.Text.Json
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
 
-<MainLayout>
-    <CrudPage @ref="_crudPage" TItem="OrderDto"
-              PageTitle="Pedidos"
-              PageSubtitle="Gerencie os pedidos da sua empresa"
-              EntityNamePlural="pedidos"
-              EntityNameSingular="pedido"
-              Endpoint="order"
-              ColumnCount="6"
-              AddButtonLabel="Novo Pedido"
-              AddButtonHref="/basic/order/new"
-              FormatForDelete="FormatForDelete">
+<CrudPage @ref="_crudPage" TItem="OrderDto"
+          PageTitle="Pedidos"
+          PageSubtitle="Gerencie os pedidos da sua empresa"
+          EntityNamePlural="pedidos"
+          EntityNameSingular="pedido"
+          Endpoint="order"
+          ColumnCount="6"
+          AddButtonLabel="Novo Pedido"
+          AddButtonHref="/basic/order/new"
+          FormatForDelete="FormatForDelete">
         <HeaderContent>
             <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
             <MudTh Sortable="true" SortLabel="SaleDate">Número</MudTh>
@@ -65,7 +60,6 @@
             <MudText Typo="Typo.body2">Edição de pedidos não está disponível.</MudText>
         </EditModalBody>
     </CrudPage>
-</MainLayout>
 
 @code {
     private CrudPage<OrderDto> _crudPage = default!;
