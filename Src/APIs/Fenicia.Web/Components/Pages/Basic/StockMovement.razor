@@ -33,10 +33,9 @@
                        ValueChanged="@((string? v) => OnSearchChanged(v))"
                        Label="Pesquisar"
                        Placeholder="Digite para pesquisar..."
-                       Variant="Variant.Outlined"
-                       Size="Size.Small"
-                       Immediate="true"
-                       DebounceInterval="300"
+                        Variant="Variant.Outlined"
+                        Size="Size.Small"
+                        DebounceInterval="300"
                        Adornment="Adornment.Start"
                        AdornmentIcon="@Icons.Material.Filled.Search"
                        Class="mb-4" />
@@ -473,6 +472,11 @@
 
     private void OnSearchChanged(string? value)
     {
+        if (value == _searchText)
+        {
+            return;
+        }
+
         _searchText = value;
         _ = LoadMovementsAsync();
     }
