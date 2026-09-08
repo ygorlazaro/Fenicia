@@ -84,17 +84,19 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
 
         await profileRepository.UpdateAsync(command.Id, profile, cancellationToken);
 
+        var reloaded = await profileRepository.GetByIdAsync(command.Id, cancellationToken);
+
         return new UpdateProfileResponse(
-            profile.Id,
-            profile.UserId,
-            profile.UserName,
-            profile.Bio,
-            profile.Upload?.Url,
-            profile.UploadId,
-            profile.Website,
-            profile.Location,
-            profile.Phone,
-            profile.BirthDate);
+            reloaded!.Id,
+            reloaded.UserId,
+            reloaded.UserName,
+            reloaded.Bio,
+            reloaded.Upload?.Url,
+            reloaded.UploadId,
+            reloaded.Website,
+            reloaded.Location,
+            reloaded.Phone,
+            reloaded.BirthDate);
     }
 
     private static GetProfileByIdResponse MapToGetResponse(ProfileModel profile)
