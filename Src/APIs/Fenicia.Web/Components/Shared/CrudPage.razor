@@ -267,6 +267,7 @@
         var sort = query["sort"];
         var filters = query.AllKeys
             .Where(k => !string.IsNullOrEmpty(k) && k is not "page" and not "perPage" and not "sort" and not "direction" and not "edit")
+            .Where(k => !string.IsNullOrEmpty(query[k]))
             .ToDictionary(k => k!, k => query[k]!, StringComparer.OrdinalIgnoreCase);
 
         if (!string.Equals(sort, _querySort, StringComparison.Ordinal) || !DictionaryEquals(filters, _filters))
