@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Exceptions;
@@ -38,7 +39,11 @@ public sealed class StockMovementService(
             baseQuery = baseQuery.Where(m => m.Type == type);
         }
 
-        var movements = await baseQuery
+        var filteredQuery = baseQuery
+            .ApplySearch(query.Query, "Product.Name", "Reason", "Supplier.Person.Name", "Customer.Person.Name", "Employee.Person.Name")
+            .ApplySort(query.Sort);
+
+        var movements = await filteredQuery
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
