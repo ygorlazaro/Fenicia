@@ -322,7 +322,6 @@ namespace Fenicia.Auth.Migrations;
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id1 = table.Column<Guid>(type: "uuid", nullable: false),
                     user_name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     bio = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
                     upload_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -346,13 +345,6 @@ namespace Fenicia.Auth.Migrations;
                     table.ForeignKey(
                         name: "fk_profiles_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_profiles_users_user_id1",
-                        column: x => x.user_id1,
                         principalSchema: "auth",
                         principalTable: "users",
                         principalColumn: "id",
@@ -1705,12 +1697,6 @@ namespace Fenicia.Auth.Migrations;
                 table: "profiles",
                 column: "user_id",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_profiles_user_id1",
-                schema: "auth",
-                table: "profiles",
-                column: "user_id1");
 
             migrationBuilder.CreateIndex(
                 name: "ix_project_subtasks_task_id",

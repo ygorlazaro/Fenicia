@@ -11,7 +11,6 @@ public class ProfileModel : BaseModel
     [Required]
     public Guid UserId { get; init; }
 
-    [ForeignKey(nameof(UserId))]
     public UserModel User { get; init; } = default!;
 
     [MaxLength(64)]

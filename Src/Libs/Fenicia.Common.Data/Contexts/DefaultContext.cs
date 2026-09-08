@@ -59,7 +59,7 @@ public partial class DefaultContext : DbContext
 
         modelBuilder.Entity<UserModel>()
             .HasOne(u => u.Profile)
-            .WithOne()
+            .WithOne(p => p.User)
             .HasForeignKey<ProfileModel>(p => p.UserId);
 
         modelBuilder.Entity<ProfileModel>()

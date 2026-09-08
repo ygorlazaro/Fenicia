@@ -550,10 +550,6 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("UserId1")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id1");
-
                     b.Property<string>("UserName")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
@@ -573,9 +569,6 @@ namespace Fenicia.Auth.Migrations
                     b.HasIndex("UserId")
                         .IsUnique()
                         .HasDatabaseName("ix_profiles_user_id");
-
-                    b.HasIndex("UserId1")
-                        .HasDatabaseName("ix_profiles_user_id1");
 
                     b.ToTable("profiles", "auth");
                 });
@@ -2702,19 +2695,12 @@ namespace Fenicia.Auth.Migrations
                         .HasForeignKey("UploadId")
                         .HasConstraintName("fk_profiles_uploads_upload_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", null)
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithOne("Profile")
                         .HasForeignKey("Fenicia.Common.Data.Models.Auth.ProfileModel", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_profiles_users_user_id");
-
-                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_profiles_users_user_id1");
 
                     b.Navigation("Upload");
 
