@@ -8,6 +8,7 @@
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject IUserProfileNotifier UserProfileNotifier
 
 <PageTitle>@(IsOwnProfile ? "Meu Perfil" : "Perfil") - Fenicia</PageTitle>
 
@@ -886,6 +887,7 @@
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 editDialogVisible = false;
                 Snackbar.Add("Perfil atualizado com sucesso!", Severity.Success);
+                UserProfileNotifier.Notify();
             }
             else
             {

@@ -5,6 +5,8 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
+@inject IUserProfileNotifier UserProfileNotifier
+@implements IDisposable
 
 <PageTitle>Publicações - Fenicia Social</PageTitle>
 
@@ -192,7 +194,18 @@
             currentUserName = await GetCurrentUserNameAsync();
             await EnsureCurrentProfileIdAsync();
             await LoadFeedAsync();
+            UserProfileNotifier.Changed += OnUserProfileChanged;
         }
+    }
+
+    private void OnUserProfileChanged()
+    {
+        _ = LoadFeedAsync();
+    }
+
+    public void Dispose()
+    {
+        UserProfileNotifier.Changed -= OnUserProfileChanged;
     }
 
     private async Task EnsureCurrentProfileIdAsync()

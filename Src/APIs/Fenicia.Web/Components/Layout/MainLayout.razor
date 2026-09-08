@@ -6,6 +6,7 @@
 @inject ICompanyContextService CompanyContext
 @inject ICompanySelectionState CompanyState
 @inject ISnackbar Snackbar
+@inject IUserProfileNotifier UserProfileNotifier
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -36,6 +37,12 @@
                             {
                                 <MudAvatar Size="Size.Small" Style="height:28px;width:28px;overflow:hidden;">
                                     <img src="@userImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                                </MudAvatar>
+                            }
+                            else
+                            {
+                                <MudAvatar Color="Color.Primary" Size="Size.Small" Style="height:28px;width:28px;font-size:0.875rem;">
+                                    @GetInitials(userName)
                                 </MudAvatar>
                             }
                             <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Person">
@@ -175,6 +182,7 @@
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
+        UserProfileNotifier.Changed += OnUserProfileChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -251,6 +259,11 @@
         {
             _ = RefreshAuthAsync();
         }
+    }
+
+    private void OnUserProfileChanged()
+    {
+        _ = RefreshAuthAsync();
     }
 
     private void ToggleDrawer()
@@ -486,6 +499,13 @@
         return null;
     }
 
+    private static string GetInitials(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 1 ? parts[0][..1].ToUpper() : (parts[0][..1] + parts[^1][..1]).ToUpper();
+    }
+
     private static string FormatCnpj(string cnpj)
     {
         if (string.IsNullOrEmpty(cnpj))
@@ -506,5 +526,6 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+        UserProfileNotifier.Changed -= OnUserProfileChanged;
     }
 }

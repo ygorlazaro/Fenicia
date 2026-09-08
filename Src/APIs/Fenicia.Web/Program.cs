@@ -38,6 +38,7 @@ builder.Services.AddHttpClient("FeniciaProjects", client =>
 builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
 builder.Services.AddScoped<ICompanySelectionState, CompanySelectionState>();
 builder.Services.AddScoped<ICompanyChangeNotifier, CompanyChangeNotifier>();
+builder.Services.AddScoped<IUserProfileNotifier, UserProfileNotifier>();
 builder.Services.AddScoped<CompanyHeaderHandler>();
 
 builder.Services.AddRazorComponents()
