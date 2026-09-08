@@ -48,7 +48,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
     {
         return await DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
-            .Include(o => o.Details)
+            .Include(o => o.Details).ThenInclude(d => d.Product).ThenInclude(p => p.Category)
             .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
             .ToListAsync(cancellationToken);
     }

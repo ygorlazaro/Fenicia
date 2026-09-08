@@ -28,13 +28,17 @@ public sealed class DashboardService(
         var profitMarginTrend = await CalculateProfitMarginTrendAsync(query.Days, cancellationToken);
         var accountsReceivable = await CalculateAccountsReceivableAsync(query.Days, cancellationToken);
         var dailySales = await CalculateDailySalesSummaryAsync(cancellationToken);
+        var topCategoriesByRevenue = await CalculateTopCategoriesByRevenueAsync(query.Days, cancellationToken);
+        var topCategoriesByQuantity = await CalculateTopCategoriesByQuantityAsync(query.Days, cancellationToken);
 
         return DashboardMapper.MapToFinancialDashboardResponse(
             kpi,
             revenueVsCost,
             profitMarginTrend,
             accountsReceivable,
-            dailySales);
+            dailySales,
+            topCategoriesByRevenue,
+            topCategoriesByQuantity);
     }
 
     public Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
@@ -99,6 +103,87 @@ public sealed class DashboardService(
         var weekRule = culture.DateTimeFormat.CalendarWeekRule;
         var firstDay = culture.DateTimeFormat.FirstDayOfWeek;
         return calendar.GetWeekOfYear(date, weekRule, firstDay);
+    }
+
+    private static List<CategoryBreakdownResponse> BuildTopWithOthers(
+        List<CategoryBreakdownResponse> categories,
+        int topCount,
+        Func<CategoryBreakdownResponse, double> selector)
+    {
+        if (categories.Count == 0)
+        {
+            return categories;
+        }
+
+        var top = categories.Take(topCount).ToList();
+        var others = categories.Skip(topCount).ToList();
+
+        if (others.Count > 0)
+        {
+            var otherRevenue = others.Sum(c => c.Revenue);
+            var otherQuantity = others.Sum(c => c.Quantity);
+            top.Add(new CategoryBreakdownResponse
+            {
+                Category = "Outros",
+                Revenue = otherRevenue,
+                Quantity = otherQuantity,
+                IsOther = true
+            });
+        }
+
+        return top;
+    }
+
+    private async Task<List<CategoryBreakdownResponse>> CalculateTopCategoriesByRevenueAsync(
+        int days,
+        CancellationToken cancellationToken = default)
+    {
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-days);
+        var orders = await orderService.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orderList = orders.ToList();
+
+        var categoryRevenue = orderList
+            .SelectMany(o => o.Details)
+            .Where(d => d.Product.Category != null)
+            .GroupBy(d => d.Product.Category!.Name)
+            .Select(g => new CategoryBreakdownResponse
+            {
+                Category = g.Key,
+                Revenue = g.Sum(d => d.Price * (decimal)d.Quantity),
+                Quantity = g.Sum(d => d.Quantity),
+                IsOther = false
+            })
+            .OrderByDescending(c => c.Revenue)
+            .ToList();
+
+        return BuildTopWithOthers(categoryRevenue, 5, c => (double)c.Revenue);
+    }
+
+    private async Task<List<CategoryBreakdownResponse>> CalculateTopCategoriesByQuantityAsync(
+        int days,
+        CancellationToken cancellationToken = default)
+    {
+        var endDate = DateTime.UtcNow;
+        var startDate = endDate.AddDays(-days);
+        var orders = await orderService.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orderList = orders.ToList();
+
+        var categoryQuantity = orderList
+            .SelectMany(o => o.Details)
+            .Where(d => d.Product.Category != null)
+            .GroupBy(d => d.Product.Category!.Name)
+            .Select(g => new CategoryBreakdownResponse
+            {
+                Category = g.Key,
+                Revenue = g.Sum(d => d.Price * (decimal)d.Quantity),
+                Quantity = g.Sum(d => d.Quantity),
+                IsOther = false
+            })
+            .OrderByDescending(c => c.Quantity)
+            .ToList();
+
+        return BuildTopWithOthers(categoryQuantity, 5, c => c.Quantity);
     }
 
     private async Task<DailySalesSummaryResponse> CalculateDailySalesSummaryAsync(

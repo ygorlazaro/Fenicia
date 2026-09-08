@@ -11,7 +11,9 @@ public static partial class DashboardMapper
         List<RevenueVsCostResponse> revenueVsCost,
         List<ProfitMarginTrendResponse> profitMarginTrend,
         AccountsReceivableResponse accountsReceivable,
-        DailySalesSummaryResponse dailySales)
+        DailySalesSummaryResponse dailySales,
+        List<CategoryBreakdownResponse> topCategoriesByRevenue,
+        List<CategoryBreakdownResponse> topCategoriesByQuantity)
     {
         return new FinancialDashboardResponse
         {
@@ -19,7 +21,9 @@ public static partial class DashboardMapper
             RevenueVsCost = revenueVsCost,
             ProfitMarginTrend = profitMarginTrend,
             AccountsReceivable = accountsReceivable,
-            DailySales = dailySales
+            DailySales = dailySales,
+            TopCategoriesByRevenue = topCategoriesByRevenue,
+            TopCategoriesByQuantity = topCategoriesByQuantity
         };
     }
 }

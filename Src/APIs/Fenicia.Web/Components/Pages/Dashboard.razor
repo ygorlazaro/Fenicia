@@ -200,6 +200,42 @@
 
             <MudItem xs="12" md="6">
                 <MudPaper Elevation="2" Class="pa-4">
+                    <MudText Typo="Typo.h6" Class="mb-3">Categorias Mais Vendidas (Preço)</MudText>
+                    @if (_financial.TopCategoriesByRevenue.Count == 0)
+                    {
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">Sem dados.</MudAlert>
+                    }
+                    else
+                    {
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  ChartSeries="@_categoryRevenueSeries"
+                                  ChartLabels="@_categoryRevenueLabels"
+                                  ChartOptions="@_donutOptions"
+                                  Width="100%" Height="220px" />
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="2" Class="pa-4">
+                    <MudText Typo="Typo.h6" Class="mb-3">Categorias Mais Vendidas (Qtd)</MudText>
+                    @if (_financial.TopCategoriesByQuantity.Count == 0)
+                    {
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">Sem dados.</MudAlert>
+                    }
+                    else
+                    {
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  ChartSeries="@_categoryQuantitySeries"
+                                  ChartLabels="@_categoryQuantityLabels"
+                                  ChartOptions="@_donutOptions"
+                                  Width="100%" Height="220px" />
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="2" Class="pa-4">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3">
                         <MudText Typo="Typo.h6">Vendas Recentes</MudText>
                         <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
@@ -595,6 +631,12 @@
     private string[] _statusLabels = [];
     private List<ChartSeries<double>> _statusSeries = [];
 
+    private string[] _categoryRevenueLabels = [];
+    private List<ChartSeries<double>> _categoryRevenueSeries = [];
+
+    private string[] _categoryQuantityLabels = [];
+    private List<ChartSeries<double>> _categoryQuantitySeries = [];
+
     private Color ProfitColor => _financial.Kpi.GrossProfit >= 0 ? Color.Success : Color.Error;
 
     private Color GrowthColor
@@ -683,6 +725,8 @@
 
             BuildRevenueChart();
             BuildStatusChart();
+            BuildCategoryRevenueChart();
+            BuildCategoryQuantityChart();
         }
         catch (Exception ex)
         {
@@ -715,6 +759,26 @@
         _statusSeries = new List<ChartSeries<double>>
         {
             new() { Name = "Pedidos", Data = data.Select(s => (double)s.Count).ToArray() }
+        };
+    }
+
+    private void BuildCategoryRevenueChart()
+    {
+        var data = _financial.TopCategoriesByRevenue;
+        _categoryRevenueLabels = data.Select(c => c.Category).ToArray();
+        _categoryRevenueSeries = new List<ChartSeries<double>>
+        {
+            new() { Name = "Receita", Data = data.Select(c => (double)c.Revenue).ToArray() }
+        };
+    }
+
+    private void BuildCategoryQuantityChart()
+    {
+        var data = _financial.TopCategoriesByQuantity;
+        _categoryQuantityLabels = data.Select(c => c.Category).ToArray();
+        _categoryQuantitySeries = new List<ChartSeries<double>>
+        {
+            new() { Name = "Quantidade", Data = data.Select(c => (double)c.Quantity).ToArray() }
         };
     }
 
@@ -765,6 +829,16 @@
         public List<ProfitMarginTrendData> ProfitMarginTrend { get; set; } = [];
         public AccountsReceivableData AccountsReceivable { get; set; } = new();
         public DailySalesData DailySales { get; set; } = new();
+        public List<CategoryBreakdownData> TopCategoriesByRevenue { get; set; } = [];
+        public List<CategoryBreakdownData> TopCategoriesByQuantity { get; set; } = [];
+    }
+
+    public class CategoryBreakdownData
+    {
+        public string Category { get; set; } = string.Empty;
+        public decimal Revenue { get; set; }
+        public double Quantity { get; set; }
+        public bool IsOther { get; set; }
     }
 
     public class KpiData

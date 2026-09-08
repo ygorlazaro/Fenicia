@@ -11,4 +11,8 @@ public record FinancialDashboardResponse
     public AccountsReceivableResponse AccountsReceivable { get; set; } = new();
 
     public DailySalesSummaryResponse DailySales { get; set; } = new();
+
+    public List<CategoryBreakdownResponse> TopCategoriesByRevenue { get; set; } = [];
+
+    public List<CategoryBreakdownResponse> TopCategoriesByQuantity { get; set; } = [];
 }
