@@ -207,11 +207,24 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
-                                  ChartSeries="@_categoryRevenueSeries"
-                                  ChartLabels="@_categoryRevenueLabels"
-                                  ChartOptions="@_donutOptions"
-                                  Width="100%" Height="220px" />
+                        <MudStack Row="true" AlignItems="AlignItems.Start" Class="chart-with-legend">
+                            <MudStack Row="false" Spacing="1" Class="chart-legend" Style="min-width: 110px;">
+                                @foreach (var label in _categoryRevenueLabels)
+                                {
+                                    var index = Array.IndexOf(_categoryRevenueLabels, label);
+                                    var color = _donutOptions.ChartPalette.ElementAtOrDefault(index % _donutOptions.ChartPalette.Length);
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <div style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; background-color: @color; border-radius: 50%;" />
+                                        <MudText Typo="Typo.body2">@label</MudText>
+                                    </MudStack>
+                                }
+                            </MudStack>
+                            <MudChart T="double" ChartType="ChartType.Donut"
+                                      ChartSeries="@_categoryRevenueSeries"
+                                      ChartLabels="@_categoryRevenueLabels"
+                                      ChartOptions="@_donutOptions"
+                                      Width="100%" Height="220px" />
+                        </MudStack>
                     }
                 </MudPaper>
             </MudItem>
@@ -225,11 +238,24 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
-                                  ChartSeries="@_categoryQuantitySeries"
-                                  ChartLabels="@_categoryQuantityLabels"
-                                  ChartOptions="@_donutOptions"
-                                  Width="100%" Height="220px" />
+                        <MudStack Row="true" AlignItems="AlignItems.Start" Class="chart-with-legend">
+                            <MudStack Row="false" Spacing="1" Class="chart-legend" Style="min-width: 110px;">
+                                @foreach (var label in _categoryQuantityLabels)
+                                {
+                                    var index = Array.IndexOf(_categoryQuantityLabels, label);
+                                    var color = _donutOptions.ChartPalette.ElementAtOrDefault(index % _donutOptions.ChartPalette.Length);
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <div style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; background-color: @color; border-radius: 50%;" />
+                                        <MudText Typo="Typo.body2">@label</MudText>
+                                    </MudStack>
+                                }
+                            </MudStack>
+                            <MudChart T="double" ChartType="ChartType.Donut"
+                                      ChartSeries="@_categoryQuantitySeries"
+                                      ChartLabels="@_categoryQuantityLabels"
+                                      ChartOptions="@_donutOptions"
+                                      Width="100%" Height="220px" />
+                        </MudStack>
                     }
                 </MudPaper>
             </MudItem>
