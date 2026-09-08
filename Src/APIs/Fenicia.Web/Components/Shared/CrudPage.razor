@@ -216,6 +216,7 @@
     private Dictionary<string, string> _filters = new(StringComparer.OrdinalIgnoreCase);
     private string? _querySort;
     private bool _isApplyingQueryParams;
+    private bool _isUpdatingFromServer;
 
     private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
 
@@ -259,7 +260,7 @@
             await TryAutoOpenEditAsync(editId);
         }
 
-        if (_isApplyingQueryParams)
+        if (_isApplyingQueryParams || _isUpdatingFromServer)
         {
             return;
         }
@@ -370,9 +371,21 @@
                 _querySort = null;
             }
 
-            await UpdateUrlAsync();
+            _isUpdatingFromServer = true;
+            try
+            {
+                await UpdateUrlAsync();
+            }
+            finally
+            {
+                _isUpdatingFromServer = false;
+            }
 
             return await CrudClient.GetPageAsync<TItem>(Endpoint, state, _filters, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            return new TableData<TItem> { TotalItems = 0, Items = new List<TItem>() };
         }
         catch (Exception ex)
         {
