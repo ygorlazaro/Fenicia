@@ -311,7 +311,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var c in _orderAnalytics.TopCustomers.Take(5))
+                                @foreach (var c in _orderAnalytics.TopCustomers.Take(10))
                                 {
                                     <tr>
                                         <td>
@@ -391,7 +391,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var p in _productPerformance.BestSellingProducts.Take(5))
+                                @foreach (var p in _productPerformance.BestSellingProducts.Take(10))
                                 {
                                     <tr>
                                         <td>
@@ -436,7 +436,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var p in _productPerformance.ProfitMargins.Take(5))
+                                @foreach (var p in _productPerformance.ProfitMargins.Take(10))
                                 {
                                     <tr>
                                         <td>
