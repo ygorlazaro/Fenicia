@@ -28,6 +28,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Consulta avançada para filtros</param>
     /// <param name="sort">Ordenação</param>
+    /// <param name="filters">Filtros</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de clientes</returns>
     /// <response code="200">Lista de clientes retornada com sucesso</response>
@@ -46,12 +47,13 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
+        [FromQuery] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var customers = await customerService.GetAllAsync(
-            new GetAllCustomerQuery(page, perPage, query, sort),
+            new GetAllCustomerQuery(page, perPage, query, sort) { Filters = filters },
             cancellationToken);
 
         return Ok(customers);

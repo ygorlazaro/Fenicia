@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
@@ -15,9 +16,11 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
         var baseQuery = productCategoryRepository.Query()
             .Where(pc => pc.Deleted == null);
 
-        var total = await baseQuery.CountAsync(cancellationToken);
+        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
 
-        var categories = await baseQuery
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var categories = await filteredQuery
             .Select(pc => pc.MapToGetAllProductCategoryResponse())
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)

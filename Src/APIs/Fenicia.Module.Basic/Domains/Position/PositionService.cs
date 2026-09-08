@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
@@ -19,7 +20,7 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
     {
         var baseQuery = positionRepository.Query();
 
-        var filteredQuery = baseQuery;
+        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

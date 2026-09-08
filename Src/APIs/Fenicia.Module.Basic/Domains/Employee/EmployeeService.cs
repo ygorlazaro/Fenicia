@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
@@ -36,9 +37,11 @@ public sealed class EmployeeService(
             .ThenInclude(a => a.State)
             .Include(e => e.Position);
 
-        var total = await baseQuery.CountAsync(cancellationToken);
+        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
 
-        var employees = await baseQuery
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var employees = await filteredQuery
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);

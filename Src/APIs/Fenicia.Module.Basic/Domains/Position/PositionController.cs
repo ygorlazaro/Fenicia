@@ -24,6 +24,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Consulta avançada para filtros</param>
     /// <param name="sort">Ordenação</param>
+    /// <param name="filters">Filtros</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de posições</returns>
     /// <response code="200">Lista de posições retornada com sucesso</response>
@@ -40,6 +41,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
+        [FromQuery] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -47,7 +49,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var positions = await positionService.GetAllAsync(
-                new GetAllPositionQuery(page, perPage, query, sort),
+                new GetAllPositionQuery(page, perPage, query, sort) { Filters = filters },
                 cancellationToken);
 
             return Ok(positions);

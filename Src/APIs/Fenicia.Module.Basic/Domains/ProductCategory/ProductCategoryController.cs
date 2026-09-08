@@ -24,6 +24,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Consulta avançada para filtros</param>
     /// <param name="sort">Ordenação</param>
+    /// <param name="filters">Filtros</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de categorias</returns>
     /// <response code="200">Lista de categorias retornada com sucesso</response>
@@ -40,6 +41,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
+        [FromQuery] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -47,7 +49,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var categories = await productCategoryService.GetAllAsync(
-                new GetAllProductCategoryQuery(page, perPage, query, sort),
+                new GetAllProductCategoryQuery(page, perPage, query, sort) { Filters = filters },
                 cancellationToken);
 
             return Ok(categories);

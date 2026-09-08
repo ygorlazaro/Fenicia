@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Inventory.DTOs;
@@ -32,7 +33,7 @@ public sealed class ProductService(
             .Include(p => p.Category)
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
 
-        var filteredQuery = baseQuery;
+        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

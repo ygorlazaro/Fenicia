@@ -8,7 +8,7 @@ namespace Fenicia.Web.Services;
 
 public interface ICrudClient
 {
-    Task<TableData<TItem>> GetPageAsync<TItem>(string endpoint, TableState state, CancellationToken ct);
+    Task<TableData<TItem>> GetPageAsync<TItem>(string endpoint, TableState state, Dictionary<string, string>? filters = null, CancellationToken ct = default);
 
     Task<HttpResponseMessage> PostAsync<TPayload>(string endpoint, TPayload payload, CancellationToken ct);
 
@@ -24,7 +24,11 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<TableData<TItem>> GetPageAsync<TItem>(string endpoint, TableState state, CancellationToken ct)
+    public async Task<TableData<TItem>> GetPageAsync<TItem>(
+        string endpoint,
+        TableState state,
+        Dictionary<string, string>? filters = null,
+        CancellationToken ct = default)
     {
         var client = await CreateClientAsync();
 
@@ -36,7 +40,19 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
         var query = $"?page={page}&perPage={perPage}";
         if (!string.IsNullOrWhiteSpace(sort))
         {
-            query += $"&sort={Uri.EscapeDataString(sort)}&direction={direction}";
+            var sortPrefix = direction == "desc" ? "-" : string.Empty;
+            query += $"&sort={Uri.EscapeDataString($"{sortPrefix}{sort}")}";
+        }
+
+        if (filters is not null)
+        {
+            foreach (var filter in filters)
+            {
+                if (!string.IsNullOrWhiteSpace(filter.Value))
+                {
+                    query += $"&{Uri.EscapeDataString(filter.Key)}={Uri.EscapeDataString(filter.Value)}";
+                }
+            }
         }
 
         var response = await client.GetAsync($"{endpoint}{query}", ct);

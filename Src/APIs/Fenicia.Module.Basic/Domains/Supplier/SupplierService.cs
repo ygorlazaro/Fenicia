@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
@@ -35,7 +36,7 @@ public sealed class SupplierService(
             .ThenInclude(pa => pa.Address)
             .ThenInclude(a => a.State);
 
-        var filteredQuery = baseQuery;
+        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

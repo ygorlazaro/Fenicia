@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
@@ -29,7 +30,7 @@ public sealed class InventoryService(
         CancellationToken cancellationToken = default)
     {
         var products = await productService.GetAllWithCategoryAsync(
-            new GetAllProductQuery(query.Page, query.PerPage, query.Query, query.Sort),
+            new GetAllProductQuery(query.Page, query.PerPage, query.Query, query.Sort) { Filters = query.Filters },
             cancellationToken);
 
         var totalCostPrice = await productService.GetTotalCostPriceAsync(cancellationToken);

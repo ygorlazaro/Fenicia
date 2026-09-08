@@ -94,6 +94,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
     /// <param name="sort">Ordenação. Example: <c>name</c></param>
+    /// <param name="filters">Filtros</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do inventário</returns>
     /// <response code="200">Inventário retornado com sucesso</response>
@@ -110,6 +111,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
+        [FromQuery] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -117,7 +119,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var inventory = await inventoryService.GetAsync(
-                new GetInventoryQuery(page, perPage, query, sort),
+                new GetInventoryQuery(page, perPage, query, sort) { Filters = filters },
                 cancellationToken);
 
             return Ok(inventory);

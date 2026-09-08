@@ -24,6 +24,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
     /// <param name="sort">Ordenação. Example: <c>name</c></param>
+    /// <param name="filters">Filtros</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de fornecedores</returns>
     /// <response code="200">Lista de fornecedores retornada com sucesso</response>
@@ -40,6 +41,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
+        [FromQuery] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -47,7 +49,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var suppliers = await supplierService.GetAllAsync(
-                new GetAllSupplierQuery(page, perPage, query, sort),
+                new GetAllSupplierQuery(page, perPage, query, sort) { Filters = filters },
                 cancellationToken);
 
             return Ok(suppliers);

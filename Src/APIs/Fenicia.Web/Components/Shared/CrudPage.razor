@@ -7,6 +7,7 @@
 @inject IHttpClientFactory HttpClientFactory
 
 @using System.Threading
+@using System.Web
 @using Fenicia.Web.Services
 
 <PageTitle>@PageTitle - Fenicia</PageTitle>
@@ -203,6 +204,9 @@
     private MudTable<TItem> _table = default!;
     private HashSet<TItem> _selectedItems = new();
     private TItem? _inlineBackup;
+    private Dictionary<string, string> _filters = new(StringComparer.OrdinalIgnoreCase);
+    private string? _querySort;
+    private bool _isApplyingQueryParams;
 
     private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
 
@@ -245,6 +249,38 @@
             _autoOpenEditHandled = true;
             await TryAutoOpenEditAsync(editId);
         }
+
+        if (_isApplyingQueryParams)
+        {
+            return;
+        }
+
+        var sort = query["sort"];
+        var filters = query.AllKeys
+            .Where(k => !string.IsNullOrEmpty(k) && k is not "page" and not "perPage" and not "sort" and not "direction" and not "edit")
+            .ToDictionary(k => k!, k => query[k]!, StringComparer.OrdinalIgnoreCase);
+
+        if (!string.Equals(sort, _querySort, StringComparison.Ordinal) || !DictionaryEquals(filters, _filters))
+        {
+            _querySort = sort;
+            _filters = filters;
+            await _table.ReloadServerData();
+        }
+    }
+
+    private static bool DictionaryEquals(Dictionary<string, string>? a, Dictionary<string, string>? b)
+    {
+        if (ReferenceEquals(a, b)) return true;
+        if (a is null || b is null) return false;
+        if (a.Count != b.Count) return false;
+        foreach (var kvp in a)
+        {
+            if (!b.TryGetValue(kvp.Key, out var value) || value != kvp.Value)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private async Task TryAutoOpenEditAsync(Guid id)
@@ -308,7 +344,22 @@
             _errorMessage = null;
             StateHasChanged();
 
-            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, ct);
+            var tableSort = state.SortLabel;
+            var tableDirection = state.SortDirection == SortDirection.Descending ? "desc" : "asc";
+
+            if (!string.IsNullOrWhiteSpace(tableSort))
+            {
+                var prefix = tableDirection == "desc" ? "-" : string.Empty;
+                _querySort = $"{prefix}{tableSort}";
+            }
+            else
+            {
+                _querySort = null;
+            }
+
+            await UpdateUrlAsync();
+
+            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, _filters, ct);
         }
         catch (Exception ex)
         {
@@ -319,6 +370,54 @@
         {
             _isLoading = false;
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task UpdateUrlAsync()
+    {
+        try
+        {
+            _isApplyingQueryParams = true;
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+            if (!string.IsNullOrEmpty(_querySort))
+            {
+                query["sort"] = _querySort;
+            }
+            else
+            {
+                query.Remove("sort");
+            }
+
+            foreach (var key in query.AllKeys.Where(k => k is not null && k is not "page" and not "perPage" and not "sort" and not "direction" and not "edit").ToList())
+            {
+                query.Remove(key!);
+            }
+
+            foreach (var filter in _filters)
+            {
+                query[filter.Key] = filter.Value;
+            }
+
+            var newQuery = query.ToString();
+            if (!string.IsNullOrEmpty(newQuery))
+            {
+                newQuery = $"?{newQuery}";
+            }
+
+            var newUri = $"{uri.GetLeftPart(UriPartial.Path)}{newQuery}";
+            if (newUri != uri.ToString())
+            {
+                Navigation.NavigateTo(newUri, false);
+            }
+        }
+        catch
+        {
+        }
+        finally
+        {
+            _isApplyingQueryParams = false;
         }
     }
 

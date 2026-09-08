@@ -24,6 +24,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     /// <param name="perPage">Quantidade de registros por página (padrão: 10)</param>
     /// <param name="query">Consulta avançada para filtros</param>
     /// <param name="sort">Ordenação</param>
+    /// <param name="filters">Filtros</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de funcionários</returns>
     /// <response code="200">Lista de funcionários retornada com sucesso</response>
@@ -40,6 +41,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
+        [FromQuery] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -47,7 +49,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employees = await employeeService.GetAllAsync(
-                new GetAllEmployeeQuery(page, perPage, query, sort),
+                new GetAllEmployeeQuery(page, perPage, query, sort) { Filters = filters },
                 cancellationToken);
 
             return Ok(employees);
