@@ -146,7 +146,7 @@ public sealed class InventoryService(
             stockMovements,
             orderDetails,
             cancellationToken);
-        var (stockValueByCategory, totalStockValue) = await GetStockValueByCategoryAsync(cancellationToken);
+        var (stockValueByCategory, totalStockValue) = GetStockValueByCategoryFromZeroMovement(zeroMovementProducts);
         var summary = await GetInventoryHealthSummaryAsync(
             activeProductIds,
             zeroMovementProducts,
@@ -232,16 +232,14 @@ public sealed class InventoryService(
         return summary;
     }
 
-    private async Task<(List<StockValueByCategoryResponse> StockValueByCategories, decimal TotalStockValue)>
-        GetStockValueByCategoryAsync(CancellationToken cancellationToken = default)
+    private (List<StockValueByCategoryResponse> StockValueByCategories, decimal TotalStockValue)
+        GetStockValueByCategoryFromZeroMovement(List<ZeroMovementProductResponse> zeroMovementProducts)
     {
-        var productsByCategory = await productService.GetStockValueByCategoryAsync(cancellationToken);
-
-        var grouped = productsByCategory
+        var grouped = zeroMovementProducts
             .GroupBy(p => new { p.CategoryId, p.CategoryName })
             .Select(g =>
             {
-                var totalValue = g.Sum(p => (p.CostPrice ?? 0m) * p.Quantity);
+                var totalValue = g.Sum(p => p.StockValue);
                 return new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
             })
             .OrderByDescending(g => g.TotalStockValue)

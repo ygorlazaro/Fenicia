@@ -375,19 +375,19 @@
                         new ChartSeries<double>
                         {
                             Name = "Quantidade em Estoque",
-                            Data = BuildTop5WithOthers(_dashboard?.CategoryBreakdown, c => c.TotalQuantity).ToArray()
+                            Data = BuildTop9WithOthers(_dashboard?.CategoryBreakdown, c => c.TotalQuantity).ToArray()
                         }
                     ];
-                    _categoryChartLabels = BuildTop5Labels(_dashboard?.CategoryBreakdown, c => c.CategoryName, "Outras").ToArray();
+                    _categoryChartLabels = BuildTop9Labels(_dashboard?.CategoryBreakdown, c => c.CategoryName, "Outros").ToArray();
                     _supplierChartSeries =
                     [
                         new ChartSeries<double>
                         {
                             Name = "Quantidade em Estoque",
-                            Data = BuildTop5WithOthers(_dashboard?.SupplierBreakdown, s => s.TotalQuantity).ToArray()
+                            Data = BuildTop9WithOthers(_dashboard?.SupplierBreakdown, s => s.TotalQuantity).ToArray()
                         }
                     ];
-                    _supplierChartLabels = BuildTop5Labels(_dashboard?.SupplierBreakdown, s => s.SupplierName, "Outras").ToArray();
+                    _supplierChartLabels = BuildTop9Labels(_dashboard?.SupplierBreakdown, s => s.SupplierName, "Outros").ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -413,10 +413,10 @@
                         new ChartSeries<double>
                         {
                             Name = "Valor em Estoque",
-                            Data = BuildTop5WithOthers(_health?.StockValueByCategory, c => (double)c.TotalStockValue).ToArray()
+                                     Data = BuildTop9WithOthers(_health?.StockValueByCategory, c => (double)c.TotalStockValue).ToArray()
                         }
                     ];
-                    _stockValueByCategoryLabels = BuildTop5Labels(_health?.StockValueByCategory, c => c.CategoryName, "Outros").ToArray();
+                    _stockValueByCategoryLabels = BuildTop9Labels(_health?.StockValueByCategory, c => c.CategoryName, "Outros").ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -542,7 +542,7 @@
         public decimal ZeroMovementPercentage { get; set; }
     }
 
-    private static List<double> BuildTop5WithOthers<T>(List<T>? items, Func<T, double> selector)
+    private static List<double> BuildTop9WithOthers<T>(List<T>? items, Func<T, double> selector)
     {
         if (items is null || items.Count == 0)
         {
@@ -550,23 +550,23 @@
         }
 
         var ordered = items.OrderByDescending(selector).ToList();
-        var top = ordered.Take(5).Select(selector).ToList();
-        if (ordered.Count > 5)
+        var top = ordered.Take(9).Select(selector).ToList();
+        if (ordered.Count > 9)
         {
-            top.Add(ordered.Skip(5).Sum(selector));
+            top.Add(ordered.Skip(9).Sum(selector));
         }
         return top;
     }
 
-    private static List<string> BuildTop5Labels<T>(List<T>? items, Func<T, string> labelSelector, string otherLabel)
+    private static List<string> BuildTop9Labels<T>(List<T>? items, Func<T, string> labelSelector, string otherLabel)
     {
         if (items is null || items.Count == 0)
         {
             return [];
         }
 
-        var top = items.Take(5).Select(labelSelector).ToList();
-        if (items.Count > 5)
+        var top = items.Take(9).Select(labelSelector).ToList();
+        if (items.Count > 9)
         {
             top.Add(otherLabel);
         }
