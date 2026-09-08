@@ -26,7 +26,6 @@ public class StockMovementController(IStockMovementService stockMovementService,
     /// <param name="page">Número da página</param>
     /// <param name="perPage">Itens por página</param>
     /// <param name="query">Consulta avançada para filtros</param>
-    /// <param name="sort">Ordenação</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de movimentações de estoque</returns>
     /// <response code="200">Movimentações retornadas com sucesso</response>
@@ -45,7 +44,6 @@ public class StockMovementController(IStockMovementService stockMovementService,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
-        [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -53,7 +51,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var stockMovement = await stockMovementService.GetAsync(
-                new GetStockMovementQuery(startDate, endDate, type, page, perPage, query, sort),
+                new GetStockMovementQuery(startDate, endDate, type, page, perPage, query),
                 cancellationToken);
 
             return Ok(stockMovement);

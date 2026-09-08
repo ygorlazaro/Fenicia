@@ -40,10 +40,10 @@ public sealed class StockMovementService(
         }
 
         var filteredQuery = baseQuery
-            .ApplySearch(query.Query, "Product.Name", "Reason", "Supplier.Person.Name", "Customer.Person.Name", "Employee.Person.Name")
-            .ApplySort(query.Sort ?? "-Date");
+            .ApplySearch(query.Query, "Product.Name", "Reason", "Supplier.Person.Name", "Customer.Person.Name", "Employee.Person.Name");
 
         var movements = await filteredQuery
+            .OrderByDescending(x => x.Date)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
