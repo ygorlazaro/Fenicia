@@ -36,7 +36,7 @@ public sealed class CustomerService(
             .ThenInclude(pa => pa.Address)
             .ThenInclude(a => a.State);
 
-        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
+        var filteredQuery = baseQuery.ApplySearch(query.Query, "Person.Name", "Person.Email", "Person.PhoneNumber", "Person.Document", "Person.PersonAddresses.Address.City", "Person.PersonAddresses.Address.State.Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

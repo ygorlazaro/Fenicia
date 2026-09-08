@@ -31,53 +31,19 @@
                             <MudText Typo="Typo.h5">@PageTitle</MudText>
                             <MudText Typo="Typo.body2" Color="Color.Default">@PageSubtitle</MudText>
                         </div>
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddModal">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                                   OnClick="OpenAddModal">
                             @AddButtonLabel
                         </MudButton>
                     </MudStack>
 
-                    @if (_selectedItems is { Count: > 0 })
-                    {
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Error"
-                                   StartIcon="@Icons.Material.Filled.Delete"
-                                   OnClick="DeleteSelectedAsync"
-                                   Disabled="_isDeleting"
-                                   Class="mb-4">
-                            @if (_isDeleting)
-                            {
-                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
-                            }
-                            @DeleteSelectedLabel (_selectedItems.Count)
-                        </MudButton>
-                    }
+                    <MudTextField Value="_searchText" ValueChanged="@((string? v) => OnSearchChanged(v))" Label="Pesquisar"
+                                  Placeholder="Digite para pesquisar..." Variant="Variant.Outlined" Size="Size.Small" Immediate="true"
+                                  DebounceInterval="300" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                                  Class="mb-4" />
 
-                    @if (FilterContent is not null)
-                    {
-                        <MudGrid Spacing="2" Class="mb-4">
-                            @FilterContent
-                        </MudGrid>
-                    }
-
-                    <MudTable @ref="_table"
-                              T="TItem"
-                              MultiSelection="true"
-                              Comparer="Comparer"
-                              @bind-SelectedItems="_selectedItems"
-                              FixedHeader="true"
-                              FixedFooter="true"
-                              Height="400px"
-                              Striped="true"
-                              Hover="true"
-                              Dense="true"
-                              Loading="_isLoading"
-                              LoadingContent="_loadingContent"
-                              ServerData="ServerReload"
-                              CanCancelEdit="true"
-                              EditTrigger="TableEditTrigger.RowClick"
-                              RowEditPreview="BackupItem"
-                              RowEditCommit="ItemHasBeenCommitted"
-                              RowEditCancel="ResetItemToOriginalValues"
+                    <MudTable @ref="_table" T="TItem" FixedHeader="true" Height="400px" Striped="true" Hover="true"
+                                 Dense="true" Loading="_isLoading" ServerData="ServerReload"
                               Sortable="true">
                         <HeaderContent>
                             @HeaderContent
@@ -85,28 +51,9 @@
                         <RowTemplate>
                             @RowTemplate(new CrudRowContext<TItem>(context, this))
                         </RowTemplate>
-                        <RowEditingTemplate>
-                            @if (RowEditingTemplate is not null)
-                            {
-                                @RowEditingTemplate(context)
-                            }
-                        </RowEditingTemplate>
-                        <FooterContent>
-                            <MudTd colspan="@ColumnCount">
-                                @if (_selectedItems is { Count: > 0 })
-                                {
-                                    <MudText Typo="Typo.body2">@_selectedItems.Count item(s) selecionado(s)</MudText>
-                                }
-                                else
-                                {
-                                    <MudText Typo="Typo.body2">Nenhum item selecionado</MudText>
-                                }
-                            </MudTd>
-                        </FooterContent>
                         <PagerContent>
                             <MudTablePager PageSizeOptions="new int[] { 10, 20, 50, 100 }"
-                                           RowsPerPageString="Itens por página:"
-                                           InfoFormat="{first_item}-{last_item} de {all_items}"
+                                           RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}"
                                            AllItemsText="Todos" />
                         </PagerContent>
                     </MudTable>
@@ -177,7 +124,6 @@
     [Parameter, EditorRequired] public RenderFragment<CrudRowContext<TItem>> RowTemplate { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment<CrudModalContext<TItem>> AddModalBody { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment<CrudModalContext<TItem>> EditModalBody { get; set; } = null!;
-    [Parameter] public RenderFragment<TItem>? RowEditingTemplate { get; set; }
 
     [Parameter] public string AddButtonLabel { get; set; } = "Adicionar";
     [Parameter] public string AddTabText { get; set; } = "Novo";
@@ -187,13 +133,10 @@
     [Parameter] public string DeleteDialogTitle { get; set; } = "Excluir";
     [Parameter] public string CreateButtonLabel { get; set; } = "Criar";
     [Parameter] public string UpdateButtonLabel { get; set; } = "Atualizar";
-    [Parameter] public string DeleteSelectedLabel { get; set; } = "Excluir Selecionados";
-    [Parameter] public IEqualityComparer<TItem>? Comparer { get; set; }
     [Parameter] public Func<TItem?, string> FormatForDelete { get; set; } = item => item?.ToString() ?? string.Empty;
     [Parameter] public Func<CrudModalContext<TItem>, object>? CreatePayloadFactory { get; set; }
     [Parameter] public Action? OnAdd { get; set; }
     [Parameter] public Action<TItem>? OnEdit { get; set; }
-    [Parameter] public RenderFragment? FilterContent { get; set; }
 
     private bool _isLoggedIn;
     private bool _isLoading;
@@ -208,29 +151,14 @@
     private bool _showDeleteConfirm;
     private TItem? _itemToDelete;
     private bool _autoOpenEditHandled;
-    private TItem? _itemToOpen;
+    private string? _searchText;
 
     private MudTable<TItem> _table = default!;
-    private HashSet<TItem> _selectedItems = new();
-    private TItem? _inlineBackup;
-    private Dictionary<string, string> _filters = new(StringComparer.OrdinalIgnoreCase);
     private string? _querySort;
     private bool _isApplyingQueryParams;
-    private bool _isUpdatingFromServer;
+    private bool _urlSyncInitialized;
 
     private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
-
-    private RenderFragment _loadingContent => @<text>
-        @for (int i = 0; i < 5; i++)
-        {
-            <MudTr>
-                @for (int c = 0; c < ColumnCount; c++)
-                {
-                    <MudTd><MudSkeleton /></MudTd>
-                }
-            </MudTr>
-        }
-    </text>;
 
     protected override async Task OnInitializedAsync()
     {
@@ -260,41 +188,30 @@
             await TryAutoOpenEditAsync(editId);
         }
 
-        if (_isApplyingQueryParams || _isUpdatingFromServer)
+        if (_isApplyingQueryParams)
         {
             return;
         }
 
-        var sort = query["sort"];
-        var filters = query.AllKeys
-            .Where(k => !string.IsNullOrEmpty(k) && k is not "page" and not "perPage" and not "sort" and not "direction" and not "edit")
-            .Where(k => !string.IsNullOrEmpty(query[k]))
-            .ToDictionary(k => k!, k => query[k]!, StringComparer.OrdinalIgnoreCase);
+        if (_urlSyncInitialized)
+        {
+            return;
+        }
 
-        if (!string.Equals(sort, _querySort, StringComparison.Ordinal) || !DictionaryEquals(filters, _filters))
+        _urlSyncInitialized = true;
+
+        var search = query["query"];
+        var sort = query["sort"];
+
+        if (!string.Equals(sort, _querySort, StringComparison.Ordinal) || search != _searchText)
         {
             _querySort = sort;
-            _filters = filters;
+            _searchText = search;
             if (_table is not null)
             {
                 await _table.ReloadServerData();
             }
         }
-    }
-
-    private static bool DictionaryEquals(Dictionary<string, string>? a, Dictionary<string, string>? b)
-    {
-        if (ReferenceEquals(a, b)) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
-        foreach (var kvp in a)
-        {
-            if (!b.TryGetValue(kvp.Key, out var value) || value != kvp.Value)
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
     private async Task TryAutoOpenEditAsync(Guid id)
@@ -313,7 +230,6 @@
 
                 if (item is not null)
                 {
-                    _itemToOpen = item;
                     OpenEditModal(item);
                     return;
                 }
@@ -371,17 +287,9 @@
                 _querySort = null;
             }
 
-            _isUpdatingFromServer = true;
-            try
-            {
-                await UpdateUrlAsync();
-            }
-            finally
-            {
-                _isUpdatingFromServer = false;
-            }
+            await UpdateUrlAsync();
 
-            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, _filters, ct);
+            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, _searchText, ct);
         }
         catch (OperationCanceledException)
         {
@@ -416,14 +324,13 @@
                 query.Remove("sort");
             }
 
-            foreach (var key in query.AllKeys.Where(k => k is not null && k is not "page" and not "perPage" and not "sort" and not "direction" and not "edit").ToList())
+            if (!string.IsNullOrEmpty(_searchText))
             {
-                query.Remove(key!);
+                query["query"] = _searchText;
             }
-
-            foreach (var filter in _filters)
+            else
             {
-                query[filter.Key] = filter.Value;
+                query.Remove("query");
             }
 
             var newQuery = query.ToString();
@@ -447,16 +354,9 @@
         }
     }
 
-    public void SetFilter(string key, string? value)
+    private void OnSearchChanged(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            _filters.Remove(key);
-        }
-        else
-        {
-            _filters[key] = value!;
-        }
+        _searchText = value;
         _ = _table.ReloadServerData();
     }
 
@@ -577,89 +477,5 @@
             _isDeleting = false;
             await InvokeAsync(StateHasChanged);
         }
-    }
-
-    private async Task DeleteSelectedAsync()
-    {
-        if (_selectedItems is not { Count: > 0 })
-        {
-            return;
-        }
-
-        try
-        {
-            _isDeleting = true;
-            StateHasChanged();
-
-            foreach (var item in _selectedItems.ToList())
-            {
-                try
-                {
-                    await CrudClient.DeleteAsync(Endpoint, item.Id, CancellationToken.None);
-                    Snackbar.Add($"{FormatForDelete(item)} excluído(a) com sucesso!", Severity.Success);
-                }
-                catch (Exception ex)
-                {
-                    _errorMessage = $"Falha ao excluir {FormatForDelete(item)}: {ex.Message}";
-                    Snackbar.Add($"Falha ao excluir {FormatForDelete(item)}.", Severity.Error);
-                }
-            }
-
-            _selectedItems.Clear();
-            await _table.ReloadServerData();
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Erro: {ex.Message}";
-        }
-        finally
-        {
-            _isDeleting = false;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void BackupItem(object element)
-    {
-        if (element is TItem item)
-        {
-            _inlineBackup = item;
-        }
-    }
-
-    private async void ItemHasBeenCommitted(object element)
-    {
-        if (element is not TItem item || CreatePayloadFactory is null)
-        {
-            return;
-        }
-
-        try
-        {
-            _isSaving = true;
-            StateHasChanged();
-
-            var ctx = new CrudModalContext<TItem>(CrudModalMode.Edit, item, this);
-            var payload = CreatePayloadFactory(ctx);
-            await CrudClient.PatchAsync(Endpoint, item.Id, payload, CancellationToken.None);
-            Snackbar.Add($"{EntityNameSingular} atualizado(a) com sucesso!", Severity.Success);
-            await _table.ReloadServerData();
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = ex.Message;
-            Snackbar.Add($"Falha ao atualizar {EntityNameSingular.ToLowerInvariant()}.", Severity.Error);
-        }
-        finally
-        {
-            _isSaving = false;
-            _inlineBackup = default;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void ResetItemToOriginalValues(object element)
-    {
-        _inlineBackup = default;
     }
 }

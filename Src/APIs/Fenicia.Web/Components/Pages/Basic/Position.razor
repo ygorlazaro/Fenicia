@@ -18,24 +18,15 @@
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Cargo"
-          DeleteSelectedLabel="Excluir Selecionados"
-          Comparer="PositionDtoComparer.Instance"
-          FormatForDelete="(p) => p?.Name ?? string.Empty"
            CreatePayloadFactory="CreatePayload"
-           OnAdd="ResetForm"
-           OnEdit="LoadForm">
-    <FilterContent>
-        <MudItem xs="12" sm="6">
-            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-    </FilterContent>
+            OnAdd="ResetForm"
+            OnEdit="LoadForm">
     <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh Style="text-align: right">Ações</MudTh>
+        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
+        <MudTh Sortable="true" SortLabel="Name">Nome</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd Style="text-align: right">
+        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
             <MudIconButton Icon="@Icons.Material.Filled.Edit"
                            Color="Color.Info"
                            Size="Size.Small"
@@ -45,6 +36,7 @@
                            Size="Size.Small"
                            OnClick="@(() => context.Page.RequestDelete(context.Item))" />
         </MudTd>
+        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
     </RowTemplate>
     <AddModalBody>
         <MudTextField @bind-Value="_addName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
@@ -58,24 +50,14 @@
     private string _addName = string.Empty;
     private string _editName = string.Empty;
 
-    private string? _filterName;
     private CrudPage<PositionDto> _crudPage = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        ReadFiltersFromUrl();
     }
 
     protected override void OnParametersSet()
     {
-        ReadFiltersFromUrl();
-    }
-
-    private void ReadFiltersFromUrl()
-    {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        _filterName = query["Name"];
     }
 
     private void ResetForm() => _addName = string.Empty;
@@ -89,18 +71,6 @@
         {
             Name = name
         };
-    }
-
-    private sealed class PositionDtoComparer : IEqualityComparer<PositionDto>
-    {
-        public static readonly PositionDtoComparer Instance = new();
-
-        public bool Equals(PositionDto? x, PositionDto? y)
-        {
-            return x is not null && y is not null && x.Id == y.Id;
-        }
-
-        public int GetHashCode(PositionDto obj) => obj.Id.GetHashCode();
     }
 
     public class PositionDto : IEquatable<PositionDto>, ICrudItem

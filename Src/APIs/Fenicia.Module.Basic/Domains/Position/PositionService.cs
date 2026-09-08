@@ -20,7 +20,7 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
     {
         var baseQuery = positionRepository.Query();
 
-        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
+        var filteredQuery = baseQuery.ApplySearch(query.Query, "Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

@@ -8,7 +8,7 @@ namespace Fenicia.Web.Services;
 
 public interface ICrudClient
 {
-    Task<TableData<TItem>> GetPageAsync<TItem>(string endpoint, TableState state, Dictionary<string, string>? filters = null, CancellationToken ct = default);
+    Task<TableData<TItem>> GetPageAsync<TItem>(string endpoint, TableState state, string? search = null, CancellationToken ct = default);
 
     Task<HttpResponseMessage> PostAsync<TPayload>(string endpoint, TPayload payload, CancellationToken ct);
 
@@ -27,7 +27,7 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
     public async Task<TableData<TItem>> GetPageAsync<TItem>(
         string endpoint,
         TableState state,
-        Dictionary<string, string>? filters = null,
+        string? search = null,
         CancellationToken ct = default)
     {
         var client = await CreateClientAsync();
@@ -44,15 +44,9 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
             query += $"&sort={Uri.EscapeDataString($"{sortPrefix}{sort}")}";
         }
 
-        if (filters is not null)
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            foreach (var filter in filters)
-            {
-                if (!string.IsNullOrWhiteSpace(filter.Value))
-                {
-                    query += $"&{Uri.EscapeDataString(filter.Key)}={Uri.EscapeDataString(filter.Value)}";
-                }
-            }
+            query += $"&query={Uri.EscapeDataString(search)}";
         }
 
         var response = await client.GetAsync($"{endpoint}{query}", ct);

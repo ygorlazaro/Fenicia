@@ -33,7 +33,7 @@ public sealed class ProductService(
             .Include(p => p.Category)
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
 
-        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
+        var filteredQuery = baseQuery.ApplySearch(query.Query, "Name", "SKU", "Category.Name", "Supplier.Person.Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

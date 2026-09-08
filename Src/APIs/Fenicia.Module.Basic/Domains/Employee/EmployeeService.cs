@@ -37,7 +37,7 @@ public sealed class EmployeeService(
             .ThenInclude(a => a.State)
             .Include(e => e.Position);
 
-        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
+        var filteredQuery = baseQuery.ApplySearch(query.Query, "Person.Name", "Person.Email", "Person.PhoneNumber", "Person.Document", "Position.Name", "Person.PersonAddresses.Address.City", "Person.PersonAddresses.Address.State.Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

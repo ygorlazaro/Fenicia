@@ -16,7 +16,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
         var baseQuery = productCategoryRepository.Query()
             .Where(pc => pc.Deleted == null);
 
-        var filteredQuery = baseQuery.ApplyFilters(query.Filters).ApplySort(query.Sort);
+        var filteredQuery = baseQuery.ApplySearch(query.Query, "Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 

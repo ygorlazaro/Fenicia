@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
-@inject NavigationManager Navigation
 @using Fenicia.Common
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
@@ -15,51 +14,28 @@
           EntityNamePlural="funcionários"
           EntityNameSingular="Funcionário"
           Endpoint="employee"
-          ColumnCount="6"
+          ColumnCount="8"
           AddButtonLabel="Adicionar Funcionário"
           AddDialogTitle="Adicionar Funcionário"
           EditDialogTitle="Editar Funcionário"
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Funcionário"
-          DeleteSelectedLabel="Excluir Selecionados"
-          Comparer="EmployeeDtoComparer.Instance"
-          FormatForDelete="(e) => e?.Name ?? string.Empty"
            CreatePayloadFactory="CreatePayload"
-           OnAdd="ResetForm"
-           OnEdit="LoadForm">
-    <FilterContent>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterEmail" ValueChanged="@((string? v) => _crudPage.SetFilter("Email", v))" Label="Email" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterPhoneNumber" ValueChanged="@((string? v) => _crudPage.SetFilter("PhoneNumber", v))" Label="Telefone" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterPositionName" ValueChanged="@((string? v) => _crudPage.SetFilter("PositionName", v))" Label="Cargo" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterDocument" ValueChanged="@((string? v) => _crudPage.SetFilter("Document", v))" Label="Documento" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-    </FilterContent>
+            OnAdd="ResetForm"
+            OnEdit="LoadForm">
     <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh>Email</MudTh>
-        <MudTh>Cargo</MudTh>
+        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
+        <MudTh Sortable="true" SortLabel="Person.Name">Nome</MudTh>
+        <MudTh Sortable="true" SortLabel="Person.Email">Email</MudTh>
+        <MudTh Sortable="true" SortLabel="Position.Name">Cargo</MudTh>
+        <MudTh Sortable="true" SortLabel="Person.PhoneNumber">Telefone</MudTh>
+        <MudTh Sortable="true" SortLabel="Person.Document">Documento</MudTh>
         <MudTh>Cidade</MudTh>
         <MudTh>Estado</MudTh>
-        <MudTh Style="text-align: right">Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd DataLabel="Email">@(string.IsNullOrEmpty(context.Item.Email) ? "—" : context.Item.Email)</MudTd>
-        <MudTd DataLabel="Cargo">@(string.IsNullOrEmpty(context.Item.PositionName) ? "—" : context.Item.PositionName)</MudTd>
-        <MudTd DataLabel="Cidade">@(string.IsNullOrEmpty(context.Item.Address?.City) ? "—" : context.Item.Address.City)</MudTd>
-        <MudTd DataLabel="Estado">@(ResolveStateLabel(context.Item.Address?.StateId))</MudTd>
-        <MudTd Style="text-align: right">
+        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
             <MudIconButton Icon="@Icons.Material.Filled.Edit"
                            Color="Color.Info"
                            Size="Size.Small"
@@ -69,6 +45,13 @@
                            Size="Size.Small"
                            OnClick="@(() => context.Page.RequestDelete(context.Item))" />
         </MudTd>
+        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
+        <MudTd DataLabel="Email">@(string.IsNullOrEmpty(context.Item.Email) ? "—" : context.Item.Email)</MudTd>
+        <MudTd DataLabel="Cargo">@(string.IsNullOrEmpty(context.Item.PositionName) ? "—" : context.Item.PositionName)</MudTd>
+        <MudTd DataLabel="Telefone">@(string.IsNullOrEmpty(context.Item.PhoneNumber) ? "—" : context.Item.PhoneNumber)</MudTd>
+        <MudTd DataLabel="Documento">@(string.IsNullOrEmpty(context.Item.Document) ? "—" : context.Item.Document)</MudTd>
+        <MudTd DataLabel="Cidade">@(string.IsNullOrEmpty(context.Item.Address?.City) ? "—" : context.Item.Address.City)</MudTd>
+        <MudTd DataLabel="Estado">@(string.IsNullOrEmpty(context.Item.Address?.StateName) ? "—" : context.Item.Address?.StateName)</MudTd>
     </RowTemplate>
     <AddModalBody>
         <MudGrid Spacing="2">
@@ -199,33 +182,15 @@
     private EmployeeFormModel _add = new();
     private EmployeeFormModel _edit = new();
 
-    private string? _filterName;
-    private string? _filterEmail;
-    private string? _filterPhoneNumber;
-    private string? _filterPositionName;
-    private string? _filterDocument;
     private CrudPage<EmployeeDto> _crudPage = default!;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadOptionsAsync();
-        ReadFiltersFromUrl();
     }
 
     protected override void OnParametersSet()
     {
-        ReadFiltersFromUrl();
-    }
-
-    private void ReadFiltersFromUrl()
-    {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        _filterName = query["Name"];
-        _filterEmail = query["Email"];
-        _filterPhoneNumber = query["PhoneNumber"];
-        _filterPositionName = query["PositionName"];
-        _filterDocument = query["Document"];
     }
 
     private async Task LoadOptionsAsync()
@@ -362,18 +327,6 @@
         public string Name { get; set; } = string.Empty;
     }
 
-    private sealed class EmployeeDtoComparer : IEqualityComparer<EmployeeDto>
-    {
-        public static readonly EmployeeDtoComparer Instance = new();
-
-        public bool Equals(EmployeeDto? x, EmployeeDto? y)
-        {
-            return x is not null && y is not null && x.Id == y.Id;
-        }
-
-        public int GetHashCode(EmployeeDto obj) => obj.Id.GetHashCode();
-    }
-
     public class EmployeeDto : IEquatable<EmployeeDto>, ICrudItem
     {
         public Guid Id { get; set; }
@@ -404,6 +357,7 @@
         public string? Neighborhood { get; set; }
         public string ZipCode { get; set; } = string.Empty;
         public Guid StateId { get; set; }
+        public string? StateName { get; set; }
         public string City { get; set; } = string.Empty;
         public string? Country { get; set; }
     }

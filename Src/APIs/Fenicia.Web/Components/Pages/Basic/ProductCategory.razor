@@ -2,8 +2,6 @@
 @rendermode InteractiveServer
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
-@using System.Web
-@inject NavigationManager Navigation
 
 <CrudPage @ref="_crudPage" TItem="ProductCategoryDto"
           PageTitle="Categorias de Produtos"
@@ -20,24 +18,15 @@
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Categoria"
-          DeleteSelectedLabel="Excluir Selecionados"
-          Comparer="ProductCategoryComparer.Instance"
-          FormatForDelete="(c) => c?.Name ?? string.Empty"
            CreatePayloadFactory="CreatePayload"
-           OnAdd="ResetAddName"
-           OnEdit="LoadEditName">
-    <FilterContent>
-        <MudItem xs="12" sm="6">
-            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-    </FilterContent>
+            OnAdd="ResetAddName"
+            OnEdit="LoadEditName">
     <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh Style="text-align: right">Ações</MudTh>
+        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
+        <MudTh Sortable="true" SortLabel="Name">Nome</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd Style="text-align: right">
+        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
             <MudIconButton Icon="@Icons.Material.Filled.Edit"
                            Color="Color.Info"
                            Size="Size.Small"
@@ -47,6 +36,7 @@
                            Size="Size.Small"
                            OnClick="@(() => context.Page.RequestDelete(context.Item))" />
         </MudTd>
+        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
     </RowTemplate>
     <AddModalBody>
         <MudTextField @bind-Value="_addName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
@@ -60,25 +50,7 @@
     private string _addName = string.Empty;
     private string _editName = string.Empty;
 
-    private string? _filterName;
     private CrudPage<ProductCategoryDto> _crudPage = default!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        ReadFiltersFromUrl();
-    }
-
-    protected override void OnParametersSet()
-    {
-        ReadFiltersFromUrl();
-    }
-
-    private void ReadFiltersFromUrl()
-    {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        _filterName = query["Name"];
-    }
 
     private void ResetAddName() => _addName = string.Empty;
 
@@ -92,18 +64,6 @@
             Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
             Name = name
         };
-    }
-
-    private sealed class ProductCategoryComparer : IEqualityComparer<ProductCategoryDto>
-    {
-        public static readonly ProductCategoryComparer Instance = new();
-
-        public bool Equals(ProductCategoryDto? x, ProductCategoryDto? y)
-        {
-            return x is not null && y is not null && x.Id == y.Id;
-        }
-
-        public int GetHashCode(ProductCategoryDto obj) => obj.Id.GetHashCode();
     }
 
     public class ProductCategoryDto : IEquatable<ProductCategoryDto>, ICrudItem

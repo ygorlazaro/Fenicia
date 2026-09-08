@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
-@inject NavigationManager Navigation
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
 @using Fenicia.Common
@@ -22,43 +21,20 @@
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Produto"
-          DeleteSelectedLabel="Excluir Selecionados"
-          Comparer="ProductDtoComparer.Instance"
-          FormatForDelete="(p) => p?.Name ?? string.Empty"
            CreatePayloadFactory="CreatePayload"
-           OnAdd="ResetForm"
-           OnEdit="LoadForm">
-    <FilterContent>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterSku" ValueChanged="@((string? v) => _crudPage.SetFilter("SKU", v))" Label="SKU" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterCategoryName" ValueChanged="@((string? v) => _crudPage.SetFilter("CategoryName", v))" Label="Categoria" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField Value="_filterSupplierName" ValueChanged="@((string? v) => _crudPage.SetFilter("SupplierName", v))" Label="Fornecedor" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
-        </MudItem>
-    </FilterContent>
+            OnAdd="ResetForm"
+            OnEdit="LoadForm">
     <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh>SKU</MudTh>
-        <MudTh Style="text-align: right">Preço de Venda</MudTh>
-        <MudTh Style="text-align: right">Quantidade</MudTh>
-        <MudTh>Categoria</MudTh>
-        <MudTh>Fornecedor</MudTh>
-        <MudTh Style="text-align: right">Ações</MudTh>
+        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
+        <MudTh Sortable="true" SortLabel="Name">Nome</MudTh>
+        <MudTh Sortable="true" SortLabel="SKU">SKU</MudTh>
+        <MudTh Sortable="true" SortLabel="SalesPrice" Style="text-align: right">Preço de Venda</MudTh>
+        <MudTh Sortable="true" SortLabel="Quantity" Style="text-align: right">Quantidade</MudTh>
+        <MudTh Sortable="true" SortLabel="Category.Name">Categoria</MudTh>
+        <MudTh Sortable="true" SortLabel="Supplier.Person.Name">Fornecedor</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd DataLabel="SKU">@(string.IsNullOrEmpty(context.Item.SKU) ? "—" : context.Item.SKU)</MudTd>
-        <MudTd DataLabel="Preço de Venda" Style="text-align: right">@Money.Format(context.Item.SalesPrice)</MudTd>
-        <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Item.Quantity</MudTd>
-        <MudTd DataLabel="Categoria">@context.Item.CategoryName</MudTd>
-        <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(context.Item.SupplierName) ? "—" : context.Item.SupplierName)</MudTd>
-        <MudTd Style="text-align: right">
+        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
             <MudIconButton Icon="@Icons.Material.Filled.Edit"
                            Color="Color.Info"
                            Size="Size.Small"
@@ -68,6 +44,12 @@
                            Size="Size.Small"
                            OnClick="@(() => context.Page.RequestDelete(context.Item))" />
         </MudTd>
+        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
+        <MudTd DataLabel="SKU">@(string.IsNullOrEmpty(context.Item.SKU) ? "—" : context.Item.SKU)</MudTd>
+        <MudTd DataLabel="Preço de Venda" Style="text-align: right">@Money.Format(context.Item.SalesPrice)</MudTd>
+        <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Item.Quantity</MudTd>
+        <MudTd DataLabel="Categoria">@context.Item.CategoryName</MudTd>
+        <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(context.Item.SupplierName) ? "—" : context.Item.SupplierName)</MudTd>
     </RowTemplate>
     <AddModalBody>
         <MudGrid Spacing="2">
@@ -201,31 +183,15 @@
     private ProductFormModel _add = new();
     private ProductFormModel _edit = new();
 
-    private string? _filterName;
-    private string? _filterSku;
-    private string? _filterCategoryName;
-    private string? _filterSupplierName;
     private CrudPage<ProductDto> _crudPage = default!;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadOptionsAsync();
-        ReadFiltersFromUrl();
     }
 
     protected override void OnParametersSet()
     {
-        ReadFiltersFromUrl();
-    }
-
-    private void ReadFiltersFromUrl()
-    {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        _filterName = query["Name"];
-        _filterSku = query["SKU"];
-        _filterCategoryName = query["CategoryName"];
-        _filterSupplierName = query["SupplierName"];
     }
 
     private async Task LoadOptionsAsync()
@@ -323,18 +289,6 @@
             CategoryId = model.CategoryId,
             SupplierId = model.SupplierId
         };
-    }
-
-    private sealed class ProductDtoComparer : IEqualityComparer<ProductDto>
-    {
-        public static readonly ProductDtoComparer Instance = new();
-
-        public bool Equals(ProductDto? x, ProductDto? y)
-        {
-            return x is not null && y is not null && x.Id == y.Id;
-        }
-
-        public int GetHashCode(ProductDto obj) => obj.Id.GetHashCode();
     }
 
     public class ProductDto : IEquatable<ProductDto>, ICrudItem
