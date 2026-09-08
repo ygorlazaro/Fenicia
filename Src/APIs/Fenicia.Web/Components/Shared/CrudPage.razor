@@ -274,7 +274,10 @@
         {
             _querySort = sort;
             _filters = filters;
-            await _table.ReloadServerData();
+            if (_table is not null)
+            {
+                await _table.ReloadServerData();
+            }
         }
     }
 
