@@ -133,10 +133,10 @@
         }
         else
         {
-            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0" SortLabel="Ordenar por" DefaultSortLabel="Date" SortDirection="SortDirection.Descending">
+            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0">
                 <HeaderContent>
                     <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
-                    <MudTh><MudTableSortLabel SortLabel="Date" T="StockMovementDto">Data</MudTableSortLabel></MudTh>
+                    <MudTh>Data</MudTh>
                     <MudTh>Tipo</MudTh>
                     <MudTh>Produto</MudTh>
                     <MudTh Style="text-align: right">Quantidade</MudTh>
@@ -408,7 +408,6 @@
             {
                 query.Add($"type={MapType(_typeFilter)}");
             }
-            query.Add("sort=-Date");
             query.Add("page=1");
             query.Add("perPage=200");
 
