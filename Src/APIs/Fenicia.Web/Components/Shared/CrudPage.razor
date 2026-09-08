@@ -31,10 +31,20 @@
                             <MudText Typo="Typo.h5">@PageTitle</MudText>
                             <MudText Typo="Typo.body2" Color="Color.Default">@PageSubtitle</MudText>
                         </div>
+                        @if (!string.IsNullOrEmpty(AddButtonHref))
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                                   Href="@AddButtonHref">
+                            @AddButtonLabel
+                        </MudButton>
+                    }
+                    else
+                    {
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
                                    OnClick="OpenAddModal">
                             @AddButtonLabel
                         </MudButton>
+                    }
                     </MudStack>
 
                     <MudTextField Value="_searchText" ValueChanged="@((string? v) => OnSearchChanged(v))" Label="Pesquisar"
@@ -126,6 +136,7 @@
     [Parameter, EditorRequired] public RenderFragment<CrudModalContext<TItem>> EditModalBody { get; set; } = null!;
 
     [Parameter] public string AddButtonLabel { get; set; } = "Adicionar";
+    [Parameter] public string? AddButtonHref { get; set; }
     [Parameter] public string AddTabText { get; set; } = "Novo";
     [Parameter] public string EditTabText { get; set; } = "Editar";
     [Parameter] public string AddDialogTitle { get; set; } = "Adicionar";
