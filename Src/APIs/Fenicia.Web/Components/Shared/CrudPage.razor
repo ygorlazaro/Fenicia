@@ -157,6 +157,7 @@
     private string? _querySort;
     private bool _isApplyingQueryParams;
     private bool _urlSyncInitialized;
+    private Dictionary<string, string> _filters = new();
 
     private DialogOptions _dialogOptions = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
 
@@ -203,15 +204,61 @@
         var search = query["query"];
         var sort = query["sort"];
 
-        if (!string.Equals(sort, _querySort, StringComparison.Ordinal) || search != _searchText)
+        var parsedFilters = new Dictionary<string, string>();
+        const string prefix = "filters[";
+        foreach (var key in query.AllKeys)
+        {
+            if (string.IsNullOrEmpty(key) || !key.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var closeIdx = key.LastIndexOf(']');
+            if (closeIdx <= prefix.Length)
+            {
+                continue;
+            }
+
+            var filterKey = key.Substring(prefix.Length, closeIdx - prefix.Length);
+            var filterValue = query[key];
+            if (!string.IsNullOrEmpty(filterValue))
+            {
+                parsedFilters[filterKey] = filterValue;
+            }
+        }
+
+        var needsReload = !string.Equals(sort, _querySort, StringComparison.Ordinal)
+            || search != _searchText
+            || !DictionaryEqual(_filters, parsedFilters);
+
+        if (needsReload)
         {
             _querySort = sort;
             _searchText = search;
+            _filters = parsedFilters;
             if (_table is not null)
             {
                 await _table.ReloadServerData();
             }
         }
+    }
+
+    private static bool DictionaryEqual(Dictionary<string, string> a, Dictionary<string, string> b)
+    {
+        if (a.Count != b.Count)
+        {
+            return false;
+        }
+
+        foreach (var kvp in a)
+        {
+            if (!b.TryGetValue(kvp.Key, out var value) || value != kvp.Value)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private async Task TryAutoOpenEditAsync(Guid id)
@@ -289,7 +336,7 @@
 
             await UpdateUrlAsync();
 
-            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, _searchText, ct);
+            return await CrudClient.GetPageAsync<TItem>(Endpoint, state, _searchText, _filters, ct);
         }
         catch (OperationCanceledException)
         {
@@ -339,7 +386,19 @@
                 newQuery = $"?{newQuery}";
             }
 
-            var newUri = $"{uri.GetLeftPart(UriPartial.Path)}{newQuery}";
+            var newQuerySb = new System.Text.StringBuilder(newQuery);
+            foreach (var filter in _filters)
+            {
+                if (string.IsNullOrWhiteSpace(filter.Value))
+                {
+                    continue;
+                }
+
+                newQuerySb.Append(newQuerySb.Length > 1 ? '&' : '?');
+                newQuerySb.Append($"filters[{Uri.EscapeDataString(filter.Key)}]={Uri.EscapeDataString(filter.Value)}");
+            }
+
+            var newUri = $"{uri.GetLeftPart(UriPartial.Path)}{newQuerySb}";
             if (newUri != uri.ToString())
             {
                 Navigation.NavigateTo(newUri, false);
