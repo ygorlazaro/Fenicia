@@ -140,14 +140,12 @@
                     }
                     else
                     {
-                        <div class="chart-wrap">
-                            <MudChart T="double" ChartType="ChartType.Line"
-                                      ChartSeries="@_revenueChartSeries"
-                                      ChartLabels="@_revenueChartLabels"
-                                      ChartOptions="@_lineOptions"
-                                      Width="100%"
-                                      Height="320px" />
-                        </div>
+                        <MudChart T="double" ChartType="ChartType.Line"
+                                  ChartSeries="@_revenueChartSeries"
+                                  ChartLabels="@_revenueChartLabels"
+                                  ChartOptions="@_lineOptions"
+                                  Width="100%"
+                                  Height="320px" />
                     }
                 </MudPaper>
             </MudItem>
@@ -161,14 +159,11 @@
                     }
                     else
                     {
-                        <div class="chart-wrap">
-                            <MudChart T="double" ChartType="ChartType.Donut"
-                                      ChartSeries="@_statusSeries"
-                                      ChartLabels="@_statusLabels"
-                                      ChartOptions="@_donutOptions"
-                                      Width="100%"
-                                      Height="280px" />
-                        </div>
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  ChartSeries="@_statusSeries"
+                                  ChartLabels="@_statusLabels"
+                                  ChartOptions="@_donutOptions"
+                                  Width="100%" Height="220px" />
                     }
                 </MudPaper>
             </MudItem>
@@ -518,20 +513,6 @@
         border: 1px solid rgba(94, 53, 177, 0.1);
     }
 
-    .chart-wrap {
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .chart-wrap .mud-chart {
-        width: 100% !important;
-        max-width: 100%;
-    }
-
-    .chart-wrap .mud-chart svg {
-        max-width: 100%;
-        height: auto;
-    }
 </style>
 
 @code {

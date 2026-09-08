@@ -96,14 +96,12 @@
                     }
                     else
                     {
-                        <div class="chart-wrap">
-                            <MudChart T="double" ChartType="ChartType.Donut"
-                                      ChartSeries="@_categoryChartSeries"
-                                      ChartLabels="@_categoryChartLabels"
-                                      ChartOptions="@_donutOptions"
-                                      Width="100%"
-                                      Height="280px" />
-                        </div>
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  ChartSeries="@_categoryChartSeries"
+                                  ChartLabels="@_categoryChartLabels"
+                                  ChartOptions="@_donutOptions"
+                                  Width="100%"
+                                  Height="220px" />
                     }
                 </MudPaper>
             </MudItem>
@@ -116,14 +114,12 @@
                     }
                     else
                     {
-                        <div class="chart-wrap">
-                            <MudChart T="double" ChartType="ChartType.Donut"
-                                      ChartSeries="@_supplierChartSeries"
-                                      ChartLabels="@_supplierChartLabels"
-                                      ChartOptions="@_donutOptions"
-                                      Width="100%"
-                                      Height="280px" />
-                        </div>
+                        <MudChart T="double" ChartType="ChartType.Donut"
+                                  ChartSeries="@_supplierChartSeries"
+                                  ChartLabels="@_supplierChartLabels"
+                                  ChartOptions="@_donutOptions"
+                                  Width="100%"
+                                  Height="220px" />
                     }
                 </MudPaper>
             </MudItem>
@@ -254,14 +250,12 @@
                         }
                         else
                         {
-                            <div class="chart-wrap">
-                                <MudChart T="double" ChartType="ChartType.Bar"
-                                          ChartSeries="@_stockValueByCategorySeries"
-                                          ChartLabels="@_stockValueByCategoryLabels"
-                                          ChartOptions="@_barOptions"
-                                          Width="100%"
-                                          Height="320px" />
-                            </div>
+                            <MudChart T="double" ChartType="ChartType.Bar"
+                                      ChartSeries="@_stockValueByCategorySeries"
+                                      ChartLabels="@_stockValueByCategoryLabels"
+                                      ChartOptions="@_barOptions"
+                                      Width="100%"
+                                      Height="320px" />
                         }
                     </MudPaper>
                 </MudItem>
@@ -360,23 +354,6 @@
     }
 </MudContainer>
 </MainLayout>
-
-<style>
-    .chart-wrap {
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .chart-wrap .mud-chart {
-        width: 100% !important;
-        max-width: 100%;
-    }
-
-    .chart-wrap .mud-chart svg {
-        max-width: 100%;
-        height: auto;
-    }
-</style>
 
 @code {
     private static readonly JsonSerializerOptions JsonOptions = new()
