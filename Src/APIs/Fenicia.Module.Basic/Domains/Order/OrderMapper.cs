@@ -45,7 +45,8 @@ public static partial class OrderMapper
             order.Status.ToString(),
             order.PaymentMethod,
             order.Notes,
-            order.EmployeeId);
+            order.EmployeeId,
+            order.Employee?.Person.Name);
     }
 
     public static CreateOrderResponse MapToCreateOrderResponse(this OrderModel order)

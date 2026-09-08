@@ -12,6 +12,7 @@ public class OrderRepository(DefaultContext context) : Repository<OrderModel>(co
     {
         return DbSet
             .Include(o => o.Customer).ThenInclude(c => c.Person)
+            .Include(o => o.Employee).ThenInclude(e => e!.Person)
             .Include(o => o.Details).ThenInclude(d => d.Product)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }

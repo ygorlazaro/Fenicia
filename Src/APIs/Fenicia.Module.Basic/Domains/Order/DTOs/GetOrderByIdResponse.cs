@@ -16,4 +16,5 @@ public record GetOrderByIdResponse(
     [Required] [MaxLength(200)] string Status,
     [Required] PaymentMethod PaymentMethod,
     string? Notes,
-    Guid? EmployeeId = null);
+    Guid? EmployeeId = null,
+    string? EmployeeName = null);

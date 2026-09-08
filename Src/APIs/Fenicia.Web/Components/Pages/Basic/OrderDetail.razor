@@ -127,10 +127,10 @@
                         @if (_order.EmployeeId.HasValue)
                         {
                             <div class="invoice-row">
-                                <MudText>Vendedor:</MudText>
-                                <MudLink Href="@($"/basic/employee?edit={_order.EmployeeId}")" Underline="Underline.Hover">
-                                    @_order.EmployeeId.Value.ToString()[..8]
-                                </MudLink>
+                                 <MudText>Vendedor:</MudText>
+                                 <MudLink Href="@($"/basic/employee?edit={_order.EmployeeId}")" Underline="Underline.Hover">
+                                     @_order.EmployeeName
+                                 </MudLink>
                             </div>
                         }
                         <MudDivider Class="my-2" />
@@ -328,6 +328,7 @@
         public PaymentMethod PaymentMethod { get; set; }
         public string? Notes { get; set; }
         public Guid? EmployeeId { get; set; }
+        public string? EmployeeName { get; set; }
     }
 
     public class OrderDetailDto
