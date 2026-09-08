@@ -48,7 +48,7 @@
                     </MudAvatar>
                     <MudText Typo="Typo.overline">Custo Total</MudText>
                 </MudStack>
-                <MudText Typo="Typo.h5" Class="mt-2">@_dashboard.TotalCostValue.ToString("C")</MudText>
+                <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(_dashboard.TotalCostValue)</MudText>
             </MudPaper>
         </MudItem>
             <MudItem xs="12" sm="6" md="3">
@@ -59,7 +59,7 @@
                         </MudAvatar>
                         <MudText Typo="Typo.overline">Venda Total</MudText>
                     </MudStack>
-                    <MudText Typo="Typo.h5" Class="mt-2">@_dashboard.TotalSalesValue.ToString("C")</MudText>
+                    <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(_dashboard.TotalSalesValue)</MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
@@ -70,7 +70,7 @@
                         </MudAvatar>
                         <MudText Typo="Typo.overline">Lucro Potencial</MudText>
                     </MudStack>
-                    <MudText Typo="Typo.h5" Color="@ProfitColor" Class="mt-2">@_dashboard.ProfitPotential.ToString("C")</MudText>
+                    <MudText Typo="Typo.h5" Color="@ProfitColor" Class="mt-2">@Money.Format(_dashboard.ProfitPotential)</MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
@@ -166,8 +166,8 @@
                         <MudTd DataLabel="Quantidade" Style="text-align: right">
                             <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@context.Quantity</MudChip>
                         </MudTd>
-                        <MudTd DataLabel="Custo" Style="text-align: right">@((context.CostPrice ?? 0).ToString("C"))</MudTd>
-                        <MudTd DataLabel="Venda" Style="text-align: right">@context.SalesPrice.ToString("C")</MudTd>
+                        <MudTd DataLabel="Custo" Style="text-align: right">@(Money.Format(context.CostPrice ?? 0))</MudTd>
+                        <MudTd DataLabel="Venda" Style="text-align: right">@Money.Format(context.SalesPrice)</MudTd>
                     </RowTemplate>
                 </MudTable>
             }
@@ -234,7 +234,7 @@
                             </MudAvatar>
                             <MudText Typo="Typo.overline">Valor em Estoque</MudText>
                         </MudStack>
-                        <MudText Typo="Typo.h5" Class="mt-2">@_health.Summary.TotalStockValue.ToString("C")</MudText>
+                        <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(_health.Summary.TotalStockValue)</MudText>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -245,7 +245,7 @@
                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
                             <MudText Typo="Typo.h6">Valor em Estoque por Categoria</MudText>
                             <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
-                                @_health.Summary.TotalStockValue.ToString("C")
+                                @Money.Format(_health.Summary.TotalStockValue)
                             </MudChip>
                         </MudStack>
                         @if (_stockValueByCategoryLabels.Length == 0)
@@ -270,7 +270,7 @@
                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
                             <MudText Typo="Typo.h6">Alerta de Overstock</MudText>
                             <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Outlined">
-                                @_health.OverstockAlert.TotalOverstockValue.ToString("C")
+                                @Money.Format(_health.OverstockAlert.TotalOverstockValue)
                             </MudChip>
                         </MudStack>
                         @if (_health.OverstockAlert.Products.Count == 0)
@@ -296,7 +296,7 @@
                         </MudTd>
                         <MudTd DataLabel="Qtd. Atual" Style="text-align: right">@context.CurrentQuantity.ToString("N0")</MudTd>
                         <MudTd DataLabel="Qtd. Recomendada" Style="text-align: right">@context.RecommendedQuantity.ToString("N0")</MudTd>
-                        <MudTd DataLabel="Excesso (R$)" Style="text-align: right">@context.ExcessValue.ToString("C")</MudTd>
+                        <MudTd DataLabel="Excesso (R$)" Style="text-align: right">@Money.Format(context.ExcessValue)</MudTd>
                     </RowTemplate>
                             </MudTable>
                         }
@@ -348,7 +348,7 @@
                             }
                         </MudTd>
                             <MudTd DataLabel="Estoque" Style="text-align: right">@context.CurrentStock.ToString("N0")</MudTd>
-                            <MudTd DataLabel="Valor" Style="text-align: right">@context.StockValue.ToString("C")</MudTd>
+                            <MudTd DataLabel="Valor" Style="text-align: right">@Money.Format(context.StockValue)</MudTd>
                             <MudTd DataLabel="Dias sem mover" Style="text-align: right">
                                 <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">@context.DaysWithoutMovement</MudChip>
                             </MudTd>

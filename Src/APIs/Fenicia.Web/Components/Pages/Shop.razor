@@ -50,7 +50,7 @@
                                                 <MudText Typo="Typo.caption" Color="Color.Default">Tipo: @TranslateModuleType(module.Type)</MudText>
                                                 @if (module.Price.HasValue)
                                                 {
-                                                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="module-price">@($"${module.Price.Value:F2}")</MudText>
+                                                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="module-price">@(Money.Format(module.Price!.Value))</MudText>
                                                 }
                                             </MudStack>
                                         </MudStack>

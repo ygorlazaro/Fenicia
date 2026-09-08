@@ -98,9 +98,9 @@
                                     </MudLink>
                                 </td>
                                         <td style="text-align:right">@item.Quantity.ToString("0.##")</td>
-                                        <td style="text-align:right">@item.Price.ToString("C")</td>
-                                        <td style="text-align:right">@(item.DiscountAmount > 0 ? "-" + item.DiscountAmount.ToString("C") : "—")</td>
-                                        <td style="text-align:right"><strong>@item.Subtotal.ToString("C")</strong></td>
+                                        <td style="text-align:right">@Money.Format(item.Price)</td>
+                                        <td style="text-align:right">@(item.DiscountAmount > 0 ? "-" + Money.Format(item.DiscountAmount) : "—")</td>
+                                        <td style="text-align:right"><strong>@Money.Format(item.Subtotal)</strong></td>
                                     </tr>
                                 }
                             </tbody>
@@ -140,19 +140,19 @@
                         </div>
                         <div class="invoice-row">
                             <MudText>Subtotal:</MudText>
-                            <MudText>@((_order.TotalAmount + _order.DiscountAmount).ToString("C"))</MudText>
+                            <MudText>@(Money.Format(_order.TotalAmount + _order.DiscountAmount))</MudText>
                         </div>
                         @if (_order.DiscountAmount > 0)
                         {
                             <div class="invoice-row">
                                 <MudText>Desconto:</MudText>
-                                <MudText Color="Color.Warning">- @_order.DiscountAmount.ToString("C")</MudText>
+                                <MudText Color="Color.Warning">- @Money.Format(_order.DiscountAmount)</MudText>
                             </div>
                         }
                         <MudDivider Class="my-2" />
                         <div class="invoice-row">
                             <MudText Typo="Typo.h6">Total:</MudText>
-                            <MudText Typo="Typo.h6" Color="Color.Primary">@_order.TotalAmount.ToString("C")</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary">@Money.Format(_order.TotalAmount)</MudText>
                         </div>
                     </MudStack>
 

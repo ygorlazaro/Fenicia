@@ -109,7 +109,7 @@
                                                     @(product.Quantity > 0 ? $"Estoque: {product.Quantity:0.##}" : "Sem estoque")
                                                 </MudChip>
                                                 <MudText Typo="Typo.h6" Color="Color.Primary">
-                                                    @product.SalesPrice.ToString("C")
+                                                    @Money.Format(product.SalesPrice)
                                                 </MudText>
                                             </MudStack>
                                         </MudStack>
@@ -216,10 +216,10 @@
                                             </MudStack>
                                             <MudStack Spacing="0" AlignItems="AlignItems.End">
                                                 <MudText Typo="Typo.caption" Color="Color.Default">
-                                                    @item.UnitPrice.ToString("C") x @item.Quantity.ToString("0.##")
+                                                    @Money.Format(item.UnitPrice) x @item.Quantity.ToString("0.##")
                                                 </MudText>
                                                 <MudText Typo="Typo.subtitle2" Color="Color.Primary">
-                                                    @item.Subtotal.ToString("C")
+                                                    @Money.Format(item.Subtotal)
                                                 </MudText>
                                             </MudStack>
                                         </MudStack>
@@ -238,16 +238,16 @@
                         </MudStack>
                         <MudStack Row="true" Justify="Justify.SpaceBetween">
                             <MudText>Subtotal:</MudText>
-                            <MudText>@_subtotal.ToString("C")</MudText>
+                            <MudText>@Money.Format(_subtotal)</MudText>
                         </MudStack>
                         <MudStack Row="true" Justify="Justify.SpaceBetween">
                             <MudText>Desconto:</MudText>
-                            <MudText Color="Color.Warning">- @_cartDiscount.ToString("C")</MudText>
+                            <MudText Color="Color.Warning">- @Money.Format(_cartDiscount)</MudText>
                         </MudStack>
                         <MudDivider Class="my-2" />
                         <MudStack Row="true" Justify="Justify.SpaceBetween">
                             <MudText Typo="Typo.h6">Total:</MudText>
-                            <MudText Typo="Typo.h6" Color="Color.Primary">@_total.ToString("C")</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary">@Money.Format(_total)</MudText>
                         </MudStack>
                     </MudStack>
 
@@ -310,7 +310,7 @@
                                                      Variant="Variant.Filled">
                                                 @o.Status
                                             </MudChip>
-                                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">@o.TotalAmount.ToString("C")</MudText>
+                                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">@Money.Format(o.TotalAmount)</MudText>
                                         </MudStack>
                                     </MudStack>
                                 </MudPaper>
@@ -331,7 +331,7 @@
             <DialogContent>
                 <MudStack Spacing="2">
                     <MudText>Pedido <strong>@_lastOrderNumber</strong> criado com sucesso!</MudText>
-                    <MudText>Total: <strong>@_lastOrderTotal.ToString("C")</strong></MudText>
+                    <MudText>Total: <strong>@Money.Format(_lastOrderTotal)</strong></MudText>
                 </MudStack>
             </DialogContent>
             <DialogActions>

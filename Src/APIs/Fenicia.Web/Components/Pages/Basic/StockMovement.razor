@@ -98,7 +98,7 @@
                         </MudLink>
                     </MudTd>
                     <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Quantity.ToString("N2")</MudTd>
-                    <MudTd DataLabel="Preço" Style="text-align: right">@((context.Price ?? 0).ToString("C"))</MudTd>
+                    <MudTd DataLabel="Preço" Style="text-align: right">@(Money.Format(context.Price ?? 0))</MudTd>
                     <MudTd DataLabel="Origem">
                         @{
                             var origin = ResolveOrigin(context);

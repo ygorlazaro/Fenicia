@@ -39,7 +39,7 @@
     <RowTemplate>
         <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
         <MudTd DataLabel="SKU">@(string.IsNullOrEmpty(context.Item.SKU) ? "—" : context.Item.SKU)</MudTd>
-        <MudTd DataLabel="Preço de Venda" Style="text-align: right">@context.Item.SalesPrice.ToString("C")</MudTd>
+        <MudTd DataLabel="Preço de Venda" Style="text-align: right">@Money.Format(context.Item.SalesPrice)</MudTd>
         <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Item.Quantity</MudTd>
         <MudTd DataLabel="Categoria">@context.Item.CategoryName</MudTd>
         <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(context.Item.SupplierName) ? "—" : context.Item.SupplierName)</MudTd>

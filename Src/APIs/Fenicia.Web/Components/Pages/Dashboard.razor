@@ -57,14 +57,14 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                         <div>
                             <MudText Typo="Typo.overline" Color="Color.Default">Receita Total</MudText>
-                            <MudText Typo="Typo.h5" Color="Color.Success">@_financial.Kpi.TotalRevenue.ToString("C")</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Success">@Money.Format(_financial.Kpi.TotalRevenue)</MudText>
                         </div>
                         <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
                             <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
                         </MudAvatar>
                     </MudStack>
                     <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                        @_financial.Kpi.TotalOrders pedido(s) · Ticket médio: @_financial.Kpi.AverageOrderValue.ToString("C")
+                        @_financial.Kpi.TotalOrders pedido(s) · Ticket médio: @Money.Format(_financial.Kpi.AverageOrderValue)
                     </MudText>
                 </MudPaper>
             </MudItem>
@@ -74,7 +74,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                         <div>
                             <MudText Typo="Typo.overline" Color="Color.Default">Custo Total</MudText>
-                            <MudText Typo="Typo.h5" Color="Color.Error">@_financial.Kpi.TotalCost.ToString("C")</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Error">@Money.Format(_financial.Kpi.TotalCost)</MudText>
                         </div>
                         <MudAvatar Color="Color.Error" Variant="Variant.Outlined" Size="Size.Medium">
                             <MudIcon Icon="@Icons.Material.Filled.MoneyOff" />
@@ -91,7 +91,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                         <div>
                             <MudText Typo="Typo.overline" Color="Color.Default">Lucro Bruto</MudText>
-                            <MudText Typo="Typo.h5" Color="@ProfitColor">@_financial.Kpi.GrossProfit.ToString("C")</MudText>
+                            <MudText Typo="Typo.h5" Color="@ProfitColor">@Money.Format(_financial.Kpi.GrossProfit)</MudText>
                         </div>
                         <MudAvatar Color="@ProfitColor" Variant="Variant.Outlined" Size="Size.Medium">
                             <MudIcon Icon="@Icons.Material.Filled.Savings" />
@@ -186,21 +186,21 @@
                         <MudItem xs="12" sm="4">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Hoje</MudText>
-                                <MudText Typo="Typo.h6">@_financial.DailySales.TodayRevenue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6">@Money.Format(_financial.DailySales.TodayRevenue)</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">@_financial.DailySales.TodayOrders pedido(s)</MudText>
                             </div>
                         </MudItem>
                         <MudItem xs="12" sm="4">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Esta semana</MudText>
-                                <MudText Typo="Typo.h6">@_financial.DailySales.WeekRevenue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6">@Money.Format(_financial.DailySales.WeekRevenue)</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">@_financial.DailySales.WeekOrders pedido(s)</MudText>
                             </div>
                         </MudItem>
                         <MudItem xs="12" sm="4">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Este mês</MudText>
-                                <MudText Typo="Typo.h6">@_financial.DailySales.MonthRevenue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6">@Money.Format(_financial.DailySales.MonthRevenue)</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">@_financial.DailySales.MonthOrders pedido(s)</MudText>
                             </div>
                         </MudItem>
@@ -211,7 +211,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="flex-wrap">
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Default">Crescimento vs mês anterior</MudText>
-                            <MudText Typo="Typo.subtitle2">Mês anterior: @_financial.DailySales.PreviousMonthRevenue.ToString("C")</MudText>
+                            <MudText Typo="Typo.subtitle2">Mês anterior: @Money.Format(_financial.DailySales.PreviousMonthRevenue)</MudText>
                         </div>
                         <MudChip T="string"
                                  Size="Size.Medium"
@@ -235,7 +235,7 @@
                                     <MudIcon Icon="@Icons.Material.Filled.HourglassTop" Color="Color.Warning" Size="Size.Small" />
                                     <MudText Typo="Typo.caption" Color="Color.Default">Pendentes</MudText>
                                 </MudStack>
-                                <MudText Typo="Typo.h6" Color="Color.Warning">@_financial.AccountsReceivable.TotalPending.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6" Color="Color.Warning">@Money.Format(_financial.AccountsReceivable.TotalPending)</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">@_financial.AccountsReceivable.PendingOrdersCount pedido(s)</MudText>
                             </div>
                         </MudItem>
@@ -245,7 +245,7 @@
                                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" />
                                     <MudText Typo="Typo.caption" Color="Color.Default">Aprovados</MudText>
                                 </MudStack>
-                                <MudText Typo="Typo.h6" Color="Color.Success">@_financial.AccountsReceivable.TotalApproved.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6" Color="Color.Success">@Money.Format(_financial.AccountsReceivable.TotalApproved)</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Default">@_financial.AccountsReceivable.ApprovedOrdersCount pedido(s)</MudText>
                             </div>
                         </MudItem>
@@ -256,7 +256,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Default">Total a receber</MudText>
-                            <MudText Typo="Typo.h5">@((_financial.AccountsReceivable.TotalPending + _financial.AccountsReceivable.TotalApproved).ToString("C"))</MudText>
+                            <MudText Typo="Typo.h5">@(Money.Format(_financial.AccountsReceivable.TotalPending + _financial.AccountsReceivable.TotalApproved))</MudText>
                         </div>
                         <MudLink Href="/basic/order" Underline="Underline.Hover">
                             <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Filled.ReceiptLong">
@@ -296,7 +296,7 @@
                                         </td>
                                         <td style="text-align:right">@c.OrderCount</td>
                                         <td style="text-align:right">@c.TotalItems.ToString("N0")</td>
-                                        <td style="text-align:right"><strong>@c.TotalSpent.ToString("C")</strong></td>
+                                        <td style="text-align:right"><strong>@Money.Format(c.TotalSpent)</strong></td>
                                     </tr>
                                 }
                             </tbody>
@@ -312,25 +312,25 @@
                         <MudItem xs="12" sm="6">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Médio</MudText>
-                                <MudText Typo="Typo.h6">@_orderAnalytics.AverageOrderValue.AverageValue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6">@Money.Format(_orderAnalytics.AverageOrderValue.AverageValue)</MudText>
                             </div>
                         </MudItem>
                         <MudItem xs="12" sm="6">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Mediano</MudText>
-                                <MudText Typo="Typo.h6">@_orderAnalytics.AverageOrderValue.MedianValue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6">@Money.Format(_orderAnalytics.AverageOrderValue.MedianValue)</MudText>
                             </div>
                         </MudItem>
                         <MudItem xs="12" sm="6">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Mínimo</MudText>
-                                <MudText Typo="Typo.h6" Color="Color.Warning">@_orderAnalytics.AverageOrderValue.MinValue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6" Color="Color.Warning">@Money.Format(_orderAnalytics.AverageOrderValue.MinValue)</MudText>
                             </div>
                         </MudItem>
                         <MudItem xs="12" sm="6">
                             <div class="period-card">
                                 <MudText Typo="Typo.caption" Color="Color.Default">Máximo</MudText>
-                                <MudText Typo="Typo.h6" Color="Color.Success">@_orderAnalytics.AverageOrderValue.MaxValue.ToString("C")</MudText>
+                                <MudText Typo="Typo.h6" Color="Color.Success">@Money.Format(_orderAnalytics.AverageOrderValue.MaxValue)</MudText>
                             </div>
                         </MudItem>
                     </MudGrid>
@@ -378,7 +378,7 @@
                                             <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">@p.CategoryName</MudChip>
                                         </td>
                                         <td style="text-align:right">@p.TotalQuantitySold.ToString("N0")</td>
-                                        <td style="text-align:right"><strong>@p.TotalRevenue.ToString("C")</strong></td>
+                                        <td style="text-align:right"><strong>@Money.Format(p.TotalRevenue)</strong></td>
                                     </tr>
                                 }
                             </tbody>
@@ -419,8 +419,8 @@
                                                 @p.ProductName
                                             </MudLink>
                                         </td>
-                                        <td style="text-align:right">@p.CostPrice.ToString("C")</td>
-                                        <td style="text-align:right">@p.SalesPrice.ToString("C")</td>
+                                        <td style="text-align:right">@Money.Format(p.CostPrice)</td>
+                                        <td style="text-align:right">@Money.Format(p.SalesPrice)</td>
                                         <td style="text-align:right">
                                             <MudChip T="string"
                                                      Size="Size.Small"
@@ -479,8 +479,8 @@
                                         <td style="text-align:right">
                                             <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Filled">@item.Quantity</MudChip>
                                         </td>
-                                        <td style="text-align:right">@((item.CostPrice ?? 0).ToString("C"))</td>
-                                        <td style="text-align:right">@item.SalesPrice.ToString("C")</td>
+                                        <td style="text-align:right">@(Money.Format(item.CostPrice ?? 0))</td>
+                                        <td style="text-align:right">@Money.Format(item.SalesPrice)</td>
                                     </tr>
                                 }
                             </tbody>
