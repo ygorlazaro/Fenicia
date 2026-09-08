@@ -63,8 +63,6 @@ public interface IProductRepository : IRepository<ProductModel>
         IEnumerable<Guid> activeProductIds,
         CancellationToken cancellationToken = default);
 
-    Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken cancellationToken = default);
-
     Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(
         CancellationToken cancellationToken = default);
 }

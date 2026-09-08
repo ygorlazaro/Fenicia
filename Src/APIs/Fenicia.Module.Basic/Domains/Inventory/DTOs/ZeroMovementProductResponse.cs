@@ -5,6 +5,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory.DTOs;
 public record ZeroMovementProductResponse(
     [Required] Guid ProductId,
     [Required] [MaxLength(200)] string ProductName,
+    [Required] Guid CategoryId,
     [Required] [MaxLength(200)] string CategoryName,
     string? SupplierName,
     double CurrentStock,

@@ -142,8 +142,6 @@ public sealed class InventoryService(
             DateTime.UtcNow.AddDays(-query.ZeroMovementDays),
             cancellationToken);
 
-        var (overstockProducts, overstockAlert) =
-            await GetOverstockProductsAsync(query, orderDetails, cancellationToken);
         var (activeProductIds, zeroMovementProducts) = await GetActiveProductIdsAsync(
             stockMovements,
             orderDetails,
@@ -151,14 +149,12 @@ public sealed class InventoryService(
         var (stockValueByCategory, totalStockValue) = await GetStockValueByCategoryAsync(cancellationToken);
         var summary = await GetInventoryHealthSummaryAsync(
             activeProductIds,
-            overstockProducts,
             zeroMovementProducts,
             totalStockValue,
             cancellationToken);
 
         return new InventoryHealthResponse
         {
-            OverstockAlert = overstockAlert,
             ZeroMovementProducts = zeroMovementProducts,
             StockValueByCategory = stockValueByCategory,
             Summary = summary
@@ -186,21 +182,22 @@ public sealed class InventoryService(
         var ancient = now.AddYears(-100);
 
         var zeroMovementProducts = candidateProducts
-            .Select(p =>
-            {
-                var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
-                var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
-                var stockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity;
-                return new ZeroMovementProductResponse(
-                    p.Id,
-                    p.Name,
-                    p.Category.Name,
-                    p.Supplier?.Person.Name,
-                    p.Quantity,
-                    stockValue,
-                    lastDate ?? ancient,
-                    daysWithoutMovement);
-            })
+             .Select(p =>
+             {
+                 var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
+                 var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
+                 var stockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity;
+                 return new ZeroMovementProductResponse(
+                     p.Id,
+                     p.Name,
+                     p.Category!.Id,
+                     p.Category!.Name,
+                     p.Supplier?.Person.Name,
+                     p.Quantity,
+                     stockValue,
+                     lastDate ?? ancient,
+                     daysWithoutMovement);
+             })
             .OrderByDescending(p => p.DaysWithoutMovement)
             .ThenByDescending(p => p.StockValue)
             .Take(20)
@@ -209,76 +206,27 @@ public sealed class InventoryService(
         return (activeProductIds, zeroMovementProducts);
     }
 
-    private async
-        Task<(List<OverstockProductResponse> OverstockProductResponses, OverstockAlertResponse OverstockProductResponse)> GetOverstockProductsAsync(
-            GetInventoryHealthQuery query,
-            IEnumerable<OrderDetailModel> orderDetails,
-            CancellationToken cancellationToken = default)
-    {
-        var productSalesRaw = orderDetails.GroupBy(d => d.ProductId)
-            .Select(g => new { ProductId = g.Key, TotalSales = g.Sum(d => d.Quantity) }).ToList();
-
-        var productSales = productSalesRaw.ToDictionary(
-            x => x.ProductId,
-            x => x.TotalSales / (query.ZeroMovementDays / 30.0));
-
-        var allProductsWithStock = await productService.GetOverstockCandidatesAsync(cancellationToken);
-
-        var overstockProducts = allProductsWithStock.Where(p => productSales.ContainsKey(p.Id)).Select(p =>
-        {
-            var avgMonthlySales = productSales[p.Id];
-            var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
-            var excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity);
-            var excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0);
-            return excessValue > 0
-                ? new OverstockProductResponse(
-                    p.Id,
-                    p.Name,
-                    p.Category.Name,
-                    p.Quantity,
-                    recommendedQuantity,
-                    excessValue,
-                    p.CostPrice ?? 0)
-                : null;
-        }).Where(x => x != null).OrderByDescending(x => x!.ExcessValue).Cast<OverstockProductResponse>().ToList();
-        var overstockAlert = new OverstockAlertResponse
-        {
-            TotalOverstockProducts = overstockProducts.Count,
-            TotalOverstockValue = overstockProducts.Sum(p => p.ExcessValue),
-            Products = [.. overstockProducts.Take(20)]
-        };
-
-        return (overstockProducts, overstockAlert);
-    }
-
     private async Task<InventoryHealthSummaryResponse> GetInventoryHealthSummaryAsync(
         IEnumerable<Guid> activeProductIds,
-        List<OverstockProductResponse> overstockProducts,
         IEnumerable<ZeroMovementProductResponse> zeroMovementProducts,
         decimal totalStockValue,
         CancellationToken cancellationToken = default)
     {
         var totalProducts = await productService.CountAsync(p => p.Quantity > 0, cancellationToken);
         var totalZeroMovementProducts = zeroMovementProducts.Count();
-        var overstockCount = overstockProducts.Count;
 
-        var overstockPercentage = totalProducts > 0 ? (decimal)overstockCount / totalProducts * 100 : 0;
         var zeroMovementPercentage = totalProducts > 0 ? (decimal)totalZeroMovementProducts / totalProducts * 100 : 0;
 
-        var stockedActiveIds =
-            activeProductIds.Where(id => overstockProducts.All(op => op.ProductId != id)).ToHashSet();
         var healthyProducts = await productService.CountAsync(
-            p => p.Quantity > 0 && stockedActiveIds.Contains(p.Id),
+            p => p.Quantity > 0 && activeProductIds.Contains(p.Id),
             cancellationToken);
 
         var summary = new InventoryHealthSummaryResponse
         {
             TotalProducts = totalProducts,
             HealthyProducts = healthyProducts,
-            OverstockProducts = overstockCount,
             ZeroMovementProducts = totalZeroMovementProducts,
             TotalStockValue = totalStockValue,
-            OverstockPercentage = overstockPercentage,
             ZeroMovementPercentage = zeroMovementPercentage
         };
         return summary;

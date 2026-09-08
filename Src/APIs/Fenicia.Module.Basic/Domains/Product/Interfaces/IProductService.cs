@@ -98,8 +98,6 @@ public interface IProductService
         IEnumerable<Guid> activeProductIds,
         CancellationToken cancellationToken = default);
 
-    Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken cancellationToken = default);
-
     Task<int> CountAsync(Expression<Func<ProductModel, bool>> predicate, CancellationToken cancellationToken = default);
 
     Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>> GetStockValueByCategoryAsync(

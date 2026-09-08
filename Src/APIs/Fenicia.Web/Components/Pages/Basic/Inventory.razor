@@ -17,7 +17,6 @@
         </MudStack>
         <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
             <MudNumericField T="int" @bind-Value="_zeroMovementDays" Label="Dias sem movimento" Variant="Variant.Outlined" Margin="Margin.Dense" Min="1" Style="width: 180px" />
-            <MudNumericField T="double" @bind-Value="_overstockMultiplier" Label="Multiplicador Overstock" Variant="Variant.Outlined" Margin="Margin.Dense" Min="0.1" Step="0.1" Style="width: 200px" />
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync" Disabled="_loading">
                 Atualizar
             </MudButton>
@@ -100,6 +99,7 @@
                                   ChartSeries="@_categoryChartSeries"
                                   ChartLabels="@_categoryChartLabels"
                                   ChartOptions="@_donutOptions"
+                                  LegendPosition="                                  MudBlazor.Position.Left"
                                   Width="100%"
                                   Height="220px" />
                     }
@@ -118,6 +118,7 @@
                                   ChartSeries="@_supplierChartSeries"
                                   ChartLabels="@_supplierChartLabels"
                                   ChartOptions="@_donutOptions"
+                                  LegendPosition="                                  MudBlazor.Position.Left"
                                   Width="100%"
                                   Height="220px" />
                     }
@@ -197,20 +198,6 @@
                 <MudItem xs="12" sm="6" md="3">
                     <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                            <MudAvatar Color="Color.Error" Variant="Variant.Outlined">
-                                <MudIcon Icon="@Icons.Material.Filled.Warning" />
-                            </MudAvatar>
-                            <MudText Typo="Typo.overline">Em Overstock</MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.h5" Class="mt-2">@_health.OverstockAlert.TotalOverstockProducts</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            @_health.Summary.OverstockPercentage.ToString("N1")% do estoque
-                        </MudText>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                             <MudAvatar Color="Color.Default" Variant="Variant.Outlined">
                                 <MudIcon Icon="@Icons.Material.Filled.HourglassEmpty" />
                             </MudAvatar>
@@ -254,45 +241,9 @@
                                       ChartSeries="@_stockValueByCategorySeries"
                                       ChartLabels="@_stockValueByCategoryLabels"
                                       ChartOptions="@_barOptions"
+                                      LegendPosition="                                  MudBlazor.Position.Left"
                                       Width="100%"
                                       Height="320px" />
-                        }
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudPaper Class="pa-4" Elevation="2">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
-                            <MudText Typo="Typo.h6">Alerta de Overstock</MudText>
-                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Outlined">
-                                @Money.Format(_health.OverstockAlert.TotalOverstockValue)
-                            </MudChip>
-                        </MudStack>
-                        @if (_health.OverstockAlert.Products.Count == 0)
-                        {
-                            <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
-                                Nenhum produto em overstock com os parâmetros atuais.
-                            </MudAlert>
-                        }
-                        else
-                        {
-                            <MudTable T="OverstockItem" Items="@_health.OverstockAlert.Products" Dense="true" Hover="true" Bordered="false" Elevation="0">
-                                <HeaderContent>
-                                    <MudTh>Produto</MudTh>
-                                    <MudTh Style="text-align: right">Qtd. Atual</MudTh>
-                                    <MudTh Style="text-align: right">Qtd. Recomendada</MudTh>
-                                    <MudTh Style="text-align: right">Excesso (R$)</MudTh>
-                                </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Produto">
-                            <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
-                                @context.ProductName
-                            </MudLink>
-                        </MudTd>
-                        <MudTd DataLabel="Qtd. Atual" Style="text-align: right">@context.CurrentQuantity.ToString("N0")</MudTd>
-                        <MudTd DataLabel="Qtd. Recomendada" Style="text-align: right">@context.RecommendedQuantity.ToString("N0")</MudTd>
-                        <MudTd DataLabel="Excesso (R$)" Style="text-align: right">@Money.Format(context.ExcessValue)</MudTd>
-                    </RowTemplate>
-                            </MudTable>
                         }
                     </MudPaper>
                 </MudItem>
@@ -328,7 +279,11 @@
                                 @context.ProductName
                             </MudLink>
                         </MudTd>
-                        <MudTd DataLabel="Categoria">@context.CategoryName</MudTd>
+                        <MudTd DataLabel="Categoria">
+                            <MudLink Href="@($"/basic/productcategory?edit={context.CategoryId}")" Underline="Underline.Hover">
+                                @context.CategoryName
+                            </MudLink>
+                        </MudTd>
                         <MudTd DataLabel="Fornecedor">
                             @if (!string.IsNullOrEmpty(context.SupplierName))
                             {
@@ -362,7 +317,6 @@
     };
 
     private int _zeroMovementDays = 90;
-    private double _overstockMultiplier = 3.0;
     private bool _loading = true;
 
     private DashboardData? _dashboard;
@@ -405,7 +359,7 @@
             var client = await BuildClientAsync();
 
             var dashboardTask = client.GetAsync("inventory/dashboard");
-            var healthTask = client.GetAsync($"inventory/health?zeroMovementDays={_zeroMovementDays}&overstockMultiplier={_overstockMultiplier.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+            var healthTask = client.GetAsync($"inventory/health?zeroMovementDays={_zeroMovementDays}");
 
             await Task.WhenAll(dashboardTask, healthTask);
 
@@ -421,23 +375,19 @@
                         new ChartSeries<double>
                         {
                             Name = "Quantidade em Estoque",
-                            Data = _dashboard?.CategoryBreakdown
-                                .Select(c => c.TotalQuantity).ToArray() ?? []
+                            Data = BuildTop5WithOthers(_dashboard?.CategoryBreakdown, c => c.TotalQuantity).ToArray()
                         }
                     ];
-                    _categoryChartLabels = _dashboard?.CategoryBreakdown
-                        .Select(c => c.CategoryName).ToArray() ?? [];
+                    _categoryChartLabels = BuildTop5Labels(_dashboard?.CategoryBreakdown, c => c.CategoryName, "Outras").ToArray();
                     _supplierChartSeries =
                     [
                         new ChartSeries<double>
                         {
                             Name = "Quantidade em Estoque",
-                            Data = _dashboard?.SupplierBreakdown
-                                .Select(s => s.TotalQuantity).ToArray() ?? []
+                            Data = BuildTop5WithOthers(_dashboard?.SupplierBreakdown, s => s.TotalQuantity).ToArray()
                         }
                     ];
-                    _supplierChartLabels = _dashboard?.SupplierBreakdown
-                        .Select(s => s.SupplierName).ToArray() ?? [];
+                    _supplierChartLabels = BuildTop5Labels(_dashboard?.SupplierBreakdown, s => s.SupplierName, "Outras").ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -463,12 +413,10 @@
                         new ChartSeries<double>
                         {
                             Name = "Valor em Estoque",
-                            Data = _health?.StockValueByCategory
-                                .Select(c => (double)c.TotalStockValue).ToArray() ?? []
+                            Data = BuildTop5WithOthers(_health?.StockValueByCategory, c => (double)c.TotalStockValue).ToArray()
                         }
                     ];
-                    _stockValueByCategoryLabels = _health?.StockValueByCategory
-                        .Select(c => c.CategoryName).ToArray() ?? [];
+                    _stockValueByCategoryLabels = BuildTop5Labels(_health?.StockValueByCategory, c => c.CategoryName, "Outros").ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -558,34 +506,16 @@
 
     private sealed class HealthData
     {
-        public OverstockData OverstockAlert { get; set; } = new();
         public List<ZeroMovementItem> ZeroMovementProducts { get; set; } = [];
         public List<StockValueData> StockValueByCategory { get; set; } = [];
         public SummaryData Summary { get; set; } = new();
-    }
-
-    private sealed class OverstockData
-    {
-        public int TotalOverstockProducts { get; set; }
-        public decimal TotalOverstockValue { get; set; }
-        public List<OverstockItem> Products { get; set; } = [];
-    }
-
-    private sealed class OverstockItem
-    {
-        public Guid ProductId { get; set; }
-        public string ProductName { get; set; } = string.Empty;
-        public string CategoryName { get; set; } = string.Empty;
-        public double CurrentQuantity { get; set; }
-        public double RecommendedQuantity { get; set; }
-        public decimal ExcessValue { get; set; }
-        public decimal CostPrice { get; set; }
     }
 
     private sealed class ZeroMovementItem
     {
         public Guid ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public string? SupplierName { get; set; }
         public double CurrentStock { get; set; }
@@ -607,10 +537,39 @@
     {
         public int TotalProducts { get; set; }
         public int HealthyProducts { get; set; }
-        public int OverstockProducts { get; set; }
         public int ZeroMovementProducts { get; set; }
         public decimal TotalStockValue { get; set; }
-        public decimal OverstockPercentage { get; set; }
         public decimal ZeroMovementPercentage { get; set; }
+    }
+
+    private static List<double> BuildTop5WithOthers<T>(List<T>? items, Func<T, double> selector)
+    {
+        if (items is null || items.Count == 0)
+        {
+            return [];
+        }
+
+        var ordered = items.OrderByDescending(selector).ToList();
+        var top = ordered.Take(5).Select(selector).ToList();
+        if (ordered.Count > 5)
+        {
+            top.Add(ordered.Skip(5).Sum(selector));
+        }
+        return top;
+    }
+
+    private static List<string> BuildTop5Labels<T>(List<T>? items, Func<T, string> labelSelector, string otherLabel)
+    {
+        if (items is null || items.Count == 0)
+        {
+            return [];
+        }
+
+        var top = items.Take(5).Select(labelSelector).ToList();
+        if (items.Count > 5)
+        {
+            top.Add(otherLabel);
+        }
+        return top;
     }
 }

@@ -358,12 +358,6 @@ public sealed class ProductService(
         return productRepository.GetZeroMovementCandidatesAsync(activeProductIds, cancellationToken);
     }
 
-    public Task<List<ProductModel>> GetOverstockCandidatesAsync(
-        CancellationToken cancellationToken = default)
-    {
-        return productRepository.GetOverstockCandidatesAsync(cancellationToken);
-    }
-
     public Task<int> CountAsync(
         Expression<Func<ProductModel, bool>> predicate,
         CancellationToken cancellationToken = default)

@@ -172,16 +172,6 @@ public class ProductRepository(DefaultContext context) : Repository<ProductModel
             .ToListAsync(cancellationToken);
     }
 
-    public Task<List<ProductModel>> GetOverstockCandidatesAsync(CancellationToken cancellationToken = default)
-    {
-        return DbSet
-            .Where(p => p.Quantity > 0)
-            .Include(p => p.Category)
-            .Include(p => p.Supplier)
-            .ThenInclude(s => s!.Person)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>>
         GetStockValueByCategoryAsync(CancellationToken cancellationToken = default)
     {

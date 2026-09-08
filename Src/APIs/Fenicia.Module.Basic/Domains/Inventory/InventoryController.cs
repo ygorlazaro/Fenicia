@@ -171,7 +171,6 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     /// </summary>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="zeroMovementDays">Dias sem movimentação</param>
-    /// <param name="overstockMultiplier">Multiplicador de overstock</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do inventário</returns>
     /// <response code="200">Inventário retornado com sucesso</response>
@@ -185,7 +184,6 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
     public async Task<ActionResult<InventoryHealthResponse>> GetInventoryHealthAsync(
         WideEventContext wide,
         [FromQuery] int zeroMovementDays = 90,
-        [FromQuery] double overstockMultiplier = 3.0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -193,7 +191,7 @@ public class InventoryController(IInventoryService inventoryService) : Controlle
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var health = await inventoryService.GetHealthAsync(
-                new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier),
+                new GetInventoryHealthQuery(zeroMovementDays),
                 cancellationToken);
 
             return Ok(health);
