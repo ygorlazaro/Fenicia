@@ -7,6 +7,9 @@
 @inject ICompanySelectionState CompanyState
 @inject ISnackbar Snackbar
 @inject IUserProfileNotifier UserProfileNotifier
+@inject ILoadingService LoadingService
+
+<MudProgressLinear Indeterminate="true" Visible="@_isLoading" Absolute="true" Top="true" Striped="true" Color="Color.Primary" Size="Size.Small" />
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -181,11 +184,19 @@
     private List<UserCompanyItem> companies = [];
     private Guid? selectedCompanyId;
     private string selectedCompanyName = string.Empty;
+    private bool _isLoading;
 
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
         UserProfileNotifier.Changed += OnUserProfileChanged;
+        LoadingService.LoadingChanged += OnLoadingChanged;
+    }
+
+    private void OnLoadingChanged(bool isLoading)
+    {
+        _isLoading = isLoading;
+        InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -530,5 +541,6 @@
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
         UserProfileNotifier.Changed -= OnUserProfileChanged;
+        LoadingService.LoadingChanged -= OnLoadingChanged;
     }
 }
