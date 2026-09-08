@@ -347,4 +347,335 @@ public class UserServiceTests
         Assert.NotNull(result);
         Assert.Equal(newName, result.Name);
     }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenUserChangesOwnPassword_WithCorrectCurrentPassword_ChangesSuccessfully()
+    {
+        var userId = Guid.NewGuid();
+        var currentPassword = _faker.Internet.Password();
+        var newPassword = _faker.Internet.Password();
+        const string hashedCurrentPassword = "hashed_current_password";
+        const string hashedNewPassword = "hashed_new_password";
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = hashedCurrentPassword
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(currentPassword, hashedCurrentPassword)).Returns(true);
+        _mockSecurityService.Setup(s => s.Hash(newPassword)).Returns(hashedNewPassword);
+        _mockUserRepository.Setup(r => r.UpdateAsync(user.Id, It.IsAny<UserModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" } }]);
+
+        var command = new UpdateUserPasswordCommand(userId, currentPassword, newPassword, newPassword);
+        var result = await _service.UpdatePasswordAsync(userId, command, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        _mockUserRepository.Verify(
+            r => r.UpdateAsync(
+                user.Id,
+                It.Is<UserModel>(u => u.Password == hashedNewPassword),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenUserChangesOwnPassword_WithWrongCurrentPassword_ThrowsInvalidRequest()
+    {
+        var userId = Guid.NewGuid();
+        var currentPassword = _faker.Internet.Password();
+        var newPassword = _faker.Internet.Password();
+        const string hashedCurrentPassword = "hashed_current_password";
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = hashedCurrentPassword
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(currentPassword, hashedCurrentPassword)).Returns(false);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" } }]);
+
+        var command = new UpdateUserPasswordCommand(userId, currentPassword, newPassword, newPassword);
+
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.UpdatePasswordAsync(userId, command, CancellationToken.None));
+
+        Assert.Equal("Senha atual incorreta.", exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenUserChangesOwnPassword_WithoutCurrentPassword_ThrowsInvalidRequest()
+    {
+        var userId = Guid.NewGuid();
+        var newPassword = _faker.Internet.Password();
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_password"
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" } }]);
+
+        var command = new UpdateUserPasswordCommand(userId, null, newPassword, newPassword);
+
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.UpdatePasswordAsync(userId, command, CancellationToken.None));
+
+        Assert.Equal("Senha atual é obrigatória.", exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenGodChangesAnyUserPassword_ChangesSuccessfully()
+    {
+        var godId = Guid.NewGuid();
+        var targetUserId = Guid.NewGuid();
+        var newPassword = _faker.Internet.Password();
+        const string hashedNewPassword = "hashed_new_password";
+
+        var godUser = new UserModel
+        {
+            Id = godId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_god_password"
+        };
+
+        var targetUser = new UserModel
+        {
+            Id = targetUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_target_password"
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(godId, It.IsAny<CancellationToken>())).ReturnsAsync(godUser);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(targetUserId, It.IsAny<CancellationToken>())).ReturnsAsync(targetUser);
+        _mockSecurityService.Setup(s => s.Hash(newPassword)).Returns(hashedNewPassword);
+        _mockUserRepository.Setup(r => r.UpdateAsync(targetUserId, It.IsAny<UserModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(targetUser);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(godId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "God" } }]);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(targetUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" } }]);
+
+        var command = new UpdateUserPasswordCommand(targetUserId, null, newPassword, newPassword);
+        var result = await _service.UpdatePasswordAsync(godId, command, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        _mockUserRepository.Verify(
+            r => r.UpdateAsync(
+                targetUserId,
+                It.Is<UserModel>(u => u.Password == hashedNewPassword),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenAdminChangesUserPassword_InSameCompany_ChangesSuccessfully()
+    {
+        var adminId = Guid.NewGuid();
+        var targetUserId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var newPassword = _faker.Internet.Password();
+        const string hashedNewPassword = "hashed_new_password";
+
+        var adminUser = new UserModel
+        {
+            Id = adminId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_admin_password"
+        };
+
+        var targetUser = new UserModel
+        {
+            Id = targetUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_target_password"
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(adminId, It.IsAny<CancellationToken>())).ReturnsAsync(adminUser);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(targetUserId, It.IsAny<CancellationToken>())).ReturnsAsync(targetUser);
+        _mockSecurityService.Setup(s => s.Hash(newPassword)).Returns(hashedNewPassword);
+        _mockUserRepository.Setup(r => r.UpdateAsync(targetUserId, It.IsAny<UserModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(targetUser);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(adminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "Admin" }, CompanyId = companyId }]);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(targetUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" }, CompanyId = companyId }]);
+
+        var command = new UpdateUserPasswordCommand(targetUserId, null, newPassword, newPassword);
+        var result = await _service.UpdatePasswordAsync(adminId, command, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        _mockUserRepository.Verify(
+            r => r.UpdateAsync(
+                targetUserId,
+                It.Is<UserModel>(u => u.Password == hashedNewPassword),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenAdminChangesUserPassword_InDifferentCompany_ThrowsInvalidRequest()
+    {
+        var adminId = Guid.NewGuid();
+        var targetUserId = Guid.NewGuid();
+        var adminCompanyId = Guid.NewGuid();
+        var targetCompanyId = Guid.NewGuid();
+        var newPassword = _faker.Internet.Password();
+
+        var adminUser = new UserModel
+        {
+            Id = adminId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_admin_password"
+        };
+
+        var targetUser = new UserModel
+        {
+            Id = targetUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_target_password"
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(adminId, It.IsAny<CancellationToken>())).ReturnsAsync(adminUser);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(targetUserId, It.IsAny<CancellationToken>())).ReturnsAsync(targetUser);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(adminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "Admin" }, CompanyId = adminCompanyId }]);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(targetUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" }, CompanyId = targetCompanyId }]);
+
+        var command = new UpdateUserPasswordCommand(targetUserId, null, newPassword, newPassword);
+
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.UpdatePasswordAsync(adminId, command, CancellationToken.None));
+
+        Assert.Equal("Usuário não pertence à mesma empresa.", exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenAdminChangesAdminPassword_ThrowsInvalidRequest()
+    {
+        var adminId = Guid.NewGuid();
+        var targetAdminId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var newPassword = _faker.Internet.Password();
+
+        var adminUser = new UserModel
+        {
+            Id = adminId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_admin_password"
+        };
+
+        var targetAdmin = new UserModel
+        {
+            Id = targetAdminId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_target_password"
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(adminId, It.IsAny<CancellationToken>())).ReturnsAsync(adminUser);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(targetAdminId, It.IsAny<CancellationToken>())).ReturnsAsync(targetAdmin);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(adminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "Admin" }, CompanyId = companyId }]);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(targetAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "Admin" }, CompanyId = companyId }]);
+
+        var command = new UpdateUserPasswordCommand(targetAdminId, null, newPassword, newPassword);
+
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.UpdatePasswordAsync(adminId, command, CancellationToken.None));
+
+        Assert.Equal("Admin só pode alterar senha de usuários.", exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenUserChangesAnotherUserPassword_ThrowsUnauthorized()
+    {
+        var userId = Guid.NewGuid();
+        var targetUserId = Guid.NewGuid();
+        var newPassword = _faker.Internet.Password();
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_user_password"
+        };
+
+        var targetUser = new UserModel
+        {
+            Id = targetUserId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = "hashed_target_password"
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(targetUserId, It.IsAny<CancellationToken>())).ReturnsAsync(targetUser);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" } }]);
+
+        var command = new UpdateUserPasswordCommand(targetUserId, null, newPassword, newPassword);
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            await _service.UpdatePasswordAsync(userId, command, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_WhenPasswordsDoNotMatch_ThrowsInvalidRequest()
+    {
+        var userId = Guid.NewGuid();
+        var currentPassword = _faker.Internet.Password();
+        var newPassword = _faker.Internet.Password();
+        var confirmPassword = _faker.Internet.Password();
+        const string hashedCurrentPassword = "hashed_current_password";
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Person.FullName,
+            Password = hashedCurrentPassword
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _mockSecurityService.Setup(s => s.Verify(currentPassword, hashedCurrentPassword)).Returns(true);
+        _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new UserRoleModel { Role = new RoleModel { Name = "User" } }]);
+
+        var command = new UpdateUserPasswordCommand(userId, currentPassword, newPassword, confirmPassword);
+
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await _service.UpdatePasswordAsync(userId, command, CancellationToken.None));
+
+        Assert.Equal("Senhas não coincidem.", exception.Message);
+    }
 }

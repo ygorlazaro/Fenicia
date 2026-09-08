@@ -438,14 +438,15 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task ChangePasswordAsync_WhenUserNotFound_ReturnsNotFound()
+    public async Task ChangePasswordAsync_WhenUserNotFound_ReturnsBadRequest()
     {
         SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var query = new UpdateUserPasswordCommand(_testUserId, _faker.Internet.Password());
+        var query = new UpdateUserPasswordCommand(nonExistentUserId, null, _faker.Internet.Password(), _faker.Internet.Password());
 
         _mockUserService.Setup(s => s.UpdatePasswordAsync(
+                _testUserId,
                 It.IsAny<UpdateUserPasswordCommand>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException("User not found"));
@@ -453,7 +454,7 @@ public class UserControllerTests
         var result = await _controller.ChangePasswordAsync(nonExistentUserId, query, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result);
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     private void SetupUserClaims(Guid userId, string? role = null)

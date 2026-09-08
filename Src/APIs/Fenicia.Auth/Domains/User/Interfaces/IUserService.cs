@@ -47,6 +47,7 @@ public interface IUserService
     Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task<UpdateUserPasswordResponse> UpdatePasswordAsync(
+        Guid loggedInUserId,
         UpdateUserPasswordCommand command,
         CancellationToken cancellationToken = default);
 

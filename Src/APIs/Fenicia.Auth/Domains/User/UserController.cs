@@ -271,14 +271,15 @@ public class UserController(IUserService userService, IModuleService moduleServi
     {
         try
         {
+            var loggedInUserId = ClaimReader.UserId(User);
             var updateRequest = request with { UserId = userId };
-            var result = await userService.UpdatePasswordAsync(updateRequest, cancellationToken);
+            var result = await userService.UpdatePasswordAsync(loggedInUserId, updateRequest, cancellationToken);
 
             return Ok(result);
         }
-        catch (InvalidRequestException)
+        catch (InvalidRequestException ex)
         {
-            return NotFound();
+            return BadRequest(ex.Message);
         }
     }
 }

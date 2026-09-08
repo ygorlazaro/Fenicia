@@ -419,6 +419,67 @@
                     }
                 </MudGrid>
             </MudItem>
+
+            <MudItem xs="12">
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                        <MudText Typo="Typo.h5">Alterar Senha</MudText>
+                    </MudStack>
+
+                    @if (!string.IsNullOrEmpty(passwordMessage))
+                    {
+                        <MudAlert Severity="@(passwordSuccess ? Severity.Success : Severity.Error)" Class="mb-4">
+                            @passwordMessage
+                        </MudAlert>
+                    }
+
+                    <EditForm Model="passwordModel" OnSubmit="ChangePasswordAsync">
+                        <DataAnnotationsValidator />
+                        <MudGrid>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="passwordModel.CurrentPassword"
+                                              Label="Senha Atual"
+                                              Variant="Variant.Outlined"
+                                              InputType="InputType.Password"
+                                              Required="true"
+                                              RequiredError="Senha atual é obrigatória!"
+                                              Immediate="true" />
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="passwordModel.NewPassword"
+                                              Label="Nova Senha"
+                                              Variant="Variant.Outlined"
+                                              InputType="InputType.Password"
+                                              Required="true"
+                                              RequiredError="Nova senha é obrigatória!"
+                                              Immediate="true" />
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="passwordModel.ConfirmPassword"
+                                              Label="Confirmar Nova Senha"
+                                              Variant="Variant.Outlined"
+                                              InputType="InputType.Password"
+                                              Required="true"
+                                              RequiredError="Confirmação de senha é obrigatória!"
+                                              Immediate="true" />
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Lock"
+                                           OnClick="ChangePasswordAsync"
+                                           Disabled="@isChangingPassword">
+                                    @if (isChangingPassword)
+                                    {
+                                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                                    }
+                                    Alterar Senha
+                                </MudButton>
+                            </MudItem>
+                        </MudGrid>
+                    </EditForm>
+                </MudPaper>
+            </MudItem>
         }
     }
 </MainLayout>
@@ -1225,6 +1286,85 @@
         public string? Location { get; set; }
         public string? Phone { get; set; }
         public DateTime? BirthDateValue { get; set; }
+    }
+
+    private class ChangePasswordModel
+    {
+        public string? CurrentPassword { get; set; }
+        public string? NewPassword { get; set; }
+        public string? ConfirmPassword { get; set; }
+    }
+
+    private ChangePasswordModel passwordModel = new();
+    private bool isChangingPassword;
+    private string? passwordMessage;
+    private bool passwordSuccess;
+
+    private async Task ChangePasswordAsync()
+    {
+        if (isChangingPassword) return;
+
+        isChangingPassword = true;
+        passwordMessage = null;
+        passwordSuccess = false;
+        StateHasChanged();
+
+        try
+        {
+            var token = await CompanyContext.GetTokenAsync();
+            if (string.IsNullOrEmpty(token))
+            {
+                passwordMessage = "Usuário não autenticado.";
+                return;
+            }
+
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+            }
+
+            var userId = await CompanyContext.GetUserIdAsync();
+            var command = new
+            {
+                UserId = userId,
+                CurrentPassword = passwordModel.CurrentPassword,
+                NewPassword = passwordModel.NewPassword,
+                ConfirmPassword = passwordModel.ConfirmPassword
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(command);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PatchAsync($"/user/{userId}/password", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                passwordSuccess = true;
+                passwordMessage = "Senha alterada com sucesso!";
+                passwordModel = new ChangePasswordModel();
+                Snackbar.Add("Senha alterada com sucesso!", Severity.Success);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                passwordMessage = string.IsNullOrEmpty(body) ? $"Falha: {(int)response.StatusCode}" : body;
+                Snackbar.Add($"Falha ao alterar senha: {(int)response.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            passwordMessage = $"Erro: {ex.Message}";
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isChangingPassword = false;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private class PostDto
