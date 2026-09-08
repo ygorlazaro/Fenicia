@@ -1,5 +1,6 @@
 @page "/basic/position"
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
 @using System.Web
@@ -11,7 +12,7 @@
           EntityNamePlural="cargos"
           EntityNameSingular="Cargo"
           Endpoint="position"
-          ColumnCount="2"
+           ColumnCount="3"
           AddButtonLabel="Adicionar Cargo"
           AddDialogTitle="Adicionar Cargo"
           EditDialogTitle="Editar Cargo"
@@ -24,6 +25,7 @@
     <HeaderContent>
         <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
         <MudTh Sortable="true" SortLabel="Name">Nome</MudTh>
+        <MudTh Style="text-align: left; min-width: 140px; width: 140px">Funcionários</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
@@ -37,6 +39,9 @@
                            OnClick="@(() => context.Page.RequestDelete(context.Item))" />
         </MudTd>
         <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
+        <MudTd DataLabel="Funcionários" Style="text-align: left">
+            <MudLink Href="@($"/basic/employee?filters%5BPositionId%5D={context.Item.Id}")" Typo="Typo.body2" Underline="Underline.Always">Ver funcionários</MudLink>
+        </MudTd>
     </RowTemplate>
     <AddModalBody>
         <MudTextField @bind-Value="_addName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
