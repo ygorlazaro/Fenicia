@@ -95,13 +95,13 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
+                        <MudChart T="double" ChartType="ChartType.Bar"
                                   ChartSeries="@_categoryChartSeries"
                                   ChartLabels="@_categoryChartLabels"
-                                  ChartOptions="@_donutOptions"
-                                  LegendPosition="                                  MudBlazor.Position.Left"
+                                  ChartOptions="@_categoryChartOptions"
+                                  LegendPosition="MudBlazor.Position.Left"
                                   Width="100%"
-                                  Height="220px" />
+                                  Height="320px" />
                     }
                 </MudPaper>
             </MudItem>
@@ -114,13 +114,13 @@
                     }
                     else
                     {
-                        <MudChart T="double" ChartType="ChartType.Donut"
+                        <MudChart T="double" ChartType="ChartType.Bar"
                                   ChartSeries="@_supplierChartSeries"
                                   ChartLabels="@_supplierChartLabels"
-                                  ChartOptions="@_donutOptions"
-                                  LegendPosition="                                  MudBlazor.Position.Left"
+                                  ChartOptions="@_supplierChartOptions"
+                                  LegendPosition="MudBlazor.Position.Left"
                                   Width="100%"
-                                  Height="220px" />
+                                  Height="320px" />
                     }
                 </MudPaper>
             </MudItem>
@@ -240,8 +240,8 @@
                             <MudChart T="double" ChartType="ChartType.Bar"
                                       ChartSeries="@_stockValueByCategorySeries"
                                       ChartLabels="@_stockValueByCategoryLabels"
-                                      ChartOptions="@_barOptions"
-                                      LegendPosition="                                  MudBlazor.Position.Left"
+                                      ChartOptions="@_stockValueByCategoryOptions"
+                                      LegendPosition="MudBlazor.Position.Left"
                                       Width="100%"
                                       Height="320px" />
                         }
@@ -329,15 +329,22 @@
     private List<ChartSeries<double>> _stockValueByCategorySeries = [];
     private string[] _stockValueByCategoryLabels = [];
 
-    private readonly DonutChartOptions _donutOptions = new()
+    private readonly BarChartOptions _categoryChartOptions = new()
     {
-        ShowValues = false,
-        ShowLegend = true
+        ShowLegend = false,
+        ChartPalette = new[] { Colors.Blue.Accent3 }
     };
 
-    private readonly BarChartOptions _barOptions = new()
+    private readonly BarChartOptions _supplierChartOptions = new()
     {
-        ShowLegend = false
+        ShowLegend = false,
+        ChartPalette = new[] { Colors.Green.Accent3 }
+    };
+
+    private readonly BarChartOptions _stockValueByCategoryOptions = new()
+    {
+        ShowLegend = false,
+        ChartPalette = new[] { Colors.DeepOrange.Accent3 }
     };
 
     private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
