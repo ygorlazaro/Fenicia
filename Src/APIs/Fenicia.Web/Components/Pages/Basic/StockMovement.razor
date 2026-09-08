@@ -6,48 +6,118 @@
 @using System.Net.Http.Json
 @using System.Text.Json
 @using Fenicia.Common.Enums.Basic
+@using Fenicia.Web.Services
+@using Fenicia.Web.Components.Shared
 
 <MainLayout>
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
-        <MudStack Spacing="0">
-            <MudText Typo="Typo.h4">Movimentações de Estoque</MudText>
-            <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                Registre entradas e saídas de estoque. Cada movimentação altera a quantidade atual do produto.
-            </MudText>
-        </MudStack>
-        <MudStack Row="true" Spacing="2">
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Assessment" Href="/basic/inventory">
-                Ver Inventário
-            </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddModal">
-                Nova Movimentação
-            </MudButton>
-        </MudStack>
-    </MudStack>
+  <MudPaper Class="pa-6">
+         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+             <div>
+                 <MudText Typo="Typo.h5">Movimentações de Estoque</MudText>
+                 <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                     Registre entradas e saídas de estoque. Cada movimentação altera a quantidade atual do produto.
+                 </MudText>
+             </div>
+             <MudStack Row="true" Spacing="2">
+                 <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Assessment" Href="/basic/inventory">
+                     Ver Inventário
+                 </MudButton>
+                 <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddModal">
+                     Nova Movimentação
+                 </MudButton>
+             </MudStack>
+         </MudStack>
 
-    <MudPaper Class="pa-4 mb-4" Elevation="2">
-        <MudGrid Spacing="2" AlignItems="AlignItems.Center">
-            <MudItem xs="12" sm="6" md="3">
-                <MudDatePicker @bind-Date="_startDate" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
-            </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudDatePicker @bind-Date="_endDate" Label="Data final" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
-            </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudSelect T="TypeFilter" @bind-Value="_typeFilter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
-                    <MudSelectItem T="TypeFilter" Value="TypeFilter.All">Todos</MudSelectItem>
-                    <MudSelectItem T="TypeFilter" Value="TypeFilter.In">Entrada</MudSelectItem>
-                    <MudSelectItem T="TypeFilter" Value="TypeFilter.Out">Saída</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterList" OnClick="LoadMovementsAsync" Disabled="_loading" FullWidth="true">
-                    Filtrar
-                </MudButton>
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
+         <MudTextField Value="_searchText"
+                       ValueChanged="@((string? v) => OnSearchChanged(v))"
+                       Label="Pesquisar"
+                       Placeholder="Digite para pesquisar..."
+                       Variant="Variant.Outlined"
+                       Size="Size.Small"
+                       Immediate="true"
+                       DebounceInterval="300"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Search"
+                       Class="mb-4" />
+
+         <MudPaper Class="pa-4 mb-4" Elevation="2">
+             <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudDatePicker @bind-Date="_startDate" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
+                 </MudItem>
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudDatePicker @bind-Date="_endDate" Label="Data final" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
+                 </MudItem>
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudSelect T="TypeFilter" @bind-Value="_typeFilter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
+                         <MudSelectItem T="TypeFilter" Value="TypeFilter.All">Todos</MudSelectItem>
+                         <MudSelectItem T="TypeFilter" Value="TypeFilter.In">Entrada</MudSelectItem>
+                         <MudSelectItem T="TypeFilter" Value="TypeFilter.Out">Saída</MudSelectItem>
+                     </MudSelect>
+                 </MudItem>
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterList" OnClick="LoadMovementsAsync" Disabled="_loading" FullWidth="true">
+                         Filtrar
+                     </MudButton>
+                 </MudItem>
+             </MudGrid>
+         </MudPaper>
+
+         <MudPaper Class="pa-4 mb-4" Elevation="2">
+             <MudGrid Spacing="3">
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-success">
+                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                             <div>
+                                 <MudText Typo="Typo.overline" Color="Color.Default">Entradas — Quantidade</MudText>
+                                 <MudText Typo="Typo.h5" Color="Color.Success">@_kpi.TotalInQuantity.ToString("N2")</MudText>
+                             </div>
+                             <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
+                                 <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
+                             </MudAvatar>
+                         </MudStack>
+                         <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
+                             @_kpi.TotalInEvents evento(s) · Valor: @Money.Format(_kpi.TotalInValue)
+                         </MudText>
+                     </MudPaper>
+                 </MudItem>
+
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-error">
+                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                             <div>
+                                 <MudText Typo="Typo.overline" Color="Color.Default">Saídas — Quantidade</MudText>
+                                 <MudText Typo="Typo.h5" Color="Color.Error">@_kpi.TotalOutQuantity.ToString("N2")</MudText>
+                             </div>
+                             <MudAvatar Color="Color.Error" Variant="Variant.Outlined" Size="Size.Medium">
+                                 <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
+                             </MudAvatar>
+                         </MudStack>
+                         <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
+                             @_kpi.TotalOutEvents evento(s) · Valor: @Money.Format(_kpi.TotalOutValue)
+                         </MudText>
+                     </MudPaper>
+                 </MudItem>
+
+                 <MudItem xs="12" sm="6" md="3">
+                     <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-info">
+                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                             <div>
+                                 <MudText Typo="Typo.overline" Color="Color.Default">Total de Eventos</MudText>
+                                 <MudText Typo="Typo.h5">@(_kpi.TotalInEvents + _kpi.TotalOutEvents)</MudText>
+                             </div>
+                             <MudAvatar Color="Color.Info" Variant="Variant.Outlined" Size="Size.Medium">
+                                 <MudIcon Icon="@Icons.Material.Filled.SwapVert" />
+                             </MudAvatar>
+                         </MudStack>
+                         <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
+                             Valor total: @Money.Format(_kpi.TotalInValue - _kpi.TotalOutValue)
+                         </MudText>
+                     </MudPaper>
+                 </MudItem>
+             </MudGrid>
+         </MudPaper>
 
     <MudPaper Class="pa-4" Elevation="2">
         @if (_loading)
@@ -65,18 +135,24 @@
         }
         else
         {
-            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0" SortLabel="Ordenar por">
+            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0" SortLabel="Ordenar por" DefaultSortLabel="-Date">
                 <HeaderContent>
-                    <MudTh><MudTableSortLabel SortLabel="date" T="StockMovementDto">Data</MudTableSortLabel></MudTh>
+                    <MudTh SortLabel="Date" Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="Date" T="StockMovementDto">Data</MudTableSortLabel></MudTh>
                     <MudTh>Tipo</MudTh>
                     <MudTh>Produto</MudTh>
                     <MudTh Style="text-align: right">Quantidade</MudTh>
                     <MudTh Style="text-align: right">Preço</MudTh>
                     <MudTh>Origem</MudTh>
                     <MudTh>Motivo</MudTh>
-                    <MudTh Style="text-align: right">Ações</MudTh>
                 </HeaderContent>
                 <RowTemplate>
+                    <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Info"
+                                       Size="Size.Small"
+                                       OnClick="@(() => OpenEditModal(context))" />
+                    </MudTd>
                     <MudTd DataLabel="Data">@(context.Date?.ToString("dd/MM/yyyy HH:mm") ?? "—")</MudTd>
                     <MudTd DataLabel="Tipo">
                         @if (context.Type == StockMovementType.In)
@@ -125,12 +201,6 @@
                         }
                     </MudTd>
                     <MudTd DataLabel="Motivo">@(string.IsNullOrEmpty(context.Reason) ? "—" : context.Reason)</MudTd>
-                    <MudTd DataLabel="Ações" Style="text-align: right">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                       Color="Color.Info"
-                                       Size="Size.Small"
-                                       OnClick="@(() => OpenEditModal(context))" />
-                    </MudTd>
                 </RowTemplate>
                 <PagerContent>
                     <MudTablePager PageSizeOptions="new int[] { 10, 20, 50, 100 }" RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}" AllItemsText="Todos" />
@@ -138,6 +208,7 @@
             </MudTable>
         }
     </MudPaper>
+  </MudPaper>
 </MudContainer>
 </MainLayout>
 
@@ -237,6 +308,7 @@
     private DateTime? _startDate = DateTime.Today.AddDays(-30);
     private DateTime? _endDate = DateTime.Today.AddDays(1);
     private TypeFilter _typeFilter = TypeFilter.All;
+    private string? _searchText;
 
     private bool _loading = true;
     private bool _modalLoading;
@@ -244,6 +316,7 @@
     private bool _isEdit;
 
     private List<StockMovementDto> _movements = [];
+    private StockMovementKpi _kpi = new();
 
     private List<DatasourceItem> _products = [];
     private List<DatasourceItem> _customers = [];
@@ -318,8 +391,14 @@
             {
                 query.Add($"type={MapType(_typeFilter)}");
             }
+            query.Add("sort=-Date");
             query.Add("page=1");
             query.Add("perPage=200");
+
+            if (!string.IsNullOrWhiteSpace(_searchText))
+            {
+                query.Add($"query={Uri.EscapeDataString(_searchText)}");
+            }
 
             var qs = query.Count == 0 ? string.Empty : "?" + string.Join("&", query);
             var response = await client.GetAsync($"stockmovement{qs}");
@@ -328,6 +407,7 @@
             {
                 var body = await response.Content.ReadAsStringAsync();
                 _movements = JsonSerializer.Deserialize<List<StockMovementDto>>(body, JsonOptions) ?? [];
+                ComputeKpi();
             }
             else
             {
@@ -389,6 +469,32 @@
             return $"Funcionário: {m.EmployeeName}";
         }
         return "—";
+    }
+
+    private void OnSearchChanged(string? value)
+    {
+        _searchText = value;
+        _ = LoadMovementsAsync();
+    }
+
+    private void ComputeKpi()
+    {
+        _kpi = new StockMovementKpi();
+        foreach (var m in _movements)
+        {
+            if (m.Type == StockMovementType.In)
+            {
+                _kpi.TotalInQuantity += m.Quantity;
+                _kpi.TotalInEvents++;
+                _kpi.TotalInValue += (m.Price ?? 0) * (decimal)m.Quantity;
+            }
+            else if (m.Type == StockMovementType.Out)
+            {
+                _kpi.TotalOutQuantity += m.Quantity;
+                _kpi.TotalOutEvents++;
+                _kpi.TotalOutValue += (m.Price ?? 0) * (decimal)m.Quantity;
+            }
+        }
     }
 
     private void OpenAddModal()
@@ -519,6 +625,16 @@
         public string Name { get; set; } = string.Empty;
     }
 
+    private sealed class StockMovementKpi
+    {
+        public double TotalInQuantity { get; set; }
+        public double TotalOutQuantity { get; set; }
+        public int TotalInEvents { get; set; }
+        public int TotalOutEvents { get; set; }
+        public decimal TotalInValue { get; set; }
+        public decimal TotalOutValue { get; set; }
+    }
+
     private sealed class StockMovementDto
     {
         public Guid Id { get; set; }
@@ -552,3 +668,22 @@
         public string? Reason { get; set; }
     }
 }
+
+<style>
+    .kpi-card {
+        height: 100%;
+        border-left: 4px solid transparent;
+    }
+
+    .kpi-success {
+        border-left-color: var(--mud-palette-success);
+    }
+
+    .kpi-error {
+        border-left-color: var(--mud-palette-error);
+    }
+
+    .kpi-info {
+        border-left-color: var(--mud-palette-info);
+    }
+</style>
