@@ -81,7 +81,7 @@
             {
                 <MudNavLink Href="/dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Painel</MudNavLink>
                 <MudNavLink Href="/shop" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Loja</MudNavLink>
-                <MudNavGroup Title="Básico" Icon="@Icons.Material.Filled.Category" Expanded="true">
+                <MudNavGroup Title="Básico" Icon="@Icons.Material.Filled.Category" Expanded="false">
                     <MudNavLink Href="/basic/productcategory" Match="NavLinkMatch.All"
                                 Icon="@Icons.Material.Filled.Category">Categorias de Produtos</MudNavLink>
                     <MudNavLink Href="/basic/position" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.WorkOutline">
@@ -101,14 +101,17 @@
                     <MudNavLink Href="/basic/order" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PointOfSale">
                         Pedidos</MudNavLink>
                 </MudNavGroup>
-                <MudNavGroup Title="Rede Social" Icon="@Icons.Material.Filled.Share" Expanded="true">
+                <MudNavGroup Title="Rede Social" Icon="@Icons.Material.Filled.Share" Expanded="false">
                     <MudNavLink Href="/socialnetwork/feed" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Feed</MudNavLink>
                     <MudNavLink Href="/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">
                         Meu Perfil</MudNavLink>
                 </MudNavGroup>
-                <MudNavGroup Title="Projetos" Icon="@Icons.Material.Filled.Folder" Expanded="true">
+                <MudNavGroup Title="Projetos" Icon="@Icons.Material.Filled.Folder" Expanded="false">
                     <MudNavLink Href="/project" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ViewModule">Quadros</MudNavLink>
                 </MudNavGroup>
+                <MudNavLink Href="/logout" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout">
+                    Sair
+                </MudNavLink>
             }
             else
             {
