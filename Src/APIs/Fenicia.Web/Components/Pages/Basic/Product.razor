@@ -2,13 +2,14 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
+@inject NavigationManager Navigation
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
 @using Fenicia.Common
 @using System.Net.Http.Json
 @using System.Text.Json
 
-<CrudPage TItem="ProductDto"
+<CrudPage @ref="_crudPage" TItem="ProductDto"
           PageTitle="Produtos"
           PageSubtitle="Gerencie o catálogo de produtos da sua empresa"
           EntityNamePlural="produtos"
@@ -24,9 +25,23 @@
           DeleteSelectedLabel="Excluir Selecionados"
           Comparer="ProductDtoComparer.Instance"
           FormatForDelete="(p) => p?.Name ?? string.Empty"
-          CreatePayloadFactory="CreatePayload"
-          OnAdd="ResetForm"
-          OnEdit="LoadForm">
+           CreatePayloadFactory="CreatePayload"
+           OnAdd="ResetForm"
+           OnEdit="LoadForm">
+    <FilterContent>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterSku" ValueChanged="@((string? v) => _crudPage.SetFilter("SKU", v))" Label="SKU" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterCategoryName" ValueChanged="@((string? v) => _crudPage.SetFilter("CategoryName", v))" Label="Categoria" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterSupplierName" ValueChanged="@((string? v) => _crudPage.SetFilter("SupplierName", v))" Label="Fornecedor" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+    </FilterContent>
     <HeaderContent>
         <MudTh>Nome</MudTh>
         <MudTh>SKU</MudTh>
@@ -186,9 +201,31 @@
     private ProductFormModel _add = new();
     private ProductFormModel _edit = new();
 
+    private string? _filterName;
+    private string? _filterSku;
+    private string? _filterCategoryName;
+    private string? _filterSupplierName;
+    private CrudPage<ProductDto> _crudPage = default!;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadOptionsAsync();
+        ReadFiltersFromUrl();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ReadFiltersFromUrl();
+    }
+
+    private void ReadFiltersFromUrl()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        _filterName = query["Name"];
+        _filterSku = query["SKU"];
+        _filterCategoryName = query["CategoryName"];
+        _filterSupplierName = query["SupplierName"];
     }
 
     private async Task LoadOptionsAsync()

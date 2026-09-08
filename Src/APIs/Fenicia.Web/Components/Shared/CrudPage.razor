@@ -52,6 +52,13 @@
                         </MudButton>
                     }
 
+                    @if (FilterContent is not null)
+                    {
+                        <MudGrid Spacing="2" Class="mb-4">
+                            @FilterContent
+                        </MudGrid>
+                    }
+
                     <MudTable @ref="_table"
                               T="TItem"
                               MultiSelection="true"
@@ -70,7 +77,8 @@
                               EditTrigger="TableEditTrigger.RowClick"
                               RowEditPreview="BackupItem"
                               RowEditCommit="ItemHasBeenCommitted"
-                              RowEditCancel="ResetItemToOriginalValues">
+                              RowEditCancel="ResetItemToOriginalValues"
+                              Sortable="true">
                         <HeaderContent>
                             @HeaderContent
                         </HeaderContent>
@@ -96,7 +104,7 @@
                             </MudTd>
                         </FooterContent>
                         <PagerContent>
-                            <MudTablePager PageSizeOptions="new int[] { 5, 10, 20, 50, 100 }"
+                            <MudTablePager PageSizeOptions="new int[] { 10, 20, 50, 100 }"
                                            RowsPerPageString="Itens por página:"
                                            InfoFormat="{first_item}-{last_item} de {all_items}"
                                            AllItemsText="Todos" />
@@ -185,6 +193,7 @@
     [Parameter] public Func<CrudModalContext<TItem>, object>? CreatePayloadFactory { get; set; }
     [Parameter] public Action? OnAdd { get; set; }
     [Parameter] public Action<TItem>? OnEdit { get; set; }
+    [Parameter] public RenderFragment? FilterContent { get; set; }
 
     private bool _isLoggedIn;
     private bool _isLoading;
@@ -419,6 +428,19 @@
         {
             _isApplyingQueryParams = false;
         }
+    }
+
+    public void SetFilter(string key, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _filters.Remove(key);
+        }
+        else
+        {
+            _filters[key] = value!;
+        }
+        _ = _table.ReloadServerData();
     }
 
     private void OpenAddModal()

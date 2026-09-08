@@ -2,8 +2,10 @@
 @rendermode InteractiveServer
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
+@using System.Web
+@inject NavigationManager Navigation
 
-<CrudPage TItem="ProductCategoryDto"
+<CrudPage @ref="_crudPage" TItem="ProductCategoryDto"
           PageTitle="Categorias de Produtos"
           PageSubtitle="Gerencie suas categorias de produtos"
           EntityNamePlural="categorias de produtos"
@@ -21,9 +23,14 @@
           DeleteSelectedLabel="Excluir Selecionados"
           Comparer="ProductCategoryComparer.Instance"
           FormatForDelete="(c) => c?.Name ?? string.Empty"
-          CreatePayloadFactory="CreatePayload"
-          OnAdd="ResetAddName"
-          OnEdit="LoadEditName">
+           CreatePayloadFactory="CreatePayload"
+           OnAdd="ResetAddName"
+           OnEdit="LoadEditName">
+    <FilterContent>
+        <MudItem xs="12" sm="6">
+            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+    </FilterContent>
     <HeaderContent>
         <MudTh>Nome</MudTh>
         <MudTh Style="text-align: right">Ações</MudTh>
@@ -52,6 +59,26 @@
 @code {
     private string _addName = string.Empty;
     private string _editName = string.Empty;
+
+    private string? _filterName;
+    private CrudPage<ProductCategoryDto> _crudPage = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ReadFiltersFromUrl();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ReadFiltersFromUrl();
+    }
+
+    private void ReadFiltersFromUrl()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        _filterName = query["Name"];
+    }
 
     private void ResetAddName() => _addName = string.Empty;
 

@@ -2,12 +2,13 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
+@inject NavigationManager Navigation
 @using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
 @using System.Net.Http.Json
 @using System.Text.Json
 
-<CrudPage TItem="SupplierDto"
+<CrudPage @ref="_crudPage" TItem="SupplierDto"
           PageTitle="Fornecedores"
           PageSubtitle="Gerencie os fornecedores da sua empresa"
           EntityNamePlural="fornecedores"
@@ -23,9 +24,23 @@
           DeleteSelectedLabel="Excluir Selecionados"
           Comparer="SupplierDtoComparer.Instance"
           FormatForDelete="(s) => s?.Name ?? string.Empty"
-          CreatePayloadFactory="CreatePayload"
-          OnAdd="ResetForm"
-          OnEdit="LoadForm">
+           CreatePayloadFactory="CreatePayload"
+           OnAdd="ResetForm"
+           OnEdit="LoadForm">
+    <FilterContent>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterName" ValueChanged="@((string? v) => _crudPage.SetFilter("Name", v))" Label="Nome" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterEmail" ValueChanged="@((string? v) => _crudPage.SetFilter("Email", v))" Label="Email" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterPhoneNumber" ValueChanged="@((string? v) => _crudPage.SetFilter("PhoneNumber", v))" Label="Telefone" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField Value="_filterDocument" ValueChanged="@((string? v) => _crudPage.SetFilter("Document", v))" Label="Documento" Variant="Variant.Outlined" Size="Size.Small" Immediate="true" DebounceInterval="300" />
+        </MudItem>
+    </FilterContent>
     <HeaderContent>
         <MudTh>Nome</MudTh>
         <MudTh>Email</MudTh>
@@ -159,9 +174,31 @@
     private SupplierFormModel _add = new();
     private SupplierFormModel _edit = new();
 
+    private string? _filterName;
+    private string? _filterEmail;
+    private string? _filterPhoneNumber;
+    private string? _filterDocument;
+    private CrudPage<SupplierDto> _crudPage = default!;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadStatesAsync();
+        ReadFiltersFromUrl();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ReadFiltersFromUrl();
+    }
+
+    private void ReadFiltersFromUrl()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        _filterName = query["Name"];
+        _filterEmail = query["Email"];
+        _filterPhoneNumber = query["PhoneNumber"];
+        _filterDocument = query["Document"];
     }
 
     private async Task LoadStatesAsync()
