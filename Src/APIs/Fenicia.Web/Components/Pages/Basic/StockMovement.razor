@@ -141,6 +141,7 @@
                     <MudTh>Produto</MudTh>
                     <MudTh Style="text-align: right">Quantidade</MudTh>
                     <MudTh Style="text-align: right">Preço</MudTh>
+                    <MudTh Style="text-align: right">Total</MudTh>
                     <MudTh>Origem</MudTh>
                     <MudTh>Motivo</MudTh>
                 </HeaderContent>
@@ -173,6 +174,10 @@
                     </MudTd>
                     <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Quantity.ToString("N2")</MudTd>
                     <MudTd DataLabel="Preço" Style="text-align: right">@(Money.Format(context.Price ?? 0))</MudTd>
+                    <MudTd DataLabel="Total" Style="text-align: right">@{
+                        var totalValue = (decimal)context.Quantity * (context.Price ?? 0);
+                        @Money.Format(totalValue)
+                    }</MudTd>
                     <MudTd DataLabel="Origem">
                         @{
                             var origin = ResolveOrigin(context);
