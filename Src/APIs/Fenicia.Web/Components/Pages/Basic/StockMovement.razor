@@ -29,16 +29,15 @@
              </MudStack>
          </MudStack>
 
-         <MudTextField Value="_searchText"
-                       ValueChanged="@((string? v) => OnSearchChanged(v))"
-                       Label="Pesquisar"
-                       Placeholder="Digite para pesquisar..."
+          <MudTextField @bind-Value="SearchText"
+                        Label="Pesquisar"
+                        Placeholder="Digite para pesquisar..."
                         Variant="Variant.Outlined"
                         Size="Size.Small"
                         DebounceInterval="300"
-                       Adornment="Adornment.Start"
-                       AdornmentIcon="@Icons.Material.Filled.Search"
-                       Class="mb-4" />
+                        Adornment="Adornment.Start"
+                        AdornmentIcon="@Icons.Material.Filled.Search"
+                        Class="mb-4" />
 
          <MudPaper Class="pa-4 mb-4" Elevation="2">
              <MudGrid Spacing="2" AlignItems="AlignItems.Center">
@@ -134,9 +133,9 @@
         }
         else
         {
-            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0" SortLabel="Ordenar por" DefaultSortLabel="-Date">
+            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0" SortLabel="Ordenar por" DefaultSortLabel="Date" SortDirection="SortDirection.Descending">
                 <HeaderContent>
-                    <MudTh SortLabel="Date" Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
+                    <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
                     <MudTh><MudTableSortLabel SortLabel="Date" T="StockMovementDto">Data</MudTableSortLabel></MudTh>
                     <MudTh>Tipo</MudTh>
                     <MudTh>Produto</MudTh>
@@ -308,6 +307,20 @@
     private DateTime? _endDate = DateTime.Today.AddDays(1);
     private TypeFilter _typeFilter = TypeFilter.All;
     private string? _searchText;
+    private string? SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (_searchText == value)
+            {
+                return;
+            }
+
+            _searchText = value;
+            _ = LoadMovementsAsync();
+        }
+    }
 
     private bool _loading = true;
     private bool _modalLoading;
@@ -423,6 +436,7 @@
         finally
         {
             _loading = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -468,17 +482,6 @@
             return $"Funcionário: {m.EmployeeName}";
         }
         return "—";
-    }
-
-    private void OnSearchChanged(string? value)
-    {
-        if (value == _searchText)
-        {
-            return;
-        }
-
-        _searchText = value;
-        _ = LoadMovementsAsync();
     }
 
     private void ComputeKpi()
