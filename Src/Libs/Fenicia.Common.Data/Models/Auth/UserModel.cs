@@ -35,4 +35,6 @@ public class UserModel : BaseModel
     public List<TaskAssigneeModel> TaskAssignees { get; init; } = [];
 
     public List<ConfigurationModel> Configurations { get; init; } = [];
+
+    public ProfileModel? Profile { get; init; }
 }

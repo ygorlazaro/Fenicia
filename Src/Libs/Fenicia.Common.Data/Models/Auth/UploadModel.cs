@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Fenicia.Common.Data.Models;
+namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("uploads", Schema = "auth")]
 public sealed class UploadModel : BaseModel

@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Auth;
 
-namespace Fenicia.Common.Data.Models.SocialNetwork;
+namespace Fenicia.Common.Data.Models.Auth;
 
-[Table("profiles", Schema = "social_network")]
+[Table("profiles", Schema = "auth")]
 public class ProfileModel : BaseModel
 {
     [Required]

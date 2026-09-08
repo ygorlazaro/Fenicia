@@ -39,7 +39,7 @@ public class ProfileServiceTests : IDisposable
             UserId = Guid.NewGuid(),
             Bio = _faker.Lorem.Sentence()
         };
-        _db.SocialNetworkProfiles.Add(profile);
+        _db.AuthProfiles.Add(profile);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var result = await _service.GetByIdAsync(new GetProfileByIdQuery(profile.Id), CancellationToken.None);
@@ -65,7 +65,7 @@ public class ProfileServiceTests : IDisposable
             UserId = Guid.NewGuid(),
             Bio = _faker.Lorem.Sentence()
         };
-        _db.SocialNetworkProfiles.Add(profile);
+        _db.AuthProfiles.Add(profile);
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProfileCommand(profile.Id, "Updated Bio", null, null, "https://example.com", "New York", "1234567890", new DateTime(1990, 1, 1));

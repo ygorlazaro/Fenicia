@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.Basic;
 
@@ -30,6 +31,11 @@ public sealed class PersonModel : BaseCompanyModel
 
     [DataType(DataType.Date)]
     public DateTime? DateOfBirth { get; init; }
+
+    public Guid? StateId { get; init; }
+
+    [ForeignKey(nameof(StateId))]
+    public StateModel? State { get; init; }
 
     [Column("photo_url")]
     [MaxLength(500)]

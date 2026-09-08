@@ -1,5 +1,5 @@
 using System.Reflection;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Microsoft.AspNetCore.Http;
@@ -56,6 +56,15 @@ public partial class DefaultContext : DbContext
             .HasOne(p => p.Upload)
             .WithMany()
             .HasForeignKey(p => p.UploadId);
+
+        modelBuilder.Entity<UserModel>()
+            .HasOne(u => u.Profile)
+            .WithOne()
+            .HasForeignKey<ProfileModel>(p => p.UserId);
+
+        modelBuilder.Entity<ProfileModel>()
+            .HasIndex(p => p.UserId)
+            .IsUnique();
 
         modelBuilder.Entity<UploadModel>().ToTable("uploads", "auth");
 

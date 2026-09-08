@@ -504,6 +504,82 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("orders", "auth");
                 });
 
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ProfileModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("bio");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("birth_date");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("phone");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.Property<Guid?>("UploadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("upload_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("UserId1")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id1");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("user_name");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id")
+                        .HasName("pk_profiles");
+
+                    b.HasIndex("UploadId")
+                        .HasDatabaseName("ix_profiles_upload_id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_profiles_user_id");
+
+                    b.HasIndex("UserId1")
+                        .HasDatabaseName("ix_profiles_user_id1");
+
+                    b.ToTable("profiles", "auth");
+                });
+
             modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.RoleModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -681,6 +757,58 @@ namespace Fenicia.Auth.Migrations
                         .HasDatabaseName("ix_subscriptions_order_id");
 
                     b.ToTable("subscriptions", "auth");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.UploadModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("original_file_name");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("stored_file_name");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_uploads");
+
+                    b.ToTable("uploads", "auth");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.UserModel", b =>
@@ -1096,9 +1224,9 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("photo_url");
 
-                    b.Property<Guid?>("StateModelId")
+                    b.Property<Guid?>("StateId")
                         .HasColumnType("uuid")
-                        .HasColumnName("state_model_id");
+                        .HasColumnName("state_id");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
@@ -1107,8 +1235,8 @@ namespace Fenicia.Auth.Migrations
                     b.HasKey("Id")
                         .HasName("pk_people");
 
-                    b.HasIndex("StateModelId")
-                        .HasDatabaseName("ix_people_state_model_id");
+                    b.HasIndex("StateId")
+                        .HasDatabaseName("ix_people_state_id");
 
                     b.ToTable("people", "basic");
                 });
@@ -2310,9 +2438,9 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid?>("CommentModelId")
+                    b.Property<Guid?>("CommentId")
                         .HasColumnType("uuid")
-                        .HasColumnName("comment_model_id");
+                        .HasColumnName("comment_id");
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uuid")
@@ -2345,8 +2473,8 @@ namespace Fenicia.Auth.Migrations
                     b.HasKey("Id")
                         .HasName("pk_likes");
 
-                    b.HasIndex("CommentModelId")
-                        .HasDatabaseName("ix_likes_comment_model_id");
+                    b.HasIndex("CommentId")
+                        .HasDatabaseName("ix_likes_comment_id");
 
                     b.HasIndex("FeedId")
                         .HasDatabaseName("ix_likes_feed_id");
@@ -2355,74 +2483,6 @@ namespace Fenicia.Auth.Migrations
                         .HasDatabaseName("ix_likes_profile_id");
 
                     b.ToTable("likes", "social_network");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Bio")
-                        .HasMaxLength(160)
-                        .HasColumnType("character varying(160)")
-                        .HasColumnName("bio");
-
-                    b.Property<DateTime?>("BirthDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("birth_date");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted");
-
-                    b.Property<string>("Location")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("location");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(24)
-                        .HasColumnType("character varying(24)")
-                        .HasColumnName("phone");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated");
-
-                    b.Property<Guid?>("UploadId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("upload_id");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("user_name");
-
-                    b.Property<string>("Website")
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)")
-                        .HasColumnName("website");
-
-                    b.HasKey("Id")
-                        .HasName("pk_profiles");
-
-                    b.HasIndex("UploadId")
-                        .HasDatabaseName("ix_profiles_upload_id");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_profiles_user_id");
-
-                    b.ToTable("profiles", "social_network");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.ReportModel", b =>
@@ -2538,58 +2598,6 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("shares", "social_network");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.UploadModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("content_type");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)")
-                        .HasColumnName("original_file_name");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint")
-                        .HasColumnName("size_bytes");
-
-                    b.Property<string>("StoredFileName")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)")
-                        .HasColumnName("stored_file_name");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated");
-
-                    b.Property<string>("Url")
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)")
-                        .HasColumnName("url");
-
-                    b.HasKey("Id")
-                        .HasName("pk_uploads");
-
-                    b.ToTable("uploads", "auth");
-                });
-
             modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.AddressModel", b =>
                 {
                     b.HasOne("Fenicia.Common.Data.Models.Auth.StateModel", "State")
@@ -2683,6 +2691,32 @@ namespace Fenicia.Auth.Migrations
                         .HasConstraintName("fk_orders_users_user_id");
 
                     b.Navigation("Company");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ProfileModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UploadModel", "Upload")
+                        .WithMany()
+                        .HasForeignKey("UploadId")
+                        .HasConstraintName("fk_profiles_uploads_upload_id");
+
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", null)
+                        .WithOne("Profile")
+                        .HasForeignKey("Fenicia.Common.Data.Models.Auth.ProfileModel", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_profiles_users_user_id");
+
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_profiles_users_user_id1");
+
+                    b.Navigation("Upload");
 
                     b.Navigation("User");
                 });
@@ -2860,10 +2894,12 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PersonModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.Auth.StateModel", null)
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.StateModel", "State")
                         .WithMany("People")
-                        .HasForeignKey("StateModelId")
-                        .HasConstraintName("fk_people_states_state_model_id");
+                        .HasForeignKey("StateId")
+                        .HasConstraintName("fk_people_states_state_id");
+
+                    b.Navigation("State");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.ProductModel", b =>
@@ -3138,14 +3174,14 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.BlockModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "BlockedProfile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "BlockedProfile")
                         .WithMany()
                         .HasForeignKey("BlockedProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_blocks_profiles_blocked_profile_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "Profile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3171,7 +3207,7 @@ namespace Fenicia.Auth.Migrations
                         .HasForeignKey("ParentCommentId")
                         .HasConstraintName("fk_comments_comments_parent_comment_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "Profile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3192,7 +3228,7 @@ namespace Fenicia.Auth.Migrations
                         .HasForeignKey("OriginalFeedId")
                         .HasConstraintName("fk_feeds_feeds_original_feed_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "Profile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3206,14 +3242,14 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.FriendshipModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "Profile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_friendships_profiles_profile_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "TargetProfile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "TargetProfile")
                         .WithMany()
                         .HasForeignKey("TargetProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3227,10 +3263,10 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.LikeModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.CommentModel", null)
+                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.CommentModel", "Comment")
                         .WithMany("Likes")
-                        .HasForeignKey("CommentModelId")
-                        .HasConstraintName("fk_likes_comments_comment_model_id");
+                        .HasForeignKey("CommentId")
+                        .HasConstraintName("fk_likes_comments_comment_id");
 
                     b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.FeedModel", "Feed")
                         .WithMany("Likes")
@@ -3239,35 +3275,18 @@ namespace Fenicia.Auth.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_likes_feeds_feed_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "Profile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_likes_profiles_profile_id");
 
+                    b.Navigation("Comment");
+
                     b.Navigation("Feed");
 
                     b.Navigation("Profile");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", b =>
-                {
-                    b.HasOne("Fenicia.Common.Data.Models.UploadModel", "Upload")
-                        .WithMany()
-                        .HasForeignKey("UploadId")
-                        .HasConstraintName("fk_profiles_uploads_upload_id");
-
-                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_profiles_users_user_id");
-
-                    b.Navigation("Upload");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetwork.ReportModel", b =>
@@ -3291,7 +3310,7 @@ namespace Fenicia.Auth.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_shares_feeds_original_feed_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.SocialNetwork.ProfileModel", "Profile")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ProfileModel", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3355,6 +3374,8 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Configurations");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("Profile");
 
                     b.Navigation("TaskAssignees");
 

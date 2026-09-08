@@ -37,4 +37,6 @@ public partial class DefaultContext
     public DbSet<NotificationModel> AuthNotifications { get; set; }
 
     public DbSet<UploadModel> AuthUploads { get; set; }
+
+    public DbSet<ProfileModel> AuthProfiles { get; set; }
 }

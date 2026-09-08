@@ -156,6 +156,26 @@ namespace Fenicia.Auth.Migrations;
                 });
 
             migrationBuilder.CreateTable(
+                name: "uploads",
+                schema: "auth",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    original_file_name = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
+                    stored_file_name = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
+                    content_type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    size_bytes = table.Column<long>(type: "bigint", nullable: false),
+                    url = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: true),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_uploads", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "users",
                 schema: "auth",
                 columns: table => new
@@ -182,10 +202,9 @@ namespace Fenicia.Auth.Migrations;
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     project_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    color = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: false),
+                    color = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     order = table.Column<int>(type: "integer", nullable: false),
                     is_final = table.Column<bool>(type: "boolean", nullable: false),
-                    project_model_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -195,8 +214,8 @@ namespace Fenicia.Auth.Migrations;
                 {
                     table.PrimaryKey("pk_statuses", x => x.id);
                     table.ForeignKey(
-                        name: "fk_statuses_projects_project_model_id",
-                        column: x => x.project_model_id,
+                        name: "fk_statuses_projects_project_id",
+                        column: x => x.project_id,
                         principalSchema: "project",
                         principalTable: "projects",
                         principalColumn: "id",
@@ -249,9 +268,9 @@ namespace Fenicia.Auth.Migrations;
                     email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     date_of_birth = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    state_id = table.Column<Guid>(type: "uuid", nullable: true),
                     photo_url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    state_model_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -261,71 +280,11 @@ namespace Fenicia.Auth.Migrations;
                 {
                     table.PrimaryKey("pk_people", x => x.id);
                     table.ForeignKey(
-                        name: "fk_people_states_state_model_id",
-                        column: x => x.state_model_id,
+                        name: "fk_people_states_state_id",
+                        column: x => x.state_id,
                         principalSchema: "auth",
                         principalTable: "states",
                         principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "blocks",
-                schema: "social_network",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    blocked_user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    reason = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    block_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_blocks", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_blocks_users_blocked_user_id",
-                        column: x => x.blocked_user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_blocks_users_user_id",
-                        column: x => x.user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "feeds",
-                schema: "social_network",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    text = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_feeds", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_feeds_users_user_id",
-                        column: x => x.user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -357,47 +316,16 @@ namespace Fenicia.Auth.Migrations;
                 });
 
             migrationBuilder.CreateTable(
-                name: "friendships",
-                schema: "social_network",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    target_user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    follow_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_friendships", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_friendships_users_target_user_id",
-                        column: x => x.target_user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_friendships_users_user_id",
-                        column: x => x.user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "profiles",
-                schema: "social_network",
+                schema: "auth",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id1 = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     bio = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
-                    image_url = table.Column<string>(type: "character varying(48)", maxLength: 48, nullable: true),
+                    upload_id = table.Column<Guid>(type: "uuid", nullable: true),
                     website = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
                     location = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     phone = table.Column<string>(type: "character varying(24)", maxLength: 24, nullable: true),
@@ -410,8 +338,21 @@ namespace Fenicia.Auth.Migrations;
                 {
                     table.PrimaryKey("pk_profiles", x => x.id);
                     table.ForeignKey(
+                        name: "fk_profiles_uploads_upload_id",
+                        column: x => x.upload_id,
+                        principalSchema: "auth",
+                        principalTable: "uploads",
+                        principalColumn: "id");
+                    table.ForeignKey(
                         name: "fk_profiles_users_user_id",
                         column: x => x.user_id,
+                        principalSchema: "auth",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_profiles_users_user_id1",
+                        column: x => x.user_id1,
                         principalSchema: "auth",
                         principalTable: "users",
                         principalColumn: "id",
@@ -448,24 +389,17 @@ namespace Fenicia.Auth.Migrations;
                 });
 
             migrationBuilder.CreateTable(
-                name: "tasks",
+                name: "sprints",
                 schema: "project",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     project_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    status_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    start_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    end_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     description = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: true),
-                    priority = table.Column<int>(type: "integer", nullable: false),
-                    type = table.Column<int>(type: "integer", nullable: false),
-                    order = table.Column<int>(type: "integer", nullable: false),
-                    estimate_points = table.Column<int>(type: "integer", nullable: true),
-                    due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    status_model_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    project_model_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -473,24 +407,52 @@ namespace Fenicia.Auth.Migrations;
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_tasks", x => x.id);
+                    table.PrimaryKey("pk_sprints", x => x.id);
                     table.ForeignKey(
-                        name: "fk_tasks_projects_project_model_id",
-                        column: x => x.project_model_id,
+                        name: "fk_sprints_projects_project_id",
+                        column: x => x.project_id,
                         principalSchema: "project",
                         principalTable: "projects",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_tasks_statuses_status_model_id",
-                        column: x => x.status_model_id,
+                        name: "fk_sprints_users_created_by",
+                        column: x => x.created_by,
+                        principalSchema: "auth",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "teams",
+                schema: "project",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    color = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    project_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_teams", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_teams_projects_project_id",
+                        column: x => x.project_id,
                         principalSchema: "project",
-                        principalTable: "statuses",
+                        principalTable: "projects",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_tasks_users_user_id",
-                        column: x => x.user_id,
+                        name: "fk_teams_users_created_by",
+                        column: x => x.created_by,
                         principalSchema: "auth",
                         principalTable: "users",
                         principalColumn: "id",
@@ -636,57 +598,52 @@ namespace Fenicia.Auth.Migrations;
                 });
 
             migrationBuilder.CreateTable(
-                name: "comments",
+                name: "blocks",
                 schema: "social_network",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    feed_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    parent_comment_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    text = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
-                    comment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    blocked_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    reason = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    block_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_comments1", x => x.id);
+                    table.PrimaryKey("pk_blocks", x => x.id);
                     table.ForeignKey(
-                        name: "fk_comments_comments_parent_comment_id",
-                        column: x => x.parent_comment_id,
-                        principalSchema: "social_network",
-                        principalTable: "comments",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "fk_comments_feeds_feed_id",
-                        column: x => x.feed_id,
-                        principalSchema: "social_network",
-                        principalTable: "feeds",
+                        name: "fk_blocks_profiles_blocked_profile_id",
+                        column: x => x.blocked_profile_id,
+                        principalSchema: "auth",
+                        principalTable: "profiles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_comments_users_user_id",
-                        column: x => x.user_id,
+                        name: "fk_blocks_profiles_profile_id",
+                        column: x => x.profile_id,
                         principalSchema: "auth",
-                        principalTable: "users",
+                        principalTable: "profiles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "shares",
+                name: "feeds",
                 schema: "social_network",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    original_feed_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    text = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
-                    share_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    text = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    original_feed_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    total_likes = table.Column<int>(type: "integer", nullable: false),
+                    total_comments = table.Column<int>(type: "integer", nullable: false),
+                    total_shares = table.Column<int>(type: "integer", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -694,110 +651,72 @@ namespace Fenicia.Auth.Migrations;
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_shares", x => x.id);
+                    table.PrimaryKey("pk_feeds", x => x.id);
                     table.ForeignKey(
-                        name: "fk_shares_feeds_original_feed_id",
+                        name: "fk_feeds_feeds_original_feed_id",
                         column: x => x.original_feed_id,
                         principalSchema: "social_network",
                         principalTable: "feeds",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
-                        name: "fk_shares_users_user_id",
-                        column: x => x.user_id,
+                        name: "fk_feeds_profiles_profile_id",
+                        column: x => x.profile_id,
                         principalSchema: "auth",
-                        principalTable: "users",
+                        principalTable: "profiles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "attachments",
-                schema: "project",
+                name: "friendships",
+                schema: "social_network",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    file_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    file_url = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    file_size = table.Column<long>(type: "bigint", nullable: false),
-                    uploaded_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    task_model_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    size = table.Column<long>(type: "bigint", nullable: false),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    target_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    follow_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_attachments", x => x.id);
+                    table.PrimaryKey("pk_friendships", x => x.id);
                     table.ForeignKey(
-                        name: "fk_attachments_tasks_task_model_id",
-                        column: x => x.task_model_id,
-                        principalSchema: "project",
-                        principalTable: "tasks",
+                        name: "fk_friendships_profiles_profile_id",
+                        column: x => x.profile_id,
+                        principalSchema: "auth",
+                        principalTable: "profiles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_attachments_users_user_id",
-                        column: x => x.user_id,
+                        name: "fk_friendships_profiles_target_profile_id",
+                        column: x => x.target_profile_id,
                         principalSchema: "auth",
-                        principalTable: "users",
+                        principalTable: "profiles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "comments",
+                name: "tasks",
                 schema: "project",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    content = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: false),
-                    task_model_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_comments", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_comments_tasks_task_model_id",
-                        column: x => x.task_model_id,
-                        principalSchema: "project",
-                        principalTable: "tasks",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_comments_users_user_id",
-                        column: x => x.user_id,
-                        principalSchema: "auth",
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "project_subtasks",
-                schema: "project",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    project_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    is_completed = table.Column<bool>(type: "boolean", nullable: false),
+                    description = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: true),
+                    priority = table.Column<int>(type: "integer", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
                     order = table.Column<int>(type: "integer", nullable: false),
-                    completed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    task_model_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    estimate_points = table.Column<int>(type: "integer", nullable: true),
                     due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    sprint_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -805,27 +724,46 @@ namespace Fenicia.Auth.Migrations;
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_project_subtasks", x => x.id);
+                    table.PrimaryKey("pk_tasks", x => x.id);
                     table.ForeignKey(
-                        name: "fk_project_subtasks_tasks_task_model_id",
-                        column: x => x.task_model_id,
+                        name: "fk_tasks_projects_project_id",
+                        column: x => x.project_id,
                         principalSchema: "project",
-                        principalTable: "tasks",
+                        principalTable: "projects",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_tasks_sprints_sprint_id",
+                        column: x => x.sprint_id,
+                        principalSchema: "project",
+                        principalTable: "sprints",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_tasks_statuses_status_id",
+                        column: x => x.status_id,
+                        principalSchema: "project",
+                        principalTable: "statuses",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_tasks_users_created_by",
+                        column: x => x.created_by,
+                        principalSchema: "auth",
+                        principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "task_assignees",
+                name: "team_users",
                 schema: "project",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    team_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     role = table.Column<int>(type: "integer", nullable: false),
-                    assigned_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    task_model_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    joined_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -833,16 +771,16 @@ namespace Fenicia.Auth.Migrations;
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_task_assignees", x => x.id);
+                    table.PrimaryKey("pk_team_users", x => x.id);
                     table.ForeignKey(
-                        name: "fk_task_assignees_tasks_task_model_id",
-                        column: x => x.task_model_id,
+                        name: "fk_team_users_teams_team_id",
+                        column: x => x.team_id,
                         principalSchema: "project",
-                        principalTable: "tasks",
+                        principalTable: "teams",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_task_assignees_users_user_id",
+                        name: "fk_team_users_users_user_id",
                         column: x => x.user_id,
                         principalSchema: "auth",
                         principalTable: "users",
@@ -1047,43 +985,17 @@ namespace Fenicia.Auth.Migrations;
                 });
 
             migrationBuilder.CreateTable(
-                name: "attachments",
+                name: "comments",
                 schema: "social_network",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
-                    file_type = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    file_size = table.Column<long>(type: "bigint", nullable: false),
-                    comment_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    upload_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_attachments1", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_attachments_comments_comment_id",
-                        column: x => x.comment_id,
-                        principalSchema: "social_network",
-                        principalTable: "comments",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "likes",
-                schema: "social_network",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
                     feed_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    like_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    comment_model_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    parent_comment_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    text = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    comment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -1091,22 +1003,190 @@ namespace Fenicia.Auth.Migrations;
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_likes", x => x.id);
+                    table.PrimaryKey("pk_comments1", x => x.id);
                     table.ForeignKey(
-                        name: "fk_likes_comments_comment_model_id",
-                        column: x => x.comment_model_id,
+                        name: "fk_comments_comments_parent_comment_id",
+                        column: x => x.parent_comment_id,
                         principalSchema: "social_network",
                         principalTable: "comments",
                         principalColumn: "id");
                     table.ForeignKey(
-                        name: "fk_likes_feeds_feed_id",
+                        name: "fk_comments_feeds_feed_id",
                         column: x => x.feed_id,
                         principalSchema: "social_network",
                         principalTable: "feeds",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_likes_users_user_id",
+                        name: "fk_comments_profiles_profile_id",
+                        column: x => x.profile_id,
+                        principalSchema: "auth",
+                        principalTable: "profiles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "shares",
+                schema: "social_network",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    original_feed_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    text = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
+                    share_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_shares", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_shares_feeds_original_feed_id",
+                        column: x => x.original_feed_id,
+                        principalSchema: "social_network",
+                        principalTable: "feeds",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_shares_profiles_profile_id",
+                        column: x => x.profile_id,
+                        principalSchema: "auth",
+                        principalTable: "profiles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "attachments",
+                schema: "project",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    file_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    file_url = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    file_size = table.Column<long>(type: "bigint", nullable: false),
+                    uploaded_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    size = table.Column<long>(type: "bigint", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_attachments", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_attachments_tasks_task_id",
+                        column: x => x.task_id,
+                        principalSchema: "project",
+                        principalTable: "tasks",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_attachments_users_uploaded_by",
+                        column: x => x.uploaded_by,
+                        principalSchema: "auth",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "comments",
+                schema: "project",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    content = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: false),
+                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_comments", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_comments_tasks_task_id",
+                        column: x => x.task_id,
+                        principalSchema: "project",
+                        principalTable: "tasks",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_comments_users_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "auth",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "project_subtasks",
+                schema: "project",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    is_completed = table.Column<bool>(type: "boolean", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    completed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_project_subtasks", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_project_subtasks_tasks_task_id",
+                        column: x => x.task_id,
+                        principalSchema: "project",
+                        principalTable: "tasks",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "task_assignees",
+                schema: "project",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    task_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role = table.Column<int>(type: "integer", nullable: false),
+                    assigned_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_task_assignees", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_task_assignees_tasks_task_id",
+                        column: x => x.task_id,
+                        principalSchema: "project",
+                        principalTable: "tasks",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_task_assignees_users_user_id",
                         column: x => x.user_id,
                         principalSchema: "auth",
                         principalTable: "users",
@@ -1275,6 +1355,74 @@ namespace Fenicia.Auth.Migrations;
                 });
 
             migrationBuilder.CreateTable(
+                name: "attachments",
+                schema: "social_network",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    file_type = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    file_size = table.Column<long>(type: "bigint", nullable: false),
+                    comment_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    upload_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_attachments1", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_attachments_comments_comment_id",
+                        column: x => x.comment_id,
+                        principalSchema: "social_network",
+                        principalTable: "comments",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "likes",
+                schema: "social_network",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    feed_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    comment_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    like_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_likes", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_likes_comments_comment_id",
+                        column: x => x.comment_id,
+                        principalSchema: "social_network",
+                        principalTable: "comments",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_likes_feeds_feed_id",
+                        column: x => x.feed_id,
+                        principalSchema: "social_network",
+                        principalTable: "feeds",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_likes_profiles_profile_id",
+                        column: x => x.profile_id,
+                        principalSchema: "auth",
+                        principalTable: "profiles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "subscription_credits",
                 schema: "auth",
                 columns: table => new
@@ -1322,16 +1470,16 @@ namespace Fenicia.Auth.Migrations;
                 column: "state_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_attachments_task_model_id",
+                name: "ix_attachments_task_id",
                 schema: "project",
                 table: "attachments",
-                column: "task_model_id");
+                column: "task_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_attachments_user_id",
+                name: "ix_attachments_uploaded_by",
                 schema: "project",
                 table: "attachments",
-                column: "user_id");
+                column: "uploaded_by");
 
             migrationBuilder.CreateIndex(
                 name: "ix_attachments_comment_id",
@@ -1340,22 +1488,22 @@ namespace Fenicia.Auth.Migrations;
                 column: "comment_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_blocks_blocked_user_id",
+                name: "ix_blocks_blocked_profile_id",
                 schema: "social_network",
                 table: "blocks",
-                column: "blocked_user_id");
+                column: "blocked_profile_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_blocks_user_id",
+                name: "ix_blocks_profile_id",
                 schema: "social_network",
                 table: "blocks",
-                column: "user_id");
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_comments_task_model_id",
+                name: "ix_comments_task_id",
                 schema: "project",
                 table: "comments",
-                column: "task_model_id");
+                column: "task_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_comments_user_id",
@@ -1376,10 +1524,10 @@ namespace Fenicia.Auth.Migrations;
                 column: "parent_comment_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_comments_user_id1",
+                name: "ix_comments_profile_id",
                 schema: "social_network",
                 table: "comments",
-                column: "user_id");
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_companies_address_id",
@@ -1420,10 +1568,16 @@ namespace Fenicia.Auth.Migrations;
                 column: "position_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_feeds_user_id",
+                name: "ix_feeds_original_feed_id",
                 schema: "social_network",
                 table: "feeds",
-                column: "user_id");
+                column: "original_feed_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_feeds_profile_id",
+                schema: "social_network",
+                table: "feeds",
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_forgotten_passwords_user_id",
@@ -1432,22 +1586,22 @@ namespace Fenicia.Auth.Migrations;
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_friendships_target_user_id",
+                name: "ix_friendships_profile_id",
                 schema: "social_network",
                 table: "friendships",
-                column: "target_user_id");
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_friendships_user_id",
+                name: "ix_friendships_target_profile_id",
                 schema: "social_network",
                 table: "friendships",
-                column: "user_id");
+                column: "target_profile_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_likes_comment_model_id",
+                name: "ix_likes_comment_id",
                 schema: "social_network",
                 table: "likes",
-                column: "comment_model_id");
+                column: "comment_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_likes_feed_id",
@@ -1456,10 +1610,10 @@ namespace Fenicia.Auth.Migrations;
                 column: "feed_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_likes_user_id",
+                name: "ix_likes_profile_id",
                 schema: "social_network",
                 table: "likes",
-                column: "user_id");
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_order_details_module_id",
@@ -1510,10 +1664,10 @@ namespace Fenicia.Auth.Migrations;
                 column: "employee_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_people_state_model_id",
+                name: "ix_people_state_id",
                 schema: "basic",
                 table: "people",
-                column: "state_model_id");
+                column: "state_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_person_addresses_address_id",
@@ -1540,16 +1694,29 @@ namespace Fenicia.Auth.Migrations;
                 column: "supplier_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_profiles_user_id",
-                schema: "social_network",
+                name: "ix_profiles_upload_id",
+                schema: "auth",
                 table: "profiles",
-                column: "user_id");
+                column: "upload_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_project_subtasks_task_model_id",
+                name: "ix_profiles_user_id",
+                schema: "auth",
+                table: "profiles",
+                column: "user_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_profiles_user_id1",
+                schema: "auth",
+                table: "profiles",
+                column: "user_id1");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_project_subtasks_task_id",
                 schema: "project",
                 table: "project_subtasks",
-                column: "task_model_id");
+                column: "task_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_reports_reporter_id",
@@ -1564,16 +1731,28 @@ namespace Fenicia.Auth.Migrations;
                 column: "original_feed_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_shares_user_id",
+                name: "ix_shares_profile_id",
                 schema: "social_network",
                 table: "shares",
-                column: "user_id");
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_statuses_project_model_id",
+                name: "ix_sprints_created_by",
+                schema: "project",
+                table: "sprints",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_sprints_project_id",
+                schema: "project",
+                table: "sprints",
+                column: "project_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_statuses_project_id",
                 schema: "project",
                 table: "statuses",
-                column: "project_model_id");
+                column: "project_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_stock_movements_customer_id",
@@ -1644,10 +1823,10 @@ namespace Fenicia.Auth.Migrations;
                 column: "person_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_task_assignees_task_model_id",
+                name: "ix_task_assignees_task_id",
                 schema: "project",
                 table: "task_assignees",
-                column: "task_model_id");
+                column: "task_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_task_assignees_user_id",
@@ -1656,22 +1835,52 @@ namespace Fenicia.Auth.Migrations;
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tasks_project_model_id",
+                name: "ix_tasks_created_by",
                 schema: "project",
                 table: "tasks",
-                column: "project_model_id");
+                column: "created_by");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tasks_status_model_id",
+                name: "ix_tasks_project_id",
                 schema: "project",
                 table: "tasks",
-                column: "status_model_id");
+                column: "project_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tasks_user_id",
+                name: "ix_tasks_sprint_id",
                 schema: "project",
                 table: "tasks",
+                column: "sprint_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tasks_status_id",
+                schema: "project",
+                table: "tasks",
+                column: "status_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_team_users_team_id",
+                schema: "project",
+                table: "team_users",
+                column: "team_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_team_users_user_id",
+                schema: "project",
+                table: "team_users",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_teams_created_by",
+                schema: "project",
+                table: "teams",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_teams_project_id",
+                schema: "project",
+                table: "teams",
+                column: "project_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_users_roles_company_id",
@@ -1740,10 +1949,6 @@ namespace Fenicia.Auth.Migrations;
                 schema: "basic");
 
             migrationBuilder.DropTable(
-                name: "profiles",
-                schema: "social_network");
-
-            migrationBuilder.DropTable(
                 name: "project_subtasks",
                 schema: "project");
 
@@ -1765,6 +1970,10 @@ namespace Fenicia.Auth.Migrations;
 
             migrationBuilder.DropTable(
                 name: "task_assignees",
+                schema: "project");
+
+            migrationBuilder.DropTable(
+                name: "team_users",
                 schema: "project");
 
             migrationBuilder.DropTable(
@@ -1793,6 +2002,10 @@ namespace Fenicia.Auth.Migrations;
 
             migrationBuilder.DropTable(
                 name: "tasks",
+                schema: "project");
+
+            migrationBuilder.DropTable(
+                name: "teams",
                 schema: "project");
 
             migrationBuilder.DropTable(
@@ -1828,8 +2041,16 @@ namespace Fenicia.Auth.Migrations;
                 schema: "auth");
 
             migrationBuilder.DropTable(
+                name: "sprints",
+                schema: "project");
+
+            migrationBuilder.DropTable(
                 name: "statuses",
                 schema: "project");
+
+            migrationBuilder.DropTable(
+                name: "profiles",
+                schema: "auth");
 
             migrationBuilder.DropTable(
                 name: "positions",
@@ -1844,12 +2065,16 @@ namespace Fenicia.Auth.Migrations;
                 schema: "auth");
 
             migrationBuilder.DropTable(
-                name: "users",
+                name: "projects",
+                schema: "project");
+
+            migrationBuilder.DropTable(
+                name: "uploads",
                 schema: "auth");
 
             migrationBuilder.DropTable(
-                name: "projects",
-                schema: "project");
+                name: "users",
+                schema: "auth");
 
             migrationBuilder.DropTable(
                 name: "addresses",

@@ -804,23 +804,29 @@ public static class DbInitializer
         if (!context.AuthUsers.Any())
         {
             var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-            var user = new UserModel
-            {
-                Email = "ygor@ygorlazaro.com",
-                Name = "Ygor Lazaro",
-                Password = SecurityService.Hash("ygor")
-            };
+            var godRole = context.AuthRoles.FirstOrDefault(x => x.Name == "God");
+            var userRole = context.AuthRoles.FirstOrDefault(x => x.Name == "User");
 
-            var currentRole = context.AuthRoles.FirstOrDefault(x => x.Name == "God");
-            var role = new UserRoleModel
+            for (var i = 1; i <= 100; i++)
             {
-                User = user,
-                CompanyId = companyId,
-                RoleId = currentRole?.Id ?? Guid.Empty
-            };
+                var user = new UserModel
+                {
+                    Email = i == 1 ? "ygor@ygorlazaro.com" : $"usuario{i}@fenicia.com",
+                    Name = i == 1 ? "Ygor Lazaro" : $"Usuario {i}",
+                    Password = SecurityService.Hash("ygor")
+                };
 
-            context.AuthUsers.Add(user);
-            context.AuthUserRoles.Add(role);
+                var role = new UserRoleModel
+                {
+                    User = user,
+                    CompanyId = companyId,
+                    RoleId = i == 1 ? godRole?.Id ?? Guid.Empty : userRole?.Id ?? Guid.Empty
+                };
+
+                context.AuthUsers.Add(user);
+                context.AuthUserRoles.Add(role);
+            }
+
             context.SaveChanges();
         }
     }
@@ -1119,7 +1125,7 @@ public static class DbInitializer
 
     private static void SeedProfiles(DefaultContext context)
     {
-        if (!context.SocialNetworkProfiles.Any())
+        if (!context.AuthProfiles.Any())
         {
             var users = context.AuthUsers.ToList();
             var uploads = context.AuthUploads.ToList();
@@ -1133,17 +1139,17 @@ public static class DbInitializer
             var now = DateTime.UtcNow;
 
 #pragma warning disable CA5394
-            for (var i = 1; i <= 100; i++)
+            for (var i = 0; i < users.Count; i++)
             {
                 var birthDate = new DateTime(1990, 1, 1).AddDays(i % 12000);
 
                 var profile = new ProfileModel
                 {
-                    UserId = users[(i - 1) % users.Count].Id,
-                    UserName = $"usuario{i}",
-                    Bio = i % 3 == 0 ? $"Bio do usuário {i} apaixonado por tecnologia e inovação." : null,
-                    UploadId = uploads[(i - 1) % uploads.Count].Id,
-                    Website = i % 4 == 0 ? $"https://usuario{i}.dev" : null,
+                    UserId = users[i].Id,
+                    UserName = $"usuario{i + 1}",
+                    Bio = i % 3 == 0 ? $"Bio do usuário {i + 1} apaixonado por tecnologia e inovação." : null,
+                    UploadId = uploads[i % uploads.Count].Id,
+                    Website = i % 4 == 0 ? $"https://usuario{i + 1}.dev" : null,
                     Location = i % 2 == 0 ? "São Paulo, SP" : "Rio de Janeiro, RJ",
                     Phone = $"({(i % 90) + 10}) 9{(i % 90000000) + 10000000:D8}",
                     BirthDate = birthDate,
@@ -1151,7 +1157,7 @@ public static class DbInitializer
                     Updated = now.AddDays(-random.NextDouble() * 30)
                 };
 
-                context.SocialNetworkProfiles.Add(profile);
+                context.AuthProfiles.Add(profile);
             }
 #pragma warning restore CA5394
         }
@@ -1162,7 +1168,7 @@ public static class DbInitializer
         if (!context.SocialNetworkFeeds.Any())
         {
             var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-            var profiles = context.SocialNetworkProfiles.ToList();
+            var profiles = context.AuthProfiles.ToList();
 
             if (!profiles.Any())
             {
@@ -1211,7 +1217,7 @@ public static class DbInitializer
         if (!context.SocialNetworkComments.Any())
         {
             var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-            var profiles = context.SocialNetworkProfiles.ToList();
+            var profiles = context.AuthProfiles.ToList();
             var feeds = context.SocialNetworkFeeds.ToList();
 
             if (!profiles.Any() || !feeds.Any())
@@ -1259,7 +1265,7 @@ public static class DbInitializer
         if (!context.SocialNetworkLikes.Any())
         {
             var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-            var profiles = context.SocialNetworkProfiles.ToList();
+            var profiles = context.AuthProfiles.ToList();
             var feeds = context.SocialNetworkFeeds.ToList();
 
             if (!profiles.Any() || !feeds.Any())
@@ -1294,7 +1300,7 @@ public static class DbInitializer
         if (!context.SocialNetworkShares.Any())
         {
             var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-            var profiles = context.SocialNetworkProfiles.ToList();
+            var profiles = context.AuthProfiles.ToList();
             var feeds = context.SocialNetworkFeeds.ToList();
 
             if (!profiles.Any() || !feeds.Any())
@@ -1329,7 +1335,7 @@ public static class DbInitializer
     {
         if (!context.SocialNetworkBlocks.Any())
         {
-            var profiles = context.SocialNetworkProfiles.ToList();
+            var profiles = context.AuthProfiles.ToList();
 
             if (!profiles.Any())
             {
@@ -1375,7 +1381,7 @@ public static class DbInitializer
         if (!context.SocialNetworkReports.Any())
         {
             var users = context.AuthUsers.ToList();
-            var profiles = context.SocialNetworkProfiles.ToList();
+            var profiles = context.AuthProfiles.ToList();
 
             if (!users.Any() || !profiles.Any())
             {

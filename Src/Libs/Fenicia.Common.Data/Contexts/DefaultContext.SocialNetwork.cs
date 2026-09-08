@@ -9,8 +9,6 @@ public partial class DefaultContext
 {
     public DbSet<FeedModel> SocialNetworkFeeds { get; set; }
 
-    public DbSet<ProfileModel> SocialNetworkProfiles { get; set; }
-
     public DbSet<FriendshipModel> SocialNetworkFriendships { get; set; }
 
     public DbSet<BlockModel> SocialNetworkBlocks { get; set; }
