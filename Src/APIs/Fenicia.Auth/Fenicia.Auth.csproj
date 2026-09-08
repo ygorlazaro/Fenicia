@@ -39,11 +39,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
-        <Content Include="..\..\..\migrations\seeds\social_network_seed.sql">
-            <Link>migrations/seeds/social_network_seed.sql</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Libs\Fenicia.Common.API\Fenicia.Common.API.csproj"/>

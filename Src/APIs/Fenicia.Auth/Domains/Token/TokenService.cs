@@ -85,10 +85,9 @@ public sealed class TokenService(
         if (companyIdProp != null)
         {
             var companyIdValue = companyIdProp.GetValue(user);
-            if (companyIdValue != null && !string.IsNullOrEmpty(companyIdValue.ToString()))
+            if (companyIdValue is Guid companyIdGuid && companyIdGuid != Guid.Empty)
             {
-                var companyId = companyIdValue.ToString() ?? string.Empty;
-                authClaims.Add(new Claim("companyId", companyId));
+                authClaims.Add(new Claim("companyId", companyIdGuid.ToString()));
             }
         }
 

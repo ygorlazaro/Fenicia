@@ -22,7 +22,7 @@ public class CompanyModel : BaseModel
     public bool IsActive { get; init; } = true;
 
     [Column("address_id")]
-    public Guid? AddressId { get; init; }
+    public Guid? AddressId { get; set; }
 
     public List<UserRoleModel> UsersRoles { get; set; } = [];
 

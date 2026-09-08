@@ -22,4 +22,8 @@ public partial class DefaultContext
     public DbSet<AttachmentModel> ProjectAttachments { get; set; }
 
     public DbSet<TaskAssigneeModel> ProjectTaskAssignees { get; set; }
+
+    public DbSet<TeamModel> Teams { get; set; }
+
+    public DbSet<TeamUserModel> ProjectTeamUsers { get; set; }
 }

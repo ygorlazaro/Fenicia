@@ -8,6 +8,10 @@ public interface ICompanyContextService
 
     Task SetSelectedCompanyIdAsync(Guid? companyId);
 
+    Task<string?> GetSelectedCompanyNameAsync();
+
+    Task SetSelectedCompanyNameAsync(string? companyName);
+
     Task<Guid> GetUserIdAsync();
 
     Task<string?> GetTokenAsync();
@@ -18,6 +22,7 @@ public interface ICompanyContextService
 public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextService
 {
     private const string _companyIdKey = "selected_company_id";
+    private const string _companyNameKey = "selected_company_name";
 
     public async Task<Guid?> GetSelectedCompanyIdAsync()
     {
@@ -39,6 +44,23 @@ public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextServic
         else
         {
             await jsRuntime.InvokeVoidAsync("storageHelper.remove", _companyIdKey);
+        }
+    }
+
+    public async Task<string?> GetSelectedCompanyNameAsync()
+    {
+        return await jsRuntime.InvokeAsync<string>("storageHelper.get", _companyNameKey);
+    }
+
+    public async Task SetSelectedCompanyNameAsync(string? companyName)
+    {
+        if (!string.IsNullOrEmpty(companyName))
+        {
+            await jsRuntime.InvokeVoidAsync("storageHelper.set", _companyNameKey, companyName);
+        }
+        else
+        {
+            await jsRuntime.InvokeVoidAsync("storageHelper.remove", _companyNameKey);
         }
     }
 
