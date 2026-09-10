@@ -3,9 +3,11 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
-<CrudPage @ref="crudPage" TItem="ProductDto"
+<CrudPage TItem="ProductDto"
           PageTitle="Produtos"
           PageSubtitle="Gerencie o catálogo de produtos da sua empresa"
           EntityNamePlural="produtos"
@@ -18,153 +20,22 @@
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Produto"
-           CreatePayloadFactory="CreatePayload"
-            OnAdd="ResetForm"
-            OnEdit="LoadForm">
+          CreatePayloadFactory="CreatePayload"
+          OnAdd="ResetForm"
+          OnEdit="LoadForm">
     <HeaderContent>
-        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
-        <MudTh Sortable="true" SortLabel="Name">Nome</MudTh>
-        <MudTh Sortable="true" SortLabel="SKU">SKU</MudTh>
-        <MudTh Sortable="true" SortLabel="SalesPrice" Style="text-align: right">Preço de Venda</MudTh>
-        <MudTh Sortable="true" SortLabel="Quantity" Style="text-align: right">Quantidade</MudTh>
-        <MudTh Sortable="true" SortLabel="Category.Name">Categoria</MudTh>
-        <MudTh Sortable="true" SortLabel="Supplier.Person.Name">Fornecedor</MudTh>
+        <ProductHeader />
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                           Color="Color.Info"
-                           Size="Size.Small"
-                           OnClick="@(() => context.Page.OpenEditModal(context.Item))" />
-            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Size="Size.Small"
-                           OnClick="@(() => context.Page.RequestDelete(context.Item))" />
-        </MudTd>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd DataLabel="SKU">@(string.IsNullOrEmpty(context.Item.SKU) ? "—" : context.Item.SKU)</MudTd>
-        <MudTd DataLabel="Preço de Venda" Style="text-align: right">@Money.Format(context.Item.SalesPrice)</MudTd>
-        <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Item.Quantity</MudTd>
-        <MudTd DataLabel="Categoria">@context.Item.CategoryName</MudTd>
-        <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(context.Item.SupplierName) ? "—" : context.Item.SupplierName)</MudTd>
+        <ProductRow Item="context.Item"
+                    OnEdit="@(() => context.Page.OpenEditModal(context.Item))"
+                    OnDelete="@(() => context.Page.RequestDelete(context.Item))" />
     </RowTemplate>
     <AddModalBody>
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="add.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.SKU" Label="SKU" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="add.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="add.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="add.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="add.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="add.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid" @bind-Value="add.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
-                    @foreach (var category in categories)
-                    {
-                        <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="add.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var supplier in suppliers)
-                    {
-                        <MudSelectItem T="Guid?" Value="@supplier.Id">@supplier.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="add.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
-            </MudItem>
-            <MudItem xs="12" sm="12">
-                <MudTextField @bind-Value="add.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="add.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
-            </MudItem>
-        </MudGrid>
+        <ProductForm Model="add" Categories="categories" Suppliers="suppliers" />
     </AddModalBody>
     <EditModalBody>
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="edit.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.SKU" Label="SKU" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="edit.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="edit.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="edit.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="edit.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="edit.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid" @bind-Value="edit.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
-                    @foreach (var category in categories)
-                    {
-                        <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="edit.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var supplier in suppliers)
-                    {
-                        <MudSelectItem T="Guid?" Value="@supplier.Id">@supplier.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="edit.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="edit.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="edit.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
-            </MudItem>
-        </MudGrid>
+        <ProductForm Model="edit" Categories="categories" Suppliers="suppliers" />
     </EditModalBody>
 </CrudPage>
 
@@ -176,19 +47,12 @@
 
     private List<CategoryOption> categories = new();
     private List<SupplierOption> suppliers = new();
-
     private ProductFormModel add = new();
     private ProductFormModel edit = new();
-
-    private CrudPage<ProductDto> crudPage = default!;
 
     protected override Task OnInitializedAsync()
     {
         return LoadOptionsAsync();
-    }
-
-    protected override void OnParametersSet()
-    {
     }
 
     private async Task LoadOptionsAsync()
@@ -196,39 +60,29 @@
         try
         {
             var client = HttpClientFactory.CreateClient("FeniciaBasic");
-
             var token = await CompanyContext.GetTokenAsync();
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
-
             var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
             if (companyId.HasValue)
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
                 client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
             }
-
             var categoriesTask = client.GetAsync("datasource/productcategory");
             var suppliersTask = client.GetAsync("datasource/supplier");
-
             await Task.WhenAll(categoriesTask, suppliersTask);
-
-            var categoriesResponse = await categoriesTask;
-            if (categoriesResponse.IsSuccessStatusCode)
+            if (categoriesTask.Result.IsSuccessStatusCode)
             {
-                var body = await categoriesResponse.Content.ReadAsStringAsync();
-                var items = JsonSerializer.Deserialize<List<CategoryOption>>(body, JsonOptions);
-                categories = items ?? new();
+                var body = await categoriesTask.Result.Content.ReadAsStringAsync();
+                categories = JsonSerializer.Deserialize<List<CategoryOption>>(body, JsonOptions) ?? new();
             }
-
-            var suppliersResponse = await suppliersTask;
-            if (suppliersResponse.IsSuccessStatusCode)
+            if (suppliersTask.Result.IsSuccessStatusCode)
             {
-                var body = await suppliersResponse.Content.ReadAsStringAsync();
-                var items = JsonSerializer.Deserialize<List<SupplierOption>>(body, JsonOptions);
-                suppliers = items ?? new();
+                var body = await suppliersTask.Result.Content.ReadAsStringAsync();
+                suppliers = JsonSerializer.Deserialize<List<SupplierOption>>(body, JsonOptions) ?? new();
             }
         }
         catch
@@ -286,70 +140,5 @@
             CategoryId = model.CategoryId,
             SupplierId = model.SupplierId
         };
-    }
-
-    public class ProductDto : IEquatable<ProductDto>, ICrudItem
-    {
-        public Guid Id { get; init; }
-        public string Name { get; set; } = string.Empty;
-        public string? SKU { get; set; }
-        public string? Barcode { get; set; }
-        public string? Description { get; set; }
-        public decimal? CostPrice { get; set; }
-        public decimal SalesPrice { get; set; }
-        public double Quantity { get; set; }
-        public int? MinStockLevel { get; set; }
-        public int? MaxStockLevel { get; set; }
-        public string? ImageUrl { get; set; }
-        public decimal? Weight { get; set; }
-        public string? Dimensions { get; set; }
-        public string? UnitOfMeasure { get; set; }
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public Guid? SupplierId { get; set; }
-        public string? SupplierName { get; set; }
-        public bool IsActive { get; set; }
-
-        public bool Equals(ProductDto? other)
-        {
-            if (other is null) return false;
-
-            return Id == other.Id && Name == other.Name;
-        }
-
-        public override bool Equals(object? obj) => Equals(obj as ProductDto);
-
-        public override int GetHashCode() => HashCode.Combine(Id, Name);
-    }
-
-    private sealed class CategoryOption
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-    }
-
-    private sealed class SupplierOption
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-    }
-
-    private sealed class ProductFormModel
-    {
-        public string? Name { get; set; }
-        public string? SKU { get; set; }
-        public string? Barcode { get; set; }
-        public decimal? CostPrice { get; set; }
-        public decimal SalesPrice { get; set; }
-        public double Quantity { get; set; }
-        public int? MinStockLevel { get; set; }
-        public int? MaxStockLevel { get; set; }
-        public string? ImageUrl { get; set; }
-        public decimal? Weight { get; set; }
-        public string? Dimensions { get; set; }
-        public string? UnitOfMeasure { get; set; }
-        public string? Description { get; set; }
-        public Guid CategoryId { get; set; }
-        public Guid? SupplierId { get; set; }
     }
 }

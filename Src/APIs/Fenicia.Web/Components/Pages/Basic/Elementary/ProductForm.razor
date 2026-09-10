@@ -1,0 +1,67 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+
+<MudGrid Spacing="2">
+    <MudItem xs="12" sm="8">
+        <MudTextField @bind-Value="Model.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.SKU" Label="SKU" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudNumericField T="decimal?" @bind-Value="Model.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudNumericField T="decimal" @bind-Value="Model.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudNumericField T="double" @bind-Value="Model.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudNumericField T="int?" @bind-Value="Model.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudNumericField T="int?" @bind-Value="Model.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid" @bind-Value="Model.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
+            @foreach (var category in Categories)
+            {
+                <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid?" @bind-Value="Model.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
+            @foreach (var supplier in Suppliers)
+            {
+                <MudSelectItem T="Guid?" Value="@supplier.Id">@supplier.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudNumericField T="decimal?" @bind-Value="Model.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
+    </MudItem>
+    <MudItem xs="12" sm="12">
+        <MudTextField @bind-Value="Model.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Model.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public ProductFormModel Model { get; set; } = new();
+    [Parameter, EditorRequired] public List<CategoryOption> Categories { get; set; } = [];
+    [Parameter, EditorRequired] public List<SupplierOption> Suppliers { get; set; } = [];
+}

@@ -1,0 +1,60 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudPaper Class="pa-4 mb-4" Elevation="2">
+    <MudGrid Spacing="3">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-success">
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                    <div>
+                        <MudText Typo="Typo.overline" Color="Color.Default">Entradas — Quantidade</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success">@Kpi.TotalInQuantity.ToString("N2")</MudText>
+                    </div>
+                    <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
+                        <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
+                    </MudAvatar>
+                </MudStack>
+                <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
+                    @Kpi.TotalInEvents evento(s) · Valor: @Money.Format(Kpi.TotalInValue)
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-error">
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                    <div>
+                        <MudText Typo="Typo.overline" Color="Color.Default">Saídas — Quantidade</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Error">@Kpi.TotalOutQuantity.ToString("N2")</MudText>
+                    </div>
+                    <MudAvatar Color="Color.Error" Variant="Variant.Outlined" Size="Size.Medium">
+                        <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
+                    </MudAvatar>
+                </MudStack>
+                <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
+                    @Kpi.TotalOutEvents evento(s) · Valor: @Money.Format(Kpi.TotalOutValue)
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-info">
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                    <div>
+                        <MudText Typo="Typo.overline" Color="Color.Default">Total de Eventos</MudText>
+                        <MudText Typo="Typo.h5">@(Kpi.TotalInEvents + Kpi.TotalOutEvents)</MudText>
+                    </div>
+                    <MudAvatar Color="Color.Info" Variant="Variant.Outlined" Size="Size.Medium">
+                        <MudIcon Icon="@Icons.Material.Filled.SwapVert" />
+                    </MudAvatar>
+                </MudStack>
+                <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
+                    Valor total: @Money.Format(Kpi.TotalInValue - Kpi.TotalOutValue)
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public StockMovementKpi Kpi { get; set; } = default!;
+}

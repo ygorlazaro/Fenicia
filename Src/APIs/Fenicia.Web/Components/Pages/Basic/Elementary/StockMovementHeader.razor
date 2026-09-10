@@ -1,0 +1,20 @@
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <div>
+        <MudText Typo="Typo.h5">Movimentações de Estoque</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+            Registre entradas e saídas de estoque. Cada movimentação altera a quantidade atual do produto.
+        </MudText>
+    </div>
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Assessment" Href="/basic/inventory">
+            Ver Inventário
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnNewMovement">
+            Nova Movimentação
+        </MudButton>
+    </MudStack>
+</MudStack>
+
+@code {
+    [Parameter] public EventCallback OnNewMovement { get; set; }
+}

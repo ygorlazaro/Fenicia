@@ -2,7 +2,6 @@ using Fenicia.Web.Components.Layout.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
-using MudBlazor;
 
 #pragma warning disable CA1031
 #pragma warning disable SA1204

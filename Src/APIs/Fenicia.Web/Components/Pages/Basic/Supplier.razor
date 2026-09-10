@@ -3,9 +3,11 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
-<CrudPage @ref="crudPage" TItem="SupplierDto"
+<CrudPage TItem="SupplierDto"
           PageTitle="Fornecedores"
           PageSubtitle="Gerencie os fornecedores da sua empresa"
           EntityNamePlural="fornecedores"
@@ -18,135 +20,22 @@
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Fornecedor"
-           CreatePayloadFactory="CreatePayload"
-            OnAdd="ResetForm"
-            OnEdit="LoadForm">
+          CreatePayloadFactory="CreatePayload"
+          OnAdd="ResetForm"
+          OnEdit="LoadForm">
     <HeaderContent>
-        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
-        <MudTh Sortable="true" SortLabel="Person.Name">Nome</MudTh>
-        <MudTh Sortable="true" SortLabel="Person.Email">Email</MudTh>
-        <MudTh Sortable="true" SortLabel="Person.PhoneNumber">Telefone</MudTh>
-        <MudTh Sortable="true" SortLabel="Person.Document">Documento</MudTh>
-        <MudTh>Cidade</MudTh>
-        <MudTh>Estado</MudTh>
+        <SupplierHeader />
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                           Color="Color.Info"
-                           Size="Size.Small"
-                           OnClick="@(() => context.Page.OpenEditModal(context.Item))" />
-            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Size="Size.Small"
-                           OnClick="@(() => context.Page.RequestDelete(context.Item))" />
-        </MudTd>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd DataLabel="Email">@(string.IsNullOrEmpty(context.Item.Email) ? "—" : context.Item.Email)</MudTd>
-        <MudTd DataLabel="Telefone">@(string.IsNullOrEmpty(context.Item.PhoneNumber) ? "—" : context.Item.PhoneNumber)</MudTd>
-        <MudTd DataLabel="Documento">@(string.IsNullOrEmpty(context.Item.Document) ? "—" : context.Item.Document)</MudTd>
-        <MudTd DataLabel="Cidade">@(string.IsNullOrEmpty(context.Item.Address?.City) ? "—" : context.Item.Address.City)</MudTd>
-        <MudTd DataLabel="Estado">@(string.IsNullOrEmpty(context.Item.Address?.StateName) ? "—" : context.Item.Address.StateName)</MudTd>
+        <SupplierRow Item="context.Item"
+                     OnEdit="@(() => context.Page.OpenEditModal(context.Item))"
+                     OnDelete="@(() => context.Page.RequestDelete(context.Item))" />
     </RowTemplate>
     <AddModalBody>
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="add.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
-            </MudItem>
-
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="add.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="add.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
-            </MudItem>
-
-            <MudItem xs="12">
-                <MudText Typo="Typo.subtitle2" Class="mt-2">Endereço</MudText>
-            </MudItem>
-            <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="add.Street" Label="Rua" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.Number" Label="Número" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.Complement" Label="Complemento" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="add.ZipCode" Label="CEP" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="add.City" Label="Cidade" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="add.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var state in states)
-                    {
-                        <MudSelectItem T="Guid?" Value="@state.Id">@state.Uf — @state.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="add.Country" Label="País" Variant="Variant.Outlined" />
-            </MudItem>
-        </MudGrid>
+        <SupplierForm Model="add" States="states" />
     </AddModalBody>
     <EditModalBody>
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="edit.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
-            </MudItem>
-
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="edit.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="edit.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
-            </MudItem>
-
-            <MudItem xs="12">
-                <MudText Typo="Typo.subtitle2" Class="mt-2">Endereço</MudText>
-            </MudItem>
-            <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="edit.Street" Label="Rua" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.Number" Label="Número" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.Complement" Label="Complemento" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="edit.ZipCode" Label="CEP" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="edit.City" Label="Cidade" Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="edit.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var state in states)
-                    {
-                        <MudSelectItem T="Guid?" Value="@state.Id">@state.Uf — @state.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="edit.Country" Label="País" Variant="Variant.Outlined" />
-            </MudItem>
-        </MudGrid>
+        <SupplierForm Model="edit" States="states" />
     </EditModalBody>
 </CrudPage>
 
@@ -160,15 +49,9 @@
     private SupplierFormModel add = new();
     private SupplierFormModel edit = new();
 
-    private CrudPage<SupplierDto> crudPage = default!;
-
     protected override Task OnInitializedAsync()
     {
         return LoadStatesAsync();
-    }
-
-    protected override void OnParametersSet()
-    {
     }
 
     private async Task LoadStatesAsync()
@@ -176,26 +59,22 @@
         try
         {
             var client = HttpClientFactory.CreateClient("FeniciaBasic");
-
             var token = await CompanyContext.GetTokenAsync();
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
-
             var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
             if (companyId.HasValue)
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
                 client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
             }
-
             var response = await client.GetAsync("state");
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                var items = JsonSerializer.Deserialize<List<StateOption>>(body, JsonOptions);
-                states = items ?? new();
+                states = JsonSerializer.Deserialize<List<StateOption>>(body, JsonOptions) ?? new();
             }
         }
         catch
@@ -264,62 +143,5 @@
             StateId = model.StateId.Value,
             Country = model.Country
         };
-    }
-
-    private sealed class StateOption
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Uf { get; set; } = string.Empty;
-    }
-
-    public class SupplierDto : IEquatable<SupplierDto>, ICrudItem
-    {
-        public Guid Id { get; init; }
-        public string Name { get; set; } = string.Empty;
-        public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Document { get; set; }
-        public AddressDto? Address { get; set; }
-
-        public bool Equals(SupplierDto? other)
-        {
-            if (other is null) return false;
-
-            return Id == other.Id && Name == other.Name;
-        }
-
-        public override bool Equals(object? obj) => Equals(obj as SupplierDto);
-
-        public override int GetHashCode() => HashCode.Combine(Id, Name);
-    }
-
-    public class AddressDto
-    {
-        public string Street { get; set; } = string.Empty;
-        public string Number { get; set; } = string.Empty;
-        public string? Complement { get; set; }
-        public string? Neighborhood { get; set; }
-        public string ZipCode { get; set; } = string.Empty;
-        public Guid StateId { get; set; }
-        public string? StateName { get; set; }
-        public string City { get; set; } = string.Empty;
-        public string? Country { get; set; }
-    }
-
-    private sealed class SupplierFormModel
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Document { get; set; }
-        public string? Street { get; set; }
-        public string? Number { get; set; }
-        public string? Complement { get; set; }
-        public string? Neighborhood { get; set; }
-        public string? ZipCode { get; set; }
-        public string? City { get; set; }
-        public Guid? StateId { get; set; }
-        public string? Country { get; set; }
     }
 }

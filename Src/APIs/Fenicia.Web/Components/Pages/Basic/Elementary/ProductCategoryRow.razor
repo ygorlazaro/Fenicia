@@ -1,0 +1,21 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
+    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                   Color="Color.Info"
+                   Size="Size.Small"
+                   OnClick="@(() => Page.OpenEditModal(Item))" />
+    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                   Color="Color.Error"
+                   Size="Size.Small"
+                   OnClick="@(() => Page.RequestDelete(Item))" />
+</MudTd>
+<MudTd DataLabel="Nome">@Item.Name</MudTd>
+<MudTd DataLabel="Produtos" Style="text-align: left">
+    <MudLink Href="@($"/basic/product?filters%5BCategoryId%5D={Item.Id}")" Typo="Typo.body2" Underline="Underline.Always">Ver produtos</MudLink>
+</MudTd>
+
+@code {
+    [Parameter] public ProductCategoryDto Item { get; set; } = default!;
+    [Parameter] public Fenicia.Web.Components.Shared.CrudPage<ProductCategoryDto> Page { get; set; } = default!;
+}

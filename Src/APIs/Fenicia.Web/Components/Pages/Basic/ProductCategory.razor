@@ -1,15 +1,16 @@
 @page "/basic/productcategory"
 @rendermode InteractiveServer
-@inject NavigationManager Navigation
 @using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage @ref="crudPage" TItem="ProductCategoryDto"
+<CrudPage TItem="ProductCategoryDto"
           PageTitle="Categorias de Produtos"
           PageSubtitle="Gerencie suas categorias de produtos"
           EntityNamePlural="categorias de produtos"
           EntityNameSingular="Categoria"
           Endpoint="productcategory"
-           ColumnCount="3"
+          ColumnCount="3"
           AddButtonLabel="Adicionar Categoria"
           AddTabText="Nova Categoria"
           EditTabText="Editar Categoria"
@@ -18,29 +19,14 @@
           CreateButtonLabel="Criar"
           UpdateButtonLabel="Atualizar"
           DeleteDialogTitle="Excluir Categoria"
-           CreatePayloadFactory="CreatePayload"
-            OnAdd="ResetAddName"
-            OnEdit="LoadEditName">
+          CreatePayloadFactory="CreatePayload"
+          OnAdd="ResetAddName"
+          OnEdit="LoadEditName">
     <HeaderContent>
-        <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
-        <MudTh Sortable="true" SortLabel="Name">Nome</MudTh>
-        <MudTh Style="text-align: left; min-width: 130px; width: 130px">Produtos</MudTh>
+        <ProductCategoryHeader />
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                           Color="Color.Info"
-                           Size="Size.Small"
-                           OnClick="@(() => context.Page.OpenEditModal(context.Item))" />
-            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Size="Size.Small"
-                           OnClick="@(() => context.Page.RequestDelete(context.Item))" />
-        </MudTd>
-        <MudTd DataLabel="Nome">@context.Item.Name</MudTd>
-        <MudTd DataLabel="Produtos" Style="text-align: left">
-            <MudLink Href="@($"/basic/product?filters%5BCategoryId%5D={context.Item.Id}")" Typo="Typo.body2" Underline="Underline.Always">Ver produtos</MudLink>
-        </MudTd>
+        <ProductCategoryRow Item="context.Item" Page="context.Page" />
     </RowTemplate>
     <AddModalBody>
         <MudTextField @bind-Value="addName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
@@ -54,8 +40,6 @@
     private string addName = string.Empty;
     private string editName = string.Empty;
 
-    private CrudPage<ProductCategoryDto> crudPage = default!;
-
     private void ResetAddName() => addName = string.Empty;
 
     private void LoadEditName(ProductCategoryDto item) => editName = item?.Name ?? string.Empty;
@@ -68,22 +52,5 @@
             Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
             Name = name
         };
-    }
-
-    public class ProductCategoryDto : IEquatable<ProductCategoryDto>, ICrudItem
-    {
-        public Guid Id { get; init; }
-        public string Name { get; set; } = string.Empty;
-
-        public bool Equals(ProductCategoryDto? other)
-        {
-            if (other is null) return false;
-
-            return Id == other.Id && Name == other.Name;
-        }
-
-        public override bool Equals(object? obj) => Equals(obj as ProductCategoryDto);
-
-        public override int GetHashCode() => HashCode.Combine(Id, Name);
     }
 }

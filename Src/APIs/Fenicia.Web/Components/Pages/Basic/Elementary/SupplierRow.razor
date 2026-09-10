@@ -1,0 +1,24 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
+    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                   Color="Color.Info"
+                   Size="Size.Small"
+                   OnClick="@(() => OnEdit.InvokeAsync(Item))" />
+    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                   Color="Color.Error"
+                   Size="Size.Small"
+                   OnClick="@(() => OnDelete.InvokeAsync(Item))" />
+</MudTd>
+<MudTd DataLabel="Nome">@Item.Name</MudTd>
+<MudTd DataLabel="Email">@(string.IsNullOrEmpty(Item.Email) ? "—" : Item.Email)</MudTd>
+<MudTd DataLabel="Telefone">@(string.IsNullOrEmpty(Item.PhoneNumber) ? "—" : Item.PhoneNumber)</MudTd>
+<MudTd DataLabel="Documento">@(string.IsNullOrEmpty(Item.Document) ? "—" : Item.Document)</MudTd>
+<MudTd DataLabel="Cidade">@(string.IsNullOrEmpty(Item.Address?.City) ? "—" : Item.Address.City)</MudTd>
+<MudTd DataLabel="Estado">@(string.IsNullOrEmpty(Item.Address?.StateName) ? "—" : Item.Address.StateName)</MudTd>
+
+@code {
+    [Parameter] public SupplierDto Item { get; set; } = default!;
+    [Parameter] public EventCallback<SupplierDto> OnEdit { get; set; }
+    [Parameter] public EventCallback<SupplierDto> OnDelete { get; set; }
+}

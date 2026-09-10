@@ -1,0 +1,24 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
+    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                   Color="Color.Info"
+                   Size="Size.Small"
+                   OnClick="@(() => OnEdit.InvokeAsync(Item))" />
+    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                   Color="Color.Error"
+                   Size="Size.Small"
+                   OnClick="@(() => OnDelete.InvokeAsync(Item))" />
+</MudTd>
+<MudTd DataLabel="Nome">@Item.Name</MudTd>
+<MudTd DataLabel="SKU">@(string.IsNullOrEmpty(Item.SKU) ? "—" : Item.SKU)</MudTd>
+<MudTd DataLabel="Preço de Venda" Style="text-align: right">@Money.Format(Item.SalesPrice)</MudTd>
+<MudTd DataLabel="Quantidade" Style="text-align: right">@Item.Quantity</MudTd>
+<MudTd DataLabel="Categoria">@Item.CategoryName</MudTd>
+<MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(Item.SupplierName) ? "—" : Item.SupplierName)</MudTd>
+
+@code {
+    [Parameter] public ProductDto Item { get; set; } = default!;
+    [Parameter] public EventCallback<ProductDto> OnEdit { get; set; }
+    [Parameter] public EventCallback<ProductDto> OnDelete { get; set; }
+}

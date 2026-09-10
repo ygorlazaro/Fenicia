@@ -3,290 +3,45 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 @using Fenicia.Common.Enums.Basic
 
 <MainLayout>
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
-  <MudPaper Class="pa-6">
-         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
-             <div>
-                 <MudText Typo="Typo.h5">Movimentações de Estoque</MudText>
-                 <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                     Registre entradas e saídas de estoque. Cada movimentação altera a quantidade atual do produto.
-                 </MudText>
-             </div>
-             <MudStack Row="true" Spacing="2">
-                 <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Assessment" Href="/basic/inventory">
-                     Ver Inventário
-                 </MudButton>
-                 <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddModal">
-                     Nova Movimentação
-                 </MudButton>
-             </MudStack>
-         </MudStack>
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
+        <MudPaper Class="pa-6">
+            <StockMovementHeader OnNewMovement="OpenAddModal" />
 
-          <MudTextField @bind-Value="SearchText"
-                        Label="Pesquisar"
-                        Placeholder="Digite para pesquisar..."
-                        Variant="Variant.Outlined"
-                        Size="Size.Small"
-                        DebounceInterval="300"
-                        Adornment="Adornment.Start"
-                        AdornmentIcon="@Icons.Material.Filled.Search"
-                        Class="mb-4" />
+            <StockMovementFilters SearchText="searchText"
+                                  SearchTextChanged="OnSearchTextChanged"
+                                  StartDate="startDate"
+                                  StartDateChanged="OnStartDateChanged"
+                                  EndDate="endDate"
+                                  EndDateChanged="OnEndDateChanged"
+                                  TypeFilter="typeFilter"
+                                  TypeFilterChanged="OnTypeFilterChanged"
+                                  Loading="loading"
+                                  OnFilter="LoadMovementsAsync" />
 
-         <MudPaper Class="pa-4 mb-4" Elevation="2">
-             <MudGrid Spacing="2" AlignItems="AlignItems.Center">
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudDatePicker @bind-Date="startDate" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
-                 </MudItem>
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudDatePicker @bind-Date="endDate" Label="Data final" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
-                 </MudItem>
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudSelect T="TypeFilter" @bind-Value="typeFilter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
-                         <MudSelectItem T="TypeFilter" Value="TypeFilter.All">Todos</MudSelectItem>
-                         <MudSelectItem T="TypeFilter" Value="TypeFilter.In">Entrada</MudSelectItem>
-                         <MudSelectItem T="TypeFilter" Value="TypeFilter.Out">Saída</MudSelectItem>
-                     </MudSelect>
-                 </MudItem>
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterList" OnClick="LoadMovementsAsync" Disabled="loading" FullWidth="true">
-                         Filtrar
-                     </MudButton>
-                 </MudItem>
-             </MudGrid>
-         </MudPaper>
+            <StockMovementKpiCards Kpi="kpi" />
 
-         <MudPaper Class="pa-4 mb-4" Elevation="2">
-             <MudGrid Spacing="3">
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-success">
-                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
-                             <div>
-                                 <MudText Typo="Typo.overline" Color="Color.Default">Entradas — Quantidade</MudText>
-                                 <MudText Typo="Typo.h5" Color="Color.Success">@kpi.TotalInQuantity.ToString("N2")</MudText>
-                             </div>
-                             <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
-                                 <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
-                             </MudAvatar>
-                         </MudStack>
-                         <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                             @kpi.TotalInEvents evento(s) · Valor: @Money.Format(kpi.TotalInValue)
-                         </MudText>
-                     </MudPaper>
-                 </MudItem>
-
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-error">
-                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
-                             <div>
-                                 <MudText Typo="Typo.overline" Color="Color.Default">Saídas — Quantidade</MudText>
-                                 <MudText Typo="Typo.h5" Color="Color.Error">@kpi.TotalOutQuantity.ToString("N2")</MudText>
-                             </div>
-                             <MudAvatar Color="Color.Error" Variant="Variant.Outlined" Size="Size.Medium">
-                                 <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
-                             </MudAvatar>
-                         </MudStack>
-                         <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                             @kpi.TotalOutEvents evento(s) · Valor: @Money.Format(kpi.TotalOutValue)
-                         </MudText>
-                     </MudPaper>
-                 </MudItem>
-
-                 <MudItem xs="12" sm="6" md="3">
-                     <MudPaper Elevation="2" Class="pa-4 kpi-card kpi-info">
-                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
-                             <div>
-                                 <MudText Typo="Typo.overline" Color="Color.Default">Total de Eventos</MudText>
-                                 <MudText Typo="Typo.h5">@(kpi.TotalInEvents + kpi.TotalOutEvents)</MudText>
-                             </div>
-                             <MudAvatar Color="Color.Info" Variant="Variant.Outlined" Size="Size.Medium">
-                                 <MudIcon Icon="@Icons.Material.Filled.SwapVert" />
-                             </MudAvatar>
-                         </MudStack>
-                         <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                             Valor total: @Money.Format(kpi.TotalInValue - kpi.TotalOutValue)
-                         </MudText>
-                     </MudPaper>
-                 </MudItem>
-             </MudGrid>
-         </MudPaper>
-
-    <MudPaper Class="pa-4" Elevation="2">
-        @if (loading)
-        {
-            <MudStack AlignItems="AlignItems.Center" Class="my-6">
-                <MudProgressCircular Indeterminate="true" />
-                <MudText Typo="Typo.body2">Carregando movimentações...</MudText>
-            </MudStack>
-        }
-        else if (movements.Count == 0)
-        {
-            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
-                Nenhuma movimentação encontrada no período selecionado.
-            </MudAlert>
-        }
-        else
-        {
-            <MudTable T="StockMovementDto" Items="@movements" Dense="true" Hover="true" Bordered="false" Elevation="0">
-                <HeaderContent>
-                    <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
-                    <MudTh>Data</MudTh>
-                    <MudTh>Tipo</MudTh>
-                    <MudTh>Produto</MudTh>
-                    <MudTh Style="text-align: right">Quantidade</MudTh>
-                    <MudTh Style="text-align: right">Preço</MudTh>
-                    <MudTh Style="text-align: right">Total</MudTh>
-                    <MudTh>Origem</MudTh>
-                    <MudTh>Motivo</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                       Color="Color.Info"
-                                       Size="Size.Small"
-                                       OnClick="@(() => OpenEditModal(context))" />
-                    </MudTd>
-                    <MudTd DataLabel="Data">@(context.Date?.ToString("dd/MM/yyyy HH:mm") ?? "—")</MudTd>
-                    <MudTd DataLabel="Tipo">
-                        @if (context.Type == StockMovementType.In)
-                        {
-                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Filled" Icon="@Icons.Material.Filled.ArrowDownward">Entrada</MudChip>
-                        }
-                        else if (context.Type == StockMovementType.Out)
-                        {
-                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Filled" Icon="@Icons.Material.Filled.ArrowUpward">Saída</MudChip>
-                        }
-                        else
-                        {
-                            <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">—</MudChip>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Produto">
-                        <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
-                            @context.ProductName
-                        </MudLink>
-                    </MudTd>
-                    <MudTd DataLabel="Quantidade" Style="text-align: right">@context.Quantity.ToString("N2")</MudTd>
-                    <MudTd DataLabel="Preço" Style="text-align: right">@(Money.Format(context.Price ?? 0))</MudTd>
-                    <MudTd DataLabel="Total" Style="text-align: right">@{
-                        var totalValue = (decimal)context.Quantity * (context.Price ?? 0);
-                        @Money.Format(totalValue)
-                    }</MudTd>
-                    <MudTd DataLabel="Origem">
-                        @{
-                            var origin = ResolveOrigin(context);
-                        }
-                        @if (context.SupplierId.HasValue && origin.StartsWith("Fornecedor"))
-                        {
-                            <MudLink Href="@($"/basic/supplier?edit={context.SupplierId}")" Underline="Underline.Hover">@origin</MudLink>
-                        }
-                        else if (context.CustomerId.HasValue && origin.StartsWith("Cliente"))
-                        {
-                            <MudLink Href="@($"/basic/customer?edit={context.CustomerId}")" Underline="Underline.Hover">@origin</MudLink>
-                        }
-                        else if (context.EmployeeId.HasValue && origin.StartsWith("Funcionário"))
-                        {
-                            <MudLink Href="@($"/basic/employee?edit={context.EmployeeId}")" Underline="Underline.Hover">@origin</MudLink>
-                        }
-                        else if (context.OrderId.HasValue)
-                        {
-                            <MudLink Href="@($"/basic/order/{context.OrderId}")" Underline="Underline.Hover">Pedido @context.OrderId.Value.ToString()[..8]</MudLink>
-                        }
-                        else
-                        {
-                            @origin
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Motivo">@(string.IsNullOrEmpty(context.Reason) ? "—" : context.Reason)</MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager PageSizeOptions="[10, 20, 50, 100]" RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}" AllItemsText="Todos" />
-                </PagerContent>
-            </MudTable>
-        }
-    </MudPaper>
-  </MudPaper>
-</MudContainer>
+            <StockMovementTable Items="movements" Loading="loading" OnEdit="OpenEditModal" />
+        </MudPaper>
+    </MudContainer>
 </MainLayout>
 
-<MudDialog @bind-Visible="modalOpen" Options="@ModalOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">@(isEdit ? "Editar Movimentação" : "Nova Movimentação")</MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="8">
-                <MudSelect T="Guid" @bind-Value="form.ProductId" Label="Produto" Variant="Variant.Outlined" Required="true" RequiredError="Selecione um produto!">
-                    @foreach (var p in products)
-                    {
-                        <MudSelectItem T="Guid" Value="@p.Id">@p.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudSelect T="StockMovementType" @bind-Value="form.Type" Label="Tipo" Variant="Variant.Outlined" Required="true">
-                    <MudSelectItem T="StockMovementType" Value="StockMovementType.In">Entrada</MudSelectItem>
-                    <MudSelectItem T="StockMovementType" Value="StockMovementType.Out">Saída</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="form.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Quantidade é obrigatória!" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="form.Price" Label="Preço unitário" Variant="Variant.Outlined" Min="0" />
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <MudDatePicker @bind-Date="form.Date" Label="Data" Variant="Variant.Outlined" />
-            </MudItem>
-            @if (form.Type == StockMovementType.In)
-            {
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" @bind-Value="form.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
-                        @foreach (var s in suppliers)
-                        {
-                            <MudSelectItem T="Guid?" Value="@s.Id">@s.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
-            }
-            else
-            {
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" @bind-Value="form.CustomerId" Label="Cliente" Variant="Variant.Outlined" Clearable="true">
-                        @foreach (var c in customers)
-                        {
-                            <MudSelectItem T="Guid?" Value="@c.Id">@c.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
-            }
-            <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="form.EmployeeId" Label="Funcionário" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var e in employees)
-                    {
-                        <MudSelectItem T="Guid?" Value="@e.Id">@e.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="form.Reason" Label="Motivo" Variant="Variant.Outlined" Lines="2" />
-            </MudItem>
-        </MudGrid>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseModal" Variant="Variant.Text">Cancelar</MudButton>
-        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="modalLoading">
-            @if (modalLoading)
-            {
-                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
-            }
-            @(isEdit ? "Atualizar" : "Registrar")
-        </MudButton>
-    </DialogActions>
-</MudDialog>
+<StockMovementModal Visible="modalOpen"
+                    VisibleChanged="OnModalVisibleChanged"
+                    Model="form"
+                    IsEdit="isEdit"
+                    IsSubmitting="modalLoading"
+                    Products="products"
+                    Customers="customers"
+                    Suppliers="suppliers"
+                    Employees="employees"
+                    OnClose="CloseModal"
+                    OnSubmit="SubmitAsync" />
 
 @code {
     private enum TypeFilter { All, In, Out }
@@ -297,32 +52,10 @@
         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
-    private static readonly DialogOptions ModalOptions = new()
-    {
-        CloseButton = true,
-        BackdropClick = false,
-        MaxWidth = MaxWidth.Medium,
-        FullWidth = true
-    };
-
     private DateTime? startDate = DateTime.Today.AddDays(-30);
     private DateTime? endDate = DateTime.Today.AddDays(1);
     private TypeFilter typeFilter = TypeFilter.All;
     private string? searchText;
-    private string? SearchText
-    {
-        get => searchText;
-        set
-        {
-            if (searchText == value)
-            {
-                return;
-            }
-
-            searchText = value;
-            _ = LoadMovementsAsync();
-        }
-    }
 
     private bool loading = true;
     private bool modalLoading;
@@ -354,14 +87,11 @@
         try
         {
             var client = await BuildClientAsync();
-
             var productsTask = client.GetAsync("datasource/product");
             var customersTask = client.GetAsync("datasource/customer");
             var suppliersTask = client.GetAsync("datasource/supplier");
             var employeesTask = client.GetAsync("datasource/employee");
-
             await Task.WhenAll(productsTask, customersTask, suppliersTask, employeesTask);
-
             products = await ReadDatasourceAsync(productsTask);
             customers = await ReadDatasourceAsync(customersTask);
             suppliers = await ReadDatasourceAsync(suppliersTask);
@@ -376,11 +106,7 @@
     private static async Task<List<DatasourceItem>> ReadDatasourceAsync(Task<HttpResponseMessage> task)
     {
         var response = await task;
-        if (!response.IsSuccessStatusCode)
-        {
-            return [];
-        }
-
+        if (!response.IsSuccessStatusCode) return [];
         var body = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<List<DatasourceItem>>(body, JsonOptions) ?? [];
     }
@@ -391,31 +117,15 @@
         try
         {
             var client = await BuildClientAsync();
-
             var query = new List<string>();
-            if (startDate.HasValue)
-            {
-                query.Add($"startDate={startDate.Value:yyyy-MM-dd}");
-            }
-            if (endDate.HasValue)
-            {
-                query.Add($"endDate={endDate.Value:yyyy-MM-dd}");
-            }
-            if (typeFilter != TypeFilter.All)
-            {
-                query.Add($"type={MapType(typeFilter)}");
-            }
+            if (startDate.HasValue) query.Add($"startDate={startDate.Value:yyyy-MM-dd}");
+            if (endDate.HasValue) query.Add($"endDate={endDate.Value:yyyy-MM-dd}");
+            if (typeFilter != TypeFilter.All) query.Add($"type={MapType(typeFilter)}");
             query.Add("page=1");
             query.Add("perPage=200");
-
-            if (!string.IsNullOrWhiteSpace(searchText))
-            {
-                query.Add($"query={Uri.EscapeDataString(searchText)}");
-            }
-
+            if (!string.IsNullOrWhiteSpace(searchText)) query.Add($"query={Uri.EscapeDataString(searchText)}");
             var qs = query.Count == 0 ? string.Empty : "?" + string.Join("&", query);
             var response = await client.GetAsync($"stockmovement{qs}");
-
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
@@ -444,20 +154,17 @@
     private async Task<HttpClient> BuildClientAsync()
     {
         var client = HttpClientFactory.CreateClient("FeniciaBasic");
-
         var token = await CompanyContext.GetTokenAsync();
         if (!string.IsNullOrEmpty(token))
         {
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
-
         var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
         if (companyId.HasValue)
         {
             client.DefaultRequestHeaders.Remove("CompanyId");
             client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
         }
-
         return client;
     }
 
@@ -467,23 +174,6 @@
         TypeFilter.Out => StockMovementType.Out,
         _ => StockMovementType.None
     };
-
-    private static string ResolveOrigin(StockMovementDto m)
-    {
-        if (!string.IsNullOrEmpty(m.SupplierName))
-        {
-            return $"Fornecedor: {m.SupplierName}";
-        }
-        if (!string.IsNullOrEmpty(m.CustomerName))
-        {
-            return $"Cliente: {m.CustomerName}";
-        }
-        if (!string.IsNullOrEmpty(m.EmployeeName))
-        {
-            return $"Funcionário: {m.EmployeeName}";
-        }
-        return "—";
-    }
 
     private void ComputeKpi()
     {
@@ -512,13 +202,8 @@
             Snackbar.Add("Nenhum produto disponível para movimentação.", Severity.Warning);
             return;
         }
-
         isEdit = false;
-        form = new MovementFormModel
-        {
-            Date = DateTime.Now,
-            Type = StockMovementType.In
-        };
+        form = new MovementFormModel { Date = DateTime.Now, Type = StockMovementType.In };
         modalOpen = true;
     }
 
@@ -550,12 +235,10 @@
             Snackbar.Add("Preencha produto e quantidade.", Severity.Warning);
             return;
         }
-
         modalLoading = true;
         try
         {
             var client = await BuildClientAsync();
-
             object payload = form.Id is null
                 ? new
                 {
@@ -585,10 +268,8 @@
                     OrderId = (Guid?)null,
                     Reason = form.Reason
                 };
-
             HttpResponseMessage response;
             string successMessage;
-
             if (form.Id is null)
             {
                 response = await client.PostAsJsonAsync("stockmovement", payload, JsonOptions);
@@ -604,7 +285,6 @@
                 response = await client.SendAsync(request);
                 successMessage = "Movimentação atualizada.";
             }
-
             if (response.IsSuccessStatusCode)
             {
                 Snackbar.Add(successMessage, Severity.Success);
@@ -624,56 +304,34 @@
         finally
         {
             modalLoading = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
-    private sealed class DatasourceItem
+    private void OnSearchTextChanged(string? value)
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        searchText = value;
+        _ = LoadMovementsAsync();
     }
 
-    private sealed class StockMovementKpi
+    private void OnStartDateChanged(DateTime? value)
     {
-        public double TotalInQuantity { get; set; }
-        public double TotalOutQuantity { get; set; }
-        public int TotalInEvents { get; set; }
-        public int TotalOutEvents { get; set; }
-        public decimal TotalInValue { get; set; }
-        public decimal TotalOutValue { get; set; }
+        startDate = value;
     }
 
-    private sealed class StockMovementDto
+    private void OnEndDateChanged(DateTime? value)
     {
-        public Guid Id { get; set; }
-        public Guid ProductId { get; set; }
-        public string ProductName { get; set; } = string.Empty;
-        public double Quantity { get; set; }
-        public DateTime? Date { get; set; }
-        public decimal? Price { get; set; }
-        public StockMovementType Type { get; set; }
-        public Guid? CustomerId { get; set; }
-        public string? CustomerName { get; set; }
-        public Guid? SupplierId { get; set; }
-        public string? SupplierName { get; set; }
-        public Guid? EmployeeId { get; set; }
-        public string? EmployeeName { get; set; }
-        public Guid? OrderId { get; set; }
-        public string? Reason { get; set; }
+        endDate = value;
     }
 
-    private sealed class MovementFormModel
+    private void OnTypeFilterChanged(TypeFilter value)
     {
-        public Guid? Id { get; set; }
-        public Guid ProductId { get; set; }
-        public StockMovementType Type { get; set; }
-        public double Quantity { get; set; }
-        public decimal Price { get; set; }
-        public DateTime? Date { get; set; }
-        public Guid? CustomerId { get; set; }
-        public Guid? SupplierId { get; set; }
-        public Guid? EmployeeId { get; set; }
-        public string? Reason { get; set; }
+        typeFilter = value;
+    }
+
+    private void OnModalVisibleChanged(bool value)
+    {
+        modalOpen = value;
     }
 }
 

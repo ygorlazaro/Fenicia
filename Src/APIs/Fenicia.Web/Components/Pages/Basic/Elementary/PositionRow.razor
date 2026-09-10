@@ -1,0 +1,21 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
+    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                   Color="Color.Info"
+                   Size="Size.Small"
+                   OnClick="@(() => Page.OpenEditModal(Item))" />
+    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                   Color="Color.Error"
+                   Size="Size.Small"
+                   OnClick="@(() => Page.RequestDelete(Item))" />
+</MudTd>
+<MudTd DataLabel="Nome">@Item.Name</MudTd>
+<MudTd DataLabel="Funcionários" Style="text-align: left">
+    <MudLink Href="@($"/basic/employee?filters%5BPositionId%5D={Item.Id}")" Typo="Typo.body2" Underline="Underline.Always">Ver funcionários</MudLink>
+</MudTd>
+
+@code {
+    [Parameter] public PositionDto Item { get; set; } = default!;
+    [Parameter] public Fenicia.Web.Components.Shared.CrudPage<PositionDto> Page { get; set; } = default!;
+}
