@@ -213,47 +213,7 @@ public sealed class UserService(
         var targetUser = await FirstByIdAsync(command.UserId, cancellationToken);
         var loggedInUser = await FirstByIdAsync(loggedInUserId, cancellationToken);
 
-        var loggedInUserRoles = await userRoleService.GetUserRolesByUserIdAsync(loggedInUserId, cancellationToken);
-        var isGod = loggedInUserRoles.Any(r => r.Role.Name.Equals("God", StringComparison.OrdinalIgnoreCase));
-        var isAdmin = loggedInUserRoles.Any(r => r.Role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase));
-
-        if (loggedInUserId == command.UserId)
-        {
-            if (string.IsNullOrEmpty(command.CurrentPassword))
-            {
-                throw new InvalidRequestException("Senha atual é obrigatória.");
-            }
-
-            if (!securityService.Verify(command.CurrentPassword, loggedInUser.Password))
-            {
-                throw new InvalidRequestException("Senha atual incorreta.");
-            }
-        }
-        else if (isGod)
-        {
-        }
-        else if (isAdmin)
-        {
-            var targetUserRoles = await userRoleService.GetUserRolesByUserIdAsync(command.UserId, cancellationToken);
-            var isTargetUser = targetUserRoles.Any(r => r.Role.Name.Equals("User", StringComparison.OrdinalIgnoreCase));
-
-            if (!isTargetUser)
-            {
-                throw new InvalidRequestException("Admin só pode alterar senha de usuários.");
-            }
-
-            var loggedInCompanyIds = loggedInUserRoles.Select(r => r.CompanyId).ToHashSet();
-            var targetCompanyIds = targetUserRoles.Select(r => r.CompanyId).ToHashSet();
-
-            if (!loggedInCompanyIds.Overlaps(targetCompanyIds))
-            {
-                throw new InvalidRequestException("Usuário não pertence à mesma empresa.");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
-        }
+        await AuthorizePasswordChangeAsync(loggedInUserId, command.UserId, loggedInUser, targetUser, command, cancellationToken);
 
         if (command.NewPassword != command.ConfirmPassword)
         {
@@ -266,6 +226,69 @@ public sealed class UserService(
         await userRepository.UpdateAsync(targetUser.Id, targetUser, cancellationToken);
 
         return new UpdateUserPasswordResponse(true, "Password changed successfully");
+    }
+
+    private async Task AuthorizePasswordChangeAsync(
+        Guid loggedInUserId,
+        Guid targetUserId,
+        UserModel loggedInUser,
+        UserModel targetUser,
+        UpdateUserPasswordCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (loggedInUserId == targetUserId)
+        {
+            if (string.IsNullOrEmpty(command.CurrentPassword))
+            {
+                throw new InvalidRequestException("Senha atual é obrigatória.");
+            }
+
+            if (!securityService.Verify(command.CurrentPassword, loggedInUser.Password))
+            {
+                throw new InvalidRequestException("Senha atual incorreta.");
+            }
+
+            return;
+        }
+
+        var loggedInUserRoles = await userRoleService.GetUserRolesByUserIdAsync(loggedInUserId, cancellationToken);
+        var isGod = loggedInUserRoles.Any(r => r.Role.Name.Equals("God", StringComparison.OrdinalIgnoreCase));
+        var isAdmin = loggedInUserRoles.Any(r => r.Role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase));
+
+        if (isGod)
+        {
+            return;
+        }
+
+        if (isAdmin)
+        {
+            await AuthorizeAdminPasswordChangeAsync(targetUser, loggedInUserRoles, cancellationToken);
+            return;
+        }
+
+        throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
+    }
+
+    private async Task AuthorizeAdminPasswordChangeAsync(
+        UserModel targetUser,
+        IEnumerable<UserRoleModel> loggedInUserRoles,
+        CancellationToken cancellationToken = default)
+    {
+        var targetUserRoles = await userRoleService.GetUserRolesByUserIdAsync(targetUser.Id, cancellationToken);
+        var isTargetUser = targetUserRoles.Any(r => r.Role.Name.Equals("User", StringComparison.OrdinalIgnoreCase));
+
+        if (!isTargetUser)
+        {
+            throw new InvalidRequestException("Admin só pode alterar senha de usuários.");
+        }
+
+        var loggedInCompanyIds = loggedInUserRoles.Select(r => r.CompanyId).ToHashSet();
+        var targetCompanyIds = targetUserRoles.Select(r => r.CompanyId).ToHashSet();
+
+        if (!loggedInCompanyIds.Overlaps(targetCompanyIds))
+        {
+            throw new InvalidRequestException("Usuário não pertence à mesma empresa.");
+        }
     }
 
     public async Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(
