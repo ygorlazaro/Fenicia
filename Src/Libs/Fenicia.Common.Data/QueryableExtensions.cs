@@ -52,7 +52,7 @@ public static class QueryableExtensions
         var combinedExpression =
             (from filter in filters
                 where !string.IsNullOrWhiteSpace(filter.Value)
-                select BuildFilterExpression(parameter, typeof(T), filter.Key, filter.Value)).OfType<Expression>()
+                select BuildFilterExpression(parameter, typeof(T), filter.Key, filter.Value)).Where(expr => expr != null)!
             .Aggregate<Expression?, Expression?>(
                 null,
                 (current, filterExpression) => current is null
@@ -77,7 +77,7 @@ public static class QueryableExtensions
 
         var parameter = Expression.Parameter(typeof(T), "x");
         var combinedExpression = propertyPaths.Select(propertyPath => BuildFilterExpression(parameter, typeof(T), propertyPath, searchTerm))
-            .OfType<Expression>()
+            .Where(expr => expr != null)!
             .Aggregate<Expression?, Expression?>(
                 null,
                 (current, filterExpression) =>
