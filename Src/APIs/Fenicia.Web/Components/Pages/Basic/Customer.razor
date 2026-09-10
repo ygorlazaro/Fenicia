@@ -7,7 +7,7 @@
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
-<CrudPage @ref="_crudPage" TItem="CustomerDto"
+<CrudPage TItem="CustomerDto"
           PageTitle="Clientes"
           PageSubtitle="Gerencie os clientes da sua empresa"
           EntityNamePlural="clientes"
@@ -32,10 +32,10 @@
                      OnDelete="@(() => context.Page.RequestDelete(context.Item))" />
     </RowTemplate>
     <AddModalBody>
-        <CustomerForm Model="_add" States="_states" />
+        <CustomerForm Model="add" States="states" />
     </AddModalBody>
     <EditModalBody>
-        <CustomerForm Model="_edit" States="_states" />
+        <CustomerForm Model="edit" States="states" />
     </EditModalBody>
 </CrudPage>
 
@@ -45,11 +45,9 @@
         PropertyNameCaseInsensitive = true
     };
 
-    private List<StateOption> _states = new();
-    private CustomerFormModel _add = new();
-    private CustomerFormModel _edit = new();
-
-    private CrudPage<CustomerDto> _crudPage = default!;
+    private List<StateOption> states = [];
+    private CustomerFormModel add = new();
+    private CustomerFormModel edit = new();
 
     protected override Task OnInitializedAsync()
     {
@@ -80,20 +78,23 @@
             {
                 var body = await response.Content.ReadAsStringAsync();
                 var items = JsonSerializer.Deserialize<List<StateOption>>(body, JsonOptions);
-                _states = items ?? new();
+                states = items ?? [];
             }
         }
         catch
         {
-            _states = new();
+            states = [];
         }
     }
 
-    private void ResetForm() => _add = new CustomerFormModel();
-
-    private void LoadForm(CustomerDto item)
+    private void ResetForm()
     {
-        _edit = item is null
+        add = new CustomerFormModel();
+    }
+
+    private void LoadForm(CustomerDto? item)
+    {
+        edit = item is null
             ? new CustomerFormModel()
             : new CustomerFormModel
             {
@@ -107,21 +108,21 @@
                 Neighborhood = item.Address?.Neighborhood,
                 ZipCode = item.Address?.ZipCode,
                 City = item.Address?.City,
-                StateId = item.Address is { StateId: var sid } && sid != Guid.Empty ? sid : (Guid?)null,
+                StateId = item.Address is { StateId: var sid } && sid != Guid.Empty ? sid : null,
                 Country = item.Address?.Country
             };
     }
 
     private object CreatePayload(CrudModalContext<CustomerDto> ctx)
     {
-        var model = ctx.IsAdd ? _add : _edit;
+        var model = ctx.IsAdd ? add : edit;
         return new
         {
             Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
             Name = model.Name ?? string.Empty,
-            Email = model.Email,
-            Document = model.Document,
-            PhoneNumber = model.PhoneNumber,
+            model.Email,
+            model.Document,
+            model.PhoneNumber,
             Address = BuildAddress(model)
         };
     }
@@ -139,14 +140,14 @@
 
         return new
         {
-            Street = model.Street,
-            Number = model.Number,
-            Complement = model.Complement,
-            Neighborhood = model.Neighborhood,
-            ZipCode = model.ZipCode,
-            City = model.City,
+            model.Street,
+            model.Number,
+            model.Complement,
+            model.Neighborhood,
+            model.ZipCode,
+            model.City,
             StateId = model.StateId.Value,
-            Country = model.Country
+            model.Country
         };
     }
 }

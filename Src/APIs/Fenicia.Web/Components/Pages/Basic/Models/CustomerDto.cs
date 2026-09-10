@@ -4,17 +4,17 @@ namespace Fenicia.Web.Components.Pages.Basic.Models;
 
 public class CustomerDto : IEquatable<CustomerDto>, ICrudItem
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 
-    public string? Email { get; set; }
+    public string? Email { get; init; }
 
-    public string? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; init; }
 
-    public string? Document { get; set; }
+    public string? Document { get; init; }
 
-    public AddressDto? Address { get; set; }
+    public AddressDto? Address { get; init; }
 
     public bool Equals(CustomerDto? other)
     {

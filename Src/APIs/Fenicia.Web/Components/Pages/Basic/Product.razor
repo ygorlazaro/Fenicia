@@ -290,7 +290,7 @@
 
     public class ProductDto : IEquatable<ProductDto>, ICrudItem
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
         public string Name { get; set; } = string.Empty;
         public string? SKU { get; set; }
         public string? Barcode { get; set; }

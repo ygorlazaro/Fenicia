@@ -64,7 +64,7 @@
 
     private sealed class OrderDto : IEquatable<OrderDto>, ICrudItem
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
         public string OrderNumber { get; set; } = string.Empty;
         public Guid CustomerId { get; set; }
         public string CustomerName { get; set; } = string.Empty;

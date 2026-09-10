@@ -5,7 +5,15 @@
         <MudTextField @bind-Value="Model.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
     </MudItem>
     <MudItem xs="12" sm="4">
-        <MudTextField @bind-Value="Model.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
+        <MudSelect T="Guid" @bind-Value="Model.PositionId" Label="Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Selecione um cargo!">
+            @if (Positions is not null)
+            {
+                foreach (var position in Positions)
+                {
+                    <MudSelectItem T="Guid" Value="@position.Id">@position.Name</MudSelectItem>
+                }
+            }
+        </MudSelect>
     </MudItem>
 
     <MudItem xs="12" sm="6">
@@ -13,6 +21,9 @@
     </MudItem>
     <MudItem xs="12" sm="6">
         <MudTextField @bind-Value="Model.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Model.Document" Label="Documento (CPF)" Variant="Variant.Outlined" />
     </MudItem>
 
     <MudItem xs="12">
@@ -53,6 +64,7 @@
 </MudGrid>
 
 @code {
-    [Parameter] public CustomerFormModel Model { get; set; } = new();
+    [Parameter] public EmployeeFormModel Model { get; set; } = new();
     [Parameter] public IReadOnlyList<StateOption>? States { get; set; }
+    [Parameter] public IReadOnlyList<PositionOption>? Positions { get; set; }
 }
