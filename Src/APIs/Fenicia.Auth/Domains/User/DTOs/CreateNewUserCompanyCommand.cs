@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Fenicia.Common;
 
 namespace Fenicia.Auth.Domains.User.DTOs;
 

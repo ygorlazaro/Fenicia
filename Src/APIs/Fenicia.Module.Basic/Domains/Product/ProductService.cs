@@ -252,9 +252,7 @@ public sealed class ProductService(
         var baseQuery = productRepository.Query()
             .Include(p => p.Category);
 
-        var filteredQuery = baseQuery;
-
-        return await filteredQuery
+        return await baseQuery
             .OrderBy(p => p.Quantity)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)

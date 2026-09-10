@@ -243,21 +243,29 @@
         }
     }
 
-    private async Task RedirectIfCompanyMissingAsync()
+    private Task RedirectIfCompanyMissingAsync()
     {
-        if (!isLoggedIn)
+        try
         {
-            return;
-        }
+            if (!isLoggedIn)
+            {
+                return Task.CompletedTask;
+            }
 
-        if (selectedCompanyId.HasValue)
+            if (selectedCompanyId.HasValue)
+            {
+                return Task.CompletedTask;
+            }
+
+            var destiny = GetRequestedPath();
+            var query = string.IsNullOrEmpty(destiny) ? string.Empty : $"?destiny={Uri.EscapeDataString(destiny)}";
+            NavigationManager.NavigateTo($"/company{query}", true);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
         {
-            return;
+            return Task.FromException(exception);
         }
-
-        var destiny = GetRequestedPath();
-        var query = string.IsNullOrEmpty(destiny) ? string.Empty : $"?destiny={Uri.EscapeDataString(destiny)}";
-        NavigationManager.NavigateTo($"/company{query}", forceLoad: true);
     }
 
     private string GetRequestedPath()

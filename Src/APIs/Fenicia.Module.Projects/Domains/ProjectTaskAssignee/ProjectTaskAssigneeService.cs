@@ -15,8 +15,7 @@ public class ProjectTaskAssigneeService(IRepository<TaskAssigneeModel> repositor
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-        var assignees = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var assignees = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

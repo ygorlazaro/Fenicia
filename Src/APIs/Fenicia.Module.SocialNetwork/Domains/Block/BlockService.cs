@@ -89,9 +89,8 @@ public sealed class BlockService(IBlockRepository blockRepository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = blockRepository.Query().Where(b => b.ProfileId == profileId && b.IsActive);
-        var filteredQuery = baseQuery;
-        var total = await filteredQuery.CountAsync(cancellationToken);
-        var blocks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var total = await baseQuery.CountAsync(cancellationToken);
+        var blocks = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
         var response = blocks.Select(b => new GetBlockedResponse(b.Id, b.BlockedProfileId, b.BlockDate, b.Reason))

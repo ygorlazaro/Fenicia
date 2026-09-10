@@ -14,8 +14,7 @@ public class ProjectService(IProjectRepository repository) : IProjectService
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-        var projects = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var projects = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

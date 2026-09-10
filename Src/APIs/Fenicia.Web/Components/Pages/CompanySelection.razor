@@ -202,7 +202,7 @@
             if (selectedCompanyId.HasValue)
             {
                 var destiny = GetDestiny();
-                NavigationManager.NavigateTo($"/{Uri.EscapeDataString(destiny)}", forceLoad: true);
+                NavigationManager.NavigateTo($"/{Uri.EscapeDataString(destiny)}", true);
             }
         }
         catch (Exception ex)
@@ -293,7 +293,7 @@
 
             await Task.Delay(300);
             var destiny = GetDestiny();
-            NavigationManager.NavigateTo($"/{Uri.EscapeDataString(destiny)}", forceLoad: true);
+            NavigationManager.NavigateTo($"/{Uri.EscapeDataString(destiny)}", true);
         }
         catch (Exception ex)
         {

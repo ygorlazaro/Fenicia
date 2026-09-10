@@ -60,8 +60,7 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(s => s.OriginalFeedId == feedId);
-        var filteredQuery = baseQuery;
-        var shares = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var shares = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

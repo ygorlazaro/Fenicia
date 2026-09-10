@@ -365,62 +365,71 @@
         }
     }
 
-    private async Task UpdateUrlAsync()
+    private Task UpdateUrlAsync()
     {
         try
         {
-            _isApplyingQueryParams = true;
-            var uri = new Uri(Navigation.Uri);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            try
+            {
+                _isApplyingQueryParams = true;
+                var uri = new Uri(Navigation.Uri);
+                var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-            if (!string.IsNullOrEmpty(_querySort))
-            {
-                query["sort"] = _querySort;
-            }
-            else
-            {
-                query.Remove("sort");
-            }
-
-            if (!string.IsNullOrEmpty(_searchText))
-            {
-                query["query"] = _searchText;
-            }
-            else
-            {
-                query.Remove("query");
-            }
-
-            var newQuery = query.ToString();
-            if (!string.IsNullOrEmpty(newQuery))
-            {
-                newQuery = $"?{newQuery}";
-            }
-
-            var newQuerySb = new System.Text.StringBuilder(newQuery);
-            foreach (var filter in _filters)
-            {
-                if (string.IsNullOrWhiteSpace(filter.Value))
+                if (!string.IsNullOrEmpty(_querySort))
                 {
-                    continue;
+                    query["sort"] = _querySort;
+                }
+                else
+                {
+                    query.Remove("sort");
                 }
 
-                newQuerySb.Append(newQuerySb.Length > 1 ? '&' : '?');
-                newQuerySb.Append($"filters[{Uri.EscapeDataString(filter.Key)}]={Uri.EscapeDataString(filter.Value)}");
+                if (!string.IsNullOrEmpty(_searchText))
+                {
+                    query["query"] = _searchText;
+                }
+                else
+                {
+                    query.Remove("query");
+                }
+
+                var newQuery = query.ToString();
+                if (!string.IsNullOrEmpty(newQuery))
+                {
+                    newQuery = $"?{newQuery}";
+                }
+
+                var newQuerySb = new System.Text.StringBuilder(newQuery);
+                foreach (var filter in _filters)
+                {
+                    if (string.IsNullOrWhiteSpace(filter.Value))
+                    {
+                        continue;
+                    }
+
+                    newQuerySb.Append(newQuerySb.Length > 1 ? '&' : '?');
+                    newQuerySb.Append($"filters[{Uri.EscapeDataString(filter.Key)}]={Uri.EscapeDataString(filter.Value)}");
+                }
+
+                var newUri = $"{uri.GetLeftPart(UriPartial.Path)}{newQuerySb}";
+                if (newUri != uri.ToString())
+                {
+                    Navigation.NavigateTo(newUri, false);
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                _isApplyingQueryParams = false;
             }
 
-            var newUri = $"{uri.GetLeftPart(UriPartial.Path)}{newQuerySb}";
-            if (newUri != uri.ToString())
-            {
-                Navigation.NavigateTo(newUri, false);
-            }
+            return Task.CompletedTask;
         }
-        catch
+        catch (Exception exception)
         {
-        }
-        finally
-        {
-            _isApplyingQueryParams = false;
+            return Task.FromException(exception);
         }
     }
 

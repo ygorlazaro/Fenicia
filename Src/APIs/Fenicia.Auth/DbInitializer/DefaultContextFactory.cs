@@ -2,9 +2,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
-namespace Fenicia.Auth;
+namespace Fenicia.Auth.DbInitializer;
 
 public class DefaultContextFactory : IDesignTimeDbContextFactory<DefaultContext>
 {
@@ -12,12 +11,12 @@ public class DefaultContextFactory : IDesignTimeDbContextFactory<DefaultContext>
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.Common.json", optional: false)
+            .AddJsonFile("appsettings.Common.json", false)
             .AddEnvironmentVariables()
             .Build();
 
         var connectionString = configuration.GetConnectionString("Auth")
-            ?? throw new InvalidOperationException("Connection string 'Auth' not found in configuration");
+                               ?? throw new InvalidOperationException("Connection string 'Auth' not found in configuration");
 
         var optionsBuilder = new DbContextOptionsBuilder<DefaultContext>();
         optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))

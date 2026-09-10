@@ -292,7 +292,7 @@
 
     private void PrintInvoice()
     {
-        NavigationManager.NavigateTo("javascript:window.print()", forceLoad: false);
+        NavigationManager.NavigateTo("javascript:window.print()", false);
     }
 
     private static Color StatusColor(string status) => status switch

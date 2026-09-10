@@ -85,10 +85,9 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         CancellationToken cancellationToken = default)
     {
         var baseQuery = friendshipRepository.Query().Where(f => f.TargetProfileId == targetProfileId && f.IsActive);
-        var filteredQuery = baseQuery;
-        var total = await filteredQuery.CountAsync(cancellationToken);
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
         var response = friendships.Select(f => new GetFollowersResponse(f.Id, f.ProfileId, f.FollowDate)).ToList();
@@ -102,10 +101,9 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         CancellationToken cancellationToken = default)
     {
         var baseQuery = friendshipRepository.Query().Where(f => f.ProfileId == profileId && f.IsActive);
-        var filteredQuery = baseQuery;
-        var total = await filteredQuery.CountAsync(cancellationToken);
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var friendships = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
         var response = friendships.Select(f => new GetFollowingResponse(f.Id, f.TargetProfileId, f.FollowDate)).ToList();

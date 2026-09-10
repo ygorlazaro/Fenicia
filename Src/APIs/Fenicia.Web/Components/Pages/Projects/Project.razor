@@ -345,7 +345,7 @@
                 };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            HttpResponseMessage response = editModel.Id == Guid.Empty
+            var response = editModel.Id == Guid.Empty
                 ? await client.PostAsync("/project", content)
                 : await client.PatchAsync($"/project/{editModel.Id}", content);
             if (response.IsSuccessStatusCode)

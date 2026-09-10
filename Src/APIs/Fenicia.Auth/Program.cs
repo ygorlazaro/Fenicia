@@ -24,7 +24,6 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.Interfaces;
-using Fenicia.Auth.Domains.Upload;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole;
@@ -97,7 +96,7 @@ public class Program
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") != "true")
         {
-            DbInitializer.InitializeAsync(app.Services).GetAwaiter().GetResult();
+            DbInitializer.DbInitializer.InitializeAsync(app.Services).GetAwaiter().GetResult();
         }
 
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");

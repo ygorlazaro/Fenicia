@@ -14,8 +14,7 @@ public class ProjectAttachmentService(IRepository<AttachmentModel> repository) :
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-        var attachments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var attachments = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

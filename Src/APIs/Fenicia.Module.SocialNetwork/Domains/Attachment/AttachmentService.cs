@@ -45,8 +45,7 @@ public class AttachmentService(AttachmentRepository repository)
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(a => a.CommentId == commentId);
-        var filteredQuery = baseQuery;
-        var attachments = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var attachments = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

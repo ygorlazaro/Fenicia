@@ -28,11 +28,9 @@ public sealed class OrderService(
         var baseQuery = orderRepository.Query()
             .Include(o => o.Customer).ThenInclude(c => c.Person);
 
-        var filteredQuery = baseQuery;
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var total = await filteredQuery.CountAsync(cancellationToken);
-
-        var orderIds = await filteredQuery
+        var orderIds = await baseQuery
             .OrderByDescending(o => o.SaleDate)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)

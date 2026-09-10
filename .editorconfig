@@ -194,6 +194,9 @@ dotnet_diagnostic.IDE0305.severity = error
 
 dotnet_diagnostic.IDE0301.severity = error
 
+
+dotnet_diagnostic.CA5394.severity = none
+
 [**/Migrations/**/*.cs]
 dotnet_diagnostic.SA1201.severity = none
 dotnet_diagnostic.SA1202.severity = none

@@ -1,4 +1,3 @@
-using System.IO;
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Upload.DTOs;
 using Fenicia.Common.API;
@@ -37,14 +36,7 @@ public class UploadController(IOptions<UploadOptions> options, IWebHostEnvironme
         }
 
         var uploadRoot = uploadOptions.Directory;
-        if (Path.IsPathRooted(uploadRoot))
-        {
-            uploadRoot = uploadRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-        else
-        {
-            uploadRoot = Path.Combine(env.ContentRootPath, uploadRoot.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        }
+        uploadRoot = Path.IsPathRooted(uploadRoot) ? uploadRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : Path.Combine(env.ContentRootPath, uploadRoot.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
         Directory.CreateDirectory(uploadRoot);
 
@@ -52,7 +44,7 @@ public class UploadController(IOptions<UploadOptions> options, IWebHostEnvironme
         var storedFileName = $"{Guid.NewGuid()}{extension}";
         var fullPath = Path.Combine(uploadRoot, storedFileName);
 
-        await using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true);
+        await using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
         await file.CopyToAsync(stream, cancellationToken);
 
         var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/upload/{storedFileName}";
@@ -61,7 +53,7 @@ public class UploadController(IOptions<UploadOptions> options, IWebHostEnvironme
         {
             OriginalFileName = Path.GetFileName(file.FileName),
             StoredFileName = storedFileName,
-            ContentType = file.ContentType ?? "application/octet-stream",
+            ContentType = file.ContentType,
             SizeBytes = file.Length,
             Url = url
         };
@@ -85,29 +77,22 @@ public class UploadController(IOptions<UploadOptions> options, IWebHostEnvironme
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAsync(string fileName, CancellationToken cancellationToken)
+    public Task<IActionResult> GetAsync(string fileName, CancellationToken cancellationToken)
     {
         var safeFileName = Path.GetFileName(fileName);
         if (string.IsNullOrEmpty(safeFileName))
         {
-            return BadRequest();
+            return Task.FromResult<IActionResult>(BadRequest());
         }
 
         var uploadOptions = options.Value;
         var uploadRoot = uploadOptions.Directory;
-        if (Path.IsPathRooted(uploadRoot))
-        {
-            uploadRoot = uploadRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-        else
-        {
-            uploadRoot = Path.Combine(env.ContentRootPath, uploadRoot.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        }
+        uploadRoot = Path.IsPathRooted(uploadRoot) ? uploadRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : Path.Combine(env.ContentRootPath, uploadRoot.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
         var fullPath = Path.Combine(uploadRoot, safeFileName);
         if (!System.IO.File.Exists(fullPath))
         {
-            return NotFound();
+            return Task.FromResult<IActionResult>(NotFound());
         }
 
         var contentType = fileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png"
@@ -116,8 +101,8 @@ public class UploadController(IOptions<UploadOptions> options, IWebHostEnvironme
             : fileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase) ? "image/webp"
             : "application/octet-stream";
 
-        var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, useAsync: true);
-        return File(stream, contentType, enableRangeProcessing: true);
+        var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, true);
+        return Task.FromResult<IActionResult>(File(stream, contentType, true));
     }
 #pragma warning restore CA3003
 }

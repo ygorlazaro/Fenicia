@@ -14,8 +14,7 @@ public class ProjectCommentService(IRepository<ProjectCommentModel> repository) 
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-        var comments = await filteredQuery
+        var comments = await baseQuery
             .Include(c => c.User)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)

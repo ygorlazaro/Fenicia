@@ -13,8 +13,7 @@ public class ProjectStatusService(IProjectStatusRepository repository) : IProjec
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-        var statuses = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var statuses = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

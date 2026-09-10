@@ -18,9 +18,7 @@ public sealed class StateService(IStateRepository stateRepository) : IStateServi
     {
         var baseQuery = stateRepository.Query();
 
-        var filteredQuery = baseQuery;
-
-        var states = await filteredQuery
+        var states = await baseQuery
             .OrderBy(s => s.Uf)
             .ToListAsync(cancellationToken);
 

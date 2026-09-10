@@ -922,14 +922,30 @@
         await ReloadTasksAsync();
     }
 
-    private async Task OnSprintStartDateChanged(DateTime? value)
+    private Task OnSprintStartDateChanged(DateTime? value)
     {
-        sprintEditModel.StartDateValue = value;
+        try
+        {
+            sprintEditModel.StartDateValue = value;
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
     }
 
-    private async Task OnSprintEndDateChanged(DateTime? value)
+    private Task OnSprintEndDateChanged(DateTime? value)
     {
-        sprintEditModel.EndDateValue = value;
+        try
+        {
+            sprintEditModel.EndDateValue = value;
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
     }
 
     private async Task OnTypeChanged(string? value)

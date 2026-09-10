@@ -14,8 +14,7 @@ public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository) 
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-        var subtasks = await filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var subtasks = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
         return
         [

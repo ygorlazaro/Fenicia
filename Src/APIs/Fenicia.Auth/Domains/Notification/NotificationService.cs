@@ -13,10 +13,9 @@ public class NotificationService(INotificationRepository repository) : INotifica
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().OrderByDescending(n => n.Date);
-        var filteredQuery = baseQuery;
 
-        var totalTask = filteredQuery.CountAsync(cancellationToken);
-        var itemsTask = filteredQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var totalTask = baseQuery.CountAsync(cancellationToken);
+        var itemsTask = baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
         await Task.WhenAll(totalTask, itemsTask);
