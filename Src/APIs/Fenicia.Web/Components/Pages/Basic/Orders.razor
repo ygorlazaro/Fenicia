@@ -1,6 +1,8 @@
 @page "/basic/order"
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Web.Components.Pages.Basic.Elementary
 
 <CrudPage TItem="OrderDto"
           PageTitle="Pedidos"
@@ -12,77 +14,20 @@
           AddButtonLabel="Novo Pedido"
           AddButtonHref="/basic/order/new"
           FormatForDelete="FormatForDelete">
-        <HeaderContent>
-            <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
-            <MudTh Sortable="true" SortLabel="SaleDate">Número</MudTh>
-            <MudTh Sortable="true" SortLabel="CustomerName">Cliente</MudTh>
-            <MudTh Sortable="true" SortLabel="EmployeeName">Vendedor</MudTh>
-            <MudTh Style="text-align: right">Itens</MudTh>
-            <MudTh Style="text-align: right">Total</MudTh>
-            <MudTh Sortable="true" SortLabel="SaleDate">Data</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
-                <MudLink Href="@($"/basic/order/{context.Item.Id}")" Underline="Underline.Hover">
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Info" />
-                </MudLink>
-            </MudTd>
-            <MudTd DataLabel="Número">@context.Item.OrderNumber</MudTd>
-            <MudTd DataLabel="Cliente">
-                <MudLink Href="@($"/basic/customer?edit={context.Item.CustomerId}")" Underline="Underline.Hover">
-                    @context.Item.CustomerName
-                </MudLink>
-            </MudTd>
-            <MudTd DataLabel="Vendedor">
-                @if (context.Item.EmployeeId.HasValue && !string.IsNullOrEmpty(context.Item.EmployeeName))
-                {
-                    <MudLink Href="@($"/basic/employee?edit={context.Item.EmployeeId}")" Underline="Underline.Hover">
-                        @context.Item.EmployeeName
-                    </MudLink>
-                }
-                else
-                {
-                    <text>—</text>
-                }
-            </MudTd>
-            <MudTd DataLabel="Itens" Style="text-align: right">@context.Item.TotalItems</MudTd>
-            <MudTd DataLabel="Total" Style="text-align: right">@Money.Format(context.Item.TotalAmount)</MudTd>
-            <MudTd DataLabel="Data">@context.Item.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudTd>
-        </RowTemplate>
-        <AddModalBody>
-            <MudText Typo="Typo.body2">Use o botão "Novo Pedido" para criar um novo pedido.</MudText>
-        </AddModalBody>
-        <EditModalBody>
-            <MudText Typo="Typo.body2">Edição de pedidos não está disponível.</MudText>
-        </EditModalBody>
-    </CrudPage>
+    <HeaderContent>
+        <OrderHeader />
+    </HeaderContent>
+    <RowTemplate>
+        <OrderRow Item="context.Item" />
+    </RowTemplate>
+    <AddModalBody>
+        <MudText Typo="Typo.body2">Use o botão "Novo Pedido" para criar um novo pedido.</MudText>
+    </AddModalBody>
+    <EditModalBody>
+        <MudText Typo="Typo.body2">Edição de pedidos não está disponível.</MudText>
+    </EditModalBody>
+</CrudPage>
 
 @code {
     private static string FormatForDelete(OrderDto item) => item.OrderNumber;
-
-    private sealed class OrderDto : IEquatable<OrderDto>, ICrudItem
-    {
-        public Guid Id { get; init; }
-        public string OrderNumber { get; set; } = string.Empty;
-        public Guid CustomerId { get; set; }
-        public string CustomerName { get; set; } = string.Empty;
-        public Guid? EmployeeId { get; set; }
-        public string? EmployeeName { get; set; }
-        public decimal TotalAmount { get; set; }
-        public int TotalQuantity { get; set; }
-        public int TotalItems { get; set; }
-        public DateTime SaleDate { get; set; }
-        public string Status { get; set; } = string.Empty;
-
-        public bool Equals(OrderDto? other)
-        {
-            if (other is null) return false;
-
-            return Id == other.Id && OrderNumber == other.OrderNumber;
-        }
-
-        public override bool Equals(object? obj) => Equals(obj as OrderDto);
-
-        public override int GetHashCode() => HashCode.Combine(Id, OrderNumber);
-    }
 }
