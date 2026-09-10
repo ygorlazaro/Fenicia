@@ -13,25 +13,25 @@
                           ChartLabels="@Labels"
                           ChartOptions="@Options"
                           LegendPosition="MudBlazor.Position.Left"
-                          Width="100%"
-                          Height="320px" />
-            }
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Fornecedor</MudText>
-            @if (Labels.Length == 0)
-            {
-                <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de fornecedor.</MudText>
-            }
-            else
-            {
-                <MudChart T="double" ChartType="ChartType.Bar"
-                          ChartSeries="@Series"
-                          ChartLabels="@Labels"
-                          ChartOptions="@Options"
-                          LegendPosition="MudBlazor.Position.Left"
+                           Width="100%"
+                           Height="320px" />
+             }
+         </MudPaper>
+     </MudItem>
+     <MudItem xs="12" md="6">
+         <MudPaper Class="pa-4" Elevation="2">
+             <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Fornecedor</MudText>
+             @if (Labels.Length == 0)
+             {
+                 <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de fornecedor.</MudText>
+             }
+             else
+             {
+                 <MudChart T="double" ChartType="ChartType.Bar"
+                           ChartSeries="@Series"
+                           ChartLabels="@Labels"
+                           ChartOptions="@Options"
+                           LegendPosition="MudBlazor.Position.Left"
                           Width="100%"
                           Height="320px" />
             }

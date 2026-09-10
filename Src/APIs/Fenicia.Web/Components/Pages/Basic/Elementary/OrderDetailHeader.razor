@@ -1,0 +1,47 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+@inject NavigationManager NavigationManager
+
+<MudPaper Elevation="2" Class="pa-4">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3 flex-wrap">
+        <div>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                               Color="Color.Default"
+                               OnClick="@(() => NavigationManager.NavigateTo("/basic/order"))" />
+                <div>
+                    <MudText Typo="Typo.h5">Pedido @Order.OrderNumber</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Default">
+                        Realizado em @Order.SaleDate.ToString("dd/MM/yyyy HH:mm")
+                    </MudText>
+                </div>
+            </MudStack>
+        </div>
+        <MudStack Row="true" Spacing="2">
+            <MudChip T="string"
+                     Color="@StatusColor(Order.Status)"
+                     Variant="Variant.Filled"
+                     Size="Size.Medium">
+                @Order.Status
+            </MudChip>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.Print"
+                       OnClick="OnPrint">
+                Imprimir
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public OrderDetailOrderDto Order { get; set; } = default!;
+    [Parameter] public EventCallback OnPrint { get; set; }
+
+    private static Color StatusColor(string status) => status switch
+    {
+        "Approved" => Color.Success,
+        "Pending" => Color.Warning,
+        "Cancelled" => Color.Error,
+        _ => Color.Default
+    };
+}

@@ -91,7 +91,7 @@ else
 }
 
 @code {
-    [Parameter, EditorRequired] public HealthData Health { get; set; } = default!;
+    [Parameter] public HealthData? Health { get; set; }
     [Parameter] public int ZeroMovementDays { get; set; } = 90;
     [Parameter] public List<ChartSeries<double>> StockSeries { get; set; } = [];
     [Parameter] public string[] StockLabels { get; set; } = [];

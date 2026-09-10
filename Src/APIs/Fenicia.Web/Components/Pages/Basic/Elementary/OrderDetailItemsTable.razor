@@ -1,0 +1,44 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudPaper Elevation="2" Class="pa-4 invoice-section">
+    <MudText Typo="Typo.h6" Class="mb-3">Itens do pedido</MudText>
+
+    @if (!Items.Any())
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">Nenhum item registrado neste pedido.</MudAlert>
+    }
+    else
+    {
+        <MudSimpleTable Hover="true" Dense="true" Striped="true" Bordered="false">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th style="text-align:right">Qtd.</th>
+                    <th style="text-align:right">Preço</th>
+                    <th style="text-align:right">Desc.</th>
+                    <th style="text-align:right">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Items)
+                {
+                    <tr>
+                        <td>
+                            <MudLink Href="@($"/basic/product?edit={item.ProductId}")" Underline="Underline.Hover">
+                                @item.ProductName
+                            </MudLink>
+                        </td>
+                        <td style="text-align:right">@item.Quantity.ToString("0.##")</td>
+                        <td style="text-align:right">@Money.Format(item.Price)</td>
+                        <td style="text-align:right">@(item.DiscountAmount > 0 ? "-" + Money.Format(item.DiscountAmount) : "—")</td>
+                        <td style="text-align:right"><strong>@Money.Format(item.Subtotal)</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public List<OrderDetailItemDto> Items { get; set; } = [];
+}

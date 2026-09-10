@@ -3,26 +3,25 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
-@using Fenicia.Web.Components.Shared
 @using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
 <MainLayout>
     <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
-        <InventoryHeader ZeroMovementDays="_zeroMovementDays"
+        <InventoryHeader ZeroMovementDays="zeroMovementDays"
                          ZeroMovementDaysChanged="OnZeroMovementDaysChanged"
-                         Loading="_loading"
+                         Loading="loading"
                          OnRefresh="LoadAsync" />
 
-        @if (_loading)
+        @if (loading)
         {
             <MudStack AlignItems="AlignItems.Center" Class="my-8">
                 <MudProgressCircular Indeterminate="true" />
                 <MudText Typo="Typo.body2">Carregando dados do inventário...</MudText>
             </MudStack>
         }
-        else if (_dashboard is null)
+        else if (dashboard is null)
         {
             <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
                 Não foi possível carregar os dados do inventário. Verifique a conexão e tente novamente.
@@ -30,19 +29,19 @@
         }
         else
         {
-            <InventoryKpiCards Dashboard="_dashboard" ProfitColor="ProfitColor" />
+            <InventoryKpiCards Dashboard="dashboard" ProfitColor="ProfitColor" />
 
-            <InventoryCharts Series="_categoryChartSeries"
-                             Labels="_categoryChartLabels"
-                             Options="_categoryChartOptions" />
+            <InventoryCharts Series="categoryChartSeries"
+                             Labels="categoryChartLabels"
+                             Options="categoryChartOptions" />
 
-            <InventoryLowStockTable Items="_dashboard.LowStockItems" />
+            <InventoryLowStockTable Items="dashboard.LowStockItems" />
 
-            <InventoryHealth Health="_health"
-                             ZeroMovementDays="_zeroMovementDays"
-                             StockSeries="_stockValueByCategorySeries"
-                             StockLabels="_stockValueByCategoryLabels"
-                             StockOptions="_stockValueByCategoryOptions" />
+            <InventoryHealth Health="health"
+                             ZeroMovementDays="zeroMovementDays"
+                             StockSeries="stockValueByCategorySeries"
+                             StockLabels="stockValueByCategoryLabels"
+                             StockOptions="stockValueByCategoryOptions" />
         }
     </MudContainer>
 </MainLayout>
@@ -53,38 +52,30 @@
         PropertyNameCaseInsensitive = true
     };
 
-    private int _zeroMovementDays = 90;
-    private bool _loading = true;
+    private int zeroMovementDays = 90;
+    private bool loading = true;
 
-    private DashboardData? _dashboard;
-    private HealthData? _health;
+    private DashboardData? dashboard;
+    private HealthData? health;
 
-    private List<ChartSeries<double>> _categoryChartSeries = [];
-    private string[] _categoryChartLabels = [];
-    private List<ChartSeries<double>> _supplierChartSeries = [];
-    private string[] _supplierChartLabels = [];
-    private List<ChartSeries<double>> _stockValueByCategorySeries = [];
-    private string[] _stockValueByCategoryLabels = [];
+    private List<ChartSeries<double>> categoryChartSeries = [];
+    private string[] categoryChartLabels = [];
+    private List<ChartSeries<double>> stockValueByCategorySeries = [];
+    private string[] stockValueByCategoryLabels = [];
 
-    private readonly BarChartOptions _categoryChartOptions = new()
+    private readonly BarChartOptions categoryChartOptions = new()
     {
         ShowLegend = false,
         ChartPalette = [Colors.Blue.Accent3]
     };
 
-    private readonly BarChartOptions _supplierChartOptions = new()
-    {
-        ShowLegend = false,
-        ChartPalette = [Colors.Green.Accent3]
-    };
-
-    private readonly BarChartOptions _stockValueByCategoryOptions = new()
+    private readonly BarChartOptions stockValueByCategoryOptions = new()
     {
         ShowLegend = false,
         ChartPalette = [Colors.DeepOrange.Accent3]
     };
 
-    private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
+    private Color ProfitColor => dashboard is null || dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -97,13 +88,13 @@
 
     private async Task LoadAsync()
     {
-        _loading = true;
+        loading = true;
         try
         {
             var client = await BuildClientAsync();
 
             var dashboardTask = client.GetAsync("inventory/dashboard");
-            var healthTask = client.GetAsync($"inventory/health?zeroMovementDays={_zeroMovementDays}");
+            var healthTask = client.GetAsync($"inventory/health?zeroMovementDays={zeroMovementDays}");
 
             await Task.WhenAll(dashboardTask, healthTask);
 
@@ -113,35 +104,26 @@
                 var body = await dashboardResponse.Content.ReadAsStringAsync();
                 try
                 {
-                    _dashboard = JsonSerializer.Deserialize<DashboardData>(body, JsonOptions);
-                    _categoryChartSeries =
+                    dashboard = JsonSerializer.Deserialize<DashboardData>(body, JsonOptions);
+                    categoryChartSeries =
                     [
                         new ChartSeries<double>
                         {
                             Name = "Quantidade em Estoque",
-                            Data = BuildTop9WithOthers(_dashboard?.CategoryBreakdown, c => c.TotalQuantity).ToArray()
+                            Data = BuildTop9WithOthers(dashboard?.CategoryBreakdown, c => c.TotalQuantity).ToArray()
                         }
                     ];
-                    _categoryChartLabels = [.. BuildTop9Labels(_dashboard?.CategoryBreakdown, c => c.CategoryName, "Outros")];
-                    _supplierChartSeries =
-                    [
-                        new ChartSeries<double>
-                        {
-                            Name = "Quantidade em Estoque",
-                            Data = BuildTop9WithOthers(_dashboard?.SupplierBreakdown, s => s.TotalQuantity).ToArray()
-                        }
-                    ];
-                    _supplierChartLabels = [.. BuildTop9Labels(_dashboard?.SupplierBreakdown, s => s.SupplierName, "Outros")];
+                    categoryChartLabels = [.. BuildTop9Labels(dashboard?.CategoryBreakdown, c => c.CategoryName, "Outros")];
                 }
                 catch (Exception ex)
                 {
                     Snackbar.Add($"Erro ao interpretar painel: {ex.Message}", Severity.Error);
-                    _dashboard = null;
+                    dashboard = null;
                 }
             }
             else
             {
-                _dashboard = null;
+                dashboard = null;
                 Snackbar.Add($"Falha ao carregar painel: {(int)dashboardResponse.StatusCode}", Severity.Error);
             }
 
@@ -151,38 +133,38 @@
                 var body = await healthResponse.Content.ReadAsStringAsync();
                 try
                 {
-                    _health = JsonSerializer.Deserialize<HealthData>(body, JsonOptions);
-                    _stockValueByCategorySeries =
+                    health = JsonSerializer.Deserialize<HealthData>(body, JsonOptions);
+                    stockValueByCategorySeries =
                     [
                         new ChartSeries<double>
                         {
                             Name = "Valor em Estoque",
-                                     Data = BuildTop9WithOthers(_health?.StockValueByCategory, c => (double)c.TotalStockValue).ToArray()
+                                     Data = BuildTop9WithOthers(health?.StockValueByCategory, c => (double)c.TotalStockValue).ToArray()
                         }
                     ];
-                    _stockValueByCategoryLabels = [.. BuildTop9Labels(_health?.StockValueByCategory, c => c.CategoryName, "Outros")];
+                    stockValueByCategoryLabels = [.. BuildTop9Labels(health?.StockValueByCategory, c => c.CategoryName, "Outros")];
                 }
                 catch (Exception ex)
                 {
                     Snackbar.Add($"Erro ao interpretar saúde: {ex.Message}", Severity.Error);
-                    _health = null;
+                    health = null;
                 }
             }
             else
             {
-                _health = null;
+                health = null;
                 Snackbar.Add($"Falha ao carregar saúde do inventário: {(int)healthResponse.StatusCode}", Severity.Error);
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Erro ao carregar inventário: {ex.Message}", Severity.Error);
-            _dashboard = null;
-            _health = null;
+            dashboard = null;
+            health = null;
         }
         finally
         {
-            _loading = false;
+            loading = false;
         }
     }
 
@@ -197,18 +179,20 @@
         }
 
         var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
-        if (companyId.HasValue)
+        if (!companyId.HasValue)
         {
-            client.DefaultRequestHeaders.Remove("CompanyId");
-            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            return client;
         }
+
+        client.DefaultRequestHeaders.Remove("CompanyId");
+        client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
 
         return client;
     }
 
     private void OnZeroMovementDaysChanged(int value)
     {
-        _zeroMovementDays = value;
+        zeroMovementDays = value;
     }
 
     private static List<double> BuildTop9WithOthers<T>(List<T>? items, Func<T, double> selector)
