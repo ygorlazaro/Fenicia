@@ -260,9 +260,13 @@ public class TokenServiceTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
 
-        Assert.Equal(userId.ToString(), jwtToken.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
-        Assert.Equal(email, jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
-        Assert.Equal(name, jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
+        var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "email");
+        var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name");
+
+        Assert.Equal(userId.ToString(), userIdClaim?.Value);
+        Assert.Equal(email, emailClaim?.Value);
+        Assert.Equal(name, nameClaim?.Value);
         Assert.NotNull(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti));
     }
 
