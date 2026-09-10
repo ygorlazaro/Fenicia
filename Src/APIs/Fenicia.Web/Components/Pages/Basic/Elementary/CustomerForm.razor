@@ -1,0 +1,62 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Microsoft.AspNetCore.Components
+@inject IHttpClientFactory HttpClientFactory
+@inject ICompanyContextService CompanyContext
+@inject NavigationManager NavigationManager
+
+<MudGrid Spacing="2">
+    <MudItem xs="12" sm="8">
+        <MudTextField @bind-Value="Model.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
+    </MudItem>
+
+    <MudItem xs="12" sm="6">
+        <MudTextField @bind-Value="Model.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudTextField @bind-Value="Model.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudText Typo="Typo.subtitle2" Class="mt-2">Endereço</MudText>
+    </MudItem>
+    <MudItem xs="12" sm="8">
+        <MudTextField @bind-Value="Model.Street" Label="Rua" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.Number" Label="Número" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.Complement" Label="Complemento" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="Model.ZipCode" Label="CEP" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudTextField @bind-Value="Model.City" Label="Cidade" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid?" @bind-Value="Model.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
+            @if (States is not null)
+            {
+                foreach (var state in States)
+                {
+                    <MudSelectItem T="Guid?" Value="@state.Id">@state.Uf — @state.Name</MudSelectItem>
+                }
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Model.Country" Label="País" Variant="Variant.Outlined" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public CustomerFormModel Model { get; set; } = new();
+    [Parameter] public IReadOnlyList<StateOption>? States { get; set; }
+}

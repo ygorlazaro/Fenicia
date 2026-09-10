@@ -68,14 +68,18 @@
     [Parameter] public List<UserCompanyItem> Companies { get; set; } = [];
     [Parameter] public EventCallback OnToggleDrawer { get; set; }
 
-    private async Task HandleToggleDrawer()
+    private Task HandleToggleDrawer()
     {
-        await OnToggleDrawer.InvokeAsync();
+        return OnToggleDrawer.InvokeAsync();
     }
 
-    private static string? GetInitials(string name)
+    private static string GetInitials(string name)
     {
-        if (string.IsNullOrEmpty(name)) return "?";
+        if (string.IsNullOrEmpty(name))
+        {
+            return "?";
+        }
+
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return parts.Length == 1 ? parts[0][..1].ToUpper() : (parts[0][..1] + parts[^1][..1]).ToUpper();
     }
