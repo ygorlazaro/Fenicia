@@ -1,0 +1,53 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudAvatar Color="Color.Info" Variant="Variant.Outlined">
+                    <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
+                </MudAvatar>
+                <MudText Typo="Typo.overline">Custo Total</MudText>
+            </MudStack>
+            <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(Dashboard.TotalCostValue)</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudAvatar Color="Color.Success" Variant="Variant.Outlined">
+                    <MudIcon Icon="@Icons.Material.Filled.TrendingUp" />
+                </MudAvatar>
+                <MudText Typo="Typo.overline">Venda Total</MudText>
+            </MudStack>
+            <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(Dashboard.TotalSalesValue)</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudAvatar Color="@ProfitColor" Variant="Variant.Outlined">
+                    <MudIcon Icon="@Icons.Material.Filled.Savings" />
+                </MudAvatar>
+                <MudText Typo="Typo.overline">Lucro Potencial</MudText>
+            </MudStack>
+            <MudText Typo="Typo.h5" Color="@ProfitColor" Class="mt-2">@Money.Format(Dashboard.ProfitPotential)</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudAvatar Color="Color.Warning" Variant="Variant.Outlined">
+                    <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
+                </MudAvatar>
+                <MudText Typo="Typo.overline">Quantidade Total</MudText>
+            </MudStack>
+            <MudText Typo="Typo.h5" Class="mt-2">@Dashboard.TotalQuantity.ToString("N0")</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter, EditorRequired] public DashboardData Dashboard { get; set; } = default!;
+    [Parameter] public Color ProfitColor { get; set; } = Color.Success;
+}

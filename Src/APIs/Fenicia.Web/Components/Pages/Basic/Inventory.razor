@@ -3,310 +3,48 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
+@using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
 <MainLayout>
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
-        <MudStack Spacing="0">
-            <MudText Typo="Typo.h4">Inventário</MudText>
-            <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                Visão geral do estoque, saúde e distribuição de valor por categoria e fornecedor.
-            </MudText>
-        </MudStack>
-        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-            <MudNumericField T="int" @bind-Value="_zeroMovementDays" Label="Dias sem movimento" Variant="Variant.Outlined" Margin="Margin.Dense" Min="1" Style="width: 180px" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync" Disabled="_loading">
-                Atualizar
-            </MudButton>
-        </MudStack>
-    </MudStack>
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
+        <InventoryHeader ZeroMovementDays="_zeroMovementDays"
+                         ZeroMovementDaysChanged="OnZeroMovementDaysChanged"
+                         Loading="_loading"
+                         OnRefresh="LoadAsync" />
 
-    @if (_loading)
-    {
-        <MudStack AlignItems="AlignItems.Center" Class="my-8">
-            <MudProgressCircular Indeterminate="true" />
-            <MudText Typo="Typo.body2">Carregando dados do inventário...</MudText>
-        </MudStack>
-    }
-    else if (_dashboard is null)
-    {
-        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
-            Não foi possível carregar os dados do inventário. Verifique a conexão e tente novamente.
-        </MudAlert>
-    }
-    else
-    {
-    <MudGrid Spacing="3" Class="mb-4">
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Color="Color.Info" Variant="Variant.Outlined">
-                        <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
-                    </MudAvatar>
-                    <MudText Typo="Typo.overline">Custo Total</MudText>
-                </MudStack>
-                <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(_dashboard.TotalCostValue)</MudText>
-            </MudPaper>
-        </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                        <MudAvatar Color="Color.Success" Variant="Variant.Outlined">
-                            <MudIcon Icon="@Icons.Material.Filled.TrendingUp" />
-                        </MudAvatar>
-                        <MudText Typo="Typo.overline">Venda Total</MudText>
-                    </MudStack>
-                    <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(_dashboard.TotalSalesValue)</MudText>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                        <MudAvatar Color="@ProfitColor" Variant="Variant.Outlined">
-                            <MudIcon Icon="@Icons.Material.Filled.Savings" />
-                        </MudAvatar>
-                        <MudText Typo="Typo.overline">Lucro Potencial</MudText>
-                    </MudStack>
-                    <MudText Typo="Typo.h5" Color="@ProfitColor" Class="mt-2">@Money.Format(_dashboard.ProfitPotential)</MudText>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                        <MudAvatar Color="Color.Warning" Variant="Variant.Outlined">
-                            <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
-                        </MudAvatar>
-                        <MudText Typo="Typo.overline">Quantidade Total</MudText>
-                    </MudStack>
-                    <MudText Typo="Typo.h5" Class="mt-2">@_dashboard.TotalQuantity.ToString("N0")</MudText>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-
-        <MudGrid Spacing="3" Class="mb-4">
-            <MudItem xs="12" md="6">
-                <MudPaper Class="pa-4" Elevation="2">
-                    <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Categoria</MudText>
-                    @if (_categoryChartLabels.Length == 0)
-                    {
-                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de categoria.</MudText>
-                    }
-                    else
-                    {
-                        <MudChart T="double" ChartType="ChartType.Bar"
-                                  ChartSeries="@_categoryChartSeries"
-                                  ChartLabels="@_categoryChartLabels"
-                                  ChartOptions="@_categoryChartOptions"
-                                  LegendPosition="MudBlazor.Position.Left"
-                                  Width="100%"
-                                  Height="320px" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudPaper Class="pa-4" Elevation="2">
-                    <MudText Typo="Typo.h6" Class="mb-2">Distribuição por Fornecedor</MudText>
-                    @if (_supplierChartLabels.Length == 0)
-                    {
-                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados de fornecedor.</MudText>
-                    }
-                    else
-                    {
-                        <MudChart T="double" ChartType="ChartType.Bar"
-                                  ChartSeries="@_supplierChartSeries"
-                                  ChartLabels="@_supplierChartLabels"
-                                  ChartOptions="@_supplierChartOptions"
-                                  LegendPosition="MudBlazor.Position.Left"
-                                  Width="100%"
-                                  Height="320px" />
-                    }
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-
-        <MudPaper Class="pa-4 mb-4" Elevation="2">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
-                <MudText Typo="Typo.h6">Produtos com Estoque Baixo</MudText>
-                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">
-                    @_dashboard.LowStockItems.Count item(s)
-                </MudChip>
-            </MudStack>
-            @if (_dashboard.LowStockItems.Count == 0)
-            {
-                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
-                    Nenhum produto com estoque baixo detectado.
-                </MudAlert>
-            }
-            else
-            {
-                <MudTable T="LowStockItem" Items="@_dashboard.LowStockItems" Dense="true" Hover="true" Bordered="false" Elevation="0">
-                    <HeaderContent>
-                        <MudTh>Produto</MudTh>
-                        <MudTh>Categoria</MudTh>
-                        <MudTh Style="text-align: right">Quantidade</MudTh>
-                        <MudTh Style="text-align: right">Custo</MudTh>
-                        <MudTh Style="text-align: right">Venda</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Produto">
-                            <MudLink Href="@($"/basic/product?edit={context.Id}")" Underline="Underline.Hover">
-                                @context.Name
-                            </MudLink>
-                        </MudTd>
-                        <MudTd DataLabel="Categoria">
-                            <MudLink Href="@($"/basic/productcategory?edit={context.CategoryId}")" Underline="Underline.Hover">
-                                @context.CategoryName
-                            </MudLink>
-                        </MudTd>
-                        <MudTd DataLabel="Quantidade" Style="text-align: right">
-                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@context.Quantity</MudChip>
-                        </MudTd>
-                        <MudTd DataLabel="Custo" Style="text-align: right">@(Money.Format(context.CostPrice ?? 0))</MudTd>
-                        <MudTd DataLabel="Venda" Style="text-align: right">@Money.Format(context.SalesPrice)</MudTd>
-                    </RowTemplate>
-                </MudTable>
-            }
-        </MudPaper>
-
-        <MudText Typo="Typo.h5" Class="mb-2 mt-6">Saúde do Inventário</MudText>
-
-        @if (_health is null)
+        @if (_loading)
         {
-            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
-                Não foi possível carregar a saúde do inventário.
+            <MudStack AlignItems="AlignItems.Center" Class="my-8">
+                <MudProgressCircular Indeterminate="true" />
+                <MudText Typo="Typo.body2">Carregando dados do inventário...</MudText>
+            </MudStack>
+        }
+        else if (_dashboard is null)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                Não foi possível carregar os dados do inventário. Verifique a conexão e tente novamente.
             </MudAlert>
         }
         else
         {
-            <MudGrid Spacing="3" Class="mb-4">
-                <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                            <MudAvatar Color="Color.Success" Variant="Variant.Outlined">
-                                <MudIcon Icon="@Icons.Material.Filled.Favorite" />
-                            </MudAvatar>
-                            <MudText Typo="Typo.overline">Saudáveis</MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.h5" Class="mt-2">@_health.Summary.HealthyProducts</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            de @_health.Summary.TotalProducts produto(s) em estoque
-                        </MudText>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                            <MudAvatar Color="Color.Default" Variant="Variant.Outlined">
-                                <MudIcon Icon="@Icons.Material.Filled.HourglassEmpty" />
-                            </MudAvatar>
-                            <MudText Typo="Typo.overline">Sem Movimento</MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.h5" Class="mt-2">@_health.Summary.ZeroMovementProducts</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            @_health.Summary.ZeroMovementPercentage.ToString("N1")% do estoque
-                        </MudText>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                            <MudAvatar Color="Color.Primary" Variant="Variant.Outlined">
-                                <MudIcon Icon="@Icons.Material.Filled.Paid" />
-                            </MudAvatar>
-                            <MudText Typo="Typo.overline">Valor em Estoque</MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(_health.Summary.TotalStockValue)</MudText>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
+            <InventoryKpiCards Dashboard="_dashboard" ProfitColor="ProfitColor" />
 
-            <MudGrid Spacing="3" Class="mb-4">
-                <MudItem xs="12" md="6">
-                    <MudPaper Class="pa-4" Elevation="2">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
-                            <MudText Typo="Typo.h6">Valor em Estoque por Categoria</MudText>
-                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
-                                @Money.Format(_health.Summary.TotalStockValue)
-                            </MudChip>
-                        </MudStack>
-                        @if (_stockValueByCategoryLabels.Length == 0)
-                        {
-                            <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados.</MudText>
-                        }
-                        else
-                        {
-                            <MudChart T="double" ChartType="ChartType.Bar"
-                                      ChartSeries="@_stockValueByCategorySeries"
-                                      ChartLabels="@_stockValueByCategoryLabels"
-                                      ChartOptions="@_stockValueByCategoryOptions"
-                                      LegendPosition="MudBlazor.Position.Left"
-                                      Width="100%"
-                                      Height="320px" />
-                        }
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
+            <InventoryCharts Series="_categoryChartSeries"
+                             Labels="_categoryChartLabels"
+                             Options="_categoryChartOptions" />
 
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
-                    <MudText Typo="Typo.h6">Produtos Sem Movimentação</MudText>
-                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">
-                        Últimos @_zeroMovementDays dias
-                    </MudChip>
-                </MudStack>
-                @if (_health.ZeroMovementProducts.Count == 0)
-                {
-                    <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
-                        Todos os produtos tiveram movimentação no período.
-                    </MudAlert>
-                }
-                else
-                {
-                    <MudTable T="ZeroMovementItem" Items="@_health.ZeroMovementProducts" Dense="true" Hover="true" Bordered="false" Elevation="0">
-                        <HeaderContent>
-                            <MudTh>Produto</MudTh>
-                            <MudTh>Categoria</MudTh>
-                            <MudTh>Fornecedor</MudTh>
-                            <MudTh Style="text-align: right">Estoque</MudTh>
-                            <MudTh Style="text-align: right">Valor</MudTh>
-                            <MudTh Style="text-align: right">Dias sem mover</MudTh>
-                        </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Produto">
-                            <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
-                                @context.ProductName
-                            </MudLink>
-                        </MudTd>
-                        <MudTd DataLabel="Categoria">
-                            <MudLink Href="@($"/basic/productcategory?edit={context.CategoryId}")" Underline="Underline.Hover">
-                                @context.CategoryName
-                            </MudLink>
-                        </MudTd>
-                        <MudTd DataLabel="Fornecedor">
-                            @if (!string.IsNullOrEmpty(context.SupplierName))
-                            {
-                                <MudLink Href="@($"/basic/supplier")" Underline="Underline.Hover">
-                                    @context.SupplierName
-                                </MudLink>
-                            }
-                            else
-                            {
-                                <text>—</text>
-                            }
-                        </MudTd>
-                            <MudTd DataLabel="Estoque" Style="text-align: right">@context.CurrentStock.ToString("N0")</MudTd>
-                            <MudTd DataLabel="Valor" Style="text-align: right">@Money.Format(context.StockValue)</MudTd>
-                            <MudTd DataLabel="Dias sem mover" Style="text-align: right">
-                                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">@context.DaysWithoutMovement</MudChip>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
-            </MudPaper>
+            <InventoryLowStockTable Items="_dashboard.LowStockItems" />
+
+            <InventoryHealth Health="_health"
+                             ZeroMovementDays="_zeroMovementDays"
+                             StockSeries="_stockValueByCategorySeries"
+                             StockLabels="_stockValueByCategoryLabels"
+                             StockOptions="_stockValueByCategoryOptions" />
         }
-    }
-</MudContainer>
+    </MudContainer>
 </MainLayout>
 
 @code {
@@ -468,84 +206,9 @@
         return client;
     }
 
-    private sealed class DashboardData
+    private void OnZeroMovementDaysChanged(int value)
     {
-        public List<LowStockItem> LowStockItems { get; set; } = [];
-        public int TotalCustomers { get; set; }
-        public int TotalEmployees { get; set; }
-        public decimal TotalCostValue { get; set; }
-        public decimal TotalSalesValue { get; set; }
-        public double TotalQuantity { get; set; }
-        public decimal ProfitPotential { get; set; }
-        public List<CategoryData> CategoryBreakdown { get; set; } = [];
-        public List<SupplierData> SupplierBreakdown { get; set; } = [];
-    }
-
-    private sealed class LowStockItem
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public double Quantity { get; set; }
-        public decimal? CostPrice { get; set; }
-        public decimal SalesPrice { get; set; }
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-    }
-
-    private sealed class CategoryData
-    {
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public decimal TotalCostValue { get; set; }
-        public decimal TotalSalesValue { get; set; }
-        public double TotalQuantity { get; set; }
-    }
-
-    private sealed class SupplierData
-    {
-        public Guid SupplierId { get; set; }
-        public string SupplierName { get; set; } = string.Empty;
-        public decimal TotalCostValue { get; set; }
-        public decimal TotalSalesValue { get; set; }
-        public double TotalQuantity { get; set; }
-    }
-
-    private sealed class HealthData
-    {
-        public List<ZeroMovementItem> ZeroMovementProducts { get; set; } = [];
-        public List<StockValueData> StockValueByCategory { get; set; } = [];
-        public SummaryData Summary { get; set; } = new();
-    }
-
-    private sealed class ZeroMovementItem
-    {
-        public Guid ProductId { get; set; }
-        public string ProductName { get; set; } = string.Empty;
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public string? SupplierName { get; set; }
-        public double CurrentStock { get; set; }
-        public decimal StockValue { get; set; }
-        public DateTime? LastMovementDate { get; set; }
-        public int DaysWithoutMovement { get; set; }
-    }
-
-    private sealed class StockValueData
-    {
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public int ProductCount { get; set; }
-        public decimal TotalStockValue { get; set; }
-        public double Percentage { get; set; }
-    }
-
-    private sealed class SummaryData
-    {
-        public int TotalProducts { get; set; }
-        public int HealthyProducts { get; set; }
-        public int ZeroMovementProducts { get; set; }
-        public decimal TotalStockValue { get; set; }
-        public decimal ZeroMovementPercentage { get; set; }
+        _zeroMovementDays = value;
     }
 
     private static List<double> BuildTop9WithOthers<T>(List<T>? items, Func<T, double> selector)

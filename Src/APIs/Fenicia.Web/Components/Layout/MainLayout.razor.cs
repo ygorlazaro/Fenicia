@@ -353,7 +353,7 @@ public partial class MainLayout : IDisposable
 
     private void OnLoadingChanged(bool refIsLoading)
     {
-        this.isLoading = refIsLoading;
+        isLoading = refIsLoading;
         InvokeAsync(StateHasChanged);
     }
 

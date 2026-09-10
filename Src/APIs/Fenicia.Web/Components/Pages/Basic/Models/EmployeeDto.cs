@@ -1,6 +1,6 @@
 namespace Fenicia.Web.Components.Pages.Basic.Models;
 
-public class EmployeeDto : IEquatable<EmployeeDto>, Fenicia.Web.Services.ICrudItem
+public class EmployeeDto : IEquatable<EmployeeDto>, Services.ICrudItem
 {
     public Guid Id { get; init; }
 
@@ -28,7 +28,13 @@ public class EmployeeDto : IEquatable<EmployeeDto>, Fenicia.Web.Services.ICrudIt
         return Id == other.Id && Name == other.Name;
     }
 
-    public override bool Equals(object? obj) => Equals(obj as EmployeeDto);
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as EmployeeDto);
+    }
 
-    public override int GetHashCode() => HashCode.Combine(Id, Name);
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name);
+    }
 }

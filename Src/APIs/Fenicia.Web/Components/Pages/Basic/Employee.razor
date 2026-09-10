@@ -103,7 +103,10 @@
         }
     }
 
-    private void ResetForm() => add = new EmployeeFormModel();
+    private void ResetForm()
+    {
+        add = new EmployeeFormModel();
+    }
 
     private void LoadForm(EmployeeDto? item)
     {
@@ -133,11 +136,11 @@
         return new
         {
             Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
-            PositionId = model.PositionId,
+            model.PositionId,
             Name = model.Name ?? string.Empty,
-            Email = model.Email,
-            Document = model.Document,
-            PhoneNumber = model.PhoneNumber,
+            model.Email,
+            model.Document,
+            model.PhoneNumber,
             Address = BuildAddress(model)
         };
     }
@@ -155,14 +158,14 @@
 
         return new
         {
-            Street = model.Street,
-            Number = model.Number,
-            Complement = model.Complement,
-            Neighborhood = model.Neighborhood,
-            ZipCode = model.ZipCode,
-            City = model.City,
+            model.Street,
+            model.Number,
+            model.Complement,
+            model.Neighborhood,
+            model.ZipCode,
+            model.City,
             StateId = model.StateId.Value,
-            Country = model.Country
+            model.Country
         };
     }
 }

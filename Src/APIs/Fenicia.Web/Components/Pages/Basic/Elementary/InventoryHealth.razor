@@ -1,0 +1,99 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudText Typo="Typo.h5" Class="mb-2 mt-6">Saúde do Inventário</MudText>
+
+@if (Health is null)
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+        Não foi possível carregar a saúde do inventário.
+    </MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mb-4">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Color="Color.Success" Variant="Variant.Outlined">
+                        <MudIcon Icon="@Icons.Material.Filled.Favorite" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.overline">Saudáveis</MudText>
+                </MudStack>
+                <MudText Typo="Typo.h5" Class="mt-2">@Health.Summary.HealthyProducts</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    de @Health.Summary.TotalProducts produto(s) em estoque
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Color="Color.Default" Variant="Variant.Outlined">
+                        <MudIcon Icon="@Icons.Material.Filled.HourglassEmpty" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.overline">Sem Movimento</MudText>
+                </MudStack>
+                <MudText Typo="Typo.h5" Class="mt-2">@Health.Summary.ZeroMovementProducts</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    @Health.Summary.ZeroMovementPercentage.ToString("N1")% do estoque
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 d-flex flex-column" Elevation="2" Style="height: 100%">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Color="Color.Primary" Variant="Variant.Outlined">
+                        <MudIcon Icon="@Icons.Material.Filled.Paid" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.overline">Valor em Estoque</MudText>
+                </MudStack>
+                <MudText Typo="Typo.h5" Class="mt-2">@Money.Format(Health.Summary.TotalStockValue)</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Spacing="3" Class="mb-4">
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+                    <MudText Typo="Typo.h6">Valor em Estoque por Categoria</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                        @Money.Format(Health.Summary.TotalStockValue)
+                    </MudChip>
+                </MudStack>
+                @if (StockLabels.Length == 0)
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Sem dados.</MudText>
+                }
+                else
+                {
+                    <MudChart T="double" ChartType="ChartType.Bar"
+                              ChartSeries="@StockSeries"
+                              ChartLabels="@StockLabels"
+                              ChartOptions="@StockOptions"
+                              LegendPosition="MudBlazor.Position.Left"
+                              Width="100%"
+                              Height="320px" />
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudPaper Class="pa-4" Elevation="2">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+            <MudText Typo="Typo.h6">Produtos Sem Movimentação</MudText>
+            <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">
+                Últimos @ZeroMovementDays dias
+            </MudChip>
+        </MudStack>
+        <InventoryZeroMovementTable Items="Health.ZeroMovementProducts" />
+    </MudPaper>
+}
+
+@code {
+    [Parameter, EditorRequired] public HealthData Health { get; set; } = default!;
+    [Parameter] public int ZeroMovementDays { get; set; } = 90;
+    [Parameter] public List<ChartSeries<double>> StockSeries { get; set; } = [];
+    [Parameter] public string[] StockLabels { get; set; } = [];
+    [Parameter] public BarChartOptions StockOptions { get; set; } = new();
+}

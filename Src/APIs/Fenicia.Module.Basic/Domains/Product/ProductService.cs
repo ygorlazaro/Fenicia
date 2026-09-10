@@ -58,13 +58,13 @@ public sealed class ProductService(
         return products;
     }
 
-    public async Task<List<Fenicia.Module.Basic.Domains.DataSource.DTOs.GetAllDashboardProductForDataSourceResponse>>
+    public async Task<List<GetAllDashboardProductForDataSourceResponse>>
         GetAllDashboardForDataSourceAsync(CancellationToken cancellationToken = default)
     {
         var products = await productRepository.Query()
             .Include(p => p.Category)
             .OrderBy(p => p.Name)
-            .Select(p => new Fenicia.Module.Basic.Domains.DataSource.DTOs.GetAllDashboardProductForDataSourceResponse(
+            .Select(p => new GetAllDashboardProductForDataSourceResponse(
                 p.Id,
                 p.Name,
                 p.SKU,

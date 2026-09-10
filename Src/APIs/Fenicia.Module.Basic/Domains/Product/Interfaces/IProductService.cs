@@ -16,7 +16,7 @@ public interface IProductService
     Task<List<GetAllProductForDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default);
 
-    Task<List<Fenicia.Module.Basic.Domains.DataSource.DTOs.GetAllDashboardProductForDataSourceResponse>>
+    Task<List<GetAllDashboardProductForDataSourceResponse>>
         GetAllDashboardForDataSourceAsync(
             CancellationToken cancellationToken = default);
 

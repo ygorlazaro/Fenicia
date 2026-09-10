@@ -1,0 +1,21 @@
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h4">Inventário</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+            Visão geral do estoque, saúde e distribuição de valor por categoria e fornecedor.
+        </MudText>
+    </MudStack>
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+        <MudNumericField T="int" @bind-Value="ZeroMovementDays" Label="Dias sem movimento" Variant="Variant.Outlined" Margin="Margin.Dense" Min="1" Style="width: 180px" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="OnRefresh" Disabled="Loading">
+            Atualizar
+        </MudButton>
+    </MudStack>
+</MudStack>
+
+@code {
+    [Parameter] public int ZeroMovementDays { get; set; } = 90;
+    [Parameter] public EventCallback<int> ZeroMovementDaysChanged { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+}

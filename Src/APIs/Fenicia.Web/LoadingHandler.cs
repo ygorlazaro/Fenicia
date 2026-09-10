@@ -6,7 +6,7 @@ public sealed class LoadingHandler(ILoadingService loadingService) : DelegatingH
 {
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
-        System.Threading.CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
     {
         loadingService.Increment();
         try

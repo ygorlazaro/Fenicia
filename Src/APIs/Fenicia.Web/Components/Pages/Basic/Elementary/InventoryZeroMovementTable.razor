@@ -1,0 +1,54 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
+        Todos os produtos tiveram movimentação no período.
+    </MudAlert>
+}
+else
+{
+    <MudTable T="ZeroMovementItem" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
+        <HeaderContent>
+            <MudTh>Produto</MudTh>
+            <MudTh>Categoria</MudTh>
+            <MudTh>Fornecedor</MudTh>
+            <MudTh Style="text-align: right">Estoque</MudTh>
+            <MudTh Style="text-align: right">Valor</MudTh>
+            <MudTh Style="text-align: right">Dias sem mover</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Produto">
+                <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
+                    @context.ProductName
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="Categoria">
+                <MudLink Href="@($"/basic/productcategory?edit={context.CategoryId}")" Underline="Underline.Hover">
+                    @context.CategoryName
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="Fornecedor">
+                @if (!string.IsNullOrEmpty(context.SupplierName))
+                {
+                    <MudLink Href="@($"/basic/supplier")" Underline="Underline.Hover">
+                        @context.SupplierName
+                    </MudLink>
+                }
+                else
+                {
+                    <text>—</text>
+                }
+            </MudTd>
+            <MudTd DataLabel="Estoque" Style="text-align: right">@context.CurrentStock.ToString("N0")</MudTd>
+            <MudTd DataLabel="Valor" Style="text-align: right">@Money.Format(context.StockValue)</MudTd>
+            <MudTd DataLabel="Dias sem mover" Style="text-align: right">
+                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">@context.DaysWithoutMovement</MudChip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    [Parameter, EditorRequired] public List<ZeroMovementItem> Items { get; set; } = [];
+}

@@ -1,0 +1,49 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudPaper Class="pa-4 mb-4" Elevation="2">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
+        <MudText Typo="Typo.h6">Produtos com Estoque Baixo</MudText>
+        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">
+            @Items.Count item(s)
+        </MudChip>
+    </MudStack>
+    @if (Items.Count == 0)
+    {
+        <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense="true">
+            Nenhum produto com estoque baixo detectado.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable T="LowStockItem" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
+            <HeaderContent>
+                <MudTh>Produto</MudTh>
+                <MudTh>Categoria</MudTh>
+                <MudTh Style="text-align: right">Quantidade</MudTh>
+                <MudTh Style="text-align: right">Custo</MudTh>
+                <MudTh Style="text-align: right">Venda</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Produto">
+                    <MudLink Href="@($"/basic/product?edit={context.Id}")" Underline="Underline.Hover">
+                        @context.Name
+                    </MudLink>
+                </MudTd>
+                <MudTd DataLabel="Categoria">
+                    <MudLink Href="@($"/basic/productcategory?edit={context.CategoryId}")" Underline="Underline.Hover">
+                        @context.CategoryName
+                    </MudLink>
+                </MudTd>
+                <MudTd DataLabel="Quantidade" Style="text-align: right">
+                    <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@context.Quantity</MudChip>
+                </MudTd>
+                <MudTd DataLabel="Custo" Style="text-align: right">@(Money.Format(context.CostPrice ?? 0))</MudTd>
+                <MudTd DataLabel="Venda" Style="text-align: right">@Money.Format(context.SalesPrice)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public List<LowStockItem> Items { get; set; } = [];
+}
