@@ -92,15 +92,26 @@ public static class QueryableExtensions
 
     private static Expression? BuildFilterExpression(Expression parameter, Type type, string propertyPath, string value)
     {
+        var propertyAccess = ResolvePropertyAccess(parameter, type, propertyPath);
+        if (propertyAccess is null)
+        {
+            return null;
+        }
+
+        return BuildComparisonExpression(propertyAccess, value);
+    }
+
+    private static Expression? ResolvePropertyAccess(Expression parameter, Type type, string propertyPath)
+    {
         var parts = propertyPath.Split('.');
-        var current = parameter;
-        var currentType = type;
+        Expression current = parameter;
+        Type currentType = type;
 
         for (var i = 0; i < parts.Length; i++)
         {
             var property = currentType.GetProperty(
-                             parts[i],
-                             BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                parts[i],
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (property == null || !property.CanRead)
             {
                 return null;
@@ -117,8 +128,8 @@ public static class QueryableExtensions
 
                 var remainingPath = string.Join(".", parts.Skip(i + 1));
                 var itemParam = Expression.Parameter(elementType, "item");
-                var innerExpr = BuildFilterExpression(itemParam, elementType, remainingPath, value);
-                if (innerExpr == null)
+                var innerExpr = ResolvePropertyAccess(itemParam, elementType, remainingPath);
+                if (innerExpr is null)
                 {
                     return null;
                 }
@@ -136,7 +147,14 @@ public static class QueryableExtensions
             current = Expression.MakeMemberAccess(current, property);
         }
 
-        if (currentType == typeof(string))
+        return current;
+    }
+
+    private static Expression? BuildComparisonExpression(MemberExpression propertyAccess, string value)
+    {
+        var propertyType = propertyAccess.Type;
+
+        if (propertyType == typeof(string))
         {
             var toLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes);
             if (toLowerMethod == null)
@@ -151,30 +169,20 @@ public static class QueryableExtensions
             }
 
             var valueConstant = Expression.Constant(value.ToLowerInvariant(), typeof(string));
-            var currentLower = Expression.Call(current, toLowerMethod);
+            var currentLower = Expression.Call(propertyAccess, toLowerMethod);
             return Expression.Call(currentLower, containsMethod, valueConstant);
         }
 
-        if (currentType == typeof(Guid))
+        if (propertyType == typeof(Guid) && Guid.TryParse(value, out var guidValue))
         {
-            if (!Guid.TryParse(value, out var guidValue))
-            {
-                return null;
-            }
-
             var valueConstant = Expression.Constant(guidValue, typeof(Guid));
-            return Expression.Equal(current, valueConstant);
+            return Expression.Equal(propertyAccess, valueConstant);
         }
 
-        if (currentType == typeof(Guid?))
+        if (propertyType == typeof(Guid?) && Guid.TryParse(value, out var nullableGuidValue))
         {
-            if (!Guid.TryParse(value, out var guidValue))
-            {
-                return null;
-            }
-
-            var valueConstant = Expression.Constant(guidValue, typeof(Guid));
-            return Expression.Equal(current, valueConstant);
+            var valueConstant = Expression.Constant(nullableGuidValue, typeof(Guid));
+            return Expression.Equal(propertyAccess, valueConstant);
         }
 
         return null;
