@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
-public class ShareService(ShareRepository repository, FeedRepository feedRepository)
+public abstract class ShareService(ShareRepository repository, FeedRepository feedRepository)
 {
     public async Task<AddShareResponse> ShareAsync(
         ShareCommand command,
@@ -13,7 +13,7 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var original = await feedRepository.GetByIdAsync(command.OriginalFeedId, cancellationToken)
+        _ = await feedRepository.GetByIdAsync(command.OriginalFeedId, cancellationToken)
             ?? throw new InvalidOperationException("Post original não encontrado.");
 
         var model = new ShareModel
@@ -54,7 +54,7 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
             shareFeed.Id);
     }
 
-    public async Task<List<GetSharesResponse>> GetSharesByFeedAsync(
+    internal async Task<List<GetSharesResponse>> GetSharesByFeedAsync(
         GetSharesByFeedQuery query,
         Guid feedId,
         CancellationToken cancellationToken = default)

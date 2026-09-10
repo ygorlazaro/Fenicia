@@ -4,11 +4,6 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
-public interface IFriendshipRepository : IRepository<FriendshipModel>
-{
-    new IQueryable<FriendshipModel> Query();
-}
-
 public class FriendshipRepository(DefaultContext context) : Repository<FriendshipModel>(context), IFriendshipRepository
 {
     public new IQueryable<FriendshipModel> Query() => DbSet;

@@ -2,23 +2,6 @@ using Microsoft.JSInterop;
 
 namespace Fenicia.Web.Services;
 
-public interface ICompanyContextService
-{
-    Task<Guid?> GetSelectedCompanyIdAsync();
-
-    Task SetSelectedCompanyIdAsync(Guid? companyId);
-
-    Task<string?> GetSelectedCompanyNameAsync();
-
-    Task SetSelectedCompanyNameAsync(string? companyName);
-
-    Task<Guid> GetUserIdAsync();
-
-    Task<string?> GetTokenAsync();
-
-    Task<bool> IsAuthenticatedAsync();
-}
-
 public class CompanyContextService(IJSRuntime jsRuntime) : ICompanyContextService
 {
     private const string _companyIdKey = "selected_company_id";

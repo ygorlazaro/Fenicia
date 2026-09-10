@@ -13,17 +13,11 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
 public class ProjectCommentServiceTests
 {
-    private readonly DbContextOptions<DefaultContext> _dbOptions;
-    private readonly Faker _faker;
-    private readonly Mock<ICompanyContext> _mockCompanyContext;
+    private readonly DbContextOptions<DefaultContext> _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
 
-    public ProjectCommentServiceTests()
-    {
-        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        _faker = new Faker();
-        _mockCompanyContext = new Mock<ICompanyContext>();
-    }
+    private readonly Faker _faker = new();
+    private readonly Mock<ICompanyContext> _mockCompanyContext = new();
 
     [Fact]
     public async Task GetAllAsync_WhenCommentsExist_ReturnsComments()
@@ -152,13 +146,13 @@ public class ProjectCommentServiceTests
         return service.DeleteAsync(new DeleteProjectCommentCommand(id), CancellationToken.None);
     }
 
+    private static ProjectCommentService CreateService(DefaultContext db)
+    {
+        return new ProjectCommentService(new ProjectCommentRepository(db));
+    }
+
     private DefaultContext NewDb()
     {
         return new DefaultContext(_dbOptions, _mockCompanyContext.Object);
-    }
-
-    private ProjectCommentService CreateService(DefaultContext db)
-    {
-        return new ProjectCommentService(new ProjectCommentRepository(db));
     }
 }

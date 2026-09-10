@@ -3,17 +3,6 @@ using Microsoft.JSInterop;
 
 namespace Fenicia.Web.Services;
 
-public interface IAuthStateService
-{
-    Task<bool> IsAuthenticatedAsync();
-
-    Task<string?> GetUserNameAsync();
-
-    Task SetTokenAsync(string token, int expiryHours = 3);
-
-    Task ClearTokenAsync();
-}
-
 public class AuthStateService(IJSRuntime jsRuntime) : IAuthStateService
 {
     private bool _isAuthenticated;
@@ -21,14 +10,16 @@ public class AuthStateService(IJSRuntime jsRuntime) : IAuthStateService
 
     public async Task<bool> IsAuthenticatedAsync()
     {
-        if (!_isAuthenticated)
+        if (_isAuthenticated)
         {
-            var token = await jsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
-            _isAuthenticated = !string.IsNullOrEmpty(token);
-            if (_isAuthenticated)
-            {
-                _userName = GetUserNameFromToken(token);
-            }
+            return _isAuthenticated;
+        }
+
+        var token = await jsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+        _isAuthenticated = !string.IsNullOrEmpty(token);
+        if (_isAuthenticated)
+        {
+            _userName = GetUserNameFromToken(token);
         }
 
         return _isAuthenticated;

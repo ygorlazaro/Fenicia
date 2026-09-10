@@ -12,96 +12,9 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
         GetAllProjectTaskQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = repository.Query();
-        var filteredQuery = baseQuery;
-
-        if (query.StatusId.HasValue)
-        {
-            var sid = query.StatusId.Value;
-            filteredQuery = filteredQuery.Where(t => t.StatusId == sid);
-        }
-
-        if (query.CreatedBy.HasValue)
-        {
-            var cid = query.CreatedBy.Value;
-            filteredQuery = filteredQuery.Where(t => t.CreatedBy == cid);
-        }
-
-        if (query.AssigneeId.HasValue)
-        {
-            var aid = query.AssigneeId.Value;
-            filteredQuery = filteredQuery.Where(t => t.Assignees.Any(a => a.UserId == aid));
-        }
-
-        if (query.DueFrom.HasValue)
-        {
-            var from = query.DueFrom.Value;
-            filteredQuery = filteredQuery.Where(t => t.DueDate.HasValue && t.DueDate.Value >= from);
-        }
-
-        if (query.DueTo.HasValue)
-        {
-            var to = query.DueTo.Value;
-            filteredQuery = filteredQuery.Where(t => t.DueDate.HasValue && t.DueDate.Value <= to);
-        }
-
-        if (!string.IsNullOrWhiteSpace(query.Type))
-        {
-            var type = query.Type;
-            filteredQuery = filteredQuery.Where(t => t.Type.ToString() == type);
-        }
-
-        if (!string.IsNullOrWhiteSpace(query.Priority))
-        {
-            var prio = query.Priority;
-            filteredQuery = filteredQuery.Where(t => t.Priority.ToString() == prio);
-        }
-
-        if (query.SprintId.HasValue)
-        {
-            var sid = query.SprintId.Value;
-            filteredQuery = filteredQuery.Where(t => t.SprintId == sid);
-        }
-
-        if (query.WithoutSprint == true)
-        {
-            filteredQuery = filteredQuery.Where(t => !t.SprintId.HasValue);
-        }
-
-        var tasks = await filteredQuery
-            .Include(pt => pt.Assignees)
-            .ThenInclude(a => a.User)
-            .Include(pt => pt.Comments)
-            .Include(pt => pt.Subtasks)
-            .Include(pt => pt.SprintModel)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(cancellationToken);
-        return
-        [
-            .. tasks.Select(pt => new GetAllProjectTaskResponse(
-                pt.Id,
-                pt.ProjectId,
-                pt.StatusId,
-                pt.Title,
-                pt.Description,
-                pt.Priority.ToString(),
-                pt.Type.ToString(),
-                pt.Order,
-                pt.EstimatePoints,
-                pt.DueDate,
-                pt.CreatedBy,
-                pt.CompanyId,
-                [
-                    .. pt.Assignees.Select(a =>
-                        new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))
-                ],
-                pt.Comments.Count,
-                pt.Subtasks.Count,
-                pt.Subtasks.Count(s => s.IsCompleted),
-                pt.SprintId,
-                pt.SprintModel != null ? pt.SprintModel.Name : null))
-        ];
+        var filteredQuery = BuildFilteredQuery(query);
+        var tasks = await GetTasksWithRelationsAsync(filteredQuery, query, cancellationToken);
+        return [.. tasks.Select(MapToGetAllResponse)];
     }
 
     public async Task<GetProjectTaskByIdResponse?> GetByIdAsync(
@@ -147,7 +60,7 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                         new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))
                 ],
                 projectTask.SprintId,
-                projectTask.SprintModel != null ? projectTask.SprintModel.Name : null)
+                projectTask.SprintModel?.Name)
         };
     }
 
@@ -188,7 +101,7 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
             created.CreatedBy,
             created.CompanyId,
             created.SprintId,
-            created.SprintModel != null ? created.SprintModel.Name : null);
+            created.SprintModel?.Name);
     }
 
     public async Task<UpdateProjectTaskResponse?> UpdateAsync(
@@ -229,11 +142,123 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
                 updated.CreatedBy,
                 updated.CompanyId,
                 updated.SprintId,
-                updated.SprintModel != null ? updated.SprintModel.Name : null);
+                updated.SprintModel?.Name);
     }
 
     public async Task DeleteAsync(DeleteProjectTaskCommand command, CancellationToken cancellationToken = default)
     {
         await repository.DeleteAsync(command.Id, cancellationToken);
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyStatusIdFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return q.StatusId.HasValue ? query.Where(t => t.StatusId == q.StatusId.Value) : query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyCreatedByFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return q.CreatedBy.HasValue ? query.Where(t => t.CreatedBy == q.CreatedBy.Value) : query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyAssigneeIdFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return q.AssigneeId.HasValue ? query.Where(t => t.Assignees.Any(a => a.UserId == q.AssigneeId.Value)) : query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyDueDateRangeFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        if (q.DueFrom.HasValue)
+        {
+            var from = q.DueFrom.Value;
+            query = query.Where(t => t.DueDate.HasValue && t.DueDate.Value >= from);
+        }
+
+        if (!q.DueTo.HasValue)
+        {
+            return query;
+        }
+
+        var to = q.DueTo.Value;
+        query = query.Where(t => t.DueDate.HasValue && t.DueDate.Value <= to);
+
+        return query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyTypeFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return !string.IsNullOrWhiteSpace(q.Type) ? query.Where(t => t.Type.ToString() == q.Type) : query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyPriorityFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return !string.IsNullOrWhiteSpace(q.Priority) ? query.Where(t => t.Priority.ToString() == q.Priority) : query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplySprintIdFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return q.SprintId.HasValue ? query.Where(t => t.SprintId == q.SprintId.Value) : query;
+    }
+
+    private static IQueryable<ProjectTaskModel> ApplyWithoutSprintFilter(IQueryable<ProjectTaskModel> query, GetAllProjectTaskQuery q)
+    {
+        return q.WithoutSprint == true ? query.Where(t => !t.SprintId.HasValue) : query;
+    }
+
+    private static GetAllProjectTaskResponse MapToGetAllResponse(ProjectTaskModel pt)
+    {
+        return new GetAllProjectTaskResponse(
+            pt.Id,
+            pt.ProjectId,
+            pt.StatusId,
+            pt.Title,
+            pt.Description,
+            pt.Priority.ToString(),
+            pt.Type.ToString(),
+            pt.Order,
+            pt.EstimatePoints,
+            pt.DueDate,
+            pt.CreatedBy,
+            pt.CompanyId,
+            [
+                .. pt.Assignees.Select(a =>
+                    new ProjectTaskAssigneeResponse(a.Id, a.UserId, a.User.Name, a.User.Email))
+            ],
+            pt.Comments.Count,
+            pt.Subtasks.Count,
+            pt.Subtasks.Count(s => s.IsCompleted),
+            pt.SprintId,
+            pt.SprintModel?.Name);
+    }
+
+    private static Task<List<ProjectTaskModel>> GetTasksWithRelationsAsync(
+        IQueryable<ProjectTaskModel> filteredQuery,
+        GetAllProjectTaskQuery query,
+        CancellationToken cancellationToken)
+    {
+        return filteredQuery
+            .Include(pt => pt.Assignees)
+            .ThenInclude(a => a.User)
+            .Include(pt => pt.Comments)
+            .Include(pt => pt.Subtasks)
+            .Include(pt => pt.SprintModel)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+    }
+
+    private IQueryable<ProjectTaskModel> BuildFilteredQuery(GetAllProjectTaskQuery query)
+    {
+        var filteredQuery = repository.Query();
+
+        filteredQuery = ApplyStatusIdFilter(filteredQuery, query);
+        filteredQuery = ApplyCreatedByFilter(filteredQuery, query);
+        filteredQuery = ApplyAssigneeIdFilter(filteredQuery, query);
+        filteredQuery = ApplyDueDateRangeFilter(filteredQuery, query);
+        filteredQuery = ApplyTypeFilter(filteredQuery, query);
+        filteredQuery = ApplyPriorityFilter(filteredQuery, query);
+        filteredQuery = ApplySprintIdFilter(filteredQuery, query);
+        filteredQuery = ApplyWithoutSprintFilter(filteredQuery, query);
+
+        return filteredQuery;
     }
 }

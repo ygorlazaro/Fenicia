@@ -49,7 +49,10 @@ public static class QueryableExtensions
         }
 
         var parameter = Expression.Parameter(typeof(T), "x");
-        var combinedExpression = (from filter in filters where !string.IsNullOrWhiteSpace(filter.Value) select BuildFilterExpression(parameter, typeof(T), filter.Key, filter.Value)).OfType<Expression>()
+        var combinedExpression =
+            (from filter in filters
+                where !string.IsNullOrWhiteSpace(filter.Value)
+                select BuildFilterExpression(parameter, typeof(T), filter.Key, filter.Value)).OfType<Expression>()
             .Aggregate<Expression?, Expression?>(
                 null,
                 (current, filterExpression) => current is null
@@ -73,13 +76,21 @@ public static class QueryableExtensions
         }
 
         var parameter = Expression.Parameter(typeof(T), "x");
-        Expression? combinedExpression = propertyPaths.Select(propertyPath => BuildFilterExpression(parameter, typeof(T), propertyPath, searchTerm))
+        var combinedExpression = propertyPaths.Select(propertyPath => BuildFilterExpression(parameter, typeof(T), propertyPath, searchTerm))
             .OfType<Expression>()
             .Aggregate<Expression?, Expression?>(
                 null,
-                (current, filterExpression) => current is null
-                    ? filterExpression
-                    : Expression.OrElse(current, filterExpression));
+                (current, filterExpression) =>
+                {
+                    if (filterExpression != null)
+                    {
+                        return current is null
+                            ? filterExpression
+                            : Expression.OrElse(current, filterExpression);
+                    }
+
+                    return null;
+                });
 
         if (combinedExpression is null)
         {
@@ -92,20 +103,9 @@ public static class QueryableExtensions
 
     private static Expression? BuildFilterExpression(Expression parameter, Type type, string propertyPath, string value)
     {
-        var propertyAccess = ResolvePropertyAccess(parameter, type, propertyPath);
-        if (propertyAccess is null)
-        {
-            return null;
-        }
-
-        return BuildComparisonExpression(propertyAccess, value);
-    }
-
-    private static Expression? ResolvePropertyAccess(Expression parameter, Type type, string propertyPath)
-    {
         var parts = propertyPath.Split('.');
-        Expression current = parameter;
-        Type currentType = type;
+        var current = parameter;
+        var currentType = type;
 
         for (var i = 0; i < parts.Length; i++)
         {
@@ -121,83 +121,95 @@ public static class QueryableExtensions
 
             if (IsCollectionType(currentType, out var elementType))
             {
-                if (i == parts.Length - 1)
-                {
-                    return null;
-                }
-
-                var remainingPath = string.Join(".", parts.Skip(i + 1));
-                var itemParam = Expression.Parameter(elementType, "item");
-                var innerExpr = ResolvePropertyAccess(itemParam, elementType, remainingPath);
-                if (innerExpr is null)
-                {
-                    return null;
-                }
-
-                var propertyAccess = Expression.MakeMemberAccess(current, property);
-                var anyMethod = typeof(Enumerable)
-                    .GetMethods(BindingFlags.Static | BindingFlags.Public)
-                    .First(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Length == 2)
-                    .MakeGenericMethod(elementType);
-
-                var lambda = Expression.Lambda(innerExpr, itemParam);
-                return Expression.Call(anyMethod, [propertyAccess, lambda]);
+                return BuildCollectionFilter(current, property, elementType, parts, i + 1, value);
             }
 
             current = Expression.MakeMemberAccess(current, property);
         }
 
-        return current;
+        return BuildLeafExpression(current, currentType, value);
     }
 
-    private static Expression? BuildComparisonExpression(MemberExpression propertyAccess, string value)
+    private static MethodCallExpression? BuildCollectionFilter(
+        Expression current,
+        PropertyInfo property,
+        Type elementType,
+        string[] parts,
+        int nextIndex,
+        string value)
     {
-        var propertyType = propertyAccess.Type;
-
-        if (propertyType == typeof(string))
+        if (nextIndex >= parts.Length)
         {
-            var toLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes);
-            if (toLowerMethod == null)
-            {
-                return null;
-            }
-
-            var containsMethod = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)]);
-            if (containsMethod == null)
-            {
-                return null;
-            }
-
-            var valueConstant = Expression.Constant(value.ToLowerInvariant(), typeof(string));
-            var currentLower = Expression.Call(propertyAccess, toLowerMethod);
-            return Expression.Call(currentLower, containsMethod, valueConstant);
+            return null;
         }
 
-        if (propertyType == typeof(Guid) && Guid.TryParse(value, out var guidValue))
+        var remainingPath = string.Join(".", parts.Skip(nextIndex));
+        var itemParam = Expression.Parameter(elementType, "item");
+        var innerExpr = BuildFilterExpression(itemParam, elementType, remainingPath, value);
+        if (innerExpr == null)
         {
-            var valueConstant = Expression.Constant(guidValue, typeof(Guid));
-            return Expression.Equal(propertyAccess, valueConstant);
+            return null;
         }
 
-        if (propertyType == typeof(Guid?) && Guid.TryParse(value, out var nullableGuidValue))
+        var propertyAccess = Expression.MakeMemberAccess(current, property);
+        var anyMethod = typeof(Enumerable)
+            .GetMethods(BindingFlags.Static | BindingFlags.Public)
+            .First(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Length == 2)
+            .MakeGenericMethod(elementType);
+
+        var lambda = Expression.Lambda(innerExpr, itemParam);
+        return Expression.Call(anyMethod, [propertyAccess, lambda]);
+    }
+
+    private static Expression? BuildLeafExpression(Expression current, Type currentType, string value)
+    {
+        if (currentType == typeof(string))
         {
-            var valueConstant = Expression.Constant(nullableGuidValue, typeof(Guid));
-            return Expression.Equal(propertyAccess, valueConstant);
+            return BuildStringContainsExpression(current, value);
+        }
+
+        if (currentType == typeof(Guid) || currentType == typeof(Guid?))
+        {
+            return BuildGuidEqualsExpression(current, value);
         }
 
         return null;
     }
 
-    private static bool IsCollectionType(Type type, out Type elementType)
+    private static MethodCallExpression? BuildStringContainsExpression(Expression current, string value)
     {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>))
+        var toLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes);
+        if (toLowerMethod == null)
         {
-            elementType = type.GetGenericArguments()[0];
-            return true;
+            return null;
         }
 
-        if (type.IsGenericType && type.GetGenericArguments().Length == 1
-            && typeof(IEnumerable).IsAssignableFrom(type) && !type.IsGenericTypeDefinition)
+        var containsMethod = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)]);
+        if (containsMethod == null)
+        {
+            return null;
+        }
+
+        var valueConstant = Expression.Constant(value.ToLowerInvariant(), typeof(string));
+        var currentLower = Expression.Call(current, toLowerMethod);
+        return Expression.Call(currentLower, containsMethod, valueConstant);
+    }
+
+    private static BinaryExpression? BuildGuidEqualsExpression(Expression current, string value)
+    {
+        if (!Guid.TryParse(value, out var guidValue))
+        {
+            return null;
+        }
+
+        var valueConstant = Expression.Constant(guidValue, typeof(Guid));
+        return Expression.Equal(current, valueConstant);
+    }
+
+    private static bool IsCollectionType(Type type, out Type elementType)
+    {
+        if ((type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>)) || (type.IsGenericType && type.GetGenericArguments().Length == 1
+                && typeof(IEnumerable).IsAssignableFrom(type) && !type.IsGenericTypeDefinition))
         {
             elementType = type.GetGenericArguments()[0];
             return true;

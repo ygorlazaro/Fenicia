@@ -203,7 +203,7 @@
                     <MudTd DataLabel="Motivo">@(string.IsNullOrEmpty(context.Reason) ? "—" : context.Reason)</MudTd>
                 </RowTemplate>
                 <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[] { 10, 20, 50, 100 }" RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}" AllItemsText="Todos" />
+                    <MudTablePager PageSizeOptions="[10, 20, 50, 100]" RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}" AllItemsText="Todos" />
                 </PagerContent>
             </MudTable>
         }

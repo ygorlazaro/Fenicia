@@ -60,7 +60,7 @@
                             @RowTemplate(new CrudRowContext<TItem>(context, this))
                         </RowTemplate>
                         <PagerContent>
-                            <MudTablePager PageSizeOptions="new int[] { 10, 20, 50, 100 }"
+                            <MudTablePager PageSizeOptions="[10, 20, 50, 100]"
                                            RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}"
                                            AllItemsText="Todos" />
                         </PagerContent>
@@ -398,13 +398,8 @@
                 }
 
                 var newQuerySb = new System.Text.StringBuilder(newQuery);
-                foreach (var filter in _filters)
+                foreach (var filter in _filters.Where(filter => !string.IsNullOrWhiteSpace(filter.Value)))
                 {
-                    if (string.IsNullOrWhiteSpace(filter.Value))
-                    {
-                        continue;
-                    }
-
                     newQuerySb.Append(newQuerySb.Length > 1 ? '&' : '?');
                     newQuerySb.Append($"filters[{Uri.EscapeDataString(filter.Key)}]={Uri.EscapeDataString(filter.Value)}");
                 }

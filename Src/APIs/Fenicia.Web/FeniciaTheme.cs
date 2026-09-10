@@ -2,9 +2,9 @@ using MudBlazor;
 
 namespace Fenicia.Web;
 
-public static class FeniciaTheme
+internal static class FeniciaTheme
 {
-    public static MudTheme Current { get; } = new()
+    internal static MudTheme Current { get; } = new()
     {
         PaletteLight = new PaletteLight
         {
@@ -52,7 +52,7 @@ public static class FeniciaTheme
         {
             Default = new DefaultTypography
             {
-                FontFamily = new[] { "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif" }
+                FontFamily = ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"]
             },
             H1 = new H1Typography { FontSize = "3rem", FontWeight = "700" },
             H2 = new H2Typography { FontSize = "2.25rem", FontWeight = "700" },

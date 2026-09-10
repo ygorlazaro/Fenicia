@@ -113,16 +113,18 @@ public sealed class EmployeeService(
 
         var created = await employeeRepository.InsertAsync(employee, cancellationToken);
 
-        if (addressId.HasValue)
+        if (!addressId.HasValue)
         {
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = addressId.Value
-            };
-            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+            return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
         }
+
+        var personAddress = new PersonAddressModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            AddressId = addressId.Value
+        };
+        await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
 
         return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
     }

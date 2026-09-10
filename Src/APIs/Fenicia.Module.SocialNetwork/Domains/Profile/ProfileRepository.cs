@@ -5,11 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 
-public interface IProfileRepository : IRepository<ProfileModel>
-{
-    Task<ProfileModel?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-}
-
 public class ProfileRepository(DefaultContext context) : Repository<ProfileModel>(context), IProfileRepository
 {
     public Task<ProfileModel?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)

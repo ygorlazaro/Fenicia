@@ -108,16 +108,18 @@ public sealed class CustomerService(
 
         await customerRepository.InsertAsync(customer, cancellationToken);
 
-        if (addressId.HasValue)
+        if (!addressId.HasValue)
         {
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = addressId.Value
-            };
-            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+            return new AddCustomerResponse(customer.Id, person.Id);
         }
+
+        var personAddress = new PersonAddressModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            AddressId = addressId.Value
+        };
+        await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
 
         return new AddCustomerResponse(customer.Id, person.Id);
     }

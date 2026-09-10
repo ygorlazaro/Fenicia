@@ -107,8 +107,7 @@ public sealed class DashboardService(
 
     private static List<CategoryBreakdownResponse> BuildTopWithOthers(
         List<CategoryBreakdownResponse> categories,
-        int topCount,
-        Func<CategoryBreakdownResponse, double> selector)
+        int topCount)
     {
         if (categories.Count == 0)
         {
@@ -118,18 +117,21 @@ public sealed class DashboardService(
         var top = categories.Take(topCount).ToList();
         var others = categories.Skip(topCount).ToList();
 
-        if (others.Count > 0)
+        if (others.Count <= 0)
         {
-            var otherRevenue = others.Sum(c => c.Revenue);
-            var otherQuantity = others.Sum(c => c.Quantity);
-            top.Add(new CategoryBreakdownResponse
+            return top;
+        }
+
+        var otherRevenue = others.Sum(c => c.Revenue);
+        var otherQuantity = others.Sum(c => c.Quantity);
+        top.Add(
+            new CategoryBreakdownResponse
             {
                 Category = "Outros",
                 Revenue = otherRevenue,
                 Quantity = otherQuantity,
                 IsOther = true
             });
-        }
 
         return top;
     }
@@ -145,8 +147,7 @@ public sealed class DashboardService(
 
         var categoryRevenue = orderList
             .SelectMany(o => o.Details)
-            .Where(d => d.Product.Category != null)
-            .GroupBy(d => d.Product.Category!.Name)
+            .GroupBy(d => d.Product.Category.Name)
             .Select(g => new CategoryBreakdownResponse
             {
                 Category = g.Key,
@@ -157,7 +158,7 @@ public sealed class DashboardService(
             .OrderByDescending(c => c.Revenue)
             .ToList();
 
-        return BuildTopWithOthers(categoryRevenue, 5, c => (double)c.Revenue);
+        return BuildTopWithOthers(categoryRevenue, 5);
     }
 
     private async Task<List<CategoryBreakdownResponse>> CalculateTopCategoriesByQuantityAsync(
@@ -171,8 +172,7 @@ public sealed class DashboardService(
 
         var categoryQuantity = orderList
             .SelectMany(o => o.Details)
-            .Where(d => d.Product.Category != null)
-            .GroupBy(d => d.Product.Category!.Name)
+            .GroupBy(d => d.Product.Category.Name)
             .Select(g => new CategoryBreakdownResponse
             {
                 Category = g.Key,
@@ -183,7 +183,7 @@ public sealed class DashboardService(
             .OrderByDescending(c => c.Quantity)
             .ToList();
 
-        return BuildTopWithOthers(categoryQuantity, 5, c => c.Quantity);
+        return BuildTopWithOthers(categoryQuantity, 5);
     }
 
     private async Task<DailySalesSummaryResponse> CalculateDailySalesSummaryAsync(
@@ -292,7 +292,7 @@ public sealed class DashboardService(
             })
             .ToList();
 
-        var bucketCount = 6;
+        const int bucketCount = 6;
         var bucketSize = dailyData.Count / bucketCount;
         var remainder = dailyData.Count % bucketCount;
 

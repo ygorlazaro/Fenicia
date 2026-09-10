@@ -5,11 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Team;
 
-public interface ITeamRepository : IRepository<TeamModel>
-{
-    new IQueryable<TeamModel> Query();
-}
-
 public class TeamRepository(DefaultContext context) : Repository<TeamModel>(context), ITeamRepository
 {
     public new IQueryable<TeamModel> Query() => DbSet

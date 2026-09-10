@@ -23,29 +23,34 @@ public class SprintService(ISprintRepository repository) : ISprintService
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        return [.. sprints.Select(s => new GetAllSprintResponse(
-            s.Id,
-            s.ProjectId,
-            s.Name,
-            s.StartDate,
-            s.EndDate,
-            s.Description,
-            s.CreatedBy,
-            s.CompanyId))];
+        return
+        [
+            .. sprints.Select(s => new GetAllSprintResponse(
+                s.Id,
+                s.ProjectId,
+                s.Name,
+                s.StartDate,
+                s.EndDate,
+                s.Description,
+                s.CreatedBy,
+                s.CompanyId))
+        ];
     }
 
     public async Task<GetSprintByIdResponse?> GetByIdAsync(GetSprintByIdQuery query, CancellationToken cancellationToken = default)
     {
         var sprint = await repository.GetByIdAsync(query.Id, cancellationToken);
-        return sprint is null ? null : new GetSprintByIdResponse(
-            sprint.Id,
-            sprint.ProjectId,
-            sprint.Name,
-            sprint.StartDate,
-            sprint.EndDate,
-            sprint.Description,
-            sprint.CreatedBy,
-            sprint.CompanyId);
+        return sprint is null
+            ? null
+            : new GetSprintByIdResponse(
+                sprint.Id,
+                sprint.ProjectId,
+                sprint.Name,
+                sprint.StartDate,
+                sprint.EndDate,
+                sprint.Description,
+                sprint.CreatedBy,
+                sprint.CompanyId);
     }
 
     public async Task<AddSprintResponse> AddAsync(AddSprintCommand command, Guid companyId, CancellationToken cancellationToken = default)
@@ -86,15 +91,17 @@ public class SprintService(ISprintRepository repository) : ISprintService
         };
 
         var updated = await repository.UpdateAsync(command.Id, sprint, cancellationToken);
-        return updated is null ? null : new UpdateSprintResponse(
-            updated.Id,
-            updated.ProjectId,
-            updated.Name,
-            updated.StartDate,
-            updated.EndDate,
-            updated.Description,
-            updated.CreatedBy,
-            updated.CompanyId);
+        return updated is not null
+            ? new UpdateSprintResponse(
+                updated.Id,
+                updated.ProjectId,
+                updated.Name,
+                updated.StartDate,
+                updated.EndDate,
+                updated.Description,
+                updated.CreatedBy,
+                updated.CompanyId)
+            : null;
     }
 
     public async Task DeleteAsync(DeleteSprintCommand command, CancellationToken cancellationToken = default)

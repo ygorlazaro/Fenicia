@@ -1,15 +1,14 @@
 ﻿@inherits LayoutComponentBase
 @implements IDisposable
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JsRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ICompanySelectionState CompanyState
-@inject ISnackbar Snackbar
 @inject IUserProfileNotifier UserProfileNotifier
 @inject ILoadingService LoadingService
 
-<MudProgressLinear Indeterminate="true" Visible="@_isLoading" Absolute="true" Top="true" Striped="true" Color="Color.Primary" Size="Size.Small" />
+<MudProgressLinear Indeterminate="true" Visible="@isLoading" Absolute="true" Top="true" Striped="true" Color="Color.Primary" Size="Size.Small" />
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -147,23 +146,6 @@
         color: white;
     }
 
-    .topbar-company {
-        max-width: 220px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: white !important;
-    }
-
-    .topbar-company-name {
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
     .topbar-divider {
         height: 28px;
         margin: 0 4px;
@@ -184,7 +166,7 @@
     private List<UserCompanyItem> companies = [];
     private Guid? selectedCompanyId;
     private string selectedCompanyName = string.Empty;
-    private bool _isLoading;
+    private bool isLoading;
 
     protected override void OnInitialized()
     {
@@ -193,9 +175,9 @@
         LoadingService.LoadingChanged += OnLoadingChanged;
     }
 
-    private void OnLoadingChanged(bool isLoading)
+    private void OnLoadingChanged(bool refIsLoading)
     {
-        _isLoading = isLoading;
+        this.isLoading = refIsLoading;
         InvokeAsync(StateHasChanged);
     }
 
@@ -219,7 +201,7 @@
 
         try
         {
-            await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+            await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
             jsAvailable = true;
             await RefreshAuthAsync();
             if (!companiesLoaded)
@@ -297,7 +279,7 @@
     {
         try
         {
-            var token = await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+            var token = await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
             var loggedIn = !string.IsNullOrEmpty(token);
             if (loggedIn != isLoggedIn)
             {
@@ -331,7 +313,7 @@
     {
         try
         {
-            var token = await JSRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+            var token = await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
             if (string.IsNullOrEmpty(token))
             {
                 return null;
@@ -446,14 +428,14 @@
                 {
                     selectedCompanyName = match.CompanyName;
                     CompanyState.Set(match.Id, match.CompanyName);
-                    await JSRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", companyId.Value.ToString(), 7);
+                    await JsRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", companyId.Value.ToString(), 7);
                 }
                 else
                 {
                     selectedCompanyId = null;
                     selectedCompanyName = string.Empty;
                     await CompanyContext.SetSelectedCompanyIdAsync(null);
-                    await JSRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
+                    await JsRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
                 }
             }
         }

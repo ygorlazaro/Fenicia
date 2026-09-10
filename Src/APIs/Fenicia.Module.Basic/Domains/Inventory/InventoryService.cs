@@ -160,6 +160,30 @@ public sealed class InventoryService(
         };
     }
 
+    private static (List<StockValueByCategoryResponse> StockValueByCategories, decimal TotalStockValue)
+        GetStockValueByCategoryFromZeroMovement(IEnumerable<ZeroMovementProductResponse> zeroMovementProducts)
+    {
+        var grouped = zeroMovementProducts
+            .GroupBy(p => new { p.CategoryId, p.CategoryName })
+            .Select(g =>
+            {
+                var totalValue = g.Sum(p => p.StockValue);
+                return new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
+            })
+            .OrderByDescending(g => g.TotalStockValue)
+            .ToList();
+
+        var totalStockValue = grouped.Sum(g => g.TotalStockValue);
+
+        return (
+        [
+            .. grouped.Select(s => s with
+            {
+                TotalStockValue = totalStockValue > 0 ? s.TotalStockValue / totalStockValue * 100 : 0
+            })
+        ], totalStockValue);
+    }
+
     private async Task<(IEnumerable<Guid> ActiveProductIds, List<ZeroMovementProductResponse> ZeroMovementProducts)>
         GetActiveProductIdsAsync(
             IEnumerable<StockMovementModel> stockMovements,
@@ -181,22 +205,22 @@ public sealed class InventoryService(
         var ancient = now.AddYears(-100);
 
         var zeroMovementProducts = candidateProducts
-             .Select(p =>
-             {
-                 var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
-                 var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
-                 var stockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity;
-                 return new ZeroMovementProductResponse(
-                     p.Id,
-                     p.Name,
-                     p.Category!.Id,
-                     p.Category!.Name,
-                     p.Supplier?.Person.Name,
-                     p.Quantity,
-                     stockValue,
-                     lastDate ?? ancient,
-                     daysWithoutMovement);
-             })
+            .Select(p =>
+            {
+                var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
+                var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
+                var stockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity;
+                return new ZeroMovementProductResponse(
+                    p.Id,
+                    p.Name,
+                    p.Category.Id,
+                    p.Category.Name,
+                    p.Supplier?.Person.Name,
+                    p.Quantity,
+                    stockValue,
+                    lastDate ?? ancient,
+                    daysWithoutMovement);
+            })
             .OrderByDescending(p => p.DaysWithoutMovement)
             .ThenByDescending(p => p.StockValue)
             .Take(20)
@@ -229,29 +253,5 @@ public sealed class InventoryService(
             ZeroMovementPercentage = zeroMovementPercentage
         };
         return summary;
-    }
-
-    private (List<StockValueByCategoryResponse> StockValueByCategories, decimal TotalStockValue)
-        GetStockValueByCategoryFromZeroMovement(List<ZeroMovementProductResponse> zeroMovementProducts)
-    {
-        var grouped = zeroMovementProducts
-            .GroupBy(p => new { p.CategoryId, p.CategoryName })
-            .Select(g =>
-            {
-                var totalValue = g.Sum(p => p.StockValue);
-                return new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
-            })
-            .OrderByDescending(g => g.TotalStockValue)
-            .ToList();
-
-        var totalStockValue = grouped.Sum(g => g.TotalStockValue);
-
-        return (
-        [
-            .. grouped.Select(s => s with
-            {
-                TotalStockValue = totalStockValue > 0 ? s.TotalStockValue / totalStockValue * 100 : 0
-            })
-        ], totalStockValue);
     }
 }

@@ -12,17 +12,11 @@ namespace Fenicia.Module.Basic.Tests.Domains.Address;
 
 public class AddressServiceTests : IDisposable
 {
-    private readonly DbContextOptions<DefaultContext> _dbOptions;
-    private readonly Faker _faker;
-    private readonly Mock<ICompanyContext> _mockCompanyContext;
+    private readonly DbContextOptions<DefaultContext> _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
 
-    public AddressServiceTests()
-    {
-        _dbOptions = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        _faker = new Faker();
-        _mockCompanyContext = new Mock<ICompanyContext>();
-    }
+    private readonly Faker _faker = new();
+    private readonly Mock<ICompanyContext> _mockCompanyContext = new();
 
     public void Dispose()
     {
@@ -197,13 +191,13 @@ public class AddressServiceTests : IDisposable
         result.Should().BeNull();
     }
 
+    private static AddressService CreateService(DefaultContext db)
+    {
+        return new AddressService(new AddressRepository(db));
+    }
+
     private DefaultContext NewDb()
     {
         return new DefaultContext(_dbOptions, _mockCompanyContext.Object);
-    }
-
-    private AddressService CreateService(DefaultContext db)
-    {
-        return new AddressService(new AddressRepository(db));
     }
 }

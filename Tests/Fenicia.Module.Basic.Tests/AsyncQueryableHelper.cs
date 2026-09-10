@@ -7,12 +7,6 @@ namespace Fenicia.Module.Basic.Tests;
 
 public static class AsyncQueryableHelper
 {
-    public static IQueryable<T> AsAsyncQueryable<T>(this IEnumerable<T> source)
-    {
-        var enumerable = source as List<T> ?? [];
-        return new FakeQueryable<T>(enumerable);
-    }
-
     private sealed class FakeQueryable<T> : IOrderedQueryable<T>, IAsyncEnumerable<T>
     {
         internal readonly List<T> Data;
@@ -145,104 +139,129 @@ public static class AsyncQueryableHelper
 
         private object? ExecuteInternal(Expression expression)
         {
-            switch (expression)
+            return expression switch
             {
-                case MethodCallExpression methodCall:
-                {
-                    var method = methodCall.Method;
-                    var sourceArg = Unwrap(methodCall.Arguments[0]);
+                MethodCallExpression methodCall => ExecuteMethodCall(methodCall),
+                LambdaExpression lambda => lambda.Compile().DynamicInvoke(),
+                ConstantExpression constant => constant.Value,
+                _ => throw new NotSupportedException($"Expression not supported: {expression.GetType().Name}")
+            };
+        }
 
-                    var current = sourceArg is ConstantExpression { Value: FakeQueryable<T> fake }
-                        ? fake.Data
-                        : ExecuteInternal(sourceArg) as List<T> ?? data;
+        private object? ExecuteMethodCall(MethodCallExpression methodCall)
+        {
+            var method = methodCall.Method;
+            var sourceArg = Unwrap(methodCall.Arguments[0]);
 
-                    switch (method.Name)
-                    {
-                        case "Include" or "ThenInclude":
-                            return current;
-                        case "Count":
-                            return current.Count;
-                        case "ToList" or "ToListAsync":
-                            return current;
-                        case "FirstOrDefault" or "FirstOrDefaultAsync":
-                            if (methodCall.Arguments.Count == 1)
-                            {
-                                return current.FirstOrDefault();
-                            }
-                            var foPredicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            return CallLinq(current, "FirstOrDefault", foPredicate);
-                        case "First" or "FirstAsync":
-                            if (methodCall.Arguments.Count == 1)
-                            {
-                                return current.First();
-                            }
-                            var firstPredicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            return CallLinq(current, "First", firstPredicate);
-                        case "Any":
-                            if (methodCall.Arguments.Count == 1)
-                            {
-                                return current.Any();
-                            }
-                            var anyPredicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            return CallLinq(current, "Any", anyPredicate);
-                        case "Where":
-                        {
-                            var wherePredicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            return ((IEnumerable<T>)CallLinq(current, "Where", wherePredicate)).ToList();
-                        }
-                        case "OrderBy":
-                        {
-                            var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            return ((IEnumerable<T>)CallLinq(current, "OrderBy", keySelector)).ToList();
-                        }
-                        case "OrderByDescending":
-                        {
-                            var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            return ((IEnumerable<T>)CallLinq(current, "OrderByDescending", keySelector)).ToList();
-                        }
-                        case "Skip":
-                        {
-                            var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
-                            return current.Skip(count).ToList();
-                        }
-                        case "Take":
-                        {
-                            var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
-                            return current.Take(count).ToList();
-                        }
-                        case "Select":
-                        {
-                            var selector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
-                            var selectResult = (IEnumerable<T>)CallLinq(current, "Select", selector);
-                            return selectResult.ToList();
-                        }
-                    }
+            var current = sourceArg is ConstantExpression { Value: FakeQueryable<T> fake }
+                ? fake.Data
+                : ExecuteInternal(sourceArg) as List<T> ?? data;
 
-                    break;
-                }
-                case LambdaExpression lambda:
-                    return lambda.Compile().DynamicInvoke();
-                case ConstantExpression constant:
-                    return constant.Value;
+            return method.Name switch
+            {
+                "Include" or "ThenInclude" => current,
+                "Count" => current.Count,
+                "ToList" or "ToListAsync" => current,
+                "FirstOrDefault" or "FirstOrDefaultAsync" => ExecuteFirstOrDefault(methodCall, current),
+                "First" or "FirstAsync" => ExecuteFirst(methodCall, current),
+                "Any" => ExecuteAny(methodCall, current),
+                "Where" => ExecuteWhere(methodCall, current),
+                "OrderBy" => ExecuteOrderBy(methodCall, current),
+                "OrderByDescending" => ExecuteOrderByDescending(methodCall, current),
+                "Skip" => ExecuteSkip(methodCall, current),
+                "Take" => ExecuteTake(methodCall, current),
+                "Select" => ExecuteSelect(methodCall, current),
+                _ => throw new NotSupportedException($"Method not supported: {method.Name}")
+            };
+        }
+
+        private static object? ExecuteFirstOrDefault(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            if (methodCall.Arguments.Count == 1)
+            {
+                return current.FirstOrDefault();
             }
 
-            throw new NotSupportedException($"Expression not supported: {expression.GetType().Name}");
+            var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            return CallLinq(current, "FirstOrDefault", predicate);
+        }
+
+        private static object? ExecuteFirst(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            if (methodCall.Arguments.Count == 1)
+            {
+                return current.First();
+            }
+
+            var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            return CallLinq(current, "First", predicate);
+        }
+
+        private static object ExecuteAny(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            if (methodCall.Arguments.Count == 1)
+            {
+                return current.Any();
+            }
+
+            var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            return CallLinq(current, "Any", predicate);
+        }
+
+        private static object ExecuteWhere(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            var predicate = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            return ((IEnumerable<T>)CallLinq(current, "Where", predicate)).ToList();
+        }
+
+        private static object ExecuteOrderBy(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            return ((IEnumerable<T>)CallLinq(current, "OrderBy", keySelector)).ToList();
+        }
+
+        private static object ExecuteOrderByDescending(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            var keySelector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            return ((IEnumerable<T>)CallLinq(current, "OrderByDescending", keySelector)).ToList();
+        }
+
+        private static object ExecuteSkip(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
+            return current.Skip(count).ToList();
+        }
+
+        private static object ExecuteTake(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            var count = (int)Evaluate(Unwrap(methodCall.Arguments[1]))!;
+            return current.Take(count).ToList();
+        }
+
+        private static object ExecuteSelect(MethodCallExpression methodCall, IEnumerable<T> current)
+        {
+            var selector = (LambdaExpression)Unwrap(methodCall.Arguments[1]);
+            var selectResult = (IEnumerable<T>)CallLinq(current, "Select", selector);
+            return selectResult.ToList();
         }
 
         private static object CallLinq(IEnumerable<T> source, string methodName, LambdaExpression lambda)
         {
-            if (methodName == "FirstOrDefault" || methodName == "First")
+            switch (methodName)
             {
-                var predicate = (Func<T, bool>)lambda.Compile();
-                return methodName == "FirstOrDefault"
-                    ? source.FirstOrDefault(predicate)!
-                    : source.First(predicate)!;
-            }
-
-            if (methodName == "Any")
-            {
-                var predicate = (Func<T, bool>)lambda.Compile();
-                return source.Any(predicate);
+                case "FirstOrDefault":
+                case "First":
+                {
+                    var predicate = (Func<T, bool>)lambda.Compile();
+                    return methodName == "FirstOrDefault"
+                        ? source.FirstOrDefault(predicate)!
+                        : source.First(predicate)!;
+                }
+                case "Any":
+                {
+                    var predicate = (Func<T, bool>)lambda.Compile();
+                    return source.Any(predicate);
+                }
             }
 
             var elementType = typeof(T);

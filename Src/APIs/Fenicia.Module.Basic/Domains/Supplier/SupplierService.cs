@@ -111,17 +111,19 @@ public sealed class SupplierService(
 
         await supplierRepository.InsertAsync(supplier, cancellationToken);
 
-        if (addressId.HasValue)
+        if (!addressId.HasValue)
         {
-            var personAddress = new PersonAddressModel
-            {
-                Id = Guid.NewGuid(),
-                PersonId = person.Id,
-                AddressId = addressId.Value,
-                CompanyId = companyId
-            };
-            await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+            return supplier.MapToAddSupplierResponse();
         }
+
+        var personAddress = new PersonAddressModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            AddressId = addressId.Value,
+            CompanyId = companyId
+        };
+        await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
 
         return supplier.MapToAddSupplierResponse();
     }

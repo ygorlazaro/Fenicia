@@ -3,7 +3,6 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -158,10 +157,5 @@ public class ProductCategoryServiceTests : IDisposable
 
         // Assert
         _mockRepository.Verify(r => r.DeleteAsync(categoryId, It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    private DefaultContext NewDb()
-    {
-        return new DefaultContext(_dbOptions, new TestCompanyContext());
     }
 }

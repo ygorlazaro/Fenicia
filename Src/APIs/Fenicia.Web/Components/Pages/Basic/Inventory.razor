@@ -331,19 +331,19 @@
     private readonly BarChartOptions _categoryChartOptions = new()
     {
         ShowLegend = false,
-        ChartPalette = new[] { Colors.Blue.Accent3 }
+        ChartPalette = [Colors.Blue.Accent3]
     };
 
     private readonly BarChartOptions _supplierChartOptions = new()
     {
         ShowLegend = false,
-        ChartPalette = new[] { Colors.Green.Accent3 }
+        ChartPalette = [Colors.Green.Accent3]
     };
 
     private readonly BarChartOptions _stockValueByCategoryOptions = new()
     {
         ShowLegend = false,
-        ChartPalette = new[] { Colors.DeepOrange.Accent3 }
+        ChartPalette = [Colors.DeepOrange.Accent3]
     };
 
     private Color ProfitColor => _dashboard is null || _dashboard.ProfitPotential >= 0 ? Color.Success : Color.Error;
@@ -384,7 +384,7 @@
                             Data = BuildTop9WithOthers(_dashboard?.CategoryBreakdown, c => c.TotalQuantity).ToArray()
                         }
                     ];
-                    _categoryChartLabels = BuildTop9Labels(_dashboard?.CategoryBreakdown, c => c.CategoryName, "Outros").ToArray();
+                    _categoryChartLabels = [.. BuildTop9Labels(_dashboard?.CategoryBreakdown, c => c.CategoryName, "Outros")];
                     _supplierChartSeries =
                     [
                         new ChartSeries<double>
@@ -393,7 +393,7 @@
                             Data = BuildTop9WithOthers(_dashboard?.SupplierBreakdown, s => s.TotalQuantity).ToArray()
                         }
                     ];
-                    _supplierChartLabels = BuildTop9Labels(_dashboard?.SupplierBreakdown, s => s.SupplierName, "Outros").ToArray();
+                    _supplierChartLabels = [.. BuildTop9Labels(_dashboard?.SupplierBreakdown, s => s.SupplierName, "Outros")];
                 }
                 catch (Exception ex)
                 {
@@ -422,7 +422,7 @@
                                      Data = BuildTop9WithOthers(_health?.StockValueByCategory, c => (double)c.TotalStockValue).ToArray()
                         }
                     ];
-                    _stockValueByCategoryLabels = BuildTop9Labels(_health?.StockValueByCategory, c => c.CategoryName, "Outros").ToArray();
+                    _stockValueByCategoryLabels = [.. BuildTop9Labels(_health?.StockValueByCategory, c => c.CategoryName, "Outros")];
                 }
                 catch (Exception ex)
                 {

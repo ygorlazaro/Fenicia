@@ -638,14 +638,14 @@
 
     private LineChartOptions _lineOptions = new()
     {
-        ChartPalette = new[] { "#5e35b1", "#e57373", "#81c784" }
+        ChartPalette = ["#5e35b1", "#e57373", "#81c784"]
     };
 
     private DonutChartOptions _donutOptions = new()
     {
         ShowValues = false,
         ShowLegend = false,
-        ChartPalette = new[] { "#5e35b1", "#00bcd4", "#e57373", "#81c784", "#ffb74d", "#64b5f6", "#ba68c8", "#a1887f" }
+        ChartPalette = ["#5e35b1", "#00bcd4", "#e57373", "#81c784", "#ffb74d", "#64b5f6", "#ba68c8", "#a1887f"]
     };
 
     private string[] _revenueChartLabels = [];
@@ -766,43 +766,43 @@
     private void BuildRevenueChart()
     {
         var data = _financial.RevenueVsCost.OrderBy(r => r.Date).ToList();
-        _revenueChartLabels = data.Select(r => r.Period).ToArray();
-        _revenueChartSeries = new List<ChartSeries<double>>
-        {
+        _revenueChartLabels = [.. data.Select(r => r.Period)];
+        _revenueChartSeries =
+        [
             new() { Name = "Receita", Data = data.Select(r => (double)r.Revenue).ToArray() },
-            new() { Name = "Custo",   Data = data.Select(r => (double)r.Cost).ToArray() },
-            new() { Name = "Lucro",   Data = data.Select(r => (double)r.Profit).ToArray() }
-        };
+            new() { Name = "Custo", Data = data.Select(r => (double)r.Cost).ToArray() },
+            new() { Name = "Lucro", Data = data.Select(r => (double)r.Profit).ToArray() }
+        ];
     }
 
     private void BuildStatusChart()
     {
         var data = _orderAnalytics.OrdersByStatus;
-        _statusLabels = data.Select(s => $"{s.Status} ({s.Count})").ToArray();
-        _statusSeries = new List<ChartSeries<double>>
-        {
+        _statusLabels = [.. data.Select(s => $"{s.Status} ({s.Count})")];
+        _statusSeries =
+        [
             new() { Name = "Pedidos", Data = data.Select(s => (double)s.Count).ToArray() }
-        };
+        ];
     }
 
     private void BuildCategoryRevenueChart()
     {
         var data = _financial.TopCategoriesByRevenue;
-        _categoryRevenueLabels = data.Select(c => c.Category).ToArray();
-        _categoryRevenueSeries = new List<ChartSeries<double>>
-        {
+        _categoryRevenueLabels = [.. data.Select(c => c.Category)];
+        _categoryRevenueSeries =
+        [
             new() { Name = "Receita", Data = data.Select(c => (double)c.Revenue).ToArray() }
-        };
+        ];
     }
 
     private void BuildCategoryQuantityChart()
     {
         var data = _financial.TopCategoriesByQuantity;
-        _categoryQuantityLabels = data.Select(c => c.Category).ToArray();
-        _categoryQuantitySeries = new List<ChartSeries<double>>
-        {
+        _categoryQuantityLabels = [.. data.Select(c => c.Category)];
+        _categoryQuantitySeries =
+        [
             new() { Name = "Quantidade", Data = data.Select(c => (double)c.Quantity).ToArray() }
-        };
+        ];
     }
 
     private async Task<T?> ParseAsync<T>(HttpResponseMessage response, string label) where T : class

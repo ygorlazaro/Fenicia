@@ -97,7 +97,7 @@ public class BlockController(BlockService blockService, IProfileService profileS
     {
         var userId = ClaimReader.UserId(User);
         var profile = await profileService.GetByUserIdAsync(userId, cancellationToken)
-            ?? throw new InvalidOperationException("Perfil social não encontrado para o usuário atual.");
+                      ?? throw new InvalidOperationException("Perfil social não encontrado para o usuário atual.");
         return profile.Id;
     }
 }

@@ -7,37 +7,45 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddHttpClient("FeniciaAuth", client =>
-{
-    var apiBaseUrl = builder.Configuration["services:authapi:http:0"] ?? "http://localhost:5000";
-    client.BaseAddress = new Uri(apiBaseUrl);
-})
-.AddHttpMessageHandler<CompanyHeaderHandler>()
-.AddHttpMessageHandler<LoadingHandler>();
+builder.Services.AddHttpClient(
+        "FeniciaAuth",
+        client =>
+        {
+            var apiBaseUrl = builder.Configuration["services:authapi:http:0"] ?? "http://localhost:5000";
+            client.BaseAddress = new Uri(apiBaseUrl);
+        })
+    .AddHttpMessageHandler<CompanyHeaderHandler>()
+    .AddHttpMessageHandler<LoadingHandler>();
 
-builder.Services.AddHttpClient("FeniciaBasic", client =>
-{
-    var apiBaseUrl = builder.Configuration["services:basic:http:0"] ?? "http://localhost:5083";
-    client.BaseAddress = new Uri(apiBaseUrl);
-})
-.AddHttpMessageHandler<CompanyHeaderHandler>()
-.AddHttpMessageHandler<LoadingHandler>();
+builder.Services.AddHttpClient(
+        "FeniciaBasic",
+        client =>
+        {
+            var apiBaseUrl = builder.Configuration["services:basic:http:0"] ?? "http://localhost:5083";
+            client.BaseAddress = new Uri(apiBaseUrl);
+        })
+    .AddHttpMessageHandler<CompanyHeaderHandler>()
+    .AddHttpMessageHandler<LoadingHandler>();
 
-builder.Services.AddHttpClient("FeniciaSocialNetwork", client =>
-{
-    var apiBaseUrl = builder.Configuration["services:socialnetwork:http:0"] ?? "http://localhost:5026";
-    client.BaseAddress = new Uri(apiBaseUrl);
-})
-.AddHttpMessageHandler<CompanyHeaderHandler>()
-.AddHttpMessageHandler<LoadingHandler>();
+builder.Services.AddHttpClient(
+        "FeniciaSocialNetwork",
+        client =>
+        {
+            var apiBaseUrl = builder.Configuration["services:socialnetwork:http:0"] ?? "http://localhost:5026";
+            client.BaseAddress = new Uri(apiBaseUrl);
+        })
+    .AddHttpMessageHandler<CompanyHeaderHandler>()
+    .AddHttpMessageHandler<LoadingHandler>();
 
-builder.Services.AddHttpClient("FeniciaProjects", client =>
-{
-    var apiBaseUrl = builder.Configuration["services:projects:http:0"] ?? "http://localhost:5144";
-    client.BaseAddress = new Uri(apiBaseUrl);
-})
-.AddHttpMessageHandler<CompanyHeaderHandler>()
-.AddHttpMessageHandler<LoadingHandler>();
+builder.Services.AddHttpClient(
+        "FeniciaProjects",
+        client =>
+        {
+            var apiBaseUrl = builder.Configuration["services:projects:http:0"] ?? "http://localhost:5144";
+            client.BaseAddress = new Uri(apiBaseUrl);
+        })
+    .AddHttpMessageHandler<CompanyHeaderHandler>()
+    .AddHttpMessageHandler<LoadingHandler>();
 
 builder.Services.AddScoped<ICompanyContextService, CompanyContextService>();
 builder.Services.AddScoped<ICompanySelectionState, CompanySelectionState>();

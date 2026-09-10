@@ -13,12 +13,13 @@ internal static partial class DbInitializer
             return;
         }
 
-        context.AuthCompanies.Add(new CompanyModel
-        {
-            Id = Guid.Parse("d6f7e2c6-2986-47a5-8884-c3c249546ba7"),
-            Name = "Gato Ninja",
-            Cnpj = "23351185000184"
-        });
+        context.AuthCompanies.Add(
+            new CompanyModel
+            {
+                Id = Guid.Parse("d6f7e2c6-2986-47a5-8884-c3c249546ba7"),
+                Name = "Gato Ninja",
+                Cnpj = "23351185000184"
+            });
 
         context.SaveChanges();
     }

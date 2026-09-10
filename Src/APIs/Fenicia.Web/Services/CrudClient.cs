@@ -5,22 +5,6 @@ using MudBlazor;
 
 namespace Fenicia.Web.Services;
 
-public interface ICrudClient
-{
-    Task<TableData<TItem>> GetPageAsync<TItem>(
-        string endpoint,
-        TableState state,
-        string? search = null,
-        Dictionary<string, string>? filters = null,
-        CancellationToken ct = default);
-
-    Task<HttpResponseMessage> PostAsync<TPayload>(string endpoint, TPayload payload, CancellationToken ct);
-
-    Task<HttpResponseMessage> PatchAsync<TPayload>(string endpoint, Guid id, TPayload payload, CancellationToken ct);
-
-    Task<HttpResponseMessage> DeleteAsync(string endpoint, Guid id, CancellationToken ct);
-}
-
 public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextService companyContext) : ICrudClient
 {
     private static readonly JsonSerializerOptions _jsonOptions = new()
@@ -56,13 +40,7 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
 
         if (filters is not null && filters.Count > 0)
         {
-            foreach (var filter in filters)
-            {
-                if (!string.IsNullOrWhiteSpace(filter.Value))
-                {
-                    query += $"&filters[{Uri.EscapeDataString(filter.Key)}]={Uri.EscapeDataString(filter.Value)}";
-                }
-            }
+            query = filters.Where(filter => !string.IsNullOrWhiteSpace(filter.Value)).Aggregate(query, (current, filter) => current + $"&filters[{Uri.EscapeDataString(filter.Key)}]={Uri.EscapeDataString(filter.Value)}");
         }
 
         var response = await client.GetAsync($"{endpoint}{query}", ct);
@@ -130,11 +108,13 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
         }
 
         var companyId = await companyContext.GetSelectedCompanyIdAsync();
-        if (companyId.HasValue)
+        if (!companyId.HasValue)
         {
-            client.DefaultRequestHeaders.Remove("CompanyId");
-            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            return client;
         }
+
+        client.DefaultRequestHeaders.Remove("CompanyId");
+        client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
 
         return client;
     }

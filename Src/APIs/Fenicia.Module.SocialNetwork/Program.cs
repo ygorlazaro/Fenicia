@@ -25,19 +25,19 @@ public class Program
             .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
             .AddFeniciaDependencyInjection(() =>
             {
-            builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-            builder.Services.AddHttpContextAccessor();
-            builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
-            builder.Services.AddScoped<IProfileService, ProfileService>();
-            builder.Services.AddScoped<FeedRepository>();
-            builder.Services.AddScoped<LikeRepository>();
-            builder.Services.AddScoped<CommentRepository>();
-            builder.Services.AddScoped<AttachmentRepository>();
-            builder.Services.AddScoped<ShareRepository>();
-            builder.Services.AddScoped<ReportRepository>();
-            builder.Services.AddScoped<IBlockRepository, BlockRepository>();
-            builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
-            builder.Services.Configure<UploadOptions>(configuration.GetSection("Upload"));
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+                builder.Services.AddScoped<IProfileService, ProfileService>();
+                builder.Services.AddScoped<FeedRepository>();
+                builder.Services.AddScoped<LikeRepository>();
+                builder.Services.AddScoped<CommentRepository>();
+                builder.Services.AddScoped<AttachmentRepository>();
+                builder.Services.AddScoped<ShareRepository>();
+                builder.Services.AddScoped<ReportRepository>();
+                builder.Services.AddScoped<IBlockRepository, BlockRepository>();
+                builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+                builder.Services.Configure<UploadOptions>(configuration.GetSection("Upload"));
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
