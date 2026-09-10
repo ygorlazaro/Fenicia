@@ -40,7 +40,7 @@
 </MudGrid>
 
 @code {
-    [Parameter, EditorRequired] public List<ChartSeries<double>> Series { get; set; } = [];
-    [Parameter, EditorRequired] public string[] Labels { get; set; } = [];
-    [Parameter, EditorRequired] public BarChartOptions Options { get; set; } = new();
+    [Parameter][EditorRequired] public List<ChartSeries<double>> Series { get; set; } = [];
+    [Parameter][EditorRequired] public string[] Labels { get; set; } = [];
+    [Parameter][EditorRequired] public BarChartOptions Options { get; set; } = new();
 }

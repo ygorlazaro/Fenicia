@@ -84,7 +84,7 @@
                                                OnClick="@(() => OnDecrease.InvokeAsync(item.ProductId))" />
                                 <MudNumericField T="double"
                                                  Value="@item.Quantity"
-                                                  ValueChanged="@((double v) => OnUpdateQty.InvokeAsync(new OrderFormCartUpdatePayload(item.ProductId, v)))"
+                                                  ValueChanged="@(v => OnUpdateQty.InvokeAsync(new OrderFormCartUpdatePayload(item.ProductId, v)))"
                                                  Variant="Variant.Outlined"
                                                  Margin="Margin.Dense"
                                                  Min="0.01"
@@ -186,7 +186,12 @@
                         <MudStack Spacing="0" AlignItems="AlignItems.End">
                             <MudChip T="string"
                                      Size="Size.Small"
-                                     Color="@(o.Status == "Approved" ? Color.Success : o.Status == "Cancelled" ? Color.Error : Color.Warning)"
+                                     Color="@(o.Status switch
+                                            {
+                                                "Approved" => Color.Success,
+                                                "Cancelled" => Color.Error,
+                                                _ => Color.Warning
+                                            })"
                                      Variant="Variant.Filled">
                                 @o.Status
                             </MudChip>
@@ -200,16 +205,16 @@
 </MudPaper>
 
 @code {
-    [Parameter, EditorRequired] public List<OrderFormCartItem> Cart { get; set; } = [];
-    [Parameter, EditorRequired] public Guid CartCustomerId { get; set; }
+    [Parameter][EditorRequired] public List<OrderFormCartItem> Cart { get; set; } = [];
+    [Parameter][EditorRequired] public Guid CartCustomerId { get; set; }
     [Parameter] public Guid? CartEmployeeId { get; set; }
     [Parameter] public PaymentMethod CartPaymentMethod { get; set; } = PaymentMethod.Cash;
     [Parameter] public OrderStatus CartStatus { get; set; } = OrderStatus.Approved;
     [Parameter] public decimal CartDiscount { get; set; }
     [Parameter] public string? CartNotes { get; set; }
-    [Parameter, EditorRequired] public List<OrderFormCustomerOption> Customers { get; set; } = [];
-    [Parameter, EditorRequired] public List<OrderFormEmployeeOption> Employees { get; set; } = [];
-    [Parameter, EditorRequired] public List<OrderFormRecentOrderDto>? RecentOrders { get; set; }
+    [Parameter][EditorRequired] public List<OrderFormCustomerOption> Customers { get; set; } = [];
+    [Parameter][EditorRequired] public List<OrderFormEmployeeOption> Employees { get; set; } = [];
+    [Parameter][EditorRequired] public List<OrderFormRecentOrderDto>? RecentOrders { get; set; }
     [Parameter] public bool IsSubmitting { get; set; }
     [Parameter] public EventCallback<Guid> OnRemove { get; set; }
     [Parameter] public EventCallback<OrderFormCartUpdatePayload> OnUpdateQty { get; set; }

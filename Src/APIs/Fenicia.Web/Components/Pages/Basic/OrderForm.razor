@@ -1,11 +1,9 @@
 @page "/basic/order/new"
 @rendermode InteractiveServer
-@inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
 @inject ISnackbar Snackbar
-@using Fenicia.Web.Components.Shared
 @using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
@@ -23,32 +21,32 @@
     {
         <MudGrid Spacing="3">
             <MudItem xs="12">
-                <OrderFormHeader Loading="_isLoading"
-                                 HasCartItems="_cart.Any()"
+                <OrderFormHeader Loading="isLoading"
+                                 HasCartItems="cart.Any()"
                                  OnRefresh="LoadAllAsync"
                                  OnClearCart="ClearCart" />
             </MudItem>
 
             <MudItem xs="12" md="7" lg="8">
-                <OrderFormProductSearch Products="_products"
+                <OrderFormProductSearch Products="products"
                                         Search="_search"
-                                        Loading="_isLoading"
+                                        Loading="isLoading"
                                         OnSearchKeyDown="OnSearchKeyDown"
                                         OnProductClick="AddToCart" />
             </MudItem>
 
             <MudItem xs="12" md="5" lg="4">
-                <OrderFormCart Cart="_cart"
-                               CartCustomerId="_cartCustomerId"
-                               CartEmployeeId="_cartEmployeeId"
-                               CartPaymentMethod="_cartPaymentMethod"
-                               CartStatus="_cartStatus"
-                               CartDiscount="_cartDiscount"
+                <OrderFormCart Cart="cart"
+                               CartCustomerId="cartCustomerId"
+                               CartEmployeeId="cartEmployeeId"
+                               CartPaymentMethod="CartPaymentMethod"
+                               CartStatus="CartStatus"
+                               CartDiscount="cartDiscount"
                                CartNotes="_cartNotes"
-                               Customers="_customers"
-                               Employees="_employees"
-                               RecentOrders="_recentOrders"
-                               IsSubmitting="_isSubmitting"
+                               Customers="customers"
+                               Employees="employees"
+                               RecentOrders="recentOrders"
+                               IsSubmitting="isSubmitting"
                                 OnRemove="RemoveFromCart"
                                 OnUpdateQty="@((payload) => UpdateQty(payload.ProductId, payload.Qty))"
                                 OnIncrease="IncreaseQty"
@@ -57,77 +55,13 @@
             </MudItem>
         </MudGrid>
 
-        <OrderFormSuccessDialog Visible="_showSuccessDialog"
+        <OrderFormSuccessDialog Visible="showSuccessDialog"
                                 LastOrderNumber="_lastOrderNumber"
-                                LastOrderTotal="_lastOrderTotal"
-                                LastOrderId="_lastOrderId"
+                                LastOrderTotal="lastOrderTotal"
+                                LastOrderId="lastOrderId"
                                 OnStartNewSale="StartNewSale" />
     }
 </MainLayout>
-
-<style>
-    .pdv-product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 12px;
-        max-height: calc(100vh - 340px);
-        overflow-y: auto;
-        padding: 4px;
-    }
-
-    .pdv-product-card {
-        cursor: pointer;
-        transition: transform 0.12s ease, box-shadow 0.12s ease;
-    }
-
-    .pdv-product-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 14px rgba(94, 53, 177, 0.18) !important;
-    }
-
-    .pdv-product-disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-    }
-
-    .pdv-product-disabled:hover {
-        transform: none;
-        box-shadow: none !important;
-    }
-
-    .pdv-product-name {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 36px;
-        line-height: 1.2;
-    }
-
-    .pdv-cart {
-        position: sticky;
-        top: 80px;
-    }
-
-    .pdv-cart-items {
-        max-height: 320px;
-        overflow-y: auto;
-    }
-
-    .pdv-cart-item-name {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        line-height: 1.2;
-        flex: 1;
-    }
-
-    .pdv-recent-orders {
-        max-height: 260px;
-        overflow-y: auto;
-    }
-</style>
 
 @code {
     #pragma warning disable CS0169, CS0649
@@ -139,29 +73,28 @@
     };
 
     private bool isLoggedIn;
-    private bool _isLoading = true;
-    private bool _isSubmitting;
+    private bool isLoading = true;
+    private bool isSubmitting;
 
-    private string? _search;
+    private string? search;
 
-    private List<OrderFormDashboardProductDto> _products = [];
-    private List<OrderFormCustomerOption> _customers = [];
-    private List<OrderFormEmployeeOption> _employees = [];
-    private List<OrderFormRecentOrderDto>? _recentOrders;
+    private List<OrderFormDashboardProductDto> products = [];
+    private List<OrderFormCustomerOption> customers = [];
+    private List<OrderFormEmployeeOption> employees = [];
+    private List<OrderFormRecentOrderDto>? recentOrders;
 
-    private List<OrderFormCartItem> _cart = [];
+    private readonly List<OrderFormCartItem> cart = [];
 
-    private Guid _cartCustomerId;
-    private Guid? _cartEmployeeId;
-    private PaymentMethod _cartPaymentMethod = PaymentMethod.Cash;
-    private OrderStatus _cartStatus = OrderStatus.Approved;
-    private decimal _cartDiscount;
-    private string? _cartNotes;
+    private Guid cartCustomerId;
+    private Guid? cartEmployeeId;
+    private const PaymentMethod CartPaymentMethod = PaymentMethod.Cash;
+    private const OrderStatus CartStatus = OrderStatus.Approved;
+    private decimal cartDiscount;
+    private string? cartNotes;
 
-    private bool _showSuccessDialog;
-    private string? _lastOrderNumber;
-    private decimal _lastOrderTotal;
-    private Guid _lastOrderId;
+    private bool showSuccessDialog;
+    private decimal lastOrderTotal;
+    private Guid lastOrderId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -185,7 +118,7 @@
         }
         else
         {
-            _isLoading = false;
+            isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -194,7 +127,7 @@
     {
         try
         {
-            _isLoading = true;
+            isLoading = true;
             StateHasChanged();
 
             var client = HttpClientFactory.CreateClient("FeniciaBasic");
@@ -221,27 +154,27 @@
             if (productsTask.Result.IsSuccessStatusCode)
             {
                 var body = await productsTask.Result.Content.ReadAsStringAsync();
-                _products = JsonSerializer.Deserialize<List<OrderFormDashboardProductDto>>(body, JsonOptions) ?? [];
+                products = JsonSerializer.Deserialize<List<OrderFormDashboardProductDto>>(body, JsonOptions) ?? [];
             }
 
             if (customersTask.Result.IsSuccessStatusCode)
             {
                 var body = await customersTask.Result.Content.ReadAsStringAsync();
-                _customers = JsonSerializer.Deserialize<List<OrderFormCustomerOption>>(body, JsonOptions) ?? [];
+                customers = JsonSerializer.Deserialize<List<OrderFormCustomerOption>>(body, JsonOptions) ?? [];
             }
 
             if (employeesTask.Result.IsSuccessStatusCode)
             {
                 var body = await employeesTask.Result.Content.ReadAsStringAsync();
-                _employees = JsonSerializer.Deserialize<List<OrderFormEmployeeOption>>(body, JsonOptions) ?? [];
+                employees = JsonSerializer.Deserialize<List<OrderFormEmployeeOption>>(body, JsonOptions) ?? [];
             }
 
-            _recentOrders = [];
+            recentOrders = [];
             if (recentOrdersTask.Result.IsSuccessStatusCode)
             {
                 var body = await recentOrdersTask.Result.Content.ReadAsStringAsync();
                 var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<OrderFormRecentOrderDto>>(body, JsonOptions);
-                _recentOrders = paginated?.Data ?? [];
+                recentOrders = paginated?.Data ?? [];
             }
         }
         catch (Exception ex)
@@ -250,7 +183,7 @@
         }
         finally
         {
-            _isLoading = false;
+            isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -271,7 +204,7 @@
             return;
         }
 
-        var existing = _cart.FirstOrDefault(c => c.ProductId == product.Id);
+        var existing = cart.FirstOrDefault(c => c.ProductId == product.Id);
         if (existing is not null)
         {
             if (existing.Quantity + 1 > product.Quantity)
@@ -281,11 +214,11 @@
             }
 
             existing.Quantity += 1;
-            existing.Subtotal = existing.UnitPrice * (decimal)existing.Quantity - existing.DiscountAmount;
+            existing.Subtotal = (existing.UnitPrice * (decimal)existing.Quantity) - existing.DiscountAmount;
         }
         else
         {
-            _cart.Add(new OrderFormCartItem
+            cart.Add(new OrderFormCartItem
             {
                 ProductId = product.Id,
                 Name = product.Name,
@@ -301,19 +234,19 @@
 
     private void RemoveFromCart(Guid productId)
     {
-        _cart.RemoveAll(c => c.ProductId == productId);
+        cart.RemoveAll(c => c.ProductId == productId);
         StateHasChanged();
     }
 
     private void IncreaseQty(Guid productId)
     {
-        var item = _cart.FirstOrDefault(c => c.ProductId == productId);
+        var item = cart.FirstOrDefault(c => c.ProductId == productId);
         if (item is null)
         {
             return;
         }
 
-        var product = _products.FirstOrDefault(p => p.Id == productId);
+        var product = products.FirstOrDefault(p => p.Id == productId);
         if (product is not null && item.Quantity + 1 > product.Quantity)
         {
             Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
@@ -321,13 +254,13 @@
         }
 
         item.Quantity += 1;
-        item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
+        item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
         StateHasChanged();
     }
 
     private void DecreaseQty(Guid productId)
     {
-        var item = _cart.FirstOrDefault(c => c.ProductId == productId);
+        var item = cart.FirstOrDefault(c => c.ProductId == productId);
         if (item is null)
         {
             return;
@@ -336,11 +269,11 @@
         item.Quantity -= 1;
         if (item.Quantity <= 0)
         {
-            _cart.RemoveAll(c => c.ProductId == productId);
+            cart.RemoveAll(c => c.ProductId == productId);
         }
         else
         {
-            item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
+            item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
         }
 
         StateHasChanged();
@@ -348,7 +281,7 @@
 
     private void UpdateQty(Guid productId, double newQty)
     {
-        var item = _cart.FirstOrDefault(c => c.ProductId == productId);
+        var item = cart.FirstOrDefault(c => c.ProductId == productId);
         if (item is null)
         {
             return;
@@ -356,12 +289,12 @@
 
         if (newQty <= 0)
         {
-            _cart.RemoveAll(c => c.ProductId == productId);
+            cart.RemoveAll(c => c.ProductId == productId);
             StateHasChanged();
             return;
         }
 
-        var product = _products.FirstOrDefault(p => p.Id == productId);
+        var product = products.FirstOrDefault(p => p.Id == productId);
         if (product is not null && newQty > product.Quantity)
         {
             Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
@@ -372,21 +305,21 @@
             item.Quantity = newQty;
         }
 
-        item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
+        item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
         StateHasChanged();
     }
 
     private void ClearCart()
     {
-        _cart.Clear();
-        _cartDiscount = 0;
-        _cartNotes = null;
+        cart.Clear();
+        cartDiscount = 0;
+        cartNotes = null;
         StateHasChanged();
     }
 
     private void StartNewSale()
     {
-        _showSuccessDialog = false;
+        showSuccessDialog = false;
         ClearCart();
         _ = LoadRecentOrdersAsync();
     }
@@ -414,7 +347,7 @@
             {
                 var body = await response.Content.ReadAsStringAsync();
                 var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<OrderFormRecentOrderDto>>(body, JsonOptions);
-                _recentOrders = paginated?.Data ?? [];
+                recentOrders = paginated?.Data ?? [];
                 await InvokeAsync(StateHasChanged);
             }
         }
@@ -426,14 +359,14 @@
 
     private async Task FinalizeSaleAsync()
     {
-        if (!_cart.Any() || _cartCustomerId == Guid.Empty)
+        if (!cart.Any() || cartCustomerId == Guid.Empty)
         {
             return;
         }
 
         try
         {
-            _isSubmitting = true;
+            isSubmitting = true;
             StateHasChanged();
 
             var userId = await CompanyContext.GetUserIdAsync();
@@ -456,19 +389,19 @@
             var payload = new
             {
                 UserId = userId,
-                CustomerId = _cartCustomerId,
+                CustomerId = cartCustomerId,
                 SaleDate = DateTime.UtcNow,
-                Status = _cartStatus,
-                PaymentMethod = _cartPaymentMethod,
-                EmployeeId = _cartEmployeeId,
-                Notes = _cartNotes,
-                DiscountAmount = _cartDiscount,
-                Details = _cart.Select(c => new
+                Status = CartStatus,
+                PaymentMethod = CartPaymentMethod,
+                EmployeeId = cartEmployeeId,
+                Notes = cartNotes,
+                DiscountAmount = cartDiscount,
+                Details = cart.Select(c => new
                 {
-                    ProductId = c.ProductId,
+                    c.ProductId,
                     Price = c.UnitPrice,
-                    Quantity = c.Quantity,
-                    DiscountAmount = c.DiscountAmount
+                    c.Quantity,
+                    c.DiscountAmount
                 }).ToList()
             };
 
@@ -485,12 +418,11 @@
             var created = JsonSerializer.Deserialize<OrderFormCreateOrderResponseDto>(json, JsonOptions);
             if (created is not null)
             {
-                _lastOrderId = created.Id;
-                _lastOrderNumber = created.OrderNumber;
-                _lastOrderTotal = created.TotalAmount;
+                lastOrderId = created.Id;
+                lastOrderTotal = created.TotalAmount;
             }
 
-            _showSuccessDialog = true;
+            showSuccessDialog = true;
             Snackbar.Add("Pedido criado com sucesso!", Severity.Success);
         }
         catch (Exception ex)
@@ -499,7 +431,7 @@
         }
         finally
         {
-            _isSubmitting = false;
+            isSubmitting = false;
             await InvokeAsync(StateHasChanged);
         }
     }

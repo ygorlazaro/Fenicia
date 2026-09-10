@@ -5,7 +5,7 @@
 @using Fenicia.Web.Components.Shared
 @using System.Text.Json
 
-<CrudPage @ref="_crudPage" TItem="SupplierDto"
+<CrudPage @ref="crudPage" TItem="SupplierDto"
           PageTitle="Fornecedores"
           PageSubtitle="Gerencie os fornecedores da sua empresa"
           EntityNamePlural="fornecedores"
@@ -51,100 +51,100 @@
     <AddModalBody>
         <MudGrid Spacing="2">
             <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="_add.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+                <MudTextField @bind-Value="add.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
             </MudItem>
 
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_add.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
+                <MudTextField @bind-Value="add.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_add.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
             </MudItem>
 
             <MudItem xs="12">
                 <MudText Typo="Typo.subtitle2" Class="mt-2">Endereço</MudText>
             </MudItem>
             <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="_add.Street" Label="Rua" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Street" Label="Rua" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.Number" Label="Número" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Number" Label="Número" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.Complement" Label="Complemento" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Complement" Label="Complemento" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.ZipCode" Label="CEP" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.ZipCode" Label="CEP" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_add.City" Label="Cidade" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.City" Label="Cidade" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="_add.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var state in _states)
+                <MudSelect T="Guid?" @bind-Value="add.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
+                    @foreach (var state in states)
                     {
                         <MudSelectItem T="Guid?" Value="@state.Id">@state.Uf — @state.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_add.Country" Label="País" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Country" Label="País" Variant="Variant.Outlined" />
             </MudItem>
         </MudGrid>
     </AddModalBody>
     <EditModalBody>
         <MudGrid Spacing="2">
             <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="_edit.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+                <MudTextField @bind-Value="edit.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Document" Label="Documento (CPF/CNPJ)" Variant="Variant.Outlined" />
             </MudItem>
 
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_edit.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
+                <MudTextField @bind-Value="edit.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_edit.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.PhoneNumber" Label="Telefone" Variant="Variant.Outlined" />
             </MudItem>
 
             <MudItem xs="12">
                 <MudText Typo="Typo.subtitle2" Class="mt-2">Endereço</MudText>
             </MudItem>
             <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="_edit.Street" Label="Rua" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Street" Label="Rua" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.Number" Label="Número" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Number" Label="Número" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.Complement" Label="Complemento" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Complement" Label="Complemento" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Neighborhood" Label="Bairro" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.ZipCode" Label="CEP" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.ZipCode" Label="CEP" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_edit.City" Label="Cidade" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.City" Label="Cidade" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="_edit.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var state in _states)
+                <MudSelect T="Guid?" @bind-Value="edit.StateId" Label="Estado" Variant="Variant.Outlined" Clearable="true">
+                    @foreach (var state in states)
                     {
                         <MudSelectItem T="Guid?" Value="@state.Id">@state.Uf — @state.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_edit.Country" Label="País" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Country" Label="País" Variant="Variant.Outlined" />
             </MudItem>
         </MudGrid>
     </EditModalBody>
@@ -156,11 +156,11 @@
         PropertyNameCaseInsensitive = true
     };
 
-    private List<StateOption> _states = new();
-    private SupplierFormModel _add = new();
-    private SupplierFormModel _edit = new();
+    private List<StateOption> states = new();
+    private SupplierFormModel add = new();
+    private SupplierFormModel edit = new();
 
-    private CrudPage<SupplierDto> _crudPage = default!;
+    private CrudPage<SupplierDto> crudPage = default!;
 
     protected override Task OnInitializedAsync()
     {
@@ -195,20 +195,20 @@
             {
                 var body = await response.Content.ReadAsStringAsync();
                 var items = JsonSerializer.Deserialize<List<StateOption>>(body, JsonOptions);
-                _states = items ?? new();
+                states = items ?? new();
             }
         }
         catch
         {
-            _states = new();
+            states = new();
         }
     }
 
-    private void ResetForm() => _add = new SupplierFormModel();
+    private void ResetForm() => add = new SupplierFormModel();
 
     private void LoadForm(SupplierDto item)
     {
-        _edit = item is null
+        edit = item is null
             ? new SupplierFormModel()
             : new SupplierFormModel
             {
@@ -229,7 +229,7 @@
 
     private object CreatePayload(CrudModalContext<SupplierDto> ctx)
     {
-        var model = ctx.IsAdd ? _add : _edit;
+        var model = ctx.IsAdd ? add : edit;
         var address = BuildAddress(model);
         return new
         {
@@ -285,6 +285,7 @@
         public bool Equals(SupplierDto? other)
         {
             if (other is null) return false;
+
             return Id == other.Id && Name == other.Name;
         }
 

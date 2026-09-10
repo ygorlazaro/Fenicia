@@ -1,0 +1,32 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
+    <MudLink Href="@($"/basic/order/{Item.Id}")" Underline="Underline.Hover">
+        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Info" />
+    </MudLink>
+</MudTd>
+<MudTd DataLabel="Número">@Item.OrderNumber</MudTd>
+<MudTd DataLabel="Cliente">
+    <MudLink Href="@($"/basic/customer?edit={Item.CustomerId}")" Underline="Underline.Hover">
+        @Item.CustomerName
+    </MudLink>
+</MudTd>
+<MudTd DataLabel="Vendedor">
+    @if (Item.EmployeeId.HasValue && !string.IsNullOrEmpty(Item.EmployeeName))
+    {
+        <MudLink Href="@($"/basic/employee?edit={Item.EmployeeId}")" Underline="Underline.Hover">
+            @Item.EmployeeName
+        </MudLink>
+    }
+    else
+    {
+        <text>—</text>
+    }
+</MudTd>
+<MudTd DataLabel="Itens" Style="text-align: right">@Item.TotalItems</MudTd>
+<MudTd DataLabel="Total" Style="text-align: right">@Money.Format(Item.TotalAmount)</MudTd>
+<MudTd DataLabel="Data">@Item.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudTd>
+
+@code {
+    [Parameter] public OrderDto Item { get; set; } = default!;
+}

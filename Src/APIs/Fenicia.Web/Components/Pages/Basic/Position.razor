@@ -4,7 +4,7 @@
 @using Fenicia.Web.Components.Shared
 @inject NavigationManager Navigation
 
-<CrudPage @ref="_crudPage" TItem="PositionDto"
+<CrudPage @ref="crudPage" TItem="PositionDto"
           PageTitle="Cargos"
           PageSubtitle="Gerencie os cargos da sua empresa"
           EntityNamePlural="cargos"
@@ -42,18 +42,18 @@
         </MudTd>
     </RowTemplate>
     <AddModalBody>
-        <MudTextField @bind-Value="_addName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+        <MudTextField @bind-Value="addName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
     </AddModalBody>
     <EditModalBody>
-        <MudTextField @bind-Value="_editName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+        <MudTextField @bind-Value="editName" Label="Nome do Cargo" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
     </EditModalBody>
 </CrudPage>
 
 @code {
-    private string _addName = string.Empty;
-    private string _editName = string.Empty;
+    private string addName = string.Empty;
+    private string editName = string.Empty;
 
-    private CrudPage<PositionDto> _crudPage = default!;
+    private CrudPage<PositionDto> crudPage = default!;
 
     protected override Task OnInitializedAsync()
     {
@@ -64,13 +64,13 @@
     {
     }
 
-    private void ResetForm() => _addName = string.Empty;
+    private void ResetForm() => addName = string.Empty;
 
-    private void LoadForm(PositionDto item) => _editName = item?.Name ?? string.Empty;
+    private void LoadForm(PositionDto item) => editName = item?.Name ?? string.Empty;
 
     private object CreatePayload(CrudModalContext<PositionDto> ctx)
     {
-        var name = ctx.IsAdd ? _addName : _editName;
+        var name = ctx.IsAdd ? addName : editName;
         return new
         {
             Name = name
@@ -85,6 +85,7 @@
         public bool Equals(PositionDto? other)
         {
             if (other is null) return false;
+
             return Id == other.Id && Name == other.Name;
         }
 

@@ -5,7 +5,7 @@
 @using Fenicia.Web.Components.Shared
 @using System.Text.Json
 
-<CrudPage @ref="_crudPage" TItem="ProductDto"
+<CrudPage @ref="crudPage" TItem="ProductDto"
           PageTitle="Produtos"
           PageSubtitle="Gerencie o catálogo de produtos da sua empresa"
           EntityNamePlural="produtos"
@@ -51,118 +51,118 @@
     <AddModalBody>
         <MudGrid Spacing="2">
             <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="_add.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+                <MudTextField @bind-Value="add.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.SKU" Label="SKU" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.SKU" Label="SKU" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="_add.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="decimal?" @bind-Value="add.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="_add.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
+                <MudNumericField T="decimal" @bind-Value="add.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="_add.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
+                <MudNumericField T="double" @bind-Value="add.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="_add.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="int?" @bind-Value="add.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="_add.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="int?" @bind-Value="add.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid" @bind-Value="_add.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
-                    @foreach (var category in _categories)
+                <MudSelect T="Guid" @bind-Value="add.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
+                    @foreach (var category in categories)
                     {
                         <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="_add.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var supplier in _suppliers)
+                <MudSelect T="Guid?" @bind-Value="add.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
+                    @foreach (var supplier in suppliers)
                     {
                         <MudSelectItem T="Guid?" Value="@supplier.Id">@supplier.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
+                <MudTextField @bind-Value="add.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="_add.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="decimal?" @bind-Value="add.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_add.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
+                <MudTextField @bind-Value="add.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
             </MudItem>
             <MudItem xs="12" sm="12">
-                <MudTextField @bind-Value="_add.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="add.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_add.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
+                <MudTextField @bind-Value="add.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
             </MudItem>
         </MudGrid>
     </AddModalBody>
     <EditModalBody>
         <MudGrid Spacing="2">
             <MudItem xs="12" sm="8">
-                <MudTextField @bind-Value="_edit.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
+                <MudTextField @bind-Value="edit.Name" Label="Nome" Variant="Variant.Outlined" Required="true" RequiredError="Nome é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.SKU" Label="SKU" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.SKU" Label="SKU" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.Barcode" Label="Código de Barras" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="_edit.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="decimal?" @bind-Value="edit.CostPrice" Label="Preço de Custo" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="_edit.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
+                <MudNumericField T="decimal" @bind-Value="edit.SalesPrice" Label="Preço de Venda" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Preço de venda é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="_edit.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
+                <MudNumericField T="double" @bind-Value="edit.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="_edit.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="int?" @bind-Value="edit.MinStockLevel" Label="Estoque Mínimo" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="int?" @bind-Value="_edit.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="int?" @bind-Value="edit.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid" @bind-Value="_edit.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
-                    @foreach (var category in _categories)
+                <MudSelect T="Guid" @bind-Value="edit.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
+                    @foreach (var category in categories)
                     {
                         <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="_edit.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var supplier in _suppliers)
+                <MudSelect T="Guid?" @bind-Value="edit.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
+                    @foreach (var supplier in suppliers)
                     {
                         <MudSelectItem T="Guid?" Value="@supplier.Id">@supplier.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
+                <MudTextField @bind-Value="edit.UnitOfMeasure" Label="Unidade" Variant="Variant.Outlined" Placeholder="un, kg, m" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal?" @bind-Value="_edit.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="decimal?" @bind-Value="edit.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_edit.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
+                <MudTextField @bind-Value="edit.Dimensions" Label="Dimensões" Variant="Variant.Outlined" Placeholder="L x A x P" />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_edit.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="edit.ImageUrl" Label="URL da Imagem" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_edit.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
+                <MudTextField @bind-Value="edit.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
             </MudItem>
         </MudGrid>
     </EditModalBody>
@@ -174,13 +174,13 @@
         PropertyNameCaseInsensitive = true
     };
 
-    private List<CategoryOption> _categories = new();
-    private List<SupplierOption> _suppliers = new();
+    private List<CategoryOption> categories = new();
+    private List<SupplierOption> suppliers = new();
 
-    private ProductFormModel _add = new();
-    private ProductFormModel _edit = new();
+    private ProductFormModel add = new();
+    private ProductFormModel edit = new();
 
-    private CrudPage<ProductDto> _crudPage = default!;
+    private CrudPage<ProductDto> crudPage = default!;
 
     protected override Task OnInitializedAsync()
     {
@@ -220,7 +220,7 @@
             {
                 var body = await categoriesResponse.Content.ReadAsStringAsync();
                 var items = JsonSerializer.Deserialize<List<CategoryOption>>(body, JsonOptions);
-                _categories = items ?? new();
+                categories = items ?? new();
             }
 
             var suppliersResponse = await suppliersTask;
@@ -228,21 +228,21 @@
             {
                 var body = await suppliersResponse.Content.ReadAsStringAsync();
                 var items = JsonSerializer.Deserialize<List<SupplierOption>>(body, JsonOptions);
-                _suppliers = items ?? new();
+                suppliers = items ?? new();
             }
         }
         catch
         {
-            _categories = new();
-            _suppliers = new();
+            categories = new();
+            suppliers = new();
         }
     }
 
-    private void ResetForm() => _add = new ProductFormModel();
+    private void ResetForm() => add = new ProductFormModel();
 
     private void LoadForm(ProductDto item)
     {
-        _edit = item is null
+        edit = item is null
             ? new ProductFormModel()
             : new ProductFormModel
             {
@@ -266,7 +266,7 @@
 
     private object CreatePayload(CrudModalContext<ProductDto> ctx)
     {
-        var model = ctx.IsAdd ? _add : _edit;
+        var model = ctx.IsAdd ? add : edit;
         return new
         {
             Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
@@ -313,6 +313,7 @@
         public bool Equals(ProductDto? other)
         {
             if (other is null) return false;
+
             return Id == other.Id && Name == other.Name;
         }
 

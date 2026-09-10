@@ -3,7 +3,7 @@
 @inject NavigationManager Navigation
 @using Fenicia.Web.Components.Shared
 
-<CrudPage @ref="_crudPage" TItem="ProductCategoryDto"
+<CrudPage @ref="crudPage" TItem="ProductCategoryDto"
           PageTitle="Categorias de Produtos"
           PageSubtitle="Gerencie suas categorias de produtos"
           EntityNamePlural="categorias de produtos"
@@ -43,26 +43,26 @@
         </MudTd>
     </RowTemplate>
     <AddModalBody>
-        <MudTextField @bind-Value="_addName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
+        <MudTextField @bind-Value="addName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
     </AddModalBody>
     <EditModalBody>
-        <MudTextField @bind-Value="_editName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
+        <MudTextField @bind-Value="editName" Label="Nome da Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Nome da categoria é obrigatório!" />
     </EditModalBody>
 </CrudPage>
 
 @code {
-    private string _addName = string.Empty;
-    private string _editName = string.Empty;
+    private string addName = string.Empty;
+    private string editName = string.Empty;
 
-    private CrudPage<ProductCategoryDto> _crudPage = default!;
+    private CrudPage<ProductCategoryDto> crudPage = default!;
 
-    private void ResetAddName() => _addName = string.Empty;
+    private void ResetAddName() => addName = string.Empty;
 
-    private void LoadEditName(ProductCategoryDto item) => _editName = item?.Name ?? string.Empty;
+    private void LoadEditName(ProductCategoryDto item) => editName = item?.Name ?? string.Empty;
 
     private object CreatePayload(CrudModalContext<ProductCategoryDto> ctx)
     {
-        var name = ctx.IsAdd ? _addName : _editName;
+        var name = ctx.IsAdd ? addName : editName;
         return new
         {
             Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
@@ -78,6 +78,7 @@
         public bool Equals(ProductCategoryDto? other)
         {
             if (other is null) return false;
+
             return Id == other.Id && Name == other.Name;
         }
 

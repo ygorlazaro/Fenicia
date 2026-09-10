@@ -14,7 +14,7 @@
         <MudItem xs="12" sm="2">
             <MudStack Row="true" Justify="Justify.FlexEnd">
                 <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined">
-                    @((FilteredProducts as IList<OrderFormDashboardProductDto> ?? FilteredProducts.ToList()).Count + " produto(s)")
+                    @((FilteredProducts as IList<OrderFormDashboardProductDto> ?? [.. FilteredProducts]).Count + " produto(s)")
                 </MudChip>
             </MudStack>
         </MudItem>
@@ -72,7 +72,7 @@
 </MudPaper>
 
 @code {
-    [Parameter, EditorRequired] public IEnumerable<OrderFormDashboardProductDto> Products { get; set; } = [];
+    [Parameter][EditorRequired] public IEnumerable<OrderFormDashboardProductDto> Products { get; set; } = [];
     [Parameter] public string? Search { get; set; }
     [Parameter] public bool Loading { get; set; }
     [Parameter] public EventCallback<KeyboardEventArgs> OnSearchKeyDown { get; set; }
@@ -83,15 +83,16 @@
         get
         {
             var query = Products.Where(p => p.IsActive);
-            if (!string.IsNullOrWhiteSpace(Search))
+            if (string.IsNullOrWhiteSpace(Search)) return [.. query.OrderBy(p => p.Name)];
+
             {
                 var term = Search.Trim();
                 query = query.Where(p =>
-                    (p.Name ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    p.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
                     || (p.SKU ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
                     || (p.Barcode ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase));
             }
-            return query.OrderBy(p => p.Name).ToList();
+            return [.. query.OrderBy(p => p.Name)];
         }
     }
 }

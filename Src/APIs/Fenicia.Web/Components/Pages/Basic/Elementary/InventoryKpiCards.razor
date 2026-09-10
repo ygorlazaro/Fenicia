@@ -48,6 +48,6 @@
 </MudGrid>
 
 @code {
-    [Parameter, EditorRequired] public DashboardData Dashboard { get; set; } = default!;
+    [Parameter][EditorRequired] public DashboardData Dashboard { get; set; } = default!;
     [Parameter] public Color ProfitColor { get; set; } = Color.Success;
 }

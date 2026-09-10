@@ -39,20 +39,20 @@
          <MudPaper Class="pa-4 mb-4" Elevation="2">
              <MudGrid Spacing="2" AlignItems="AlignItems.Center">
                  <MudItem xs="12" sm="6" md="3">
-                     <MudDatePicker @bind-Date="_startDate" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
+                     <MudDatePicker @bind-Date="startDate" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
                  </MudItem>
                  <MudItem xs="12" sm="6" md="3">
-                     <MudDatePicker @bind-Date="_endDate" Label="Data final" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
+                     <MudDatePicker @bind-Date="endDate" Label="Data final" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
                  </MudItem>
                  <MudItem xs="12" sm="6" md="3">
-                     <MudSelect T="TypeFilter" @bind-Value="_typeFilter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
+                     <MudSelect T="TypeFilter" @bind-Value="typeFilter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
                          <MudSelectItem T="TypeFilter" Value="TypeFilter.All">Todos</MudSelectItem>
                          <MudSelectItem T="TypeFilter" Value="TypeFilter.In">Entrada</MudSelectItem>
                          <MudSelectItem T="TypeFilter" Value="TypeFilter.Out">Saída</MudSelectItem>
                      </MudSelect>
                  </MudItem>
                  <MudItem xs="12" sm="6" md="3">
-                     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterList" OnClick="LoadMovementsAsync" Disabled="_loading" FullWidth="true">
+                     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterList" OnClick="LoadMovementsAsync" Disabled="loading" FullWidth="true">
                          Filtrar
                      </MudButton>
                  </MudItem>
@@ -66,14 +66,14 @@
                          <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                              <div>
                                  <MudText Typo="Typo.overline" Color="Color.Default">Entradas — Quantidade</MudText>
-                                 <MudText Typo="Typo.h5" Color="Color.Success">@_kpi.TotalInQuantity.ToString("N2")</MudText>
+                                 <MudText Typo="Typo.h5" Color="Color.Success">@kpi.TotalInQuantity.ToString("N2")</MudText>
                              </div>
                              <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
                                  <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
                              </MudAvatar>
                          </MudStack>
                          <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                             @_kpi.TotalInEvents evento(s) · Valor: @Money.Format(_kpi.TotalInValue)
+                             @kpi.TotalInEvents evento(s) · Valor: @Money.Format(kpi.TotalInValue)
                          </MudText>
                      </MudPaper>
                  </MudItem>
@@ -83,14 +83,14 @@
                          <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                              <div>
                                  <MudText Typo="Typo.overline" Color="Color.Default">Saídas — Quantidade</MudText>
-                                 <MudText Typo="Typo.h5" Color="Color.Error">@_kpi.TotalOutQuantity.ToString("N2")</MudText>
+                                 <MudText Typo="Typo.h5" Color="Color.Error">@kpi.TotalOutQuantity.ToString("N2")</MudText>
                              </div>
                              <MudAvatar Color="Color.Error" Variant="Variant.Outlined" Size="Size.Medium">
                                  <MudIcon Icon="@Icons.Material.Filled.Inventory2" />
                              </MudAvatar>
                          </MudStack>
                          <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                             @_kpi.TotalOutEvents evento(s) · Valor: @Money.Format(_kpi.TotalOutValue)
+                             @kpi.TotalOutEvents evento(s) · Valor: @Money.Format(kpi.TotalOutValue)
                          </MudText>
                      </MudPaper>
                  </MudItem>
@@ -100,14 +100,14 @@
                          <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                              <div>
                                  <MudText Typo="Typo.overline" Color="Color.Default">Total de Eventos</MudText>
-                                 <MudText Typo="Typo.h5">@(_kpi.TotalInEvents + _kpi.TotalOutEvents)</MudText>
+                                 <MudText Typo="Typo.h5">@(kpi.TotalInEvents + kpi.TotalOutEvents)</MudText>
                              </div>
                              <MudAvatar Color="Color.Info" Variant="Variant.Outlined" Size="Size.Medium">
                                  <MudIcon Icon="@Icons.Material.Filled.SwapVert" />
                              </MudAvatar>
                          </MudStack>
                          <MudText Typo="Typo.caption" Color="Color.Default" Class="mt-2">
-                             Valor total: @Money.Format(_kpi.TotalInValue - _kpi.TotalOutValue)
+                             Valor total: @Money.Format(kpi.TotalInValue - kpi.TotalOutValue)
                          </MudText>
                      </MudPaper>
                  </MudItem>
@@ -115,14 +115,14 @@
          </MudPaper>
 
     <MudPaper Class="pa-4" Elevation="2">
-        @if (_loading)
+        @if (loading)
         {
             <MudStack AlignItems="AlignItems.Center" Class="my-6">
                 <MudProgressCircular Indeterminate="true" />
                 <MudText Typo="Typo.body2">Carregando movimentações...</MudText>
             </MudStack>
         }
-        else if (_movements.Count == 0)
+        else if (movements.Count == 0)
         {
             <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
                 Nenhuma movimentação encontrada no período selecionado.
@@ -130,7 +130,7 @@
         }
         else
         {
-            <MudTable T="StockMovementDto" Items="@_movements" Dense="true" Hover="true" Bordered="false" Elevation="0">
+            <MudTable T="StockMovementDto" Items="@movements" Dense="true" Hover="true" Bordered="false" Elevation="0">
                 <HeaderContent>
                     <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
                     <MudTh>Data</MudTh>
@@ -212,40 +212,40 @@
 </MudContainer>
 </MainLayout>
 
-<MudDialog @bind-Visible="_modalOpen" Options="@_modalOptions">
+<MudDialog @bind-Visible="modalOpen" Options="@ModalOptions">
     <TitleContent>
-        <MudText Typo="Typo.h6">@(_isEdit ? "Editar Movimentação" : "Nova Movimentação")</MudText>
+        <MudText Typo="Typo.h6">@(isEdit ? "Editar Movimentação" : "Nova Movimentação")</MudText>
     </TitleContent>
     <DialogContent>
         <MudGrid Spacing="2">
             <MudItem xs="12" sm="8">
-                <MudSelect T="Guid" @bind-Value="_form.ProductId" Label="Produto" Variant="Variant.Outlined" Required="true" RequiredError="Selecione um produto!">
-                    @foreach (var p in _products)
+                <MudSelect T="Guid" @bind-Value="form.ProductId" Label="Produto" Variant="Variant.Outlined" Required="true" RequiredError="Selecione um produto!">
+                    @foreach (var p in products)
                     {
                         <MudSelectItem T="Guid" Value="@p.Id">@p.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudSelect T="StockMovementType" @bind-Value="_form.Type" Label="Tipo" Variant="Variant.Outlined" Required="true">
+                <MudSelect T="StockMovementType" @bind-Value="form.Type" Label="Tipo" Variant="Variant.Outlined" Required="true">
                     <MudSelectItem T="StockMovementType" Value="StockMovementType.In">Entrada</MudSelectItem>
                     <MudSelectItem T="StockMovementType" Value="StockMovementType.Out">Saída</MudSelectItem>
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="_form.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Quantidade é obrigatória!" />
+                <MudNumericField T="double" @bind-Value="form.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Quantidade é obrigatória!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="_form.Price" Label="Preço unitário" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="decimal" @bind-Value="form.Price" Label="Preço unitário" Variant="Variant.Outlined" Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudDatePicker @bind-Date="_form.Date" Label="Data" Variant="Variant.Outlined" />
+                <MudDatePicker @bind-Date="form.Date" Label="Data" Variant="Variant.Outlined" />
             </MudItem>
-            @if (_form.Type == StockMovementType.In)
+            @if (form.Type == StockMovementType.In)
             {
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" @bind-Value="_form.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
-                        @foreach (var s in _suppliers)
+                    <MudSelect T="Guid?" @bind-Value="form.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
+                        @foreach (var s in suppliers)
                         {
                             <MudSelectItem T="Guid?" Value="@s.Id">@s.Name</MudSelectItem>
                         }
@@ -255,8 +255,8 @@
             else
             {
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" @bind-Value="_form.CustomerId" Label="Cliente" Variant="Variant.Outlined" Clearable="true">
-                        @foreach (var c in _customers)
+                    <MudSelect T="Guid?" @bind-Value="form.CustomerId" Label="Cliente" Variant="Variant.Outlined" Clearable="true">
+                        @foreach (var c in customers)
                         {
                             <MudSelectItem T="Guid?" Value="@c.Id">@c.Name</MudSelectItem>
                         }
@@ -264,26 +264,26 @@
                 </MudItem>
             }
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="_form.EmployeeId" Label="Funcionário" Variant="Variant.Outlined" Clearable="true">
-                    @foreach (var e in _employees)
+                <MudSelect T="Guid?" @bind-Value="form.EmployeeId" Label="Funcionário" Variant="Variant.Outlined" Clearable="true">
+                    @foreach (var e in employees)
                     {
                         <MudSelectItem T="Guid?" Value="@e.Id">@e.Name</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_form.Reason" Label="Motivo" Variant="Variant.Outlined" Lines="2" />
+                <MudTextField @bind-Value="form.Reason" Label="Motivo" Variant="Variant.Outlined" Lines="2" />
             </MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="CloseModal" Variant="Variant.Text">Cancelar</MudButton>
-        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="_modalLoading">
-            @if (_modalLoading)
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="modalLoading">
+            @if (modalLoading)
             {
                 <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
             }
-            @(_isEdit ? "Atualizar" : "Registrar")
+            @(isEdit ? "Atualizar" : "Registrar")
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -297,7 +297,7 @@
         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
-    private static readonly DialogOptions _modalOptions = new()
+    private static readonly DialogOptions ModalOptions = new()
     {
         CloseButton = true,
         BackdropClick = false,
@@ -305,39 +305,39 @@
         FullWidth = true
     };
 
-    private DateTime? _startDate = DateTime.Today.AddDays(-30);
-    private DateTime? _endDate = DateTime.Today.AddDays(1);
-    private TypeFilter _typeFilter = TypeFilter.All;
-    private string? _searchText;
+    private DateTime? startDate = DateTime.Today.AddDays(-30);
+    private DateTime? endDate = DateTime.Today.AddDays(1);
+    private TypeFilter typeFilter = TypeFilter.All;
+    private string? searchText;
     private string? SearchText
     {
-        get => _searchText;
+        get => searchText;
         set
         {
-            if (_searchText == value)
+            if (searchText == value)
             {
                 return;
             }
 
-            _searchText = value;
+            searchText = value;
             _ = LoadMovementsAsync();
         }
     }
 
-    private bool _loading = true;
-    private bool _modalLoading;
-    private bool _modalOpen;
-    private bool _isEdit;
+    private bool loading = true;
+    private bool modalLoading;
+    private bool modalOpen;
+    private bool isEdit;
 
-    private List<StockMovementDto> _movements = [];
-    private StockMovementKpi _kpi = new();
+    private List<StockMovementDto> movements = [];
+    private StockMovementKpi kpi = new();
 
-    private List<DatasourceItem> _products = [];
-    private List<DatasourceItem> _customers = [];
-    private List<DatasourceItem> _suppliers = [];
-    private List<DatasourceItem> _employees = [];
+    private List<DatasourceItem> products = [];
+    private List<DatasourceItem> customers = [];
+    private List<DatasourceItem> suppliers = [];
+    private List<DatasourceItem> employees = [];
 
-    private MovementFormModel _form = new();
+    private MovementFormModel form = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -362,10 +362,10 @@
 
             await Task.WhenAll(productsTask, customersTask, suppliersTask, employeesTask);
 
-            _products = await ReadDatasourceAsync(productsTask);
-            _customers = await ReadDatasourceAsync(customersTask);
-            _suppliers = await ReadDatasourceAsync(suppliersTask);
-            _employees = await ReadDatasourceAsync(employeesTask);
+            products = await ReadDatasourceAsync(productsTask);
+            customers = await ReadDatasourceAsync(customersTask);
+            suppliers = await ReadDatasourceAsync(suppliersTask);
+            employees = await ReadDatasourceAsync(employeesTask);
         }
         catch (Exception ex)
         {
@@ -387,30 +387,30 @@
 
     private async Task LoadMovementsAsync()
     {
-        _loading = true;
+        loading = true;
         try
         {
             var client = await BuildClientAsync();
 
             var query = new List<string>();
-            if (_startDate.HasValue)
+            if (startDate.HasValue)
             {
-                query.Add($"startDate={_startDate.Value:yyyy-MM-dd}");
+                query.Add($"startDate={startDate.Value:yyyy-MM-dd}");
             }
-            if (_endDate.HasValue)
+            if (endDate.HasValue)
             {
-                query.Add($"endDate={_endDate.Value:yyyy-MM-dd}");
+                query.Add($"endDate={endDate.Value:yyyy-MM-dd}");
             }
-            if (_typeFilter != TypeFilter.All)
+            if (typeFilter != TypeFilter.All)
             {
-                query.Add($"type={MapType(_typeFilter)}");
+                query.Add($"type={MapType(typeFilter)}");
             }
             query.Add("page=1");
             query.Add("perPage=200");
 
-            if (!string.IsNullOrWhiteSpace(_searchText))
+            if (!string.IsNullOrWhiteSpace(searchText))
             {
-                query.Add($"query={Uri.EscapeDataString(_searchText)}");
+                query.Add($"query={Uri.EscapeDataString(searchText)}");
             }
 
             var qs = query.Count == 0 ? string.Empty : "?" + string.Join("&", query);
@@ -419,24 +419,24 @@
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                _movements = JsonSerializer.Deserialize<List<StockMovementDto>>(body, JsonOptions) ?? [];
+                movements = JsonSerializer.Deserialize<List<StockMovementDto>>(body, JsonOptions) ?? [];
                 ComputeKpi();
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
                 Snackbar.Add($"Falha ao carregar: {(int)response.StatusCode} - {error}", Severity.Error);
-                _movements = [];
+                movements = [];
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Erro ao carregar movimentações: {ex.Message}", Severity.Error);
-            _movements = [];
+            movements = [];
         }
         finally
         {
-            _loading = false;
+            loading = false;
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -487,45 +487,45 @@
 
     private void ComputeKpi()
     {
-        _kpi = new StockMovementKpi();
-        foreach (var m in _movements)
+        kpi = new StockMovementKpi();
+        foreach (var m in movements)
         {
             if (m.Type == StockMovementType.In)
             {
-                _kpi.TotalInQuantity += m.Quantity;
-                _kpi.TotalInEvents++;
-                _kpi.TotalInValue += (m.Price ?? 0) * (decimal)m.Quantity;
+                kpi.TotalInQuantity += m.Quantity;
+                kpi.TotalInEvents++;
+                kpi.TotalInValue += (m.Price ?? 0) * (decimal)m.Quantity;
             }
             else if (m.Type == StockMovementType.Out)
             {
-                _kpi.TotalOutQuantity += m.Quantity;
-                _kpi.TotalOutEvents++;
-                _kpi.TotalOutValue += (m.Price ?? 0) * (decimal)m.Quantity;
+                kpi.TotalOutQuantity += m.Quantity;
+                kpi.TotalOutEvents++;
+                kpi.TotalOutValue += (m.Price ?? 0) * (decimal)m.Quantity;
             }
         }
     }
 
     private void OpenAddModal()
     {
-        if (_products.Count == 0)
+        if (products.Count == 0)
         {
             Snackbar.Add("Nenhum produto disponível para movimentação.", Severity.Warning);
             return;
         }
 
-        _isEdit = false;
-        _form = new MovementFormModel
+        isEdit = false;
+        form = new MovementFormModel
         {
             Date = DateTime.Now,
             Type = StockMovementType.In
         };
-        _modalOpen = true;
+        modalOpen = true;
     }
 
     private void OpenEditModal(StockMovementDto item)
     {
-        _isEdit = true;
-        _form = new MovementFormModel
+        isEdit = true;
+        form = new MovementFormModel
         {
             Id = item.Id,
             ProductId = item.ProductId,
@@ -538,58 +538,58 @@
             EmployeeId = item.EmployeeId,
             Reason = item.Reason
         };
-        _modalOpen = true;
+        modalOpen = true;
     }
 
-    private void CloseModal() => _modalOpen = false;
+    private void CloseModal() => modalOpen = false;
 
     private async Task SubmitAsync()
     {
-        if (_modalLoading || _form.ProductId == Guid.Empty || _form.Quantity <= 0)
+        if (modalLoading || form.ProductId == Guid.Empty || form.Quantity <= 0)
         {
             Snackbar.Add("Preencha produto e quantidade.", Severity.Warning);
             return;
         }
 
-        _modalLoading = true;
+        modalLoading = true;
         try
         {
             var client = await BuildClientAsync();
 
-            object payload = _form.Id is null
+            object payload = form.Id is null
                 ? new
                 {
                     Id = Guid.NewGuid(),
-                    Quantity = _form.Quantity,
-                    Date = _form.Date,
-                    Price = (decimal?)_form.Price,
-                    Type = _form.Type,
-                    ProductId = _form.ProductId,
-                    CustomerId = _form.Type == StockMovementType.Out ? _form.CustomerId : null,
-                    SupplierId = _form.Type == StockMovementType.In ? _form.SupplierId : null,
-                    EmployeeId = _form.EmployeeId,
+                    Quantity = form.Quantity,
+                    Date = form.Date,
+                    Price = (decimal?)form.Price,
+                    Type = form.Type,
+                    ProductId = form.ProductId,
+                    CustomerId = form.Type == StockMovementType.Out ? form.CustomerId : null,
+                    SupplierId = form.Type == StockMovementType.In ? form.SupplierId : null,
+                    EmployeeId = form.EmployeeId,
                     OrderId = (Guid?)null,
-                    Reason = _form.Reason
+                    Reason = form.Reason
                 }
                 : new
                 {
-                    Id = _form.Id.Value,
-                    Quantity = _form.Quantity,
-                    Date = _form.Date,
-                    Price = _form.Price,
-                    Type = _form.Type,
-                    ProductId = _form.ProductId,
-                    CustomerId = _form.Type == StockMovementType.Out ? _form.CustomerId : null,
-                    SupplierId = _form.Type == StockMovementType.In ? _form.SupplierId : null,
-                    EmployeeId = _form.EmployeeId,
+                    Id = form.Id.Value,
+                    Quantity = form.Quantity,
+                    Date = form.Date,
+                    Price = form.Price,
+                    Type = form.Type,
+                    ProductId = form.ProductId,
+                    CustomerId = form.Type == StockMovementType.Out ? form.CustomerId : null,
+                    SupplierId = form.Type == StockMovementType.In ? form.SupplierId : null,
+                    EmployeeId = form.EmployeeId,
                     OrderId = (Guid?)null,
-                    Reason = _form.Reason
+                    Reason = form.Reason
                 };
 
             HttpResponseMessage response;
             string successMessage;
 
-            if (_form.Id is null)
+            if (form.Id is null)
             {
                 response = await client.PostAsJsonAsync("stockmovement", payload, JsonOptions);
                 successMessage = "Movimentação registrada.";
@@ -597,7 +597,7 @@
             else
             {
                 var json = JsonSerializer.Serialize(payload, JsonOptions);
-                var request = new HttpRequestMessage(HttpMethod.Patch, $"stockmovement/{_form.Id.Value}")
+                var request = new HttpRequestMessage(HttpMethod.Patch, $"stockmovement/{form.Id.Value}")
                 {
                     Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
                 };
@@ -608,7 +608,7 @@
             if (response.IsSuccessStatusCode)
             {
                 Snackbar.Add(successMessage, Severity.Success);
-                _modalOpen = false;
+                modalOpen = false;
                 await LoadMovementsAsync();
             }
             else
@@ -623,7 +623,7 @@
         }
         finally
         {
-            _modalLoading = false;
+            modalLoading = false;
         }
     }
 

@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Shared
 
-<CrudPage @ref="_crudPage" TItem="OrderDto"
+<CrudPage TItem="OrderDto"
           PageTitle="Pedidos"
           PageSubtitle="Gerencie os pedidos da sua empresa"
           EntityNamePlural="pedidos"
@@ -58,8 +58,6 @@
     </CrudPage>
 
 @code {
-    private CrudPage<OrderDto> _crudPage = default!;
-
     private static string FormatForDelete(OrderDto item) => item.OrderNumber;
 
     private sealed class OrderDto : IEquatable<OrderDto>, ICrudItem
@@ -79,6 +77,7 @@
         public bool Equals(OrderDto? other)
         {
             if (other is null) return false;
+
             return Id == other.Id && OrderNumber == other.OrderNumber;
         }
 
