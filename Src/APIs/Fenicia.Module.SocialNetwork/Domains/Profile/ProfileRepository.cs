@@ -12,16 +12,16 @@ public interface IProfileRepository : IRepository<ProfileModel>
 
 public class ProfileRepository(DefaultContext context) : Repository<ProfileModel>(context), IProfileRepository
 {
-    public async Task<ProfileModel?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<ProfileModel?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(p => p.Upload)
             .FirstOrDefaultAsync(p => p.UserId == userId && p.Deleted == null, cancellationToken);
     }
 
-    public override async Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        return DbSet
             .Include(p => p.Upload)
             .FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, cancellationToken);
     }

@@ -38,7 +38,7 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
             CompanyId = companyId,
             TotalLikes = 0,
             TotalComments = 0,
-            TotalShares = 0,
+            TotalShares = 0
         };
         await feedRepository.InsertAsync(shareFeed, cancellationToken);
 

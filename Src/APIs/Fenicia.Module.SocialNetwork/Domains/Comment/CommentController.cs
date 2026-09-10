@@ -5,7 +5,6 @@ using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 

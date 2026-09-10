@@ -5,8 +5,8 @@ namespace Fenicia.Common;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
 public sealed class CnpjAttribute : ValidationAttribute
 {
-    private static readonly int[] CnpjWeightsFirst = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-    private static readonly int[] CnpjWeightsSecond = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+    private static readonly int[] _cnpjWeightsFirst = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    private static readonly int[] _cnpjWeightsSecond = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
 
     public CnpjAttribute()
     {
@@ -27,18 +27,13 @@ public sealed class CnpjAttribute : ValidationAttribute
         var cnpj = value.ToString() ?? string.Empty;
         cnpj = new string([.. cnpj.Where(char.IsDigit)]);
 
-        if (cnpj.Length != 14)
+        if (cnpj.Length != 14 || !IsDigitsSame(cnpj))
         {
             return new ValidationResult("CNPJ inválido.");
         }
 
-        if (!IsDigitsSame(cnpj))
-        {
-            return new ValidationResult("CNPJ inválido.");
-        }
-
-        var firstCheckDigit = CalculateCheckDigit(cnpj[..12], CnpjWeightsFirst);
-        var secondCheckDigit = CalculateCheckDigit(cnpj[..13], CnpjWeightsSecond);
+        var firstCheckDigit = CalculateCheckDigit(cnpj[..12], _cnpjWeightsFirst);
+        var secondCheckDigit = CalculateCheckDigit(cnpj[..13], _cnpjWeightsSecond);
 
         var firstDigit = cnpj[12].ToString();
         var secondDigit = cnpj[13].ToString();

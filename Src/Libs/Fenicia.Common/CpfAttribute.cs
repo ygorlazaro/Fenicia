@@ -5,8 +5,8 @@ namespace Fenicia.Common;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
 public sealed class CpfAttribute : ValidationAttribute
 {
-    private static readonly int[] CpfWeightsFirst = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-    private static readonly int[] CpfWeightsSecond = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+    private static readonly int[] _cpfWeightsFirst = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+    private static readonly int[] _cpfWeightsSecond = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
 
     public CpfAttribute()
     {
@@ -27,18 +27,13 @@ public sealed class CpfAttribute : ValidationAttribute
         var cpf = value.ToString() ?? string.Empty;
         cpf = new string([.. cpf.Where(char.IsDigit)]);
 
-        if (cpf.Length != 11)
+        if (cpf.Length != 11 || !IsDigitsSame(cpf))
         {
             return new ValidationResult("CPF inválido.");
         }
 
-        if (!IsDigitsSame(cpf))
-        {
-            return new ValidationResult("CPF inválido.");
-        }
-
-        var firstCheckDigit = CalculateCheckDigit(cpf[..9], CpfWeightsFirst);
-        var secondCheckDigit = CalculateCheckDigit(cpf[..10], CpfWeightsSecond);
+        var firstCheckDigit = CalculateCheckDigit(cpf[..9], _cpfWeightsFirst);
+        var secondCheckDigit = CalculateCheckDigit(cpf[..10], _cpfWeightsSecond);
 
         var firstDigit = cpf[9].ToString();
         var secondDigit = cpf[10].ToString();

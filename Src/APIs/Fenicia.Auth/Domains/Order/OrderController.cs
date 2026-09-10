@@ -19,7 +19,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     ///     Cria um novo pedido com os módulos informados.
     /// </summary>
     /// <param name="request">Comando com lista de IDs de módulos</param>
-    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
+    /// <param name="companyId"></param>
     /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do pedido criado</returns>
@@ -48,7 +48,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
-            Console.WriteLine($"[OrderController] userId={userId}, companyId={companyId}, Modules={request.Modules?.Count ?? 0}");
+            Console.WriteLine($@"[OrderController] userId={userId}, companyId={companyId}, Modules={request.Modules?.Count ?? 0}");
             var command = new CreateNewOrderCommand(userId, companyId, request.Modules ?? []);
             var order = await orderService.CreateAsync(command, cancellationToken);
 

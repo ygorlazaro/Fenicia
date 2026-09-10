@@ -19,8 +19,7 @@ public class ModuleService(
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query().Where(m => m.Type != ModuleType.Auth && m.IsActive);
-        var filteredQuery = baseQuery;
-        var orderedQuery = filteredQuery.OrderBy(m => m.SortOrder);
+        var orderedQuery = baseQuery.OrderBy(m => m.SortOrder);
 
         var total = await orderedQuery.CountAsync(cancellationToken);
         var modules = await orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)

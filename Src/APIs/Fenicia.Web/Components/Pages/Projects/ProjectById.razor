@@ -67,7 +67,7 @@
         <MudPaper Elevation="1" Class="pa-3 mb-4">
             <MudGrid Spacing="2" AlignItems="AlignItems.Center">
                 <MudItem xs="12" sm="6" md="2">
-                    <MudSelect T="Guid?" Value="filterCreatedBy" ValueChanged="@(async (Guid? v) => await OnCreatedByChanged(v))" Label="Criador" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                    <MudSelect T="Guid?" Value="filterCreatedBy" ValueChanged="@((Guid? v) => OnCreatedByChanged(v))" Label="Criador" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         @foreach (var u in projectCreators)
                         {
                             <MudSelectItem T="Guid?" Value="@((Guid?)u.Key)">@u.Value</MudSelectItem>
@@ -75,7 +75,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6" md="2">
-                    <MudSelect T="Guid?" Value="filterAssignee" ValueChanged="@(async (Guid? v) => await OnAssigneeChanged(v))" Label="Responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                    <MudSelect T="Guid?" Value="filterAssignee" ValueChanged="@((Guid? v) => OnAssigneeChanged(v))" Label="Responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         @foreach (var u in projectAssignees)
                         {
                             <MudSelectItem T="Guid?" Value="@((Guid?)u.Key)">@u.Value</MudSelectItem>
@@ -83,13 +83,13 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="2">
-                    <MudDatePicker Date="filterDueFromValue" DateChanged="@(async (DateTime? v) => await OnDueFromChanged(v))" Label="Entrega de" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
+                    <MudDatePicker Date="filterDueFromValue" DateChanged="@((DateTime? v) => OnDueFromChanged(v))" Label="Entrega de" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
                 </MudItem>
                 <MudItem xs="6" sm="3" md="2">
-                    <MudDatePicker Date="filterDueToValue" DateChanged="@(async (DateTime? v) => await OnDueToChanged(v))" Label="Entrega até" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
+                    <MudDatePicker Date="filterDueToValue" DateChanged="@((DateTime? v) => OnDueToChanged(v))" Label="Entrega até" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true" />
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="string" Value="filterType" ValueChanged="@(async (string v) => await OnTypeChanged(v))" Label="Tipo" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                    <MudSelect T="string" Value="filterType" ValueChanged="@((string v) => OnTypeChanged(v))" Label="Tipo" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         <MudSelectItem T="string" Value="@("Task")">Tarefa</MudSelectItem>
                         <MudSelectItem T="string" Value="@("Bug")">Bug</MudSelectItem>
                         <MudSelectItem T="string" Value="@("Feature")">Feature</MudSelectItem>
@@ -97,7 +97,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="string" Value="filterPriority" ValueChanged="@(async (string v) => await OnPriorityChanged(v))" Label="Prioridade" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                    <MudSelect T="string" Value="filterPriority" ValueChanged="@((string v) => OnPriorityChanged(v))" Label="Prioridade" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         <MudSelectItem T="string" Value="@("Low")">Baixa</MudSelectItem>
                         <MudSelectItem T="string" Value="@("Medium")">Média</MudSelectItem>
                         <MudSelectItem T="string" Value="@("High")">Alta</MudSelectItem>
@@ -105,7 +105,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="Guid?" Value="filterStatusId" ValueChanged="@(async (Guid? v) => await OnStatusFilterChanged(v))" Label="Coluna" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                    <MudSelect T="Guid?" Value="filterStatusId" ValueChanged="@((Guid? v) => OnStatusFilterChanged(v))" Label="Coluna" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         @foreach (var s in orderedStatuses)
                         {
                             <MudSelectItem T="Guid?" Value="@((Guid?)s.Id)">@s.Name</MudSelectItem>
@@ -113,7 +113,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3" md="1">
-                    <MudSelect T="Guid?" Value="filterSprintId" ValueChanged="@(async (Guid? v) => await OnSprintFilterChanged(v))" Label="Sprint" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
+                    <MudSelect T="Guid?" Value="filterSprintId" ValueChanged="@((Guid? v) => OnSprintFilterChanged(v))" Label="Sprint" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Clearable="true">
                         <MudSelectItem T="Guid?" Value="@(Guid.Empty)">Sem sprint</MudSelectItem>
                         @foreach (var sp in sprints)
                         {
@@ -305,10 +305,10 @@
                 <MudTextField @bind-Value="sprintEditModel.Name" Label="Nome" Variant="Variant.Outlined" MaxLength="256" Required="true" RequiredError="Nome é obrigatório!" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudDatePicker Date="sprintEditModel.StartDateValue" DateChanged="@(async (DateTime? v) => await OnSprintStartDateChanged(v))" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" />
+                <MudDatePicker Date="sprintEditModel.StartDateValue" DateChanged="@((DateTime? v) => OnSprintStartDateChanged(v))" Label="Data inicial" Variant="Variant.Outlined" Clearable="true" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudDatePicker Date="sprintEditModel.EndDateValue" DateChanged="@(async (DateTime? v) => await OnSprintEndDateChanged(v))" Label="Data final" Variant="Variant.Outlined" Clearable="true" />
+                <MudDatePicker Date="sprintEditModel.EndDateValue" DateChanged="@((DateTime? v) => OnSprintEndDateChanged(v))" Label="Data final" Variant="Variant.Outlined" Clearable="true" />
             </MudItem>
             <MudItem xs="12">
                 <MudTextField @bind-Value="sprintEditModel.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" MaxLength="4096" />
@@ -443,7 +443,7 @@
                         }
                     </MudStack>
                     <MudAutocomplete T="UserSummaryDto" Label="Adicionar responsável" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Class="mt-2"
-                                     SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults.AsEnumerable(); })" ToStringFunc="@(u => u is null ? string.Empty : u.Name)" ValueChanged="@(async (UserSummaryDto? u) => await AddAssigneeAsync(u))"
+                                     SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults.AsEnumerable(); })" ToStringFunc="@(u => u is null ? string.Empty : u.Name)" ValueChanged="@((UserSummaryDto? u) => AddAssigneeAsync(u))"
                                      ResetValueOnEmptyText="true" Clearable="true" MaxItems="10" />
                 </MudItem>
                 <MudItem xs="12">
@@ -452,7 +452,7 @@
                         @foreach (var s in taskEditModel.Subtasks.OrderBy(x => x.Order))
                         {
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                <MudCheckBox T="bool" Value="@s.IsCompleted" ValueChanged="@(async (bool v) => await ToggleSubtaskAsync(s, v))" Dense="true" />
+                                <MudCheckBox T="bool" Value="@s.IsCompleted" ValueChanged="@((bool v) => ToggleSubtaskAsync(s, v))" Dense="true" />
                                 <MudText Typo="Typo.body2" Style="@(s.IsCompleted ? "text-decoration: line-through; opacity:0.6; flex-grow:1;" : "flex-grow:1;")">@s.Title</MudText>
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Default" OnClick="@(() => RemoveSubtaskAsync(s))" />
                             </MudStack>
@@ -460,7 +460,12 @@
                     </MudStack>
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-1">
                         <MudTextField @bind-Value="newSubtaskTitle" Label="Nova subtarefa" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" MaxLength="200" Style="flex-grow:1;"
-                                      OnKeyDown="@(async (KeyboardEventArgs e) => { if (e.Key == "Enter") { await AddSubtaskAsync(); } })" />
+                                      OnKeyDown="@((KeyboardEventArgs e) => { if (e.Key == "Enter") {
+                                                     return AddSubtaskAsync();
+                                                 }
+
+                                                 return Task.CompletedTask;
+                                                 })" />
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="AddSubtaskAsync" Disabled="@(string.IsNullOrWhiteSpace(newSubtaskTitle) || isAddingSubtask)">Adicionar</MudButton>
                     </MudStack>
                 </MudItem>
@@ -489,7 +494,12 @@
                     </MudPaper>
                     <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="1" Class="mt-1">
                         <MudTextField @bind-Value="newCommentContent" Label="Escrever comentário" Variant="Variant.Outlined" Lines="2" MaxLength="4096" Style="flex-grow:1;"
-                                      OnKeyDown="@(async (KeyboardEventArgs e) => { if (e.Key == "Enter" && !e.ShiftKey) { await AddCommentAsync(); } })" />
+                                      OnKeyDown="@((KeyboardEventArgs e) => { if (e.Key == "Enter" && !e.ShiftKey) {
+                                                     return AddCommentAsync();
+                                                 }
+
+                                                 return Task.CompletedTask;
+                                                 })" />
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Send" OnClick="AddCommentAsync" Disabled="@(string.IsNullOrWhiteSpace(newCommentContent) || isAddingComment)">Enviar</MudButton>
                     </MudStack>
                 </MudItem>
@@ -591,7 +601,9 @@
                              Variant="Variant.Outlined"
                              SearchFunc="@(async (string value, CancellationToken ct) => { await SearchUsersAsync(value); return userSearchResults; })"
                              ToStringFunc="@(u => u is null ? string.Empty : $"{u.Name} ({u.Email})")"
-                             OnValueChanged="@(async (UserSummaryDto? u) => { if (u is not null) await AddTeamMemberAsync(u, "User"); })"
+                             OnValueChanged="@((UserSummaryDto? u) => { if (u is not null) return AddTeamMemberAsync(u, "User");
+                                                 return Task.CompletedTask;
+                                             })"
                              Adornment="Adornment.Start"
                              AdornmentIcon="@Icons.Material.Filled.Search"
                              Clearable="true"
@@ -682,14 +694,14 @@
     {
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.Small,
-        FullWidth = true,
+        FullWidth = true
     };
 
     private readonly DialogOptions teamMembersDialogOptions = new()
     {
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.Medium,
-        FullWidth = true,
+        FullWidth = true
     };
 
     private async Task PromoteFirstToAdmin()
@@ -898,28 +910,28 @@
         }
     }
 
-    private async Task OnCreatedByChanged(Guid? value)
+    private Task OnCreatedByChanged(Guid? value)
     {
         filterCreatedBy = value;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
-    private async Task OnAssigneeChanged(Guid? value)
+    private Task OnAssigneeChanged(Guid? value)
     {
         filterAssignee = value;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
-    private async Task OnStatusFilterChanged(Guid? value)
+    private Task OnStatusFilterChanged(Guid? value)
     {
         filterStatusId = value;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
-    private async Task OnSprintFilterChanged(Guid? value)
+    private Task OnSprintFilterChanged(Guid? value)
     {
         filterSprintId = value;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
     private Task OnSprintStartDateChanged(DateTime? value)
@@ -948,31 +960,31 @@
         }
     }
 
-    private async Task OnTypeChanged(string? value)
+    private Task OnTypeChanged(string? value)
     {
         filterType = value;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
-    private async Task OnPriorityChanged(string? value)
+    private Task OnPriorityChanged(string? value)
     {
         filterPriority = value;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
-    private async Task OnDueFromChanged(DateTime? value)
+    private Task OnDueFromChanged(DateTime? value)
     {
         filterDueFromValue = value;
-        await OnDueFilterChangedAsync();
+        return OnDueFilterChangedAsync();
     }
 
-    private async Task OnDueToChanged(DateTime? value)
+    private Task OnDueToChanged(DateTime? value)
     {
         filterDueToValue = value;
-        await OnDueFilterChangedAsync();
+        return OnDueFilterChangedAsync();
     }
 
-    private async Task ClearFiltersAsync()
+    private Task ClearFiltersAsync()
     {
         filterStatusId = null;
         filterCreatedBy = null;
@@ -982,17 +994,18 @@
         filterType = null;
         filterPriority = null;
         filterSprintId = null;
-        await ReloadTasksAsync();
+        return ReloadTasksAsync();
     }
 
-    private async Task OnDueFilterChangedAsync()
+    private Task OnDueFilterChangedAsync()
     {
         if (filterDueFromValue.HasValue && filterDueToValue.HasValue && filterDueFromValue > filterDueToValue)
         {
             Snackbar.Add("Data 'de' não pode ser maior que 'até'.", Severity.Warning);
-            return;
+            return Task.CompletedTask;
         }
-        await ReloadTasksAsync();
+
+        return ReloadTasksAsync();
     }
 
     private string GetTaskCardClass(TaskDto task, StatusDto status)
@@ -1089,7 +1102,7 @@
         {
             ProjectId = Id,
             Color = "#6366f1",
-            Order = orderedStatuses.Count,
+            Order = orderedStatuses.Count
         };
         statusDialogVisible = true;
     }
@@ -1103,7 +1116,7 @@
             Name = status.Name,
             Color = status.Color,
             Order = status.Order,
-            IsFinal = status.IsFinal,
+            IsFinal = status.IsFinal
         };
         statusDialogVisible = true;
     }
@@ -1127,7 +1140,7 @@
                     Name = statusEditModel.Name,
                     Color = statusEditModel.Color,
                     Order = statusEditModel.Order,
-                    IsFinal = statusEditModel.IsFinal,
+                    IsFinal = statusEditModel.IsFinal
                 };
                 var json = System.Text.Json.JsonSerializer.Serialize(payload);
                 response = await client.PostAsync("/projectstatus", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1141,7 +1154,7 @@
                     Name = statusEditModel.Name,
                     Color = statusEditModel.Color,
                     Order = statusEditModel.Order,
-                    IsFinal = statusEditModel.IsFinal,
+                    IsFinal = statusEditModel.IsFinal
                 };
                 var json = System.Text.Json.JsonSerializer.Serialize(payload);
                 response = await client.PatchAsync($"/projectstatus/{statusEditModel.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1324,7 +1337,7 @@
         taskDialogVisible = true;
     }
 
-    private async Task OpenTaskModal(TaskDto task)
+    private Task OpenTaskModal(TaskDto task)
     {
         taskEditModel = new TaskFormModel
         {
@@ -1347,19 +1360,21 @@
                     Id = a.Id,
                     UserId = a.UserId,
                     UserName = a.UserName,
-                    UserEmail = a.UserEmail,
+                    UserEmail = a.UserEmail
                 })
             ],
             Subtasks = [.. task.Subtasks],
-            Comments = [.. task.Comments],
+            Comments = [.. task.Comments]
         };
         taskDialogVisible = true;
         newSubtaskTitle = string.Empty;
         newCommentContent = string.Empty;
         if (task.Id != Guid.Empty)
         {
-            await LoadTaskDetailsAsync(task.Id);
+            return LoadTaskDetailsAsync(task.Id);
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task LoadTaskDetailsAsync(Guid taskId)
@@ -1415,7 +1430,7 @@
                 TaskId = taskEditModel.Id,
                 UserId = user.Id,
                 Role = "Owner",
-                AssignedAt = DateTime.UtcNow,
+                AssignedAt = DateTime.UtcNow
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var response = await client.PostAsync("/projecttaskassignee", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1431,7 +1446,7 @@
                         Id = created.Id,
                         UserId = created.UserId,
                         UserName = user.Name,
-                        UserEmail = user.Email,
+                        UserEmail = user.Email
                     });
                     var t = tasks.FirstOrDefault(x => x.Id == taskEditModel.Id);
                     if (t is not null)
@@ -1441,7 +1456,7 @@
                             Id = created.Id,
                             UserId = created.UserId,
                             UserName = user.Name,
-                            UserEmail = user.Email,
+                            UserEmail = user.Email
                         });
                     }
                     Snackbar.Add($"{user.Name} atribuído à tarefa.", Severity.Success);
@@ -1498,7 +1513,7 @@
                 Title = newSubtaskTitle.Trim(),
                 IsCompleted = false,
                 Order = taskEditModel.Subtasks.Count,
-                CompletedAt = (DateTime?)null,
+                CompletedAt = (DateTime?)null
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var response = await client.PostAsync("/projectsubtask", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1544,7 +1559,7 @@
                 Title = subtask.Title,
                 IsCompleted = isCompleted,
                 Order = subtask.Order,
-                CompletedAt = isCompleted ? (DateTime?)DateTime.UtcNow : null,
+                CompletedAt = isCompleted ? (DateTime?)DateTime.UtcNow : null
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var response = await client.PatchAsync($"/projectsubtask/{subtask.Id}", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1608,7 +1623,7 @@
                 Id = Guid.NewGuid(),
                 TaskId = taskEditModel.Id,
                 UserId = currentUserId,
-                Content = newCommentContent.Trim(),
+                Content = newCommentContent.Trim()
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var response = await client.PostAsync("/projectcomment", new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
@@ -1781,7 +1796,7 @@
         "Paused" => Color.Warning,
         "Completed" => Color.Primary,
         "Cancelled" => Color.Default,
-        _ => Color.Default,
+        _ => Color.Default
     };
 
     private void OpenTeamModal()
@@ -1789,7 +1804,7 @@
         teamEditModel = new TeamFormModel
         {
             ProjectId = Id,
-            Color = "#6366f1",
+            Color = "#6366f1"
         };
         teamDialogVisible = true;
     }
@@ -1810,7 +1825,7 @@
                 Name = teamEditModel.Name,
                 Description = teamEditModel.Description,
                 Color = teamEditModel.Color,
-                CreatedBy = currentUserId,
+                CreatedBy = currentUserId
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -1826,7 +1841,7 @@
                         Id = Guid.NewGuid(),
                         TeamId = created.Id,
                         UserId = currentUserId,
-                        Role = "Admin",
+                        Role = "Admin"
                     };
                     var adminJson = System.Text.Json.JsonSerializer.Serialize(adminPayload);
                     var adminContent = new StringContent(adminJson, System.Text.Encoding.UTF8, "application/json");
@@ -1853,14 +1868,14 @@
         }
     }
 
-    private async Task OpenMembersModalAsync(TeamDto team)
+    private Task OpenMembersModalAsync(TeamDto team)
     {
         membersTarget = team;
         teamMembers = team.Members;
         userSearchQuery = string.Empty;
         userSearchResults = [];
         teamMembersDialogVisible = true;
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     private async Task SearchUsersAsync(string value)
@@ -1909,7 +1924,7 @@
                 Id = Guid.NewGuid(),
                 TeamId = membersTarget.Id,
                 UserId = user.Id,
-                Role = role,
+                Role = role
             };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -1922,7 +1937,7 @@
                     UserName = user.Name,
                     Email = user.Email,
                     Role = role,
-                    JoinedAt = DateTime.UtcNow,
+                    JoinedAt = DateTime.UtcNow
                 });
                 userSearchResults.RemoveAll(u => u.Id == user.Id);
                 Snackbar.Add($"{user.Name} adicionado como {role}!", Severity.Success);
@@ -1977,7 +1992,7 @@
         "High" => Color.Warning,
         "Medium" => Color.Info,
         "Low" => Color.Default,
-        _ => Color.Default,
+        _ => Color.Default
     };
 
     private class ProjectDto

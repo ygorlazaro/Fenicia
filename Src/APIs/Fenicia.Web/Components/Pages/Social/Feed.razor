@@ -392,7 +392,7 @@
                 Id = Guid.NewGuid(),
                 Date = DateTime.UtcNow,
                 Text = newPostText,
-                ProfileId = currentProfileId,
+                ProfileId = currentProfileId
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(command);
@@ -472,7 +472,7 @@
     {
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.Small,
-        FullWidth = true,
+        FullWidth = true
     };
 
     private void OpenShareDialog(PostDto post)
@@ -500,7 +500,7 @@
             {
                 Id = Guid.NewGuid(),
                 OriginalFeedId = shareTarget.Id,
-                Text = string.IsNullOrWhiteSpace(shareText) ? null : shareText,
+                Text = string.IsNullOrWhiteSpace(shareText) ? null : shareText
             };
             var json = System.Text.Json.JsonSerializer.Serialize(command);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");

@@ -98,7 +98,7 @@ public class TeamService(
             Description = command.Description,
             Color = string.IsNullOrWhiteSpace(command.Color) ? "#6366f1" : command.Color,
             CreatedBy = command.CreatedBy,
-            CompanyId = companyId,
+            CompanyId = companyId
         };
 
         var created = await teamRepository.InsertAsync(model, cancellationToken);
@@ -175,7 +175,7 @@ public class TeamService(
             UserId = command.UserId,
             Role = role,
             JoinedAt = DateTime.UtcNow,
-            CompanyId = companyId,
+            CompanyId = companyId
         };
 
         var created = await teamUserRepository.InsertAsync(model, cancellationToken);

@@ -54,7 +54,7 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             Website = command.Website,
             Location = command.Location,
             Phone = command.Phone,
-            BirthDate = command.BirthDate,
+            BirthDate = command.BirthDate
         };
 
         var created = await profileRepository.InsertAsync(model, cancellationToken);

@@ -570,7 +570,7 @@
     {
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.Small,
-        FullWidth = true,
+        FullWidth = true
     };
 
     [SupplyParameterFromQuery(Name = "edit")]
@@ -796,7 +796,7 @@
             Website = socialProfile.Website,
             Location = socialProfile.Location,
             Phone = socialProfile.Phone,
-            BirthDateValue = socialProfile.BirthDate,
+            BirthDateValue = socialProfile.BirthDate
         };
     }
 
@@ -873,7 +873,7 @@
                 Website = editModel.Website,
                 Location = editModel.Location,
                 Phone = editModel.Phone,
-                BirthDate = editModel.BirthDateValue,
+                BirthDate = editModel.BirthDateValue
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(updateCommand);

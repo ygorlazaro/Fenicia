@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;

@@ -228,6 +228,17 @@ public sealed class UserService(
         return new UpdateUserPasswordResponse(true, "Password changed successfully");
     }
 
+    public async Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(
+        UpdatePasswordCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await UpdatePasswordAsync(command.UserId, command.Password, cancellationToken) ??
+                   throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
+        await userRepository.UpdateAsync(user.Id, user, cancellationToken);
+
+        return user.MapToUpdatePasswordResponse();
+    }
+
     private async Task AuthorizePasswordChangeAsync(
         Guid loggedInUserId,
         Guid targetUserId,
@@ -260,13 +271,12 @@ public sealed class UserService(
             return;
         }
 
-        if (isAdmin)
+        if (!isAdmin)
         {
-            await AuthorizeAdminPasswordChangeAsync(targetUser, loggedInUserRoles, cancellationToken);
-            return;
+            throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
         }
 
-        throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
+        await AuthorizeAdminPasswordChangeAsync(targetUser, loggedInUserRoles, cancellationToken);
     }
 
     private async Task AuthorizeAdminPasswordChangeAsync(
@@ -289,17 +299,6 @@ public sealed class UserService(
         {
             throw new InvalidRequestException("Usuário não pertence à mesma empresa.");
         }
-    }
-
-    public async Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(
-        UpdatePasswordCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await UpdatePasswordAsync(command.UserId, command.Password, cancellationToken) ??
-                   throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
-        await userRepository.UpdateAsync(user.Id, user, cancellationToken);
-
-        return user.MapToUpdatePasswordResponse();
     }
 
     private async Task RelateRolesAsync(

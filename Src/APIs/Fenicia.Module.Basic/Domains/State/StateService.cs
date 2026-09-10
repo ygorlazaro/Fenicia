@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.State.DTOs;
 using Fenicia.Module.Basic.Domains.State.Interfaces;
 using Microsoft.EntityFrameworkCore;

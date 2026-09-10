@@ -123,7 +123,7 @@ public class ProjectCommentController(
             command with
             {
                 UserId = ClaimReader.UserId(User),
-                UserName = nameClaim,
+                UserName = nameClaim
             },
             companyContext.CompanyId,
             cancellationToken);

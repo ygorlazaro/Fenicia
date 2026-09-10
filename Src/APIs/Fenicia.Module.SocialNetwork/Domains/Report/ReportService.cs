@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Enums.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Report.DTOs;

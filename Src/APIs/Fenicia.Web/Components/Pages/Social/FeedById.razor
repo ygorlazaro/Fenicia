@@ -462,7 +462,7 @@
                 ProfileId = currentProfileId,
                 FeedId = post.Id,
                 ParentCommentId = (Guid?)null,
-                Text = newCommentText,
+                Text = newCommentText
             };
             var json = System.Text.Json.JsonSerializer.Serialize(command);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -517,7 +517,7 @@
                 ProfileId = currentProfileId,
                 FeedId = post.Id,
                 ParentCommentId = parentCommentId,
-                Text = replyText,
+                Text = replyText
             };
             var json = System.Text.Json.JsonSerializer.Serialize(command);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");

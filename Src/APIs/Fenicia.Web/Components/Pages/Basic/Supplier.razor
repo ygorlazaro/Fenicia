@@ -2,9 +2,7 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
-@using Fenicia.Web.Services
 @using Fenicia.Web.Components.Shared
-@using System.Net.Http.Json
 @using System.Text.Json
 
 <CrudPage @ref="_crudPage" TItem="SupplierDto"
@@ -164,9 +162,9 @@
 
     private CrudPage<SupplierDto> _crudPage = default!;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        await LoadStatesAsync();
+        return LoadStatesAsync();
     }
 
     protected override void OnParametersSet()

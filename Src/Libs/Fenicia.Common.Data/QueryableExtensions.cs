@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -35,7 +34,7 @@ public static class QueryableExtensions
         var result = Expression.Call(
             typeof(Queryable),
             methodName,
-            new Type[] { typeof(T), property.Type },
+            [typeof(T), property.Type],
             query.Expression,
             Expression.Quote(lambda));
 
@@ -50,23 +49,12 @@ public static class QueryableExtensions
         }
 
         var parameter = Expression.Parameter(typeof(T), "x");
-        Expression? combinedExpression = null;
-
-        foreach (var filter in filters)
-        {
-            if (string.IsNullOrWhiteSpace(filter.Value))
-            {
-                continue;
-            }
-
-            var filterExpression = BuildFilterExpression(parameter, typeof(T), filter.Key, filter.Value);
-            if (filterExpression != null)
-            {
-                combinedExpression = combinedExpression is null
+        var combinedExpression = (from filter in filters where !string.IsNullOrWhiteSpace(filter.Value) select BuildFilterExpression(parameter, typeof(T), filter.Key, filter.Value)).OfType<Expression>()
+            .Aggregate<Expression?, Expression?>(
+                null,
+                (current, filterExpression) => current is null
                     ? filterExpression
-                    : Expression.AndAlso(combinedExpression, filterExpression);
-            }
-        }
+                    : Expression.AndAlso(current, filterExpression ?? throw new ArgumentNullException(nameof(filterExpression))));
 
         if (combinedExpression is null)
         {
@@ -85,18 +73,13 @@ public static class QueryableExtensions
         }
 
         var parameter = Expression.Parameter(typeof(T), "x");
-        Expression? combinedExpression = null;
-
-        foreach (var propertyPath in propertyPaths)
-        {
-            var filterExpression = BuildFilterExpression(parameter, typeof(T), propertyPath, searchTerm);
-            if (filterExpression != null)
-            {
-                combinedExpression = combinedExpression is null
+        Expression? combinedExpression = propertyPaths.Select(propertyPath => BuildFilterExpression(parameter, typeof(T), propertyPath, searchTerm))
+            .OfType<Expression>()
+            .Aggregate<Expression?, Expression?>(
+                null,
+                (current, filterExpression) => current is null
                     ? filterExpression
-                    : Expression.OrElse(combinedExpression, filterExpression);
-            }
-        }
+                    : Expression.OrElse(current, filterExpression));
 
         if (combinedExpression is null)
         {
@@ -147,7 +130,7 @@ public static class QueryableExtensions
                     .MakeGenericMethod(elementType);
 
                 var lambda = Expression.Lambda(innerExpr, itemParam);
-                return Expression.Call(anyMethod, new Expression[] { propertyAccess, lambda });
+                return Expression.Call(anyMethod, [propertyAccess, lambda]);
             }
 
             current = Expression.MakeMemberAccess(current, property);
@@ -161,7 +144,7 @@ public static class QueryableExtensions
                 return null;
             }
 
-            var containsMethod = typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) });
+            var containsMethod = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)]);
             if (containsMethod == null)
             {
                 return null;

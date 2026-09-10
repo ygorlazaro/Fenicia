@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Models;
 using Fenicia.Common.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,3 @@
-using System.Net.Http;
 using Fenicia.Web.Services;
 
 namespace Fenicia.Web;

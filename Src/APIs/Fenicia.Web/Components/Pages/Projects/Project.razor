@@ -152,7 +152,7 @@
     {
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.Small,
-        FullWidth = true,
+        FullWidth = true
     };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -291,7 +291,7 @@
         editModel = new ProjectFormModel
         {
             Status = "Active",
-            StartDateValue = DateTime.UtcNow,
+            StartDateValue = DateTime.UtcNow
         };
         dialogVisible = true;
     }
@@ -305,7 +305,7 @@
             Description = project.Description,
             Status = project.Status,
             StartDateValue = project.StartDate,
-            EndDateValue = project.EndDate,
+            EndDateValue = project.EndDate
         };
         dialogVisible = true;
     }
@@ -331,7 +331,7 @@
                     Status = editModel.Status,
                     StartDate = editModel.StartDateValue,
                     EndDate = editModel.EndDateValue,
-                    Owner = currentUserId,
+                    Owner = currentUserId
                 }
                 : new
                 {
@@ -341,7 +341,7 @@
                     Status = editModel.Status,
                     StartDate = editModel.StartDateValue,
                     EndDate = editModel.EndDateValue,
-                    Owner = currentUserId,
+                    Owner = currentUserId
                 };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -378,7 +378,7 @@
         "Paused" => Color.Warning,
         "Completed" => Color.Primary,
         "Cancelled" => Color.Default,
-        _ => Color.Default,
+        _ => Color.Default
     };
 
     private static string Truncate(string s, int len) => s.Length <= len ? s : s[..len] + "…";

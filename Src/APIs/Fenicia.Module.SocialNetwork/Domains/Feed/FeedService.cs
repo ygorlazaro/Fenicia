@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Feed.DTOs;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
@@ -90,7 +89,7 @@ public class FeedService(FeedRepository repository)
             CompanyId = companyId,
             TotalLikes = 0,
             TotalComments = 0,
-            TotalShares = 0,
+            TotalShares = 0
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);

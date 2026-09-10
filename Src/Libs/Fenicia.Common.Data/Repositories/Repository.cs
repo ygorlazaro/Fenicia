@@ -21,9 +21,9 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, cancellationToken);
+        return DbSet.FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, cancellationToken);
     }
 
     public async Task<T> InsertAsync(T model, CancellationToken cancellationToken = default)

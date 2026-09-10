@@ -4,7 +4,6 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -144,13 +143,13 @@ public class ProjectCommentServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
+    public Task DeleteAsync_WhenCalled_CallsRepositoryDelete()
     {
         var db = NewDb();
         var service = CreateService(db);
         var id = Guid.NewGuid();
 
-        await service.DeleteAsync(new DeleteProjectCommentCommand(id), CancellationToken.None);
+        return service.DeleteAsync(new DeleteProjectCommentCommand(id), CancellationToken.None);
     }
 
     private DefaultContext NewDb()

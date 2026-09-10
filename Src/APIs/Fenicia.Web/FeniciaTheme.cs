@@ -35,24 +35,24 @@ public static class FeniciaTheme
             LinesDefault = "rgba(0,0,0,0.12)",
             TableLines = "rgba(0,0,0,0.06)",
             TableStriped = "rgba(0,0,0,0.02)",
-            TableHover = "rgba(94, 53, 177, 0.04)",
+            TableHover = "rgba(94, 53, 177, 0.04)"
         },
         PaletteDark = new PaletteDark
         {
             Primary = "#9575cd",
             Secondary = "#ff8f00",
-            Tertiary = "#00b0ff",
+            Tertiary = "#00b0ff"
         },
         LayoutProperties = new LayoutProperties
         {
             DefaultBorderRadius = "12px",
-            AppbarHeight = "64px",
+            AppbarHeight = "64px"
         },
         Typography = new Typography
         {
             Default = new DefaultTypography
             {
-                FontFamily = new[] { "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif" },
+                FontFamily = new[] { "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif" }
             },
             H1 = new H1Typography { FontSize = "3rem", FontWeight = "700" },
             H2 = new H2Typography { FontSize = "2.25rem", FontWeight = "700" },
@@ -60,7 +60,7 @@ public static class FeniciaTheme
             H4 = new H4Typography { FontSize = "1.5rem", FontWeight = "600" },
             H5 = new H5Typography { FontSize = "1.25rem", FontWeight = "600" },
             H6 = new H6Typography { FontSize = "1.125rem", FontWeight = "600" },
-            Button = new ButtonTypography { FontWeight = "600", TextTransform = "none" },
-        },
+            Button = new ButtonTypography { FontWeight = "600", TextTransform = "none" }
+        }
     };
 }

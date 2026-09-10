@@ -5,7 +5,7 @@ public class CompanyHeaderHandler(IHttpContextAccessor httpContextAccessor) : De
     private const string _headerName = "CompanyId";
     private const string _cookieName = "selected_company_id";
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         Guid? companyId = null;
 
@@ -25,6 +25,6 @@ public class CompanyHeaderHandler(IHttpContextAccessor httpContextAccessor) : De
             request.Headers.Add(_headerName, companyId.Value.ToString());
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        return base.SendAsync(request, cancellationToken);
     }
 }
