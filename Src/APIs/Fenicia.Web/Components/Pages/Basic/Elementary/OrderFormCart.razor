@@ -1,0 +1,224 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+@using Fenicia.Common.Enums.Auth
+@using Fenicia.Common.Enums.Basic
+
+<MudPaper Elevation="2" Class="pa-4 pdv-cart">
+    <MudText Typo="Typo.h6" Class="mb-3">
+        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+        Carrinho (@Cart.Count)
+    </MudText>
+
+    <MudGrid Spacing="2">
+        <MudItem xs="12">
+            <MudSelect T="Guid"
+                       @bind-Value="CartCustomerId"
+                       Label="Cliente"
+                       Variant="Variant.Outlined"
+                       Required="true"
+                       RequiredError="Selecione um cliente">
+                @foreach (var c in Customers)
+                {
+                    <MudSelectItem T="Guid" Value="@c.Id">@c.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="Guid?" @bind-Value="CartEmployeeId" Label="Vendedor" Variant="Variant.Outlined" Clearable="true">
+                @foreach (var e in Employees)
+                {
+                    <MudSelectItem T="Guid?" Value="@e.Id">@e.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="PaymentMethod" @bind-Value="CartPaymentMethod" Label="Pagamento" Variant="Variant.Outlined" Required="true">
+                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Cash">Dinheiro</MudSelectItem>
+                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.CreditCard">Cartão de Crédito</MudSelectItem>
+                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.DebitCard">Cartão de Débito</MudSelectItem>
+                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Pix">PIX</MudSelectItem>
+                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Boleto">Boleto</MudSelectItem>
+                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.BankTransfer">Transferência</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="OrderStatus" @bind-Value="CartStatus" Label="Status" Variant="Variant.Outlined">
+                <MudSelectItem T="OrderStatus" Value="OrderStatus.Approved">Aprovado</MudSelectItem>
+                <MudSelectItem T="OrderStatus" Value="OrderStatus.Pending">Pendente</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudNumericField T="decimal" @bind-Value="CartDiscount" Label="Desconto (R$)" Variant="Variant.Outlined" Min="0" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField @bind-Value="CartNotes" Label="Observações" Variant="Variant.Outlined" Lines="2" />
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="my-3" />
+
+    @if (!Cart.Any())
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Class="mb-3">
+            Clique nos produtos para adicionar ao carrinho.
+        </MudAlert>
+    }
+    else
+    {
+        <div class="pdv-cart-items">
+            @foreach (var item in Cart)
+            {
+                <MudPaper Elevation="0" Class="pa-2 mb-2 pdv-cart-item">
+                    <MudStack Spacing="1">
+                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                            <MudText Typo="Typo.subtitle2" Class="pdv-cart-item-name">@item.Name</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                           Size="Size.Small"
+                                           Color="Color.Error"
+                                           OnClick="@(() => OnRemove.InvokeAsync(item.ProductId))" />
+                        </MudStack>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                               Size="Size.Small"
+                                               Color="Color.Default"
+                                               OnClick="@(() => OnDecrease.InvokeAsync(item.ProductId))" />
+                                <MudNumericField T="double"
+                                                 Value="@item.Quantity"
+                                                  ValueChanged="@((double v) => OnUpdateQty.InvokeAsync(new OrderFormCartUpdatePayload(item.ProductId, v)))"
+                                                 Variant="Variant.Outlined"
+                                                 Margin="Margin.Dense"
+                                                 Min="0.01"
+                                                 Style="width:90px" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                               Size="Size.Small"
+                                               Color="Color.Default"
+                                               OnClick="@(() => OnIncrease.InvokeAsync(item.ProductId))" />
+                            </MudStack>
+                            <MudStack Spacing="0" AlignItems="AlignItems.End">
+                                <MudText Typo="Typo.caption" Color="Color.Default">
+                                    @Money.Format(item.UnitPrice) x @item.Quantity.ToString("0.##")
+                                </MudText>
+                                <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                                    @Money.Format(item.Subtotal)
+                                </MudText>
+                            </MudStack>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+            }
+        </div>
+    }
+
+    <MudDivider Class="my-3" />
+
+    <MudStack Spacing="0">
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudText>Itens:</MudText>
+            <MudText>@TotalQuantity.ToString("0.##")</MudText>
+        </MudStack>
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudText>Subtotal:</MudText>
+            <MudText>@Money.Format(Subtotal)</MudText>
+        </MudStack>
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudText>Desconto:</MudText>
+            <MudText Color="Color.Warning">- @Money.Format(CartDiscount)</MudText>
+        </MudStack>
+        <MudDivider Class="my-2" />
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudText Typo="Typo.h6">Total:</MudText>
+            <MudText Typo="Typo.h6" Color="Color.Primary">@Money.Format(Total)</MudText>
+        </MudStack>
+    </MudStack>
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Success"
+               FullWidth="true"
+               Size="Size.Large"
+               StartIcon="@Icons.Material.Filled.PointOfSale"
+               OnClick="OnFinalize"
+               Disabled="!CanFinalize || IsSubmitting"
+               Class="mt-4">
+        @if (IsSubmitting)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+            <span>Finalizando...</span>
+        }
+        else
+        {
+            <span>Finalizar Pedido</span>
+        }
+    </MudButton>
+
+    <MudDivider Class="my-4" />
+
+    <MudText Typo="Typo.h6" Class="mb-2">
+        <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" />
+        Pedidos recentes
+    </MudText>
+
+    @if (RecentOrders is null)
+    {
+        <div class="d-flex justify-center my-2">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+        </div>
+    }
+    else if (!RecentOrders.Any())
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">Nenhum pedido registrado.</MudAlert>
+    }
+    else
+    {
+        <div class="pdv-recent-orders">
+            @foreach (var o in RecentOrders)
+            {
+                <MudPaper Elevation="0" Class="pa-2 mb-2 pdv-recent-order">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudStack Spacing="0">
+                            <MudLink Href="@($"/basic/order/{o.Id}")" Underline="Underline.Hover">
+                                <MudText Typo="Typo.subtitle2">@o.OrderNumber</MudText>
+                            </MudLink>
+                            <MudLink Href="@($"/basic/customer?edit={o.CustomerId}")" Underline="Underline.Hover">
+                                <MudText Typo="Typo.caption" Color="Color.Default">@o.CustomerName</MudText>
+                            </MudLink>
+                            <MudText Typo="Typo.caption" Color="Color.Default">@o.TotalQuantity.ToString("0.##") itens · @o.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudText>
+                        </MudStack>
+                        <MudStack Spacing="0" AlignItems="AlignItems.End">
+                            <MudChip T="string"
+                                     Size="Size.Small"
+                                     Color="@(o.Status == "Approved" ? Color.Success : o.Status == "Cancelled" ? Color.Error : Color.Warning)"
+                                     Variant="Variant.Filled">
+                                @o.Status
+                            </MudChip>
+                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">@Money.Format(o.TotalAmount)</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+            }
+        </div>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public List<OrderFormCartItem> Cart { get; set; } = [];
+    [Parameter, EditorRequired] public Guid CartCustomerId { get; set; }
+    [Parameter] public Guid? CartEmployeeId { get; set; }
+    [Parameter] public PaymentMethod CartPaymentMethod { get; set; } = PaymentMethod.Cash;
+    [Parameter] public OrderStatus CartStatus { get; set; } = OrderStatus.Approved;
+    [Parameter] public decimal CartDiscount { get; set; }
+    [Parameter] public string? CartNotes { get; set; }
+    [Parameter, EditorRequired] public List<OrderFormCustomerOption> Customers { get; set; } = [];
+    [Parameter, EditorRequired] public List<OrderFormEmployeeOption> Employees { get; set; } = [];
+    [Parameter, EditorRequired] public List<OrderFormRecentOrderDto>? RecentOrders { get; set; }
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public EventCallback<Guid> OnRemove { get; set; }
+    [Parameter] public EventCallback<OrderFormCartUpdatePayload> OnUpdateQty { get; set; }
+    [Parameter] public EventCallback<Guid> OnIncrease { get; set; }
+    [Parameter] public EventCallback<Guid> OnDecrease { get; set; }
+    [Parameter] public EventCallback OnFinalize { get; set; }
+
+    private int TotalQuantity => (int)Cart.Sum(c => c.Quantity);
+    private decimal Subtotal => Cart.Sum(c => c.Subtotal);
+    private decimal Total => Math.Max(0, Subtotal - CartDiscount);
+    private bool CanFinalize => Cart.Any() && CartCustomerId != Guid.Empty;
+}

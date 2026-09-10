@@ -1,0 +1,31 @@
+<MudPaper Elevation="2" Class="pa-4">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <div>
+            <MudText Typo="Typo.h5">Pedidos</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Default">Selecione os produtos e finalize a venda.</MudText>
+        </div>
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       OnClick="OnRefresh"
+                       Disabled="Loading">
+                Atualizar
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Warning"
+                       StartIcon="@Icons.Material.Filled.ClearAll"
+                       OnClick="OnClearCart"
+                        Disabled="!HasCartItems">
+                 Limpar Carrinho
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool HasCartItems { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+    [Parameter] public EventCallback OnClearCart { get; set; }
+}

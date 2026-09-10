@@ -5,26 +5,24 @@
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
 @inject ISnackbar Snackbar
-@using Fenicia.Web.Components.Shared
 @using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
-@using Fenicia.Common.Enums.Basic
 
-<PageTitle>Pedido @(_order?.OrderNumber ?? "...") - Fenicia</PageTitle>
+<PageTitle>Pedido @(order?.OrderNumber ?? "...") - Fenicia</PageTitle>
 
 <MainLayout>
     @if (!isLoggedIn)
     {
         <MudAlert Severity="Severity.Error">Faça login para visualizar pedidos.</MudAlert>
     }
-    else if (_isLoading)
+    else if (isLoading)
     {
         <div class="d-flex justify-center my-16">
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
         </div>
     }
-    else if (_order is null)
+    else if (order is null)
     {
         <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
             Pedido não encontrado.
@@ -35,31 +33,21 @@
     {
         <MudGrid Spacing="3">
             <MudItem xs="12">
-                <OrderDetailHeader Order="_order" OnPrint="PrintInvoice" />
+                <OrderDetailHeader Order="order" OnPrint="PrintInvoice" />
             </MudItem>
 
             <MudItem xs="12" md="8">
-                <OrderDetailItemsTable Items="_details" />
+                <OrderDetailItemsTable Items="details" />
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <OrderDetailSummary Order="_order" />
+                <OrderDetailSummary Order="order" />
             </MudItem>
         </MudGrid>
     }
 </MainLayout>
 
 <style>
-    .invoice-section {
-        min-height: 200px;
-    }
-
-    .invoice-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     @@media print {
         .mud-appbar, .mud-drawer, .fenicia-footer, .mud-button, .mud-icon-button {
             display: none !important;
@@ -82,9 +70,9 @@
     [Parameter] public Guid Id { get; set; }
 
     private bool isLoggedIn;
-    private bool _isLoading = true;
-    private OrderDetailOrderDto? _order;
-    private List<OrderDetailItemDto> _details = [];
+    private bool isLoading = true;
+    private OrderDetailOrderDto? order;
+    private List<OrderDetailItemDto> details = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -108,25 +96,27 @@
         }
         else
         {
-            _isLoading = false;
+            isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
     }
 
     protected override void OnParametersSet()
     {
-        if (_order is not null && _order.Id != Id)
+        if (order is null || order.Id == Id)
         {
-            _order = null;
-            _details = [];
+            return;
         }
+
+        order = null;
+        details = [];
     }
 
     private async Task LoadOrderAsync()
     {
         try
         {
-            _isLoading = true;
+            isLoading = true;
             StateHasChanged();
 
             var client = HttpClientFactory.CreateClient("FeniciaBasic");
@@ -151,13 +141,13 @@
             if (orderTask.Result.IsSuccessStatusCode)
             {
                 var body = await orderTask.Result.Content.ReadAsStringAsync();
-                _order = JsonSerializer.Deserialize<OrderDetailOrderDto>(body, JsonOptions);
+                order = JsonSerializer.Deserialize<OrderDetailOrderDto>(body, JsonOptions);
             }
 
             if (detailsTask.Result.IsSuccessStatusCode)
             {
                 var body = await detailsTask.Result.Content.ReadAsStringAsync();
-                _details = JsonSerializer.Deserialize<List<OrderDetailItemDto>>(body, JsonOptions) ?? [];
+                details = JsonSerializer.Deserialize<List<OrderDetailItemDto>>(body, JsonOptions) ?? [];
             }
         }
         catch (Exception ex)
@@ -166,7 +156,7 @@
         }
         finally
         {
-            _isLoading = false;
+            isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
     }

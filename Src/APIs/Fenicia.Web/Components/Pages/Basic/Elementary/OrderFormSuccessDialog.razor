@@ -1,0 +1,30 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+@inject NavigationManager NavigationManager
+
+<MudDialog @bind-Visible="Visible" Options="DialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Class="mr-2" />
+            Pedido finalizado
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <MudText>Pedido <strong>@LastOrderNumber</strong> criado com sucesso!</MudText>
+            <MudText>Total: <strong>@Money.Format(LastOrderTotal)</strong></MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="OnStartNewSale">Novo Pedido</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => NavigationManager.NavigateTo($"/basic/order/{LastOrderId}"))">Ver Pedido</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public string? LastOrderNumber { get; set; }
+    [Parameter] public decimal LastOrderTotal { get; set; }
+    [Parameter] public Guid LastOrderId { get; set; }
+    [Parameter] public DialogOptions DialogOptions { get; set; } = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
+    [Parameter] public EventCallback OnStartNewSale { get; set; }
+}

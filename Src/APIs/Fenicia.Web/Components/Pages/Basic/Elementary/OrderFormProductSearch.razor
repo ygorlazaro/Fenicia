@@ -1,0 +1,97 @@
+@using Fenicia.Web.Components.Pages.Basic.Models
+
+<MudPaper Elevation="2" Class="pa-4">
+    <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+        <MudItem xs="12" sm="10">
+            <MudTextField @bind-Value="Search"
+                          Label="Buscar produto (nome, SKU ou código de barras)"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true"
+                          OnKeyDown="OnSearchKeyDown" />
+        </MudItem>
+        <MudItem xs="12" sm="2">
+            <MudStack Row="true" Justify="Justify.FlexEnd">
+                <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined">
+                    @((FilteredProducts as IList<OrderFormDashboardProductDto> ?? FilteredProducts.ToList()).Count + " produto(s)")
+                </MudChip>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="my-3" />
+
+    @if (Loading)
+    {
+        <div class="d-flex justify-center my-8">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        </div>
+    }
+    else if (!FilteredProducts.Any())
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">Nenhum produto disponível.</MudAlert>
+    }
+    else
+    {
+        <div class="pdv-product-grid">
+            @foreach (var product in FilteredProducts)
+            {
+                <MudCard Elevation="1"
+                         Class="@($"pdv-product-card {(product.Quantity <= 0 ? "pdv-product-disabled" : string.Empty)}")"
+                         @onclick="@(() => OnProductClick.InvokeAsync(product))">
+                    <MudCardContent Class="pa-3">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.subtitle2" Class="pdv-product-name">@product.Name</MudText>
+                            @if (!string.IsNullOrEmpty(product.SKU))
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Default">SKU: @product.SKU</MudText>
+                            }
+                            @if (!string.IsNullOrEmpty(product.Barcode))
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Default">Cód: @product.Barcode</MudText>
+                            }
+                            <MudText Typo="Typo.caption" Color="Color.Default">@product.CategoryName</MudText>
+                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-1">
+                                <MudChip T="string"
+                                         Size="Size.Small"
+                                         Color="@(product.Quantity > 0 ? Color.Success : Color.Error)"
+                                         Variant="Variant.Filled">
+                                    @(product.Quantity > 0 ? $"Estoque: {product.Quantity:0.##}" : "Sem estoque")
+                                </MudChip>
+                                <MudText Typo="Typo.h6" Color="Color.Primary">
+                                    @Money.Format(product.SalesPrice)
+                                </MudText>
+                            </MudStack>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            }
+        </div>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public IEnumerable<OrderFormDashboardProductDto> Products { get; set; } = [];
+    [Parameter] public string? Search { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public EventCallback<KeyboardEventArgs> OnSearchKeyDown { get; set; }
+    [Parameter] public EventCallback<OrderFormDashboardProductDto> OnProductClick { get; set; }
+
+    private IEnumerable<OrderFormDashboardProductDto> FilteredProducts
+    {
+        get
+        {
+            var query = Products.Where(p => p.IsActive);
+            if (!string.IsNullOrWhiteSpace(Search))
+            {
+                var term = Search.Trim();
+                query = query.Where(p =>
+                    (p.Name ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (p.SKU ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (p.Barcode ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+            return query.OrderBy(p => p.Name).ToList();
+        }
+    }
+}

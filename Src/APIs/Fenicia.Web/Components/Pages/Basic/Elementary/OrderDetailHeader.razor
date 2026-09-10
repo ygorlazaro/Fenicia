@@ -34,14 +34,18 @@
 </MudPaper>
 
 @code {
-    [Parameter, EditorRequired] public OrderDetailOrderDto Order { get; set; } = default!;
+    [Parameter][EditorRequired] public OrderDetailOrderDto Order { get; set; } = default!;
     [Parameter] public EventCallback OnPrint { get; set; }
 
-    private static Color StatusColor(string status) => status switch
+    private static Color StatusColor(string status)
     {
-        "Approved" => Color.Success,
-        "Pending" => Color.Warning,
-        "Cancelled" => Color.Error,
-        _ => Color.Default
-    };
+        return status switch
+        {
+            "Approved" => Color.Success,
+            "Pending" => Color.Warning,
+            "Cancelled" => Color.Error,
+            _ => Color.Default
+        };
+    }
+
 }
