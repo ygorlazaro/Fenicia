@@ -1,0 +1,52 @@
+<MudDrawer @bind-Open="Open" Anchor="Anchor.Left" Variant="DrawerVariant.Temporary"
+           Breakpoint="Breakpoint.Md">
+    <MudNavMenu>
+        @if (IsLoggedIn)
+        {
+            <MudNavLink Href="/dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Painel</MudNavLink>
+            <MudNavLink Href="/shop" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Loja</MudNavLink>
+            <MudNavGroup Title="Básico" Icon="@Icons.Material.Filled.Category" Expanded="false">
+                <MudNavLink Href="/basic/productcategory" Match="NavLinkMatch.All"
+                            Icon="@Icons.Material.Filled.Category">Categorias de Produtos</MudNavLink>
+                <MudNavLink Href="/basic/position" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.WorkOutline">
+                    Cargos</MudNavLink>
+                <MudNavLink Href="/basic/supplier" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LocalShipping">
+                    Fornecedores</MudNavLink>
+                <MudNavLink Href="/basic/customer" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.People">
+                    Clientes</MudNavLink>
+                <MudNavLink Href="/basic/employee" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Badge">
+                    Funcionários</MudNavLink>
+                <MudNavLink Href="/basic/product" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Inventory">
+                    Produtos</MudNavLink>
+                <MudNavLink Href="/basic/stockmovement" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SwapVert">
+                    Movimentações</MudNavLink>
+                <MudNavLink Href="/basic/inventory" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Assessment">
+                    Inventário</MudNavLink>
+                <MudNavLink Href="/basic/order" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PointOfSale">
+                    Pedidos</MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="Rede Social" Icon="@Icons.Material.Filled.Share" Expanded="false">
+                <MudNavLink Href="/socialnetwork/feed" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Feed</MudNavLink>
+                <MudNavLink Href="/profile" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Person">
+                    Meu Perfil</MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="Projetos" Icon="@Icons.Material.Filled.Folder" Expanded="false">
+                <MudNavLink Href="/project" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ViewModule">Quadros</MudNavLink>
+            </MudNavGroup>
+            <MudNavLink Href="/logout" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout">
+                Sair
+            </MudNavLink>
+        }
+        else
+        {
+            <MudNavLink Href="/signup" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd">Criar Conta</MudNavLink>
+            <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Entrar</MudNavLink>
+        }
+    </MudNavMenu>
+</MudDrawer>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    [Parameter] public bool IsLoggedIn { get; set; }
+}
