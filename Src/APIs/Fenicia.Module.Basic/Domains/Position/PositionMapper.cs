@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Position.DTOs;
+using Fenicia.Common.DTOs.Basic.Position;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Position;

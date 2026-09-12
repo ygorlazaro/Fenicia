@@ -1,7 +1,7 @@
 using System.Net.Mime;
-using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.ForgotPassword;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

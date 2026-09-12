@@ -1,9 +1,9 @@
-using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.Enums.Auth;
 using Microsoft.EntityFrameworkCore;
 

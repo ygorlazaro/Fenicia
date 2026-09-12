@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Order.DTOs;
+using Fenicia.Common.DTOs.Auth.Order;
 
 namespace Fenicia.Auth.Domains.Order.Interfaces;
 

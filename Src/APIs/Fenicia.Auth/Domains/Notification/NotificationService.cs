@@ -1,7 +1,7 @@
-using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Notification;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification;

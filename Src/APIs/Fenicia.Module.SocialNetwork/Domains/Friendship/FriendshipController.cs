@@ -1,7 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Friendship;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

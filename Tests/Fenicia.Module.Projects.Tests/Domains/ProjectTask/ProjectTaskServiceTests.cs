@@ -1,9 +1,9 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.DTOs.Project.ProjectTask;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTask;
-using Fenicia.Module.Projects.Domains.ProjectTask.DTOs;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Moq;
 

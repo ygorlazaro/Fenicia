@@ -1,0 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+using Fenicia.Common;
+using Fenicia.Common.DTOs.Basic.Address;
+
+namespace Fenicia.Common.DTOs.Basic.Employee;
+
+public record GetEmployeeByIdResponse([Required] Guid Id,
+    [Required] Guid PositionId,
+    [Required] Guid PersonId,
+    [Required] [MaxLength(200)] string Name,
+    string? Email,
+    string? PhoneNumber,
+    string? Document,
+    AddressResponse? Address) : ICrudItem;

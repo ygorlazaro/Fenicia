@@ -1,7 +1,7 @@
 using Fenicia.Common;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-using Fenicia.Module.Basic.Domains.Supplier.DTOs;
+using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.Supplier;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 

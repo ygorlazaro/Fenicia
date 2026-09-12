@@ -1,10 +1,10 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Product;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.Product.DTOs;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Moq;

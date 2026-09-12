@@ -1,6 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
+using Fenicia.Common.DTOs.Basic.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

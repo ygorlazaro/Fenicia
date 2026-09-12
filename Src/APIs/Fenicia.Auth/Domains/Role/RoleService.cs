@@ -1,6 +1,6 @@
-using Fenicia.Auth.Domains.Role.DTOs;
 using Fenicia.Auth.Domains.Role.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Role;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Role;

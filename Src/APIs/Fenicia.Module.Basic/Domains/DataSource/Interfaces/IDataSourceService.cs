@@ -1,4 +1,4 @@
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Common.DTOs.Basic.DataSource;
 
 namespace Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 

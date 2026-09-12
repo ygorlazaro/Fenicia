@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using AwesomeAssertions;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

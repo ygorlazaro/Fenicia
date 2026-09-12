@@ -1,4 +1,3 @@
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Common.Enums.Auth
 @using Fenicia.Common.Enums.Basic
 
@@ -214,7 +213,7 @@
     [Parameter] public string? CartNotes { get; set; }
     [Parameter][EditorRequired] public List<OrderFormCustomerOption> Customers { get; set; } = [];
     [Parameter][EditorRequired] public List<OrderFormEmployeeOption> Employees { get; set; } = [];
-    [Parameter][EditorRequired] public List<OrderFormRecentOrderDto>? RecentOrders { get; set; }
+    [Parameter][EditorRequired] public List<GetAllOrderResponse>? RecentOrders { get; set; }
     [Parameter] public bool IsSubmitting { get; set; }
     [Parameter] public EventCallback<Guid> OnRemove { get; set; }
     [Parameter] public EventCallback<OrderFormCartUpdatePayload> OnUpdateQty { get; set; }

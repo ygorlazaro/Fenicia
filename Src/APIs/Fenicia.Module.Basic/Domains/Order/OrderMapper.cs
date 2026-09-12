@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Order.DTOs;
+using Fenicia.Common.DTOs.Basic.Order;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Order;

@@ -7,10 +7,11 @@
         <AnalysisMode>all</AnalysisMode>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <NoWarn>$(NoWarn);NU1510</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2026.2.0"/>
-        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.11"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.12"/>
     </ItemGroup>
 </Project>

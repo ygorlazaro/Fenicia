@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Supplier;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier;
-using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;

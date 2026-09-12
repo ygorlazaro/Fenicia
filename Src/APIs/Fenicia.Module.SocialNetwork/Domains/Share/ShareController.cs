@@ -1,8 +1,8 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
+using Fenicia.Common.DTOs.SocialNetwork.Share;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
-using Fenicia.Module.SocialNetwork.Domains.Share.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

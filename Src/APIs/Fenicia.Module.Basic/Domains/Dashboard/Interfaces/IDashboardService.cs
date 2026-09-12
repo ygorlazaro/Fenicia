@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
+using Fenicia.Common.DTOs.Basic.Dashboard;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 

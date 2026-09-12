@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
+using Fenicia.Common.DTOs.Basic.Inventory;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;

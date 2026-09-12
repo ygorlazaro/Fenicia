@@ -1,6 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
-using Fenicia.Module.SocialNetwork.Domains.Friendship.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Friendship;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;

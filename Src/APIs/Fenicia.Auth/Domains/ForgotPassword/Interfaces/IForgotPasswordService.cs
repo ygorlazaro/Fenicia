@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.ForgotPassword.DTOs;
+using Fenicia.Common.DTOs.Auth.ForgotPassword;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 

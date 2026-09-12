@@ -1,5 +1,5 @@
 using Fenicia.Common;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 

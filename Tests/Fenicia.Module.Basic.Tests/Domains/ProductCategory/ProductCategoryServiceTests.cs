@@ -3,8 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 

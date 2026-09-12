@@ -1,6 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
-using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

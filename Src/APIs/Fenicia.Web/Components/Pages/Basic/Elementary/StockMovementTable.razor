@@ -1,4 +1,3 @@
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Common.Enums.Basic
 
 <MudPaper Class="pa-4" Elevation="2">
@@ -17,7 +16,7 @@
     }
     else
     {
-        <MudTable T="StockMovementDto" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
+        <MudTable T="GetStockMovementResponse" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
             <HeaderContent>
                 <MudTh Style="text-align: left; min-width: 120px; width: 120px">Ações</MudTh>
                 <MudTh>Data</MudTh>
@@ -92,11 +91,11 @@
 </MudPaper>
 
 @code {
-    [Parameter, EditorRequired] public List<StockMovementDto> Items { get; set; } = [];
+    [Parameter, EditorRequired] public List<GetStockMovementResponse> Items { get; set; } = [];
     [Parameter] public bool Loading { get; set; }
-    [Parameter] public EventCallback<StockMovementDto> OnEdit { get; set; }
+    [Parameter] public EventCallback<GetStockMovementResponse> OnEdit { get; set; }
 
-    private static string ResolveOrigin(StockMovementDto m)
+    private static string ResolveOrigin(GetStockMovementResponse m)
     {
         if (!string.IsNullOrEmpty(m.SupplierName)) return $"Fornecedor: {m.SupplierName}";
         if (!string.IsNullOrEmpty(m.CustomerName)) return $"Cliente: {m.CustomerName}";

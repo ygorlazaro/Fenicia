@@ -1,10 +1,10 @@
 using Bogus;
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Module.DTOs;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.Enums.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

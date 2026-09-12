@@ -1,4 +1,4 @@
-using Fenicia.Module.Projects.Domains.ProjectAttachment.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectAttachment;
 
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 

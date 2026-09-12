@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.Order.DTOs;
 using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.Order;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

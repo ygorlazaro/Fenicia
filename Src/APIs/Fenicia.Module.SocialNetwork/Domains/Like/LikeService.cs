@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Common.DTOs.SocialNetwork.Like;
 using Fenicia.Module.SocialNetwork.Domains.Feed;
-using Fenicia.Module.SocialNetwork.Domains.Like.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Like;

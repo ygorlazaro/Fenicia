@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
-using Fenicia.Module.SocialNetwork.Domains.Attachment.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Attachment;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Attachment;

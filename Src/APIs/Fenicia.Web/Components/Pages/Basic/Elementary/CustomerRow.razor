@@ -1,4 +1,3 @@
-@using Fenicia.Web.Components.Pages.Basic.Models
 
 <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
     <MudIconButton Icon="@Icons.Material.Filled.Edit"
@@ -18,7 +17,7 @@
 <MudTd DataLabel="Estado">@(string.IsNullOrEmpty(Item.Address?.StateName) ? "—" : Item.Address.StateName)</MudTd>
 
 @code {
-    [Parameter] public CustomerDto Item { get; set; } = default!;
-    [Parameter] public EventCallback<CustomerDto> OnEdit { get; set; }
-    [Parameter] public EventCallback<CustomerDto> OnDelete { get; set; }
+    [Parameter] public GetAllCustomerResponse Item { get; set; } = default!;
+    [Parameter] public EventCallback<GetAllCustomerResponse> OnEdit { get; set; }
+    [Parameter] public EventCallback<GetAllCustomerResponse> OnDelete { get; set; }
 }

@@ -1,4 +1,4 @@
-using Fenicia.Module.Projects.Domains.Team.DTOs;
+using Fenicia.Common.DTOs.Project.Team;
 
 namespace Fenicia.Module.Projects.Domains.Team.Interfaces;
 

@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using AwesomeAssertions;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Basic.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

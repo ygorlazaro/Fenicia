@@ -4,7 +4,6 @@
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
 @inject ISnackbar Snackbar
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 @using Fenicia.Common.Enums.Auth
@@ -78,10 +77,10 @@
 
     private string? search;
 
-    private List<OrderFormDashboardProductDto> products = [];
+    private List<GetAllProductResponse> products = [];
     private List<OrderFormCustomerOption> customers = [];
     private List<OrderFormEmployeeOption> employees = [];
-    private List<OrderFormRecentOrderDto>? recentOrders;
+    private List<GetAllOrderResponse>? recentOrders;
 
     private readonly List<OrderFormCartItem> cart = [];
 
@@ -154,7 +153,7 @@
             if (productsTask.Result.IsSuccessStatusCode)
             {
                 var body = await productsTask.Result.Content.ReadAsStringAsync();
-                products = JsonSerializer.Deserialize<List<OrderFormDashboardProductDto>>(body, JsonOptions) ?? [];
+                products = JsonSerializer.Deserialize<List<GetAllProductResponse>>(body, JsonOptions) ?? [];
             }
 
             if (customersTask.Result.IsSuccessStatusCode)
@@ -173,7 +172,7 @@
             if (recentOrdersTask.Result.IsSuccessStatusCode)
             {
                 var body = await recentOrdersTask.Result.Content.ReadAsStringAsync();
-                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<OrderFormRecentOrderDto>>(body, JsonOptions);
+                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
                 recentOrders = paginated?.Data ?? [];
             }
         }
@@ -196,7 +195,7 @@
         }
     }
 
-    private void AddToCart(OrderFormDashboardProductDto product)
+    private void AddToCart(GetAllProductResponse product)
     {
         if (product.Quantity <= 0)
         {
@@ -346,7 +345,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<OrderFormRecentOrderDto>>(body, JsonOptions);
+                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
                 recentOrders = paginated?.Data ?? [];
                 await InvokeAsync(StateHasChanged);
             }
@@ -415,7 +414,7 @@
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            var created = JsonSerializer.Deserialize<OrderFormCreateOrderResponseDto>(json, JsonOptions);
+            var created = JsonSerializer.Deserialize<CreateOrderResponse>(json, JsonOptions);
             if (created is not null)
             {
                 lastOrderId = created.Id;

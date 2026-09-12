@@ -4,10 +4,10 @@ using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Auth.Domains.Role.Interfaces;
 using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
 using Moq;
 

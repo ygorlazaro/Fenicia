@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.Notification;
-using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.Notification;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

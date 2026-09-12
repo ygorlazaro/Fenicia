@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Address.DTOs;
-using Fenicia.Module.Basic.Domains.Employee.DTOs;
+using Fenicia.Common.DTOs.Basic.Address;
+using Fenicia.Common.DTOs.Basic.Employee;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Employee;

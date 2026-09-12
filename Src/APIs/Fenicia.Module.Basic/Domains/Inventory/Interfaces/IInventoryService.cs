@@ -1,4 +1,4 @@
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
+using Fenicia.Common.DTOs.Basic.Inventory;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 

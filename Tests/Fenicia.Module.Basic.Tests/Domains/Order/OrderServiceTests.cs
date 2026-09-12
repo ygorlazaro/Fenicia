@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Order;
+using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Moq;
 

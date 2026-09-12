@@ -1,6 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
-using Fenicia.Module.SocialNetwork.Domains.Report.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Report;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

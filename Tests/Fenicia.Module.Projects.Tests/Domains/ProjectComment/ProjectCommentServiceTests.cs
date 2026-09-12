@@ -4,8 +4,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.DTOs.Project.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment;
-using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 

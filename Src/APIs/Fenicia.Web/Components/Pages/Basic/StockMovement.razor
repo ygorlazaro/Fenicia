@@ -3,7 +3,6 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @inject ISnackbar Snackbar
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 @using Fenicia.Common.Enums.Basic
@@ -62,7 +61,7 @@
     private bool modalOpen;
     private bool isEdit;
 
-    private List<StockMovementDto> movements = [];
+    private List<GetStockMovementResponse> movements = [];
     private StockMovementKpi kpi = new();
 
     private List<DatasourceItem> products = [];
@@ -129,7 +128,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                movements = JsonSerializer.Deserialize<List<StockMovementDto>>(body, JsonOptions) ?? [];
+                movements = JsonSerializer.Deserialize<List<GetStockMovementResponse>>(body, JsonOptions) ?? [];
                 ComputeKpi();
             }
             else
@@ -207,7 +206,7 @@
         modalOpen = true;
     }
 
-    private void OpenEditModal(StockMovementDto item)
+    private void OpenEditModal(GetStockMovementResponse item)
     {
         isEdit = true;
         form = new MovementFormModel

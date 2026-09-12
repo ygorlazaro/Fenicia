@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;

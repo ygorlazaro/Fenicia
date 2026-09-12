@@ -1,0 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Fenicia.Common.DTOs.SocialNetwork.Feed;
+
+public record AddFeedResponse(
+    [Required] Guid Id,
+    [Required] DateTime Date,
+    [Required] [MaxLength(200)] string Text,
+    [Required] Guid ProfileId,
+    [Required] Guid CompanyId,
+    Guid? OriginalFeedId);

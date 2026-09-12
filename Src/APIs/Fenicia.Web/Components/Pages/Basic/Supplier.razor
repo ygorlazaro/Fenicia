@@ -3,11 +3,10 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Shared
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
-<CrudPage TItem="SupplierDto"
+<CrudPage TItem="GetAllSupplierResponse"
           PageTitle="Fornecedores"
           PageSubtitle="Gerencie os fornecedores da sua empresa"
           EntityNamePlural="fornecedores"
@@ -85,7 +84,7 @@
 
     private void ResetForm() => add = new SupplierFormModel();
 
-    private void LoadForm(SupplierDto item)
+    private void LoadForm(GetAllSupplierResponse item)
     {
         edit = item is null
             ? new SupplierFormModel()
@@ -106,7 +105,7 @@
             };
     }
 
-    private object CreatePayload(CrudModalContext<SupplierDto> ctx)
+    private object CreatePayload(CrudModalContext<GetAllSupplierResponse> ctx)
     {
         var model = ctx.IsAdd ? add : edit;
         var address = BuildAddress(model);

@@ -1,9 +1,9 @@
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Employee;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee;
-using Fenicia.Module.Basic.Domains.Employee.DTOs;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Fenicia.Module.Basic.Domains.Person.Interfaces;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;

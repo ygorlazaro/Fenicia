@@ -1,9 +1,9 @@
 using AwesomeAssertions;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Common.DTOs.Project.ProjectTaskAssignee;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
-using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
 using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;

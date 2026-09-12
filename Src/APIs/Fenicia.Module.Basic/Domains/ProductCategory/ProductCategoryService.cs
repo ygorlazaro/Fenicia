@@ -1,7 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

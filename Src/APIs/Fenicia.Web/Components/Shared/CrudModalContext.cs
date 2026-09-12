@@ -1,9 +1,9 @@
 namespace Fenicia.Web.Components.Shared;
 
-using Fenicia.Web.Services;
+using Fenicia.Common;
 
 public sealed record CrudModalContext<TItem>(CrudModalMode Mode, TItem? Item, CrudPage<TItem> Page)
-    where TItem : ICrudItem
+    where TItem : Fenicia.Common.ICrudItem
 {
     public Guid Id => Item?.Id ?? Guid.Empty;
 

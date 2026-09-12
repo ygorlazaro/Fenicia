@@ -1,7 +1,7 @@
 using AwesomeAssertions;
+using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;

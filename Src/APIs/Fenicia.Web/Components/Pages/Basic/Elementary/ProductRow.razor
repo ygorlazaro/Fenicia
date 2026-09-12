@@ -1,4 +1,3 @@
-@using Fenicia.Web.Components.Pages.Basic.Models
 
 <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
     <MudIconButton Icon="@Icons.Material.Filled.Edit"
@@ -18,7 +17,7 @@
 <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(Item.SupplierName) ? "—" : Item.SupplierName)</MudTd>
 
 @code {
-    [Parameter] public ProductDto Item { get; set; } = default!;
-    [Parameter] public EventCallback<ProductDto> OnEdit { get; set; }
-    [Parameter] public EventCallback<ProductDto> OnDelete { get; set; }
+    [Parameter] public GetAllProductResponse Item { get; set; } = default!;
+    [Parameter] public EventCallback<GetAllProductResponse> OnEdit { get; set; }
+    [Parameter] public EventCallback<GetAllProductResponse> OnDelete { get; set; }
 }

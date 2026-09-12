@@ -1,10 +1,9 @@
 @page "/basic/position"
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Shared
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage TItem="PositionDto"
+<CrudPage TItem="GetAllPositionResponse"
           PageTitle="Cargos"
           PageSubtitle="Gerencie os cargos da sua empresa"
           EntityNamePlural="cargos"
@@ -40,9 +39,9 @@
 
     private void ResetForm() => addName = string.Empty;
 
-    private void LoadForm(PositionDto item) => editName = item?.Name ?? string.Empty;
+    private void LoadForm(GetAllPositionResponse item) => editName = item?.Name ?? string.Empty;
 
-    private object CreatePayload(CrudModalContext<PositionDto> ctx)
+    private object CreatePayload(CrudModalContext<GetAllPositionResponse> ctx)
     {
         var name = ctx.IsAdd ? addName : editName;
         return new

@@ -1,4 +1,4 @@
-using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectTaskAssignee;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 

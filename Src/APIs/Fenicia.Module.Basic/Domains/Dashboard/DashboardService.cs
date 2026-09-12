@@ -1,7 +1,7 @@
 using System.Globalization;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Dashboard;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;

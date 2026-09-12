@@ -1,11 +1,11 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Order;
+using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.Order.DTOs;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -89,11 +89,11 @@ public sealed class OrderService(
         return order?.MapToGetOrderByIdResponse();
     }
 
-    public Task<List<Fenicia.Module.Basic.Domains.OrderDetail.DTOs.GetOrderDetailsByOrderIdResponse>>
+    public Task<List<Fenicia.Common.DTOs.Basic.OrderDetail.GetOrderDetailsByOrderIdResponse>>
         GetDetailsByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
         return orderDetailService.GetByOrderIdAsync(
-            new Fenicia.Module.Basic.Domains.OrderDetail.DTOs.GetOrderDetailsByOrderIdQuery(orderId),
+            new Fenicia.Common.DTOs.Basic.OrderDetail.GetOrderDetailsByOrderIdQuery(orderId),
             cancellationToken);
     }
 

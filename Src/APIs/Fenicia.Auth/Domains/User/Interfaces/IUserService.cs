@@ -1,7 +1,7 @@
-using Fenicia.Auth.Domains.User.DTOs;
-using Fenicia.Auth.Domains.UserRole.DTOs;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.User;
+using Fenicia.Common.DTOs.Auth.UserRole;
 
 namespace Fenicia.Auth.Domains.User.Interfaces;
 

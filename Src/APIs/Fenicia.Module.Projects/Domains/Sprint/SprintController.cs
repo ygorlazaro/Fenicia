@@ -1,7 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
-using Fenicia.Module.Projects.Domains.Sprint.DTOs;
+using Fenicia.Common.DTOs.Project.Sprint;
 using Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

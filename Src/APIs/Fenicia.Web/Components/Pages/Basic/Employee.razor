@@ -4,11 +4,10 @@
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Common
 @using Fenicia.Web.Components.Shared
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
-<CrudPage TItem="EmployeeDto"
+<CrudPage TItem="GetAllEmployeeResponse"
           PageTitle="Funcionários"
           PageSubtitle="Gerencie os funcionários da sua empresa"
           EntityNamePlural="funcionários"
@@ -108,7 +107,7 @@
         add = new EmployeeFormModel();
     }
 
-    private void LoadForm(EmployeeDto? item)
+    private void LoadForm(GetAllEmployeeResponse? item)
     {
         edit = item is null
             ? new EmployeeFormModel()
@@ -130,7 +129,7 @@
             };
     }
 
-    private object CreatePayload(CrudModalContext<EmployeeDto> ctx)
+    private object CreatePayload(CrudModalContext<GetAllEmployeeResponse> ctx)
     {
         var model = ctx.IsAdd ? add : edit;
         return new

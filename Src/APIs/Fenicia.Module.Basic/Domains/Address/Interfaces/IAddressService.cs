@@ -1,4 +1,4 @@
-using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Common.DTOs.Basic.Address;
 
 namespace Fenicia.Module.Basic.Domains.Address.Interfaces;
 

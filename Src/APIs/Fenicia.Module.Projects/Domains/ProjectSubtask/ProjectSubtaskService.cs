@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

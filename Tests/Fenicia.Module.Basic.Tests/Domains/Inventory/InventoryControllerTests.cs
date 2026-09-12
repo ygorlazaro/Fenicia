@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using AwesomeAssertions;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

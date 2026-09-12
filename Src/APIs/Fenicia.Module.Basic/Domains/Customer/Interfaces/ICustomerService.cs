@@ -1,6 +1,6 @@
 using Fenicia.Common;
-using Fenicia.Module.Basic.Domains.Customer.DTOs;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Common.DTOs.Basic.Customer;
+using Fenicia.Common.DTOs.Basic.DataSource;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Interfaces;
 

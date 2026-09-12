@@ -1,5 +1,5 @@
-using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Subscription;
 
 namespace Fenicia.Auth.Domains.Subscription;
 

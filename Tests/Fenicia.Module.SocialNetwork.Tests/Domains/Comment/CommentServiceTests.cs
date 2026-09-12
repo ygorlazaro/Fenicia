@@ -2,9 +2,9 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Common.DTOs.SocialNetwork.Comment;
 using Fenicia.Common.Tests;
 using Fenicia.Module.SocialNetwork.Domains.Comment;
-using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Tests.Domains.Comment;

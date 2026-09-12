@@ -1,4 +1,4 @@
-using Fenicia.Module.Projects.Domains.ProjectComment.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectComment;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 

@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Token.DTOs;
+using Fenicia.Common.DTOs.Auth.Token;
 
 namespace Fenicia.Auth.Domains.Token.Interfaces;
 

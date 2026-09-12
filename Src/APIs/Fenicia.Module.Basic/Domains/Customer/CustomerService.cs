@@ -1,12 +1,12 @@
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Address;
+using Fenicia.Common.DTOs.Basic.Customer;
+using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.Exceptions;
-using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
-using Fenicia.Module.Basic.Domains.Customer.DTOs;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Fenicia.Module.Basic.Domains.Person.Interfaces;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;

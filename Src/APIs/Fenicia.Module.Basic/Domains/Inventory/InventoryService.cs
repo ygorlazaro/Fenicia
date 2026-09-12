@@ -1,10 +1,10 @@
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.Product;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
-using Fenicia.Module.Basic.Domains.Product.DTOs;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;

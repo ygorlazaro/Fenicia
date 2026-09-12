@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.Register;
-using Fenicia.Auth.Domains.Register.DTOs;
 using Fenicia.Auth.Domains.Register.Interfaces;
-using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.Register;
+using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

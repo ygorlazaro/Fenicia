@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Module.Basic.Domains.State.DTOs;
+using Fenicia.Common.DTOs.Basic.State;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.State;

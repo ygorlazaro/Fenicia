@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
-using Fenicia.Module.SocialNetwork.Domains.Feed.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Feed;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 

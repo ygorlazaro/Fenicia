@@ -1,4 +1,4 @@
-using Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Profile;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 

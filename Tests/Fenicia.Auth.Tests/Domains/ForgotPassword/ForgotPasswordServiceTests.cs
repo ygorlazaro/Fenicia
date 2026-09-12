@@ -1,11 +1,11 @@
 using Bogus;
 using Fenicia.Auth.Domains.ForgotPassword;
-using Fenicia.Auth.Domains.ForgotPassword.DTOs;
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Auth.Domains.Security.Interfaces;
-using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.ForgotPassword;
+using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
 using Moq;
 

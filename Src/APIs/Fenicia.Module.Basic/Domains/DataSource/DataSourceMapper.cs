@@ -1,6 +1,6 @@
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Position.DTOs;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
+using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Position;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;

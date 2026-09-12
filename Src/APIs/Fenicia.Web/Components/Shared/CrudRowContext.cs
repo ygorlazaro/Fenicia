@@ -1,7 +1,7 @@
 namespace Fenicia.Web.Components.Shared;
 
-using Fenicia.Web.Services;
+using Fenicia.Common;
 
 public sealed record CrudRowContext<TItem>(TItem Item, CrudPage<TItem> Page)
 
-    where TItem : ICrudItem;
+    where TItem : Fenicia.Common.ICrudItem;

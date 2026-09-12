@@ -1,7 +1,7 @@
 using System.Net.Mime;
-using Fenicia.Auth.Domains.RefreshToken.DTOs;
 using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.RefreshToken;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

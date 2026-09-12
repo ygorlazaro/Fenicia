@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
-using Fenicia.Module.Basic.Domains.Product.DTOs;
+using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.Product;
 
 namespace Fenicia.Module.Basic.Domains.Product.Interfaces;
 

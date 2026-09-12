@@ -1,8 +1,8 @@
-using Fenicia.Auth.Domains.Company.DTOs;
 using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Company;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 

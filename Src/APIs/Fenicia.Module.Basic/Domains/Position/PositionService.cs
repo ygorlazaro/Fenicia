@@ -1,7 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Position.DTOs;
+using Fenicia.Common.DTOs.Basic.Position;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

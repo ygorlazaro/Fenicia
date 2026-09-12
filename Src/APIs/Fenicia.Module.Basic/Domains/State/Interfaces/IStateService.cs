@@ -1,4 +1,4 @@
-using Fenicia.Module.Basic.Domains.State.DTOs;
+using Fenicia.Common.DTOs.Basic.State;
 
 namespace Fenicia.Module.Basic.Domains.State.Interfaces;
 

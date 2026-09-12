@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.DTOs;
 using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.RefreshToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

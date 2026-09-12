@@ -5,7 +5,6 @@
 @inject ICompanyContextService CompanyContext
 @inject IAuthStateService AuthState
 @inject ISnackbar Snackbar
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
@@ -71,8 +70,8 @@
 
     private bool isLoggedIn;
     private bool isLoading = true;
-    private OrderDetailOrderDto? order;
-    private List<OrderDetailItemDto> details = [];
+    private GetOrderByIdResponse? order;
+    private List<OrderDetailResponse> details = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -141,13 +140,13 @@
             if (orderTask.Result.IsSuccessStatusCode)
             {
                 var body = await orderTask.Result.Content.ReadAsStringAsync();
-                order = JsonSerializer.Deserialize<OrderDetailOrderDto>(body, JsonOptions);
+                order = JsonSerializer.Deserialize<GetOrderByIdResponse>(body, JsonOptions);
             }
 
             if (detailsTask.Result.IsSuccessStatusCode)
             {
                 var body = await detailsTask.Result.Content.ReadAsStringAsync();
-                details = JsonSerializer.Deserialize<List<OrderDetailItemDto>>(body, JsonOptions) ?? [];
+                details = JsonSerializer.Deserialize<List<OrderDetailResponse>>(body, JsonOptions) ?? [];
             }
         }
         catch (Exception ex)

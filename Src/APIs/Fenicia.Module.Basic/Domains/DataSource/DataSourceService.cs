@@ -1,11 +1,11 @@
+using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Position;
+using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
-using Fenicia.Module.Basic.Domains.Position.DTOs;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
-using Fenicia.Module.Basic.Domains.ProductCategory.DTOs;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 

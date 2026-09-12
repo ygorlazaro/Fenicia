@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Module.Projects.Domains.ProjectStatus.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectStatus;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

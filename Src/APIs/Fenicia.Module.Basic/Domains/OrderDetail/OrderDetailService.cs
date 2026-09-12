@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
+using Fenicia.Common.DTOs.Basic.OrderDetail;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;

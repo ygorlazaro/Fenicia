@@ -1,4 +1,3 @@
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Common.Enums.Basic
 
 <MudPaper Elevation="2" Class="pa-4 invoice-section">
@@ -56,7 +55,7 @@
 </MudPaper>
 
 @code {
-    [Parameter][EditorRequired] public OrderDetailOrderDto Order { get; set; } = default!;
+    [Parameter][EditorRequired] public GetOrderByIdResponse Order { get; set; } = default!;
 
     private static string PaymentLabel(PaymentMethod method)
     {

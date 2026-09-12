@@ -3,8 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.Address.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 

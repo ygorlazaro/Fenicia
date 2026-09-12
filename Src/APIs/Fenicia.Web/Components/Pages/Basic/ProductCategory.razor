@@ -1,10 +1,9 @@
 @page "/basic/productcategory"
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Shared
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage TItem="ProductCategoryDto"
+<CrudPage TItem="GetAllProductCategoryResponse"
           PageTitle="Categorias de Produtos"
           PageSubtitle="Gerencie suas categorias de produtos"
           EntityNamePlural="categorias de produtos"
@@ -42,9 +41,9 @@
 
     private void ResetAddName() => addName = string.Empty;
 
-    private void LoadEditName(ProductCategoryDto item) => editName = item?.Name ?? string.Empty;
+    private void LoadEditName(GetAllProductCategoryResponse item) => editName = item?.Name ?? string.Empty;
 
-    private object CreatePayload(CrudModalContext<ProductCategoryDto> ctx)
+    private object CreatePayload(CrudModalContext<GetAllProductCategoryResponse> ctx)
     {
         var name = ctx.IsAdd ? addName : editName;
         return new

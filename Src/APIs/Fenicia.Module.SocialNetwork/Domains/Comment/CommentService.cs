@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
-using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Comment;
 using Fenicia.Module.SocialNetwork.Domains.Feed;
 using Microsoft.EntityFrameworkCore;
 

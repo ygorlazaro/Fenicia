@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
+using Fenicia.Common.DTOs.Basic.StockMovement;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 

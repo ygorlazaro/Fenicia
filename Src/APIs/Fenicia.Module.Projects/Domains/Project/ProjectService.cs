@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common.DTOs.Project.Project;
 using Fenicia.Common.Enums.Project;
-using Fenicia.Module.Projects.Domains.Project.DTOs;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

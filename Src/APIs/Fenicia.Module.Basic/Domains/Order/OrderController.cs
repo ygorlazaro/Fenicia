@@ -2,9 +2,9 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
-using Fenicia.Module.Basic.Domains.Order.DTOs;
+using Fenicia.Common.DTOs.Basic.Order;
+using Fenicia.Common.DTOs.Basic.OrderDetail;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
-using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

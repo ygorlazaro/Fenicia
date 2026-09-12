@@ -1,7 +1,7 @@
 using Fenicia.Auth.Domains.Register;
-using Fenicia.Auth.Domains.Register.DTOs;
-using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Common.DTOs.Auth.Register;
+using Fenicia.Common.DTOs.Auth.User;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Register;

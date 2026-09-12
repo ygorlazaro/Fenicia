@@ -1,9 +1,9 @@
 using AwesomeAssertions;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.StockMovement.DTOs;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;

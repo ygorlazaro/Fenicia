@@ -1,5 +1,5 @@
-using Fenicia.Auth.Domains.Register.DTOs;
-using Fenicia.Auth.Domains.User.DTOs;
+using Fenicia.Common.DTOs.Auth.Register;
+using Fenicia.Common.DTOs.Auth.User;
 
 namespace Fenicia.Auth.Domains.Register;
 

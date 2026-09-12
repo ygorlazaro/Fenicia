@@ -1,5 +1,5 @@
 using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.DTOs;
+using Fenicia.Common.DTOs.Auth.RefreshToken;
 using Fenicia.Common.Exceptions;
 using Moq;
 

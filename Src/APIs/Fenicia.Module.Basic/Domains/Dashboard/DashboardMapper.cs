@@ -1,4 +1,4 @@
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
+using Fenicia.Common.DTOs.Basic.Dashboard;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;

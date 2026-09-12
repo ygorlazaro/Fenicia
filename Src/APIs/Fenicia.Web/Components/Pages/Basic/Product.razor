@@ -3,11 +3,10 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Shared
-@using Fenicia.Web.Components.Pages.Basic.Models
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 @using System.Text.Json
 
-<CrudPage TItem="ProductDto"
+<CrudPage TItem="GetAllProductResponse"
           PageTitle="Produtos"
           PageSubtitle="Gerencie o catálogo de produtos da sua empresa"
           EntityNamePlural="produtos"
@@ -94,7 +93,7 @@
 
     private void ResetForm() => add = new ProductFormModel();
 
-    private void LoadForm(ProductDto item)
+    private void LoadForm(GetAllProductResponse item)
     {
         edit = item is null
             ? new ProductFormModel()
@@ -118,7 +117,7 @@
             };
     }
 
-    private object CreatePayload(CrudModalContext<ProductDto> ctx)
+    private object CreatePayload(CrudModalContext<GetAllProductResponse> ctx)
     {
         var model = ctx.IsAdd ? add : edit;
         return new

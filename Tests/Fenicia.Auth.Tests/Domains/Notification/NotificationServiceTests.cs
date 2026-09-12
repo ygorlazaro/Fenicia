@@ -1,7 +1,7 @@
 using Fenicia.Auth.Domains.Notification;
-using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Notification;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Notification;

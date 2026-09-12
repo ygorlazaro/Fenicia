@@ -1,10 +1,10 @@
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
-using Fenicia.Auth.Domains.User.DTOs;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.User;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Subscription;

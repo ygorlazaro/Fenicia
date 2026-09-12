@@ -1,5 +1,5 @@
-using Fenicia.Auth.Domains.Notification.DTOs;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Notification;
 
 namespace Fenicia.Auth.Domains.Notification;
 

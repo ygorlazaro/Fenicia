@@ -1,14 +1,14 @@
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Address.DTOs;
+using Fenicia.Common.DTOs.Basic.Address;
+using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.Supplier;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Inventory.DTOs;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
-using Fenicia.Module.Basic.Domains.Supplier.DTOs;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

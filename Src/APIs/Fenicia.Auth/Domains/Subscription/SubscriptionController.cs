@@ -1,7 +1,7 @@
 using System.Net.Mime;
-using Fenicia.Auth.Domains.Subscription.DTOs;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.Subscription;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

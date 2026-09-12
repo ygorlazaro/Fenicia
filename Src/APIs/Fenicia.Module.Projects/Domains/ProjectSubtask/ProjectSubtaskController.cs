@@ -1,7 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
-using Fenicia.Module.Projects.Domains.ProjectSubtask.DTOs;
+using Fenicia.Common.DTOs.Project.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

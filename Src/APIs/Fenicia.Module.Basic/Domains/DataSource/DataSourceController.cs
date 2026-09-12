@@ -1,6 +1,6 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
+using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

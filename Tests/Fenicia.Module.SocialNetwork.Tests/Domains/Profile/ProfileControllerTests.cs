@@ -1,13 +1,10 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
-
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.SocialNetwork.Profile;
 using Fenicia.Module.SocialNetwork.Domains.Profile;
-using Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

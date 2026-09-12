@@ -1,7 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.DataSource.DTOs;
-using Fenicia.Module.Basic.Domains.Employee.DTOs;
+using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Employee;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Interfaces;
 

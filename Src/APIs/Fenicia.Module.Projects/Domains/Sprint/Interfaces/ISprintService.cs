@@ -1,4 +1,4 @@
-using Fenicia.Module.Projects.Domains.Sprint.DTOs;
+using Fenicia.Common.DTOs.Project.Sprint;
 
 namespace Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 

@@ -1,13 +1,12 @@
 using System.Security.Claims;
-
 using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Common.DTOs.SocialNetwork.Comment;
 using Fenicia.Common.Tests;
 using Fenicia.Module.SocialNetwork.Domains.Comment;
-using Fenicia.Module.SocialNetwork.Domains.Comment.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Module.SocialNetwork.Domains.Profile.DTOs;
+using Fenicia.Common.DTOs.SocialNetwork.Profile;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;

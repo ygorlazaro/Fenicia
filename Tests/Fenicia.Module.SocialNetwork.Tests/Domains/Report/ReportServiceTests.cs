@@ -2,10 +2,10 @@ using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Common.DTOs.SocialNetwork.Report;
 using Fenicia.Common.Enums.SocialNetwork;
 using Fenicia.Common.Tests;
 using Fenicia.Module.SocialNetwork.Domains.Report;
-using Fenicia.Module.SocialNetwork.Domains.Report.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Tests.Domains.Report;

@@ -1,6 +1,6 @@
 using AwesomeAssertions;
+using Fenicia.Common.DTOs.Basic.Dashboard;
 using Fenicia.Module.Basic.Domains.Dashboard;
-using Fenicia.Module.Basic.Domains.Dashboard.DTOs;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;

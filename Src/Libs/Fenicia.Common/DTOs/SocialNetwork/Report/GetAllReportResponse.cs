@@ -1,0 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Fenicia.Common.DTOs.SocialNetwork.Report;
+
+public record GetAllReportResponse(
+    [Required] Guid Id,
+    [Required] Guid ReporterId,
+    [Required] Guid TargetId,
+    [Required] [MaxLength(200)] string TargetType,
+    [Required] [MaxLength(200)] string Reason,
+    [MaxLength(200)] string? Description,
+    [Required] [MaxLength(200)] string Status,
+    [Required] DateTime ReportDate);

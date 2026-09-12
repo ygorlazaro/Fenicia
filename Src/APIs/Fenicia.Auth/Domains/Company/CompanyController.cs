@@ -1,8 +1,8 @@
 using System.Net.Mime;
-using Fenicia.Auth.Domains.Company.DTOs;
 using Fenicia.Auth.Domains.Company.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.Company;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.OrderDetail;
 using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.OrderDetail.DTOs;
 using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.OrderDetail;
