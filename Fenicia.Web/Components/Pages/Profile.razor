@@ -1,0 +1,1386 @@
+@page "/profile"
+@page "/profile/{Id:guid}"
+@rendermode InteractiveServer
+@using Fenicia.Web.Services
+@using Fenicia.Web.Services.Interfaces
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+@inject IAuthStateService AuthState
+@inject ICompanyContextService CompanyContext
+@inject IUserProfileNotifier UserProfileNotifier
+
+<PageTitle>@(IsOwnProfile ? "Meu Perfil" : "Perfil") - Fenicia</PageTitle>
+
+<MainLayout>
+    @if (!IsOwnProfile)
+    {
+        <MudItem xs="12">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => NavigationManager.NavigateTo("/profile"))" />
+                <MudText Typo="Typo.h5">Perfil</MudText>
+            </MudStack>
+        </MudItem>
+    }
+
+    @if (IsOwnProfile)
+    {
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                    @if (!string.IsNullOrEmpty(socialProfile?.ImageUrl))
+                    {
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;border-radius:50%;overflow:hidden;cursor:pointer;" @onclick="TriggerUpload">
+                            <img src="@socialProfile.ImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Color="Color.Primary" Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;cursor:pointer;" @onclick="TriggerUpload">
+                            @GetInitial()
+                        </MudAvatar>
+                    }
+                    <InputFile id="profileImageInput" OnChange="HandleImageUpload" accept="image/*" hidden />
+                    <MudText Typo="Typo.h5" Align="Align.Center">@DisplayName()</MudText>
+                    @if (!string.IsNullOrEmpty(socialProfile?.UserName))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Default" Align="Align.Center">@@@socialProfile.UserName</MudText>
+                    }
+                    @if (!string.IsNullOrEmpty(socialProfile?.Location))
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Color="Color.Default" />
+                            <MudText Typo="Typo.body2" Color="Color.Default">@socialProfile.Location</MudText>
+                        </MudStack>
+                    }
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Color="Color.Default" />
+                        <MudText Typo="Typo.caption" Color="Color.Default">
+                            Entrou em @(socialProfile?.Created.ToString("MMMM yyyy") ?? "-")
+                        </MudText>
+                    </MudStack>
+                    <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
+                    <MudStack Row="true" Justify="Justify.SpaceEvenly" Style="width:100%">
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">@(socialProfile?.PostsCount ?? 0)</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Posts</MudText>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">@(socialProfile?.FollowersCount ?? 0)</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Seguidores</MudText>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">@(socialProfile?.FollowingCount ?? 0)</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Seguindo</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                    <MudText Typo="Typo.h5">Perfil</MudText>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               OnClick="OpenEditModal"
+                               Disabled="@(socialProfile is null)">
+                        Editar
+                    </MudButton>
+                </MudStack>
+
+                @if (isLoading)
+                {
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                }
+                else if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+                }
+                else if (socialProfile is not null)
+                {
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Nome de Usuário</MudText>
+                            <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(socialProfile.UserName) ? "—" : "@" + socialProfile.UserName)</MudText>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Biografia</MudText>
+                            <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(socialProfile.Bio) ? "Sem biografia." : socialProfile.Bio)</MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Website</MudText>
+                            @if (!string.IsNullOrEmpty(socialProfile.Website))
+                            {
+                                <MudLink Href="@socialProfile.Website" Target="_blank" Color="Color.Primary">@socialProfile.Website</MudLink>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Default">—</MudText>
+                            }
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Telefone</MudText>
+                            <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(socialProfile.Phone) ? "—" : socialProfile.Phone)</MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Localização</MudText>
+                            <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(socialProfile.Location) ? "—" : socialProfile.Location)</MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Default">Data de Nascimento</MudText>
+                            <MudText Typo="Typo.body2">@(socialProfile.BirthDate?.ToString("dd/MM/yyyy") ?? "—")</MudText>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                    @if (!string.IsNullOrEmpty(socialProfile?.ImageUrl))
+                    {
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;border-radius:50%;overflow:hidden;">
+                            <img src="@socialProfile.ImageUrl" alt="Perfil" style="width:100%;height:100%;object-fit:cover;" />
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Size="Size.Large" Style="height:120px;width:120px;font-size:3rem;">
+                            @GetInitial()
+                        </MudAvatar>
+                    }
+                    <MudText Typo="Typo.h5" Align="Align.Center">@GetDisplayName()</MudText>
+                    @if (!string.IsNullOrEmpty(socialProfile?.UserName))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Default">@@@socialProfile.UserName</MudText>
+                    }
+                    @if (!string.IsNullOrEmpty(socialProfile?.Location))
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Color="Color.Default" />
+                            <MudText Typo="Typo.body2" Color="Color.Default">@socialProfile.Location</MudText>
+                        </MudStack>
+                    }
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Color="Color.Default" />
+                        <MudText Typo="Typo.caption" Color="Color.Default">
+                            Membro desde @(socialProfile?.Created.ToString("MMMM yyyy") ?? "-")
+                        </MudText>
+                    </MudStack>
+                    <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
+                    <MudStack Row="true" Justify="Justify.SpaceEvenly" Style="width:100%">
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">@posts.Count</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Posts</MudText>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">@followerCount</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Seguidores</MudText>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">@followingCount</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">Seguindo</MudText>
+                        </MudStack>
+                    </MudStack>
+                    <MudDivider FlexItem="true" Class="my-2" Style="width:100%" />
+                    @if (isOwnProfileCheck)
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   OnClick="@(() => NavigationManager.NavigateTo("/profile?edit=" + socialProfile?.Id))"
+                                   FullWidth="true">
+                            Editar Perfil
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="@(isFollowing ? Variant.Outlined : Variant.Filled)"
+                                   Color="Color.Primary"
+                                   StartIcon="@(isFollowing ? Icons.Material.Filled.Check : Icons.Material.Filled.PersonAdd)"
+                                   OnClick="ToggleFollowAsync"
+                                   Disabled="@(currentProfileId == Guid.Empty || followBusy)"
+                                   FullWidth="true">
+                            @(isFollowing ? "Seguindo" : "Seguir")
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudTabs Elevation="0" Rounded="true" Centered="false" ApplyEffectsToContainer="true" KeepPanelsAlive="true">
+                    <MudTabPanel Text="Sobre" Icon="@Icons.Material.Filled.Person">
+                        @if (isLoading)
+                        {
+                            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="mt-3" />
+                        }
+                        else if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <MudAlert Severity="Severity.Error" Class="mt-3">@errorMessage</MudAlert>
+                        }
+                        else if (socialProfile is not null)
+                        {
+                            <MudGrid Class="mt-3">
+                                <MudItem xs="12">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Biografia</MudText>
+                                    <MudText Typo="Typo.body1" Class="mb-3">@(string.IsNullOrEmpty(socialProfile.Bio) ? "Sem biografia." : socialProfile.Bio)</MudText>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Website</MudText>
+                                    @if (!string.IsNullOrEmpty(socialProfile.Website))
+                                    {
+                                        <MudLink Href="@socialProfile.Website" Target="_blank" Color="Color.Primary">@socialProfile.Website</MudLink>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body2" Color="Color.Default">—</MudText>
+                                    }
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Localização</MudText>
+                                    <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(socialProfile.Location) ? "—" : socialProfile.Location)</MudText>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Default">Data de Nascimento</MudText>
+                                    <MudText Typo="Typo.body2">@(socialProfile.BirthDate?.ToString("dd/MM/yyyy") ?? "—")</MudText>
+                                </MudItem>
+                            </MudGrid>
+                        }
+                    </MudTabPanel>
+                    <MudTabPanel Text="Posts" Icon="@Icons.Material.Filled.Article">
+                        @if (isLoadingPosts)
+                        {
+                            <div class="d-flex justify-content-center pa-8">
+                                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                            </div>
+                        }
+                        else if (posts.Count == 0)
+                        {
+                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma postagem ainda.</MudAlert>
+                        }
+                        else
+                        {
+                            <div class="mt-3">
+                                @foreach (var post in posts)
+                                {
+                                    <MudPaper Elevation="0" Class="pa-4 post-card">
+                                        <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="2">
+                                            <MudAvatar Color="Color.Primary" Size="Size.Medium" Style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo("/profile/" + post.ProfileId))">
+                                                @GetPostInitial()
+                                            </MudAvatar>
+                                            <div class="flex-grow-1">
+                                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                                    <MudText Typo="Typo.subtitle2"><b>Usuário</b></MudText>
+                                                    <MudText Typo="Typo.caption" Color="Color.Default">· @FormatRelativeTime(post.Date)</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body1" Class="mb-3" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                                    <MudButton Size="Size.Small"
+                                                               Variant="Variant.Text"
+                                                               Color="Color.Default"
+                                                               StartIcon="@Icons.Material.Outlined.ChatBubbleOutline"
+                                                               OnClick="@(() => NavigateToFeedDetail(post.Id))">
+                                                        @post.TotalComments
+                                                    </MudButton>
+                                                    <MudButton Size="Size.Small"
+                                                               Variant="Variant.Text"
+                                                               Color="@(post.IsLikedByMe ? Color.Error : Color.Default)"
+                                                               StartIcon="@(post.IsLikedByMe ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
+                                                               OnClick="@(() => ToggleLikeAsync(post))"
+                                                               Disabled="@(likingFeedId == post.Id || currentProfileId == Guid.Empty)">
+                                                        @post.TotalLikes
+                                                    </MudButton>
+                                                    <MudButton Size="Size.Small"
+                                                               Variant="Variant.Text"
+                                                               Color="Color.Default"
+                                                               StartIcon="@Icons.Material.Outlined.Repeat"
+                                                               Disabled="true">
+                                                        @post.TotalShares
+                                                    </MudButton>
+                                                </MudStack>
+                                            </div>
+                                        </MudStack>
+                                    </MudPaper>
+                                    <MudDivider />
+                                }
+                            </div>
+                        }
+                    </MudTabPanel>
+                    <MudTabPanel Text="Mídia" Icon="@Icons.Material.Filled.Image">
+                        <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma mídia ainda.</MudAlert>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Curtidas" Icon="@Icons.Material.Filled.Favorite">
+                        @if (isLoadingLiked)
+                        {
+                            <div class="d-flex justify-content-center pa-6">
+                                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                            </div>
+                        }
+                        else if (likedPosts.Count == 0)
+                        {
+                            <MudAlert Severity="Severity.Info" Class="mt-3">Nenhuma curtida ainda.</MudAlert>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column gap-3 mt-3">
+                                @foreach (var post in likedPosts)
+                                {
+                                    <MudPaper Elevation="1" Class="pa-3 post-card" @onclick="@(() => NavigateToFeedDetail(post.Id))" Style="cursor:pointer">
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mb-1">
+                                            <MudText Typo="Typo.caption" Color="Color.Default">@FormatRelativeTime(post.Date)</MudText>
+                                        </MudStack>
+                                        <MudText Typo="Typo.body1" Class="mb-2" Style="white-space: pre-wrap; word-wrap: break-word;">@post.Text</MudText>
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                            <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Outlined.ChatBubbleOutline">
+                                                @post.TotalComments
+                                            </MudButton>
+                                            <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" StartIcon="@Icons.Material.Filled.Favorite">
+                                                @post.TotalLikes
+                                            </MudButton>
+                                            <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Outlined.Repeat" Disabled="true">
+                                                @post.TotalShares
+                                            </MudButton>
+                                        </MudStack>
+                                    </MudPaper>
+                                }
+                            </div>
+                        }
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+
+        @if (authProfile is not null && (authProfile.Companies.Count > 0 || authProfile.Subscriptions.Count > 0))
+        {
+            <MudItem xs="12">
+                <MudGrid Spacing="3">
+                    @if (authProfile.Companies.Count > 0)
+                    {
+                        var companies = authProfile.Companies.ToList();
+                        var firstTwo = companies.Take(2).ToList();
+                        var rest = companies.Skip(2).ToList();
+
+                        @foreach (var company in firstTwo)
+                        {
+                            <MudItem xs="12" md="6">
+                                <MudPaper Elevation="2" Class="pa-4 subscription-card">
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.h6">@company.Name</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">CNPJ: @company.Cnpj</MudText>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @foreach (var company in rest)
+                        {
+                            <MudItem xs="12">
+                                <MudPaper Elevation="2" Class="pa-4 subscription-card">
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.h6">@company.Name</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">CNPJ: @company.Cnpj</MudText>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                    }
+                    @if (authProfile.Subscriptions.Count > 0)
+                    {
+                        @foreach (var subscription in authProfile.Subscriptions)
+                        {
+                            <MudItem xs="12">
+                                <MudPaper Elevation="2" Class="pa-4 subscription-card">
+                                    <MudStack Spacing="2">
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                            <MudText Typo="Typo.h6">@subscription.CompanyName</MudText>
+                                            <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(subscription.Status)">@subscription.Status</MudChip>
+                                        </MudStack>
+                                        <MudText Typo="Typo.body2" Color="Color.Default">
+                                            @subscription.StartDate.ToString("dd/MM/yyyy") — @(subscription.EndDate?.ToString("dd/MM/yyyy") ?? "Sem data de término")
+                                        </MudText>
+                                        @if (subscription.Modules.Count > 0)
+                                        {
+                                            <MudDivider />
+                                            <MudText Typo="Typo.subtitle2">Módulos</MudText>
+                                            <MudStack Row="true" Spacing="1" Class="flex-wrap">
+                                                @foreach (var module in subscription.Modules)
+                                                {
+                                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@module.Name</MudChip>
+                                                }
+                                            </MudStack>
+                                        }
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                    }
+                </MudGrid>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                        <MudText Typo="Typo.h5">Alterar Senha</MudText>
+                    </MudStack>
+
+                    @if (!string.IsNullOrEmpty(passwordMessage))
+                    {
+                        <MudAlert Severity="@(passwordSuccess ? Severity.Success : Severity.Error)" Class="mb-4">
+                            @passwordMessage
+                        </MudAlert>
+                    }
+
+                    <EditForm Model="passwordModel" OnSubmit="ChangePasswordAsync">
+                        <DataAnnotationsValidator />
+                        <MudGrid>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="passwordModel.CurrentPassword"
+                                              Label="Senha Atual"
+                                              Variant="Variant.Outlined"
+                                              InputType="InputType.Password"
+                                              Required="true"
+                                              RequiredError="Senha atual é obrigatória!"
+                                              Immediate="true" />
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="passwordModel.NewPassword"
+                                              Label="Nova Senha"
+                                              Variant="Variant.Outlined"
+                                              InputType="InputType.Password"
+                                              Required="true"
+                                              RequiredError="Nova senha é obrigatória!"
+                                              Immediate="true" />
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="passwordModel.ConfirmPassword"
+                                              Label="Confirmar Nova Senha"
+                                              Variant="Variant.Outlined"
+                                              InputType="InputType.Password"
+                                              Required="true"
+                                              RequiredError="Confirmação de senha é obrigatória!"
+                                              Immediate="true" />
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Lock"
+                                           OnClick="ChangePasswordAsync"
+                                           Disabled="@isChangingPassword">
+                                    @if (isChangingPassword)
+                                    {
+                                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                                    }
+                                    Alterar Senha
+                                </MudButton>
+                            </MudItem>
+                        </MudGrid>
+                    </EditForm>
+                </MudPaper>
+            </MudItem>
+        }
+    }
+</MainLayout>
+
+<MudDialog @bind-Visible="editDialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Editar Perfil</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editModel.UserName" Label="Nome de Usuário" Variant="Variant.Outlined" MaxLength="64" Counter="64" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editModel.Bio" Label="Biografia" Variant="Variant.Outlined" Lines="3" MaxLength="160" Counter="160" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.Website" Label="Website" Variant="Variant.Outlined" MaxLength="120" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.Location" Label="Localização" Variant="Variant.Outlined" MaxLength="64" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="editModel.Phone" Label="Telefone" Variant="Variant.Outlined" MaxLength="24" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudDatePicker @bind-Date="editModel.BirthDateValue" Label="Data de Nascimento" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseEditModal" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="SaveProfileAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@isSaving">
+            @if (isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+            }
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .post-card {
+        transition: background-color 0.15s ease;
+    }
+    .post-card:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    .subscription-card {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .subscription-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+
+    private bool IsOwnProfile => Id == null || Id == Guid.Empty;
+
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+    private SocialProfileDto? socialProfile;
+    private ProfileDto? authProfile;
+    private bool editDialogVisible;
+    private EditProfileModel editModel = new();
+    private bool _autoOpened;
+    private string userRole = string.Empty;
+
+    private Guid currentProfileId;
+    private bool isOwnProfileCheck;
+    private List<PostDto> posts = [];
+    private List<PostDto> likedPosts = [];
+    private Guid? likingFeedId;
+    private bool isFollowing;
+    private bool followBusy;
+    private int followerCount;
+    private int followingCount;
+    private bool isLoadingPosts;
+    private bool isLoadingLiked;
+
+    private readonly DialogOptions dialogOptions = new()
+    {
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true
+    };
+
+    [SupplyParameterFromQuery(Name = "edit")]
+    public string? EditQuery { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isAuthenticated = await AuthState.IsAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                userRole = ParseUserRole(token) ?? string.Empty;
+            }
+
+            if (IsOwnProfile)
+            {
+                await LoadProfileAsync();
+                if (!_autoOpened && !string.IsNullOrEmpty(EditQuery) && Guid.TryParse(EditQuery, out _))
+                {
+                    _autoOpened = true;
+                    OpenEditModal();
+                }
+            }
+            else
+            {
+                await LoadOtherProfileAsync();
+            }
+        }
+    }
+
+    private async Task LoadProfileAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var token = await CompanyContext.GetTokenAsync();
+            var authClient = HttpClientFactory.CreateClient("FeniciaAuth");
+            var socialClient = await CreateSocialClientAsync();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                authClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                authClient.DefaultRequestHeaders.Remove("CompanyId");
+                authClient.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+            }
+
+            var authTask = authClient.GetAsync("/subscription");
+            var socialTask = socialClient.GetAsync("/profile");
+
+            await Task.WhenAll(authTask, socialTask);
+
+            var authResponse = await authTask;
+            if (authResponse.IsSuccessStatusCode)
+            {
+                var json = await authResponse.Content.ReadAsStringAsync();
+                authProfile = System.Text.Json.JsonSerializer.Deserialize<ProfileDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar perfil: {(int)authResponse.StatusCode} {authResponse.StatusCode}";
+            }
+
+            var socialResponse = await socialTask;
+            if (socialResponse.IsSuccessStatusCode)
+            {
+                var json = await socialResponse.Content.ReadAsStringAsync();
+                socialProfile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else if (socialResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                var createResponse = await socialClient.PostAsync("/profile",
+                    new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+                if (createResponse.IsSuccessStatusCode)
+                {
+                    var json = await createResponse.Content.ReadAsStringAsync();
+                    socialProfile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileDto>(json,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (socialProfile is not null)
+                    {
+                        editDialogVisible = true;
+                        PopulateEditModel();
+                    }
+                }
+                else
+                {
+                    errorMessage = $"Falha ao criar perfil: {(int)createResponse.StatusCode}";
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(errorMessage))
+                {
+                    errorMessage = $"Falha ao carregar perfil social: {(int)socialResponse.StatusCode} {socialResponse.StatusCode}";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadOtherProfileAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var client = await CreateSocialClientAsync();
+            var currentResponse = await client.GetAsync("/profile");
+            if (currentResponse.IsSuccessStatusCode)
+            {
+                var currentJson = await currentResponse.Content.ReadAsStringAsync();
+                var currentProfile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileDto>(currentJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (currentProfile is not null)
+                {
+                    currentProfileId = currentProfile.Id;
+                    isOwnProfileCheck = currentProfile.Id == Id;
+                }
+            }
+
+            var response = await client.GetAsync($"/profile/{Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                socialProfile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                errorMessage = "Perfil não encontrado.";
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar perfil: {(int)response.StatusCode} {response.StatusCode}";
+            }
+
+            if (socialProfile is not null && !isOwnProfileCheck)
+            {
+                await LoadPostsAsync();
+                await LoadLikedPostsAsync();
+                await LoadFollowStateAsync();
+                await LoadFollowCountsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task<HttpClient> CreateSocialClientAsync()
+    {
+        var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+        var token = await CompanyContext.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+        if (companyId.HasValue)
+        {
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+        }
+
+        return client;
+    }
+
+    private void OpenEditModal()
+    {
+        if (socialProfile is null) return;
+        PopulateEditModel();
+        editDialogVisible = true;
+    }
+
+    private void CloseEditModal()
+    {
+        editDialogVisible = false;
+    }
+
+    private void PopulateEditModel()
+    {
+        if (socialProfile is null) return;
+        editModel = new EditProfileModel
+        {
+            UserName = socialProfile.UserName,
+            Bio = socialProfile.Bio,
+            UploadId = socialProfile.UploadId,
+            Website = socialProfile.Website,
+            Location = socialProfile.Location,
+            Phone = socialProfile.Phone,
+            BirthDateValue = socialProfile.BirthDate
+        };
+    }
+
+    private void TriggerUpload()
+    {
+        if (!IsOwnProfile) return;
+        JSRuntime.InvokeVoidAsync("eval", "document.getElementById('profileImageInput').click()");
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs args)
+    {
+        if (!IsOwnProfile || socialProfile is null || args.FileCount == 0) return;
+
+        try
+        {
+            var file = args.File;
+            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            var content = new MultipartFormDataContent();
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.Name);
+
+            var authApiBaseUrl = new Uri(Configuration["ApiBaseUrl"] ?? "http://localhost:5000");
+            var uploadUrl = new Uri(authApiBaseUrl, "upload").ToString();
+
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var response = await client.PostAsync(uploadUrl, content);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var uploadResult = System.Text.Json.JsonSerializer.Deserialize<UploadResult>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (uploadResult is not null && !string.IsNullOrEmpty(uploadResult.Url))
+                {
+                    socialProfile!.ImageUrl = uploadResult.Url;
+                    editModel.UploadId = uploadResult.Id;
+                    await SaveProfileAsync();
+                }
+            }
+            else
+            {
+                Snackbar.Add($"Falha ao enviar imagem: {(int)response.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private record UploadResult(Guid Id, string OriginalFileName, string StoredFileName, string ContentType, long SizeBytes, string Url);
+
+    private async Task SaveProfileAsync()
+    {
+        if (socialProfile is null) return;
+        try
+        {
+            isSaving = true;
+
+            var client = await CreateSocialClientAsync();
+            var updateCommand = new
+            {
+                Id = socialProfile.Id,
+                UserName = editModel.UserName,
+                Bio = editModel.Bio,
+                UploadId = editModel.UploadId,
+                Website = editModel.Website,
+                Location = editModel.Location,
+                Phone = editModel.Phone,
+                BirthDate = editModel.BirthDateValue
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(updateCommand);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PatchAsync($"/profile/{socialProfile.Id}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                socialProfile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileDto>(responseJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                editDialogVisible = false;
+                Snackbar.Add("Perfil atualizado com sucesso!", Severity.Success);
+                UserProfileNotifier.Notify();
+            }
+            else
+            {
+                Snackbar.Add($"Falha ao atualizar: {(int)response.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetInitial()
+    {
+        if (socialProfile is null) return "?";
+        var source = socialProfile.UserName ?? socialProfile.Bio ?? "";
+        if (string.IsNullOrEmpty(source)) return "?";
+        return source.TrimStart('@')[..1].ToUpper();
+    }
+
+    private string DisplayName()
+    {
+        if (socialProfile is null) return "Carregando...";
+        return socialProfile.UserName ?? "Usuário";
+    }
+
+    private string GetDisplayName()
+    {
+        if (socialProfile is null) return "Usuário";
+        if (!string.IsNullOrEmpty(socialProfile.UserName)) return "@" + socialProfile.UserName;
+        return "Usuário";
+    }
+
+    private string GetPostInitial() => "?";
+
+    private static string FormatRelativeTime(DateTime date)
+    {
+        var diff = DateTime.UtcNow - date.ToUniversalTime();
+        if (diff.TotalSeconds < 60) return "agora";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}min";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays}d";
+        return date.ToString("dd MMM yyyy");
+    }
+
+    private async Task LoadPostsAsync()
+    {
+        try
+        {
+            isLoadingPosts = true;
+            var client = await CreateSocialClientAsync();
+            var response = await client.GetAsync($"/feed/profile/{Id}?page=1&perPage=20");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<PostDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                posts = items ?? [];
+
+                if (currentProfileId != Guid.Empty)
+                {
+                    foreach (var post in posts)
+                    {
+                        try
+                        {
+                            var likeResponse = await client.GetAsync($"/like/isfollowed/{currentProfileId}/{post.Id}");
+                            if (likeResponse.IsSuccessStatusCode)
+                            {
+                                var likeJson = await likeResponse.Content.ReadAsStringAsync();
+                                if (bool.TryParse(likeJson, out var liked))
+                                {
+                                    post.IsLikedByMe = liked;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar posts: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoadingPosts = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ToggleLikeAsync(PostDto post)
+    {
+        if (likingFeedId == post.Id || currentProfileId == Guid.Empty) return;
+        try
+        {
+            likingFeedId = post.Id;
+            var client = await CreateSocialClientAsync();
+
+            if (post.IsLikedByMe)
+            {
+                var response = await client.DeleteAsync($"/like/{post.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    post.IsLikedByMe = false;
+                    post.TotalLikes = Math.Max(0, post.TotalLikes - 1);
+                }
+                else
+                {
+                    Snackbar.Add($"Falha ao descurtir: {(int)response.StatusCode}", Severity.Error);
+                }
+            }
+            else
+            {
+                var command = new { FeedId = post.Id };
+                var json = System.Text.Json.JsonSerializer.Serialize(command);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("/like", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    post.IsLikedByMe = true;
+                    post.TotalLikes++;
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha ao curtir: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            likingFeedId = null;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void NavigateToFeedDetail(Guid feedId)
+    {
+        NavigationManager.NavigateTo($"/socialnetwork/feed/{feedId}");
+    }
+
+    private async Task LoadLikedPostsAsync()
+    {
+        try
+        {
+            isLoadingLiked = true;
+            var client = await CreateSocialClientAsync();
+            var response = await client.GetAsync($"/like/profile/{Id}?page=1&perPage=20");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<PostDto>>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                likedPosts = items ?? [];
+                foreach (var lp in likedPosts)
+                {
+                    lp.IsLikedByMe = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar curtidas: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoadingLiked = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadFollowStateAsync()
+    {
+        if (isOwnProfileCheck || currentProfileId == Guid.Empty) return;
+        try
+        {
+            var client = await CreateSocialClientAsync();
+            var response = await client.GetAsync($"/friendship/isfollowing/{currentProfileId}/{Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (bool.TryParse(json, out var following))
+                {
+                    isFollowing = following;
+                }
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task LoadFollowCountsAsync()
+    {
+        try
+        {
+            var client = await CreateSocialClientAsync();
+            var followersTask = client.GetAsync($"/friendship/followers/{Id}?page=1&perPage=1");
+            var followingTask = client.GetAsync($"/friendship/following/{Id}?page=1&perPage=1");
+            await Task.WhenAll(followersTask, followingTask);
+            var followersResp = await followersTask;
+            var followingResp = await followingTask;
+            followerCount = ExtractTotal(followersResp);
+            followingCount = ExtractTotal(followingResp);
+        }
+        catch
+        {
+        }
+    }
+
+    private static int ExtractTotal(HttpResponseMessage response)
+    {
+        if (!response.IsSuccessStatusCode) return 0;
+        var json = response.Content.ReadAsStringAsync().Result;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("total", out var total))
+            {
+                return total.GetInt32();
+            }
+        }
+        catch
+        {
+        }
+        return 0;
+    }
+
+    private async Task ToggleFollowAsync()
+    {
+        if (isOwnProfileCheck || currentProfileId == Guid.Empty || followBusy) return;
+        try
+        {
+            followBusy = true;
+            var client = await CreateSocialClientAsync();
+            if (isFollowing)
+            {
+                var response = await client.DeleteAsync($"/friendship/unfollow/{Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    isFollowing = false;
+                    followerCount = Math.Max(0, followerCount - 1);
+                    Snackbar.Add("Deixou de seguir.", Severity.Success);
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+            else
+            {
+                var command = new { TargetProfileId = Id };
+                var json = System.Text.Json.JsonSerializer.Serialize(command);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("/friendship/follow", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    isFollowing = true;
+                    followerCount++;
+                    Snackbar.Add("Seguindo!", Severity.Success);
+                }
+                else
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Falha: {(int)response.StatusCode} {body}", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            followBusy = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static string? ParseUserRole(string token)
+    {
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length < 2) return null;
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+            using var doc =
+                System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            if (doc.RootElement.TryGetProperty("role", out var roleElement))
+            {
+                var roleJson = roleElement.GetString();
+                if (!string.IsNullOrEmpty(roleJson))
+                {
+                    if (roleJson.StartsWith("["))
+                    {
+                        var roles = System.Text.Json.JsonSerializer.Deserialize<List<string>>(roleJson);
+                        return roles is { Count: > 0 } ? roles[0] : null;
+                    }
+                    return roleJson;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Profile] Parse role error: {ex.GetType().Name}: {ex.Message}");
+        }
+        return null;
+    }
+
+    private static Color GetStatusColor(string status)
+    {
+        return status.ToLower() switch
+        {
+            "active" => Color.Success,
+            "pending" => Color.Warning,
+            "cancelled" => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private class ProfileDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public List<UserCompanyDto> Companies { get; set; } = [];
+        public List<UserSubscriptionDto> Subscriptions { get; set; } = [];
+    }
+
+    private class UserCompanyDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Cnpj { get; set; } = string.Empty;
+    }
+
+    private class UserSubscriptionDto
+    {
+        public Guid Id { get; set; }
+        public Guid CompanyId { get; set; }
+        public string CompanyName { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public List<UserModuleDto> Modules { get; set; } = [];
+    }
+
+    private class UserModuleDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+    }
+
+    private class SocialProfileDto
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string? UserName { get; set; }
+        public string? Bio { get; set; }
+        public string? ImageUrl { get; set; }
+        public Guid? UploadId { get; set; }
+        public string? Website { get; set; }
+        public string? Location { get; set; }
+        public string? Phone { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
+        public int PostsCount { get; set; }
+        public int FollowersCount { get; set; }
+        public int FollowingCount { get; set; }
+    }
+
+    private class EditProfileModel
+    {
+        public string? UserName { get; set; }
+        public string? Bio { get; set; }
+        public Guid? UploadId { get; set; }
+        public string? Website { get; set; }
+        public string? Location { get; set; }
+        public string? Phone { get; set; }
+        public DateTime? BirthDateValue { get; set; }
+    }
+
+    private class ChangePasswordModel
+    {
+        public string? CurrentPassword { get; set; }
+        public string? NewPassword { get; set; }
+        public string? ConfirmPassword { get; set; }
+    }
+
+    private ChangePasswordModel passwordModel = new();
+    private bool isChangingPassword;
+    private string? passwordMessage;
+    private bool passwordSuccess;
+
+    private async Task ChangePasswordAsync()
+    {
+        if (isChangingPassword) return;
+
+        isChangingPassword = true;
+        passwordMessage = null;
+        passwordSuccess = false;
+        StateHasChanged();
+
+        try
+        {
+            var token = await CompanyContext.GetTokenAsync();
+            if (string.IsNullOrEmpty(token))
+            {
+                passwordMessage = "Usuário não autenticado.";
+                return;
+            }
+
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+            }
+
+            var userId = await CompanyContext.GetUserIdAsync();
+            var command = new
+            {
+                UserId = userId,
+                CurrentPassword = passwordModel.CurrentPassword,
+                NewPassword = passwordModel.NewPassword,
+                ConfirmPassword = passwordModel.ConfirmPassword
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(command);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PatchAsync($"/user/{userId}/password", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                passwordSuccess = true;
+                passwordMessage = "Senha alterada com sucesso!";
+                passwordModel = new ChangePasswordModel();
+                Snackbar.Add("Senha alterada com sucesso!", Severity.Success);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                passwordMessage = string.IsNullOrEmpty(body) ? $"Falha: {(int)response.StatusCode}" : body;
+                Snackbar.Add($"Falha ao alterar senha: {(int)response.StatusCode}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            passwordMessage = $"Erro: {ex.Message}";
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isChangingPassword = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private class PostDto
+    {
+        public Guid Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public Guid ProfileId { get; set; }
+        public Guid CompanyId { get; set; }
+        public int TotalLikes { get; set; }
+        public int TotalComments { get; set; }
+        public int TotalShares { get; set; }
+        public bool IsLikedByMe { get; set; }
+    }
+}

@@ -1,0 +1,437 @@
+@page "/basic/order/new"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IAuthStateService AuthState
+@inject ICompanyContextService CompanyContext
+@using Fenicia.Web.Components.Pages.Basic.Elementary
+@using System.Text.Json
+@using Fenicia.Common.Enums.Auth
+@using Fenicia.Common.Enums.Basic
+
+<PageTitle>Pedidos - Fenicia</PageTitle>
+
+<MainLayout>
+    @if (!isLoggedIn)
+    {
+        <MudAlert Severity="Severity.Error">Faça login para gerenciar pedidos.</MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            <MudItem xs="12">
+                <OrderFormHeader Loading="isLoading"
+                                 HasCartItems="cart.Any()"
+                                 OnRefresh="LoadAllAsync"
+                                 OnClearCart="ClearCart" />
+            </MudItem>
+
+            <MudItem xs="12" md="7" lg="8">
+                <OrderFormProductSearch Products="products"
+                                        Search="_search"
+                                        Loading="isLoading"
+                                        OnSearchKeyDown="OnSearchKeyDown"
+                                        OnProductClick="AddToCart" />
+            </MudItem>
+
+            <MudItem xs="12" md="5" lg="4">
+                <OrderFormCart Cart="cart"
+                               CartCustomerId="cartCustomerId"
+                               CartEmployeeId="cartEmployeeId"
+                               CartPaymentMethod="CartPaymentMethod"
+                               CartStatus="CartStatus"
+                               CartDiscount="cartDiscount"
+                               CartNotes="_cartNotes"
+                               Customers="customers"
+                               Employees="employees"
+                               RecentOrders="recentOrders"
+                               IsSubmitting="isSubmitting"
+                                OnRemove="RemoveFromCart"
+                                OnUpdateQty="@((payload) => UpdateQty(payload.ProductId, payload.Qty))"
+                                OnIncrease="IncreaseQty"
+                                OnDecrease="DecreaseQty"
+                                OnFinalize="FinalizeSaleAsync" />
+            </MudItem>
+        </MudGrid>
+
+        <OrderFormSuccessDialog Visible="showSuccessDialog"
+                                LastOrderNumber="_lastOrderNumber"
+                                LastOrderTotal="lastOrderTotal"
+                                LastOrderId="lastOrderId"
+                                OnStartNewSale="StartNewSale" />
+    }
+</MainLayout>
+
+@code {
+    #pragma warning disable CS0169, CS0649
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+    };
+
+    private bool isLoggedIn;
+    private bool isLoading = true;
+    private bool isSubmitting;
+
+    private string? search;
+
+    private List<GetAllProductResponse> products = [];
+    private List<OrderFormCustomerOption> customers = [];
+    private List<OrderFormEmployeeOption> employees = [];
+    private List<GetAllOrderResponse>? recentOrders;
+
+    private readonly List<OrderFormCartItem> cart = [];
+
+    private Guid cartCustomerId;
+    private Guid? cartEmployeeId;
+    private const PaymentMethod CartPaymentMethod = PaymentMethod.Cash;
+    private const OrderStatus CartStatus = OrderStatus.Approved;
+    private decimal cartDiscount;
+    private string? cartNotes;
+
+    private bool showSuccessDialog;
+    private decimal lastOrderTotal;
+    private Guid lastOrderId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            isLoggedIn = await AuthState.IsAuthenticatedAsync();
+        }
+        catch
+        {
+            isLoggedIn = false;
+        }
+
+        if (isLoggedIn)
+        {
+            await LoadAllAsync();
+        }
+        else
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadAllAsync()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var productsTask = client.GetAsync("datasource/dashboard/product");
+            var customersTask = client.GetAsync("datasource/customer");
+            var employeesTask = client.GetAsync("datasource/employee");
+            var recentOrdersTask = client.GetAsync("order?page=1&perPage=5");
+
+            await Task.WhenAll(productsTask, customersTask, employeesTask, recentOrdersTask);
+
+            if (productsTask.Result.IsSuccessStatusCode)
+            {
+                var body = await productsTask.Result.Content.ReadAsStringAsync();
+                products = JsonSerializer.Deserialize<List<GetAllProductResponse>>(body, JsonOptions) ?? [];
+            }
+
+            if (customersTask.Result.IsSuccessStatusCode)
+            {
+                var body = await customersTask.Result.Content.ReadAsStringAsync();
+                customers = JsonSerializer.Deserialize<List<OrderFormCustomerOption>>(body, JsonOptions) ?? [];
+            }
+
+            if (employeesTask.Result.IsSuccessStatusCode)
+            {
+                var body = await employeesTask.Result.Content.ReadAsStringAsync();
+                employees = JsonSerializer.Deserialize<List<OrderFormEmployeeOption>>(body, JsonOptions) ?? [];
+            }
+
+            recentOrders = [];
+            if (recentOrdersTask.Result.IsSuccessStatusCode)
+            {
+                var body = await recentOrdersTask.Result.Content.ReadAsStringAsync();
+                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
+                recentOrders = paginated?.Data ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnSearchKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void AddToCart(GetAllProductResponse product)
+    {
+        if (product.Quantity <= 0)
+        {
+            Snackbar.Add("Produto sem estoque.", Severity.Warning);
+            return;
+        }
+
+        var existing = cart.FirstOrDefault(c => c.ProductId == product.Id);
+        if (existing is not null)
+        {
+            if (existing.Quantity + 1 > product.Quantity)
+            {
+                Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
+                return;
+            }
+
+            existing.Quantity += 1;
+            existing.Subtotal = (existing.UnitPrice * (decimal)existing.Quantity) - existing.DiscountAmount;
+        }
+        else
+        {
+            cart.Add(new OrderFormCartItem
+            {
+                ProductId = product.Id,
+                Name = product.Name,
+                UnitPrice = product.SalesPrice,
+                Quantity = 1,
+                DiscountAmount = 0,
+                Subtotal = product.SalesPrice
+            });
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveFromCart(Guid productId)
+    {
+        cart.RemoveAll(c => c.ProductId == productId);
+        StateHasChanged();
+    }
+
+    private void IncreaseQty(Guid productId)
+    {
+        var item = cart.FirstOrDefault(c => c.ProductId == productId);
+        if (item is null)
+        {
+            return;
+        }
+
+        var product = products.FirstOrDefault(p => p.Id == productId);
+        if (product is not null && item.Quantity + 1 > product.Quantity)
+        {
+            Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
+            return;
+        }
+
+        item.Quantity += 1;
+        item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
+        StateHasChanged();
+    }
+
+    private void DecreaseQty(Guid productId)
+    {
+        var item = cart.FirstOrDefault(c => c.ProductId == productId);
+        if (item is null)
+        {
+            return;
+        }
+
+        item.Quantity -= 1;
+        if (item.Quantity <= 0)
+        {
+            cart.RemoveAll(c => c.ProductId == productId);
+        }
+        else
+        {
+            item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
+        }
+
+        StateHasChanged();
+    }
+
+    private void UpdateQty(Guid productId, double newQty)
+    {
+        var item = cart.FirstOrDefault(c => c.ProductId == productId);
+        if (item is null)
+        {
+            return;
+        }
+
+        if (newQty <= 0)
+        {
+            cart.RemoveAll(c => c.ProductId == productId);
+            StateHasChanged();
+            return;
+        }
+
+        var product = products.FirstOrDefault(p => p.Id == productId);
+        if (product is not null && newQty > product.Quantity)
+        {
+            Snackbar.Add($"Estoque insuficiente. Disponível: {product.Quantity:0.##}", Severity.Warning);
+            item.Quantity = product.Quantity;
+        }
+        else
+        {
+            item.Quantity = newQty;
+        }
+
+        item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
+        StateHasChanged();
+    }
+
+    private void ClearCart()
+    {
+        cart.Clear();
+        cartDiscount = 0;
+        cartNotes = null;
+        StateHasChanged();
+    }
+
+    private void StartNewSale()
+    {
+        showSuccessDialog = false;
+        ClearCart();
+        _ = LoadRecentOrdersAsync();
+    }
+
+    private async Task LoadRecentOrdersAsync()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var response = await client.GetAsync("order?page=1&perPage=5");
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
+                recentOrders = paginated?.Data ?? [];
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch
+        {
+            // best-effort
+        }
+    }
+
+    private async Task FinalizeSaleAsync()
+    {
+        if (!cart.Any() || cartCustomerId == Guid.Empty)
+        {
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+            StateHasChanged();
+
+            var userId = await CompanyContext.GetUserIdAsync();
+
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+
+            var payload = new
+            {
+                UserId = userId,
+                CustomerId = cartCustomerId,
+                SaleDate = DateTime.UtcNow,
+                Status = CartStatus,
+                PaymentMethod = CartPaymentMethod,
+                EmployeeId = cartEmployeeId,
+                Notes = cartNotes,
+                DiscountAmount = cartDiscount,
+                Details = cart.Select(c => new
+                {
+                    c.ProductId,
+                    Price = c.UnitPrice,
+                    c.Quantity,
+                    c.DiscountAmount
+                }).ToList()
+            };
+
+            var response = await client.PostAsJsonAsync("order", payload, JsonOptions);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao criar pedido: {(int)response.StatusCode} - {body}", Severity.Error);
+                return;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var created = JsonSerializer.Deserialize<CreateOrderResponse>(json, JsonOptions);
+            if (created is not null)
+            {
+                lastOrderId = created.Id;
+                lastOrderTotal = created.TotalAmount;
+            }
+
+            showSuccessDialog = true;
+            Snackbar.Add("Pedido criado com sucesso!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSubmitting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

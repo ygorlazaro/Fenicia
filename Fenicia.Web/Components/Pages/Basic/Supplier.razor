@@ -1,0 +1,147 @@
+@page "/basic/supplier"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject IAuthStateService AuthState
+@inject ICompanyContextService CompanyContext
+@using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Elementary
+@using System.Text.Json
+
+<CrudPage TItem="GetAllSupplierResponse"
+          PageTitle="Fornecedores"
+          PageSubtitle="Gerencie os fornecedores da sua empresa"
+          EntityNamePlural="fornecedores"
+          EntityNameSingular="Fornecedor"
+          Endpoint="supplier"
+          ColumnCount="7"
+          AddButtonLabel="Adicionar Fornecedor"
+          AddDialogTitle="Adicionar Fornecedor"
+          EditDialogTitle="Editar Fornecedor"
+          CreateButtonLabel="Criar"
+          UpdateButtonLabel="Atualizar"
+          DeleteDialogTitle="Excluir Fornecedor"
+          CreatePayloadFactory="CreatePayload"
+          OnAdd="ResetForm"
+          OnEdit="LoadForm">
+    <HeaderContent>
+        <SupplierHeader />
+    </HeaderContent>
+    <RowTemplate>
+        <SupplierRow Item="context.Item"
+                     OnEdit="@(() => context.Page.OpenEditModal(context.Item))"
+                     OnDelete="@(() => context.Page.RequestDelete(context.Item))" />
+    </RowTemplate>
+    <AddModalBody>
+        <SupplierForm Model="add" States="states" />
+    </AddModalBody>
+    <EditModalBody>
+        <SupplierForm Model="edit" States="states" />
+    </EditModalBody>
+</CrudPage>
+
+@code {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private List<StateOption> states = new();
+    private SupplierFormModel add = new();
+    private SupplierFormModel edit = new();
+
+    protected override Task OnInitializedAsync()
+    {
+        return LoadStatesAsync();
+    }
+
+    private async Task LoadStatesAsync()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("FeniciaBasic");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (companyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+            }
+            var response = await client.GetAsync("state");
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                states = JsonSerializer.Deserialize<List<StateOption>>(body, JsonOptions) ?? new();
+            }
+        }
+        catch
+        {
+            states = new();
+        }
+    }
+
+    private void ResetForm() => add = new SupplierFormModel();
+
+    private void LoadForm(GetAllSupplierResponse item)
+    {
+        edit = item is null
+            ? new SupplierFormModel()
+            : new SupplierFormModel
+            {
+                Name = item.Name,
+                Email = item.Email,
+                PhoneNumber = item.PhoneNumber,
+                Document = item.Document,
+                Street = item.Address?.Street,
+                Number = item.Address?.Number,
+                Complement = item.Address?.Complement,
+                Neighborhood = item.Address?.Neighborhood,
+                ZipCode = item.Address?.ZipCode,
+                City = item.Address?.City,
+                StateId = item.Address is { StateId: var sid } && sid != Guid.Empty ? sid : (Guid?)null,
+                Country = item.Address?.Country
+            };
+    }
+
+    private object CreatePayload(CrudModalContext<GetAllSupplierResponse> ctx)
+    {
+        var model = ctx.IsAdd ? add : edit;
+        var address = BuildAddress(model);
+        return new
+        {
+            Id = ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
+            Name = model.Name ?? string.Empty,
+            Email = model.Email,
+            Document = model.Document,
+            PhoneNumber = model.PhoneNumber,
+            Address = address
+        };
+    }
+
+    private static object? BuildAddress(SupplierFormModel model)
+    {
+        if (string.IsNullOrWhiteSpace(model.Street)
+            || string.IsNullOrWhiteSpace(model.Number)
+            || string.IsNullOrWhiteSpace(model.ZipCode)
+            || string.IsNullOrWhiteSpace(model.City)
+            || model.StateId is null)
+        {
+            return null;
+        }
+
+        return new
+        {
+            Street = model.Street,
+            Number = model.Number,
+            Complement = model.Complement,
+            Neighborhood = model.Neighborhood,
+            ZipCode = model.ZipCode,
+            City = model.City,
+            StateId = model.StateId.Value,
+            Country = model.Country
+        };
+    }
+}

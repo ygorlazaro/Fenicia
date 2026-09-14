@@ -1,0 +1,342 @@
+@page "/shop"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IAuthStateService AuthState
+@inject ICompanyContextService CompanyContext
+
+<PageTitle>Loja - Fenicia</PageTitle>
+
+<MainLayout>
+    <MudGrid>
+        <MudItem xs="12">
+            @if (!isLoggedIn)
+            {
+                <MudAlert Severity="Severity.Error">Faça login para assinar módulos.</MudAlert>
+            }
+            else if (isLoading)
+            {
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-16" Size="Size.Large" />
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+            }
+            else if (modules == null || modules.Count == 0)
+            {
+                <MudAlert Severity="Severity.Warning">Nenhum módulo disponível no momento.</MudAlert>
+            }
+            else
+            {
+                <MudPaper Elevation="2" Class="pa-6">
+                    <MudText Typo="Typo.h5" Class="mb-2">Módulos Disponíveis</MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Default" Class="mb-6">Selecione um ou mais módulos para assinar.</MudText>
+
+                    <MudGrid Spacing="4">
+                        @foreach (var module in modules)
+                        {
+                            var isSelected = selectedModules.Contains(module.Id);
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudCard Elevation="2" Class="@($"h-100 module-card {(isSelected ? "module-card-selected" : "")}")" @onclick="() => ToggleModule(module.Id)">
+                                    <MudCardContent>
+                                        <MudStack Spacing="1">
+                                            <MudText Typo="Typo.h6">@TranslateModuleName(module.Name)</MudText>
+                                            @if (!string.IsNullOrEmpty(module.Description))
+                                            {
+                                                <MudText Typo="Typo.body2" Color="Color.Default">@module.Description</MudText>
+                                            }
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-3">
+                                                <MudText Typo="Typo.caption" Color="Color.Default">Tipo: @TranslateModuleType(module.Type)</MudText>
+                                                @if (module.Price.HasValue)
+                                                {
+                                                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="module-price">@(Money.Format(module.Price!.Value))</MudText>
+                                                }
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    </MudGrid>
+
+                    <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubscribeAsync" Disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Default" Class="mr-2" />
+                                <span>Assinando...</span>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+                                <span>Assinar (@selectedModules.Count selecionados)</span>
+                            }
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+
+                @if (!string.IsNullOrEmpty(resultMessage))
+                {
+                    <MudAlert Severity="@(isSuccess ? Severity.Success : Severity.Error)" Class="mt-4" Dense="true">@resultMessage</MudAlert>
+                }
+            }
+        </MudItem>
+    </MudGrid>
+</MainLayout>
+
+<style>
+    .module-card {
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .module-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-card-selected {
+        background-color: rgba(25, 118, 210, 0.08);
+        border: 2px solid rgba(25, 118, 210, 0.4);
+    }
+
+    .module-price {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-left: auto;
+    }
+</style>
+
+@code {
+    private bool isLoggedIn;
+    private bool isLoading = true;
+    private bool isSubmitting;
+    private string? errorMessage;
+    private string? resultMessage;
+    private bool isSuccess;
+    private List<ModuleDto>? modules;
+    private HashSet<Guid> selectedModules = new();
+
+    private static string TranslateModuleName(string name)
+    {
+        return name.ToLowerInvariant() switch
+        {
+            "basic" => "Básico",
+            "socialnetwork" => "Rede Social",
+            "project" => "Projetos",
+            "performanceevaluation" => "Avaliação de Desempenho",
+            "accounting" => "Contabilidade",
+            "hr" => "Recursos Humanos",
+            "pos" => "PDV",
+            "contracts" => "Contratos",
+            "ecommerce" => "E-commerce",
+            "customersupport" => "Suporte ao Cliente",
+            "plus" => "Plus",
+            _ => name
+        };
+    }
+
+    private static string TranslateModuleType(string type)
+    {
+        return type.ToLowerInvariant() switch
+        {
+            "basic" => "Básico",
+            "socialnetwork" => "Rede Social",
+            "project" => "Projetos",
+            "performanceevaluation" => "Avaliação de Desempenho",
+            "accounting" => "Contabilidade",
+            "hr" => "Recursos Humanos",
+            "pos" => "PDV",
+            "contracts" => "Contratos",
+            "ecommerce" => "E-commerce",
+            "customersupport" => "Suporte ao Cliente",
+            "plus" => "Plus",
+            _ => type
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                isLoggedIn = await AuthState.IsAuthenticatedAsync();
+            }
+            catch
+            {
+                isLoggedIn = false;
+            }
+
+            await InvokeAsync(StateHasChanged);
+
+            if (isLoggedIn)
+            {
+                await LoadModulesAsync();
+            }
+            else
+            {
+                isLoading = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private async Task LoadModulesAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+            var token = await CompanyContext.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var selectedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+            if (selectedCompanyId.HasValue)
+            {
+                client.DefaultRequestHeaders.Remove("CompanyId");
+                client.DefaultRequestHeaders.Add("CompanyId", selectedCompanyId.Value.ToString());
+            }
+
+            var response = await client.GetAsync("/module?page=1&perPage=100");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                var paginated = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json, options);
+
+                if (paginated.TryGetProperty("data", out var dataElement) && dataElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    modules = System.Text.Json.JsonSerializer.Deserialize<List<ModuleDto>>(dataElement.GetRawText(), options);
+                }
+                else if (paginated.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    modules = System.Text.Json.JsonSerializer.Deserialize<List<ModuleDto>>(json, options);
+                }
+            }
+            else
+            {
+                errorMessage = $"Falha ao carregar módulos: {(int)response.StatusCode} {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ToggleModule(Guid moduleId)
+    {
+        if (selectedModules.Contains(moduleId))
+        {
+            selectedModules.Remove(moduleId);
+        }
+        else
+        {
+            selectedModules.Add(moduleId);
+        }
+        StateHasChanged();
+    }
+
+    private async Task SubscribeAsync()
+    {
+        if (selectedModules.Count == 0)
+        {
+            resultMessage = "Selecione pelo menos um módulo.";
+            isSuccess = false;
+            Snackbar.Add("Selecione pelo menos um módulo.", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+            resultMessage = null;
+            StateHasChanged();
+
+            var userId = await CompanyContext.GetUserIdAsync();
+            var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+
+            if (!companyId.HasValue)
+            {
+                resultMessage = "Selecione uma empresa antes de assinar.";
+                isSuccess = false;
+                Snackbar.Add("Selecione uma empresa antes de assinar.", Severity.Warning);
+                return;
+            }
+
+            var token = await CompanyContext.GetTokenAsync();
+            var client = HttpClientFactory.CreateClient("FeniciaAuth");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            client.DefaultRequestHeaders.Remove("CompanyId");
+            client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
+
+            var command = new
+            {
+                UserId = userId,
+                CompanyId = companyId.Value,
+                Modules = selectedModules.ToList()
+            };
+
+            var response = await client.PostAsJsonAsync("/order", command);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                resultMessage = $"Falha ao assinar: {(int)response.StatusCode} {response.StatusCode} - {body}";
+                isSuccess = false;
+                Snackbar.Add("Falha ao assinar módulos.", Severity.Error);
+            }
+            else
+            {
+                resultMessage = "Assinatura criada com sucesso! Redirecionando para o perfil...";
+                isSuccess = true;
+                Snackbar.Add("Assinatura criada com sucesso!", Severity.Success);
+                StateHasChanged();
+                await Task.Delay(1500);
+                NavigationManager.NavigateTo("/profile");
+            }
+        }
+        catch (Exception ex)
+        {
+            resultMessage = $"Erro: {ex.Message}";
+            isSuccess = false;
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSubmitting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private class ModuleDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public decimal? Price { get; set; }
+        public bool IsActive { get; set; }
+        public int SortOrder { get; set; }
+    }
+}

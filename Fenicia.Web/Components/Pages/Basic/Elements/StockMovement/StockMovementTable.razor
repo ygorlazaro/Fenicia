@@ -1,0 +1,107 @@
+@using Fenicia.Common.Enums.Basic
+@using Fenicia.Common.DTOs.Basic.StockMovement
+@using Fenicia.Web.Components.Shared
+
+@code {
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public List<GetStockMovementResponse> Items { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+
+    public string ResolveOrigin(GetStockMovementResponse item) => string.Empty;
+}
+
+<MudPaper Class="pa-4" Elevation="2">
+    @if (Loading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="my-6">
+            <MudProgressCircular Indeterminate="true" />
+            <MudText Typo="Typo.body2">Carregando movimentações...</MudText>
+        </MudStack>
+    }
+    else if (Items.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+            Nenhuma movimentação encontrada no período selecionado.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable T="GetStockMovementResponse" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
+            <HeaderContent>
+                <MudTh Class="stock-movement-actions-header">Ações</MudTh>
+                <MudTh>Data</MudTh>
+                <MudTh>Tipo</MudTh>
+                <MudTh>Produto</MudTh>
+                <MudTh Class="stock-movement-amount-header">Quantidade</MudTh>
+                <MudTh Class="stock-movement-amount-header">Preço</MudTh>
+                <MudTh Class="stock-movement-amount-header">Total</MudTh>
+                <MudTh>Origem</MudTh>
+                <MudTh>Motivo</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Ações" Class="stock-movement-actions-cell">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Info"
+                                   Size="Size.Small"
+                                   OnClick="@(() => OnEdit.InvokeAsync(context))" />
+                </MudTd>
+                <MudTd DataLabel="Data">@(context.Date?.ToString("dd/MM/yyyy HH:mm") ?? "—")</MudTd>
+                <MudTd DataLabel="Tipo">
+                    @switch (context.Type)
+                    {
+                        case StockMovementType.In:
+                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Filled" Icon="@Icons.Material.Filled.ArrowDownward">Entrada</MudChip>
+                            break;
+                        case StockMovementType.Out:
+                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Filled" Icon="@Icons.Material.Filled.ArrowUpward">Saída</MudChip>
+                            break;
+                        case StockMovementType.None:
+                        default:
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">—</MudChip>
+                            break;
+                    }
+                </MudTd>
+                <MudTd DataLabel="Produto">
+                    <MudLink Href="@($"/basic/product?edit={context.ProductId}")" Underline="Underline.Hover">
+                        @context.ProductName
+                    </MudLink>
+                </MudTd>
+                <MudTd DataLabel="Quantidade" Class="stock-movement-amount-cell">@context.Quantity.ToString("N2")</MudTd>
+                <MudTd DataLabel="Preço" Class="stock-movement-amount-cell">@(Money.Format(context.Price ?? 0))</MudTd>
+                <MudTd DataLabel="Total" Class="stock-movement-amount-cell">@Money.Format((decimal)context.Quantity * (context.Price ?? 0))</MudTd>
+                <MudTd DataLabel="Origem">
+                    @{ var origin = ResolveOrigin(context); }
+                    @if (context.SupplierId.HasValue && origin.StartsWith("Fornecedor", StringComparison.Ordinal))
+                    {
+                        <MudLink Href="@($"/basic/supplier?edit={context.SupplierId}")" Underline="Underline.Hover">@origin</MudLink>
+                    }
+                    else if (context.CustomerId.HasValue && origin.StartsWith("Cliente", StringComparison.Ordinal))
+                    {
+                        <MudLink Href="@($"/basic/customer?edit={context.CustomerId}")" Underline="Underline.Hover">@origin</MudLink>
+                    }
+                    else if (context.EmployeeId.HasValue && origin.StartsWith("Funcionário", StringComparison.Ordinal))
+                    {
+                        <MudLink Href="@($"/basic/employee?edit={context.EmployeeId}")" Underline="Underline.Hover">@origin</MudLink>
+                    }
+                    else if (context.OrderId.HasValue)
+                    {
+                        <MudLink Href="@($"/basic/order/{context.OrderId}")" Underline="Underline.Hover">Pedido @context.OrderId.Value.ToString()[..8]</MudLink>
+                    }
+                    else
+                    {
+                        @origin
+                    }
+                </MudTd>
+                <MudTd DataLabel="Motivo">@(string.IsNullOrEmpty(context.Reason) ? "—" : context.Reason)</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="[10, 20, 50, 100]" RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}" AllItemsText="Todos" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>

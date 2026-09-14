@@ -1,0 +1,34 @@
+@page "/logout"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
+@inject IAuthStateService AuthState
+
+<PageTitle>Saindo - Fenicia</PageTitle>
+
+<MainLayout>
+    <MudGrid Justify="Justify.Center" Class="mt-16">
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-8 d-flex flex-column align-center text-center">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" Class="mb-4" />
+                <MudText Typo="Typo.h5">Saindo</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Default">Encerrando sua sessão...</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MainLayout>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await AuthState.ClearTokenAsync();
+            await JSRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
+            Snackbar.Add("Você saiu da sua conta.", Severity.Info);
+            await Task.Delay(300);
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

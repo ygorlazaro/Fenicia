@@ -1,0 +1,43 @@
+@page "/basic/customer"
+@rendermode InteractiveServer
+@using Fenicia.Web.Components.Shared
+@using Fenicia.Web.Components.Pages.Basic.Elementary
+@using System.Text.Json
+
+@code {
+    private CustomerFormModel add = new();
+    private CustomerFormModel edit = new();
+    private List<StateOption> states = new();
+}
+
+<CrudPage TItem="GetAllCustomerResponse"
+          PageTitle="Clientes"
+          PageSubtitle="Gerencie os clientes da sua empresa"
+          EntityNamePlural="clientes"
+          EntityNameSingular="Cliente"
+          Endpoint="customer"
+          ColumnCount="7"
+          AddButtonLabel="Adicionar Cliente"
+          AddDialogTitle="Adicionar Cliente"
+          EditDialogTitle="Editar Cliente"
+          CreateButtonLabel="Criar"
+          UpdateButtonLabel="Atualizar"
+          DeleteDialogTitle="Excluir Cliente"
+          CreatePayloadFactory="CreatePayload"
+          OnAdd="ResetForm"
+          OnEdit="LoadForm">
+    <HeaderContent>
+        <CustomerHeader />
+    </HeaderContent>
+    <RowTemplate>
+        <CustomerRow Item="context.Item"
+                     OnEdit="@(() => context.Page.OpenEditModal(context.Item))"
+                     OnDelete="@(() => context.Page.RequestDelete(context.Item))" />
+    </RowTemplate>
+    <AddModalBody>
+        <CustomerForm Model="add" States="states" />
+    </AddModalBody>
+    <EditModalBody>
+        <CustomerForm Model="edit" States="states" />
+    </EditModalBody>
+</CrudPage>

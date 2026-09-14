@@ -1,0 +1,29 @@
+@using Fenicia.Common.DTOs.Basic.Product
+
+@code {
+    [Parameter]
+    public GetAllProductResponse Item { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+}
+
+<MudTd DataLabel="Ações" Class="product-actions-cell">
+    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                   Color="Color.Info"
+                   Size="Size.Small"
+                   OnClick="@(() => OnEdit.InvokeAsync(Item))" />
+    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                   Color="Color.Error"
+                   Size="Size.Small"
+                   OnClick="@(() => OnDelete.InvokeAsync(Item))" />
+</MudTd>
+<MudTd DataLabel="Nome">@Item.Name</MudTd>
+<MudTd DataLabel="SKU">@(string.IsNullOrEmpty(Item.SKU) ? "—" : Item.SKU)</MudTd>
+<MudTd DataLabel="Código de Barras">@(string.IsNullOrEmpty(Item.Barcode) ? "—" : Item.Barcode)</MudTd>
+<MudTd DataLabel="Preço">@Money.Format(Item.SalesPrice)</MudTd>
+<MudTd DataLabel="Estoque">@Item.Quantity.ToString("0.##")</MudTd>
+<MudTd DataLabel="Categoria">@Item.CategoryName</MudTd>

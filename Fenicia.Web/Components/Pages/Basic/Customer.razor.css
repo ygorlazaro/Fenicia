@@ -1,0 +1,6 @@
+:deep(.customer-actions-cell),
+:deep(.customer-actions-header) {
+    text-align: left;
+    min-width: 120px;
+    width: 120px;
+}

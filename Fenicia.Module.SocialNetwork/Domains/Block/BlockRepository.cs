@@ -1,0 +1,13 @@
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Common.Data.Repositories;
+
+namespace Fenicia.Module.SocialNetwork.Domains.Block;
+
+public class BlockRepository(DefaultContext context) : Repository<BlockModel>(context), IBlockRepository
+{
+    public new IQueryable<BlockModel> Query()
+    {
+        return DbSet;
+    }
+}

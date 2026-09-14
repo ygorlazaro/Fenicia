@@ -1,0 +1,12 @@
+@using Fenicia.Common.DTOs.Basic.Order
+
+@code {
+    [Parameter]
+    public GetAllOrderResponse Item { get; set; } = default!;
+}
+
+<MudTd DataLabel="Pedido">@Item.OrderNumber</MudTd>
+<MudTd DataLabel="Cliente">@Item.CustomerName</MudTd>
+<MudTd DataLabel="Data">@Item.SaleDate.ToString("dd/MM/yyyy")</MudTd>
+<MudTd DataLabel="Total">@Money.Format(Item.TotalAmount)</MudTd>
+<MudTd DataLabel="Status">@Item.Status</MudTd>
