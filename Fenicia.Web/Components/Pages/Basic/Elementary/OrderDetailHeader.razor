@@ -31,20 +31,3 @@
         </MudStack>
     </MudStack>
 </MudPaper>
-
-@code {
-    [Parameter][EditorRequired] public GetOrderByIdResponse Order { get; set; } = default!;
-    [Parameter] public EventCallback OnPrint { get; set; }
-
-    private static Color StatusColor(string status)
-    {
-        return status switch
-        {
-            "Approved" => Color.Success,
-            "Pending" => Color.Warning,
-            "Cancelled" => Color.Error,
-            _ => Color.Default
-        };
-    }
-
-}

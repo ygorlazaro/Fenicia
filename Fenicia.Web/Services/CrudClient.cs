@@ -10,7 +10,8 @@ public class CrudClient(IHttpClientFactory httpClientFactory, ICompanyContextSer
 {
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
     public async Task<TableData<TItem>> GetPageAsync<TItem>(

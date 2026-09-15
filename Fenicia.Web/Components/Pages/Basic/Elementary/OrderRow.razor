@@ -25,7 +25,3 @@
 <MudTd DataLabel="Itens" Style="text-align: right">@Item.TotalItems</MudTd>
 <MudTd DataLabel="Total" Style="text-align: right">@Money.Format(Item.TotalAmount)</MudTd>
 <MudTd DataLabel="Data">@Item.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudTd>
-
-@code {
-    [Parameter] public GetAllOrderResponse Item { get; set; } = default!;
-}

@@ -7,8 +7,10 @@ namespace Fenicia.Web.Components.Pages.Basic.Elements.Customer;
 public partial class CustomerForm : ComponentBase
 {
     [Parameter]
+
     public CustomerFormData Model { get; set; } = new();
 
     [Parameter]
+
     public IReadOnlyList<GetAllStateResponse>? States { get; set; }
 }

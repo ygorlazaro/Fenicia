@@ -15,9 +15,3 @@
 <MudTd DataLabel="Quantidade" Style="text-align: right">@Item.Quantity</MudTd>
 <MudTd DataLabel="Categoria">@Item.CategoryName</MudTd>
 <MudTd DataLabel="Fornecedor">@(string.IsNullOrEmpty(Item.SupplierName) ? "—" : Item.SupplierName)</MudTd>
-
-@code {
-    [Parameter] public GetAllProductResponse Item { get; set; } = default!;
-    [Parameter] public EventCallback<GetAllProductResponse> OnEdit { get; set; }
-    [Parameter] public EventCallback<GetAllProductResponse> OnDelete { get; set; }
-}

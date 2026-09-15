@@ -13,8 +13,3 @@
 <MudTd DataLabel="Funcionários" Style="text-align: left">
     <MudLink Href="@($"/basic/employee?filters%5BPositionId%5D={Item.Id}")" Typo="Typo.body2" Underline="Underline.Always">Ver funcionários</MudLink>
 </MudTd>
-
-@code {
-    [Parameter] public GetAllPositionResponse Item { get; set; } = default!;
-    [Parameter] public Fenicia.Web.Components.Shared.CrudPage<GetAllPositionResponse> Page { get; set; } = default!;
-}

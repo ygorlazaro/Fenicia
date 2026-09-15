@@ -59,28 +59,3 @@
     </MudHidden>
 </MudAppBar>
 
-@code {
-    [Parameter] public bool IsLoggedIn { get; set; }
-    [Parameter] public string UserName { get; set; } = string.Empty;
-    [Parameter] public string UserRole { get; set; } = string.Empty;
-    [Parameter] public string? UserImageUrl { get; set; }
-    [Parameter] public string SelectedCompanyName { get; set; } = string.Empty;
-    [Parameter] public List<UserCompanyItem> Companies { get; set; } = [];
-    [Parameter] public EventCallback OnToggleDrawer { get; set; }
-
-    private Task HandleToggleDrawer()
-    {
-        return OnToggleDrawer.InvokeAsync();
-    }
-
-    private static string GetInitials(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-        {
-            return "?";
-        }
-
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return parts.Length == 1 ? parts[0][..1].ToUpper() : (parts[0][..1] + parts[^1][..1]).ToUpper();
-    }
-}

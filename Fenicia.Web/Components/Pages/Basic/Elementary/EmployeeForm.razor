@@ -61,9 +61,3 @@
         <MudTextField @bind-Value="Model.Country" Label="País" Variant="Variant.Outlined" />
     </MudItem>
 </MudGrid>
-
-@code {
-    [Parameter] public EmployeeFormModel Model { get; set; } = new();
-    [Parameter] public IReadOnlyList<StateOption>? States { get; set; }
-    [Parameter] public IReadOnlyList<PositionOption>? Positions { get; set; }
-}

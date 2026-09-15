@@ -26,10 +26,11 @@
 
     <ItemGroup>
         <!-- StyleCop.Analyzers: cobre ordenação de membros, using directives, brackets obrigatórios -->
-        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+        <!-- DISABLED TEMPORARILY -->
+        <!-- <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        </PackageReference> -->
     </ItemGroup>
 
 </Project>

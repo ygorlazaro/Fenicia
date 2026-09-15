@@ -5,13 +5,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 
-#pragma warning disable CA1031
-#pragma warning disable SA1204
-#pragma warning disable SA1513
-#pragma warning disable SA1201
-
 namespace Fenicia.Web.Components.Layout;
 
+#pragma warning disable CA1031
 public partial class MainLayout : IDisposable
 {
     private static string? ParseUserName(string token)
@@ -19,26 +15,34 @@ public partial class MainLayout : IDisposable
         try
         {
             var parts = token.Split('.');
+
             if (parts.Length < 2)
             {
                 return null;
             }
             var payload = parts[1].Replace('-', '+').Replace('_', '/');
+
             switch (payload.Length % 4)
             {
                 case 2:
+
                     payload += "==";
+
                     break;
+
                 case 3:
+
                     payload += "=";
+
                     break;
             }
-            using var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
             return doc.RootElement.TryGetProperty("unique_name", out var n) ? n.GetString() : null;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[MainLayout] Parse error: {ex.Message}");
+
             return null;
         }
     }
@@ -48,29 +52,38 @@ public partial class MainLayout : IDisposable
         try
         {
             var parts = token.Split('.');
+
             if (parts.Length < 2)
             {
                 return null;
             }
             var payload = parts[1].Replace('-', '+').Replace('_', '/');
+
             switch (payload.Length % 4)
             {
                 case 2:
+
                     payload += "==";
+
                     break;
+
                 case 3:
+
                     payload += "=";
+
                     break;
             }
-            using var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
             if (doc.RootElement.TryGetProperty("role", out var roleElement))
             {
                 var roleJson = roleElement.GetString();
+
                 if (!string.IsNullOrEmpty(roleJson))
                 {
                     if (roleJson.StartsWith("["))
                     {
                         var roles = System.Text.Json.JsonSerializer.Deserialize<List<string>>(roleJson);
+
                         return roles is { Count: > 0 } ? roles[0] : null;
                     }
                     return roleJson;
@@ -84,76 +97,103 @@ public partial class MainLayout : IDisposable
         return null;
     }
 
-    private bool isLoggedIn;
-    private string userName = string.Empty;
-    private string userRole = string.Empty;
-    private string? userImageUrl;
-    private bool jsAvailable;
-    private bool drawerOpen;
-    private bool companiesLoaded;
-    private List<UserCompanyItem> companies = [];
-    private Guid? selectedCompanyId;
-    private string selectedCompanyName = string.Empty;
-    private bool isLoading;
+    private bool _isLoggedIn;
+
+    private string _userName = string.Empty;
+
+    private string _userRole = string.Empty;
+
+    private string? _userImageUrl;
+
+    private bool _jsAvailable;
+
+    private bool _drawerOpen;
+
+    private bool _companiesLoaded;
+
+    private List<UserCompanyItem> _companies = [];
+
+    private Guid? _selectedCompanyId;
+
+    private string _selectedCompanyName = string.Empty;
+
+    private bool _isLoading;
 
     [Inject]
+
     public ICompanyContextService CompanyContext { get; set; } = default!;
 
     [Inject]
-    public UserProfileNotifier UserProfileNotifier { get; set; } = default!;
+
+    public IUserProfileNotifier UserProfileNotifier { get; set; } = default!;
 
     [Inject]
-    public LoadingService LoadingService { get; set; } = default!;
+
+    public ILoadingService LoadingService { get; set; } = default!;
 
     [Inject]
+
     public ICompanySelectionState CompanyState { get; set; } = default!;
 
     [Parameter]
+
     public RenderFragment? ChildContent { get; set; }
 
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+
         UserProfileNotifier.Changed -= OnUserProfileChanged;
+
         LoadingService.LoadingChanged -= OnLoadingChanged;
     }
 
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
+
         UserProfileNotifier.Changed += OnUserProfileChanged;
+
         LoadingService.LoadingChanged += OnLoadingChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (jsAvailable)
-        {
-            await RefreshAuthAsync();
-            if (companiesLoaded)
-            {
-                return;
-            }
-            companiesLoaded = true;
-            if (isLoggedIn)
-            {
-                await LoadCompaniesAsync();
-                await RedirectIfCompanyMissingAsync();
-            }
-            return;
-        }
-
         try
         {
-            await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
-            jsAvailable = true;
-            await RefreshAuthAsync();
-            if (!companiesLoaded)
+            if (_jsAvailable)
             {
-                companiesLoaded = true;
-                if (isLoggedIn)
+                await RefreshAuthAsync();
+
+                if (_companiesLoaded)
+                {
+                    return;
+                }
+                _companiesLoaded = true;
+
+                if (_isLoggedIn)
                 {
                     await LoadCompaniesAsync();
+
+                    await RedirectIfCompanyMissingAsync();
+                }
+                return;
+            }
+
+            await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+
+            _jsAvailable = true;
+
+            await RefreshAuthAsync();
+
+            if (!_companiesLoaded)
+            {
+                _companiesLoaded = true;
+
+                if (_isLoggedIn)
+                {
+                    await LoadCompaniesAsync();
+
                     await RedirectIfCompanyMissingAsync();
                 }
             }
@@ -172,19 +212,22 @@ public partial class MainLayout : IDisposable
     {
         try
         {
-            if (!isLoggedIn)
+            if (!_isLoggedIn)
             {
                 return Task.CompletedTask;
             }
 
-            if (selectedCompanyId.HasValue)
+            if (_selectedCompanyId.HasValue)
             {
                 return Task.CompletedTask;
             }
 
             var destiny = GetRequestedPath();
+
             var query = string.IsNullOrEmpty(destiny) ? string.Empty : $"?destiny={Uri.EscapeDataString(destiny)}";
+
             NavigationManager.NavigateTo($"/company{query}", true);
+
             return Task.CompletedTask;
         }
         catch
@@ -195,7 +238,7 @@ public partial class MainLayout : IDisposable
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        if (jsAvailable)
+        if (_jsAvailable)
         {
             _ = RefreshAuthAsync();
         }
@@ -208,7 +251,7 @@ public partial class MainLayout : IDisposable
 
     private void ToggleDrawer()
     {
-        drawerOpen = !drawerOpen;
+        _drawerOpen = !_drawerOpen;
     }
 
     private async Task RefreshAuthAsync()
@@ -216,25 +259,36 @@ public partial class MainLayout : IDisposable
         try
         {
             var token = await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+
             var loggedIn = !string.IsNullOrEmpty(token);
-            if (loggedIn != isLoggedIn)
+
+            if (loggedIn != _isLoggedIn)
             {
-                isLoggedIn = loggedIn;
+                _isLoggedIn = loggedIn;
+
                 if (loggedIn)
                 {
-                    userName = ParseUserName(token) ?? string.Empty;
-                    userRole = ParseUserRole(token) ?? string.Empty;
-                    userImageUrl = await LoadUserImageAsync();
+                    _userName = ParseUserName(token) ?? string.Empty;
+
+                    _userRole = ParseUserRole(token) ?? string.Empty;
+
+                    _userImageUrl = await LoadUserImageAsync();
                 }
                 else
                 {
-                    userName = string.Empty;
-                    userRole = string.Empty;
-                    userImageUrl = null;
-                    selectedCompanyId = null;
-                    selectedCompanyName = string.Empty;
-                    companies = [];
-                    companiesLoaded = false;
+                    _userName = string.Empty;
+
+                    _userRole = string.Empty;
+
+                    _userImageUrl = null;
+
+                    _selectedCompanyId = null;
+
+                    _selectedCompanyName = string.Empty;
+
+                    _companies = [];
+
+                    _companiesLoaded = false;
                 }
                 await InvokeAsync(StateHasChanged);
             }
@@ -250,27 +304,35 @@ public partial class MainLayout : IDisposable
         try
         {
             var token = await JsRuntime.InvokeAsync<string>("storageHelper.get", "auth_token");
+
             if (string.IsNullOrEmpty(token))
             {
                 return null;
             }
 
             var client = HttpClientFactory.CreateClient("FeniciaSocialNetwork");
+
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+
             if (companyId.HasValue)
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
+
                 client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
             }
 
             var response = await client.GetAsync("/profile");
+
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
+
                 var profile = System.Text.Json.JsonSerializer.Deserialize<SocialProfileRef>(
+
                     json,
+
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 return profile?.ImageUrl;
@@ -284,7 +346,7 @@ public partial class MainLayout : IDisposable
 
     private async Task LoadCompaniesAsync()
     {
-        if (!isLoggedIn || companies.Count > 0)
+        if (!_isLoggedIn || _companies.Count > 0)
         {
             return;
         }
@@ -294,17 +356,22 @@ public partial class MainLayout : IDisposable
         try
         {
             var userId = await CompanyContext.GetUserIdAsync();
+
             var token = await CompanyContext.GetTokenAsync();
+
             var client = HttpClientFactory.CreateClient("FeniciaAuth");
+
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
 
             var storedCompanyId = await CompanyContext.GetSelectedCompanyIdAsync();
+
             if (storedCompanyId.HasValue)
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
+
                 client.DefaultRequestHeaders.Add("CompanyId", storedCompanyId.Value.ToString());
             }
 
@@ -313,13 +380,17 @@ public partial class MainLayout : IDisposable
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
+
                 var items = System.Text.Json.JsonSerializer.Deserialize<List<UserCompanyItem>>(
+
                     json,
+
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 if (items is not null)
                 {
-                    companies = items;
+                    _companies = items;
+
                     await LoadSelectedCompanyAsync();
                 }
             }
@@ -339,21 +410,29 @@ public partial class MainLayout : IDisposable
         try
         {
             var companyId = await CompanyContext.GetSelectedCompanyIdAsync();
+
             if (companyId.HasValue)
             {
-                selectedCompanyId = companyId;
-                var match = companies.FirstOrDefault(c => c.Id == companyId.Value);
+                _selectedCompanyId = companyId;
+
+                var match = _companies.FirstOrDefault(c => c.Id == companyId.Value);
+
                 if (match is not null)
                 {
-                    selectedCompanyName = match.CompanyName;
+                    _selectedCompanyName = match.CompanyName;
+
                     CompanyState.Set(match.Id, match.CompanyName);
+
                     await JsRuntime.InvokeVoidAsync("storageHelper.setCookie", "selected_company_id", companyId.Value.ToString(), 7);
                 }
                 else
                 {
-                    selectedCompanyId = null;
-                    selectedCompanyName = string.Empty;
+                    _selectedCompanyId = null;
+
+                    _selectedCompanyName = string.Empty;
+
                     await CompanyContext.SetSelectedCompanyIdAsync(null);
+
                     await JsRuntime.InvokeVoidAsync("storageHelper.removeCookie", "selected_company_id");
                 }
             }
@@ -366,14 +445,18 @@ public partial class MainLayout : IDisposable
 
     private void OnLoadingChanged(bool refIsLoading)
     {
-        isLoading = refIsLoading;
+        _isLoading = refIsLoading;
+
         InvokeAsync(StateHasChanged);
     }
 
     private string GetRequestedPath()
     {
         var uri = new Uri(NavigationManager.Uri);
+
         var path = uri.AbsolutePath;
+
         return string.IsNullOrEmpty(path) || path == "/" ? "dashboard" : path.TrimStart('/');
     }
+
 }

@@ -4,6 +4,14 @@ using Fenicia.Web.Services;
 using Fenicia.Web.Services.Interfaces;
 using MudBlazor.Services;
 
+TaskScheduler.UnobservedTaskException += (_, e) =>
+{
+    if (e.Exception?.Message.Contains("JSInterop") == true || e.Exception?.Message.Contains("disconnected") == true)
+    {
+        e.SetObserved();
+    }
+};
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();

@@ -17,7 +17,7 @@
             <MudDatePicker @bind-Date="EndDate" Label="Data final" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Dense" />
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
-            <MudSelect T="TypeFilter" @bind-Value="Filter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
+            <MudSelect T="TypeFilter" @bind-Value="TypeFilter" Label="Tipo" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
                 <MudSelectItem T="TypeFilter" Value="TypeFilter.All">Todos</MudSelectItem>
                 <MudSelectItem T="TypeFilter" Value="TypeFilter.In">Entrada</MudSelectItem>
                 <MudSelectItem T="TypeFilter" Value="TypeFilter.Out">Saída</MudSelectItem>
@@ -30,18 +30,3 @@
         </MudItem>
     </MudGrid>
 </MudPaper>
-
-@code {
-    [Parameter] public string? SearchText { get; set; }
-    [Parameter] public EventCallback<string?> SearchTextChanged { get; set; }
-    [Parameter] public DateTime? StartDate { get; set; }
-    [Parameter] public EventCallback<DateTime?> StartDateChanged { get; set; }
-    [Parameter] public DateTime? EndDate { get; set; }
-    [Parameter] public EventCallback<DateTime?> EndDateChanged { get; set; }
-    [Parameter] public TypeFilter Filter { get; set; } = TypeFilter.All;
-    [Parameter] public EventCallback<TypeFilter> FilterChanged { get; set; }
-    [Parameter] public bool Loading { get; set; }
-    [Parameter] public EventCallback OnFilter { get; set; }
-
-    public enum TypeFilter { All, In, Out }
-}

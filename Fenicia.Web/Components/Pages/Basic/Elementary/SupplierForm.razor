@@ -48,8 +48,3 @@
         <MudTextField @bind-Value="Model.Country" Label="País" Variant="Variant.Outlined" />
     </MudItem>
 </MudGrid>
-
-@code {
-    [Parameter] public SupplierFormModel Model { get; set; } = new();
-    [Parameter, EditorRequired] public List<StateOption> States { get; set; } = [];
-}

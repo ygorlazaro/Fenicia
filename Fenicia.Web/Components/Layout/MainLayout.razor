@@ -3,22 +3,22 @@
 @inject IJSRuntime JsRuntime
 @inject IHttpClientFactory HttpClientFactory
 
-<MudProgressLinear Indeterminate="true" Visible="@isLoading" Absolute="true" Top="true" Striped="true" Color="Color.Primary" Size="Size.Small" />
+<MudProgressLinear Indeterminate="true" Visible="@_isLoading" Absolute="true" Top="true" Striped="true" Color="Color.Primary" Size="Size.Small" />
 
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider Position="MudBlazor.SnackbarPosition.TopRight" Timeout="5000" ShowCloseIcon="true" />
 
 <MudLayout>
-    <AppBar IsLoggedIn="@isLoggedIn"
-            UserName="@userName"
-            UserRole="@userRole"
-            UserImageUrl="@userImageUrl"
-            SelectedCompanyName="@selectedCompanyName"
-            Companies="@companies"
+    <AppBar IsLoggedIn="@_isLoggedIn"
+            UserName="@_userName"
+            UserRole="@_userRole"
+            UserImageUrl="@_userImageUrl"
+            SelectedCompanyName="@_selectedCompanyName"
+            Companies="@_companies"
             OnToggleDrawer="ToggleDrawer" />
 
-    <SideDrawer @bind-Open="drawerOpen" IsLoggedIn="@isLoggedIn" />
+    <SideDrawer @bind-Open="_drawerOpen" IsLoggedIn="@_isLoggedIn" />
 
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">

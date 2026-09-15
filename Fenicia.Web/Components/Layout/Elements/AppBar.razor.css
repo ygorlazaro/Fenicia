@@ -1,0 +1,19 @@
+.fenicia-appbar {
+    background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
+    backdrop-filter: blur(10px);
+    overflow: visible !important;
+}
+
+.logo-img {
+    height: 32px;
+    width: auto;
+}
+
+.topbar-actions {
+    flex-wrap: nowrap;
+}
+
+.topbar-divider {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}

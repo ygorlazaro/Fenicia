@@ -77,18 +77,3 @@
         </MudButton>
     </DialogActions>
 </MudDialog>
-
-@code {
-    [Parameter] public bool Visible { get; set; }
-    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
-    [Parameter] public MovementFormModel Model { get; set; } = new();
-    [Parameter] public bool IsEdit { get; set; }
-    [Parameter] public bool IsSubmitting { get; set; }
-    [Parameter, EditorRequired] public List<DatasourceItem> Products { get; set; } = [];
-    [Parameter, EditorRequired] public List<DatasourceItem> Customers { get; set; } = [];
-    [Parameter, EditorRequired] public List<DatasourceItem> Suppliers { get; set; } = [];
-    [Parameter, EditorRequired] public List<DatasourceItem> Employees { get; set; } = [];
-    [Parameter] public DialogOptions DialogOptions { get; set; } = new() { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.Medium, FullWidth = true };
-    [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnSubmit { get; set; }
-}

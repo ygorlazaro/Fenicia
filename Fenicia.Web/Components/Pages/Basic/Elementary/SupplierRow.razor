@@ -15,9 +15,3 @@
 <MudTd DataLabel="Documento">@(string.IsNullOrEmpty(Item.Document) ? "—" : Item.Document)</MudTd>
 <MudTd DataLabel="Cidade">@(string.IsNullOrEmpty(Item.Address?.City) ? "—" : Item.Address.City)</MudTd>
 <MudTd DataLabel="Estado">@(string.IsNullOrEmpty(Item.Address?.StateName) ? "—" : Item.Address.StateName)</MudTd>
-
-@code {
-    [Parameter] public GetAllSupplierResponse Item { get; set; } = default!;
-    [Parameter] public EventCallback<GetAllSupplierResponse> OnEdit { get; set; }
-    [Parameter] public EventCallback<GetAllSupplierResponse> OnDelete { get; set; }
-}

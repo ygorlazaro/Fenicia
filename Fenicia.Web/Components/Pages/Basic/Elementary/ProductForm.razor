@@ -57,9 +57,3 @@
         <MudTextField @bind-Value="Model.Description" Label="Descrição" Variant="Variant.Outlined" Lines="3" />
     </MudItem>
 </MudGrid>
-
-@code {
-    [Parameter] public ProductFormModel Model { get; set; } = new();
-    [Parameter, EditorRequired] public List<CategoryOption> Categories { get; set; } = [];
-    [Parameter, EditorRequired] public List<SupplierOption> Suppliers { get; set; } = [];
-}

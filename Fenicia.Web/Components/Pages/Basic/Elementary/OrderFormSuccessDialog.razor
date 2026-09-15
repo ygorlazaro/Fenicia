@@ -18,12 +18,3 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => NavigationManager.NavigateTo($"/basic/order/{LastOrderId}"))">Ver Pedido</MudButton>
     </DialogActions>
 </MudDialog>
-
-@code {
-    [Parameter] public bool Visible { get; set; }
-    [Parameter] public string? LastOrderNumber { get; set; }
-    [Parameter] public decimal LastOrderTotal { get; set; }
-    [Parameter] public Guid LastOrderId { get; set; }
-    [Parameter] public DialogOptions DialogOptions { get; set; } = new() { FullWidth = true, MaxWidth = MaxWidth.Small };
-    [Parameter] public EventCallback OnStartNewSale { get; set; }
-}
