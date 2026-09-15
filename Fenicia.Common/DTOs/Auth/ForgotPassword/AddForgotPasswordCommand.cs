@@ -2,26 +2,27 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.ForgotPassword;
 
-public record AddForgotPasswordCommand
+public class AddForgotPasswordCommand()
 {
-    public AddForgotPasswordCommand()
-    {
-    }
-
-    public AddForgotPasswordCommand(string email, string? ipAddress = null, string? userAgent = null)
+    public AddForgotPasswordCommand(string email, Guid userId, string? ipAddress = null, string? userAgent = null)
+        : this()
     {
         Email = email;
         IpAddress = ipAddress;
         UserAgent = userAgent;
+        UserId = userId;
     }
 
     [Required]
-    [MaxLength(200)]
+    public Guid UserId { get; set; }
+
+    [Required]
+    [MaxLength(48)]
     public string Email { get; set; } = string.Empty;
 
-    [MaxLength(200)]
+    [MaxLength(45)]
     public string? IpAddress { get; set; }
 
-    [MaxLength(200)]
+    [MaxLength(500)]
     public string? UserAgent { get; set; }
 }

@@ -3,9 +3,10 @@ using Fenicia.Common.DTOs.Auth.User;
 
 namespace Fenicia.Common.DTOs.Auth.Register;
 
-public record RegisterCommand
+public class RegisterCommand()
 {
     public RegisterCommand(string email, string password, string name, CreateNewUserCompanyCommand company)
+        : this()
     {
         Email = email;
         Password = password;

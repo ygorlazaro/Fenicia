@@ -2,23 +2,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.ForgotPassword;
 
-public class ResetPasswordCommand(string email, string password, string code)
+public class ResetPasswordCommand()
 {
-    public ResetPasswordCommand()
-        : this(string.Empty, string.Empty, string.Empty)
+    public ResetPasswordCommand(string email, string password, string code)
+        : this()
     {
+        Email = email;
+        Password = password;
+        Code = code;
     }
 
     [Required]
     [EmailAddress]
     [MaxLength(200)]
-    public string Email { get; set; } = email;
+    public string Email { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(200)]
-    public string Code { get; set; } = code;
+    public string Password { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(200)]
-    public string Password { get; set; } = password;
+    [StringLength(100, MinimumLength = 6)]
+    public string Code { get; set; } = string.Empty;
 }

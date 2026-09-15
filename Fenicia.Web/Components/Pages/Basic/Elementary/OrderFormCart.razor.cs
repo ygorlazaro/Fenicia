@@ -1,11 +1,8 @@
-using Fenicia.Common.DTOs.Basic.Customer;
-using Fenicia.Common.DTOs.Basic.Employee;
 using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Web.Components.Shared;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 

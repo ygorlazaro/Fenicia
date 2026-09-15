@@ -1,42 +1,23 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.User;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.User;
 
-public static class UserMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class UserMapper
 {
-    public static UserListItemResponse MapToUserListItemResponse(this UserModel user)
-    {
-        return new UserListItemResponse(user.Id, user.Name, user.Email);
-    }
+    public partial UserListItemResponse MapToUserListItemResponse(UserModel user);
 
-    public static GetUserByIdResponse MapToGetUserByIdResponse(this UserModel user)
-    {
-        return new GetUserByIdResponse(user.Id, user.Name, user.Email);
-    }
+    public partial GetUserByIdResponse MapToGetUserByIdResponse(UserModel user);
 
-    public static GetByEmailResponse MapToGetByEmailResponse(this UserModel user)
-    {
-        return new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password);
-    }
+    public partial GetByEmailResponse MapToGetByEmailResponse(UserModel user);
 
-    public static CreateUserResponse MapToCreateUserResponse(this UserModel user)
-    {
-        return new CreateUserResponse(user.Id, user.Name, user.Email);
-    }
+    public partial CreateUserResponse MapToCreateUserResponse(UserModel user);
 
-    public static UpdateUserResponse MapToUpdateUserResponse(this UserModel user)
-    {
-        return new UpdateUserResponse(user.Id, user.Name, user.Email);
-    }
+    public partial UpdateUserResponse MapToUpdateUserResponse(UserModel user);
 
-    public static UpdatePasswordResponse MapToUpdatePasswordResponse(this UserModel user)
-    {
-        return new UpdatePasswordResponse(user.Id, user.Name, user.Email);
-    }
+    public partial UpdatePasswordResponse MapToUpdatePasswordResponse(UserModel user);
 
-    public static GetUserForRefreshResponse MapToGetUserForRefreshResponse(this UserModel user)
-    {
-        return new GetUserForRefreshResponse(user.Id, user.Email, user.Name);
-    }
+    public partial GetUserForRefreshResponse MapToGetUserForRefreshResponse(UserModel user);
 }

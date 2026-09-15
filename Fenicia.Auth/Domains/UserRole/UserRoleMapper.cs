@@ -1,25 +1,22 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.UserRole;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public static class UserRoleMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class UserRoleMapper
 {
-    public static UserRoleResponse MapToUserRoleResponse(this UserRoleModel userRole)
-    {
-        return new UserRoleResponse(
-            userRole.CompanyId,
-            userRole.Role.Name,
-            new CompanyResponse(userRole.CompanyId, userRole.Company.Name, userRole.Company.Cnpj));
-    }
+    [MapProperty("Role.Name", nameof(UserRoleResponse.Role))]
+    [MapProperty("Company.Id", nameof(UserRoleResponse.Company) + "." + nameof(CompanyResponse.Id))]
+    [MapProperty("Company.Name", nameof(UserRoleResponse.Company) + "." + nameof(CompanyResponse.Name))]
+    [MapProperty("Company.Cnpj", nameof(UserRoleResponse.Company) + "." + nameof(CompanyResponse.Cnpj))]
+    public partial UserRoleResponse MapToUserRoleResponse(UserRoleModel userRole);
 
-    public static GetUserCompaniesResponse MapToGetUserCompaniesResponse(this UserRoleModel userRole)
-    {
-        return new GetUserCompaniesResponse(
-            userRole.CompanyId,
-            userRole.Role.Name,
-            userRole.CompanyId,
-            userRole.Company.Name,
-            userRole.Company.Cnpj);
-    }
+    [MapProperty("Company.Id", nameof(GetUserCompaniesResponse.Id))]
+    [MapProperty("Role.Name", nameof(GetUserCompaniesResponse.Role))]
+    [MapProperty(nameof(UserRoleModel.CompanyId), nameof(GetUserCompaniesResponse.CompanyId))]
+    [MapProperty("Company.Name", nameof(GetUserCompaniesResponse.CompanyName))]
+    [MapProperty("Company.Cnpj", nameof(GetUserCompaniesResponse.Cnpj))]
+    public partial GetUserCompaniesResponse MapToGetUserCompaniesResponse(UserRoleModel userRole);
 }

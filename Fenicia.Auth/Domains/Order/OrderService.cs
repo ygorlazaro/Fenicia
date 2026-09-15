@@ -15,7 +15,8 @@ public class OrderService(
     IModuleService moduleService,
     IRepository<OrderModel> orderRepository,
     ISubscriptionService subscriptionService,
-    IUserRoleService userRoleService) : IOrderService
+    IUserRoleService userRoleService,
+    OrderMapper orderMapper) : IOrderService
 {
     public async Task<CreateNewOrderResponse?> CreateAsync(
         CreateNewOrderCommand command,
@@ -36,7 +37,7 @@ public class OrderService(
         LoadCreditsAsync(command.CompanyId, order);
         await subscriptionService.CreateSubscriptionAsync(order.Subscription!, cancellationToken);
 
-        return order.MapToCreateNewOrderResponse();
+        return orderMapper.MapToCreateNewOrderResponse(order);
     }
 
     private static string GenerateOrderNumber()

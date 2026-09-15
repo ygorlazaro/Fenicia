@@ -2,13 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.Token;
 
-public record GenerateTokenQuery
+public class GenerateTokenQuery()
 {
-    public GenerateTokenQuery()
-    {
-    }
-
     public GenerateTokenQuery(string email, string password)
+        : this()
     {
         Email = email;
         Password = password;

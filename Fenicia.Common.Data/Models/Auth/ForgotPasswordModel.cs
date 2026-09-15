@@ -8,18 +8,18 @@ public sealed class ForgotPasswordModel : BaseModel
 {
     [Required]
     [Column("user_id")]
-    public Guid UserId { get; init; }
+    public Guid UserId { get; set; }
 
     [Required]
     [Column("code")]
     [StringLength(100, MinimumLength = 6)]
     [DataType(DataType.Text)]
-    public string Code { get; init; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
 
     [Required]
     [Column("expiration_date")]
     [DataType(DataType.DateTime)]
-    public DateTime ExpirationDate { get; init; } = DateTime.UtcNow.AddDays(1);
+    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(1);
 
     [Required]
     [Column("is_active")]

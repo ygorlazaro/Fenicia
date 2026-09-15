@@ -25,10 +25,12 @@ public class ForgotPasswordServiceTests
         _mockRepository = new Mock<IForgotPasswordRepository>();
         _mockUserService = new Mock<IUserService>();
         _mockSecurityService = new Mock<ISecurityService>();
+        var mockForgotPasswordMapper = new Mock<ForgotPasswordMapper>();
         _service = new ForgotPasswordService(
             _mockRepository.Object,
             _mockUserService.Object,
-            _mockSecurityService.Object);
+            _mockSecurityService.Object,
+            mockForgotPasswordMapper.Object);
     }
 
     [Fact]
@@ -48,7 +50,7 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var command = new AddForgotPasswordCommand(email);
+        var command = new AddForgotPasswordCommand(email, userId);
 
         await _service.AddAsync(command, CancellationToken.None);
 
@@ -61,7 +63,7 @@ public class ForgotPasswordServiceTests
     public async Task AddAsync_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
         var email = _faker.Internet.Email();
-        var command = new AddForgotPasswordCommand(email);
+        var command = new AddForgotPasswordCommand(email, Guid.NewGuid());
 
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
@@ -80,7 +82,7 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(upperCaseEmail, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
-        var command = new AddForgotPasswordCommand(upperCaseEmail);
+        var command = new AddForgotPasswordCommand(upperCaseEmail, Guid.NewGuid());
 
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(() =>
             _service.AddAsync(command, CancellationToken.None));
@@ -104,7 +106,7 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user1);
 
-        var command = new AddForgotPasswordCommand(email1);
+        var command = new AddForgotPasswordCommand(email1, userId1);
 
         await _service.AddAsync(command, CancellationToken.None);
 
@@ -130,7 +132,7 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var command = new AddForgotPasswordCommand(email);
+        var command = new AddForgotPasswordCommand(email, userId);
 
         await _service.AddAsync(command, CancellationToken.None);
         await _service.AddAsync(command, CancellationToken.None);
@@ -144,7 +146,7 @@ public class ForgotPasswordServiceTests
     public async Task AddAsync_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
         var email = _faker.Internet.Email();
-        var command = new AddForgotPasswordCommand(email);
+        var command = new AddForgotPasswordCommand(email, Guid.NewGuid());
 
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
@@ -183,8 +185,8 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email2, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user2);
 
-        var command1 = new AddForgotPasswordCommand(email1);
-        var command2 = new AddForgotPasswordCommand(email2);
+        var command1 = new AddForgotPasswordCommand(email1, userId1);
+        var command2 = new AddForgotPasswordCommand(email2, userId2);
 
         await _service.AddAsync(command1, CancellationToken.None);
         await _service.AddAsync(command2, CancellationToken.None);
@@ -213,7 +215,7 @@ public class ForgotPasswordServiceTests
         _mockUserService.Setup(s => s.FirstByEmailOrDefaultAsync(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var command = new AddForgotPasswordCommand(email, ipAddress, userAgent);
+        var command = new AddForgotPasswordCommand(email, userId, ipAddress, userAgent);
 
         await _service.AddAsync(command, CancellationToken.None);
 

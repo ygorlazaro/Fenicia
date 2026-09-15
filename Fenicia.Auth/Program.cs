@@ -61,6 +61,17 @@ internal static class Program
             {
                 builder.Services.AddSingleton<CompanyMapper>();
                 builder.Services.AddSingleton<ConfigurationMapper>();
+                builder.Services.AddSingleton<ForgotPasswordMapper>();
+                builder.Services.AddSingleton<ModuleMapper>();
+                builder.Services.AddSingleton<NotificationMapper>();
+                builder.Services.AddSingleton<OrderMapper>();
+                builder.Services.AddSingleton<RefreshTokenMapper>();
+                builder.Services.AddSingleton<RegisterMapper>();
+                builder.Services.AddSingleton<RoleMapper>();
+                builder.Services.AddSingleton<SubscriptionMapper>();
+                builder.Services.AddSingleton<TokenMapper>();
+                builder.Services.AddSingleton<UserMapper>();
+                builder.Services.AddSingleton<UserRoleMapper>();
 
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();

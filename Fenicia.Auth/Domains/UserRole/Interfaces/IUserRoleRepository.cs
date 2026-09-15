@@ -24,4 +24,5 @@ public interface IUserRoleRepository : IRepository<UserRoleModel>
     Task<bool> AnyIdAndCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken cancellationToken = default);
+    Task<List<UserRoleModel>> GetUserRolesByIdAsync(Guid userId, CancellationToken cancellationToken);
 }

@@ -1,7 +1,8 @@
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public class OrderRepository(DefaultContext context) : Repository<OrderModel>(context);
+public class OrderRepository(DbContext context) : Repository<OrderModel>(context), IOrderRepository;

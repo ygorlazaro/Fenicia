@@ -49,7 +49,7 @@ public class TokenServiceTests
     public async Task GenerateAsync_WhenTooManyAttempts_ThrowsPermissionDeniedException()
     {
         var email = _faker.Internet.Email();
-        var query = new GenerateTokenQuery(email, _faker.Internet.Password());
+        var query = new GenerateTokenQuery { Email = email, Password = _faker.Internet.Password() };
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(5);
@@ -64,7 +64,7 @@ public class TokenServiceTests
     public async Task GenerateAsync_WhenUserDoesNotExist_ThrowsPermissionDeniedException()
     {
         var email = _faker.Internet.Email();
-        var query = new GenerateTokenQuery(email, _faker.Internet.Password());
+        var query = new GenerateTokenQuery { Email = email, Password = _faker.Internet.Password() };
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(2);
@@ -82,7 +82,7 @@ public class TokenServiceTests
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
-        var query = new GenerateTokenQuery(email, password);
+        var query = new GenerateTokenQuery { Email = email, Password = password };
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
@@ -113,7 +113,7 @@ public class TokenServiceTests
     {
         var email = _faker.Internet.Email();
         var correctPassword = _faker.Internet.Password();
-        var query = new GenerateTokenQuery(email, _faker.Internet.Password());
+        var query = new GenerateTokenQuery { Email = email, Password = _faker.Internet.Password() };
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(2);
@@ -141,7 +141,7 @@ public class TokenServiceTests
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
-        var query = new GenerateTokenQuery(email, password);
+        var query = new GenerateTokenQuery { Email = email, Password = password };
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(4);
@@ -167,7 +167,7 @@ public class TokenServiceTests
     {
         var email = _faker.Internet.Email();
         var correctPassword = _faker.Internet.Password();
-        var query = new GenerateTokenQuery(email, _faker.Internet.Password());
+        var query = new GenerateTokenQuery { Email = email, Password = _faker.Internet.Password() };
         var key = $"login-attempt:{email.ToLower()}";
 
         _redisDbMock.Setup(x => x.StringGet(key, CommandFlags.None)).Returns(RedisValue.Null);
@@ -194,7 +194,7 @@ public class TokenServiceTests
     public async Task GenerateAsync_WhenEmailIsEmpty_ThrowsArgumentException()
     {
         _faker.Internet.Email();
-        var query = new GenerateTokenQuery(string.Empty, _faker.Internet.Password());
+        var query = new GenerateTokenQuery { Email = string.Empty, Password = _faker.Internet.Password() };
 
         await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await _service.GenerateAsync(query, CancellationToken.None));
@@ -205,7 +205,7 @@ public class TokenServiceTests
     {
         var email = _faker.Internet.Email();
         var password = _faker.Internet.Password();
-        var query = new GenerateTokenQuery(email, string.Empty);
+        var query = new GenerateTokenQuery { Email = email, Password = string.Empty };
 
         var user = new UserModel
         {
@@ -226,7 +226,7 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenValidUser_ReturnsValidToken()
     {
-        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var user = new GenerateTokenResponse { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
 
         var token = _service.GenerateString(user);
 
@@ -238,7 +238,7 @@ public class TokenServiceTests
     public void GenerateString_WhenValidUser_ReturnsTokenThatCanBeRead()
     {
         var userId = Guid.NewGuid();
-        var user = new GenerateTokenResponse(userId, _faker.Person.FullName, _faker.Internet.Email());
+        var user = new GenerateTokenResponse { Id = userId, Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
 
         var token = _service.GenerateString(user);
 
@@ -253,7 +253,7 @@ public class TokenServiceTests
         var userId = Guid.NewGuid();
         var email = _faker.Internet.Email();
         var name = _faker.Person.FullName;
-        var user = new GenerateTokenResponse(userId, name, email);
+        var user = new GenerateTokenResponse { Id = userId, Name = name, Email = email };
 
         var token = _service.GenerateString(user);
 
@@ -332,7 +332,7 @@ public class TokenServiceTests
     [Fact]
     public void GenerateString_WhenTokenIsGenerated_HasExpiration()
     {
-        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var user = new GenerateTokenResponse { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
 
         var token = _service.GenerateString(user);
 
@@ -347,7 +347,7 @@ public class TokenServiceTests
     {
         var badConfig = new ConfigurationBuilder().AddInMemoryCollection([]).Build();
         var badService = new TokenService(badConfig, null!, null!, new SecurityService());
-        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, _faker.Internet.Email());
+        var user = new GenerateTokenResponse { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = _faker.Internet.Email() };
 
         Assert.Throws<InvalidOperationException>(() => badService.GenerateString(user));
     }
@@ -359,7 +359,7 @@ public class TokenServiceTests
             Guid.NewGuid(),
             _faker.Person.FullName,
             _faker.Internet.Email(),
-            ["Admin", "User", string.Empty]);
+            ["Admin", "User"]);
 
         var token = _service.GenerateString(userWithEmptyRoles);
 
@@ -388,14 +388,19 @@ public class TokenServiceTests
         Assert.Single(moduleClaims);
     }
 
-    private sealed record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId)
-        : GenerateTokenResponse(Id, Name, Email, CompanyId);
+    private sealed class GenerateTokenResponseWithCompany(Guid id, string name, string email, Guid companyId)
+        : GenerateTokenResponse(id, name, email, companyId)
+    {
+    }
 
-    // ReSharper disable once NotAccessedPositionalProperty.Local
-    private sealed record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, List<string> Roles)
-        : GenerateTokenResponse(Id, Name, Email, Roles: Roles);
+    private sealed class GenerateTokenResponseWithRoles(Guid id, string name, string email, IReadOnlyList<string> roles)
+        : GenerateTokenResponse(id, name, email)
+    {
+    }
 
-    // ReSharper disable once NotAccessedPositionalProperty.Local
-    private sealed record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, List<string> Modules)
-        : GenerateTokenResponse(Id, Name, Email);
+    private sealed class GenerateTokenResponseWithModules(Guid id, string name, string email, List<string> modules)
+        : GenerateTokenResponse(id, name, email)
+    {
+        public List<string> Modules { get; set; } = modules;
+    }
 }

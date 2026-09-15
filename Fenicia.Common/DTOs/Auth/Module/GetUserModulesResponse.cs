@@ -3,7 +3,25 @@ using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.DTOs.Auth.Module;
 
-public record GetUserModulesResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
-    [Required] ModuleType Type);
+public class GetUserModulesResponse()
+{
+    public GetUserModulesResponse(Guid id, string name, ModuleType type)
+        : this()
+    {
+        Id = id;
+        Name = name;
+        Type = type;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(30)]
+    [MinLength(3)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [EnumDataType(typeof(ModuleType))]
+    public ModuleType Type { get; set; }
+}

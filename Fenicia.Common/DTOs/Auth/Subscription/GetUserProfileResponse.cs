@@ -2,9 +2,37 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.Subscription;
 
-public record GetUserProfileResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
-    [Required][MaxLength(200)] string Email,
-    IEnumerable<UserCompanyResponse> Companies,
-    IEnumerable<UserSubscriptionResponse> Subscriptions);
+public class GetUserProfileResponse()
+{
+    public GetUserProfileResponse(
+        Guid id,
+        string name,
+        string email,
+        IEnumerable<UserCompanyResponse> companies,
+        IEnumerable<UserSubscriptionResponse> subscriptions)
+        : this()
+    {
+        Id = id;
+        Name = name;
+        Email = email;
+        Companies = companies;
+        Subscriptions = subscriptions;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(200)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public IEnumerable<UserCompanyResponse> Companies { get; set; } = [];
+
+    [Required]
+    public IEnumerable<UserSubscriptionResponse> Subscriptions { get; set; } = [];
+}

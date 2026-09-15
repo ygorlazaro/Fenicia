@@ -2,7 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.User;
 
-public record CreateUserResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
-    [Required][MaxLength(200)] string Email);
+public class CreateUserResponse()
+{
+    public CreateUserResponse(Guid id, string name, string email)
+        : this()
+    {
+        Id = id;
+        Name = name;
+        Email = email;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(200)]
+    public string Email { get; set; } = string.Empty;
+}

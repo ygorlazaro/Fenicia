@@ -4,7 +4,6 @@ using Bogus.Extensions.Brazil;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Subscription;
 using Fenicia.Common.Enums.Auth;
@@ -105,11 +104,13 @@ public class SubscriptionControllerTests
         company.UsersRoles = [userRole];
         company.Subscriptions = [subscription];
 
-        var profile = new GetUserProfileResponse(
-            user.Id,
-            user.Name,
-            user.Email,
-            [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
+        var profile = new GetUserProfileResponse
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Companies = [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
+            Subscriptions =
             [
                 new UserSubscriptionResponse(
                     subscription.Id,
@@ -121,7 +122,8 @@ public class SubscriptionControllerTests
                 {
                     Modules = [new UserModuleResponse(module.Id, module.Name, module.Type)]
                 }
-            ]);
+            ]
+        };
 
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
@@ -196,12 +198,14 @@ public class SubscriptionControllerTests
 
         company.UsersRoles = [userRole];
 
-        var profile = new GetUserProfileResponse(
-            user.Id,
-            user.Name,
-            user.Email,
-            [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
-            []);
+        var profile = new GetUserProfileResponse
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Companies = [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
+            Subscriptions = []
+        };
 
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
@@ -308,11 +312,13 @@ public class SubscriptionControllerTests
         company.UsersRoles = [userRole];
         company.Subscriptions = [subscription];
 
-        var profile = new GetUserProfileResponse(
-            user.Id,
-            user.Name,
-            user.Email,
-            [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
+        var profile = new GetUserProfileResponse
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Companies = [new UserCompanyResponse(company.Id, company.Name, company.Cnpj)],
+            Subscriptions =
             [
                 new UserSubscriptionResponse(
                     subscription.Id,
@@ -324,7 +330,8 @@ public class SubscriptionControllerTests
                 {
                     Modules = [new UserModuleResponse(module1.Id, module1.Name, module1.Type)]
                 }
-            ]);
+            ]
+        };
 
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);

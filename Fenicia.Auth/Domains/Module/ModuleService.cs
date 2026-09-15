@@ -5,28 +5,24 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.Enums.Auth;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module;
 
 public class ModuleService(
     IModuleRepository repository,
     IUserRoleService userRoleService,
-    ISubscriptionService subscriptionService) : IModuleService
+    ISubscriptionService subscriptionService,
+    ModuleMapper moduleMapper) : IModuleService
 {
     public async Task<Pagination<List<GetModuleResponse>>> GetAllModulesAsync(
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = repository.Query().Where(m => m.Type != ModuleType.Auth && m.IsActive);
-        var orderedQuery = baseQuery.OrderBy(m => m.SortOrder);
-
-        var total = await orderedQuery.CountAsync(cancellationToken);
-        var modules = await orderedQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
-            .ToListAsync(cancellationToken);
+        var modules = await repository.GetActiveModulesAsync(cancellationToken);
+        var total = await repository.GetTotalActiveModulesAsync(cancellationToken);
 
         return new Pagination<List<GetModuleResponse>>(
-            [.. modules.Select(m => m.MapToGetModuleResponse())],
+            [.. modules.Select(moduleMapper.MapToGetModuleResponse)],
             total,
             query.Page,
             query.PerPage);
@@ -62,7 +58,7 @@ public class ModuleService(
 
         var modulesResult = await repository.GetByIdsAsync(moduleIds, cancellationToken);
 
-        return [.. modulesResult.Select(m => m.MapToGetUserModulesResponse())];
+        return [.. modulesResult.Select(moduleMapper.MapToGetUserModulesResponse)];
     }
 
     public Task<List<ModuleModel>> GetModulesByIdsAsync(

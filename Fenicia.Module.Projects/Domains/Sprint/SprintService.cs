@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.DTOs.Project.Sprint;
 using Fenicia.Module.Projects.Domains.Sprint.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Sprint;
 

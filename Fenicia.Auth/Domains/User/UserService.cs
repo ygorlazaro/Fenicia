@@ -10,7 +10,6 @@ using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.DTOs.Auth.UserRole;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User;
 
@@ -19,23 +18,19 @@ public sealed class UserService(
     IUserRoleService userRoleService,
     IRoleService roleService,
     ICompanyService companyService,
-    ISecurityService securityService) : IUserService
+    ISecurityService securityService,
+    UserMapper userMapper) : IUserService
 {
     public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(
         GetAllUsersQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = userRepository.Query().OrderBy(u => u.Name);
-
-        var totalCountTask = baseQuery.CountAsync(cancellationToken);
-        var usersTask = baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
-            .ToListAsync(cancellationToken);
-
-        await Task.WhenAll(totalCountTask, usersTask);
+        var total = await userRepository.CountAsync(cancellationToken);
+        var users = await userRepository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
 
         return new Pagination<List<UserListItemResponse>>(
-            [.. usersTask.Result.Select(u => u.MapToUserListItemResponse())],
-            totalCountTask.Result,
+            [.. users.Select(userMapper.MapToUserListItemResponse)],
+            total,
             query.Page,
             query.PerPage);
     }
@@ -44,14 +39,14 @@ public sealed class UserService(
     {
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
 
-        return user?.MapToGetUserByIdResponse();
+        return user is null ? null : userMapper.MapToGetUserByIdResponse(user);
     }
 
     public async Task<GetByEmailResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var user = await userRepository.GetByEmailAsync(email, cancellationToken);
 
-        return user?.MapToGetByEmailResponse();
+        return user is null ? null : userMapper.MapToGetByEmailResponse(user);
     }
 
     public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
@@ -88,7 +83,7 @@ public sealed class UserService(
     {
         var user = await FirstByIdAsync(userId, cancellationToken);
 
-        return user.MapToGetUserForRefreshResponse();
+        return userMapper.MapToGetUserForRefreshResponse(user);
     }
 
     public Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(
@@ -166,7 +161,7 @@ public sealed class UserService(
         await userRepository.InsertAsync(user, cancellationToken);
         await RelateRolesAsync(user.Id, command.Roles, cancellationToken);
 
-        return user.MapToCreateUserResponse();
+        return userMapper.MapToCreateUserResponse(user);
     }
 
     public async Task<CreateNewUserResponse> CreateNewAsync(
@@ -194,7 +189,7 @@ public sealed class UserService(
         await ValidateCompanies(companies, cancellationToken);
         await RelateRolesAsync(command, user, cancellationToken);
 
-        return user.MapToUpdateUserResponse();
+        return userMapper.MapToUpdateUserResponse(user);
     }
 
     public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -236,7 +231,7 @@ public sealed class UserService(
                    throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
         await userRepository.UpdateAsync(user.Id, user, cancellationToken);
 
-        return user.MapToUpdatePasswordResponse();
+        return userMapper.MapToUpdatePasswordResponse(user);
     }
 
     private async Task AuthorizePasswordChangeAsync(
@@ -486,8 +481,7 @@ public sealed class UserService(
             return;
         }
 
-        var emailExists = await userRepository.Query()
-            .AnyAsync(u => u.Email == command.Email && u.Id != command.UserId, cancellationToken);
+        var emailExists = await userRepository.ExistsByEmailAsync(command.Email, cancellationToken);
 
         user.Email = emailExists switch
         {

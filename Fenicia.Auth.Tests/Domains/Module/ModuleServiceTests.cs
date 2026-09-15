@@ -26,38 +26,18 @@ public class ModuleServiceTests
         _mockSubscriptionService = new Mock<ISubscriptionService>();
         _mockModuleRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+
+        var mockModuleMapper = new Mock<ModuleMapper>();
         _service = new ModuleService(
             _mockModuleRepository.Object,
             _mockUserRoleService.Object,
-            _mockSubscriptionService.Object);
+            _mockSubscriptionService.Object,
+            mockModuleMapper.Object);
     }
 
     [Fact]
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsPaginatedModules()
     {
-        var module1 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = 10.0m,
-            IsActive = true,
-            SortOrder = 1
-        };
-
-        var module2 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.SocialNetwork,
-            Price = 20.0m,
-            IsActive = true,
-            SortOrder = 2
-        };
-
-        _mockModuleRepository.Setup(r => r.Query())
-            .Returns(new List<ModuleModel> { module1, module2 }.AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -70,16 +50,6 @@ public class ModuleServiceTests
     [Fact]
     public async Task GetAllModulesAsync_ExcludesErpAndAuthTypes()
     {
-        var authModule = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Auth,
-            Price = 50.0m,
-            IsActive = true,
-            SortOrder = 1
-        };
-
         var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -89,9 +59,6 @@ public class ModuleServiceTests
             IsActive = true,
             SortOrder = 2
         };
-
-        _mockModuleRepository.Setup(r => r.Query())
-            .Returns(new List<ModuleModel> { authModule, basicModule }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
@@ -114,19 +81,6 @@ public class ModuleServiceTests
             SortOrder = 1
         };
 
-        var inactiveModule = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Inactive Module",
-            Type = ModuleType.SocialNetwork,
-            Price = 20.0m,
-            IsActive = false,
-            SortOrder = 2
-        };
-
-        _mockModuleRepository.Setup(r => r.Query())
-            .Returns(new List<ModuleModel> { activeModule, inactiveModule }.AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -137,23 +91,6 @@ public class ModuleServiceTests
     [Fact]
     public async Task GetAllModulesAsync_WhenPaginationIsApplied_ReturnsCorrectPage()
     {
-        var modules = new List<ModuleModel>();
-        for (var i = 0; i < 25; i++)
-        {
-            modules.Add(
-                new ModuleModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"Module {_faker.Commerce.ProductName()} {i}",
-                    Type = (ModuleType)(i % 10 + 1),
-                    Price = 10.0m,
-                    IsActive = true,
-                    SortOrder = i
-                });
-        }
-
-        _mockModuleRepository.Setup(r => r.Query()).Returns(modules.AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(2), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -167,8 +104,6 @@ public class ModuleServiceTests
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsEmptyPagination()
     {
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel>().AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -179,18 +114,6 @@ public class ModuleServiceTests
     [Fact]
     public async Task GetAllModulesAsync_WhenPageExceedsTotalPages_ReturnsEmptyData()
     {
-        var module = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Basic Module",
-            Type = ModuleType.Basic,
-            Price = 10.0m,
-            IsActive = true,
-            SortOrder = 1
-        };
-
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module }.AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(10), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -201,39 +124,6 @@ public class ModuleServiceTests
     [Fact]
     public async Task GetAllModulesAsync_ResultsAreOrderedBySortOrder()
     {
-        var module1 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Social Network Module",
-            Type = ModuleType.SocialNetwork,
-            Price = 20.0m,
-            IsActive = true,
-            SortOrder = 3
-        };
-
-        var module2 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Basic Module",
-            Type = ModuleType.Basic,
-            Price = 10.0m,
-            IsActive = true,
-            SortOrder = 1
-        };
-
-        var module3 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "HR Module",
-            Type = ModuleType.Hr,
-            Price = 30.0m,
-            IsActive = true,
-            SortOrder = 2
-        };
-
-        _mockModuleRepository.Setup(r => r.Query())
-            .Returns(new List<ModuleModel> { module1, module2, module3 }.AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -249,18 +139,6 @@ public class ModuleServiceTests
     [Fact]
     public async Task GetAllModulesAsync_WithDefaultRequest_ReturnsFirstPage()
     {
-        var module = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = 10.0m,
-            IsActive = true,
-            SortOrder = 1
-        };
-
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module }.AsAsyncQueryable());
-
         var result = await _service.GetAllModulesAsync(new PaginationQuery(1, 20), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -287,8 +165,6 @@ public class ModuleServiceTests
             IsActive = true,
             SortOrder = sortOrder
         };
-
-        _mockModuleRepository.Setup(r => r.Query()).Returns(new List<ModuleModel> { module }.AsAsyncQueryable());
 
         var result = await _service.GetAllModulesAsync(new PaginationQuery(), CancellationToken.None);
 

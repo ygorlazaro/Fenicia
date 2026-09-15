@@ -169,7 +169,7 @@ public class UserControllerTests
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
-            .ReturnsAsync([new GetUserCompaniesResponse(companyId, role.Name, companyId, company.Name, company.Cnpj)]);
+            .ReturnsAsync([new GetUserCompaniesResponse { Id = companyId, Role = role.Name, CompanyId = companyId, CompanyName = company.Name, Cnpj = company.Cnpj }]);
 
         var result = await _controller.GetUserCompanyAsync(_testUserId, cancellationToken);
 
@@ -356,7 +356,7 @@ public class UserControllerTests
         };
 
         _mockUserService.Setup(s => s.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetUserByIdResponse(user.Id, user.Name, user.Email));
+            .ReturnsAsync(new GetUserByIdResponse { Id = user.Id, Name = user.Name, Email = user.Email });
 
         var result = await _controller.GetByIdAsync(user.Id, CancellationToken.None);
 
@@ -414,7 +414,7 @@ public class UserControllerTests
         SetupUserClaims(_testUserId, "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var query = new UpdateUserPasswordCommand(nonExistentUserId, null, _faker.Internet.Password(), _faker.Internet.Password());
+        var query = new UpdateUserPasswordCommand { UserId = nonExistentUserId, CurrentPassword = null, NewPassword = _faker.Internet.Password(), ConfirmPassword = _faker.Internet.Password() };
 
         _mockUserService.Setup(s => s.UpdatePasswordAsync(
                 _testUserId,

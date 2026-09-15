@@ -1,7 +1,6 @@
 using Fenicia.Common.DTOs.Basic.Product;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using MudBlazor;
 
 namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 

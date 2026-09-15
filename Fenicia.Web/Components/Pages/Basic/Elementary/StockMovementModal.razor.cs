@@ -1,9 +1,4 @@
-using Fenicia.Common.DTOs.Basic.Customer;
-using Fenicia.Common.DTOs.Basic.Employee;
-using Fenicia.Common.DTOs.Basic.Product;
 using Fenicia.Common.DTOs.Basic.StockMovement;
-using Fenicia.Common.DTOs.Basic.Supplier;
-using Fenicia.Common.Enums.Basic;
 using Fenicia.Web.Components.Shared;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;

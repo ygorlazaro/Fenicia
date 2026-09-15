@@ -12,23 +12,23 @@ public class RegisterServiceTests
     public async Task CreateAsync_WhenCommandIsValid_ReturnsRegisterResponse()
     {
         var mockUserService = new Mock<IUserService>(MockBehavior.Strict);
-        var command = new RegisterCommand(
-            "test@example.com",
-            "password123",
-            "Test User",
-            new CreateNewUserCompanyCommand("Company Name", "12345678000199"));
+        var company = new CreateNewUserCompanyCommand("Company Name", "12345678000199");
+        var command = new RegisterCommand
+        {
+            Email = "test@example.com",
+            Password = "password123",
+            Name = "Test User",
+            Company = company
+        };
 
-        var expectedUser = new CreateNewUserResponse(
-            Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
-            new CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12345678000199"));
+        var expectedUser = new CreateNewUserResponse(Guid.NewGuid(), "Test User", "test@example.com", new
+            CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12345678000199"));
 
         mockUserService
             .Setup(s => s.CreateNewAsync(It.IsAny<CreateNewUserCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedUser);
 
-        var service = new RegisterService(mockUserService.Object);
+        var service = new RegisterService(mockUserService.Object, new RegisterMapper());
 
         var result = await service.CreateAsync(command, CancellationToken.None);
 
@@ -49,17 +49,20 @@ public class RegisterServiceTests
     public async Task CreateAsync_WhenUserServiceThrows_PropagatesException()
     {
         var mockUserService = new Mock<IUserService>(MockBehavior.Strict);
-        var command = new RegisterCommand(
-            "test@example.com",
-            "password123",
-            "Test User",
-            new CreateNewUserCompanyCommand("Company Name", "12345678000199"));
+        var company = new CreateNewUserCompanyCommand("Company Name", "12345678000199");
+        var command = new RegisterCommand
+        {
+            Email = "test@example.com",
+            Password = "password123",
+            Name = "Test User",
+            Company = company
+        };
 
         mockUserService
             .Setup(s => s.CreateNewAsync(It.IsAny<CreateNewUserCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("User creation failed"));
 
-        var service = new RegisterService(mockUserService.Object);
+        var service = new RegisterService(mockUserService.Object, new RegisterMapper());
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateAsync(command, CancellationToken.None));
     }

@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Report;
 using Fenicia.Common.Enums.SocialNetwork;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Report;
 

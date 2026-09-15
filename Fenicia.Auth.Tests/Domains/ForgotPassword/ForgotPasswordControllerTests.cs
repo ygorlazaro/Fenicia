@@ -3,7 +3,6 @@ using System.Security.Claims;
 using Bogus;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.ForgotPassword;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +48,7 @@ public class ForgotPasswordControllerTests
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var command = new AddForgotPasswordCommand(email);
+        var command = new AddForgotPasswordCommand(email, Guid.NewGuid());
 
         var result = await _controller.PostAsync(command, cancellationToken);
 
@@ -64,7 +63,7 @@ public class ForgotPasswordControllerTests
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ItemNotExistsException("User with given email does not exist."));
 
-        var command = new AddForgotPasswordCommand(_faker.Internet.Email());
+        var command = new AddForgotPasswordCommand(_faker.Internet.Email(), Guid.NewGuid());
 
         var result = await _controller.PostAsync(command, cancellationToken);
 

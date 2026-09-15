@@ -29,7 +29,8 @@ public class OrderServiceTests
             _mockModuleService.Object,
             _mockOrderRepository.Object,
             _mockSubscriptionService.Object,
-            _mockUserRoleService.Object);
+            _mockUserRoleService.Object,
+            new OrderMapper());
     }
 
     [Fact]
@@ -42,7 +43,7 @@ public class OrderServiceTests
         _mockUserRoleService.Setup(s => s.AnyIdAndCompanyAsync(userId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await _service.CreateAsync(command, CancellationToken.None));
@@ -63,7 +64,7 @@ public class OrderServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await _service.CreateAsync(command, CancellationToken.None));
@@ -84,7 +85,7 @@ public class OrderServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await _service.CreateAsync(command, CancellationToken.None));
@@ -114,7 +115,7 @@ public class OrderServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([basicModule]);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var result = await _service.CreateAsync(command, CancellationToken.None);
 
@@ -161,7 +162,7 @@ public class OrderServiceTests
         _mockModuleService.Setup(s => s.GetModuleByTypeAsync(ModuleType.Basic, It.IsAny<CancellationToken>()))
             .ReturnsAsync(basicModule);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var result = await _service.CreateAsync(command, CancellationToken.None);
 
@@ -199,7 +200,7 @@ public class OrderServiceTests
         _mockModuleService.Setup(s => s.GetModuleByTypeAsync(ModuleType.Basic, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ModuleModel?)null);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await _service.CreateAsync(command, CancellationToken.None));
@@ -239,7 +240,7 @@ public class OrderServiceTests
         _mockModuleService.Setup(s => s.GetModuleByTypeAsync(ModuleType.Basic, It.IsAny<CancellationToken>()))
             .ReturnsAsync(basicModule);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand { UserId = userId, CompanyId = companyId, Modules = modules };
 
         var result = await _service.CreateAsync(command, CancellationToken.None);
 

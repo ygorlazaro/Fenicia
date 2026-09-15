@@ -202,8 +202,8 @@ public class UserController(IUserService userService, IModuleService moduleServi
     {
         try
         {
-            var updateRequest = request with { UserId = userId };
-            var result = await userService.UpdateAsync(updateRequest, cancellationToken);
+            request.UserId = userId;
+            var result = await userService.UpdateAsync(request, cancellationToken);
 
             return Ok(result);
         }
@@ -266,8 +266,8 @@ public class UserController(IUserService userService, IModuleService moduleServi
         try
         {
             var loggedInUserId = ClaimReader.UserId(User);
-            var updateRequest = request with { UserId = userId };
-            var result = await userService.UpdatePasswordAsync(loggedInUserId, updateRequest, cancellationToken);
+            request.UserId = userId;
+            var result = await userService.UpdatePasswordAsync(loggedInUserId, request, cancellationToken);
 
             return Ok(result);
         }

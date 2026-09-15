@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.Subscription.Interfaces;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Auth;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public class SubscriptionRepository(DefaultContext context)
+public class SubscriptionRepository(DbContext context)
     : Repository<SubscriptionModel>(context), ISubscriptionRepository
 {
     public Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(
@@ -37,5 +36,19 @@ public class SubscriptionRepository(DefaultContext context)
             .Select(sc => sc.Module)
             .Distinct()
             .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(Guid companyId, CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+
+        var query = from s in DbSet
+            where s.CompanyId == companyId
+                  && s.Status == SubscriptionStatus.Active
+                  && now >= s.StartDate
+                  && now <= s.EndDate
+            select s;
+
+        return query.ToListAsync(cancellationToken);
     }
 }

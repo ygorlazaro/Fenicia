@@ -10,4 +10,6 @@ public interface ISubscriptionRepository : IRepository<SubscriptionModel>
     Task<List<ModuleModel>> GetSubscriptionModulesAsync(
         Guid subscriptionId,
         CancellationToken cancellationToken = default);
+
+    Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(Guid companyId, CancellationToken cancellationToken);
 }

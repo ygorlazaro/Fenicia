@@ -1,34 +1,19 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Subscription;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public static class SubscriptionMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class SubscriptionMapper
 {
-    public static UserCompanyResponse MapToUserCompanyResponse(this UserRoleModel userRole)
-    {
-        return new UserCompanyResponse(userRole.Company.Id, userRole.Company.Name, userRole.Company.Cnpj);
-    }
+    [MapProperty("Company.Id", nameof(UserCompanyResponse.Id))]
+    [MapProperty("Company.Name", nameof(UserCompanyResponse.Name))]
+    [MapProperty("Company.Cnpj", nameof(UserCompanyResponse.Cnpj))]
+    public partial UserCompanyResponse MapToUserCompanyResponse(UserRoleModel userRole);
 
-    public static UserSubscriptionResponse MapToUserSubscriptionResponse(
-        this SubscriptionModel subscription,
-        string companyName,
-        IEnumerable<UserModuleResponse> modules)
-    {
-        return new UserSubscriptionResponse(
-            subscription.Id,
-            subscription.CompanyId,
-            companyName,
-            subscription.Status,
-            subscription.StartDate,
-            subscription.EndDate)
-        {
-            Modules = modules
-        };
-    }
+    public partial UserModuleResponse MapToUserModuleResponse(ModuleModel module);
 
-    public static UserModuleResponse MapToUserModuleResponse(this ModuleModel module)
-    {
-        return new UserModuleResponse(module.Id, module.Name, module.Type);
-    }
+    [MapProperty("Company.Name", nameof(UserSubscriptionResponse.CompanyName))]
+    public partial UserSubscriptionResponse MapToUserSubscriptionResponse(SubscriptionModel subscription);
 }

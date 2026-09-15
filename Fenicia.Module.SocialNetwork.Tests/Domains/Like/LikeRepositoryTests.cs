@@ -1,7 +1,5 @@
-using AwesomeAssertions;
 using Bogus;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Tests;
 using Fenicia.Module.SocialNetwork.Domains.Like;
 using Microsoft.EntityFrameworkCore;

@@ -1,12 +1,11 @@
 using Fenicia.Auth.Domains.UserRole.Interfaces;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public class UserRoleRepository(DefaultContext context) : Repository<UserRoleModel>(context), IUserRoleRepository
+public class UserRoleRepository(DbContext context) : Repository<UserRoleModel>(context), IUserRoleRepository
 {
     public Task<List<UserRoleModel>> GetCompaniesByUserAsync(
         Guid userId,
@@ -84,5 +83,16 @@ public class UserRoleRepository(DefaultContext context) : Repository<UserRoleMod
         return DbSet.AnyAsync(
             ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == role,
             cancellationToken);
+    }
+
+    public Task<List<UserRoleModel>> GetUserRolesByIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var query = from ur in DbSet
+            where ur.UserId == userId
+            select ur;
+
+        return query
+            .Include(x => x.Role)
+            .ToListAsync(cancellationToken);
     }
 }

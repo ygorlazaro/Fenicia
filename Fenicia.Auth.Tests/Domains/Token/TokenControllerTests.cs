@@ -1,7 +1,6 @@
 using Bogus;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Token;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -24,13 +23,13 @@ public class TokenControllerTests
 
         _tokenServiceMock = new Mock<ITokenService>(MockBehavior.Strict) { CallBase = true };
 
-        _controller = new TokenController(_tokenServiceMock.Object);
+        _controller = new TokenController(_tokenServiceMock.Object, new TokenMapper());
     }
 
     [Fact]
     public async Task PostAsync_WhenInvalidCredentials_ReturnsBadRequest()
     {
-        var request = new GenerateTokenQuery(_faker.Internet.Email(), _faker.Internet.Password());
+        var request = new GenerateTokenQuery { Email = _faker.Internet.Email(), Password = _faker.Internet.Password() };
 
         _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new PermissionDeniedException("Invalid username or password."));
@@ -43,8 +42,8 @@ public class TokenControllerTests
     [Fact]
     public async Task PostAsync_WhenValidCredentials_ReturnsCreated()
     {
-        var request = new GenerateTokenQuery(_faker.Internet.Email(), _faker.Internet.Password());
-        var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, request.Email);
+        var request = new GenerateTokenQuery { Email = _faker.Internet.Email(), Password = _faker.Internet.Password() };
+        var user = new GenerateTokenResponse { Id = Guid.NewGuid(), Name = _faker.Person.FullName, Email = request.Email };
 
         _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);

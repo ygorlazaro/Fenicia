@@ -1,28 +1,13 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Module;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public static class ModuleMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class ModuleMapper
 {
-    public static GetModuleResponse MapToGetModuleResponse(this ModuleModel module)
-    {
-        return new GetModuleResponse(
-            module.Id,
-            module.Name,
-            module.Type,
-            module.Description,
-            module.Icon,
-            module.IsActive,
-            module.SortOrder,
-            module.Price);
-    }
+    internal partial GetModuleResponse MapToGetModuleResponse(ModuleModel module);
 
-    public static GetUserModulesResponse MapToGetUserModulesResponse(this ModuleModel module)
-    {
-        return new GetUserModulesResponse(
-            module.Id,
-            module.Name,
-            module.Type);
-    }
+    internal partial GetUserModulesResponse MapToGetUserModulesResponse(ModuleModel module);
 }

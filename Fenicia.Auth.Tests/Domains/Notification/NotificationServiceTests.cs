@@ -14,7 +14,8 @@ public class NotificationServiceTests
     public NotificationServiceTests()
     {
         _mockRepository = new Mock<INotificationRepository>();
-        _service = new NotificationService(_mockRepository.Object);
+        var mockNotificationMapper = new Mock<NotificationMapper>();
+        _service = new NotificationService(_mockRepository.Object, mockNotificationMapper.Object);
     }
 
     [Fact]
@@ -47,16 +48,6 @@ public class NotificationServiceTests
     [Fact]
     public async Task GetAllAsync_ShouldReturnPaginatedNotifications()
     {
-        var notifications = new List<NotificationModel>();
-        for (var i = 0; i < 5; i++)
-        {
-            notifications.Add(
-                new NotificationModel
-                { Id = Guid.NewGuid(), Title = $"N{i}", Description = "D", Date = DateTime.UtcNow });
-        }
-
-        _mockRepository.Setup(r => r.Query()).Returns(notifications.AsAsyncQueryable());
-
         var result = await _service.GetAllAsync(new GetAllNotificationsQuery(), CancellationToken.None);
 
         Assert.Equal(5, result.Total);

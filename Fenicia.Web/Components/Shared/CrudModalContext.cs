@@ -1,7 +1,5 @@
 namespace Fenicia.Web.Components.Shared;
 
-using Fenicia.Common;
-
 public sealed record CrudModalContext<TItem>(CrudModalMode Mode, TItem? Item, CrudPage<TItem> Page)
     where TItem : Fenicia.Common.ICrudItem
 {

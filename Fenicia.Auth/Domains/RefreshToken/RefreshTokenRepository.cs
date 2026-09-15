@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
@@ -8,7 +9,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
     private const string _redisPrefix = "refresh_token:";
     private readonly IDatabase _redisDb = redis.GetDatabase();
 
-    public async Task AddAsync(RefreshTokenModel token, CancellationToken cancellationToken = default)
+    public async Task AddAsync(RefreshTokenModel token)
     {
         ArgumentNullException.ThrowIfNull(token);
 
@@ -18,7 +19,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         await _redisDb.StringSetAsync(key, value, token.ExpirationDate, When.Always);
     }
 
-    public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<RefreshTokenModel?> GetAsync(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -42,7 +43,7 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
         }
     }
 
-    public async Task UpdateAsync(RefreshTokenModel token, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(RefreshTokenModel token)
     {
         ArgumentNullException.ThrowIfNull(token);
 

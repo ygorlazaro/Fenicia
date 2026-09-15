@@ -1,11 +1,10 @@
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.UserRole;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public class UserRoleService(IUserRoleRepository userRoleRepository) : IUserRoleService
+public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMapper userRoleMapper) : IUserRoleService
 {
     public async Task<List<UserRoleResponse>> GetCompaniesByUserAsync(
         Guid userId,
@@ -13,7 +12,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository) : IUserRole
     {
         var userRoles = await userRoleRepository.GetCompaniesByUserAsync(userId, cancellationToken);
 
-        return [.. userRoles.Select(ur => ur.MapToUserRoleResponse())];
+        return [.. userRoles.Select(userRoleMapper.MapToUserRoleResponse)];
     }
 
     public async Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(
@@ -22,7 +21,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository) : IUserRole
     {
         var userRoles = await userRoleRepository.GetUserCompaniesAsync(userId, cancellationToken);
 
-        return [.. userRoles.Select(ur => ur.MapToGetUserCompaniesResponse())];
+        return [.. userRoles.Select(userRoleMapper.MapToGetUserCompaniesResponse)];
     }
 
     public Task<List<UserRoleModel>> GetUserRolesAsync(
@@ -88,10 +87,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository) : IUserRole
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.Query()
-            .Include(x => x.Role)
-            .Where(x => x.UserId == userId)
-            .ToListAsync(cancellationToken);
+        return userRoleRepository.GetUserRolesByIdAsync(userId, cancellationToken);
     }
 
     public Task<List<UserRoleModel>> GetUserRoleModelsByUserAsync(

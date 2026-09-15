@@ -1,16 +1,11 @@
 using Fenicia.Common.DTOs.Auth.Register;
 using Fenicia.Common.DTOs.Auth.User;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Register;
 
-public static class RegisterMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class RegisterMapper
 {
-    public static RegisterResponse MapToRegisterResponse(this CreateNewUserResponse userResponse)
-    {
-        return new RegisterResponse(
-            userResponse.Id,
-            userResponse.Name,
-            userResponse.Email,
-            userResponse.Company);
-    }
+    internal partial RegisterResponse MapToRegisterResponse(CreateNewUserResponse userResponse);
 }

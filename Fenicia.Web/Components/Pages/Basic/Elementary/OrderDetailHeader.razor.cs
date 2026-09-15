@@ -1,5 +1,4 @@
 using Fenicia.Common.DTOs.Basic.Order;
-using Fenicia.Common.Enums.Auth;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 

@@ -1,6 +1,3 @@
-using Fenicia.Common.DTOs.Basic.Product;
-using Fenicia.Common.DTOs.Basic.ProductCategory;
-using Fenicia.Common.DTOs.Basic.Supplier;
 using Fenicia.Web.Components.Shared;
 using Microsoft.AspNetCore.Components;
 

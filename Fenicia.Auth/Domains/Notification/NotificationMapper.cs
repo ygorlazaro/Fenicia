@@ -1,29 +1,13 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Notification;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public static class NotificationMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class NotificationMapper
 {
-    public static GetAllNotificationsResponse MapToGetAllNotificationsResponse(this NotificationModel notification)
-    {
-        return new GetAllNotificationsResponse(
-            notification.Id,
-            notification.Title,
-            notification.Description,
-            notification.Date,
-            notification.ImageUrl,
-            notification.Read);
-    }
+    public partial GetAllNotificationsResponse MapToGetAllNotificationsResponse(NotificationModel notification);
 
-    public static GetNotificationByIdResponse MapToGetNotificationByIdResponse(this NotificationModel notification)
-    {
-        return new GetNotificationByIdResponse(
-            notification.Id,
-            notification.Title,
-            notification.Description,
-            notification.Date,
-            notification.ImageUrl,
-            notification.Read);
-    }
+    public partial GetNotificationByIdResponse MapToGetNotificationByIdResponse(NotificationModel notification);
 }

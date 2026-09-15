@@ -7,6 +7,7 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Role;
 using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
 using Moq;
@@ -36,7 +37,8 @@ public class UserServiceTests
             _mockUserRoleService.Object,
             _mockRoleService.Object,
             _mockCompanyService.Object,
-            _mockSecurityService.Object);
+            _mockSecurityService.Object,
+            new UserMapper());
     }
 
     [Fact]
@@ -74,18 +76,24 @@ public class UserServiceTests
         var cnpj = _faker.Company.Cnpj();
         var companyName = _faker.Company.CompanyName();
 
-        var command = new CreateNewUserCommand(
-            email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj, companyName));
+        var command = new CreateNewUserCommand
+        {
+            Email = email,
+            Password = password,
+            Name = name,
+            Company = new CreateNewUserCompanyCommand
+            {
+                Cnpj = cnpj,
+                Name = companyName
+            }
+        };
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(false);
         _mockCompanyService.Setup(s => s.GetByCnpjAsync(cnpj, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CompanyModel?)null);
         _mockSecurityService.Setup(s => s.Hash(password)).Returns("hashed_password");
         _mockRoleService.Setup(s => s.GetRoleAsync("Admin", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RoleModel { Id = Guid.NewGuid(), Name = "Admin" });
+            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
 
         var result = await _service.CreateNewAsync(command, CancellationToken.None);
 
@@ -115,11 +123,17 @@ public class UserServiceTests
         var cnpj = _faker.Company.Cnpj();
         var companyName = _faker.Company.CompanyName();
 
-        var command = new CreateNewUserCommand(
-            email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj, companyName));
+        var command = new CreateNewUserCommand
+        {
+            Email = email,
+            Password = password,
+            Name = name,
+            Company = new CreateNewUserCompanyCommand
+            {
+                Cnpj = cnpj,
+                Name = companyName
+            }
+        };
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
@@ -137,11 +151,17 @@ public class UserServiceTests
         var cnpj = _faker.Company.Cnpj();
         var companyName = _faker.Company.CompanyName();
 
-        var command = new CreateNewUserCommand(
-            email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj, companyName));
+        var command = new CreateNewUserCommand
+        {
+            Email = email,
+            Password = password,
+            Name = name,
+            Company = new CreateNewUserCompanyCommand
+            {
+                Cnpj = cnpj,
+                Name = companyName
+            }
+        };
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(false);
         _mockCompanyService.Setup(s => s.GetByCnpjAsync(cnpj, It.IsAny<CancellationToken>()))
@@ -159,7 +179,7 @@ public class UserServiceTests
         var password = _faker.Internet.Password();
         var name = _faker.Person.FullName;
 
-        var request = new CreateUserCommand(email, password, name);
+        var request = new CreateUserCommand { Email = email, Password = password, Name = name };
 
         _mockUserRepository.Setup(r => r.ExistsByEmailAsync(email, It.IsAny<CancellationToken>())).ReturnsAsync(false);
         _mockSecurityService.Setup(s => s.Hash(password)).Returns("hashed_password");
@@ -287,7 +307,7 @@ public class UserServiceTests
         _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _mockSecurityService.Setup(s => s.Hash(newPassword)).Returns("new_hashed_password");
 
-        var query = new UpdatePasswordCommand(userId, newPassword);
+        var query = new UpdatePasswordCommand { UserId = userId, Password = newPassword };
 
         var result = await _service.UpdateHashedPasswordAsync(query, CancellationToken.None);
 
@@ -325,7 +345,7 @@ public class UserServiceTests
     {
         var userId = Guid.NewGuid();
         var newName = _faker.Person.FullName;
-        var request = new UpdateUserCommand(userId, newName);
+        var request = new UpdateUserCommand { UserId = userId, Name = newName };
 
         var user = new UserModel
         {
@@ -338,7 +358,6 @@ public class UserServiceTests
         _mockUserRepository.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _mockUserRepository.Setup(r => r.UpdateAsync(userId, It.IsAny<UserModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
-        _mockUserRepository.Setup(r => r.Query()).Returns(new List<UserModel>().AsQueryable());
         _mockUserRoleService.Setup(s => s.GetUserRolesByUserIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 

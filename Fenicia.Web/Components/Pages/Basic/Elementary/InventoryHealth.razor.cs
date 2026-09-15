@@ -1,4 +1,3 @@
-using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Web.Components.Shared;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;

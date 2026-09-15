@@ -2,7 +2,6 @@ using Bogus;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common;
-using Fenicia.Common.API;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.Enums.Auth;
@@ -77,24 +76,28 @@ public class ModuleControllerTests
 
         var modules = new List<GetModuleResponse>
         {
-            new(
-                module1.Id,
-                module1.Name,
-                module1.Type,
-                module1.Description,
-                module1.Icon,
-                module1.IsActive,
-                module1.SortOrder,
-                module1.Price),
-            new(
-                module2.Id,
-                module2.Name,
-                module2.Type,
-                module2.Description,
-                module2.Icon,
-                module2.IsActive,
-                module2.SortOrder,
-                module2.Price)
+            new()
+            {
+                Id = module1.Id,
+                Name = module1.Name,
+                Type = module1.Type,
+                Description = module1.Description,
+                Icon = module1.Icon,
+                IsActive = module1.IsActive,
+                SortOrder = module1.SortOrder,
+                Price = module1.Price
+            },
+            new()
+            {
+                Id = module2.Id,
+                Name = module2.Name,
+                Type = module2.Type,
+                Description = module2.Description,
+                Icon = module2.Icon,
+                IsActive = module2.IsActive,
+                SortOrder = module2.SortOrder,
+                Price = module2.Price
+            }
         };
 
         var query = new PaginationQuery();
@@ -132,15 +135,17 @@ public class ModuleControllerTests
 
         var modules = new List<GetModuleResponse>
         {
-            new(
-                basicModule.Id,
-                basicModule.Name,
-                basicModule.Type,
-                basicModule.Description,
-                basicModule.Icon,
-                basicModule.IsActive,
-                basicModule.SortOrder,
-                basicModule.Price)
+            new()
+            {
+                Id = basicModule.Id,
+                Name = basicModule.Name,
+                Type = basicModule.Type,
+                Description = basicModule.Description,
+                Icon = basicModule.Icon,
+                IsActive = basicModule.IsActive,
+                SortOrder = basicModule.SortOrder,
+                Price = basicModule.Price
+            }
         };
 
         var query = new PaginationQuery();
@@ -178,15 +183,17 @@ public class ModuleControllerTests
 
         var modules = new List<GetModuleResponse>
         {
-            new(
-                activeModule.Id,
-                activeModule.Name,
-                activeModule.Type,
-                activeModule.Description,
-                activeModule.Icon,
-                activeModule.IsActive,
-                activeModule.SortOrder,
-                activeModule.Price)
+            new()
+            {
+                Id = activeModule.Id,
+                Name = activeModule.Name,
+                Type = activeModule.Type,
+                Description = activeModule.Description,
+                Icon = activeModule.Icon,
+                IsActive = activeModule.IsActive,
+                SortOrder = activeModule.SortOrder,
+                Price = activeModule.Price
+            }
         };
 
         var query = new PaginationQuery();

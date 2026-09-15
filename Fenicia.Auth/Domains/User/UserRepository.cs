@@ -1,13 +1,24 @@
 using Fenicia.Auth.Domains.User.Interfaces;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User;
 
-public class UserRepository(DefaultContext context) : Repository<UserModel>(context), IUserRepository
+public class UserRepository(DbContext context) : Repository<UserModel>(context), IUserRepository
 {
+    public new async Task<IEnumerable<UserModel>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    {
+        var query = from u in DbSet
+            orderby u.Name
+            select u;
+
+        return await query
+            .Skip((page - 1) *  perPage)
+            .Take(perPage)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return DbSet

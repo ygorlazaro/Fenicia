@@ -28,7 +28,7 @@ public class RefreshTokenRepositoryTests : IDisposable
     {
         var token = new RefreshTokenModel("test_token", DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
-        await _repository.AddAsync(token, CancellationToken.None);
+        await _repository.AddAsync(token);
 
         _redisDbMock.Verify(
             x => x.StringSetAsync(
@@ -51,7 +51,7 @@ public class RefreshTokenRepositoryTests : IDisposable
             .Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == $"refresh_token:{token}"), CommandFlags.None))
             .ReturnsAsync(redisValue);
 
-        var result = await _repository.GetAsync(token, CancellationToken.None);
+        var result = await _repository.GetAsync(token);
 
         Assert.NotNull(result);
         Assert.Equal(token, result.Token);
@@ -63,7 +63,7 @@ public class RefreshTokenRepositoryTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), CommandFlags.None))
             .ReturnsAsync(RedisValue.Null);
 
-        var result = await _repository.GetAsync("non_existent_token", CancellationToken.None);
+        var result = await _repository.GetAsync("non_existent_token");
 
         Assert.Null(result);
     }
@@ -74,7 +74,7 @@ public class RefreshTokenRepositoryTests : IDisposable
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), CommandFlags.None))
             .ReturnsAsync(RedisValue.Null);
 
-        var result = await _repository.GetAsync(string.Empty, CancellationToken.None);
+        var result = await _repository.GetAsync(string.Empty);
 
         Assert.Null(result);
     }
@@ -83,13 +83,12 @@ public class RefreshTokenRepositoryTests : IDisposable
     public async Task UpdateAsync_WhenTokenExists_UpdatesInRedis()
     {
         const string token = "token_to_update";
-        var tokenModel = new RefreshTokenModel(token, DateTime.UtcNow.AddDays(7), Guid.NewGuid()) { IsActive = true };
-        var updatedTokenModel = tokenModel with { IsActive = false };
+        var tokenModel = new RefreshTokenModel(token, DateTime.UtcNow.AddDays(7), Guid.NewGuid()) { IsActive = false };
 
         _redisDbMock.Setup(x => x.StringGetAsync(It.IsAny<RedisKey>(), CommandFlags.None))
             .ReturnsAsync(RedisValue.Null);
 
-        await _repository.UpdateAsync(updatedTokenModel, CancellationToken.None);
+        await _repository.UpdateAsync(tokenModel);
 
         _redisDbMock.Verify(
             x => x.StringSetAsync(

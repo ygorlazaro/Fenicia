@@ -2,8 +2,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.User;
 
-public record UpdateUserCommand(
-    Guid UserId,
-    [StringLength(48)] string? Name = null,
-    [EmailAddress][StringLength(48)] string? Email = null,
-    List<UpdateUserRoleCommand>? CompaniesRoles = null);
+public class UpdateUserCommand()
+{
+    public UpdateUserCommand(Guid userId, string? name = null, string? email = null, List<UpdateUserRoleCommand>? companiesRoles = null)
+        : this()
+    {
+        UserId = userId;
+        Name = name;
+        Email = email;
+        CompaniesRoles = companiesRoles;
+    }
+
+    public Guid UserId { get; set; }
+
+    [StringLength(48)]
+    public string? Name { get; set; }
+
+    [EmailAddress]
+    [StringLength(48)]
+    public string? Email { get; set; }
+
+    public List<UpdateUserRoleCommand>? CompaniesRoles { get; set; }
+}

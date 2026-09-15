@@ -2,4 +2,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.UserRole;
 
-public record UserRoleResponse([Required] Guid Id, [Required][MaxLength(200)] string Role, CompanyResponse Company);
+public class UserRoleResponse()
+{
+    public UserRoleResponse(Guid id, string role, CompanyResponse company)
+        : this()
+    {
+        Id = id;
+        Role = role;
+        Company = company;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Role { get; set; } = string.Empty;
+
+    [Required]
+    public CompanyResponse Company { get; set; } = new();
+}

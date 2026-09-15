@@ -1,9 +1,5 @@
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 using Fenicia.Web.Services.Interfaces;
-using Microsoft.Extensions.Http;
 
 namespace Fenicia.Web.Providers.Basic;
 

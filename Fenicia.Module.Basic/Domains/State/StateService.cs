@@ -1,6 +1,5 @@
 using Fenicia.Common.DTOs.Basic.State;
 using Fenicia.Module.Basic.Domains.State.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 

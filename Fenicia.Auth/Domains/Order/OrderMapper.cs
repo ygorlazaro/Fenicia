@@ -1,12 +1,12 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Order;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public static class OrderMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class OrderMapper
 {
-    public static CreateNewOrderResponse MapToCreateNewOrderResponse(this OrderModel order)
-    {
-        return new CreateNewOrderResponse(order.Id);
-    }
+    [MapProperty(nameof(OrderModel.Id), nameof(CreateNewOrderResponse.OrderId))]
+    internal partial CreateNewOrderResponse MapToCreateNewOrderResponse(OrderModel order);
 }

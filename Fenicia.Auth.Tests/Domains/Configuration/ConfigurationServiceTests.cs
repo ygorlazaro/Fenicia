@@ -19,7 +19,8 @@ public class ConfigurationServiceTests
     {
         _faker = new Faker();
         _mockRepository = new Mock<IConfigurationRepository>();
-        _service = new ConfigurationService(_mockRepository.Object);
+        var configurationMapper = new Mock<ConfigurationMapper>();
+        _service = new ConfigurationService(_mockRepository.Object, configurationMapper.Object);
         _testUserId = Guid.NewGuid();
     }
 

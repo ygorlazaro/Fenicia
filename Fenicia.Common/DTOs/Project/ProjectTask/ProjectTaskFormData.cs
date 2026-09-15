@@ -1,6 +1,5 @@
 using Fenicia.Common.DTOs.Project.ProjectComment;
 using Fenicia.Common.DTOs.Project.ProjectSubtask;
-using Fenicia.Common.DTOs.Project.ProjectTask;
 
 namespace Fenicia.Common.DTOs.Project.ProjectTask;
 

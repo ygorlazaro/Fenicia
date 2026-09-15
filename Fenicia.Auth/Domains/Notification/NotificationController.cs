@@ -140,8 +140,9 @@ public class NotificationController(INotificationService notificationService) : 
     {
         try
         {
+            command.Id = id;
             var notification = await notificationService.UpdateAsync(
-                command with { Id = id },
+                command,
                 headers.CompanyId,
                 cancellationToken);
             return notification switch

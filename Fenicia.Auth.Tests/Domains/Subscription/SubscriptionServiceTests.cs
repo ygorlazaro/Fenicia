@@ -24,7 +24,8 @@ public class SubscriptionServiceTests
         _service = new SubscriptionService(
             _mockRepository.Object,
             _mockUserService.Object,
-            _mockUserRoleService.Object);
+            _mockUserRoleService.Object,
+            new SubscriptionMapper());
     }
 
     [Fact]

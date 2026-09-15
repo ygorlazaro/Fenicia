@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 

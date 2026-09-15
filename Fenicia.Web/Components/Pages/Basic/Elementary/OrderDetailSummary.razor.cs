@@ -1,7 +1,6 @@
 using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.Enums.Basic;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 

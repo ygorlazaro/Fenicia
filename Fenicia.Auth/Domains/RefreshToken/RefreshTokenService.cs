@@ -1,13 +1,14 @@
 using System.Security.Cryptography;
 using Fenicia.Auth.Domains.RefreshToken.Interfaces;
+using Fenicia.Common.DTOs.Auth.RefreshToken;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshTokenService
+public sealed class RefreshTokenService(IRefreshTokenRepository repository, RefreshTokenMapper refreshTokenMapper) : IRefreshTokenService
 {
-    public async Task<string> GenerateAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<string> GenerateAsync(Guid userId)
     {
         var randomNumber = new byte[32];
 
@@ -17,65 +18,58 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IR
         var stringToken = Convert.ToBase64String(randomNumber);
         var refreshToken = new RefreshTokenModel(stringToken, DateTime.UtcNow.AddDays(7), userId);
 
-        await repository.AddAsync(refreshToken, cancellationToken);
+        await repository.AddAsync(refreshToken);
 
-        return refreshToken.Token;
+        var mapped = refreshTokenMapper.MapToGenerateRefreshTokenResponse(refreshToken);
+
+        return mapped.Token;
     }
 
-    public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<ValidateTokenResponse?> GetAsync(string token)
     {
-        return string.IsNullOrWhiteSpace(token) ? null : await repository.GetAsync(token, cancellationToken);
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return null;
+        }
+
+        var tokenModel = await repository.GetAsync(token);
+
+        return tokenModel is null ? null : refreshTokenMapper.MapToValidateTokenResponse(tokenModel);
     }
 
     public async Task<RefreshTokenModel> UpdateAsync(
         string token,
-        bool isActive,
-        CancellationToken cancellationToken = default)
+        bool isActive)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
             throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
         }
 
-        var existing = await repository.GetAsync(token, cancellationToken);
+        var existing = await repository.GetAsync(token);
 
         if (existing is null)
         {
             throw new ItemNotExistsException(ExceptionMessages.ItemNotFound);
         }
 
-        var updated = existing with { IsActive = isActive };
-        await repository.UpdateAsync(updated, cancellationToken);
+        existing.IsActive = isActive;
 
-        return updated;
-    }
+        await repository.UpdateAsync(existing);
 
-    public async Task InvalidateAsync(string refreshToken, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(refreshToken);
-
-        var token = await repository.GetAsync(refreshToken, cancellationToken);
-
-        if (token is null)
-        {
-            return;
-        }
-
-        var updatedToken = token with { IsActive = false };
-        await repository.UpdateAsync(updatedToken, cancellationToken);
+        return existing;
     }
 
     public async Task<bool> ValidateAsync(
         Guid userId,
-        string refreshToken,
-        CancellationToken cancellationToken = default)
+        string refreshToken)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
             throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
         }
 
-        var token = await repository.GetAsync(refreshToken, cancellationToken);
+        var token = await repository.GetAsync(refreshToken);
 
         return token != null && token.UserId == userId && token.IsActive && token.ExpirationDate > DateTime.UtcNow;
     }

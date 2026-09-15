@@ -1,35 +1,30 @@
 using Fenicia.Auth.Domains.Role.Interfaces;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Role;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Role;
 
-public class RoleService(IRoleRepository repository) : IRoleService
+public class RoleService(IRoleRepository repository, RoleMapper roleMapper) : IRoleService
 {
-    public async Task<GetAdminRoleResponse?> GetAdminAsync(CancellationToken cancellationToken = default)
+    public async Task<GetAdminRoleResponse?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)
     {
-        var role = await repository.GetByNameAsync("Admin", cancellationToken);
+        var role = await repository.GetByNameAsync(roleName, cancellationToken);
 
-        return role?.MapToGetAdminRoleResponse();
+        return role is null ? null : roleMapper.MapToGetAdminRoleResponse(role);
     }
 
-    public Task<RoleModel?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)
+    public async Task<GetAdminRoleResponse?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
-        return repository.GetByNameAsync(roleName, cancellationToken);
+        var role = await repository.GetByIdAsync(roleId, cancellationToken);
+
+        return role is null ? null : roleMapper.MapToGetAdminRoleResponse(role);
     }
 
-    public Task<RoleModel?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
-    {
-        return repository.GetByIdAsync(roleId, cancellationToken);
-    }
-
-    public Task<List<RoleModel>> GetRolesByIdsAsync(
+    public async Task<List<GetAdminRoleResponse>> GetRolesByIdsAsync(
         List<Guid> roleIds,
         CancellationToken cancellationToken = default)
     {
-        return repository.Query()
-            .Where(r => roleIds.Contains(r.Id))
-            .ToListAsync(cancellationToken);
+        var roles = await repository.GetRolesByIdAsync(roleIds, cancellationToken);
+
+        return [.. roles.Select(roleMapper.MapToGetAdminRoleResponse)];
     }
 }

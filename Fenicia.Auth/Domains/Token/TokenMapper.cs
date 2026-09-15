@@ -1,16 +1,15 @@
 using Fenicia.Common.DTOs.Auth.Token;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public static class TokenMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class TokenMapper
 {
-    public static UserResponse MapToUserResponse(this GenerateTokenResponse user)
-    {
-        return new UserResponse(user.Id, user.Name, user.Email);
-    }
+    public partial UserResponse MapToUserResponse(GenerateTokenResponse user);
 
-    public static TokenResponse MapToTokenResponse(this string token, string refreshToken, GenerateTokenResponse user)
+    public TokenResponse MapToTokenResponse(string accessToken, string refreshToken, GenerateTokenResponse user)
     {
-        return new TokenResponse(token, refreshToken, user.MapToUserResponse());
+        return new TokenResponse(accessToken, refreshToken, MapToUserResponse(user));
     }
 }

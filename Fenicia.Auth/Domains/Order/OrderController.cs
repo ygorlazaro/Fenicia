@@ -44,8 +44,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
         try
         {
             var userId = ClaimReader.UserId(User);
-            Console.WriteLine($@"[OrderController] userId={userId}, companyId={companyId}, Modules={request.Modules.Count}");
-            var command = new CreateNewOrderCommand(userId, companyId, request.Modules ?? []);
+            var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
             var order = await orderService.CreateAsync(command, cancellationToken);
 
             return order switch

@@ -34,9 +34,9 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
         try
         {
             var userId = ClaimReader.UserId(User);
-            var token = await refreshTokenService.GenerateAsync(userId, cancellationToken);
+            var response = await refreshTokenService.GenerateAsync(userId);
 
-            return new CreatedResult(string.Empty, new GenerateRefreshTokenResponse(token, DateTime.UtcNow.AddDays(7)));
+            return new CreatedResult(string.Empty, response);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -68,12 +68,16 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
         {
             var userId = ClaimReader.UserId(User);
 
-            var isValid = await refreshTokenService.ValidateAsync(userId, token, cancellationToken);
-            var tokenData = await refreshTokenService.GetAsync(token, cancellationToken);
+            var isValid = await refreshTokenService.ValidateAsync(userId, token);
+            var tokenData = await refreshTokenService.GetAsync(token);
 
-            return tokenData is null
-                ? NotFound()
-                : Ok(new ValidateTokenResponse(token, tokenData.ExpirationDate, userId, isValid));
+            if (tokenData is null)
+            {
+                return NotFound();
+            }
+
+            tokenData.IsActive = isValid;
+            return Ok(tokenData);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -108,7 +112,7 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     {
         try
         {
-            await refreshTokenService.UpdateAsync(token, command.IsActive, cancellationToken);
+            await refreshTokenService.UpdateAsync(token, command.IsActive);
 
             return NoContent();
         }

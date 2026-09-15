@@ -3,15 +3,14 @@ using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Subscription;
-using Fenicia.Common.Enums.Auth;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionService(
     ISubscriptionRepository subscriptionRepository,
     IUserService userService,
-    IUserRoleService userRoleService) : ISubscriptionService
+    IUserRoleService userRoleService,
+    SubscriptionMapper subscriptionMapper) : ISubscriptionService
 {
     public async Task<GetUserProfileResponse?> GetUserProfileAsync(
         Guid userId,
@@ -27,17 +26,19 @@ public class SubscriptionService(
         var userRoles = await userRoleService.GetUserRoleModelsByUserAsync(userId, cancellationToken);
         var subscriptions = await subscriptionRepository.GetUserSubscriptionsAsync(userId, cancellationToken);
 
-        var companies = userRoles.Select(ur => ur.MapToUserCompanyResponse()).ToList();
+        var companies = userRoles.Select(subscriptionMapper.MapToUserCompanyResponse).ToList();
 
         var subscriptionResponses = new List<UserSubscriptionResponse>();
 
         foreach (var subscription in subscriptions)
         {
             var modules = await subscriptionRepository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
-            var moduleResponses = modules.Select(m => m.MapToUserModuleResponse()).ToList();
+            var moduleResponses = modules.Select(subscriptionMapper.MapToUserModuleResponse).ToList();
 
-            subscriptionResponses.Add(
-                subscription.MapToUserSubscriptionResponse(subscription.Company.Name, moduleResponses));
+            var subscriptionResponse = subscriptionMapper.MapToUserSubscriptionResponse(subscription);
+            subscriptionResponse.Modules = moduleResponses;
+
+            subscriptionResponses.Add(subscriptionResponse);
         }
 
         return new GetUserProfileResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
@@ -61,11 +62,6 @@ public class SubscriptionService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
-
-        return subscriptionRepository.Query()
-            .Where(s => s.CompanyId == companyId && s.Status == SubscriptionStatus.Active && now >= s.StartDate &&
-                        now <= s.EndDate)
-            .ToListAsync(cancellationToken);
+        return subscriptionRepository.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
     }
 }

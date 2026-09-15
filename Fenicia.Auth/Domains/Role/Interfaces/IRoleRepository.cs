@@ -6,4 +6,5 @@ namespace Fenicia.Auth.Domains.Role.Interfaces;
 public interface IRoleRepository : IRepository<RoleModel>
 {
     Task<RoleModel?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+    Task<List<RoleModel>> GetRolesByIdAsync(List<Guid> roleIds, CancellationToken cancellationToken);
 }

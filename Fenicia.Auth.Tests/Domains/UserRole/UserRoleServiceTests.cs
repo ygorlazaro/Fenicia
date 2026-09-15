@@ -13,7 +13,7 @@ public class UserRoleServiceTests
     public UserRoleServiceTests()
     {
         _mockRepository = new Mock<IUserRoleRepository>();
-        _service = new UserRoleService(_mockRepository.Object);
+        _service = new UserRoleService(_mockRepository.Object, new UserRoleMapper());
     }
 
     [Fact]
@@ -54,6 +54,8 @@ public class UserRoleServiceTests
 
         Assert.NotNull(result);
         Assert.Single(result);
+        Assert.Equal(companyId, result[0].Id);
+        Assert.Equal(companyId, result[0].Company.Id);
     }
 
     [Fact]

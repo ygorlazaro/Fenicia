@@ -1,6 +1,5 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Token.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Token;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +12,7 @@ namespace Fenicia.Auth.Domains.Token;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class TokenController(ITokenService tokenService) : ControllerBase
+public class TokenController(ITokenService tokenService, TokenMapper tokenMapper) : ControllerBase
 {
     /// <summary>
     ///     Gera um token JWT para o usuário (login).
@@ -65,7 +64,7 @@ public class TokenController(ITokenService tokenService) : ControllerBase
     private ActionResult<TokenResponse> PopulateTokenAsync(GenerateTokenResponse user)
     {
         var token = tokenService.GenerateString(user);
-        var response = token.MapToTokenResponse(string.Empty, user);
+        var response = tokenMapper.MapToTokenResponse(token, string.Empty, user);
 
         return Created(string.Empty, response);
     }

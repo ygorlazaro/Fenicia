@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.Register.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Register;
 using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
@@ -35,7 +34,13 @@ public class RegisterControllerTests
     {
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var request = new RegisterCommand("existing@example.com", "password123", "Test User", company);
+        var request = new RegisterCommand
+        {
+            Email = "existing@example.com",
+            Password = "password123",
+            Name = "Test User",
+            Company = company
+        };
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException("This email already exists"));
@@ -50,7 +55,13 @@ public class RegisterControllerTests
     {
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
-        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
+        var request = new RegisterCommand
+        {
+            Email = "test@example.com",
+            Password = "password123",
+            Name = "Test User",
+            Company = company
+        };
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException("Company with this CNPJ already exists."));
@@ -65,7 +76,13 @@ public class RegisterControllerTests
     {
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
+        var request = new RegisterCommand
+        {
+            Email = "test@example.com",
+            Password = "password123",
+            Name = "Test User",
+            Company = company
+        };
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(
@@ -82,13 +99,21 @@ public class RegisterControllerTests
     {
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
+        var request = new RegisterCommand
+        {
+            Email = "test@example.com",
+            Password = "password123",
+            Name = "Test User",
+            Company = company
+        };
 
-        var expectedResponse = new RegisterResponse(
-            Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
-            new CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12.345.678/0001-90"));
+        var expectedResponse = new RegisterResponse
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test User",
+            Email = "test@example.com",
+            Company = new CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12.345.678/0001-90")
+        };
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResponse);

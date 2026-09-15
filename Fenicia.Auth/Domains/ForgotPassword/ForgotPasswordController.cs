@@ -36,8 +36,9 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+            var userId = ClaimReader.UserId(User);
 
-            var command = new AddForgotPasswordCommand(reset.Email, ipAddress, userAgent);
+            var command = new AddForgotPasswordCommand(reset.Email, userId, ipAddress, userAgent);
 
             await forgotPasswordService.AddAsync(command, cancellationToken);
 

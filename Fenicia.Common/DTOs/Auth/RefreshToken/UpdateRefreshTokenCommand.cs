@@ -1,3 +1,12 @@
 namespace Fenicia.Common.DTOs.Auth.RefreshToken;
 
-public record UpdateRefreshTokenCommand(bool IsActive);
+public class UpdateRefreshTokenCommand()
+{
+    public UpdateRefreshTokenCommand(bool isActive)
+        : this()
+    {
+        IsActive = isActive;
+    }
+
+    public bool IsActive { get; set; }
+}

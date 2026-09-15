@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Order;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +35,7 @@ public class OrderControllerTests
         var cancellationToken = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var command = new CreateNewOrderCommand { UserId = _testUserId, CompanyId = Guid.NewGuid(), Modules = modules };
         var companyId = Guid.NewGuid();
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
@@ -56,7 +55,7 @@ public class OrderControllerTests
             .ThrowsAsync(new ItemNotExistsException("Modules not found"));
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var command = new CreateNewOrderCommand { UserId = _testUserId, CompanyId = Guid.NewGuid(), Modules = modules };
         var companyId = Guid.NewGuid();
 
         var result = await _controller.CreateNewOrderAsync(command, companyId, cancellationToken);
@@ -76,7 +75,7 @@ public class OrderControllerTests
             .ReturnsAsync(new CreateNewOrderResponse(orderId));
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
+        var command = new CreateNewOrderCommand { UserId = _testUserId, CompanyId = Guid.NewGuid(), Modules = modules };
         var companyId = Guid.NewGuid();
 
         var result = await _controller.CreateNewOrderAsync(command, companyId, cancellationToken);

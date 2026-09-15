@@ -2,27 +2,21 @@ using Fenicia.Auth.Domains.Notification.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Notification;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public class NotificationService(INotificationRepository repository) : INotificationService
+public class NotificationService(INotificationRepository repository, NotificationMapper notificationMapper) : INotificationService
 {
     public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(
         GetAllNotificationsQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = repository.Query().OrderByDescending(n => n.Date);
-
-        var totalTask = baseQuery.CountAsync(cancellationToken);
-        var itemsTask = baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
-            .ToListAsync(cancellationToken);
-
-        await Task.WhenAll(totalTask, itemsTask);
+        var notifications = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var total = await repository.CountAsync(cancellationToken);
 
         return new Pagination<List<GetAllNotificationsResponse>>(
-            [.. itemsTask.Result.Select(n => n.MapToGetAllNotificationsResponse())],
-            totalTask.Result,
+            [.. notifications.Select(notificationMapper.MapToGetAllNotificationsResponse)],
+            total,
             query.Page,
             query.PerPage);
     }
@@ -31,7 +25,7 @@ public class NotificationService(INotificationRepository repository) : INotifica
     {
         var notification = await repository.GetByIdAsync(id, cancellationToken);
 
-        return notification?.MapToGetNotificationByIdResponse();
+        return notification is null ? null : notificationMapper.MapToGetNotificationByIdResponse(notification);
     }
 
     public async Task<AddNotificationResponse> AddAsync(

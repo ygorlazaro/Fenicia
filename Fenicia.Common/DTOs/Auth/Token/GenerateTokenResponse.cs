@@ -2,9 +2,30 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.Token;
 
-public record GenerateTokenResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
-    [Required][MaxLength(200)] string Email,
-    Guid CompanyId = default,
-    List<string>? Roles = null);
+public class GenerateTokenResponse()
+{
+    public GenerateTokenResponse(Guid id, string name, string email, Guid companyId = default, List<string>? roles = null)
+        : this()
+    {
+        Id = id;
+        Name = name;
+        Email = email;
+        CompanyId = companyId;
+        Roles = roles;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(200)]
+    public string Email { get; set; } = string.Empty;
+
+    public Guid CompanyId { get; set; }
+
+    public List<string>? Roles { get; set; }
+}
