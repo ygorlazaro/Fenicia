@@ -29,7 +29,10 @@ public static class FeniciaControllersExtensions
             };
         });
 
-        builder.Services.AddControllers().AddJsonOptions(o =>
+        builder.Services.AddControllers(options =>
+        {
+            options.Filters.Add<Filters.WideEventUserIdFilter>();
+        }).AddJsonOptions(o =>
         {
             o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             o.JsonSerializerOptions.AllowTrailingCommas = false;

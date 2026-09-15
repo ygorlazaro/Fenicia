@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.Configuration.Interfaces;
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Auth;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationRepository(DefaultContext context)
+public class ConfigurationRepository(DbContext context)
     : Repository<ConfigurationModel>(context), IConfigurationRepository
 {
     public Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(

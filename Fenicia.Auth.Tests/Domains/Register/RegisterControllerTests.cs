@@ -33,7 +33,6 @@ public class RegisterControllerTests
     [Fact]
     public async Task CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("existing@example.com", "password123", "Test User", company);
@@ -41,7 +40,7 @@ public class RegisterControllerTests
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException("This email already exists"));
 
-        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
+        var result = await _controller.CreateNewUserAsync(request, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -49,7 +48,6 @@ public class RegisterControllerTests
     [Fact]
     public async Task CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
@@ -57,7 +55,7 @@ public class RegisterControllerTests
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException("Company with this CNPJ already exists."));
 
-        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
+        var result = await _controller.CreateNewUserAsync(request, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -65,7 +63,6 @@ public class RegisterControllerTests
     [Fact]
     public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ReturnsBadRequest()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
@@ -75,7 +72,7 @@ public class RegisterControllerTests
                 new InvalidRequestException(
                     "Admin role not found. Please ensure that the admin role exists in the database."));
 
-        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
+        var result = await _controller.CreateNewUserAsync(request, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -83,7 +80,6 @@ public class RegisterControllerTests
     [Fact]
     public async Task CreateNewUserAsync_WhenValidRequest_ReturnsCreatedWithUser()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
@@ -97,7 +93,7 @@ public class RegisterControllerTests
         _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResponse);
 
-        var result = await _controller.CreateNewUserAsync(request, wide, cancellationToken);
+        var result = await _controller.CreateNewUserAsync(request, cancellationToken);
 
         var createdResult = Assert.IsType<CreatedResult>(result.Result);
         var response = Assert.IsType<RegisterResponse>(createdResult.Value);
@@ -105,28 +101,6 @@ public class RegisterControllerTests
         Assert.Equal(request.Email, response.Email);
         Assert.Equal(request.Name, response.Name);
         Assert.Equal(company.Name, response.Company.Name);
-        Assert.Equal(request.Email, wide.UserId);
-    }
-
-    [Fact]
-    public async Task CreateNewUserAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-        var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
-
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new RegisterResponse(
-                    Guid.NewGuid(),
-                    "Test User",
-                    "test@example.com",
-                    new CreateNewUserCompanyResponse(Guid.NewGuid(), "Company Name", "12.345.678/0001-90")));
-
-        await _controller.CreateNewUserAsync(request, wide, cancellationToken);
-
-        Assert.Equal(request.Email, wide.UserId);
     }
 
     [Fact]

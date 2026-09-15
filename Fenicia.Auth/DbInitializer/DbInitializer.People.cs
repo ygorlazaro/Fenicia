@@ -46,17 +46,17 @@ internal static partial class DbInitializer
 
             var address = new AddressModel
             {
-                Street = $"Rua {(i % 50) + 1}",
-                Number = ((i % 1000) + 1).ToString(),
-                Complement = i % 3 == 0 ? $"Apto {(i % 20) + 1}" : null,
-                Neighborhood = $"Bairro {(i % 20) + 1}",
-                ZipCode = ((i % 90000000) + 10000000).ToString("D8"),
+                Street = $"Rua {i % 50 + 1}",
+                Number = (i % 1000 + 1).ToString(),
+                Complement = i % 3 == 0 ? $"Apto {i % 20 + 1}" : null,
+                Neighborhood = $"Bairro {i % 20 + 1}",
+                ZipCode = (i % 90000000 + 10000000).ToString("D8"),
                 StateId = state.Id,
                 City = cities[cityIndex],
                 Country = "Brasil",
-                AddressType = (AddressType)((i % 3) + 1),
-                Latitude = -23.55 + ((random.NextDouble() - 0.5) * 0.5),
-                Longitude = -46.63 + ((random.NextDouble() - 0.5) * 0.5),
+                AddressType = (AddressType)(i % 3 + 1),
+                Latitude = -23.55 + (random.NextDouble() - 0.5) * 0.5,
+                Longitude = -46.63 + (random.NextDouble() - 0.5) * 0.5,
                 IsDefault = i % 10 == 0,
                 Observation = i % 5 == 0 ? $"Observação endereço {i}" : null,
                 Created = now.AddDays(-random.NextDouble() * 365),
@@ -107,9 +107,9 @@ internal static partial class DbInitializer
                 _ => $"Pessoa {i} Ferreira"
             };
 
-            var document = i % 3 == 0 ? ((i % 90000000000) + 10000000000).ToString("D11") : null;
+            var document = i % 3 == 0 ? (i % 90000000000 + 10000000000).ToString("D11") : null;
             var email = $"pessoa{i}@email.com";
-            var phone = $"({(i % 90) + 10}) 9{(i % 90000000) + 10000000:D8}";
+            var phone = $"({i % 90 + 10}) 9{i % 90000000 + 10000000:D8}";
             var dateOfBirth = new DateTime(1980, 1, 1).AddDays(i % 12000);
             var photoUrl = i % 4 == 0 ? $"https://i.pravatar.cc/150?u=person-{i}" : null;
             var notes = i % 7 == 0 ? $"Observações da pessoa {i}" : null;

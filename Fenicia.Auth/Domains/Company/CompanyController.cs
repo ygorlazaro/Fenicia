@@ -20,7 +20,6 @@ public class CompanyController(ICompanyService service) : ControllerBase
     ///     Obtém as empresas associadas ao usuário autenticado com paginação.
     /// </summary>
     /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de empresas do usuário</returns>
     /// <response code="200">Empresas encontradas para o usuário</response>
@@ -36,13 +35,11 @@ public class CompanyController(ICompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser(
         [FromQuery] PaginationQuery query,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
 
             var result = await service.GetCompaniesByUserAsync(userId, query.Page, query.PerPage, cancellationToken);
 
@@ -63,7 +60,6 @@ public class CompanyController(ICompanyService service) : ControllerBase
     /// </summary>
     /// <param name="id">ID da empresa</param>
     /// <param name="request">Dados de atualização da empresa (nome)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se atualizado com sucesso</returns>
     /// <response code="204">Empresa atualizada com sucesso</response>
@@ -83,13 +79,11 @@ public class CompanyController(ICompanyService service) : ControllerBase
     public async Task<IActionResult> PatchAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateCompanyRequest request,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
 
             await service.UpdateAsync(id, userId, request.Name, cancellationToken);
 

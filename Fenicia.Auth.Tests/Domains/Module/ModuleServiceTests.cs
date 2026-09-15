@@ -145,7 +145,7 @@ public class ModuleServiceTests
                 {
                     Id = Guid.NewGuid(),
                     Name = $"Module {_faker.Commerce.ProductName()} {i}",
-                    Type = (ModuleType)((i % 10) + 1),
+                    Type = (ModuleType)(i % 10 + 1),
                     Price = 10.0m,
                     IsActive = true,
                     SortOrder = i

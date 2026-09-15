@@ -23,7 +23,6 @@ public class UserController(IUserService userService, IModuleService moduleServi
     /// </summary>
     /// <param name="id">ID do usuário</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de módulos do usuário na empresa</returns>
     /// <response code="200">Módulos encontrados</response>
@@ -37,13 +36,11 @@ public class UserController(IUserService userService, IModuleService moduleServi
     public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync(
         [FromRoute] Guid id,
         [FromHeader] Headers headers,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var loggedInUserId = ClaimReader.UserId(User);
-            wide.UserId = loggedInUserId.ToString();
 
             await userService.EnsureCanAccessUserAsync(loggedInUserId, id, headers.CompanyId, cancellationToken);
 
@@ -62,7 +59,6 @@ public class UserController(IUserService userService, IModuleService moduleServi
     ///     Obtém as empresas associadas a um usuário.
     /// </summary>
     /// <param name="id">ID do usuário</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de empresas do usuário</returns>
     /// <response code="200">Empresas encontradas</response>
@@ -75,13 +71,11 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var loggedInUserId = ClaimReader.UserId(User);
-            wide.UserId = loggedInUserId.ToString();
 
             await userService.EnsureCanAccessUserAsync(loggedInUserId, id, null, cancellationToken);
 

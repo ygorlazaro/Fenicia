@@ -21,7 +21,8 @@ public class CompanyServiceTests
         _faker = new Faker();
         _mockRepository = new Mock<ICompanyRepository>();
         _mockUserRoleService = new Mock<IUserRoleService>();
-        _service = new CompanyService(_mockRepository.Object, _mockUserRoleService.Object);
+        var companyMapper = new Mock<CompanyMapper>();
+        _service = new CompanyService(_mockRepository.Object, _mockUserRoleService.Object, companyMapper.Object);
     }
 
     [Fact]

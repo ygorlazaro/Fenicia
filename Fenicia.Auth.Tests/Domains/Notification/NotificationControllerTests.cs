@@ -33,26 +33,14 @@ public class NotificationControllerTests
     public async Task GetAsync_WhenNoNotificationsExist_ReturnsOkWithEmptyPagination()
     {
         var query = new PaginationQuery();
-        var wide = new WideEventContext();
 
         _mockService.Setup(s => s.GetAllAsync(It.IsAny<GetAllNotificationsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Pagination<List<GetAllNotificationsResponse>>([], 0, query.Page, query.PerPage));
 
-        var result = await _controller.GetAsync(wide, query.Page, query.PerPage, null, null, CancellationToken.None);
+        var result = await _controller.GetAsync(query.Page, query.PerPage, null, null, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
-    }
-
-    [Fact]
-    public async Task GetAsync_SetsWideEventContextUserId()
-    {
-        var query = new PaginationQuery();
-        var wide = new WideEventContext();
-
-        await _controller.GetAsync(wide, query.Page, query.PerPage, null, null, CancellationToken.None);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -63,40 +51,35 @@ public class NotificationControllerTests
         _mockService.Setup(s => s.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetNotificationByIdResponse(id, "Test", "D", DateTime.UtcNow, null, false));
 
-        var wide = new WideEventContext();
-
-        var result = await _controller.GetByIdAsync(id, wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(id, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenNotificationDoesNotExist_ReturnsNotFound()
     {
-        var wide = new WideEventContext();
-
         _mockService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetNotificationByIdResponse?)null);
 
-        var result = await _controller.GetByIdAsync(Guid.NewGuid(), wide, CancellationToken.None);
+        var result = await _controller.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
     public async Task PostAsync_WhenCommandIsValid_ReturnsCreated()
     {
         var command = new AddNotificationCommand("Test Title", "Test Desc", DateTime.UtcNow, "img.png");
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
         _mockService.Setup(s => s.AddAsync(command, headers.CompanyId, cancellationToken))
             .ReturnsAsync(new AddNotificationResponse(Guid.NewGuid()));
 
-        var result = await _controller.PostAsync(command, headers, wide, cancellationToken);
+        var result = await _controller.PostAsync(command, headers, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
@@ -114,14 +97,13 @@ public class NotificationControllerTests
             .ReturnsAsync(new UpdateNotificationResponse(id));
 
         var command = new UpdateNotificationCommand(id, "New Title", "New Desc", null, "img.png", true);
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.PatchAsync(command, id, headers, wide, cancellationToken);
+        var result = await _controller.PatchAsync(command, id, headers, cancellationToken);
 
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
@@ -136,21 +118,19 @@ public class NotificationControllerTests
             .ReturnsAsync(new UpdateNotificationResponse(id));
 
         var command = new UpdateNotificationCommand(id, "T", "D", null, null, true);
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.PatchAsync(command, id, headers, wide, cancellationToken);
+        var result = await _controller.PatchAsync(command, id, headers, cancellationToken);
 
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task PatchAsync_WhenNotificationDoesNotExist_ReturnsNotFound()
     {
         var command = new UpdateNotificationCommand(Guid.NewGuid(), "Title", "Desc", null, null, null);
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
@@ -160,10 +140,10 @@ public class NotificationControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((UpdateNotificationResponse?)null);
 
-        var result = await _controller.PatchAsync(command, Guid.NewGuid(), headers, wide, cancellationToken);
+        var result = await _controller.PatchAsync(command, Guid.NewGuid(), headers, cancellationToken);
 
         Assert.NotNull(result);
-        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -174,11 +154,10 @@ public class NotificationControllerTests
         _mockService.Setup(s => s.DeleteAsync(id, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var headers = new Headers { CompanyId = Guid.NewGuid() };
 
-        var result = await _controller.DeleteAsync(id, headers, wide, cancellationToken);
+        var result = await _controller.DeleteAsync(id, headers, cancellationToken);
 
         Assert.IsType<NoContentResult>(result);
     }

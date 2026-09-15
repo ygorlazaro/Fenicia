@@ -77,7 +77,7 @@ internal static partial class DbInitializer
                 Code = $"code-{i}",
                 ExpirationDate = expirationDate,
                 IsActive = i % 2 == 0,
-                IpAddress = $"192.168.{(i % 255) + 1}.{(i % 255) + 1}",
+                IpAddress = $"192.168.{i % 255 + 1}.{i % 255 + 1}",
                 UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
                 Created = now.AddDays(-random.NextDouble() * 7),
                 Updated = now.AddDays(-random.NextDouble() * 7)

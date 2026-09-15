@@ -33,13 +33,12 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
     {
         var query = new PaginationQuery();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
             .ReturnsAsync(new Pagination<List<GetModuleResponse>>([], 0, query.Page, query.PerPage));
 
-        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
+        var result = await _controller.GetAllModulesAsync(query, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -51,7 +50,6 @@ public class ModuleControllerTests
         Assert.NotNull(returnedPagination);
         Assert.Empty(returnedPagination.Data);
         Assert.Equal(0, returnedPagination.Total);
-        Assert.Equal("Guest", wide.UserId);
     }
 
     [Fact]
@@ -100,13 +98,12 @@ public class ModuleControllerTests
         };
 
         var query = new PaginationQuery();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
             .ReturnsAsync(new Pagination<List<GetModuleResponse>>(modules, 2, query.Page, query.PerPage));
 
-        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
+        var result = await _controller.GetAllModulesAsync(query, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -118,7 +115,6 @@ public class ModuleControllerTests
         Assert.NotNull(returnedPagination);
         Assert.Equal(2, returnedPagination.Data.Count);
         Assert.Equal(2, returnedPagination.Total);
-        Assert.Equal("Guest", wide.UserId);
     }
 
     [Fact]
@@ -148,13 +144,12 @@ public class ModuleControllerTests
         };
 
         var query = new PaginationQuery();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
             .ReturnsAsync(new Pagination<List<GetModuleResponse>>(modules, 1, query.Page, query.PerPage));
 
-        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
+        var result = await _controller.GetAllModulesAsync(query, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -195,13 +190,12 @@ public class ModuleControllerTests
         };
 
         var query = new PaginationQuery();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
             .ReturnsAsync(new Pagination<List<GetModuleResponse>>(modules, 1, query.Page, query.PerPage));
 
-        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
+        var result = await _controller.GetAllModulesAsync(query, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -216,28 +210,15 @@ public class ModuleControllerTests
     }
 
     [Fact]
-    public async Task GetAllModulesAsync_SetsWideEventContextUserIdToGuest()
-    {
-        var query = new PaginationQuery();
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        await _controller.GetAllModulesAsync(query, wide, cancellationToken);
-
-        Assert.Equal("Guest", wide.UserId);
-    }
-
-    [Fact]
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
         var query = new PaginationQuery(2);
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.GetAllModulesAsync(query, cancellationToken))
             .ReturnsAsync(new Pagination<List<GetModuleResponse>>([], 25, 2, 10));
 
-        var result = await _controller.GetAllModulesAsync(query, wide, cancellationToken);
+        var result = await _controller.GetAllModulesAsync(query, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);

@@ -1,13 +1,12 @@
 using System.Linq.Expressions;
-using Fenicia.Common.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Repositories;
 
-public class Repository<T>(DefaultContext context) : IRepository<T>
+public class Repository<T>(DbContext context) : IRepository<T>
     where T : BaseModel
 {
-    protected DbSet<T> DbSet { get; set; } = context.Set<T>();
+    protected DbSet<T> DbSet { get; } = context.Set<T>();
 
     public async Task<IEnumerable<T>> GetAllAsync(
         int page = 1,
@@ -15,7 +14,6 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
         CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Where(e => e.Deleted == null)
             .Skip((page - 1) * perPage)
             .Take(perPage)
             .ToListAsync(cancellationToken);
@@ -23,7 +21,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
 
     public virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return DbSet.FirstOrDefaultAsync(e => e.Id == id && e.Deleted == null, cancellationToken);
+        return DbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
     public async Task<T> InsertAsync(T model, CancellationToken cancellationToken = default)
@@ -65,7 +63,7 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
 
     public async Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
-        var entities = await DbSet.Where(e => ids.Contains(e.Id) && e.Deleted == null).ToListAsync(cancellationToken);
+        var entities = await DbSet.Where(e => ids.Contains(e.Id)).ToListAsync(cancellationToken);
         if (entities.Count == 0)
         {
             return 0;
@@ -119,12 +117,5 @@ public class Repository<T>(DefaultContext context) : IRepository<T>
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return context.SaveChangesAsync(cancellationToken);
-    }
-
-    public IQueryable<T> Query()
-    {
-        // ReSharper disable once UnusedVariable
-        var c = context;
-        return DbSet;
     }
 }

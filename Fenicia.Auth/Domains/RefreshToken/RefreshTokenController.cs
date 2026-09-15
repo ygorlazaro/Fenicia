@@ -18,7 +18,6 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     /// <summary>
     ///     Gera um novo refresh token para o usuário autenticado.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Token de atualização gerado</returns>
     /// <response code="201">Refresh token gerado com sucesso</response>
@@ -30,12 +29,10 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<GenerateRefreshTokenResponse>> PostAsync(
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
             var userId = ClaimReader.UserId(User);
             var token = await refreshTokenService.GenerateAsync(userId, cancellationToken);
 
@@ -51,7 +48,6 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     ///     Valida um refresh token pelo valor.
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da validação com dados do token</returns>
     /// <response code="200">Token válido</response>
@@ -66,13 +62,11 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ValidateTokenResponse>> GetAsync(
         [FromRoute] string token,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
 
             var isValid = await refreshTokenService.ValidateAsync(userId, token, cancellationToken);
             var tokenData = await refreshTokenService.GetAsync(token, cancellationToken);
@@ -96,7 +90,6 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
     /// <param name="command">Comando com o refresh token a ser invalidado</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se invalidado com sucesso</returns>
     /// <response code="204">Refresh token invalidado com sucesso</response>
@@ -111,13 +104,10 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     public async Task<IActionResult> PatchAsync(
         [FromRoute] string token,
         [FromBody] UpdateRefreshTokenCommand command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
-
             await refreshTokenService.UpdateAsync(token, command.IsActive, cancellationToken);
 
             return NoContent();

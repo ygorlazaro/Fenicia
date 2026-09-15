@@ -1,16 +1,17 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Company;
+using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public static class CompanyMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class CompanyMapper
 {
-    public static GetCompaniesByUserResponse MapToGetCompaniesByUserResponse(this UserRoleModel userRole)
-    {
-        return new GetCompaniesByUserResponse(
-            userRole.Company.Id,
-            userRole.Company.Name,
-            userRole.Company.Cnpj,
-            userRole.Role.Name);
-    }
+    [MapProperty(nameof(UserRoleModel.CompanyId),  nameof(GetCompaniesByUserResponse.Id))]
+    [MapProperty([nameof(UserRoleModel.Company), nameof(UserRoleModel.Company.Name)],  nameof(GetCompaniesByUserResponse.Name))]
+    [MapProperty([nameof(UserRoleModel.Company), nameof(UserRoleModel.Company.Cnpj)],  nameof(GetCompaniesByUserResponse
+        .Cnpj))]
+    [MapProperty([nameof(UserRoleModel.Company), nameof(UserRoleModel.Role.Name)],  nameof(GetCompaniesByUserResponse
+        .Role))]
+    public partial GetCompaniesByUserResponse MapToGetCompaniesByUserResponse(UserRoleModel userRole);
 }

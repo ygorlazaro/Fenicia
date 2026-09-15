@@ -43,7 +43,6 @@ public class ForgotPasswordControllerTests
     [Fact]
     public async Task PostAsync_WhenUserExists_ReturnsCreated()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
@@ -52,16 +51,14 @@ public class ForgotPasswordControllerTests
 
         var command = new AddForgotPasswordCommand(email);
 
-        var result = await _controller.PostAsync(command, wide, cancellationToken);
+        var result = await _controller.PostAsync(command, cancellationToken);
 
         Assert.IsType<CreatedResult>(result);
-        Assert.Equal(command.Email, wide.UserId);
     }
 
     [Fact]
     public async Task PostAsync_WhenUserDoesNotExist_ReturnsBadRequest()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
@@ -69,32 +66,14 @@ public class ForgotPasswordControllerTests
 
         var command = new AddForgotPasswordCommand(_faker.Internet.Email());
 
-        var result = await _controller.PostAsync(command, wide, cancellationToken);
+        var result = await _controller.PostAsync(command, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
 
     [Fact]
-    public async Task PostAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-        var email = _faker.Internet.Email();
-
-        _mockService.Setup(s => s.AddAsync(It.IsAny<AddForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        var command = new AddForgotPasswordCommand(email);
-
-        await _controller.PostAsync(command, wide, cancellationToken);
-
-        Assert.Equal(command.Email, wide.UserId);
-    }
-
-    [Fact]
     public async Task PatchAsync_WhenValidCode_ResetsPasswordSuccessfully()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
         var newPassword = _faker.Internet.Password();
@@ -105,16 +84,14 @@ public class ForgotPasswordControllerTests
         var code = _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         var command = new ResetPasswordCommand(email, newPassword, code);
 
-        var result = await _controller.PatchAsync(command, wide, cancellationToken);
+        var result = await _controller.PatchAsync(command, cancellationToken);
 
         Assert.IsType<NoContentResult>(result);
-        Assert.Equal(command.Email, wide.UserId);
     }
 
     [Fact]
     public async Task PatchAsync_WhenInvalidCode_ReturnsBadRequest()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var email = _faker.Internet.Email();
 
@@ -123,7 +100,7 @@ public class ForgotPasswordControllerTests
 
         var command = new ResetPasswordCommand(email, _faker.Internet.Password(), "INVALID");
 
-        var result = await _controller.PatchAsync(command, wide, cancellationToken);
+        var result = await _controller.PatchAsync(command, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -131,7 +108,6 @@ public class ForgotPasswordControllerTests
     [Fact]
     public async Task PatchAsync_WhenUserDoesNotExist_ReturnsBadRequest()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
@@ -142,28 +118,9 @@ public class ForgotPasswordControllerTests
             _faker.Internet.Password(),
             _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
-        var result = await _controller.PatchAsync(command, wide, cancellationToken);
+        var result = await _controller.PatchAsync(command, cancellationToken);
 
         Assert.IsType<BadRequestObjectResult>(result);
-    }
-
-    [Fact]
-    public async Task PatchAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-        var email = _faker.Internet.Email();
-        var newPassword = _faker.Internet.Password();
-
-        _mockService.Setup(s => s.ResetAsync(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        var code = _faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-        var command = new ResetPasswordCommand(email, newPassword, code);
-
-        await _controller.PatchAsync(command, wide, cancellationToken);
-
-        Assert.Equal(command.Email, wide.UserId);
     }
 
     [Fact]

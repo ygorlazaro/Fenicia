@@ -31,12 +31,11 @@ public class TokenControllerTests
     public async Task PostAsync_WhenInvalidCredentials_ReturnsBadRequest()
     {
         var request = new GenerateTokenQuery(_faker.Internet.Email(), _faker.Internet.Password());
-        var wide = new WideEventContext();
 
         _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new PermissionDeniedException("Invalid username or password."));
 
-        var result = await _controller.PostAsync(request, wide, CancellationToken.None);
+        var result = await _controller.PostAsync(request, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
@@ -45,17 +44,15 @@ public class TokenControllerTests
     public async Task PostAsync_WhenValidCredentials_ReturnsCreated()
     {
         var request = new GenerateTokenQuery(_faker.Internet.Email(), _faker.Internet.Password());
-        var wide = new WideEventContext();
         var user = new GenerateTokenResponse(Guid.NewGuid(), _faker.Person.FullName, request.Email);
 
         _tokenServiceMock.Setup(s => s.GenerateAsync(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
         _tokenServiceMock.Setup(s => s.GenerateString(It.IsAny<GenerateTokenResponse>())).Returns("jwt");
 
-        var result = await _controller.PostAsync(request, wide, CancellationToken.None);
+        var result = await _controller.PostAsync(request, CancellationToken.None);
 
         Assert.IsType<CreatedResult>(result.Result);
-        Assert.Equal(request.Email, wide.UserId);
     }
 
     [Fact]

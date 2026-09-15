@@ -106,7 +106,7 @@ public sealed class OrderService(
 
         var details = command.Details.Select(d =>
         {
-            var subtotal = (d.Price * (decimal)d.Quantity) - d.DiscountAmount;
+            var subtotal = d.Price * (decimal)d.Quantity - d.DiscountAmount;
             return new OrderDetailModel
             {
                 Id = Guid.NewGuid(),

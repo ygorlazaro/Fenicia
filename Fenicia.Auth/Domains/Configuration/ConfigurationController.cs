@@ -18,7 +18,6 @@ public class ConfigurationController(IConfigurationService configurationService)
     ///     Obtém todas as configurações de um usuário para uma empresa.
     /// </summary>
     /// <param name="companyId">ID da empresa</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de configurações do usuário para a empresa</returns>
     /// <response code="200">Configurações encontradas</response>
@@ -32,13 +31,11 @@ public class ConfigurationController(IConfigurationService configurationService)
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync(
         [FromQuery] Guid companyId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
 
             var result = await configurationService.GetAllAsync(userId, companyId, cancellationToken);
 
@@ -56,7 +53,6 @@ public class ConfigurationController(IConfigurationService configurationService)
     /// <param name="id">ID da configuração (usado para atualização)</param>
     /// <param name="companyId">ID da empresa</param>
     /// <param name="request">Dados da configuração (tipo, valor)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se criada/atualizada com sucesso</returns>
     /// <response code="204">Configuração criada ou atualizada com sucesso</response>
@@ -76,16 +72,15 @@ public class ConfigurationController(IConfigurationService configurationService)
         [FromRoute] Guid id,
         [FromQuery] Guid companyId,
         [FromBody] UpsertConfigurationCommand request,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
+            request.UserId = userId;
+            request.Id = id;
 
-            var command = request with { UserId = userId, Id = id };
-            await configurationService.UpsertAsync(command, companyId, cancellationToken);
+            await configurationService.UpsertAsync(request, companyId, cancellationToken);
 
             return NoContent();
         }

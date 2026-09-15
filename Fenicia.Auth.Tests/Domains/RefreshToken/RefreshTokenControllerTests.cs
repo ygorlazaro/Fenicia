@@ -62,40 +62,6 @@ public class RefreshTokenControllerTests
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 
-    [Fact]
-    public async Task PostAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        await _controller.PostAsync(wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
-    public async Task GetAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        await _controller.GetAsync("some_token", wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
-    public async Task PatchAsync_SetsWideEventContextUserId()
-    {
-        var command = new UpdateRefreshTokenCommand(true);
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        await _controller.PatchAsync("some_token", command, wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
     private void SetupUserClaims(Guid userId)
     {
         var claims = new List<Claim> { new("userId", userId.ToString()) };

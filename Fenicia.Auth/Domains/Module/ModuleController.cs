@@ -19,7 +19,6 @@ public class ModuleController(IModuleService service) : ControllerBase
     ///     Obtém todos os módulos ativos com paginação (endpoint anônimo).
     /// </summary>
     /// <param name="query">Parâmetros de paginação, filtro e ordenação</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de módulos</returns>
     /// <response code="200">Lista de módulos retornada com sucesso</response>
@@ -30,11 +29,8 @@ public class ModuleController(IModuleService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync(
         [FromQuery] PaginationQuery query,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = "Guest";
-
         var modules = await service.GetAllModulesAsync(query, cancellationToken);
 
         return Ok(modules);

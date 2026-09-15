@@ -20,7 +20,6 @@ public class OrderController(IOrderService orderService) : ControllerBase
     /// </summary>
     /// <param name="request">Comando com lista de IDs de módulos</param>
     /// <param name="companyId"></param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do pedido criado</returns>
     /// <response code="201">Pedido criado com sucesso</response>
@@ -40,13 +39,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
     public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(
         CreateNewOrderCommand request,
         [FromHeader(Name = "CompanyId")] Guid companyId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
-
             var userId = ClaimReader.UserId(User);
             Console.WriteLine($@"[OrderController] userId={userId}, companyId={companyId}, Modules={request.Modules.Count}");
             var command = new CreateNewOrderCommand(userId, companyId, request.Modules ?? []);

@@ -33,7 +33,6 @@ public class OrderControllerTests
     [Fact]
     public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ReturnsForbid()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
@@ -43,7 +42,7 @@ public class OrderControllerTests
         _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
+        var result = await _controller.CreateNewOrderAsync(command, companyId, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -51,7 +50,6 @@ public class OrderControllerTests
     [Fact]
     public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ReturnsNotFound()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
@@ -61,7 +59,7 @@ public class OrderControllerTests
         var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
         var companyId = Guid.NewGuid();
 
-        var result = await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
+        var result = await _controller.CreateNewOrderAsync(command, companyId, cancellationToken);
 
         Assert.IsType<NotFoundObjectResult>(result.Result);
     }
@@ -69,7 +67,6 @@ public class OrderControllerTests
     [Fact]
     public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsCreatedWithOrder()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
@@ -82,7 +79,7 @@ public class OrderControllerTests
         var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
         var companyId = Guid.NewGuid();
 
-        var result = await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
+        var result = await _controller.CreateNewOrderAsync(command, companyId, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
@@ -93,29 +90,6 @@ public class OrderControllerTests
         var returnedResponse = Assert.IsType<CreateNewOrderResponse>(createdResult.Value);
         Assert.NotNull(returnedResponse);
         Assert.Equal(orderId, returnedResponse.OrderId);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
-    public async Task CreateNewOrderAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        var moduleId = Guid.NewGuid();
-        var orderId = Guid.NewGuid();
-
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateNewOrderResponse(orderId));
-
-        var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(_testUserId, Guid.NewGuid(), modules);
-        var companyId = Guid.NewGuid();
-
-        await _controller.CreateNewOrderAsync(command, companyId, wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]

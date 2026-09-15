@@ -192,7 +192,7 @@ internal static partial class DbInitializer
         for (var i = 1; i <= 10; i++)
         {
             var profileIndex = (i - 1) % profiles.Count;
-            var blockedProfileIndex = (((i - 1) % 100) + 1) % 100;
+            var blockedProfileIndex = ((i - 1) % 100 + 1) % 100;
 
             var reason = (i % 3) switch
             {
@@ -283,7 +283,7 @@ internal static partial class DbInitializer
 
         for (var i = 1; i <= 50; i++)
         {
-            var fileSize = (long)((random.NextDouble() * 2000000) + 100000);
+            var fileSize = (long)(random.NextDouble() * 2000000 + 100000);
 
             var attachment = new AttachmentModel
             {

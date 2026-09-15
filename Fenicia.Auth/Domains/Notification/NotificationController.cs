@@ -18,10 +18,9 @@ public class NotificationController(INotificationService notificationService) : 
     /// <summary>
     ///     Obtém todas as notificações do usuário autenticado com paginação.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="perPage">Quantidade de itens por página (padrão: 10)</param>
-    /// <param name="query">Filtros avançados. Example: <c>title[*]alpha</c></param>
+    /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
     /// <param name="sort">Ordenação. Example: <c>-date</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de notificações</returns>
@@ -33,7 +32,6 @@ public class NotificationController(INotificationService notificationService) : 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllNotificationsResponse>>>> GetAsync(
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
@@ -42,7 +40,6 @@ public class NotificationController(INotificationService notificationService) : 
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
             var notifications = await notificationService.GetAllAsync(
                 new GetAllNotificationsQuery(page, perPage, query, sort),
                 cancellationToken);
@@ -58,7 +55,6 @@ public class NotificationController(INotificationService notificationService) : 
     ///     Obtém uma notificação específica pelo ID.
     /// </summary>
     /// <param name="id">ID da notificação</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação</returns>
     /// <response code="200">Notificação encontrada</response>
@@ -72,12 +68,10 @@ public class NotificationController(INotificationService notificationService) : 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetNotificationByIdResponse>> GetByIdAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
             var notification = await notificationService.GetByIdAsync(id, cancellationToken);
             return notification is null ? NotFound() : Ok(notification);
         }
@@ -92,7 +86,6 @@ public class NotificationController(INotificationService notificationService) : 
     /// </summary>
     /// <param name="command">Dados da notificação (título, descrição, data, imagem)</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação criada</returns>
     /// <response code="201">Notificação criada com sucesso</response>
@@ -107,12 +100,10 @@ public class NotificationController(INotificationService notificationService) : 
     public async Task<ActionResult<AddNotificationResponse>> PostAsync(
         [FromBody] AddNotificationCommand command,
         [FromHeader] Headers headers,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
             var notification = await notificationService.AddAsync(command, headers.CompanyId, cancellationToken);
             return new CreatedResult(string.Empty, notification);
         }
@@ -128,7 +119,6 @@ public class NotificationController(INotificationService notificationService) : 
     /// <param name="command">Dados atualizados da notificação (título, descrição, data, imagem, lida)</param>
     /// <param name="id">ID da notificação</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação atualizada</returns>
     /// <response code="200">Notificação atualizada com sucesso</response>
@@ -146,12 +136,10 @@ public class NotificationController(INotificationService notificationService) : 
         [FromBody] UpdateNotificationCommand command,
         [FromRoute] Guid id,
         [FromHeader] Headers headers,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
             var notification = await notificationService.UpdateAsync(
                 command with { Id = id },
                 headers.CompanyId,
@@ -173,7 +161,6 @@ public class NotificationController(INotificationService notificationService) : 
     /// </summary>
     /// <param name="id">ID da notificação</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se removida com sucesso</returns>
     /// <response code="204">Notificação removida com sucesso</response>
@@ -185,12 +172,10 @@ public class NotificationController(INotificationService notificationService) : 
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,
         [FromHeader] Headers headers,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(User).ToString();
             await notificationService.DeleteAsync(id, headers.CompanyId, cancellationToken);
             return NoContent();
         }

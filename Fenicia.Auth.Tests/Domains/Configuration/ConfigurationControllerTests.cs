@@ -35,14 +35,13 @@ public class ConfigurationControllerTests
     [Fact]
     public async Task GetAsync_WhenUserHasNoConfigurations_ReturnsOkWithEmptyList()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
         var companyId = Guid.NewGuid();
 
         _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetAsync(companyId, wide, cancellationToken);
+        var result = await _controller.GetAsync(companyId, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -54,7 +53,6 @@ public class ConfigurationControllerTests
         Assert.NotNull(returnedList);
 
         Assert.Empty(returnedList);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -80,16 +78,15 @@ public class ConfigurationControllerTests
             Value = "en-US"
         };
 
-        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                .. ((List<ConfigurationModel>)[config1, config2]).Select(c => c.MapToGetConfigurationResponse())
-            ]);
+        var response1 = new GetConfigurationResponse(config1.Id, config1.UserId, config1.CompanyId, config1.ConfigType, config1.Value);
+        var response2 = new GetConfigurationResponse(config2.Id, config2.UserId, config2.CompanyId, config2.ConfigType, config2.Value);
 
-        var wide = new WideEventContext();
+        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([response1, response2]);
+
         var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAsync(companyId, wide, cancellationToken);
+        var result = await _controller.GetAsync(companyId, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -101,7 +98,6 @@ public class ConfigurationControllerTests
         Assert.NotNull(returnedList);
 
         Assert.Equal(2, returnedList.Count);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -118,13 +114,14 @@ public class ConfigurationControllerTests
             Value = "pt-BR"
         };
 
-        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([.. ((List<ConfigurationModel>)[userConfig]).Select(c => c.MapToGetConfigurationResponse())]);
+        var response = new GetConfigurationResponse(userConfig.Id, userConfig.UserId, userConfig.CompanyId, userConfig.ConfigType, userConfig.Value);
 
-        var wide = new WideEventContext();
+        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([response]);
+
         var cancellationToken = CancellationToken.None;
 
-        var result = await _controller.GetAsync(companyId, wide, cancellationToken);
+        var result = await _controller.GetAsync(companyId, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -141,24 +138,8 @@ public class ConfigurationControllerTests
     }
 
     [Fact]
-    public async Task GetAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-        var companyId = Guid.NewGuid();
-
-        _mockService.Setup(s => s.GetAllAsync(_testUserId, companyId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
-        await _controller.GetAsync(companyId, wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
     public async Task PatchAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
@@ -169,11 +150,10 @@ public class ConfigurationControllerTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, wide, cancellationToken);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -187,12 +167,11 @@ public class ConfigurationControllerTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, cancellationToken);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
@@ -202,7 +181,6 @@ public class ConfigurationControllerTests
     public async Task PatchAsync_WithCompanyId_CreatesCompanyConfiguration()
     {
         var companyId = Guid.NewGuid();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
@@ -213,29 +191,10 @@ public class ConfigurationControllerTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, wide, cancellationToken);
+        var result = await _controller.PatchAsync(Guid.NewGuid(), companyId, request, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
-    }
-
-    [Fact]
-    public async Task PatchAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        var request = new UpsertConfigurationCommand(null, _testUserId, ConfigType.Language, "pt-BR");
-
-        _mockService.Setup(s => s.UpsertAsync(
-                It.IsAny<UpsertConfigurationCommand>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        await _controller.PatchAsync(Guid.NewGuid(), Guid.NewGuid(), request, wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]

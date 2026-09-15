@@ -72,7 +72,7 @@ public class RepositoryTests : IDisposable
         _db.TestEntities.Add(new TestEntity { Name = "C" });
         await _db.SaveChangesAsync(CancellationToken.None);
 
-        var result = await _repository.GetAllAsync(1, 2, CancellationToken.None);
+        var result = await _repository.GetAllAsync(1, 2, cancellationToken: CancellationToken.None);
 
         result.Should().HaveCount(2);
     }
@@ -242,7 +242,7 @@ public class RepositoryTests : IDisposable
         await _db.SaveChangesAsync(CancellationToken.None);
         await _repository.DeleteAsync(entity.Id, CancellationToken.None);
 
-        var result = await _repository.GetAllAsync(1, 10, CancellationToken.None);
+        var result = await _repository.GetAllAsync(1, 10, cancellationToken: CancellationToken.None);
 
         result.Should().BeEmpty();
     }

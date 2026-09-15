@@ -4,7 +4,8 @@ using Fenicia.Common.DTOs.Auth.Configuration;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationService(IConfigurationRepository repository) : IConfigurationService
+public class ConfigurationService(IConfigurationRepository repository, ConfigurationMapper configurationMapper)
+    : IConfigurationService
 {
     public async Task<List<GetConfigurationResponse>> GetAllAsync(
         Guid userId,
@@ -13,7 +14,7 @@ public class ConfigurationService(IConfigurationRepository repository) : IConfig
     {
         var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, cancellationToken);
 
-        return [.. configurations.OrderBy(c => c.ConfigType).Select(c => c.MapToGetConfigurationResponse())];
+        return [.. configurations.OrderBy(c => c.ConfigType).Select(configurationMapper.MapToGetConfigurationResponse)];
     }
 
     public async Task UpsertAsync(

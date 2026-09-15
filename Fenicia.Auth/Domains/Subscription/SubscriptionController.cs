@@ -17,7 +17,6 @@ public class SubscriptionController(ISubscriptionService subscriptionService) : 
     /// <summary>
     ///     Obtém o perfil do usuário autenticado com empresas e assinaturas.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Perfil do usuário com empresas e assinaturas</returns>
     /// <response code="200">Perfil encontrado</response>
@@ -29,13 +28,11 @@ public class SubscriptionController(ISubscriptionService subscriptionService) : 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<GetUserProfileResponse>> GetUserProfile(
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            wide.UserId = userId.ToString();
 
             var profile = await subscriptionService.GetUserProfileAsync(userId, cancellationToken);
 

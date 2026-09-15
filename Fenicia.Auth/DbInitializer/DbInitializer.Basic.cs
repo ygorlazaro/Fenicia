@@ -77,26 +77,26 @@ internal static partial class DbInitializer
                 _ => $"Produto {i} — Webcam"
             };
 
-            var costPrice = Math.Round((decimal)((random.NextDouble() * 500) + 50), 2);
-            var salesPrice = Math.Round((decimal)((random.NextDouble() * 1000) + 100), 2);
+            var costPrice = Math.Round((decimal)(random.NextDouble() * 500 + 50), 2);
+            var salesPrice = Math.Round((decimal)(random.NextDouble() * 1000 + 100), 2);
             var quantity = random.NextDouble() * 500;
-            var weight = Math.Round((decimal)((random.NextDouble() * 10) + 0.1), 2);
-            var dim1 = (random.NextDouble() * 100) + 10;
-            var dim2 = (random.NextDouble() * 100) + 10;
-            var dim3 = (random.NextDouble() * 100) + 10;
+            var weight = Math.Round((decimal)(random.NextDouble() * 10 + 0.1), 2);
+            var dim1 = random.NextDouble() * 100 + 10;
+            var dim2 = random.NextDouble() * 100 + 10;
+            var dim3 = random.NextDouble() * 100 + 10;
 
             var product = new ProductModel
             {
                 CompanyId = companyId,
                 Name = name[..Math.Min(name.Length, 50)],
                 SKU = $"SKU-{i:D5}",
-                Barcode = ((i % 9000000000000) + 1000000000000).ToString("D13"),
+                Barcode = (i % 9000000000000 + 1000000000000).ToString("D13"),
                 Description = $"Desc do produto {i}".Length <= 1000 ? $"Desc do produto {i}" : $"Desc do produto {i}"[..1000],
                 CostPrice = costPrice,
                 SalesPrice = salesPrice,
                 Quantity = quantity,
-                MinStockLevel = 10 + (i % 40),
-                MaxStockLevel = 200 + (i % 500),
+                MinStockLevel = 10 + i % 40,
+                MaxStockLevel = 200 + i % 500,
                 ImageUrl = i % 3 == 0 ? $"https://picsum.photos/seed/prod-{i}/200/200" : null,
                 Weight = weight,
                 Dimensions = $"{dim1:F1}x{dim2:F1}x{dim3:F1} cm",
@@ -261,7 +261,7 @@ internal static partial class DbInitializer
             {
                 CompanyId = companyId,
                 PersonId = people[i].Id,
-                Cnpj = ((i % 90000000000000) + 10000000000000).ToString("D14"),
+                Cnpj = (i % 90000000000000 + 10000000000000).ToString("D14"),
                 Created = now.AddDays(-random.NextDouble() * 365),
                 Updated = now.AddDays(-random.NextDouble() * 30)
             };
@@ -366,7 +366,7 @@ internal static partial class DbInitializer
                 UserId = users[(i - 1) % Math.Max(users.Count, 1)].Id,
                 CustomerId = customers[(i - 1) % Math.Max(customers.Count, 1)].Id,
                 EmployeeId = employees[(i - 1) % Math.Max(employees.Count, 1)].Id,
-                TotalAmount = Math.Round((decimal)((random.NextDouble() * 5000) + 100), 2),
+                TotalAmount = Math.Round((decimal)(random.NextDouble() * 5000 + 100), 2),
                 DiscountAmount = Math.Round((decimal)(random.NextDouble() * 200), 2),
                 TotalQuantity = random.Next(1, 21),
                 SaleDate = saleDate,
@@ -402,10 +402,10 @@ internal static partial class DbInitializer
 
         for (var i = 1; i <= 200; i++)
         {
-            var price = Math.Round((decimal)((random.NextDouble() * 500) + 50), 2);
+            var price = Math.Round((decimal)(random.NextDouble() * 500 + 50), 2);
             var discountAmount = Math.Round((decimal)(random.NextDouble() * 50), 2);
-            var subtotal = Math.Round((decimal)((random.NextDouble() * 500) + 50), 2);
-            var quantity = (random.NextDouble() * 5) + 1;
+            var subtotal = Math.Round((decimal)(random.NextDouble() * 500 + 50), 2);
+            var quantity = random.NextDouble() * 5 + 1;
 
             var orderDetail = new OrderDetailModel
             {
@@ -448,8 +448,8 @@ internal static partial class DbInitializer
 
         for (var i = 1; i <= 100; i++)
         {
-            var price = Math.Round((decimal)((random.NextDouble() * 500) + 50), 2);
-            var quantity = (random.NextDouble() * 100) + 1;
+            var price = Math.Round((decimal)(random.NextDouble() * 500 + 50), 2);
+            var quantity = random.NextDouble() * 100 + 1;
             var date = now.AddDays(-(random.NextDouble() * 365));
 
             var reason = (i % 4) switch

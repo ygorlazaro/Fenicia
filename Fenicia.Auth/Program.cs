@@ -37,7 +37,7 @@ using Fenicia.Externals.Email;
 
 namespace Fenicia.Auth;
 
-public class Program
+internal static class Program
 {
     public static void Main(string[] args)
     {
@@ -59,6 +59,9 @@ public class Program
             .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
             .AddFeniciaDependencyInjection(() =>
             {
+                builder.Services.AddSingleton<CompanyMapper>();
+                builder.Services.AddSingleton<ConfigurationMapper>();
+
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();

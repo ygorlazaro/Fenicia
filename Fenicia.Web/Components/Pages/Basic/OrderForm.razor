@@ -213,7 +213,7 @@
             }
 
             existing.Quantity += 1;
-            existing.Subtotal = (existing.UnitPrice * (decimal)existing.Quantity) - existing.DiscountAmount;
+            existing.Subtotal = existing.UnitPrice * (decimal)existing.Quantity - existing.DiscountAmount;
         }
         else
         {
@@ -253,7 +253,7 @@
         }
 
         item.Quantity += 1;
-        item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
+        item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
         StateHasChanged();
     }
 
@@ -272,7 +272,7 @@
         }
         else
         {
-            item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
+            item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
         }
 
         StateHasChanged();
@@ -304,7 +304,7 @@
             item.Quantity = newQty;
         }
 
-        item.Subtotal = (item.UnitPrice * (decimal)item.Quantity) - item.DiscountAmount;
+        item.Subtotal = item.UnitPrice * (decimal)item.Quantity - item.DiscountAmount;
         StateHasChanged();
     }
 

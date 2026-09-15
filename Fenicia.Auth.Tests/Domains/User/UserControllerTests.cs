@@ -46,13 +46,12 @@ public class UserControllerTests
     {
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, _testUserId, cancellationToken))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetUserModulesAsync(_testUserId, headers, wide, cancellationToken);
+        var result = await _controller.GetUserModulesAsync(_testUserId, headers, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -61,7 +60,6 @@ public class UserControllerTests
 
         var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
         Assert.Empty(returnedModules);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -70,7 +68,6 @@ public class UserControllerTests
         var otherUserId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
@@ -80,7 +77,7 @@ public class UserControllerTests
                 cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -92,7 +89,6 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
@@ -104,7 +100,7 @@ public class UserControllerTests
         _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, otherUserId, cancellationToken))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -117,7 +113,6 @@ public class UserControllerTests
         Guid.NewGuid();
         Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
@@ -127,7 +122,7 @@ public class UserControllerTests
                 cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -135,13 +130,12 @@ public class UserControllerTests
     [Fact]
     public async Task GetUserCompanyAsync_WhenUserHasNoCompanies_ReturnsOkWithEmptyList()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
+        var result = await _controller.GetUserCompanyAsync(_testUserId, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -150,7 +144,6 @@ public class UserControllerTests
 
         var returnedCompanies = Assert.IsType<List<GetUserCompaniesResponse>>(okResult.Value);
         Assert.Empty(returnedCompanies);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -173,13 +166,12 @@ public class UserControllerTests
             Name = "Admin"
         };
 
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
             .ReturnsAsync([new GetUserCompaniesResponse(companyId, role.Name, companyId, company.Name, company.Cnpj)]);
 
-        var result = await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
+        var result = await _controller.GetUserCompanyAsync(_testUserId, cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -191,34 +183,18 @@ public class UserControllerTests
         Assert.Equal(companyId, returnedCompanies[0].Id);
         Assert.Equal("Admin", returnedCompanies[0].Role);
         Assert.Equal(company.Name, returnedCompanies[0].CompanyName);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
-    public async Task GetUserCompanyAsync_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        _mockUserService.Setup(s => s.GetCompaniesAsync(_testUserId, cancellationToken))
-            .ReturnsAsync([]);
-
-        await _controller.GetUserCompanyAsync(_testUserId, wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task GetUserCompanyAsync_WhenUserIsNotOwner_AndNotAdmin_ReturnsForbid2()
     {
         var otherUserId = Guid.NewGuid();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -229,7 +205,6 @@ public class UserControllerTests
         var otherUserId = Guid.NewGuid();
         Guid.NewGuid();
         Guid.NewGuid();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
@@ -237,7 +212,7 @@ public class UserControllerTests
         _mockUserService.Setup(s => s.GetCompaniesAsync(otherUserId, cancellationToken))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -248,7 +223,6 @@ public class UserControllerTests
         var otherUserId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
@@ -258,7 +232,7 @@ public class UserControllerTests
                 cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -270,7 +244,6 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(
@@ -282,7 +255,7 @@ public class UserControllerTests
         _mockModuleService.Setup(s => s.GetUserModulesAsync(companyId, otherUserId, cancellationToken))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetUserModulesAsync(otherUserId, headers, wide, cancellationToken);
+        var result = await _controller.GetUserModulesAsync(otherUserId, headers, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -291,13 +264,12 @@ public class UserControllerTests
     public async Task GetUserCompanyAsync_WhenUserIsNotOwner_AndNotAdmin_ReturnsForbid()
     {
         var otherUserId = Guid.NewGuid();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
             .ThrowsAsync(new UnauthorizedAccessException());
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, cancellationToken);
 
         Assert.IsType<ForbidResult>(result.Result);
     }
@@ -308,7 +280,6 @@ public class UserControllerTests
         var otherUserId = Guid.NewGuid();
         Guid.NewGuid();
         Guid.NewGuid();
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockUserService.Setup(s => s.EnsureCanAccessUserAsync(_testUserId, otherUserId, null, cancellationToken))
@@ -316,7 +287,7 @@ public class UserControllerTests
         _mockUserService.Setup(s => s.GetCompaniesAsync(otherUserId, cancellationToken))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetUserCompanyAsync(otherUserId, wide, cancellationToken);
+        var result = await _controller.GetUserCompanyAsync(otherUserId, cancellationToken);
 
         Assert.IsType<OkObjectResult>(result.Result);
     }

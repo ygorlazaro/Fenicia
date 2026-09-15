@@ -188,7 +188,7 @@
                                 </MudText>
                             }
                         </MudStack>
-                        <MudText Typo="Typo.subtitle2" Class="mb-1" Style="@((status?.IsFinal ?? false) ? "text-decoration: line-through; opacity:0.6;" : "")">@task.Title</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-1" Style="@(status?.IsFinal ?? false ? "text-decoration: line-through; opacity:0.6;" : "")">@task.Title</MudText>
                         @if (!string.IsNullOrEmpty(task.Description))
                         {
                             <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-1" Style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
@@ -232,7 +232,7 @@
                          </MudStack>
                          @if (task.TotalSubtasks > 0)
                          {
-                             var pct = (int)Math.Round(task.TotalSubtasks == 0 ? 0 : (task.CompletedSubtasks * 100.0 / task.TotalSubtasks));
+                             var pct = (int)Math.Round(task.TotalSubtasks == 0 ? 0 : task.CompletedSubtasks * 100.0 / task.TotalSubtasks);
                              <MudProgressLinear Value="@pct" Color="@(pct == 100 ? Color.Success : Color.Primary)" Size="Size.Small" Rounded="true" Class="mt-1" />
                          }
                      </MudPaper>

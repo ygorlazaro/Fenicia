@@ -133,7 +133,7 @@ internal static partial class DbInitializer
                 CompanyId = companyId,
                 ProjectId = projects[(i - 1) % projects.Count].Id,
                 Name = $"Sprint {i}",
-                Description = $"Sprint {i} do projeto {(i % 20) + 1}",
+                Description = $"Sprint {i} do projeto {i % 20 + 1}",
                 StartDate = startDate,
                 EndDate = endDate,
                 CreatedBy = users[(i - 1) % users.Count].Id,
@@ -190,7 +190,7 @@ internal static partial class DbInitializer
                 Priority = (EnumTaskPriority)(i % 4),
                 Type = (EnumTaskType)(i % 5),
                 Order = i,
-                EstimatePoints = (i % 13) + 1,
+                EstimatePoints = i % 13 + 1,
                 DueDate = dueDate,
                 CreatedBy = users[(i - 1) % users.Count].Id,
                 SprintId = sprintId,
@@ -230,8 +230,8 @@ internal static partial class DbInitializer
             {
                 CompanyId = companyId,
                 TaskId = tasks[(i - 1) % tasks.Count].Id,
-                Title = $"Subtask {i} de {(i % 100) + 1}",
-                Order = (i % 5) + 1,
+                Title = $"Subtask {i} de {i % 100 + 1}",
+                Order = i % 5 + 1,
                 IsCompleted = isCompleted,
                 DueDate = dueDate,
                 CompletedAt = completedAt,
@@ -308,7 +308,7 @@ internal static partial class DbInitializer
                 TaskId = tasks[(i - 1) % tasks.Count].Id,
                 UserId = users[(i - 1) % users.Count].Id,
                 AuthorId = users[(i - 1) % users.Count].Id,
-                Content = $"Comentário no task {(i % 100) + 1} pelo usuário {(i % 100) + 1}.",
+                Content = $"Comentário no task {i % 100 + 1} pelo usuário {i % 100 + 1}.",
                 Created = now.AddDays(-random.NextDouble() * 365),
                 Updated = now.AddDays(-random.NextDouble() * 30)
             };
@@ -338,7 +338,7 @@ internal static partial class DbInitializer
 
         for (var i = 1; i <= 50; i++)
         {
-            var fileSize = (long)((random.NextDouble() * 5000000) + 500000);
+            var fileSize = (long)(random.NextDouble() * 5000000 + 500000);
 
             var attachment = new AttachmentModel
             {

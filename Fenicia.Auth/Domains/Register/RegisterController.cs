@@ -18,7 +18,6 @@ public class RegisterController(IRegisterService registerService) : ControllerBa
     ///     Cria um novo usuário com sua empresa inicial.
     /// </summary>
     /// <param name="request">Dados do usuário (e-mail, senha, nome, empresa)</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados do usuário e empresa criados</returns>
     /// <response code="201">Usuário criado com sucesso</response>
@@ -31,13 +30,10 @@ public class RegisterController(IRegisterService registerService) : ControllerBa
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<RegisterResponse>> CreateNewUserAsync(
         RegisterCommand request,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = request.Email;
-
             var userResponse = await registerService.CreateAsync(request, cancellationToken);
 
             return Created(string.Empty, userResponse);

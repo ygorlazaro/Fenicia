@@ -8,7 +8,10 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public sealed class CompanyService(ICompanyRepository repository, IUserRoleService userRoleService) : ICompanyService
+public sealed class CompanyService(
+    ICompanyRepository repository,
+    IUserRoleService userRoleService,
+    CompanyMapper companyMapper) : ICompanyService
 {
     public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(
         Guid userId,
@@ -25,7 +28,7 @@ public sealed class CompanyService(ICompanyRepository repository, IUserRoleServi
         var total = await userRoleService.CountUserRolesAsync(userId, cancellationToken);
 
         var activeUserRoles = userRoles.Where(ur => ur.Company.IsActive).ToList();
-        var result = activeUserRoles.Select(ur => ur.MapToGetCompaniesByUserResponse());
+        var result = activeUserRoles.Select(companyMapper.MapToGetCompaniesByUserResponse);
 
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
     }
@@ -36,8 +39,6 @@ public sealed class CompanyService(ICompanyRepository repository, IUserRoleServi
         string name,
         CancellationToken cancellationToken = default)
     {
-        var company = await repository.AnyActiveAsync(companyId, cancellationToken) ??
-                      throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
         var isAdmin = await userRoleService.IsAdminAsync(userId, companyId, cancellationToken);
 
         if (!isAdmin)
@@ -45,6 +46,8 @@ public sealed class CompanyService(ICompanyRepository repository, IUserRoleServi
             throw new PermissionDeniedException(ExceptionMessages.PermissionDeniedUpdateCompany);
         }
 
+        var company = await repository.AnyActiveAsync(companyId, cancellationToken) ??
+                      throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
         company.Name = name;
         await repository.UpdateAsync(company.Id, company, cancellationToken);
     }

@@ -35,7 +35,7 @@ internal static partial class DbInitializer
                 CompanyId = companyId,
                 OrderNumber = orderNumber[..Math.Min(orderNumber.Length, 20)],
                 UserId = users[(i - 1) % users.Count].Id,
-                TotalAmount = Math.Round((decimal)((random.NextDouble() * 10000) + 500), 2),
+                TotalAmount = Math.Round((decimal)(random.NextDouble() * 10000 + 500), 2),
                 DiscountAmount = Math.Round((decimal)(random.NextDouble() * 500), 2),
                 TotalQuantity = random.Next(1, 11),
                 SaleDate = saleDate,
@@ -70,9 +70,9 @@ internal static partial class DbInitializer
 
         for (var i = 1; i <= 100; i++)
         {
-            var price = Math.Round((decimal)((random.NextDouble() * 500) + 50), 2);
+            var price = Math.Round((decimal)(random.NextDouble() * 500 + 50), 2);
             var discountAmount = Math.Round((decimal)(random.NextDouble() * 50), 2);
-            var subtotal = Math.Round((decimal)((random.NextDouble() * 500) + 50), 2);
+            var subtotal = Math.Round((decimal)(random.NextDouble() * 500 + 50), 2);
 
             var authOrderDetail = new OrderDetailModel
             {
@@ -252,7 +252,7 @@ internal static partial class DbInitializer
                 OriginalFileName = $"arquivo-{i}.jpg",
                 StoredFileName = $"stored-{i}.jpg",
                 ContentType = "image/jpeg",
-                SizeBytes = (long)((random.NextDouble() * 500000) + 50000),
+                SizeBytes = (long)(random.NextDouble() * 500000 + 50000),
                 Url = $"https://fenicia.s3.amazonaws.com/uploads/stored-{i}.jpg",
                 Created = now.AddDays(-random.NextDouble() * 365),
                 Updated = now.AddDays(-random.NextDouble() * 30)
@@ -292,7 +292,7 @@ internal static partial class DbInitializer
                 UploadId = uploads[i % uploads.Count].Id,
                 Website = i % 4 == 0 ? $"https://usuario{i + 1}.dev" : null,
                 Location = i % 2 == 0 ? "São Paulo, SP" : "Rio de Janeiro, RJ",
-                Phone = $"({(i % 90) + 10}) 9{(i % 90000000) + 10000000:D8}",
+                Phone = $"({i % 90 + 10}) 9{i % 90000000 + 10000000:D8}",
                 BirthDate = birthDate,
                 Created = now.AddDays(-random.NextDouble() * 365),
                 Updated = now.AddDays(-random.NextDouble() * 30)

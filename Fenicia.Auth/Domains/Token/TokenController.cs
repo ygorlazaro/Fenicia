@@ -19,7 +19,6 @@ public class TokenController(ITokenService tokenService) : ControllerBase
     ///     Gera um token JWT para o usuário (login).
     /// </summary>
     /// <param name="request">Query com e-mail e senha</param>
-    /// <param name="wide">Contexto de eventos wide</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Token JWT e refresh token</returns>
     /// <response code="201">Token gerado com sucesso</response>
@@ -35,13 +34,10 @@ public class TokenController(ITokenService tokenService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(
         GenerateTokenQuery request,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            wide.UserId = request.Email;
-
             var userResponse = await tokenService.GenerateAsync(request, cancellationToken);
 
             return PopulateTokenAsync(userResponse);

@@ -37,7 +37,6 @@ public class SubscriptionControllerTests
     [Fact]
     public async Task GetUserProfile_WhenUserExists_ReturnsOkWithUserProfile()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
@@ -127,7 +126,7 @@ public class SubscriptionControllerTests
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
 
-        var result = await _controller.GetUserProfile(wide, cancellationToken);
+        var result = await _controller.GetUserProfile(cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -141,19 +140,17 @@ public class SubscriptionControllerTests
         Assert.Equal(user.Name, returnedProfile.Name);
         Assert.Single(returnedProfile.Companies);
         Assert.Single(returnedProfile.Subscriptions);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
     public async Task GetUserProfile_WhenUserDoesNotExist_ReturnsNotFound()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         _mockService.Setup(s => s.GetUserProfileAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetUserProfileResponse?)null);
 
-        var result = await _controller.GetUserProfile(wide, cancellationToken);
+        var result = await _controller.GetUserProfile(cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
@@ -162,7 +159,6 @@ public class SubscriptionControllerTests
     [Fact]
     public async Task GetUserProfile_WhenUserHasNoSubscriptions_ReturnsOkWithEmptySubscriptions()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
@@ -210,7 +206,7 @@ public class SubscriptionControllerTests
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
 
-        var result = await _controller.GetUserProfile(wide, cancellationToken);
+        var result = await _controller.GetUserProfile(cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -220,43 +216,11 @@ public class SubscriptionControllerTests
         Assert.Equal(_testUserId, returnedProfile.Id);
         Assert.Single(returnedProfile.Companies);
         Assert.Empty(returnedProfile.Subscriptions);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-    }
-
-    [Fact]
-    public async Task GetUserProfile_SetsWideEventContextUserId()
-    {
-        var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
-
-        var user = new UserModel
-        {
-            Id = _testUserId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = new SecurityService().Hash(_faker.Internet.Password())
-        };
-
-        var profile = new GetUserProfileResponse(
-            user.Id,
-            user.Name,
-            user.Email,
-            [],
-            []);
-
-        _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(profile);
-
-        await _controller.GetUserProfile(wide, cancellationToken);
-
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
-        Assert.NotNull(wide.TraceId);
     }
 
     [Fact]
     public async Task GetUserProfile_WhenSubscriptionHasInactiveCredits_ReturnsSubscriptionWithOnlyActiveModules()
     {
-        var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
         var user = new UserModel
@@ -365,7 +329,7 @@ public class SubscriptionControllerTests
         _mockService.Setup(s => s.GetUserProfileAsync(_testUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
 
-        var result = await _controller.GetUserProfile(wide, cancellationToken);
+        var result = await _controller.GetUserProfile(cancellationToken);
 
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
@@ -373,7 +337,6 @@ public class SubscriptionControllerTests
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var returnedProfile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
         Assert.Single(returnedProfile.Subscriptions);
-        Assert.Equal(_testUserId.ToString(), wide.UserId);
     }
 
     private void SetupUserClaims(Guid userId)
