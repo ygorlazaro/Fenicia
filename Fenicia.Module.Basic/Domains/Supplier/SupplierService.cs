@@ -1,14 +1,18 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.PersonAddress;
 using Fenicia.Common.DTOs.Basic.Supplier;
+using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
@@ -17,10 +21,12 @@ public sealed class SupplierService(
     IProductService productService,
     IStockMovementService stockMovementService,
     IAddressService addressService,
-    IPersonAddressService personAddressService) : ISupplierService
+    IPersonAddressService personAddressService,
+    SupplierMapper supplierMapper,
+    AddressMapper addressMapper) : ISupplierService
 {
     public SupplierService()
-        : this(null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!, null!, null!)
     {
     }
 
@@ -43,7 +49,14 @@ public sealed class SupplierService(
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = suppliers.Select(s => s.MapToGetAllSupplierResponse()).ToList();
+        var response = suppliers.Select(s =>
+        {
+            var mapped = supplierMapper.MapToGetAllSupplierResponse(s);
+            mapped.Address = s.Person.PersonAddresses.FirstOrDefault()?.Address != null
+                ? addressMapper.MapToAddressResponse(s.Person.PersonAddresses.FirstOrDefault()!.Address)
+                : null;
+            return mapped;
+        }).ToList();
 
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -62,7 +75,17 @@ public sealed class SupplierService(
     {
         var supplier = await supplierRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        return supplier?.MapToGetSupplierByIdResponse();
+        if (supplier is null)
+        {
+            return null;
+        }
+
+        var mapped = supplierMapper.MapToGetSupplierByIdResponse(supplier);
+        mapped.Address = supplier.Person.PersonAddresses.FirstOrDefault()?.Address != null
+            ? addressMapper.MapToAddressResponse(supplier.Person.PersonAddresses.FirstOrDefault()!.Address)
+            : null;
+
+        return mapped;
     }
 
     public async Task<AddSupplierResponse> AddAsync(
@@ -111,19 +134,13 @@ public sealed class SupplierService(
 
         if (!addressId.HasValue)
         {
-            return supplier.MapToAddSupplierResponse();
+            return supplierMapper.MapToAddSupplierResponse(supplier);
         }
 
-        var personAddress = new PersonAddressModel
-        {
-            Id = Guid.NewGuid(),
-            PersonId = person.Id,
-            AddressId = addressId.Value,
-            CompanyId = companyId
-        };
-        await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+        var personAddressCommand = new AddPersonAddressCommand(person.Id, addressId.Value);
+        await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
-        return supplier.MapToAddSupplierResponse();
+        return supplierMapper.MapToAddSupplierResponse(supplier);
     }
 
     public async Task<UpdateSupplierResponse?> UpdateAsync(
@@ -181,13 +198,14 @@ public sealed class SupplierService(
                     AddressId = addressResponse.Id,
                     CompanyId = companyId
                 };
-                await personAddressService.InsertAsync(newPersonAddress, companyId, cancellationToken);
+                var personAddressCommand = new AddPersonAddressCommand(newPersonAddress.PersonId, newPersonAddress.AddressId);
+                await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
             }
         }
 
         await supplierRepository.UpdateAsync(supplier.Id, supplier, cancellationToken);
 
-        return supplier.MapToUpdateSupplierResponse();
+        return supplierMapper.MapToUpdateSupplierResponse(supplier);
     }
 
     public async Task DeleteAsync(
@@ -208,7 +226,12 @@ public sealed class SupplierService(
         var supplierNames = await supplierRepository.GetSupplierNamesAsync(supplierIds, cancellationToken);
 
         var productsPerSupplier = productStats.Where(ps => supplierNames.ContainsKey(ps.SupplierId))
-            .Select(ps => ps with { SupplierName = supplierNames[ps.SupplierId] }).OrderByDescending(x => x.TotalStockValue).Take(query.TopLimit).ToList();
+            .Select(ps => new SupplierProductCountResponse(
+                ps.SupplierId,
+                supplierNames[ps.SupplierId],
+                ps.ProductCount,
+                ps.TotalStockValue,
+                ps.TotalRevenue)).OrderByDescending(x => x.TotalStockValue).Take(query.TopLimit).ToList();
 
         var recentStockMovements = await GetRecentStockMovementsAsync(query.Days, query.TopLimit, cancellationToken);
 
@@ -334,39 +357,18 @@ public sealed class SupplierService(
             .Include(s => s.Person)
             .ThenInclude(p => p.PersonAddresses)
             .ThenInclude(pa => pa.Address)
+            .ThenInclude(a => a.State)
             .ToListAsync(cancellationToken);
 
         return
         [
             .. suppliers.Select(s =>
             {
-                var personAddress = s.Person.PersonAddresses.FirstOrDefault();
-                var address = personAddress?.Address;
-
-                AddressResponse? addressResponse = null;
-                if (address != null)
-                {
-                    addressResponse = new AddressResponse(
-                        address.Id,
-                        address.Street,
-                        address.Number,
-                        address.Complement,
-                        address.Neighborhood,
-                        address.ZipCode!,
-                        address.StateId,
-                        address.State.Name,
-                        address.City,
-                        address.Country);
-                }
-
-                return new GetSupplierByIdResponse(
-                    s.Id,
-                    s.PersonId,
-                    s.Person.Name,
-                    s.Person.Email,
-                    s.Person.PhoneNumber,
-                    s.Person.Document,
-                    addressResponse);
+                var mapped = supplierMapper.MapToGetSupplierByIdResponse(s);
+                mapped.Address = s.Person.PersonAddresses.FirstOrDefault()?.Address != null
+                    ? addressMapper.MapToAddressResponse(s.Person.PersonAddresses.FirstOrDefault()!.Address)
+                    : null;
+                return mapped;
             })
         ];
     }

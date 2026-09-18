@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
-public record EmployeePerformanceResponse
+public class EmployeePerformanceResponse
 {
     public EmployeePerformanceSummaryResponse Summary { get; set; } = new();
 

@@ -3,15 +3,59 @@ using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.DTOs.Basic.StockMovement;
 
-public record AddStockMovementResponse(
-    [Required] Guid Id,
-    [Required] Guid ProductId,
-    double Quantity,
-    DateTime? Date,
-    decimal? Price,
-    [Required] StockMovementType Type,
-    Guid? CustomerId,
-    Guid? SupplierId,
-    Guid? EmployeeId,
-    Guid? OrderId,
-    string? Reason);
+public class AddStockMovementResponse()
+{
+    public AddStockMovementResponse(
+        Guid id,
+        Guid productId,
+        double quantity,
+        DateTime? date,
+        decimal? price,
+        StockMovementType type,
+        Guid? customerId,
+        Guid? supplierId,
+        Guid? employeeId,
+        Guid? orderId,
+        string? reason)
+        : this()
+    {
+        Id = id;
+        ProductId = productId;
+        Quantity = quantity;
+        Date = date;
+        Price = price;
+        Type = type;
+        CustomerId = customerId;
+        SupplierId = supplierId;
+        EmployeeId = employeeId;
+        OrderId = orderId;
+        Reason = reason;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    public Guid ProductId { get; set; }
+
+    public double Quantity { get; set; }
+
+    public DateTime? Date { get; set; }
+
+    [Required]
+    public decimal? Price { get; set; }
+
+    [Required]
+    public StockMovementType Type { get; set; }
+
+    public Guid? CustomerId { get; set; }
+
+    public Guid? SupplierId { get; set; }
+
+    public Guid? EmployeeId { get; set; }
+
+    public Guid? OrderId { get; set; }
+
+    [MaxLength(255)]
+    public string? Reason { get; set; }
+}

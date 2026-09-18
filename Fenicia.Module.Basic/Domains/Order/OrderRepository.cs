@@ -1,12 +1,12 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
-public class OrderRepository(DefaultContext context) : Repository<OrderModel>(context), IOrderRepository
+public class OrderRepository(DbContext context) : Repository<OrderModel>(context), IOrderRepository
 {
     public Task<OrderModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {

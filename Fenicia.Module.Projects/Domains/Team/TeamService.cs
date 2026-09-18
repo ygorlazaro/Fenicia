@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.DTOs.Project.Team;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.Team.Interfaces;
+using Fenicia.Module.Projects.Domains.TeamUser.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Team;

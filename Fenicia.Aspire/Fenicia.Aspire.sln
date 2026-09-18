@@ -10,6 +10,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenicia.Aspire.ApiService",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenicia.Aspire.Web", "Fenicia.Aspire.Web\Fenicia.Aspire.Web.csproj", "{757DA956-650A-4BEA-A814-D7396E837100}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenicia.Web.E2ETests", "..\Fenicia.Web.E2ETests\Fenicia.Web.E2ETests.csproj", "{856EF9ED-7BD0-4E83-B6B2-4F321C29DDAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{757DA956-650A-4BEA-A814-D7396E837100}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{757DA956-650A-4BEA-A814-D7396E837100}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{757DA956-650A-4BEA-A814-D7396E837100}.Release|Any CPU.Build.0 = Release|Any CPU
+		{856EF9ED-7BD0-4E83-B6B2-4F321C29DDAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{856EF9ED-7BD0-4E83-B6B2-4F321C29DDAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{856EF9ED-7BD0-4E83-B6B2-4F321C29DDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{856EF9ED-7BD0-4E83-B6B2-4F321C29DDAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

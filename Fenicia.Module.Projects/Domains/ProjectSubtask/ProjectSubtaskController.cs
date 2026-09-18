@@ -153,10 +153,17 @@ public class ProjectSubtaskController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectSubtask = await projectSubtaskService.UpdateAsync(
-            command with { Id = id },
-            companyContext.CompanyId,
-            cancellationToken);
+            var updatedCommand = new UpdateProjectSubtaskCommand(
+                id,
+                command.TaskId,
+                command.Title,
+                command.IsCompleted,
+                command.Order,
+                command.CompletedAt);
+            var projectSubtask = await projectSubtaskService.UpdateAsync(
+                updatedCommand,
+                companyContext.CompanyId,
+                cancellationToken);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
     }

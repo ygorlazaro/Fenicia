@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
-public class CustomerRepository(DefaultContext context) : Repository<CustomerModel>(context), ICustomerRepository
+public class CustomerRepository(DbContext context) : Repository<CustomerModel>(context), ICustomerRepository
 {
     public Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {

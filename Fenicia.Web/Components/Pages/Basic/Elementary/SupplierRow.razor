@@ -3,11 +3,13 @@
     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                    Color="Color.Info"
                    Size="Size.Small"
-                   OnClick="@(() => OnEdit.InvokeAsync(Item))" />
+                   OnClick="@(() => OnEdit.InvokeAsync(Item))"
+                   AriaLabel="Editar" />
     <MudIconButton Icon="@Icons.Material.Filled.Delete"
                    Color="Color.Error"
                    Size="Size.Small"
-                   OnClick="@(() => OnDelete.InvokeAsync(Item))" />
+                   OnClick="@(() => OnDelete.InvokeAsync(Item))"
+                   AriaLabel="Excluir" />
 </MudTd>
 <MudTd DataLabel="Nome">@Item.Name</MudTd>
 <MudTd DataLabel="Email">@(string.IsNullOrEmpty(Item.Email) ? "—" : Item.Email)</MudTd>

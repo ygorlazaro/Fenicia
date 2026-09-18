@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Supplier;
 
-public record SupplierSummaryResponse
+public class SupplierSummaryResponse
 {
     public int TotalSuppliers { get; set; }
 

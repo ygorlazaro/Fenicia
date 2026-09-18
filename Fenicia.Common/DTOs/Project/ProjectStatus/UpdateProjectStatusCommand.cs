@@ -2,10 +2,40 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.ProjectStatus;
 
-public record UpdateProjectStatusCommand(
-    [Required] Guid Id,
-    [Required] Guid ProjectId,
-    [Required][MaxLength(200)] string Name,
-    [Required][MaxLength(200)] string Color,
-    int Order,
-    bool IsFinal);
+public class UpdateProjectStatusCommand()
+{
+    public UpdateProjectStatusCommand(
+        [Required] Guid id,
+        [Required] Guid projectId,
+        [Required] [MaxLength(200)] string name,
+        [Required] [MaxLength(200)] string color,
+        int order,
+        bool isFinal)
+        : this()
+    {
+        Id = id;
+        ProjectId = projectId;
+        Name = name;
+        Color = color;
+        Order = order;
+        IsFinal = isFinal;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    public Guid ProjectId { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(200)]
+    public string Color { get; set; } = string.Empty;
+
+    public int Order { get; set; }
+
+    public bool IsFinal { get; set; }
+}

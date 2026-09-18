@@ -1,10 +1,10 @@
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public record InventoryDashboardResponse
+public class InventoryDashboardResponse
 {
     public List<InventoryDashboardItemResponse> LowStockItems { get; set; } = [];
 
-    public int TotalCustomers { get; init; }
+    public int TotalCustomers { get; set; }
 
     public int TotalEmployees { get; set; }
 

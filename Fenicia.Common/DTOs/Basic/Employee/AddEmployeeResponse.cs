@@ -2,4 +2,22 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
-public record AddEmployeeResponse([Required] Guid Id, [Required] Guid PositionId, [Required] Guid PersonId);
+public class AddEmployeeResponse()
+{
+    public AddEmployeeResponse(Guid id, Guid positionId, Guid personId)
+        : this()
+    {
+        Id = id;
+        PositionId = positionId;
+        PersonId = personId;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    public Guid PositionId { get; set; }
+
+    [Required]
+    public Guid PersonId { get; set; }
+}

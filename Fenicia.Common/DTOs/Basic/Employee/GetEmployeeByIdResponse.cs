@@ -3,11 +3,51 @@ using Fenicia.Common.DTOs.Basic.Address;
 
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
-public record GetEmployeeByIdResponse([Required] Guid Id,
-    [Required] Guid PositionId,
-    [Required] Guid PersonId,
-    [Required][MaxLength(200)] string Name,
-    string? Email,
-    string? PhoneNumber,
-    string? Document,
-    AddressResponse? Address) : ICrudItem;
+public class GetEmployeeByIdResponse() : ICrudItem
+{
+    public GetEmployeeByIdResponse(
+        Guid id,
+        Guid positionId,
+        Guid personId,
+        string name,
+        string? email,
+        string? phoneNumber,
+        string? document,
+        AddressResponse? address)
+        : this()
+    {
+        Id = id;
+        PositionId = positionId;
+        PersonId = personId;
+        Name = name;
+        Email = email;
+        PhoneNumber = phoneNumber;
+        Document = document;
+        Address = address;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    public Guid PositionId { get; set; }
+
+    [Required]
+    public Guid PersonId { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+
+    [MaxLength(50)]
+    [EmailAddress]
+    public string? Email { get; set; }
+
+    [MaxLength(20)]
+    public string? PhoneNumber { get; set; }
+
+    [MaxLength(14)]
+    public string? Document { get; set; }
+
+    public AddressResponse? Address { get; set; }
+}

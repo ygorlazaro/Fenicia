@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public record AverageOrderValueResponse
+public class AverageOrderValueResponse
 {
     public decimal AverageValue { get; set; }
 

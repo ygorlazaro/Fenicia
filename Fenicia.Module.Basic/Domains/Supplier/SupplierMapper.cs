@@ -1,76 +1,25 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.Supplier;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
-[Mapper]
-public static partial class SupplierMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class SupplierMapper
 {
-    public static GetAllSupplierResponse MapToGetAllSupplierResponse(this SupplierModel supplier)
-    {
-        var personAddress = supplier.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
+    [MapProperty("Person.Name", nameof(GetAllSupplierResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetAllSupplierResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetAllSupplierResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetAllSupplierResponse.Document))]
+    public partial GetAllSupplierResponse MapToGetAllSupplierResponse(SupplierModel supplier);
 
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetAllSupplierResponse(
-            supplier.Id,
-            supplier.PersonId,
-            supplier.Person.Name,
-            supplier.Person.Email,
-            supplier.Person.PhoneNumber,
-            supplier.Person.Document,
-            addressResponse);
-    }
+    [MapProperty("Person.Name", nameof(GetSupplierByIdResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetSupplierByIdResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetSupplierByIdResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetSupplierByIdResponse.Document))]
+    public partial GetSupplierByIdResponse MapToGetSupplierByIdResponse(SupplierModel supplier);
 
-    public static GetSupplierByIdResponse MapToGetSupplierByIdResponse(this SupplierModel supplier)
-    {
-        var personAddress = supplier.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
+    public partial AddSupplierResponse MapToAddSupplierResponse(SupplierModel supplier);
 
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetSupplierByIdResponse(
-            supplier.Id,
-            supplier.PersonId,
-            supplier.Person.Name,
-            supplier.Person.Email,
-            supplier.Person.PhoneNumber,
-            supplier.Person.Document,
-            addressResponse);
-    }
-
-    public static AddSupplierResponse MapToAddSupplierResponse(this SupplierModel supplier)
-    {
-        return new AddSupplierResponse(supplier.Id, supplier.Cnpj);
-    }
-
-    public static UpdateSupplierResponse MapToUpdateSupplierResponse(this SupplierModel supplier)
-    {
-        return new UpdateSupplierResponse(supplier.Id, supplier.Cnpj);
-    }
+    public partial UpdateSupplierResponse MapToUpdateSupplierResponse(SupplierModel supplier);
 }

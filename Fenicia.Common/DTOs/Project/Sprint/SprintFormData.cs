@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Project.Sprint;
 
-public record SprintFormData
+public class SprintFormData
 {
     public Guid Id { get; set; }
 

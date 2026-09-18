@@ -4,21 +4,9 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-[Mapper]
-public static partial class AddressMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class AddressMapper
 {
-    public static AddressResponse MapToAddressResponse(this AddressModel address)
-    {
-        return new AddressResponse(
-            address.Id,
-            address.Street,
-            address.Number,
-            address.Complement,
-            address.Neighborhood,
-            address.ZipCode!,
-            address.StateId,
-            address.State.Name,
-            address.City,
-            address.Country);
-    }
+    [MapProperty("State.Name", nameof(AddressResponse.StateName))]
+    public partial AddressResponse MapToAddressResponse(AddressModel address);
 }

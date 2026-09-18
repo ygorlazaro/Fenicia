@@ -2,9 +2,33 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.ProjectTask;
 
-public record ProjectSubtaskResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Title,
-    bool IsCompleted,
-    int Order,
-    DateTime? DueDate);
+public class ProjectSubtaskResponse()
+{
+    public ProjectSubtaskResponse(
+        [Required] Guid id,
+        [Required] [MaxLength(200)] string title,
+        bool isCompleted,
+        int order,
+        DateTime? dueDate)
+        : this()
+    {
+        Id = id;
+        Title = title;
+        IsCompleted = isCompleted;
+        Order = order;
+        DueDate = dueDate;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Title { get; set; } = string.Empty;
+
+    public bool IsCompleted { get; set; }
+
+    public int Order { get; set; }
+
+    public DateTime? DueDate { get; set; }
+}

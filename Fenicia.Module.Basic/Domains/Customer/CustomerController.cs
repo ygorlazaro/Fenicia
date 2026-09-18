@@ -101,7 +101,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// <response code="400">Dados inválidos</response>
     /// <response code="401">Usuário não autenticado</response>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(typeof(AddCustomerResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -132,7 +132,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="404">Cliente não encontrado</response>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(typeof(UpdateCustomerResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -146,9 +146,10 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
+        command.Id = id;
 
         var customer = await customerService.UpdateAsync(
-            command with { Id = id },
+            command,
             companyContext.CompanyId,
             cancellationToken);
 
@@ -168,7 +169,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// <response code="204">Cliente removido com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

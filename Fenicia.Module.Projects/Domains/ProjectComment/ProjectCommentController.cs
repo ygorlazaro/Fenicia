@@ -119,12 +119,14 @@ public class ProjectCommentController(
                         ?? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
                         ?? User.Identity?.Name;
 
+        var addCommand = new AddProjectCommentCommand(
+            command.Id,
+            command.TaskId,
+            ClaimReader.UserId(User),
+            command.Content,
+            nameClaim);
         var projectComment = await projectCommentService.AddAsync(
-            command with
-            {
-                UserId = ClaimReader.UserId(User),
-                UserName = nameClaim
-            },
+            addCommand,
             companyContext.CompanyId,
             cancellationToken);
 
@@ -161,10 +163,11 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectComment = await projectCommentService.UpdateAsync(
-            command with { Id = id },
-            companyContext.CompanyId,
-            cancellationToken);
+            var updatedCommand = new UpdateProjectCommentCommand(id, command.Content);
+            var projectComment = await projectCommentService.UpdateAsync(
+                updatedCommand,
+                companyContext.CompanyId,
+                cancellationToken);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }

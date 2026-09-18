@@ -4,10 +4,10 @@ using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public sealed class OrderDetailService(IOrderDetailRepository orderDetailRepository) : IOrderDetailService
+public sealed class OrderDetailService(IOrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper) : IOrderDetailService
 {
     public OrderDetailService()
-        : this(null!)
+        : this(null!, null!)
     {
     }
 
@@ -17,7 +17,7 @@ public sealed class OrderDetailService(IOrderDetailRepository orderDetailReposit
     {
         var details = await orderDetailRepository.GetByOrderIdAsync(query.OrderId, cancellationToken);
 
-        return [.. details.Select(d => d.MapToGetOrderDetailsByOrderIdResponse())];
+        return [.. details.Select(orderDetailMapper.MapToGetOrderDetailsByOrderIdResponse)];
     }
 
     public Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(

@@ -3,11 +3,13 @@
     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                    Color="Color.Info"
                    Size="Size.Small"
-                   OnClick="@(() => Page.OpenEditModal(Item))" />
+                   OnClick="@(() => Page.OpenEditModal(Item))"
+                   AriaLabel="Editar" />
     <MudIconButton Icon="@Icons.Material.Filled.Delete"
                    Color="Color.Error"
                    Size="Size.Small"
-                   OnClick="@(() => Page.RequestDelete(Item))" />
+                   OnClick="@(() => Page.RequestDelete(Item))"
+                   AriaLabel="Excluir" />
 </MudTd>
 <MudTd DataLabel="Nome">@Item.Name</MudTd>
 <MudTd DataLabel="Funcionários" Style="text-align: left">

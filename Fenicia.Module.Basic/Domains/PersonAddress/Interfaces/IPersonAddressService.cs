@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.PersonAddress;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 
 public interface IPersonAddressService
 {
-    Task<PersonAddressModel> InsertAsync(
-        PersonAddressModel personAddress,
+    Task<GetPersonAddressResponse> InsertAsync(
+        AddPersonAddressCommand command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 }

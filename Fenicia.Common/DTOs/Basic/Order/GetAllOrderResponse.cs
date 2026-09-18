@@ -3,17 +3,80 @@ using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public record GetAllOrderResponse([Required] Guid Id,
-    [Required][MaxLength(200)] string OrderNumber,
-    [Required] Guid UserId,
-    [Required] Guid CustomerId,
-    [Required][MaxLength(200)] string CustomerName,
-    decimal TotalAmount,
-    decimal DiscountAmount,
-    int TotalQuantity,
-    [Required] DateTime SaleDate,
-    [Required][MaxLength(200)] string Status,
-    [Required] PaymentMethod PaymentMethod,
-    int TotalItems,
-    Guid? EmployeeId = null,
-    string? EmployeeName = null) : ICrudItem;
+public class GetAllOrderResponse() : ICrudItem
+{
+    public GetAllOrderResponse(
+        Guid id,
+        string orderNumber,
+        Guid userId,
+        Guid customerId,
+        string customerName,
+        decimal totalAmount,
+        decimal discountAmount,
+        int totalQuantity,
+        DateTime saleDate,
+        string status,
+        PaymentMethod paymentMethod,
+        int totalItems,
+        Guid? employeeId = null,
+        string? employeeName = null)
+        : this()
+    {
+        Id = id;
+        OrderNumber = orderNumber;
+        UserId = userId;
+        CustomerId = customerId;
+        CustomerName = customerName;
+        TotalAmount = totalAmount;
+        DiscountAmount = discountAmount;
+        TotalQuantity = totalQuantity;
+        SaleDate = saleDate;
+        Status = status;
+        PaymentMethod = paymentMethod;
+        TotalItems = totalItems;
+        EmployeeId = employeeId;
+        EmployeeName = employeeName;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    [MaxLength(40)]
+    public string OrderNumber { get; set; } = string.Empty;
+
+    [Required]
+    public Guid UserId { get; set; }
+
+    [Required]
+    public Guid CustomerId { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string CustomerName { get; set; } = string.Empty;
+
+    [Range(0, double.MaxValue)]
+    public decimal TotalAmount { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public decimal DiscountAmount { get; set; }
+
+    [Range(0, int.MaxValue)]
+    public int TotalQuantity { get; set; }
+
+    [Required]
+    public DateTime SaleDate { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Status { get; set; } = string.Empty;
+
+    [Required]
+    public PaymentMethod PaymentMethod { get; set; }
+
+    public int TotalItems { get; set; }
+
+    public Guid? EmployeeId { get; set; }
+
+    public string? EmployeeName { get; set; }
+}

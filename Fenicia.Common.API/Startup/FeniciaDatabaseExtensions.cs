@@ -21,9 +21,11 @@ public static class FeniciaDatabaseExtensions
             throw new InvalidOperationException("Connection string inválida");
         }
 
-        builder.Services.AddDbContextPool<TContext>(o =>
+        builder.Services.AddDbContext<TContext>(o =>
             o.UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationAssembly)).EnableSensitiveDataLogging()
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).UseSnakeCaseNamingConvention());
+
+        builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<TContext>());
 
         return builder;
     }

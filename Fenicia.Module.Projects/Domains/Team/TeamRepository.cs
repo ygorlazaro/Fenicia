@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Team;

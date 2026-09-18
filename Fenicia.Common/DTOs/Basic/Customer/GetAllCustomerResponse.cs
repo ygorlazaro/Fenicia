@@ -3,10 +3,39 @@ using Fenicia.Common.DTOs.Basic.Address;
 
 namespace Fenicia.Common.DTOs.Basic.Customer;
 
-public record GetAllCustomerResponse([Required] Guid Id,
-    [Required] Guid PersonId,
-    [Required][MaxLength(200)] string Name,
-    string? Email,
-    string? PhoneNumber,
-    string? Document,
-    AddressResponse? Address) : ICrudItem;
+public class GetAllCustomerResponse() : ICrudItem
+{
+    public GetAllCustomerResponse(Guid id, Guid personId, string name, string? email, string? phoneNumber, string? document, AddressResponse? address)
+        : this()
+    {
+        Id = id;
+        PersonId = personId;
+        Name = name;
+        Email = email;
+        PhoneNumber = phoneNumber;
+        Document = document;
+        Address = address;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    public Guid PersonId { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+
+    [MaxLength(50)]
+    [EmailAddress]
+    public string? Email { get; set; }
+
+    [MaxLength(20)]
+    public string? PhoneNumber { get; set; }
+
+    [MaxLength(14)]
+    public string? Document { get; set; }
+
+    public AddressResponse? Address { get; set; }
+}

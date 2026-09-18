@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Attachment;
 
-public record DeleteAttachmentCommand([Required] Guid Id);
+public class DeleteAttachmentCommand()
+{
+    public DeleteAttachmentCommand(Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

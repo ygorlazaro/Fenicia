@@ -166,8 +166,15 @@ public class ProjectStatusController(
             return Forbid();
         }
 
+        var updatedCommand = new UpdateProjectStatusCommand(
+            id,
+            command.ProjectId,
+            command.Name,
+            command.Color,
+            command.Order,
+            command.IsFinal);
         var status = await projectStatusService.UpdateAsync(
-            command with { Id = id },
+            updatedCommand,
             companyContext.CompanyId,
             cancellationToken);
 

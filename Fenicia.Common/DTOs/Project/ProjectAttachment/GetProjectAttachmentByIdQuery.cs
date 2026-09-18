@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.ProjectAttachment;
 
-public record GetProjectAttachmentByIdQuery([Required] Guid Id);
+public class GetProjectAttachmentByIdQuery()
+{
+    public GetProjectAttachmentByIdQuery([Required] Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

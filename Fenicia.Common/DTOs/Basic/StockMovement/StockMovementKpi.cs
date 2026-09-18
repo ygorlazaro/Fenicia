@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.StockMovement;
 
-public record StockMovementKpi
+public class StockMovementKpi
 {
     public double TotalInQuantity { get; set; }
 

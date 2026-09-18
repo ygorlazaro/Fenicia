@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.SocialNetwork.Profile;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 

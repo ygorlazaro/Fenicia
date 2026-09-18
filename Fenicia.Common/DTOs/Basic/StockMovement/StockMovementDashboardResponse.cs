@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.StockMovement;
 
-public record StockMovementDashboardResponse
+public class StockMovementDashboardResponse
 {
     public List<StockMovementHistoryResponse> History { get; set; } = [];
 

@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Block;
 
-public sealed class BlockService(IBlockRepository blockRepository)
+public sealed class BlockService(IBlockRepository blockRepository, BlockMapper mapper)
 {
     public BlockService()
-        : this(null!)
+        : this(null!, null!)
     {
     }
 
@@ -26,26 +26,14 @@ public sealed class BlockService(IBlockRepository blockRepository)
         {
             if (block.IsActive)
             {
-                return new AddBlockResponse(
-                    block.Id,
-                    block.ProfileId,
-                    block.BlockedProfileId,
-                    block.BlockDate,
-                    block.Reason,
-                    block.IsActive);
+                return mapper.MapToAddBlockResponse(block);
             }
 
             block.IsActive = true;
             block.BlockDate = DateTime.UtcNow;
             block.Reason = null;
             await blockRepository.UpdateAsync(block.Id, block, cancellationToken);
-            return new AddBlockResponse(
-                block.Id,
-                block.ProfileId,
-                block.BlockedProfileId,
-                block.BlockDate,
-                block.Reason,
-                block.IsActive);
+            return mapper.MapToAddBlockResponse(block);
         }
 
         var newBlock = new BlockModel
@@ -57,13 +45,7 @@ public sealed class BlockService(IBlockRepository blockRepository)
         };
 
         var created = await blockRepository.InsertAsync(newBlock, cancellationToken);
-        return new AddBlockResponse(
-            created.Id,
-            created.ProfileId,
-            created.BlockedProfileId,
-            created.BlockDate,
-            created.Reason,
-            created.IsActive);
+        return mapper.MapToAddBlockResponse(created);
     }
 
     public async Task UnblockAsync(
@@ -93,8 +75,7 @@ public sealed class BlockService(IBlockRepository blockRepository)
         var blocks = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = blocks.Select(b => new GetBlockedResponse(b.Id, b.BlockedProfileId, b.BlockDate, b.Reason))
-            .ToList();
+        var response = blocks.Select(mapper.MapToGetBlockedResponse).ToList();
 
         return new Pagination<List<GetBlockedResponse>>(response, total, query.Page, query.PerPage);
     }

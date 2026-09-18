@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Profile;
 
-public record GetProfileByIdQuery([Required] Guid Id);
+public class GetProfileByIdQuery()
+{
+    public GetProfileByIdQuery(Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

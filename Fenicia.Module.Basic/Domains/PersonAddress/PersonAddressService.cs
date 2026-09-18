@@ -1,21 +1,30 @@
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.PersonAddress;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
 
-public sealed class PersonAddressService(IPersonAddressRepository personAddressRepository) : IPersonAddressService
+public sealed class PersonAddressService(IPersonAddressRepository personAddressRepository, PersonAddressMapper personAddressMapper) : IPersonAddressService
 {
     public PersonAddressService()
-        : this(null!)
+        : this(null!, null!)
     {
     }
 
-    public Task<PersonAddressModel> InsertAsync(
-        PersonAddressModel personAddress,
+    public async Task<GetPersonAddressResponse> InsertAsync(
+        AddPersonAddressCommand command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        personAddress.CompanyId = companyId;
-        return personAddressRepository.InsertAsync(personAddress, cancellationToken);
+        var personAddress = new PersonAddressModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = command.PersonId,
+            AddressId = command.AddressId,
+            CompanyId = companyId
+        };
+
+        var result = await personAddressRepository.InsertAsync(personAddress, cancellationToken);
+        return personAddressMapper.MapToGetPersonAddressResponse(result);
     }
 }

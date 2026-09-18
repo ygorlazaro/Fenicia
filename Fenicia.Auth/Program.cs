@@ -106,6 +106,7 @@ internal static class Program
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
         var app = builder.Build();
+
         app.UseFeniciaLocalization();
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_TESTING") != "true")

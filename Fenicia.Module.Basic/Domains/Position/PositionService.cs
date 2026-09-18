@@ -1,14 +1,16 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Position;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-public sealed class PositionService(IPositionRepository positionRepository) : IPositionService
+public sealed class PositionService(IPositionRepository positionRepository, PositionMapper positionMapper) : IPositionService
 {
     public PositionService()
-        : this(null!)
+        : this(null!, null!)
     {
     }
 
@@ -23,7 +25,7 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var positions = await filteredQuery
-            .Select(p => p.MapToGetAllPositionResponse())
+            .Select(p => positionMapper.MapToGetAllPositionResponse(p))
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
@@ -37,7 +39,7 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
     {
         var position = await positionRepository.GetByIdAsync(query.Id, cancellationToken);
 
-        return position?.MapToGetPositionByIdResponse();
+        return position is null ? null : positionMapper.MapToGetPositionByIdResponse(position);
     }
 
     public async Task<AddPositionResponse> AddAsync(
@@ -53,7 +55,7 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
 
         await positionRepository.InsertAsync(position, cancellationToken);
 
-        return position.MapToAddPositionResponse();
+        return positionMapper.MapToAddPositionResponse(position);
     }
 
     public async Task<UpdatePositionResponse?> UpdateAsync(
@@ -73,7 +75,7 @@ public sealed class PositionService(IPositionRepository positionRepository) : IP
 
         await positionRepository.UpdateAsync(command.Id, position, cancellationToken);
 
-        return position.MapToUpdatePositionResponse();
+        return positionMapper.MapToUpdatePositionResponse(position);
     }
 
     public async Task DeleteAsync(

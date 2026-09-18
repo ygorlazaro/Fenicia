@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
-public class EmployeeRepository(DefaultContext context) : Repository<EmployeeModel>(context), IEmployeeRepository
+public class EmployeeRepository(DbContext context) : Repository<EmployeeModel>(context), IEmployeeRepository
 {
     public Task<EmployeeModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {

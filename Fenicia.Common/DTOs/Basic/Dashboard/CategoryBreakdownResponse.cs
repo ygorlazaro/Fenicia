@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Dashboard;
 
-public record CategoryBreakdownResponse
+public class CategoryBreakdownResponse
 {
     public string Category { get; set; } = string.Empty;
 

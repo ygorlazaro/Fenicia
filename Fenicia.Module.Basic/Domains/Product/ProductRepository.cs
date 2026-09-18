@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-public class ProductRepository(DefaultContext context) : Repository<ProductModel>(context), IProductRepository
+public class ProductRepository(DbContext context) : Repository<ProductModel>(context), IProductRepository
 {
     public async Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(
         int page = 1,

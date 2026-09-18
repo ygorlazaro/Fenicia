@@ -161,9 +161,10 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
+            command.Id = id;
 
             var employee = await employeeService.UpdateAsync(
-                command with { Id = id },
+                command,
                 companyContext.CompanyId,
                 cancellationToken);
 

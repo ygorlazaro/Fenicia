@@ -3,7 +3,10 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.Customer;
 using Fenicia.Common.DTOs.Basic.DataSource;
+using Fenicia.Common.DTOs.Basic.Person;
+using Fenicia.Common.DTOs.Basic.PersonAddress;
 using Fenicia.Common.Exceptions;
+using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
@@ -17,10 +20,12 @@ public sealed class CustomerService(
     IPersonService personService,
     IAddressService addressService,
     IPersonAddressService personAddressService,
-    IOrderService orderService) : ICustomerService
+    IOrderService orderService,
+    CustomerMapper customerMapper,
+    AddressMapper addressMapper) : ICustomerService
 {
     public CustomerService()
-        : this(null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!, null!, null!)
     {
     }
 
@@ -28,22 +33,17 @@ public sealed class CustomerService(
         GetAllCustomerQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = customerRepository.Query()
-            .Include(c => c.Person)
-            .Include(c => c.Person.PersonAddresses)
-            .ThenInclude(pa => pa.Address)
-            .ThenInclude(a => a.State);
+        var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var total = await customerRepository.CountAsync(cancellationToken);
 
-        var filteredQuery = baseQuery.ApplySearch(query.Query, "Person.Name", "Person.Email", "Person.PhoneNumber", "Person.Document", "Person.PersonAddresses.Address.City", "Person.PersonAddresses.Address.State.Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
-
-        var total = await filteredQuery.CountAsync(cancellationToken);
-
-        var customers = await filteredQuery
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(cancellationToken);
-
-        var response = customers.Select(c => c.MapToGetAllCustomerResponse()).ToList();
+        var response = customers.Select(c =>
+        {
+            var mapped = customerMapper.MapToGetAllCustomerResponse(c);
+            mapped.Address = c.Person.PersonAddresses.FirstOrDefault()?.Address != null
+                ? addressMapper.MapToAddressResponse(c.Person.PersonAddresses.FirstOrDefault()!.Address)
+                : null;
+            return mapped;
+        }).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -62,7 +62,17 @@ public sealed class CustomerService(
     {
         var customer = await customerRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        return customer?.MapToGetCustomerByIdResponse();
+        if (customer is null)
+        {
+            return null;
+        }
+
+        var mapped = customerMapper.MapToGetCustomerByIdResponse(customer);
+        mapped.Address = customer.Person.PersonAddresses.FirstOrDefault()?.Address != null
+            ? addressMapper.MapToAddressResponse(customer.Person.PersonAddresses.FirstOrDefault()!.Address)
+            : null;
+
+        return mapped;
     }
 
     public async Task<AddCustomerResponse> AddAsync(
@@ -70,14 +80,14 @@ public sealed class CustomerService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var person = new PersonModel
-        {
-            Id = Guid.NewGuid(),
-            Name = command.Name,
-            Email = command.Email,
-            Document = command.Document,
-            PhoneNumber = command.PhoneNumber
-        };
+        var personCommand = new UpsertPersonCommand(
+            command.Name,
+            command.Document,
+            command.Email,
+            command.PhoneNumber,
+            null,
+            null,
+            null);
 
         Guid? addressId = null;
 
@@ -96,30 +106,24 @@ public sealed class CustomerService(
             addressId = createdAddress.Id;
         }
 
-        await personService.InsertAsync(person, companyId, cancellationToken);
+        var personResponse = await personService.InsertAsync(personCommand, companyId, cancellationToken);
 
         var customer = new CustomerModel
         {
-            Person = person,
-            PersonId = person.Id
+            PersonId = personResponse.Id
         };
 
         await customerRepository.InsertAsync(customer, cancellationToken);
 
         if (!addressId.HasValue)
         {
-            return new AddCustomerResponse(customer.Id, person.Id);
+            return new AddCustomerResponse(customer.Id, personResponse.Id);
         }
 
-        var personAddress = new PersonAddressModel
-        {
-            Id = Guid.NewGuid(),
-            PersonId = person.Id,
-            AddressId = addressId.Value
-        };
-        await personAddressService.InsertAsync(personAddress, companyId, cancellationToken);
+        var personAddressCommand = new AddPersonAddressCommand(personResponse.Id, addressId.Value);
+        await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
-        return new AddCustomerResponse(customer.Id, person.Id);
+        return new AddCustomerResponse(customer.Id, personResponse.Id);
     }
 
     public async Task<UpdateCustomerResponse?> UpdateAsync(
@@ -175,11 +179,21 @@ public sealed class CustomerService(
                     PersonId = customer.PersonId,
                     AddressId = createdAddress.Id
                 };
-                await personAddressService.InsertAsync(newPersonAddress, companyId, cancellationToken);
+                var personAddressCommand = new AddPersonAddressCommand(newPersonAddress.PersonId, newPersonAddress.AddressId);
+                await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
             }
         }
 
-        await personService.UpdateAsync(customer.Person.Id, customer.Person, companyId, cancellationToken);
+        var personCommand = new UpsertPersonCommand(
+            customer.Person.Name,
+            customer.Person.Document,
+            customer.Person.Email,
+            customer.Person.PhoneNumber,
+            null,
+            null,
+            null);
+
+        await personService.UpdateAsync(customer.Person.Id, personCommand, companyId, cancellationToken);
         var updated = await customerRepository.UpdateAsync(command.Id, customer, cancellationToken) ??
                       throw new ItemNotExistsException();
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);

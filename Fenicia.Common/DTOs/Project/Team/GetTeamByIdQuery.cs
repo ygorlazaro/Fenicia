@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.Team;
 
-public record GetTeamByIdQuery([Required] Guid Id);
+public class GetTeamByIdQuery()
+{
+    public GetTeamByIdQuery([Required] Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

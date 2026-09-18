@@ -152,10 +152,16 @@ public class ProjectTaskAssigneeController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var assignee = await projectTaskAssigneeService.UpdateAsync(
-            command with { Id = id },
-            companyContext.CompanyId,
-            cancellationToken);
+            var updatedCommand = new UpdateProjectTaskAssigneeCommand(
+                id,
+                command.TaskId,
+                command.UserId,
+                command.Role,
+                command.AssignedAt);
+            var assignee = await projectTaskAssigneeService.UpdateAsync(
+                updatedCommand,
+                companyContext.CompanyId,
+                cancellationToken);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }

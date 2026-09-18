@@ -1,7 +1,10 @@
 
 <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
     <MudLink Href="@($"/basic/order/{Item.Id}")" Underline="Underline.Hover">
-        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Info" />
+        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                       Size="Size.Small"
+                       Color="Color.Info"
+                       AriaLabel="Visualizar" />
     </MudLink>
 </MudTd>
 <MudTd DataLabel="Número">@Item.OrderNumber</MudTd>

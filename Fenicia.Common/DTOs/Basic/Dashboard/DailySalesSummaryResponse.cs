@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Dashboard;
 
-public record DailySalesSummaryResponse
+public class DailySalesSummaryResponse
 {
     public decimal TodayRevenue { get; set; }
 

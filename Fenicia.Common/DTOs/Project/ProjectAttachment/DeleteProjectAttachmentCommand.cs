@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.ProjectAttachment;
 
-public record DeleteProjectAttachmentCommand([Required] Guid Id);
+public class DeleteProjectAttachmentCommand()
+{
+    public DeleteProjectAttachmentCommand([Required] Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

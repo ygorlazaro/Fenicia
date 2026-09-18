@@ -7,6 +7,4 @@ public interface IAddressService
     Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken cancellationToken = default);
 
     Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken cancellationToken = default);
-
-    Task<AddressResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 }

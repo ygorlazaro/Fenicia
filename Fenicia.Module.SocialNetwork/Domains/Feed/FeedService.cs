@@ -1,30 +1,17 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Feed;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
-public class FeedService(FeedRepository repository)
+public class FeedService(FeedRepository repository, FeedMapper mapper)
 {
     public async Task<List<GetAllFeedResponse>> GetAllAsync(
         GetAllFeedQuery query,
         CancellationToken cancellationToken = default)
     {
         var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
-        return
-        [
-            .. feeds.Select(f => new GetAllFeedResponse(
-                f.Id,
-                f.Date,
-                f.Text,
-                f.ProfileId,
-                f.CompanyId,
-                f.TotalLikes,
-                f.TotalComments,
-                f.TotalShares,
-                f.OriginalFeedId,
-                f.Profile?.UserName,
-                f.Profile?.Upload?.Url))
-        ];
+        return [.. feeds.Select(mapper.MapToGetAllFeedResponse)];
     }
 
     public async Task<List<GetAllFeedResponse>> GetByProfileIdAsync(
@@ -33,21 +20,7 @@ public class FeedService(FeedRepository repository)
     {
         var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
         var filtered = feeds.Where(f => f.ProfileId == query.ProfileId).ToList();
-        return
-        [
-            .. filtered.Select(f => new GetAllFeedResponse(
-                f.Id,
-                f.Date,
-                f.Text,
-                f.ProfileId,
-                f.CompanyId,
-                f.TotalLikes,
-                f.TotalComments,
-                f.TotalShares,
-                f.OriginalFeedId,
-                f.Profile?.UserName,
-                f.Profile?.Upload?.Url))
-        ];
+        return [.. filtered.Select(mapper.MapToGetAllFeedResponse)];
     }
 
     public async Task<GetFeedByIdResponse?> GetByIdAsync(
@@ -55,23 +28,7 @@ public class FeedService(FeedRepository repository)
         CancellationToken cancellationToken = default)
     {
         var feed = await repository.GetByIdWithRelationsAsync(query.Id, cancellationToken);
-
-        return feed switch
-        {
-            null => null,
-            _ => new GetFeedByIdResponse(
-                feed.Id,
-                feed.Date,
-                feed.Text,
-                feed.ProfileId,
-                feed.CompanyId,
-                feed.TotalLikes,
-                feed.TotalComments,
-                feed.TotalShares,
-                feed.OriginalFeedId,
-                feed.Profile?.UserName,
-                feed.Profile?.Upload?.Url)
-        };
+        return feed is null ? null : mapper.MapToGetFeedByIdResponse(feed);
     }
 
     public async Task<AddFeedResponse> AddAsync(
@@ -93,7 +50,7 @@ public class FeedService(FeedRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddFeedResponse(created.Id, created.Date, created.Text, created.ProfileId, created.CompanyId, created.OriginalFeedId);
+        return mapper.MapToAddFeedResponse(created);
     }
 
     public async Task<UpdateFeedResponse?> UpdateAsync(
@@ -112,9 +69,7 @@ public class FeedService(FeedRepository repository)
         existing.CompanyId = companyId;
 
         var updated = await repository.UpdateAsync(command.Id, existing, cancellationToken);
-        return updated is null
-            ? null
-            : new UpdateFeedResponse(updated.Id, updated.Date, updated.Text, updated.ProfileId, updated.CompanyId, updated.OriginalFeedId);
+        return updated is null ? null : mapper.MapToUpdateFeedResponse(updated);
     }
 
     public async Task DeleteAsync(DeleteFeedCommand command, CancellationToken cancellationToken = default)

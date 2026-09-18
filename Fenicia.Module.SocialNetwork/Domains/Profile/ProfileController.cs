@@ -151,8 +151,17 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
+        var updatedCommand = new UpdateProfileCommand(
+            id,
+            command.UserName,
+            command.Bio,
+            command.UploadId,
+            command.Website,
+            command.Location,
+            command.Phone,
+            command.BirthDate);
         var profile = await profileService.UpdateAsync(
-            command with { Id = id },
+            updatedCommand,
             ClaimReader.UserId(User),
             cancellationToken);
 

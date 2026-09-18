@@ -7,6 +7,8 @@ public interface IRepository<T>
 {
     Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
 
+    IQueryable<T> GetAllQuery();
+
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<T> InsertAsync(T model, CancellationToken cancellationToken = default);
@@ -28,4 +30,6 @@ public interface IRepository<T>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
     Task InsertRangeAsync(IEnumerable<T> models, CancellationToken cancellationToken = default);
+
+    IQueryable<T> Query();
 }

@@ -164,7 +164,8 @@ public class PositionController(IPositionService positionService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var position = await positionService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
+            var updatedCommand = new UpdatePositionCommand(id, command.Name);
+            var position = await positionService.UpdateAsync(updatedCommand, companyId, cancellationToken);
 
             return position is null ? NotFound() : Ok(position);
         }

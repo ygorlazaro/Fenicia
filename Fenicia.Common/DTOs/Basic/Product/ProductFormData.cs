@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Product;
 
-public record ProductFormData
+public class ProductFormData
 {
     public string? Name { get; set; }
 

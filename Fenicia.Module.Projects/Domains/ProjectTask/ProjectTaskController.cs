@@ -148,10 +148,22 @@ public class ProjectTaskController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectTask = await projectTaskService.UpdateAsync(
-            command with { Id = id },
-            companyContext.CompanyId,
-            cancellationToken);
+            var updatedCommand = new UpdateProjectTaskCommand(
+                id,
+                command.ProjectId,
+                command.StatusId,
+                command.Title,
+                command.Description,
+                command.Priority,
+                command.Type,
+                command.Order,
+                command.EstimatePoints,
+                command.DueDate,
+                command.CreatedBy,
+                command.SprintId);
+            var projectTask = await projectTaskService.UpdateAsync(
+                updatedCommand,
+                cancellationToken);
 
         return projectTask is null ? NotFound() : Ok(projectTask);
     }

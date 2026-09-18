@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Feed;
 
-public record GetFeedByIdQuery([Required] Guid Id);
+public class GetFeedByIdQuery()
+{
+    public GetFeedByIdQuery(Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

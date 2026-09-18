@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public record InventoryHealthResponse
+public class InventoryHealthResponse
 {
     public List<ZeroMovementProductResponse> ZeroMovementProducts { get; set; } = [];
 

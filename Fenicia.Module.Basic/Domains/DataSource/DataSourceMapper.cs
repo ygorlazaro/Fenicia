@@ -5,12 +5,11 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;
 
-[Mapper]
-public static partial class DataSourceMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class DataSourceMapper
 {
-    public static partial GetAllPositionForDataSourceResponse MapToDataSourceResponse(
-        this GetAllPositionResponse position);
+    internal partial GetAllPositionForDataSourceResponse MapToDataSourceResponse(GetAllPositionResponse position);
 
-    public static partial GetAllProductCategoryForDataSourceResponse MapToDataSourceResponse(
-        this GetAllProductCategoryResponse category);
+    internal partial GetAllProductCategoryForDataSourceResponse MapToDataSourceResponse(
+        GetAllProductCategoryResponse category);
 }

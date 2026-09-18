@@ -33,7 +33,8 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Color="Color.Info"
                                    Size="Size.Small"
-                                   OnClick="@(() => OnEdit.InvokeAsync(context))" />
+                                   OnClick="@(() => OnEdit.InvokeAsync(context))"
+                                   AriaLabel="Editar" />
                 </MudTd>
                 <MudTd DataLabel="Data">@(context.Date?.ToString("dd/MM/yyyy HH:mm") ?? "—")</MudTd>
                 <MudTd DataLabel="Tipo">

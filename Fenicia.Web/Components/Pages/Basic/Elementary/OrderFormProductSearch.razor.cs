@@ -11,7 +11,10 @@ public partial class OrderFormProductSearch
 public IEnumerable<GetAllProductResponse> Products { get; set; } = [];
 
     [Parameter]
-    public string? Search { get; set; }
+    public string Search { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string?> SearchChanged { get; set; }
 
     [Parameter]
     public bool Loading { get; set; }
@@ -26,23 +29,9 @@ public IEnumerable<GetAllProductResponse> Products { get; set; } = [];
     {
         get
         {
-            var query = Products.Where(p => p.IsActive);
-
-            if (string.IsNullOrWhiteSpace(Search))
-            {
-                return [.. query.OrderBy(p => p.Name)];
-            }
-
-            {
-                var term = Search.Trim();
-
-                query = query.Where(p =>
-
-                    p.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
-                    || (p.SKU ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
-                    || (p.Barcode ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase));
-            }
-            return [.. query.OrderBy(p => p.Name)];
+            var all = Products ?? [];
+            var active = all.Where(p => p.IsActive).ToList();
+            return active.OrderBy(p => p.Name);
         }
     }
 }

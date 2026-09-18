@@ -106,7 +106,6 @@ public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTas
 
     public async Task<UpdateProjectTaskResponse?> UpdateAsync(
         UpdateProjectTaskCommand command,
-        Guid companyId,
         CancellationToken cancellationToken = default)
     {
         var projectTask = new ProjectTaskModel

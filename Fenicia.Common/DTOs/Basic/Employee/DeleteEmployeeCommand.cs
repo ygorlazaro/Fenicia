@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
-public record DeleteEmployeeCommand([Required] Guid Id);
+public class DeleteEmployeeCommand()
+{
+    public DeleteEmployeeCommand(Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

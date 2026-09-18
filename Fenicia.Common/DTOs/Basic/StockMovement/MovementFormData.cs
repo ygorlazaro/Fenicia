@@ -2,8 +2,36 @@ using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.DTOs.Basic.StockMovement;
 
-public record MovementFormData
+public class MovementFormData
 {
+    public MovementFormData()
+    {
+    }
+
+    public MovementFormData(
+        Guid? id,
+        Guid productId,
+        StockMovementType type,
+        double quantity,
+        decimal price,
+        DateTime? date,
+        Guid? customerId,
+        Guid? supplierId,
+        Guid? employeeId,
+        string? reason)
+    {
+        Id = id;
+        ProductId = productId;
+        Type = type;
+        Quantity = quantity;
+        Price = price;
+        Date = date;
+        CustomerId = customerId;
+        SupplierId = supplierId;
+        EmployeeId = employeeId;
+        Reason = reason;
+    }
+
     public Guid? Id { get; set; }
 
     public Guid ProductId { get; set; }

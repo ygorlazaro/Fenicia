@@ -1,7 +1,9 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
-public class ProjectTaskAssigneeRepository(DefaultContext context) : Repository<TaskAssigneeModel>(context);
+public class ProjectTaskAssigneeRepository(DbContext context) : Repository<TaskAssigneeModel>(context),
+    IProjectTaskAssigneeRepository;

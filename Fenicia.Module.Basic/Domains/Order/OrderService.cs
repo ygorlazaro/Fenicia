@@ -7,6 +7,7 @@ using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
@@ -85,7 +86,7 @@ public sealed class OrderService(
     {
         var order = await orderRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        return order?.MapToGetOrderByIdResponse();
+        return order is null ? null : OrderMapper.MapToGetOrderByIdResponse(order);
     }
 
     public Task<List<Fenicia.Common.DTOs.Basic.OrderDetail.GetOrderDetailsByOrderIdResponse>>
@@ -171,7 +172,7 @@ public sealed class OrderService(
             await stockMovementService.AddAsync(movementCommand, companyId, cancellationToken);
         }
 
-        return created.MapToCreateOrderResponse();
+        return OrderMapper.MapToCreateOrderResponse(created);
     }
 
     public async Task DeleteAsync(

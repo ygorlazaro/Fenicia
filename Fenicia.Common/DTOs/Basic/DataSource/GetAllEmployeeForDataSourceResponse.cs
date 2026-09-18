@@ -2,4 +2,19 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.DataSource;
 
-public record GetAllEmployeeForDataSourceResponse([Required] Guid Id, [Required][MaxLength(200)] string Name);
+public class GetAllEmployeeForDataSourceResponse()
+{
+    public GetAllEmployeeForDataSourceResponse(Guid id, string name)
+        : this()
+    {
+        Id = id;
+        Name = name;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+}

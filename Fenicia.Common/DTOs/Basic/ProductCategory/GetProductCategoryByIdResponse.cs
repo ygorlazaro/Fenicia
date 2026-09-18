@@ -2,5 +2,19 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.ProductCategory;
 
-public record GetProductCategoryByIdResponse([Required] Guid Id,
-    [Required][MaxLength(200)] string Name) : ICrudItem;
+public class GetProductCategoryByIdResponse() : ICrudItem
+{
+    public GetProductCategoryByIdResponse(Guid id, string name)
+        : this()
+    {
+        Id = id;
+        Name = name;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+}

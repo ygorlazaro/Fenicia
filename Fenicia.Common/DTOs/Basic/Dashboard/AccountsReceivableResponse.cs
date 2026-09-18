@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Dashboard;
 
-public record AccountsReceivableResponse
+public class AccountsReceivableResponse
 {
     public decimal TotalPending { get; set; }
 

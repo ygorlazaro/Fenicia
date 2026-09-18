@@ -165,7 +165,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var category = await productCategoryService.UpdateAsync(
-                command with { Id = id },
+                new UpdateProductCategoryCommand(id, command.Name),
                 companyContext.CompanyId,
                 cancellationToken);
 

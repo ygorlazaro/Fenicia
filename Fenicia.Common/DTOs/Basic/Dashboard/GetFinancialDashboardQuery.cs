@@ -1,3 +1,12 @@
 namespace Fenicia.Common.DTOs.Basic.Dashboard;
 
-public record GetFinancialDashboardQuery(int Days = 90);
+public class GetFinancialDashboardQuery()
+{
+    public GetFinancialDashboardQuery(int days = 90)
+        : this()
+    {
+        Days = days;
+    }
+
+    public int Days { get; set; }
+}

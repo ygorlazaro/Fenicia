@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Project.Project;
 
-public record ProjectFormData
+public class ProjectFormData
 {
     public Guid Id { get; set; }
 

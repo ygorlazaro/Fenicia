@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
-public class StockMovementRepository(DefaultContext context)
+public class StockMovementRepository(DbContext context)
     : Repository<StockMovementModel>(context), IStockMovementRepository
 {
     public async Task<IEnumerable<StockMovementModel>> GetByDateRangeAsync(

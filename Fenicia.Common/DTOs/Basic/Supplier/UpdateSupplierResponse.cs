@@ -2,6 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Supplier;
 
-public record UpdateSupplierResponse(
-    [Required] Guid Id,
-    string? Cnpj);
+public class UpdateSupplierResponse()
+{
+    public UpdateSupplierResponse(Guid id, string? cnpj)
+        : this()
+    {
+        Id = id;
+        Cnpj = cnpj;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [MaxLength(14)]
+    public string? Cnpj { get; set; }
+}

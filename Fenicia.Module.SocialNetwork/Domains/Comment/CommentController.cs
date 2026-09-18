@@ -73,8 +73,14 @@ public class CommentController(
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
+        var addCommand = new AddCommentCommand(
+            command.Id,
+            profileId,
+            command.FeedId,
+            command.ParentCommentId,
+            command.Text);
         var result = await commentService.AddAsync(
-            command with { ProfileId = profileId },
+            addCommand,
             companyContext.CompanyId,
             profileId,
             cancellationToken);
@@ -97,8 +103,9 @@ public class CommentController(
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
+        var updatedCommand = new UpdateCommentCommand(id, command.Text);
         var result = await commentService.UpdateAsync(
-            command with { Id = id },
+            updatedCommand,
             profileId,
             cancellationToken);
 

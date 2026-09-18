@@ -19,7 +19,6 @@ public interface IProjectTaskService
 
     Task<UpdateProjectTaskResponse?> UpdateAsync(
         UpdateProjectTaskCommand command,
-        Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(DeleteProjectTaskCommand command, CancellationToken cancellationToken = default);

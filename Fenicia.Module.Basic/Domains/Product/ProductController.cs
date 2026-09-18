@@ -164,7 +164,24 @@ public class ProductController(IProductService productService, ICompanyContext c
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var product = await productService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
+            var updatedCommand = new UpdateProductCommand(
+                id,
+                command.Name,
+                command.SKU,
+                command.Barcode,
+                command.Description,
+                command.CostPrice,
+                command.SalesPrice,
+                command.Quantity,
+                command.MinStockLevel,
+                command.MaxStockLevel,
+                command.ImageUrl,
+                command.Weight,
+                command.Dimensions,
+                command.UnitOfMeasure,
+                command.CategoryId,
+                command.SupplierId);
+            var product = await productService.UpdateAsync(updatedCommand, companyId, cancellationToken);
 
             return product is null ? NotFound() : Ok(product);
         }

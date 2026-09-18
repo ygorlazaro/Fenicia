@@ -4,130 +4,25 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-[Mapper]
-public static partial class ProductMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class ProductMapper
 {
-    public static GetAllProductResponse MapToGetAllProductResponse(this ProductModel product)
-    {
-        return new GetAllProductResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            product.Category.Name,
-            product.SupplierId,
-            product.Supplier?.Person.Name ?? string.Empty,
-            product.IsActive);
-    }
+    [MapProperty("Category.Name", nameof(GetAllProductResponse.CategoryName))]
+    [MapProperty("Supplier.Person.Name", nameof(GetAllProductResponse.SupplierName))]
+    public partial GetAllProductResponse MapToGetAllProductResponse(ProductModel product);
 
-    public static GetProductByIdResponse MapToGetProductByIdResponse(this ProductModel product)
-    {
-        return new GetProductByIdResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            product.Category.Name,
-            product.SupplierId,
-            product.Supplier?.Person.Name,
-            product.IsActive);
-    }
+    [MapProperty("Category.Name", nameof(GetProductByIdResponse.CategoryName))]
+    [MapProperty("Supplier.Person.Name", nameof(GetProductByIdResponse.SupplierName))]
+    public partial GetProductByIdResponse MapToGetProductByIdResponse(ProductModel product);
 
-    public static GetProductsByCategoryIdResponse MapToGetProductsByCategoryIdResponse(this ProductModel product)
-    {
-        return new GetProductsByCategoryIdResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            product.Category.Name,
-            product.IsActive);
-    }
+    [MapProperty("Category.Name", nameof(GetProductsByCategoryIdResponse.CategoryName))]
+    public partial GetProductsByCategoryIdResponse MapToGetProductsByCategoryIdResponse(ProductModel product);
 
-    public static AddProductResponse MapToAddProductResponse(
-        this ProductModel product,
-        string categoryName,
-        string? supplierName)
-    {
-        return new AddProductResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            categoryName,
-            product.SupplierId,
-            supplierName,
-            product.IsActive);
-    }
+    [MapProperty("Category.Name", nameof(AddProductResponse.CategoryName))]
+    [MapProperty("Supplier.Person.Name", nameof(AddProductResponse.SupplierName))]
+    public partial AddProductResponse MapToAddProductResponse(ProductModel product);
 
-    public static UpdateProductResponse MapToUpdateProductResponse(
-        this ProductModel product,
-        string categoryName,
-        string? supplierName)
-    {
-        return new UpdateProductResponse(
-            product.Id,
-            product.Name,
-            product.SKU,
-            product.Barcode,
-            product.Description,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.MinStockLevel,
-            product.MaxStockLevel,
-            product.ImageUrl,
-            product.Weight,
-            product.Dimensions,
-            product.UnitOfMeasure,
-            product.CategoryId,
-            categoryName,
-            product.SupplierId,
-            supplierName,
-            product.IsActive);
-    }
+    [MapProperty("Category.Name", nameof(UpdateProductResponse.CategoryName))]
+    [MapProperty("Supplier.Person.Name", nameof(UpdateProductResponse.SupplierName))]
+    public partial UpdateProductResponse MapToUpdateProductResponse(ProductModel product);
 }

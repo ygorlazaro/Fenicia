@@ -26,7 +26,7 @@
         <MudNumericField T="int?" @bind-Value="Model.MaxStockLevel" Label="Estoque Máximo" Variant="Variant.Outlined" Min="0" />
     </MudItem>
     <MudItem xs="12" sm="6">
-        <MudSelect T="Guid" @bind-Eu queroValue="Model.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
+        <MudSelect T="Guid" @bind-Value="Model.CategoryId" Label="Categoria" Variant="Variant.Outlined" Required="true" RequiredError="Categoria é obrigatória!">
             @foreach (var category in Categories)
             {
                 <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>

@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Product;
 
-public record ProductPerformanceResponse
+public class ProductPerformanceResponse
 {
     public List<BestSellingProductResponse> BestSellingProducts { get; set; } = [];
 

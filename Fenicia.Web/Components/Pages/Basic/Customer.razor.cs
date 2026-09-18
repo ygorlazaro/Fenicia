@@ -16,11 +16,11 @@ public partial class Customer : ComponentBase
         PropertyNameCaseInsensitive = true
     };
 
-    private List<GetAllStateResponse> _states = [];
+    private List<StateOption> _states = [];
 
-    private CustomerFormData _add = new();
+    private CustomerFormModel _add = new();
 
-    private CustomerFormData _edit = new();
+    private CustomerFormModel _edit = new();
 
     [Inject]
 
@@ -43,7 +43,7 @@ public partial class Customer : ComponentBase
         }
     }
 
-    private static AddressCommand? BuildAddress(CustomerFormData model)
+    private static AddressCommand? BuildAddress(CustomerFormModel model)
     {
         if (string.IsNullOrWhiteSpace(model.Street)
             || string.IsNullOrWhiteSpace(model.Number)
@@ -103,27 +103,43 @@ public partial class Customer : ComponentBase
 
                 var items = JsonSerializer.Deserialize<List<GetAllStateResponse>>(body, _jsonOptions);
 
-                _states = items ?? [];
+                _states = items is null ? [] : [
+                    .. items.Select(s => new StateOption
+                    {
+                        Id = s.Id,
+                        Name = $"{s.Uf} — {s.Name}"
+                    })
+                ];
             }
         }
-        catch
+        catch (HttpRequestException)
         {
             _states = [];
-
-            throw;
+        }
+        catch (NotSupportedException)
+        {
+            _states = [];
+        }
+        catch (JsonException)
+        {
+            _states = [];
+        }
+        catch (TaskCanceledException)
+        {
+            _states = [];
         }
     }
 
     private void ResetForm()
     {
-        _add = new CustomerFormData();
+        _add = new CustomerFormModel();
     }
 
     private void LoadForm(GetAllCustomerResponse? item)
     {
         _edit = item is null
-            ? new CustomerFormData()
-            : new CustomerFormData
+            ? new CustomerFormModel()
+            : new CustomerFormModel
             {
                 Name = item.Name,
 

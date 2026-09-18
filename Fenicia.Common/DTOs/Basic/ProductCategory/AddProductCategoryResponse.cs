@@ -2,6 +2,19 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.ProductCategory;
 
-public record AddProductCategoryResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Name);
+public class AddProductCategoryResponse()
+{
+    public AddProductCategoryResponse(Guid id, string name)
+        : this()
+    {
+        Id = id;
+        Name = name;
+    }
+
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+}

@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Customer;
 
-public record CustomerFormData
+public class CustomerFormData
 {
     public string? Name { get; set; }
 

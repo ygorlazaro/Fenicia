@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
-public class ProjectStatusRepository(DefaultContext context)
+public class ProjectStatusRepository(DbContext context)
     : Repository<ProjectStatusModel>(context), IProjectStatusRepository
 {
     public async Task<IEnumerable<ProjectStatusModel>> GetAllByCompanyAsync(

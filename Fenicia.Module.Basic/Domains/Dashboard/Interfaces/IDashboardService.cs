@@ -9,11 +9,7 @@ public interface IDashboardService
         GetFinancialDashboardQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default);
-
     Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default);
-
-    Task<int> GetTotalOrdersAsync(CancellationToken cancellationToken = default);
 
     Task<int> GetTotalProductsAsync(CancellationToken cancellationToken = default);
 

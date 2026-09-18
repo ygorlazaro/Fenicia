@@ -2,11 +2,46 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Supplier;
 
-public record AddSupplierCommand(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Name,
-    [MaxLength(200)] string? Email,
-    [MaxLength(200)] string? Document,
-    [MaxLength(200)] string? PhoneNumber,
-    [MaxLength(200)] string? Cnpj,
-    AddressDTO? Address);
+public class AddSupplierCommand()
+{
+    public AddSupplierCommand(
+        Guid id,
+        string name,
+        string? email,
+        string? document,
+        string? phoneNumber,
+        string? cnpj,
+        AddressDTO? address)
+        : this()
+    {
+        Id = id;
+        Name = name;
+        Email = email;
+        Document = document;
+        PhoneNumber = phoneNumber;
+        Cnpj = cnpj;
+        Address = address;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+
+    [MaxLength(50)]
+    [EmailAddress]
+    public string? Email { get; set; }
+
+    [MaxLength(14)]
+    public string? Document { get; set; }
+
+    [MaxLength(20)]
+    public string? PhoneNumber { get; set; }
+
+    [MaxLength(14)]
+    public string? Cnpj { get; set; }
+
+    public AddressDTO? Address { get; set; }
+}

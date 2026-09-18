@@ -2,4 +2,20 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public record GetInventoryByCategoryQuery([Required] Guid CategoryId, int Page = 1, int PerPage = 10);
+public class GetInventoryByCategoryQuery()
+{
+    public GetInventoryByCategoryQuery(Guid categoryId, int page = 1, int perPage = 10)
+        : this()
+    {
+        CategoryId = categoryId;
+        Page = page;
+        PerPage = perPage;
+    }
+
+    [Required]
+    public Guid CategoryId { get; set; }
+
+    public int Page { get; set; }
+
+    public int PerPage { get; set; }
+}

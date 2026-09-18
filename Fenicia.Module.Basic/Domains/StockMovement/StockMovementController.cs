@@ -114,7 +114,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
     /// <response code="404">Movimentação não encontrada</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateStockMovementResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -133,8 +133,20 @@ public class StockMovementController(IStockMovementService stockMovementService,
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
+            var updatedCommand = new UpdateStockMovementCommand(
+                id,
+                command.Quantity,
+                command.Date,
+                command.Price,
+                command.Type,
+                command.ProductId,
+                command.CustomerId,
+                command.SupplierId,
+                command.EmployeeId,
+                command.OrderId,
+                command.Reason);
             var stockMovement = await stockMovementService.UpdateAsync(
-                command with { Id = id },
+                updatedCommand,
                 companyId,
                 cancellationToken);
 

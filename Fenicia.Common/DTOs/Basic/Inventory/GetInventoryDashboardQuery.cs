@@ -1,3 +1,12 @@
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public record GetInventoryDashboardQuery(int Days = 90);
+public class GetInventoryDashboardQuery()
+{
+    public GetInventoryDashboardQuery(int days = 90)
+        : this()
+    {
+        Days = days;
+    }
+
+    public int Days { get; set; }
+}

@@ -2,12 +2,6 @@
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-@code {
-    private CustomerFormModel add = new();
-    private CustomerFormModel edit = new();
-    private List<StateOption> states = new();
-}
-
 <CrudPage TItem="GetAllCustomerResponse"
           PageTitle="Clientes"
           PageSubtitle="Gerencie os clientes da sua empresa"
@@ -33,9 +27,9 @@
                      OnDelete="@(() => context.Page.RequestDelete(context.Item))" />
     </RowTemplate>
     <AddModalBody>
-        <CustomerForm Model="add" States="states" />
+        <CustomerForm Model="_add" States="_states" />
     </AddModalBody>
     <EditModalBody>
-        <CustomerForm Model="edit" States="states" />
+        <CustomerForm Model="_edit" States="_states" />
     </EditModalBody>
 </CrudPage>

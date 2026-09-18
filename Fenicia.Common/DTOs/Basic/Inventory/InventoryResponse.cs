@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public record InventoryResponse
+public class InventoryResponse
 {
     public List<InventoryDetailResponse> Items { get; init; } = [];
 

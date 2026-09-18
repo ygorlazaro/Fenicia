@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Supplier;
 
-public record SupplierPerformanceResponse
+public class SupplierPerformanceResponse
 {
     public List<SupplierProductCountResponse> ProductsPerSupplier { get; set; } = [];
 

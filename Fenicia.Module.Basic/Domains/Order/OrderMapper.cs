@@ -1,36 +1,48 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Order;
+using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Enums.Basic;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
-[Mapper]
-public static partial class OrderMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class OrderMapper
 {
-    public static GetAllOrderResponse MapToGetAllOrderResponse(
-        this OrderModel order,
+    public GetAllOrderResponse MapToGetAllOrderResponse(
+        Guid id,
+        string orderNumber,
+        Guid userId,
+        Guid customerId,
         string customerName,
-        string? employeeName,
-        int detailCount)
+        decimal totalAmount,
+        decimal discountAmount,
+        int totalQuantity,
+        DateTime saleDate,
+        OrderStatus status,
+        PaymentMethod paymentMethod,
+        int detailCount,
+        Guid? employeeId,
+        string? employeeName)
     {
         return new GetAllOrderResponse(
-            order.Id,
-            order.OrderNumber,
-            order.UserId,
-            order.CustomerId,
+            id,
+            orderNumber,
+            userId,
+            customerId,
             customerName,
-            order.TotalAmount,
-            order.DiscountAmount,
-            order.TotalQuantity,
-            order.SaleDate,
-            order.Status.ToString(),
-            order.PaymentMethod,
+            totalAmount,
+            discountAmount,
+            totalQuantity,
+            saleDate,
+            status.ToString(),
+            paymentMethod,
             detailCount,
-            order.EmployeeId,
+            employeeId,
             employeeName);
     }
 
-    public static GetOrderByIdResponse MapToGetOrderByIdResponse(this OrderModel order)
+    public static GetOrderByIdResponse MapToGetOrderByIdResponse(OrderModel order)
     {
         return new GetOrderByIdResponse(
             order.Id,
@@ -49,7 +61,7 @@ public static partial class OrderMapper
             order.Employee?.Person.Name);
     }
 
-    public static CreateOrderResponse MapToCreateOrderResponse(this OrderModel order)
+    public static CreateOrderResponse MapToCreateOrderResponse(OrderModel order)
     {
         return new CreateOrderResponse(
             order.Id,

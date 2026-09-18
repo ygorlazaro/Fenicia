@@ -1,7 +1,7 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 
-namespace Fenicia.Module.Basic.Domains.Order;
+namespace Fenicia.Module.Basic.Domains.Order.Interfaces;
 
 public interface IOrderRepository : IRepository<OrderModel>
 {

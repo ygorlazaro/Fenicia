@@ -1,9 +1,10 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Attachment;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
-public class AttachmentService(AttachmentRepository repository)
+public class AttachmentService(AttachmentRepository repository, AttachmentMapper mapper)
 {
     public async Task<AddAttachmentResponse> AddAsync(
         AddAttachmentCommand command,
@@ -22,14 +23,7 @@ public class AttachmentService(AttachmentRepository repository)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddAttachmentResponse(
-            created.Id,
-            created.Url,
-            created.FileType,
-            created.FileSize,
-            created.CommentId,
-            created.CompanyId,
-            created.UploadDate);
+        return mapper.MapToAddAttachmentResponse(created);
     }
 
     public async Task DeleteAsync(DeleteAttachmentCommand command, CancellationToken cancellationToken = default)
@@ -45,15 +39,6 @@ public class AttachmentService(AttachmentRepository repository)
         var baseQuery = repository.Query().Where(a => a.CommentId == commentId);
         var attachments = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return
-        [
-            .. attachments.Select(a => new GetAttachmentResponse(
-                a.Id,
-                a.Url,
-                a.FileType,
-                a.FileSize,
-                a.CommentId,
-                a.UploadDate))
-        ];
+        return [.. attachments.Select(mapper.MapToGetAttachmentResponse)];
     }
 }

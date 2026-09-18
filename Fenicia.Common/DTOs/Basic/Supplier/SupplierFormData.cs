@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Supplier;
 
-public record SupplierFormData
+public class SupplierFormData
 {
     public string? Name { get; set; }
 

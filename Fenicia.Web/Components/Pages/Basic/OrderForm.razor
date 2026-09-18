@@ -27,7 +27,7 @@
 
             <MudItem xs="12" md="7" lg="8">
                 <OrderFormProductSearch Products="products"
-                                        Search="_search"
+                                        Search="@search"
                                         Loading="isLoading"
                                         OnSearchKeyDown="OnSearchKeyDown"
                                         OnProductClick="AddToCart" />
@@ -74,7 +74,7 @@
     private bool isLoading = true;
     private bool isSubmitting;
 
-    private string? search;
+    private string search = string.Empty;
 
     private List<GetAllProductResponse> products = [];
     private List<OrderFormCustomerOption> customers = [];
@@ -142,35 +142,41 @@
                 client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
             }
 
-            var productsTask = client.GetAsync("datasource/dashboard/product");
-            var customersTask = client.GetAsync("datasource/customer");
-            var employeesTask = client.GetAsync("datasource/employee");
-            var recentOrdersTask = client.GetAsync("order?page=1&perPage=5");
+            products = [];
+            customers = [];
+            employees = [];
+            recentOrders = [];
 
-            await Task.WhenAll(productsTask, customersTask, employeesTask, recentOrdersTask);
-
-            if (productsTask.Result.IsSuccessStatusCode)
+            var productsResponse = await client.GetAsync("datasource/dashboard/product");
+            if (productsResponse.IsSuccessStatusCode)
             {
-                var body = await productsTask.Result.Content.ReadAsStringAsync();
+                var body = await productsResponse.Content.ReadAsStringAsync();
                 products = JsonSerializer.Deserialize<List<GetAllProductResponse>>(body, JsonOptions) ?? [];
             }
-
-            if (customersTask.Result.IsSuccessStatusCode)
+            else
             {
-                var body = await customersTask.Result.Content.ReadAsStringAsync();
+                var err = await productsResponse.Content.ReadAsStringAsync();
+                Snackbar.Add($"Falha ao carregar produtos: {(int)productsResponse.StatusCode} - {err}", Severity.Error);
+            }
+
+            var customersResponse = await client.GetAsync("datasource/customer");
+            if (customersResponse.IsSuccessStatusCode)
+            {
+                var body = await customersResponse.Content.ReadAsStringAsync();
                 customers = JsonSerializer.Deserialize<List<OrderFormCustomerOption>>(body, JsonOptions) ?? [];
             }
 
-            if (employeesTask.Result.IsSuccessStatusCode)
+            var employeesResponse = await client.GetAsync("datasource/employee");
+            if (employeesResponse.IsSuccessStatusCode)
             {
-                var body = await employeesTask.Result.Content.ReadAsStringAsync();
+                var body = await employeesResponse.Content.ReadAsStringAsync();
                 employees = JsonSerializer.Deserialize<List<OrderFormEmployeeOption>>(body, JsonOptions) ?? [];
             }
 
-            recentOrders = [];
-            if (recentOrdersTask.Result.IsSuccessStatusCode)
+            var recentOrdersResponse = await client.GetAsync("order?page=1&perPage=5");
+            if (recentOrdersResponse.IsSuccessStatusCode)
             {
-                var body = await recentOrdersTask.Result.Content.ReadAsStringAsync();
+                var body = await recentOrdersResponse.Content.ReadAsStringAsync();
                 var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
                 recentOrders = paginated?.Data ?? [];
             }

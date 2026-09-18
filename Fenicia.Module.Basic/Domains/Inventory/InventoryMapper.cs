@@ -4,30 +4,12 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
-[Mapper]
-public static partial class InventoryMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class InventoryMapper
 {
-    public static InventoryDetailResponse MapToInventoryDetailResponse(this ProductModel product)
-    {
-        return new InventoryDetailResponse(
-            product.Id,
-            product.Name,
-            product.Quantity,
-            product.CostPrice,
-            product.SalesPrice,
-            product.CategoryId,
-            product.Category.Name);
-    }
+    [MapProperty("Category.Name", nameof(InventoryDetailResponse.CategoryName))]
+    public partial InventoryDetailResponse MapToInventoryDetailResponse(ProductModel product);
 
-    public static InventoryDashboardItemResponse MapToInventoryDashboardItemResponse(this ProductModel product)
-    {
-        return new InventoryDashboardItemResponse(
-            product.Id,
-            product.Name,
-            product.Quantity,
-            product.CostPrice,
-            product.SalesPrice,
-            product.CategoryId,
-            product.Category.Name);
-    }
+    [MapProperty("Category.Name", nameof(InventoryDashboardItemResponse.CategoryName))]
+    public partial InventoryDashboardItemResponse MapToInventoryDashboardItemResponse(ProductModel product);
 }

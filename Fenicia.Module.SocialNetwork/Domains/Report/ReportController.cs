@@ -112,7 +112,8 @@ public class ReportController(ReportService reportService) : ControllerBase
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await reportService.UpdateStatusAsync(command with { Id = id }, cancellationToken);
+        var updatedCommand = new UpdateReportStatusCommand(id, command.Status);
+        var result = await reportService.UpdateStatusAsync(updatedCommand, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }

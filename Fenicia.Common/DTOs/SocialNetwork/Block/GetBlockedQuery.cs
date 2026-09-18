@@ -1,7 +1,21 @@
 namespace Fenicia.Common.DTOs.SocialNetwork.Block;
 
-public record GetBlockedQuery(
-    int Page = 1,
-    int PerPage = 10,
-    string? Query = null,
-    string? Sort = null);
+public class GetBlockedQuery()
+{
+    public GetBlockedQuery(int page = 1, int perPage = 10, string? query = null, string? sort = null)
+        : this()
+    {
+        Page = page;
+        PerPage = perPage;
+        Query = query;
+        Sort = sort;
+    }
+
+    public int Page { get; set; } = 1;
+
+    public int PerPage { get; set; } = 10;
+
+    public string? Query { get; set; }
+
+    public string? Sort { get; set; }
+}

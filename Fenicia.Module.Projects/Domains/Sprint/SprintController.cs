@@ -132,7 +132,13 @@ public class SprintController(ISprintService sprintService, ICompanyContext comp
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var sprint = await sprintService.UpdateAsync(command with { Id = id }, companyContext.CompanyId, cancellationToken);
+            var updatedCommand = new UpdateSprintCommand(
+                id,
+                command.Name,
+                command.StartDate,
+                command.EndDate,
+                command.Description);
+            var sprint = await sprintService.UpdateAsync(updatedCommand, companyContext.CompanyId, cancellationToken);
 
         return sprint is null ? NotFound() : Ok(sprint);
     }

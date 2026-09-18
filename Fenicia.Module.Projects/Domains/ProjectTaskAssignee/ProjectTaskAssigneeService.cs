@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.DTOs.Project.ProjectTaskAssignee;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 

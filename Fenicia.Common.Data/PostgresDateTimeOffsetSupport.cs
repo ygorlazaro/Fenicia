@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Fenicia.Common.Data;
 
-public static class PostgresDateTimeOffsetSupport
+internal static class PostgresDateTimeOffsetSupport
 {
-    public static void Init(ModelBuilder modelBuilder)
+    internal static void Init(ModelBuilder modelBuilder)
     {
         var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
             v => v.ToUniversalTime(),

@@ -1,22 +1,22 @@
 using System.Linq.Expressions;
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Product;
-using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
-using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
 public sealed class ProductService(
     IProductRepository productRepository,
-    IProductCategoryService productCategoryService,
     IOrderDetailService orderDetailService,
-    IStockMovementService stockMovementService) : IProductService
+    IStockMovementService stockMovementService,
+    ProductMapper productMapper) : IProductService
 {
     public ProductService()
         : this(null!, null!, null!, null!)
@@ -40,7 +40,7 @@ public sealed class ProductService(
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = products.Select(p => p.MapToGetAllProductResponse()).ToList();
+        var response = products.Select(productMapper.MapToGetAllProductResponse).ToList();
 
         return new Pagination<List<GetAllProductResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -72,7 +72,7 @@ public sealed class ProductService(
                 p.Quantity,
                 p.UnitOfMeasure,
                 p.CategoryId,
-                p.Category.Name,
+                p.Category != null ? p.Category.Name : string.Empty,
                 p.IsActive))
             .ToListAsync(cancellationToken);
 
@@ -85,7 +85,7 @@ public sealed class ProductService(
     {
         var product = await productRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        return product?.MapToGetProductByIdResponse();
+        return product is null ? null : productMapper.MapToGetProductByIdResponse(product);
     }
 
     public async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(
@@ -96,7 +96,7 @@ public sealed class ProductService(
     {
         var products = await productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, cancellationToken);
 
-        return [.. products.Select(p => p.MapToGetProductsByCategoryIdResponse())];
+        return [.. products.Select(productMapper.MapToGetProductsByCategoryIdResponse)];
     }
 
     public async Task<AddProductResponse> AddAsync(
@@ -130,13 +130,7 @@ public sealed class ProductService(
 
         var insertedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
 
-        var category = await productCategoryService.GetByIdAsync(
-            new GetProductCategoryByIdQuery(product.CategoryId),
-            cancellationToken);
-
-        var supplierName = insertedProduct?.Supplier?.Person.Name;
-
-        return product.MapToAddProductResponse(category?.Name ?? string.Empty, supplierName);
+        return productMapper.MapToAddProductResponse(insertedProduct!);
     }
 
     public async Task<UpdateProductResponse?> UpdateAsync(
@@ -172,13 +166,7 @@ public sealed class ProductService(
 
         var updatedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
 
-        var category = await productCategoryService.GetByIdAsync(
-            new GetProductCategoryByIdQuery(product.CategoryId),
-            cancellationToken);
-
-        var supplierName = updatedProduct?.Supplier?.Person.Name;
-
-        return product.MapToUpdateProductResponse(category?.Name ?? string.Empty, supplierName);
+        return productMapper.MapToUpdateProductResponse(updatedProduct!);
     }
 
     public async Task DeleteAsync(

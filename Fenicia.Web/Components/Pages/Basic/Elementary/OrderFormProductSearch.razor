@@ -19,9 +19,11 @@
         </MudItem>
     </MudGrid>
 
-    <MudDivider Class="my-3" />
+<MudDivider Class="my-3" />
 
-    @if (Loading)
+<MudAlert Severity="Severity.Info" Class="mb-3">@Products.Count() recebidos, @FilteredProducts.Count() filtrados</MudAlert>
+
+@if (Loading)
     {
         <div class="d-flex justify-center my-8">
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />

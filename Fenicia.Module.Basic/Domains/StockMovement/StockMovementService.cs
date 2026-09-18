@@ -1,19 +1,22 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
-using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public sealed class StockMovementService(
     IStockMovementRepository stockMovementRepository,
-    IProductRepository productRepository) : IStockMovementService
+    IProductRepository productRepository,
+    StockMovementMapper stockMovementMapper) : IStockMovementService
 {
     public StockMovementService()
-        : this(null!, null!)
+        : this(null!, null!, null!)
     {
     }
 
@@ -45,7 +48,7 @@ public sealed class StockMovementService(
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        return [.. movements.Select(m => m.MapToGetStockMovementResponse())];
+        return [.. movements.Select(stockMovementMapper.MapToGetStockMovementResponse)];
     }
 
     public async Task<AddStockMovementResponse> AddAsync(
@@ -75,7 +78,7 @@ public sealed class StockMovementService(
 
         if (product is null)
         {
-            return stockMovement.MapToAddStockMovementResponse();
+            return stockMovementMapper.MapToAddStockMovementResponse(stockMovement);
         }
 
         var newQuantity = command.Type switch
@@ -89,7 +92,7 @@ public sealed class StockMovementService(
         product.Quantity = newQuantity;
         await productRepository.UpdateAsync(product.Id, product, cancellationToken);
 
-        return stockMovement.MapToAddStockMovementResponse();
+        return stockMovementMapper.MapToAddStockMovementResponse(stockMovement);
     }
 
     public async Task<UpdateStockMovementResponse?> UpdateAsync(
@@ -118,7 +121,7 @@ public sealed class StockMovementService(
 
         await stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, cancellationToken);
 
-        return stockMovement.MapToUpdateStockMovementResponse();
+        return stockMovementMapper.MapToUpdateStockMovementResponse(stockMovement);
     }
 
     public Task<List<StockMovementModel>> GetRecentWithProductAsync(
@@ -238,24 +241,14 @@ public sealed class StockMovementService(
         };
     }
 
-    private static List<StockMovementHistoryResponse> GetStockMovementHistoryAsync(
+    private List<StockMovementHistoryResponse> GetStockMovementHistoryAsync(
         IEnumerable<StockMovementModel> movements)
     {
         var movementList = movements.ToList();
 
-        var request = from m in movementList
-                      orderby m.Date descending
-                      select new StockMovementHistoryResponse(
-                          m.Id,
-                          m.ProductId,
-                          m.Product.Name,
-                          m.Quantity,
-                          m.Date!.Value,
-                          m.Price ?? 0,
-                          m.Type.ToString(),
-                          m.Reason,
-                          m.Customer?.Person.Name,
-                          m.Supplier?.Person.Name);
+        var request = movementList
+            .OrderByDescending(m => m.Date)
+            .Select(stockMovementMapper.MapToStockMovementHistoryResponse);
 
         return [.. request];
     }

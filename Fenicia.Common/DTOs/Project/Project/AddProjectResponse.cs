@@ -2,12 +2,50 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.Project;
 
-public record AddProjectResponse(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Title,
-    [MaxLength(200)] string? Description,
-    [Required][MaxLength(200)] string Status,
-    DateTime? StartDate,
-    DateTime? EndDate,
-    [Required] Guid Owner,
-    [Required] Guid CompanyId);
+public class AddProjectResponse()
+{
+    public AddProjectResponse(
+        [Required] Guid id,
+        [Required] [MaxLength(200)] string title,
+        [MaxLength(200)] string? description,
+        [Required] [MaxLength(200)] string status,
+        DateTime? startDate,
+        DateTime? endDate,
+        [Required] Guid owner,
+        [Required] Guid companyId)
+        : this()
+    {
+        Id = id;
+        Title = title;
+        Description = description;
+        Status = status;
+        StartDate = startDate;
+        EndDate = endDate;
+        Owner = owner;
+        CompanyId = companyId;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Title { get; set; } = string.Empty;
+
+    [MaxLength(200)]
+    public string? Description { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Status { get; set; } = string.Empty;
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
+
+    [Required]
+    public Guid Owner { get; set; }
+
+    [Required]
+    public Guid CompanyId { get; set; }
+}

@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public record OrderAnalyticsResponse
+public class OrderAnalyticsResponse
 {
     public List<OrderStatusCountResponse> OrdersByStatus { get; set; } = [];
 

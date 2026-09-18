@@ -1,10 +1,11 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Comment;
 using Fenicia.Module.SocialNetwork.Domains.Feed;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
-public class CommentService(CommentRepository repository, FeedRepository feedRepository)
+public class CommentService(CommentRepository repository, FeedRepository feedRepository, CommentMapper mapper)
 {
     public async Task<List<GetAllCommentResponse>> GetAllByFeedAsync(
         GetAllCommentByFeedQuery query,
@@ -51,19 +52,7 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
         CancellationToken cancellationToken = default)
     {
         var comment = await repository.GetByIdAsync(query.Id, cancellationToken);
-
-        return comment switch
-        {
-            null => null,
-            _ => new GetCommentByIdResponse(
-                comment.Id,
-                comment.ProfileId,
-                comment.FeedId,
-                comment.ParentCommentId,
-                comment.Text,
-                comment.CommentDate,
-                comment.UpdatedDate)
-        };
+        return comment is null ? null : mapper.MapToGetCommentByIdResponse(comment);
     }
 
     public async Task<AddCommentResponse> AddAsync(
@@ -85,14 +74,7 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
 
         var created = await repository.InsertAsync(model, cancellationToken);
         await IncrementFeedTotalCommentsAsync(command.FeedId, cancellationToken);
-        return new AddCommentResponse(
-            created.Id,
-            created.ProfileId,
-            created.FeedId,
-            created.ParentCommentId,
-            created.Text,
-            created.CommentDate,
-            created.CompanyId);
+        return mapper.MapToAddCommentResponse(created);
     }
 
     public async Task<UpdateCommentResponse?> UpdateAsync(
@@ -119,17 +101,7 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
         };
 
         var updated = await repository.UpdateAsync(command.Id, model, cancellationToken);
-        return updated is null
-            ? null
-            : new UpdateCommentResponse(
-                updated.Id,
-                updated.ProfileId,
-                updated.FeedId,
-                updated.ParentCommentId,
-                updated.Text,
-                updated.CommentDate,
-                updated.UpdatedDate,
-                updated.CompanyId);
+        return updated is null ? null : mapper.MapToUpdateCommentResponse(updated);
     }
 
     public async Task DeleteAsync(
@@ -156,6 +128,7 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
             .OrderBy(c => c.CommentDate);
         var replies = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
+
         return
         [
             .. replies.Select(r => new GetRepliesResponse(

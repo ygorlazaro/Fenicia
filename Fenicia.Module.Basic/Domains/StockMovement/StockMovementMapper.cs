@@ -4,58 +4,21 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
-[Mapper]
-public static partial class StockMovementMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class StockMovementMapper
 {
-    public static GetStockMovementResponse MapToGetStockMovementResponse(this StockMovementModel movement)
-    {
-        return new GetStockMovementResponse(
-            movement.Id,
-            movement.ProductId,
-            movement.Product.Name,
-            movement.Quantity,
-            movement.Date,
-            movement.Price,
-            movement.Type,
-            movement.CustomerId,
-            movement.Customer?.Person.Name,
-            movement.SupplierId,
-            movement.Supplier?.Person.Name,
-            movement.EmployeeId,
-            movement.Employee?.Person.Name,
-            movement.OrderId,
-            movement.Reason);
-    }
+    [MapProperty("Product.Name", nameof(GetStockMovementResponse.ProductName))]
+    [MapProperty("Customer.Person.Name", nameof(GetStockMovementResponse.CustomerName))]
+    [MapProperty("Supplier.Person.Name", nameof(GetStockMovementResponse.SupplierName))]
+    [MapProperty("Employee.Person.Name", nameof(GetStockMovementResponse.EmployeeName))]
+    public partial GetStockMovementResponse MapToGetStockMovementResponse(StockMovementModel movement);
 
-    public static AddStockMovementResponse MapToAddStockMovementResponse(this StockMovementModel movement)
-    {
-        return new AddStockMovementResponse(
-            movement.Id,
-            movement.ProductId,
-            movement.Quantity,
-            movement.Date,
-            movement.Price ?? 0,
-            movement.Type,
-            movement.CustomerId,
-            movement.SupplierId,
-            movement.EmployeeId,
-            movement.OrderId,
-            movement.Reason);
-    }
+    public partial AddStockMovementResponse MapToAddStockMovementResponse(StockMovementModel movement);
 
-    public static UpdateStockMovementResponse MapToUpdateStockMovementResponse(this StockMovementModel movement)
-    {
-        return new UpdateStockMovementResponse(
-            movement.Id,
-            movement.ProductId,
-            movement.Quantity,
-            movement.Date,
-            movement.Price ?? 0,
-            movement.Type,
-            movement.CustomerId,
-            movement.SupplierId,
-            movement.EmployeeId,
-            movement.OrderId,
-            movement.Reason);
-    }
+    public partial UpdateStockMovementResponse MapToUpdateStockMovementResponse(StockMovementModel movement);
+
+    [MapProperty("Product.Name", nameof(StockMovementHistoryResponse.ProductName))]
+    [MapProperty("Customer.Person.Name", nameof(StockMovementHistoryResponse.CustomerName))]
+    [MapProperty("Supplier.Person.Name", nameof(StockMovementHistoryResponse.SupplierName))]
+    public partial StockMovementHistoryResponse MapToStockMovementHistoryResponse(StockMovementModel movement);
 }

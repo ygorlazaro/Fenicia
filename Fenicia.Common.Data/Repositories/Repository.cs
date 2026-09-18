@@ -19,6 +19,11 @@ public class Repository<T>(DbContext context) : IRepository<T>
             .ToListAsync(cancellationToken);
     }
 
+    public virtual IQueryable<T> GetAllQuery()
+    {
+        return DbSet.AsNoTracking().AsQueryable();
+    }
+
     public virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
@@ -118,4 +123,6 @@ public class Repository<T>(DbContext context) : IRepository<T>
     {
         return context.SaveChangesAsync(cancellationToken);
     }
+
+    public IQueryable<T> Query() => DbSet;
 }

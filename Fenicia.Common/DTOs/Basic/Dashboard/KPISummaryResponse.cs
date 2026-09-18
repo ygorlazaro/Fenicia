@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Dashboard;
 
-public record KpiSummaryResponse
+public class KpiSummaryResponse
 {
     public decimal TotalRevenue { get; set; }
 

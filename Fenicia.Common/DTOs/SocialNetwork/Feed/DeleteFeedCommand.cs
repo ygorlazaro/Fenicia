@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Feed;
 
-public record DeleteFeedCommand([Required] Guid Id);
+public class DeleteFeedCommand()
+{
+    public DeleteFeedCommand(Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

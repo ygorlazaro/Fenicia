@@ -156,8 +156,9 @@ public class OrderController(IOrderService orderService, ICompanyContext company
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
+            command.UserId = userId;
             var order = await orderService.CreateAsync(
-                command with { UserId = userId },
+                command,
                 companyContext.CompanyId,
                 cancellationToken);
 
@@ -180,7 +181,7 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     /// <response code="403">Acesso negado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

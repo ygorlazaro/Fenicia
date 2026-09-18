@@ -1,99 +1,29 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.Employee;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
-[Mapper]
-public static partial class EmployeeMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class EmployeeMapper
 {
-    public static GetAllEmployeeResponse MapToGetAllEmployeeResponse(this EmployeeModel employee)
-    {
-        var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
+    [MapProperty("Person.Name", nameof(GetAllEmployeeResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetAllEmployeeResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetAllEmployeeResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetAllEmployeeResponse.Document))]
+    [MapProperty("Position.Name", nameof(GetAllEmployeeResponse.PositionName))]
+    public partial GetAllEmployeeResponse MapToGetAllEmployeeResponse(EmployeeModel employee);
 
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetAllEmployeeResponse(
-            employee.Id,
-            employee.PositionId,
-            employee.PersonId,
-            employee.Person.Name,
-            employee.Person.Email,
-            employee.Person.PhoneNumber,
-            employee.Person.Document,
-            employee.Position.Name,
-            addressResponse);
-    }
+    [MapProperty("Person.Name", nameof(GetEmployeeByIdResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetEmployeeByIdResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetEmployeeByIdResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetEmployeeByIdResponse.Document))]
+    public partial GetEmployeeByIdResponse MapToGetEmployeeByIdResponse(EmployeeModel employee);
 
-    public static GetEmployeeByIdResponse MapToGetEmployeeByIdResponse(this EmployeeModel employee)
-    {
-        var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetEmployeeByIdResponse(
-            employee.Id,
-            employee.PositionId,
-            employee.PersonId,
-            employee.Person.Name,
-            employee.Person.Email,
-            employee.Person.PhoneNumber,
-            employee.Person.Document,
-            addressResponse);
-    }
-
-    public static GetEmployeesByPositionIdResponse MapToGetEmployeesByPositionIdResponse(this EmployeeModel employee)
-    {
-        var personAddress = employee.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetEmployeesByPositionIdResponse(
-            employee.Id,
-            employee.PositionId,
-            employee.PersonId,
-            employee.Person.Name,
-            employee.Person.Email,
-            employee.Person.PhoneNumber,
-            employee.Person.Document,
-            employee.Position.Name,
-            addressResponse);
-    }
+    [MapProperty("Person.Name", nameof(GetEmployeesByPositionIdResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetEmployeesByPositionIdResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetEmployeesByPositionIdResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetEmployeesByPositionIdResponse.Document))]
+    [MapProperty("Position.Name", nameof(GetEmployeesByPositionIdResponse.PositionName))]
+    public partial GetEmployeesByPositionIdResponse MapToGetEmployeesByPositionIdResponse(EmployeeModel employee);
 }

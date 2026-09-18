@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.ProjectTask;
 
-public record GetProjectTaskByIdQuery([Required] Guid Id);
+public class GetProjectTaskByIdQuery()
+{
+    public GetProjectTaskByIdQuery([Required] Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

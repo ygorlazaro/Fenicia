@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public record InventoryHealthSummaryResponse
+public class InventoryHealthSummaryResponse
 {
     public int TotalProducts { get; set; }
 

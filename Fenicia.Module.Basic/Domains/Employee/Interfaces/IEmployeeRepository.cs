@@ -1,7 +1,7 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 
-namespace Fenicia.Module.Basic.Domains.Employee;
+namespace Fenicia.Module.Basic.Domains.Employee.Interfaces;
 
 public interface IEmployeeRepository : IRepository<EmployeeModel>
 {

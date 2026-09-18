@@ -1,12 +1,12 @@
 namespace Fenicia.Common.DTOs.Basic.Customer;
 
-public record CustomerInsightsResponse
+public class CustomerInsightsResponse
 {
-    public CustomerSummaryResponse Summary { get; init; } = new();
+    public CustomerSummaryResponse Summary { get; set; } = new();
 
-    public List<CustomerOrderHistoryResponse> TopCustomers { get; init; } = [];
+    public List<CustomerOrderHistoryResponse> TopCustomers { get; set; } = [];
 
-    public List<CustomerRecentOrdersResponse> RecentOrders { get; init; } = [];
+    public List<CustomerRecentOrdersResponse> RecentOrders { get; set; } = [];
 
-    public List<CustomerRiskAlertResponse> AtRiskCustomers { get; init; } = [];
+    public List<CustomerRiskAlertResponse> AtRiskCustomers { get; set; } = [];
 }

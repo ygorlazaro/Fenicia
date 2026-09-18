@@ -4,11 +4,8 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-[Mapper]
-public static partial class StateMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class StateMapper
 {
-    public static GetAllStateResponse MapToGetAllStateResponse(this StateModel state)
-    {
-        return new GetAllStateResponse(state.Id, state.Name, state.Uf);
-    }
+    public partial GetAllStateResponse MapToGetAllStateResponse(StateModel state);
 }

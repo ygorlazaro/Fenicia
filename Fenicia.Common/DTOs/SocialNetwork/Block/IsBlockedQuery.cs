@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Block;
 
-public record IsBlockedQuery([Required] Guid BlockedProfileId);
+public class IsBlockedQuery()
+{
+    public IsBlockedQuery(Guid blockedProfileId)
+        : this()
+    {
+        BlockedProfileId = blockedProfileId;
+    }
+
+    [Required]
+    public Guid BlockedProfileId { get; set; }
+}

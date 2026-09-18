@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
-public class ProjectTaskRepository(DefaultContext context)
+public class ProjectTaskRepository(DbContext context)
     : Repository<ProjectTaskModel>(context), IProjectTaskRepository
 {
     public Task<ProjectTaskModel?> GetByIdWithRelationsAsync(

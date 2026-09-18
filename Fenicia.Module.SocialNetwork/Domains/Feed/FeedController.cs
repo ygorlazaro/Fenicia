@@ -87,8 +87,9 @@ public class FeedController(
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
+        command.ProfileId = profileId;
         var result = await feedService.AddAsync(
-            command with { ProfileId = profileId },
+            command,
             companyContext.CompanyId,
             cancellationToken);
 
@@ -109,8 +110,9 @@ public class FeedController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
+        command.Id = id;
         var result = await feedService.UpdateAsync(
-            command with { Id = id },
+            command,
             companyContext.CompanyId,
             cancellationToken);
 

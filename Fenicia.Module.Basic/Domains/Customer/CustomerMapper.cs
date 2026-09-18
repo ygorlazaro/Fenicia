@@ -1,65 +1,23 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.Customer;
 using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
-[Mapper]
-public static partial class CustomerMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+public partial class CustomerMapper
 {
-    public static GetAllCustomerResponse MapToGetAllCustomerResponse(this CustomerModel customer)
-    {
-        var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetAllCustomerResponse(
-            customer.Id,
-            customer.PersonId,
-            customer.Person.Name,
-            customer.Person.Email,
-            customer.Person.PhoneNumber,
-            customer.Person.Document,
-            addressResponse);
-    }
+    [MapProperty("Person.Name", nameof(GetAllCustomerResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetAllCustomerResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetAllCustomerResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetAllCustomerResponse.Document))]
+    [MapProperty(nameof(CustomerModel.PersonId), nameof(GetAllCustomerResponse.PersonId))]
+    public partial GetAllCustomerResponse MapToGetAllCustomerResponse(CustomerModel customer);
 
-    public static GetCustomerByIdResponse MapToGetCustomerByIdResponse(this CustomerModel customer)
-    {
-        var personAddress = customer.Person.PersonAddresses.FirstOrDefault();
-        var address = personAddress?.Address;
-
-        var addressResponse = address != null
-            ? new AddressResponse(
-                address.Id,
-                address.Street,
-                address.Number,
-                address.Complement,
-                address.Neighborhood,
-                address.ZipCode!,
-                address.StateId,
-                address.State.Name,
-                address.City,
-                address.Country)
-            : null;
-        return new GetCustomerByIdResponse(
-            customer.Id,
-            customer.PersonId,
-            customer.Person.Name,
-            customer.Person.Email,
-            customer.Person.PhoneNumber,
-            customer.Person.Document,
-            addressResponse);
-    }
+    [MapProperty("Person.Name", nameof(GetCustomerByIdResponse.Name))]
+    [MapProperty("Person.Email", nameof(GetCustomerByIdResponse.Email))]
+    [MapProperty("Person.PhoneNumber", nameof(GetCustomerByIdResponse.PhoneNumber))]
+    [MapProperty("Person.Document", nameof(GetCustomerByIdResponse.Document))]
+    [MapProperty(nameof(CustomerModel.PersonId), nameof(GetCustomerByIdResponse.PersonId))]
+    public partial GetCustomerByIdResponse MapToGetCustomerByIdResponse(CustomerModel customer);
 }

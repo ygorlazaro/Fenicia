@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Dashboard;
 
-public record FinancialDashboardResponse
+public class FinancialDashboardResponse
 {
     public KpiSummaryResponse Kpi { get; set; } = new();
 

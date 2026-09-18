@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
-public sealed class FriendshipService(IFriendshipRepository friendshipRepository)
+public sealed class FriendshipService(IFriendshipRepository friendshipRepository, FriendshipMapper mapper)
 {
     public FriendshipService()
-        : this(null!)
+        : this(null!, null!)
     {
     }
 
@@ -26,23 +26,13 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         {
             if (friendship.IsActive)
             {
-                return new AddFriendshipResponse(
-                    friendship.Id,
-                    friendship.ProfileId,
-                    friendship.TargetProfileId,
-                    friendship.FollowDate,
-                    friendship.IsActive);
+                return mapper.MapToAddFriendshipResponse(friendship);
             }
 
             friendship.IsActive = true;
             friendship.FollowDate = DateTime.UtcNow;
             await friendshipRepository.UpdateAsync(friendship.Id, friendship, cancellationToken);
-            return new AddFriendshipResponse(
-                friendship.Id,
-                friendship.ProfileId,
-                friendship.TargetProfileId,
-                friendship.FollowDate,
-                friendship.IsActive);
+            return mapper.MapToAddFriendshipResponse(friendship);
         }
 
         var newFriendship = new FriendshipModel
@@ -54,12 +44,7 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         };
 
         var created = await friendshipRepository.InsertAsync(newFriendship, cancellationToken);
-        return new AddFriendshipResponse(
-            created.Id,
-            created.ProfileId,
-            created.TargetProfileId,
-            created.FollowDate,
-            created.IsActive);
+        return mapper.MapToAddFriendshipResponse(created);
     }
 
     public async Task UnfollowAsync(
@@ -90,7 +75,7 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = friendships.Select(f => new GetFollowersResponse(f.Id, f.ProfileId, f.FollowDate)).ToList();
+        var response = friendships.Select(mapper.MapToGetFollowersResponse).ToList();
 
         return new Pagination<List<GetFollowersResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -106,7 +91,7 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = friendships.Select(f => new GetFollowingResponse(f.Id, f.TargetProfileId, f.FollowDate)).ToList();
+        var response = friendships.Select(mapper.MapToGetFollowingResponse).ToList();
 
         return new Pagination<List<GetFollowingResponse>>(response, total, query.Page, query.PerPage);
     }

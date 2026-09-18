@@ -2,11 +2,45 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Project.ProjectStatus;
 
-public record GetAllProjectStatusResponse(
-    [Required] Guid Id,
-    [Required] Guid ProjectId,
-    [Required][MaxLength(200)] string Name,
-    [Required][MaxLength(200)] string Color,
-    int Order,
-    bool IsFinal,
-    [Required] Guid CompanyId);
+public class GetAllProjectStatusResponse()
+{
+    public GetAllProjectStatusResponse(
+        [Required] Guid id,
+        [Required] Guid projectId,
+        [Required] [MaxLength(200)] string name,
+        [Required] [MaxLength(200)] string color,
+        int order,
+        bool isFinal,
+        [Required] Guid companyId)
+        : this()
+    {
+        Id = id;
+        ProjectId = projectId;
+        Name = name;
+        Color = color;
+        Order = order;
+        IsFinal = isFinal;
+        CompanyId = companyId;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    public Guid ProjectId { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(200)]
+    public string Color { get; set; } = string.Empty;
+
+    public int Order { get; set; }
+
+    public bool IsFinal { get; set; }
+
+    [Required]
+    public Guid CompanyId { get; set; }
+}

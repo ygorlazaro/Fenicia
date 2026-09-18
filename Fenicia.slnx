@@ -1,16 +1,11 @@
 <Solution>
-  <Project Path="Fenicia.Auth.Tests/Fenicia.Auth.Tests.csproj" />
   <Project Path="Fenicia.Auth/Fenicia.Auth.csproj" />
-  <Project Path="Fenicia.Common.API.Tests/Fenicia.Common.API.Tests.csproj" />
   <Project Path="Fenicia.Common.API/Fenicia.Common.API.csproj" />
-  <Project Path="Fenicia.Common.Data.Tests/Fenicia.Common.Data.Tests.csproj" />
   <Project Path="Fenicia.Common.Data/Fenicia.Common.Data.csproj" />
   <Project Path="Fenicia.Common.Tests/Fenicia.Common.Tests.csproj" />
   <Project Path="Fenicia.Common/Fenicia.Common.csproj" />
-  <Project Path="Fenicia.Externals.Email.Tests/Fenicia.Externals.Email.Tests.csproj" />
   <Project Path="Fenicia.Externals.Email/Fenicia.Externals.Email.csproj" />
   <Project Path="Fenicia.Module.Accounting/Fenicia.Module.Accounting.csproj" />
-  <Project Path="Fenicia.Module.Basic.Tests/Fenicia.Module.Basic.Tests.csproj" />
   <Project Path="Fenicia.Module.Basic/Fenicia.Module.Basic.csproj" />
   <Project Path="Fenicia.Module.Contracts/Fenicia.Module.Contracts.csproj" />
   <Project Path="Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj" />
@@ -19,9 +14,8 @@
   <Project Path="Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj" />
   <Project Path="Fenicia.Module.Plus/Fenicia.Module.Plus.csproj" />
   <Project Path="Fenicia.Module.POS/Fenicia.Module.POS.csproj" />
-  <Project Path="Fenicia.Module.Projects.Tests/Fenicia.Module.Projects.Tests.csproj" />
   <Project Path="Fenicia.Module.Projects/Fenicia.Module.Projects.csproj" />
-  <Project Path="Fenicia.Module.SocialNetwork.Tests/Fenicia.Module.SocialNetwork.Tests.csproj" />
   <Project Path="Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj" />
   <Project Path="Fenicia.Web/Fenicia.Web.csproj" />
+  <Project Path="Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj" />
 </Solution>

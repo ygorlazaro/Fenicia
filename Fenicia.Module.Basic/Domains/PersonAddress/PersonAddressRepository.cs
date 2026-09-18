@@ -1,8 +1,9 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
 
-public class PersonAddressRepository(DefaultContext context)
+public class PersonAddressRepository(DbContext context)
     : Repository<PersonAddressModel>(context), IPersonAddressRepository;

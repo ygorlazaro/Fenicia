@@ -164,7 +164,15 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var supplier = await supplierService.UpdateAsync(command with { Id = id }, companyId, cancellationToken);
+            var updatedCommand = new UpdateSupplierCommand(
+                id,
+                command.Name,
+                command.Email,
+                command.Document,
+                command.PhoneNumber,
+                command.Cnpj,
+                command.Address);
+            var supplier = await supplierService.UpdateAsync(updatedCommand, companyId, cancellationToken);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }

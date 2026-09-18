@@ -2,6 +2,19 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Comment;
 
-public record UpdateCommentCommand(
-    [Required] Guid Id,
-    [Required][MaxLength(200)] string Text);
+public class UpdateCommentCommand()
+{
+    public UpdateCommentCommand(Guid id, string text)
+        : this()
+    {
+        Id = id;
+        Text = text;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Text { get; set; } = string.Empty;
+}

@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Basic.Customer;
 
-public record CustomerSummaryResponse
+public class CustomerSummaryResponse
 {
     public int TotalCustomers { get; set; }
 

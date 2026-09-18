@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Like;
 
-public record UnlikeCommand([Required] Guid FeedId);
+public class UnlikeCommand()
+{
+    public UnlikeCommand(Guid feedId)
+        : this()
+    {
+        FeedId = feedId;
+    }
+
+    [Required]
+    public Guid FeedId { get; set; }
+}

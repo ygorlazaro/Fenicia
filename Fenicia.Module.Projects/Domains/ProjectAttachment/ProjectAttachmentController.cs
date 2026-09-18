@@ -152,10 +152,17 @@ public class ProjectAttachmentController(IProjectAttachmentService projectAttach
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var projectAttachment = await projectAttachmentService.UpdateAsync(
-            command with { Id = id },
-            ClaimReader.UserId(User),
-            cancellationToken);
+            var updatedCommand = new UpdateProjectAttachmentCommand(
+                id,
+                command.TaskId,
+                command.FileName,
+                command.FileUrl,
+                command.FileSize,
+                command.UploadedBy);
+            var projectAttachment = await projectAttachmentService.UpdateAsync(
+                updatedCommand,
+                ClaimReader.UserId(User),
+                cancellationToken);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }

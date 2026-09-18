@@ -1,6 +1,6 @@
 namespace Fenicia.Common.DTOs.Project.Team;
 
-public record TeamFormData
+public class TeamFormData
 {
     public Guid Id { get; set; }
 

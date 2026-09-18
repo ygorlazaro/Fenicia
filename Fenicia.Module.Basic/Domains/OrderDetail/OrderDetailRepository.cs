@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public class OrderDetailRepository(DefaultContext context)
+public class OrderDetailRepository(DbContext context)
     : Repository<OrderDetailModel>(context), IOrderDetailRepository
 {
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(

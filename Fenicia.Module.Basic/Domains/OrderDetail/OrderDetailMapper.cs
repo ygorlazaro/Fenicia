@@ -4,10 +4,10 @@ using Riok.Mapperly.Abstractions;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-[Mapper]
-public static partial class OrderDetailMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public partial class OrderDetailMapper
 {
-    public static GetOrderDetailsByOrderIdResponse MapToGetOrderDetailsByOrderIdResponse(this OrderDetailModel detail)
+    public GetOrderDetailsByOrderIdResponse MapToGetOrderDetailsByOrderIdResponse(OrderDetailModel detail)
     {
         return new GetOrderDetailsByOrderIdResponse(
             detail.Id,

@@ -1,3 +1,15 @@
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
-public record GetEmployeePerformanceQuery(int Days = 90, int TopLimit = 10);
+public class GetEmployeePerformanceQuery()
+{
+    public GetEmployeePerformanceQuery(int days = 90, int topLimit = 10)
+        : this()
+    {
+        Days = days;
+        TopLimit = topLimit;
+    }
+
+    public int Days { get; set; }
+
+    public int TopLimit { get; set; }
+}

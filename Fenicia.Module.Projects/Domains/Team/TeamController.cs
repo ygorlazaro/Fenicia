@@ -80,10 +80,15 @@ public class TeamController(
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-        var team = await teamService.UpdateAsync(
-            command with { Id = id },
-            companyContext.CompanyId,
-            cancellationToken);
+            var updatedCommand = new UpdateTeamCommand(
+                id,
+                command.Name,
+                command.Description,
+                command.Color);
+            var team = await teamService.UpdateAsync(
+                updatedCommand,
+                companyContext.CompanyId,
+                cancellationToken);
         return team is null ? NotFound() : Ok(team);
     }
 
@@ -167,9 +172,13 @@ public class TeamController(
             return Forbid();
         }
 
-        var ok = await teamService.UpdateMemberRoleAsync(
-            command with { TeamId = teamId, UserId = userId },
-            cancellationToken);
+            var updatedCommand = new UpdateTeamUserRoleCommand(
+                teamId,
+                userId,
+                command.Role);
+            var ok = await teamService.UpdateMemberRoleAsync(
+                updatedCommand,
+                cancellationToken);
         return ok ? NoContent() : NotFound();
     }
 }

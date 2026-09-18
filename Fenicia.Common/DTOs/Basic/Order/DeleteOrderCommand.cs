@@ -2,4 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public record DeleteOrderCommand([Required] Guid Id);
+public class DeleteOrderCommand()
+{
+    public DeleteOrderCommand(Guid id)
+        : this()
+    {
+        Id = id;
+    }
+
+    [Required]
+    public Guid Id { get; set; }
+}

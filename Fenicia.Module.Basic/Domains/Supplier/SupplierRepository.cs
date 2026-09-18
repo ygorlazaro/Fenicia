@@ -1,11 +1,11 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
-public class SupplierRepository(DefaultContext context) : Repository<SupplierModel>(context), ISupplierRepository
+public class SupplierRepository(DbContext context) : Repository<SupplierModel>(context), ISupplierRepository
 {
     public Task<List<SupplierModel>> GetAllWithDetailsAsync(
         int page = 1,

@@ -1,11 +1,13 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
-public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository) : IProductCategoryService
+public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository, ProductCategoryMapper productCategoryMapper) : IProductCategoryService
 {
     public async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(
         GetAllProductCategoryQuery query,
@@ -19,7 +21,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var categories = await filteredQuery
-            .Select(pc => pc.MapToGetAllProductCategoryResponse())
+            .Select(pc => productCategoryMapper.MapToGetAllProductCategoryResponse(pc))
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
@@ -33,7 +35,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
     {
         var category = await productCategoryRepository.GetByIdAsync(query.Id, cancellationToken);
 
-        return category?.MapToGetProductCategoryByIdResponse();
+        return category is null ? null : productCategoryMapper.MapToGetProductCategoryByIdResponse(category);
     }
 
     public async Task<AddProductCategoryResponse> AddAsync(
@@ -50,7 +52,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
 
         await productCategoryRepository.InsertAsync(category, cancellationToken);
 
-        return category.MapToAddProductCategoryResponse();
+        return productCategoryMapper.MapToAddProductCategoryResponse(category);
     }
 
     public async Task<UpdateProductCategoryResponse?> UpdateAsync(
@@ -71,7 +73,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
 
         await productCategoryRepository.UpdateAsync(command.Id, category, cancellationToken);
 
-        return category.MapToUpdateProductCategoryResponse();
+        return productCategoryMapper.MapToUpdateProductCategoryResponse(category);
     }
 
     public Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(
@@ -81,7 +83,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository productCat
         var idList = ids.ToList();
         return productCategoryRepository.Query()
             .Where(pc => idList.Contains(pc.Id))
-            .Select(pc => pc.MapToGetProductCategoryByIdResponse())
+            .Select(pc => productCategoryMapper.MapToGetProductCategoryByIdResponse(pc))
             .ToListAsync(cancellationToken);
     }
 
