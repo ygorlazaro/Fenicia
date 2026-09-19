@@ -7,7 +7,5 @@ namespace Fenicia.Auth.Domains.Notification;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
 public partial class NotificationMapper
 {
-    public partial GetAllNotificationsResponse MapToGetAllNotificationsResponse(NotificationModel notification);
-
-    public partial GetNotificationByIdResponse MapToGetNotificationByIdResponse(NotificationModel notification);
+    public partial NotificationResponse MapNotificationResponse(NotificationModel notification);
 }

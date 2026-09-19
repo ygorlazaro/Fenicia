@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Fenicia.Auth.Domains.LoginAttempt.Interfaces;
+using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Auth.Domains.Token.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
@@ -16,43 +17,51 @@ public sealed class TokenService(
     IConfiguration configuration,
     ILoginAttemptService loginAttemptService,
     IUserService userService,
-    ISecurityService securityService) : ITokenService
+    ISecurityService securityService,
+    IRefreshTokenService refreshTokenService) : ITokenService
 {
-    public async Task<GenerateTokenResponse> GenerateAsync(
-        GenerateTokenQuery query,
+    public async Task<TokenResponse> GenerateAsync(
+        TokenRequest request,
         CancellationToken cancellationToken = default)
     {
-        var attempts = ValidateAttempts(query);
-        var user = await userService.FirstByEmailOrDefaultAsync(query.Email, cancellationToken);
+        var attempts = ValidateAttempts(request);
+        var user = await userService.FirstByEmailOrDefaultAsync(request.Email, cancellationToken);
 
         if (user is null)
         {
-            await loginAttemptService.IncrementAsync(query.Email);
+            await loginAttemptService.IncrementAsync(request.Email);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
         }
 
-        var isValidPassword = securityService.Verify(query.Password, user.Password);
+        var isValidPassword = securityService.Verify(request.Password, user.Password);
 
         if (isValidPassword)
         {
-            await loginAttemptService.ResetAsync(query.Email);
+            loginAttemptService.Reset(request.Email);
 
             var companies = await userService.GetCompaniesAsync(user.Id, cancellationToken);
             var companyId = companies.Count == 1 ? companies[0].CompanyId : Guid.Empty;
             var roles = user.UsersRoles.Select(ur => ur.Role.Name).ToList();
 
-            return new GenerateTokenResponse(user.Id, user.Name, user.Email, companyId, roles);
+            var tokenResponse = new TokenResponse(user.Id, user.Name, user.Email, companyId, roles);
+            var refreshToken = await refreshTokenService.GenerateAsync(user.Id);
+            var stringToken = GenerateString(tokenResponse);
+
+            tokenResponse.Token = stringToken;
+            tokenResponse.RefreshToken = refreshToken;
+
+            return tokenResponse;
         }
 
-        await loginAttemptService.IncrementAsync(query.Email);
+        await loginAttemptService.IncrementAsync(request.Email);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
     }
 
-    public string GenerateString(GenerateTokenResponse user)
+    public string GenerateString(TokenResponse user)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
@@ -70,11 +79,11 @@ public sealed class TokenService(
         return finalToken;
     }
 
-    private static List<Claim> GenerateClaims(GenerateTokenResponse user)
+    private static List<Claim> GenerateClaims(TokenResponse user)
     {
         var authClaims = new List<Claim>
         {
-            new("userId", user.Id.ToString()), new("email", user.Email), new("unique_name", user.Name),
+            new("userId", user.UserId.ToString()), new("email", user.Email), new("unique_name", user.Name),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -110,19 +119,19 @@ public sealed class TokenService(
         return authClaims;
     }
 
-    private int ValidateAttempts(GenerateTokenQuery query)
+    private int ValidateAttempts(TokenRequest request)
     {
-        if (string.IsNullOrWhiteSpace(query.Password))
+        if (string.IsNullOrWhiteSpace(request.Password))
         {
             throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
         }
 
-        if (string.IsNullOrWhiteSpace(query.Email))
+        if (string.IsNullOrWhiteSpace(request.Email))
         {
             throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
         }
 
-        var attempts = loginAttemptService.GetAttempts(query.Email);
+        var attempts = loginAttemptService.GetAttempts(request.Email);
 
         return attempts switch
         {

@@ -24,9 +24,9 @@ public class ModuleController(IModuleService service) : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(Pagination<List<GetModuleResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Pagination<List<ModuleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync(
+    public async Task<ActionResult<List<ModuleResponse>>> GetAllModulesAsync(
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken = default)
     {

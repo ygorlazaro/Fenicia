@@ -61,16 +61,11 @@ public class BlockController(BlockService blockService, IProfileService profileS
         WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
-        [FromQuery] string? query = null,
-        [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var result = await blockService.GetBlockedAsync(
-            new GetBlockedQuery(page, perPage, query, sort),
-            profileId,
-            cancellationToken);
+        var result = await blockService.GetBlockedAsync(profileId, page, perPage, cancellationToken);
 
         return Ok(result);
     }

@@ -11,6 +11,6 @@ public partial class ForgotPasswordMapper
     [MapperIgnoreTarget(nameof(ForgotPasswordModel.ExpirationDate))]
     [MapperIgnoreTarget(nameof(ForgotPasswordModel.Id))]
     [MapperIgnoreTarget(nameof(ForgotPasswordModel.User))]
-    [MapperIgnoreSource(nameof(AddForgotPasswordCommand.Email))]
-    internal partial ForgotPasswordModel MapToForgotPasswordModel(AddForgotPasswordCommand command);
+    [MapperIgnoreSource(nameof(ForgotPasswordRequest.Email))]
+    internal partial ForgotPasswordModel MapToForgotPasswordModel(ForgotPasswordRequest request);
 }

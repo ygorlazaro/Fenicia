@@ -1,82 +1,92 @@
 using Fenicia.Auth.Domains.Notification.Interfaces;
+using Fenicia.Auth.Domains.NotificationHistory.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Notification;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-public class NotificationService(INotificationRepository repository, NotificationMapper notificationMapper) : INotificationService
+public class NotificationService(
+    NotificationMapper mapper,
+    INotificationRepository repository,
+    INotificationHistoryService notificationHistoryService) : INotificationService
 {
-    public async Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(
-        GetAllNotificationsQuery query,
+    public async Task<Pagination<List<NotificationResponse>>> GetAllAsync(
+        Guid companyId,
+        Guid userId,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        var notifications = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var notifications = (List<NotificationModel>)[.. await repository.GetAllAsync(companyId, userId, page, perPage, cancellationToken)];
         var total = await repository.CountAsync(cancellationToken);
+        var result = notifications.Select(mapper.MapNotificationResponse).ToList();
 
-        return new Pagination<List<GetAllNotificationsResponse>>(
-            [.. notifications.Select(notificationMapper.MapToGetAllNotificationsResponse)],
-            total,
-            query.Page,
-            query.PerPage);
-    }
-
-    public async Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        var notification = await repository.GetByIdAsync(id, cancellationToken);
-
-        return notification is null ? null : notificationMapper.MapToGetNotificationByIdResponse(notification);
-    }
-
-    public async Task<AddNotificationResponse> AddAsync(
-        AddNotificationCommand command,
-        Guid companyId,
-        CancellationToken cancellationToken = default)
-    {
-        var notification = new NotificationModel
+        foreach (var notification in result)
         {
-            Title = command.Title,
-            Description = command.Description,
-            Date = command.Date ?? DateTime.UtcNow,
-            ImageUrl = command.ImageUrl,
-            Read = false,
-            CompanyId = companyId
-        };
+            notification.IsRead = await notificationHistoryService.IsReadAsync(notification.Id, cancellationToken);
+        }
 
-        var created = await repository.InsertAsync(notification, cancellationToken);
-
-        return new AddNotificationResponse(created.Id);
+        return new Pagination<List<NotificationResponse>>(
+            [.. result],
+            total,
+            page,
+            perPage);
     }
 
-    public async Task<UpdateNotificationResponse?> UpdateAsync(
-        UpdateNotificationCommand command,
-        Guid companyId,
-        CancellationToken cancellationToken = default)
+    public async Task<NotificationResponse?> GetByIdAsync(Guid id, Guid companyId, Guid userId, CancellationToken cancellationToken = default)
     {
-        var notification = await repository.GetByIdAsync(command.Id, cancellationToken);
+        var notification = await repository.GetByIdAsync(id, companyId, userId, cancellationToken);
 
         if (notification is null)
         {
             return null;
         }
 
-        notification.Title = command.Title;
-        notification.Description = command.Description;
-        notification.Date = command.Date ?? notification.Date;
-        notification.ImageUrl = command.ImageUrl;
-        notification.CompanyId = companyId;
+        var result = mapper.MapNotificationResponse(notification);
+        result.IsRead = await notificationHistoryService.IsReadAsync(id, cancellationToken);
 
-        if (command.IsRead.HasValue)
+        return result;
+    }
+
+    public async Task<NotificationResponse> AddAsync(
+        NotificationRequest command,
+        CancellationToken cancellationToken = default)
+    {
+        var notification = new NotificationModel
         {
-            notification.Read = command.IsRead.Value;
+            Title = command.Title,
+            Description = command.Description,
+            Date = DateTime.UtcNow,
+            ImageUrl = command.ImageUrl
+        };
+
+        var created = await repository.InsertAsync(notification, cancellationToken);
+
+        return mapper.MapNotificationResponse(created);
+    }
+
+    public async Task<NotificationResponse?> UpdateAsync(
+        NotificationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var notification = await repository.GetByIdAsync(request.Id, cancellationToken);
+
+        if (notification is null)
+        {
+            return null;
         }
+
+        notification.Title = request.Title;
+        notification.Description = request.Description;
+        notification.ImageUrl = request.ImageUrl;
 
         await repository.UpdateAsync(notification.Id, notification, cancellationToken);
 
-        return new UpdateNotificationResponse(notification.Id);
+        return mapper.MapNotificationResponse(notification);
     }
 
-    public async Task<bool> DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var notification = await repository.GetByIdAsync(id, cancellationToken);
 
@@ -86,7 +96,6 @@ public class NotificationService(INotificationRepository repository, Notificatio
         }
 
         notification.Deleted = DateTime.UtcNow;
-        notification.CompanyId = companyId;
         await repository.UpdateAsync(notification.Id, notification, cancellationToken);
 
         return true;

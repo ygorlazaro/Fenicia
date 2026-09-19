@@ -7,5 +7,5 @@ namespace Fenicia.Auth.Domains.Register;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
 public partial class RegisterMapper
 {
-    internal partial RegisterResponse MapToRegisterResponse(CreateNewUserResponse userResponse);
+    internal partial RegisterResponse MapToRegisterResponse(UserResponse userResponse);
 }

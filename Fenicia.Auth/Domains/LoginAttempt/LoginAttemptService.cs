@@ -33,10 +33,9 @@ public class LoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptSe
             CommandFlags.None);
     }
 
-    public Task ResetAsync(string email)
+    public void Reset(string email)
     {
         _redisDb.KeyDelete(GetKey(email));
-        return Task.CompletedTask;
     }
 
     private static string GetKey(string email)

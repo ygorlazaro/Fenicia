@@ -24,10 +24,10 @@ public class SubscriptionController(ISubscriptionService subscriptionService) : 
     /// <response code="404">Usuário não encontrado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
-    [ProducesResponseType(typeof(GetUserProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SubscriptionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetUserProfileResponse>> GetUserProfile(
+    public async Task<ActionResult<SubscriptionResponse>> GetUserProfile(
         CancellationToken cancellationToken = default)
     {
         try

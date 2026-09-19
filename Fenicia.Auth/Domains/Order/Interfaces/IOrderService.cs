@@ -4,7 +4,7 @@ namespace Fenicia.Auth.Domains.Order.Interfaces;
 
 public interface IOrderService
 {
-    Task<CreateNewOrderResponse?> CreateAsync(
-        CreateNewOrderCommand command,
+    Task<OrderResponse?> CreateAsync(
+        OrderRequest request,
         CancellationToken cancellationToken = default);
 }

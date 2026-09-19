@@ -45,4 +45,7 @@
       <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
       <ProjectReference Include="..\Fenicia.Externals.Email\Fenicia.Externals.Email.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Domains\Module\NotificationHistory\" />
+    </ItemGroup>
 </Project>

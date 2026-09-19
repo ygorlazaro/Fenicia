@@ -4,7 +4,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 
 public interface IForgotPasswordService
 {
-    Task AddAsync(AddForgotPasswordCommand command, CancellationToken cancellationToken = default);
+    Task AddAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default);
 
-    Task ResetAsync(ResetPasswordCommand command, CancellationToken cancellationToken = default);
+    Task ResetAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default);
 }

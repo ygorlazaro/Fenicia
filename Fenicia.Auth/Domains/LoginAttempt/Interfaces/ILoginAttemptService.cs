@@ -6,5 +6,5 @@ public interface ILoginAttemptService
 
     Task IncrementAsync(string email);
 
-    Task ResetAsync(string email);
+    void Reset(string email);
 }

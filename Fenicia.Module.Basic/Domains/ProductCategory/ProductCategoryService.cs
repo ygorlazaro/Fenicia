@@ -1,5 +1,4 @@
 using Fenicia.Common;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
@@ -10,23 +9,22 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 public sealed class ProductCategoryService(IProductCategoryRepository productCategoryRepository, ProductCategoryMapper productCategoryMapper) : IProductCategoryService
 {
     public async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(
-        GetAllProductCategoryQuery query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = productCategoryRepository.Query()
             .Where(pc => pc.Deleted == null);
 
-        var filteredQuery = baseQuery.ApplySearch(query.Query, "Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var total = await filteredQuery.CountAsync(cancellationToken);
-
-        var categories = await filteredQuery
+        var categories = await baseQuery
             .Select(pc => productCategoryMapper.MapToGetAllProductCategoryResponse(pc))
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
+            .Skip(page * perPage)
+            .Take(perPage)
             .ToListAsync(cancellationToken);
 
-        return new Pagination<List<GetAllProductCategoryResponse>>(categories, total, query.Page, query.PerPage);
+        return new Pagination<List<GetAllProductCategoryResponse>>(categories, total, page, perPage);
     }
 
     public async Task<GetProductCategoryByIdResponse?> GetByIdAsync(

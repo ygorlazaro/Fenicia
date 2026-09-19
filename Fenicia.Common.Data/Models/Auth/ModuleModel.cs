@@ -29,10 +29,6 @@ public class ModuleModel : BaseModel
     [MaxLength(500)]
     public string? Description { get; init; }
 
-    [Column("icon")]
-    [MaxLength(100)]
-    public string? Icon { get; init; }
-
     [Required]
     [Column("is_active")]
     public bool IsActive { get; init; } = true;

@@ -1,6 +1,5 @@
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Position;
-using Fenicia.Common.DTOs.Basic.ProductCategory;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;

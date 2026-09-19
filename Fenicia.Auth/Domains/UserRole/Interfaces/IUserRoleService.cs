@@ -7,7 +7,7 @@ public interface IUserRoleService
 {
     Task<List<UserRoleResponse>> GetCompaniesByUserAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(
+    Task<List<UserCompanyResponse>> GetUserCompaniesAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
 

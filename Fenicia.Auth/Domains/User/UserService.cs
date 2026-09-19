@@ -6,58 +6,55 @@ using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Role;
 using Fenicia.Common.DTOs.Auth.User;
-using Fenicia.Common.DTOs.Auth.UserRole;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
+using UserCompanyResponse = Fenicia.Common.DTOs.Auth.UserRole.UserCompanyResponse;
 
 namespace Fenicia.Auth.Domains.User;
 
 public sealed class UserService(
+    UserMapper mapper,
     IUserRepository userRepository,
     IUserRoleService userRoleService,
     IRoleService roleService,
     ICompanyService companyService,
-    ISecurityService securityService,
-    UserMapper userMapper) : IUserService
+    ISecurityService securityService) : IUserService
 {
-    public async Task<Pagination<List<UserListItemResponse>>> GetAllAsync(
-        GetAllUsersQuery query,
+    public async Task<Pagination<List<UserResponse>>> GetAllAsync(
+        UserRequest query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default)
     {
         var total = await userRepository.CountAsync(cancellationToken);
-        var users = await userRepository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var users = await userRepository.GetAllAsync(page, perPage, cancellationToken);
 
-        return new Pagination<List<UserListItemResponse>>(
-            [.. users.Select(userMapper.MapToUserListItemResponse)],
+        return new Pagination<List<UserResponse>>(
+            [.. users.Select(mapper.MapToUserResponse)],
             total,
-            query.Page,
-            query.PerPage);
+            page,
+            perPage);
     }
 
-    public async Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
 
-        return user is null ? null : userMapper.MapToGetUserByIdResponse(user);
+        return user is null ? null : mapper.MapToUserResponse(user);
     }
 
-    public async Task<GetByEmailResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var user = await userRepository.GetByEmailAsync(email, cancellationToken);
 
-        return user is null ? null : userMapper.MapToGetByEmailResponse(user);
+        return user is null ? null : mapper.MapToUserResponse(user);
     }
 
     public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return userRepository.ExistsByEmailAsync(email, cancellationToken);
-    }
-
-    public async Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        return await userRepository.GetByIdAsync(userId, cancellationToken) ??
-               throw new InvalidRequestException(ExceptionMessages.UserNotFound);
     }
 
     public Task<UserModel?> FirstByEmailOrDefaultAsync(
@@ -77,16 +74,15 @@ public sealed class UserService(
         return user;
     }
 
-    public async Task<GetUserForRefreshResponse> GetForRefreshAsync(
-        Guid userId,
+    public async Task<UserResponse> GetForRefreshAsync(Guid userId,
         CancellationToken cancellationToken = default)
     {
         var user = await FirstByIdAsync(userId, cancellationToken);
 
-        return userMapper.MapToGetUserForRefreshResponse(user);
+        return mapper.MapToUserResponse(user);
     }
 
-    public Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(
+    public Task<List<UserCompanyResponse>> GetCompaniesAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
@@ -138,58 +134,45 @@ public sealed class UserService(
         throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
     }
 
-    public async Task<CreateUserResponse> CreateAsync(
-        CreateUserCommand command,
+    public async Task<UserResponse> CreateAsync(UserRequest request,
         CancellationToken cancellationToken = default)
     {
-        var userExists = await userRepository.ExistsByEmailAsync(command.Email, cancellationToken);
+        var userExists = await userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
 
         if (userExists)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var hashedPassword = securityService.Hash(command.Password);
+        var hashedPassword = securityService.Hash(request.Password);
 
         var user = new UserModel
         {
-            Email = command.Email,
+            Email = request.Email,
             Password = hashedPassword,
-            Name = command.Name
+            Name = request.Name
         };
 
         await userRepository.InsertAsync(user, cancellationToken);
-        await RelateRolesAsync(user.Id, command.Roles, cancellationToken);
+        await RelateRolesAsync(user.Id, request.Roles, cancellationToken);
 
-        return userMapper.MapToCreateUserResponse(user);
+        return mapper.MapToUserResponse(user);
     }
 
-    public async Task<CreateNewUserResponse> CreateNewAsync(
-        CreateNewUserCommand command,
+    public async Task<UserResponse> UpdateAsync(
+        UserRequest command,
         CancellationToken cancellationToken = default)
     {
-        await ValidateAsync(command, cancellationToken);
-
-        var (user, company) = await PersistAsync(command, cancellationToken);
-        var companyResponse = new CreateNewUserCompanyResponse(company.Id, company.Name, company.Cnpj);
-
-        return new CreateNewUserResponse(user.Id, user.Name, user.Email, companyResponse);
-    }
-
-    public async Task<UpdateUserResponse> UpdateAsync(
-        UpdateUserCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await FirstByIdAsync(command.UserId, cancellationToken);
+        var user = await FirstByIdAsync(command.Id, cancellationToken);
 
         await ValidateFields(user, command, cancellationToken);
 
-        var companies = command.CompaniesRoles?.Select(c => c.CompanyId) ?? [];
+        var companies = command.Roles?.Select(c => c.CompanyId) ?? [];
 
         await ValidateCompanies(companies, cancellationToken);
         await RelateRolesAsync(command, user, cancellationToken);
 
-        return userMapper.MapToUpdateUserResponse(user);
+        return mapper.MapToUserResponse(user);
     }
 
     public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -200,38 +183,15 @@ public sealed class UserService(
         await userRepository.UpdateAsync(user.Id, user, cancellationToken);
     }
 
-    public async Task<UpdateUserPasswordResponse> UpdatePasswordAsync(
-        Guid loggedInUserId,
-        UpdateUserPasswordCommand command,
+    public async Task<UserResponse> UpdateHashedPasswordAsync(
+        UserPasswordRequest request,
         CancellationToken cancellationToken = default)
     {
-        var targetUser = await FirstByIdAsync(command.UserId, cancellationToken);
-        var loggedInUser = await FirstByIdAsync(loggedInUserId, cancellationToken);
-
-        await AuthorizePasswordChangeAsync(loggedInUserId, command.UserId, loggedInUser, targetUser, command, cancellationToken);
-
-        if (command.NewPassword != command.ConfirmPassword)
-        {
-            throw new InvalidRequestException("Senhas não coincidem.");
-        }
-
-        var hashedPassword = securityService.Hash(command.NewPassword);
-        targetUser.Password = hashedPassword;
-
-        await userRepository.UpdateAsync(targetUser.Id, targetUser, cancellationToken);
-
-        return new UpdateUserPasswordResponse(true, "Password changed successfully");
-    }
-
-    public async Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(
-        UpdatePasswordCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await UpdatePasswordAsync(command.UserId, command.Password, cancellationToken) ??
+        var user = await UpdatePasswordAsync(request.UserId, request.NewPassword, cancellationToken) ??
                    throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
         await userRepository.UpdateAsync(user.Id, user, cancellationToken);
 
-        return userMapper.MapToUpdatePasswordResponse(user);
+        return mapper.MapToUserResponse(user);
     }
 
     private async Task AuthorizePasswordChangeAsync(
@@ -239,17 +199,17 @@ public sealed class UserService(
         Guid targetUserId,
         UserModel loggedInUser,
         UserModel targetUser,
-        UpdateUserPasswordCommand command,
+        UserPasswordRequest request,
         CancellationToken cancellationToken = default)
     {
         if (loggedInUserId == targetUserId)
         {
-            if (string.IsNullOrEmpty(command.CurrentPassword))
+            if (string.IsNullOrEmpty(request.CurrentPassword))
             {
                 throw new InvalidRequestException("Senha atual é obrigatória.");
             }
 
-            if (!securityService.Verify(command.CurrentPassword, loggedInUser.Password))
+            if (!securityService.Verify(request.CurrentPassword, loggedInUser.Password))
             {
                 throw new InvalidRequestException("Senha atual incorreta.");
             }
@@ -298,7 +258,7 @@ public sealed class UserService(
 
     private async Task RelateRolesAsync(
         Guid userId,
-        List<CreateUserRoleCommand>? command,
+        List<RoleRequest>? command,
         CancellationToken cancellationToken = default)
     {
         var roles = command ?? [];
@@ -338,7 +298,7 @@ public sealed class UserService(
     }
 
     private async Task<(UserModel User, CompanyModel Company)> PersistAsync(
-        CreateNewUserCommand command,
+        UserRequest command,
         CancellationToken cancellationToken = default)
     {
         var existingUser = await userRepository.ExistsByEmailAsync(command.Email, cancellationToken);
@@ -387,7 +347,7 @@ public sealed class UserService(
         return (user, company);
     }
 
-    private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken cancellationToken = default)
+    private async Task ValidateAsync(UserRequest request, CancellationToken cancellationToken = default)
     {
         var isExistingUser = await userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
         var isExistingCompany = await companyService.GetByCnpjAsync(request.Company.Cnpj, cancellationToken);
@@ -404,11 +364,11 @@ public sealed class UserService(
     }
 
     private async Task RelateRolesAsync(
-        UpdateUserCommand command,
+        UserRequest command,
         BaseModel user,
         CancellationToken cancellationToken = default)
     {
-        var requestedRoles = command.CompaniesRoles ?? [];
+        var requestedRoles = command.Roles ?? [];
 
         if (requestedRoles.Count == 0)
         {
@@ -465,16 +425,14 @@ public sealed class UserService(
 
     private async Task ValidateFields(
         UserModel user,
-        UpdateUserCommand command,
+        UserRequest command,
         CancellationToken cancellationToken = default)
     {
         user.Name = string.IsNullOrWhiteSpace(command.Name) switch
         {
             false => command.Name,
             _ => user.Name
-        }
-
-                    ?? string.Empty;
+        };
 
         if (string.IsNullOrWhiteSpace(command.Email))
         {
@@ -488,5 +446,11 @@ public sealed class UserService(
             true => throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists),
             _ => command.Email
         };
+    }
+
+    private async Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await userRepository.GetByIdAsync(userId, cancellationToken) ??
+               throw new InvalidRequestException(ExceptionMessages.UserNotFound);
     }
 }

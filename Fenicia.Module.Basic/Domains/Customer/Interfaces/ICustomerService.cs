@@ -7,7 +7,8 @@ namespace Fenicia.Module.Basic.Domains.Customer.Interfaces;
 public interface ICustomerService
 {
     Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(
-        GetAllCustomerQuery query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default);
 
     Task<List<GetAllCustomerForDataSourceResponse>> GetAllForDataSourceAsync(

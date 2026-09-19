@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Xunit;
 
 namespace Fenicia.Web.E2ETests.Tests;
 

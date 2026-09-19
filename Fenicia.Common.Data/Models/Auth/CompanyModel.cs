@@ -12,8 +12,7 @@ public class CompanyModel : BaseModel
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [MinLength(14)]
-    [MaxLength(14)]
+    [Length(14, 14)]
     [Column("cnpj")]
     public string Cnpj { get; init; } = string.Empty;
 

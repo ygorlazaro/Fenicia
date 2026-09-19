@@ -4,11 +4,11 @@ namespace Fenicia.Auth.Domains.Role.Interfaces;
 
 public interface IRoleService
 {
-    Task<GetAdminRoleResponse?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default);
+    Task<RoleResponse?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default);
 
-    Task<GetAdminRoleResponse?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default);
+    Task<RoleResponse?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default);
 
-    Task<List<GetAdminRoleResponse>> GetRolesByIdsAsync(
+    Task<List<RoleResponse>> GetRolesByIdsAsync(
         List<Guid> roleIds,
         CancellationToken cancellationToken = default);
 }

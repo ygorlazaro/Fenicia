@@ -66,18 +66,19 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
     }
 
     public async Task<Pagination<List<GetBlockedResponse>>> GetBlockedAsync(
-        GetBlockedQuery query,
         Guid profileId,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = blockRepository.Query().Where(b => b.ProfileId == profileId && b.IsActive);
         var total = await baseQuery.CountAsync(cancellationToken);
-        var blocks = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var blocks = await baseQuery.Skip((page - 1) * perPage).Take(perPage)
             .ToListAsync(cancellationToken);
 
         var response = blocks.Select(mapper.MapToGetBlockedResponse).ToList();
 
-        return new Pagination<List<GetBlockedResponse>>(response, total, query.Page, query.PerPage);
+        return new Pagination<List<GetBlockedResponse>>(response, total, page, perPage);
     }
 
     public Task<bool> IsBlockedAsync(

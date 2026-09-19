@@ -7,5 +7,5 @@ namespace Fenicia.Auth.Domains.Configuration;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class ConfigurationMapper
 {
-    internal partial GetConfigurationResponse MapToGetConfigurationResponse(ConfigurationModel configuration);
+    internal partial ConfigurationResponse MapToConfigurationResponse(ConfigurationModel configuration);
 }

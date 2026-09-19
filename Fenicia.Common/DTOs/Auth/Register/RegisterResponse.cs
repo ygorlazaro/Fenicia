@@ -5,7 +5,7 @@ namespace Fenicia.Common.DTOs.Auth.Register;
 
 public class RegisterResponse()
 {
-    public RegisterResponse(Guid id, string name, string email, CreateNewUserCompanyResponse company)
+    public RegisterResponse(Guid id, string name, string email, UserCompanyResponse company)
         : this()
     {
         Id = id;
@@ -26,5 +26,5 @@ public class RegisterResponse()
     public string Email { get; set; } = string.Empty;
 
     [Required]
-    public CreateNewUserCompanyResponse Company { get; set; } = default!;
+    public UserCompanyResponse Company { get; set; } = default!;
 }

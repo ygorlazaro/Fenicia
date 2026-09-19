@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
@@ -7,12 +8,13 @@ using Fenicia.Common.DTOs.Auth.Subscription;
 namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionService(
+    SubscriptionMapper mapper,
+    ModuleMapper moduleMapper,
     ISubscriptionRepository subscriptionRepository,
     IUserService userService,
-    IUserRoleService userRoleService,
-    SubscriptionMapper subscriptionMapper) : ISubscriptionService
+    IUserRoleService userRoleService) : ISubscriptionService
 {
-    public async Task<GetUserProfileResponse?> GetUserProfileAsync(
+    public async Task<SubscriptionResponse?> GetUserProfileAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
@@ -26,22 +28,22 @@ public class SubscriptionService(
         var userRoles = await userRoleService.GetUserRoleModelsByUserAsync(userId, cancellationToken);
         var subscriptions = await subscriptionRepository.GetUserSubscriptionsAsync(userId, cancellationToken);
 
-        var companies = userRoles.Select(subscriptionMapper.MapToUserCompanyResponse).ToList();
+        var companies = userRoles.Select(mapper.MapToUserCompanyResponse).ToList();
 
         var subscriptionResponses = new List<UserSubscriptionResponse>();
 
         foreach (var subscription in subscriptions)
         {
             var modules = await subscriptionRepository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
-            var moduleResponses = modules.Select(subscriptionMapper.MapToUserModuleResponse).ToList();
+            var moduleResponses = modules.Select(moduleMapper.ModuleResponse).ToList();
 
-            var subscriptionResponse = subscriptionMapper.MapToUserSubscriptionResponse(subscription);
+            var subscriptionResponse = mapper.MapToUserSubscriptionResponse(subscription);
             subscriptionResponse.Modules = moduleResponses;
 
             subscriptionResponses.Add(subscriptionResponse);
         }
 
-        return new GetUserProfileResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
+        return new SubscriptionResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
     }
 
     public async Task CreateSubscriptionAsync(

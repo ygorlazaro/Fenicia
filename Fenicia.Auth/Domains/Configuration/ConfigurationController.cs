@@ -29,7 +29,7 @@ public class ConfigurationController(IConfigurationService configurationService)
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync(
+    public async Task<ActionResult<List<ConfigurationResponse>>> GetAsync(
         [FromQuery] Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -50,7 +50,6 @@ public class ConfigurationController(IConfigurationService configurationService)
     /// <summary>
     ///     Cria ou atualiza uma configuração (upsert) para o usuário autenticado.
     /// </summary>
-    /// <param name="id">ID da configuração (usado para atualização)</param>
     /// <param name="companyId">ID da empresa</param>
     /// <param name="request">Dados da configuração (tipo, valor)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -60,7 +59,6 @@ public class ConfigurationController(IConfigurationService configurationService)
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="403">Usuário não tem permissão para esta empresa</response>
     /// <response code="500">Erro interno do servidor</response>
-    [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -69,16 +67,14 @@ public class ConfigurationController(IConfigurationService configurationService)
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult> PatchAsync(
-        [FromRoute] Guid id,
         [FromQuery] Guid companyId,
-        [FromBody] UpsertConfigurationCommand request,
+        [FromBody] ConfigurationRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
             request.UserId = userId;
-            request.Id = id;
 
             await configurationService.UpsertAsync(request, companyId, cancellationToken);
 

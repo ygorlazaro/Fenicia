@@ -13,10 +13,10 @@ public partial class UserRoleMapper
     [MapProperty("Company.Cnpj", nameof(UserRoleResponse.Company) + "." + nameof(CompanyResponse.Cnpj))]
     public partial UserRoleResponse MapToUserRoleResponse(UserRoleModel userRole);
 
-    [MapProperty("Company.Id", nameof(GetUserCompaniesResponse.Id))]
-    [MapProperty("Role.Name", nameof(GetUserCompaniesResponse.Role))]
-    [MapProperty(nameof(UserRoleModel.CompanyId), nameof(GetUserCompaniesResponse.CompanyId))]
-    [MapProperty("Company.Name", nameof(GetUserCompaniesResponse.CompanyName))]
-    [MapProperty("Company.Cnpj", nameof(GetUserCompaniesResponse.Cnpj))]
-    public partial GetUserCompaniesResponse MapToGetUserCompaniesResponse(UserRoleModel userRole);
+    [MapProperty("Company.Id", nameof(UserCompanyResponse.Id))]
+    [MapProperty("Role.Name", nameof(UserCompanyResponse.Role))]
+    [MapProperty(nameof(UserRoleModel.CompanyId), nameof(UserCompanyResponse.CompanyId))]
+    [MapProperty("Company.Name", nameof(UserCompanyResponse.CompanyName))]
+    [MapProperty("Company.Cnpj", nameof(UserCompanyResponse.Cnpj))]
+    public partial UserCompanyResponse MapToGetUserCompaniesResponse(UserRoleModel userRole);
 }

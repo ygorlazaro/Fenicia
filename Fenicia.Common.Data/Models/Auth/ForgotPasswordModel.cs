@@ -12,7 +12,7 @@ public sealed class ForgotPasswordModel : BaseModel
 
     [Required]
     [Column("code")]
-    [StringLength(100, MinimumLength = 6)]
+    [StringLength(6)]
     [DataType(DataType.Text)]
     public string Code { get; set; } = string.Empty;
 

@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Domains.Company.Interfaces;
 
 public interface ICompanyService
 {
-    Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(
+    Task<Pagination<IEnumerable<CompanyByUserResponse>>> GetCompaniesByUserAsync(
         Guid userId,
         int page,
         int perPage,
@@ -14,9 +14,9 @@ public interface ICompanyService
 
     Task UpdateAsync(Guid companyId, Guid userId, string name, CancellationToken cancellationToken = default);
 
-    Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken = default);
+    Task<CompanyResponse?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken = default);
 
-    Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default);
+    Task<CompanyResponse?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default);
 
-    Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default);
+    Task<CompanyResponse> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default);
 }

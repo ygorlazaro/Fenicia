@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.DTOs.Auth.Subscription;
@@ -41,5 +42,5 @@ public class UserSubscriptionResponse()
     public DateTime? EndDate { get; set; }
 
     [Required]
-    public IEnumerable<UserModuleResponse> Modules { get; set; } = [];
+    public IEnumerable<ModuleResponse> Modules { get; set; } = [];
 }

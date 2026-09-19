@@ -20,28 +20,25 @@ public class NotificationController(INotificationService notificationService) : 
     /// </summary>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="perPage">Quantidade de itens por página (padrão: 10)</param>
-    /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
-    /// <param name="sort">Ordenação. Example: <c>-date</c></param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista paginada de notificações</returns>
     /// <response code="200">Notificações encontradas</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllNotificationsResponse>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<NotificationResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllNotificationsResponse>>>> GetAsync(
+    public async Task<ActionResult<Pagination<List<NotificationResponse>>>> GetAsync(
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
-        [FromQuery] string? query = null,
-        [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var notifications = await notificationService.GetAllAsync(
-                new GetAllNotificationsQuery(page, perPage, query, sort),
+            var companyId = ClaimReader.CompanyId(User);
+            var userId = ClaimReader.UserId(User);
+            var notifications = await notificationService.GetAllAsync(companyId, userId, page, perPage,
                 cancellationToken);
             return Ok(notifications);
         }
@@ -62,17 +59,19 @@ public class NotificationController(INotificationService notificationService) : 
     /// <response code="404">Notificação não encontrada</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetNotificationByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetNotificationByIdResponse>> GetByIdAsync(
+    public async Task<ActionResult<NotificationResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var notification = await notificationService.GetByIdAsync(id, cancellationToken);
+            var companyId = ClaimReader.CompanyId(User);
+            var userId = ClaimReader.UserId(User);
+            var notification = await notificationService.GetByIdAsync(id, companyId, userId, cancellationToken);
             return notification is null ? NotFound() : Ok(notification);
         }
         catch (UnauthorizedAccessException ex)
@@ -85,7 +84,6 @@ public class NotificationController(INotificationService notificationService) : 
     ///     Cria uma nova notificação.
     /// </summary>
     /// <param name="command">Dados da notificação (título, descrição, data, imagem)</param>
-    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação criada</returns>
     /// <response code="201">Notificação criada com sucesso</response>
@@ -93,18 +91,18 @@ public class NotificationController(INotificationService notificationService) : 
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddNotificationResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(NotificationResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddNotificationResponse>> PostAsync(
-        [FromBody] AddNotificationCommand command,
-        [FromHeader] Headers headers,
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<NotificationResponse>> PostAsync(
+        [FromBody] NotificationRequest command,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var notification = await notificationService.AddAsync(command, headers.CompanyId, cancellationToken);
+            var notification = await notificationService.AddAsync(command, cancellationToken);
             return new CreatedResult(string.Empty, notification);
         }
         catch (UnauthorizedAccessException ex)
@@ -116,7 +114,7 @@ public class NotificationController(INotificationService notificationService) : 
     /// <summary>
     ///     Atualiza uma notificação existente.
     /// </summary>
-    /// <param name="command">Dados atualizados da notificação (título, descrição, data, imagem, lida)</param>
+    /// <param name="request">Dados atualizados da notificação (título, descrição, data, imagem, lida)</param>
     /// <param name="id">ID da notificação</param>
     /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -127,23 +125,23 @@ public class NotificationController(INotificationService notificationService) : 
     /// <response code="404">Notificação não encontrada</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateNotificationResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateNotificationResponse>> PatchAsync(
-        [FromBody] UpdateNotificationCommand command,
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<NotificationResponse>> PatchAsync(
+        [FromBody] NotificationRequest request,
         [FromRoute] Guid id,
         [FromHeader] Headers headers,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            command.Id = id;
+            request.Id = id;
             var notification = await notificationService.UpdateAsync(
-                command,
-                headers.CompanyId,
+                request,
                 cancellationToken);
             return notification switch
             {
@@ -177,7 +175,7 @@ public class NotificationController(INotificationService notificationService) : 
     {
         try
         {
-            await notificationService.DeleteAsync(id, headers.CompanyId, cancellationToken);
+            await notificationService.DeleteAsync(id, cancellationToken);
             return NoContent();
         }
         catch (UnauthorizedAccessException ex)

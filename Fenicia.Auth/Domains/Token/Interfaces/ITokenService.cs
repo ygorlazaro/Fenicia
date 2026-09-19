@@ -4,7 +4,7 @@ namespace Fenicia.Auth.Domains.Token.Interfaces;
 
 public interface ITokenService
 {
-    Task<GenerateTokenResponse> GenerateAsync(GenerateTokenQuery query, CancellationToken cancellationToken = default);
+    Task<TokenResponse> GenerateAsync(TokenRequest request, CancellationToken cancellationToken = default);
 
-    string GenerateString(GenerateTokenResponse user);
+    string GenerateString(TokenResponse user);
 }

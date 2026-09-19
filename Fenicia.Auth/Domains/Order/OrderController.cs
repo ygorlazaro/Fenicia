@@ -36,15 +36,15 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(
-        CreateNewOrderCommand request,
+    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(
+        OrderRequest request,
         [FromHeader(Name = "CompanyId")] Guid companyId,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-            var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
+            var command = new OrderRequest(userId, companyId, request.Modules);
             var order = await orderService.CreateAsync(command, cancellationToken);
 
             return order switch

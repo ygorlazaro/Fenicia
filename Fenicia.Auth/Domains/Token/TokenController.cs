@@ -12,7 +12,7 @@ namespace Fenicia.Auth.Domains.Token;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class TokenController(ITokenService tokenService, TokenMapper tokenMapper) : ControllerBase
+public class TokenController(ITokenService tokenService) : ControllerBase
 {
     /// <summary>
     ///     Gera um token JWT para o usuário (login).
@@ -32,14 +32,14 @@ public class TokenController(ITokenService tokenService, TokenMapper tokenMapper
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(
-        GenerateTokenQuery request,
+        TokenRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userResponse = await tokenService.GenerateAsync(request, cancellationToken);
 
-            return PopulateTokenAsync(userResponse);
+            return Ok(userResponse);
         }
         catch (PermissionDeniedException ex)
         {
@@ -59,13 +59,5 @@ public class TokenController(ITokenService tokenService, TokenMapper tokenMapper
                     Status = StatusCodes.Status400BadRequest
                 });
         }
-    }
-
-    private ActionResult<TokenResponse> PopulateTokenAsync(GenerateTokenResponse user)
-    {
-        var token = tokenService.GenerateString(user);
-        var response = tokenMapper.MapToTokenResponse(token, string.Empty, user);
-
-        return Created(string.Empty, response);
     }
 }

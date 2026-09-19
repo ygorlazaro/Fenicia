@@ -4,10 +4,10 @@ namespace Fenicia.Auth.Domains.Configuration.Interfaces;
 
 public interface IConfigurationService
 {
-    Task<List<GetConfigurationResponse>> GetAllAsync(
+    Task<List<ConfigurationResponse>> GetAllAsync(
         Guid userId,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task UpsertAsync(UpsertConfigurationCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task UpsertAsync(ConfigurationRequest request, Guid companyId, CancellationToken cancellationToken = default);
 }

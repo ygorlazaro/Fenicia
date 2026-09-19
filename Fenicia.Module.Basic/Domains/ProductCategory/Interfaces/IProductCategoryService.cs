@@ -6,7 +6,8 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 public interface IProductCategoryService
 {
     Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(
-        GetAllProductCategoryQuery query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default);
 
     Task<GetProductCategoryByIdResponse?> GetByIdAsync(

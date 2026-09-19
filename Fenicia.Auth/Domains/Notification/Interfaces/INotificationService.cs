@@ -5,21 +5,22 @@ namespace Fenicia.Auth.Domains.Notification.Interfaces;
 
 public interface INotificationService
 {
-    Task<Pagination<List<GetAllNotificationsResponse>>> GetAllAsync(
-        GetAllNotificationsQuery query,
-        CancellationToken cancellationToken = default);
-
-    Task<GetNotificationByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-
-    Task<AddNotificationResponse> AddAsync(
-        AddNotificationCommand command,
+    Task<Pagination<List<NotificationResponse>>> GetAllAsync(
         Guid companyId,
+        Guid userId,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default);
 
-    Task<UpdateNotificationResponse?> UpdateAsync(
-        UpdateNotificationCommand command,
-        Guid companyId,
+    Task<NotificationResponse?> GetByIdAsync(Guid id, Guid companyId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<NotificationResponse> AddAsync(
+        NotificationRequest command,
         CancellationToken cancellationToken = default);
 
-    Task<bool> DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default);
+    Task<NotificationResponse?> UpdateAsync(
+        NotificationRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

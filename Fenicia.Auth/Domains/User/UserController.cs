@@ -4,10 +4,10 @@ using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.DTOs.Auth.User;
-using Fenicia.Common.DTOs.Auth.UserRole;
 using Fenicia.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserCompanyResponse = Fenicia.Common.DTOs.Auth.UserRole.UserCompanyResponse;
 
 namespace Fenicia.Auth.Domains.User;
 
@@ -30,19 +30,19 @@ public class UserController(IUserService userService, IModuleService moduleServi
     /// <response code="403">Usuário não tem permissão para acessar módulos desta empresa</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}/module")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleByUserResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync(
+    public async Task<ActionResult<List<ModuleByUserResponse>>> GetUserModulesAsync(
         [FromRoute] Guid id,
         [FromHeader] Headers headers,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var loggedInUserId = ClaimReader.UserId(User);
+            var userId = ClaimReader.UserId(User);
 
-            await userService.EnsureCanAccessUserAsync(loggedInUserId, id, headers.CompanyId, cancellationToken);
+            await userService.EnsureCanAccessUserAsync(userId, id, headers.CompanyId, cancellationToken);
 
             var companyId = headers.CompanyId;
             var response = await moduleService.GetUserModulesAsync(companyId, id, cancellationToken);
@@ -66,10 +66,10 @@ public class UserController(IUserService userService, IModuleService moduleServi
     /// <response code="403">Usuário não tem permissão para acessar empresas deste usuário</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}/company")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserCompanyResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(
+    public async Task<ActionResult<List<UserCompanyResponse>>> GetUserCompanyAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken = default)
     {
@@ -112,9 +112,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await userService.GetAllAsync(
-            new GetAllUsersQuery(page, pageSize, query, sort),
-            cancellationToken);
+        var result = await userService.GetAllAsync(new UserRequest(), page, pageSize, cancellationToken);
 
         return Ok(result);
     }
@@ -160,8 +158,9 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync(
-        CreateUserCommand request,
+        UserRequest request,
         CancellationToken cancellationToken = default)
     {
         try
@@ -197,12 +196,12 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [Authorize(Roles = "God,Admin")]
     public async Task<IActionResult> UpdateAsync(
         Guid userId,
-        UpdateUserCommand request,
+        UserRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            request.UserId = userId;
+            request.Id = userId;
             var result = await userService.UpdateAsync(request, cancellationToken);
 
             return Ok(result);
@@ -227,6 +226,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         try
@@ -237,43 +237,6 @@ public class UserController(IUserService userService, IModuleService moduleServi
         catch (InvalidRequestException)
         {
             return NotFound();
-        }
-    }
-
-    /// <summary>
-    ///     Altera a senha de um usuário.
-    /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="request">Comando com a nova senha</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Confirmação de alteração de senha</returns>
-    /// <response code="200">Senha alterada com sucesso</response>
-    /// <response code="400">Senha inválida</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Usuário não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpPatch("{userId:guid}/password")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> ChangePasswordAsync(
-        Guid userId,
-        UpdateUserPasswordCommand request,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var loggedInUserId = ClaimReader.UserId(User);
-            request.UserId = userId;
-            var result = await userService.UpdatePasswordAsync(loggedInUserId, request, cancellationToken);
-
-            return Ok(result);
-        }
-        catch (InvalidRequestException ex)
-        {
-            return BadRequest(ex.Message);
         }
     }
 }

@@ -7,7 +7,9 @@ namespace Fenicia.Auth.Domains.Module;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class ModuleMapper
 {
-    internal partial GetModuleResponse MapToGetModuleResponse(ModuleModel module);
+    internal partial ModuleResponse MapToModuleResponse(ModuleModel module);
 
-    internal partial GetUserModulesResponse MapToGetUserModulesResponse(ModuleModel module);
+    internal partial ModuleByUserResponse MapToModuleByUserResponse(ModuleModel module);
+
+    public partial ModuleResponse ModuleResponse(ModuleModel module);
 }

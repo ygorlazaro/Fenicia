@@ -6,8 +6,7 @@ namespace Fenicia.Auth.Domains.Configuration.Interfaces;
 
 public interface IConfigurationRepository : IRepository<ConfigurationModel>
 {
-    Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(
-        Guid userId,
+    Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(Guid userId,
         Guid companyId,
         ConfigType configType,
         CancellationToken cancellationToken = default);

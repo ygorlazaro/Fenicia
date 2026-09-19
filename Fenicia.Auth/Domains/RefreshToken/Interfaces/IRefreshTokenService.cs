@@ -6,9 +6,7 @@ public interface IRefreshTokenService
 {
     Task<string> GenerateAsync(Guid userId);
 
-    Task<ValidateTokenResponse?> GetAsync(string token);
-
-    Task<RefreshTokenModel> UpdateAsync(string token, bool isActive);
+    Task<RefreshTokenResponse?> GetAsync(string token);
 
     Task<bool> ValidateAsync(Guid userId, string refreshToken);
 }

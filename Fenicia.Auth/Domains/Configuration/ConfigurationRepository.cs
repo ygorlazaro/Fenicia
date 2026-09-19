@@ -9,15 +9,17 @@ namespace Fenicia.Auth.Domains.Configuration;
 public class ConfigurationRepository(DbContext context)
     : Repository<ConfigurationModel>(context), IConfigurationRepository
 {
-    public Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(
-        Guid userId,
+    public Task<ConfigurationModel?> GetByUserCompanyAndTypeAsync(Guid userId,
         Guid companyId,
         ConfigType configType,
         CancellationToken cancellationToken = default)
     {
-        return DbSet.FirstOrDefaultAsync(
-            c => c.UserId == userId && c.CompanyId == companyId && c.ConfigType == configType,
-            cancellationToken);
+        var query = from c in DbSet
+            where c.UserId == userId && c.CompanyId == companyId && c.ConfigType == configType
+            orderby c.ConfigType
+            select c;
+
+        return query.FirstOrDefaultAsync(cancellationToken);
     }
 
     public Task<List<ConfigurationModel>> GetByUserAndCompanyAsync(

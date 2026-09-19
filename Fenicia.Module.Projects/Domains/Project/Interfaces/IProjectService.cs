@@ -5,7 +5,8 @@ namespace Fenicia.Module.Projects.Domains.Project.Interfaces;
 public interface IProjectService
 {
     Task<List<GetAllProjectResponse>> GetAllAsync(
-        GetAllProjectQuery query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default);
 
     Task<GetProjectByIdResponse?> GetByIdAsync(

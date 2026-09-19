@@ -5,15 +5,15 @@ using Fenicia.Common.DTOs.Auth.User;
 
 namespace Fenicia.Auth.Domains.Register;
 
-public class RegisterService(IUserService userService, RegisterMapper registerMapper) : IRegisterService
+public class RegisterService(RegisterMapper mapper, IUserService userService) : IRegisterService
 {
     public async Task<RegisterResponse> CreateAsync(
-        RegisterCommand request,
+        RegisterRequest request,
         CancellationToken cancellationToken = default)
     {
-        var command = new CreateNewUserCommand(request.Email, request.Password, request.Name, request.Company);
-        var user = await userService.CreateNewAsync(command, cancellationToken);
+        var command = new UserRequest(request.Email, request.Password, request.Name, request.Company);
+        var user = await userService.CreateAsync(command, cancellationToken);
 
-        return registerMapper.MapToRegisterResponse(user);
+        return mapper.MapToRegisterResponse(user);
     }
 }

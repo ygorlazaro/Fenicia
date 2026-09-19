@@ -9,11 +9,11 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.Company;
 
 public sealed class CompanyService(
+    CompanyMapper mapper,
     ICompanyRepository repository,
-    IUserRoleService userRoleService,
-    CompanyMapper companyMapper) : ICompanyService
+    IUserRoleService userRoleService) : ICompanyService
 {
-    public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> GetCompaniesByUserAsync(
+    public async Task<Pagination<IEnumerable<CompanyByUserResponse>>> GetCompaniesByUserAsync(
         Guid userId,
         int page,
         int perPage,
@@ -28,9 +28,9 @@ public sealed class CompanyService(
         var total = await userRoleService.CountUserRolesAsync(userId, cancellationToken);
 
         var activeUserRoles = userRoles.Where(ur => ur.Company.IsActive).ToList();
-        var result = activeUserRoles.Select(companyMapper.MapToGetCompaniesByUserResponse);
+        var result = activeUserRoles.Select(mapper.MapToCompaniesByUserResponse);
 
-        return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(result, total, page, perPage);
+        return new Pagination<IEnumerable<CompanyByUserResponse>>(result, total, page, perPage);
     }
 
     public async Task UpdateAsync(
@@ -52,18 +52,24 @@ public sealed class CompanyService(
         await repository.UpdateAsync(company.Id, company, cancellationToken);
     }
 
-    public Task<CompanyModel?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<CompanyResponse?> GetByIdAsync(Guid companyId, CancellationToken cancellationToken = default)
     {
-        return repository.GetByIdAsync(companyId, cancellationToken);
+        var company = await repository.GetByIdAsync(companyId, cancellationToken);
+
+        return company is null ? null : mapper.MapToCompanyResponse(company);
     }
 
-    public Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
+    public async Task<CompanyResponse?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
     {
-        return repository.GetByCnpjAsync(cnpj, cancellationToken);
+        var company = await repository.GetByCnpjAsync(cnpj, cancellationToken);
+
+        return company is null ? null : mapper.MapToCompanyResponse(company);
     }
 
-    public Task<CompanyModel> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default)
+    public async Task<CompanyResponse> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default)
     {
-        return repository.InsertAsync(company, cancellationToken);
+        var result = await repository.InsertAsync(company, cancellationToken);
+
+        return mapper.MapToCompanyResponse(result);
     }
 }

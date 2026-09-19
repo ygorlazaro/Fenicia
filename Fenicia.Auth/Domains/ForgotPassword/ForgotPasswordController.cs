@@ -29,7 +29,7 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> PostAsync(
-        [FromBody] AddForgotPasswordCommand reset,
+        [FromBody] ForgotPasswordRequest reset,
         CancellationToken cancellationToken = default)
     {
         try
@@ -38,7 +38,7 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
             var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
             var userId = ClaimReader.UserId(User);
 
-            var command = new AddForgotPasswordCommand(reset.Email, userId, ipAddress, userAgent);
+            var command = new ForgotPasswordRequest(reset.Email, userId, ipAddress, userAgent);
 
             await forgotPasswordService.AddAsync(command, cancellationToken);
 
@@ -65,7 +65,7 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> PatchAsync(
-        [FromBody] ResetPasswordCommand request,
+        [FromBody] ResetPasswordRequest request,
         CancellationToken cancellationToken = default)
     {
         try

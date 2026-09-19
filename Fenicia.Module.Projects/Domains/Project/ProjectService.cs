@@ -9,11 +9,12 @@ namespace Fenicia.Module.Projects.Domains.Project;
 public class ProjectService(IProjectRepository repository) : IProjectService
 {
     public async Task<List<GetAllProjectResponse>> GetAllAsync(
-        GetAllProjectQuery query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();
-        var projects = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
+        var projects = await baseQuery.Skip((page - 1) * perPage).Take(perPage)
             .ToListAsync(cancellationToken);
         return
         [

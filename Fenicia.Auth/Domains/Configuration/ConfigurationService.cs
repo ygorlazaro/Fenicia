@@ -1,50 +1,59 @@
 using Fenicia.Auth.Domains.Configuration.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Configuration;
+using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationService(IConfigurationRepository repository, ConfigurationMapper configurationMapper)
+public class ConfigurationService(ConfigurationMapper mapper, IConfigurationRepository repository, IUserRoleService userRoleService)
     : IConfigurationService
 {
-    public async Task<List<GetConfigurationResponse>> GetAllAsync(
+    public async Task<List<ConfigurationResponse>> GetAllAsync(
         Guid userId,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
         var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, cancellationToken);
 
-        return [.. configurations.OrderBy(c => c.ConfigType).Select(configurationMapper.MapToGetConfigurationResponse)];
+        return [.. configurations.Select(mapper.MapToConfigurationResponse)];
     }
 
     public async Task UpsertAsync(
-        UpsertConfigurationCommand command,
+        ConfigurationRequest request,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
+        var isAdmin = await userRoleService.IsAdminAsync(request.UserId, companyId, cancellationToken);
+
+        if (!isAdmin)
+        {
+            throw new PermissionDeniedException(ExceptionMessages.PermissionDeniedUpdateCompany);
+        }
+
         var configuration = await repository.GetByUserCompanyAndTypeAsync(
-            command.UserId,
+            request.UserId,
             companyId,
-            command.ConfigType,
+            request.ConfigType,
             cancellationToken);
 
         if (configuration is null)
         {
             configuration = new ConfigurationModel
             {
-                Id = command.Id ?? Guid.NewGuid(),
-                UserId = command.UserId,
+                UserId = request.UserId,
                 CompanyId = companyId,
-                ConfigType = command.ConfigType,
-                Value = command.Value
+                ConfigType = request.ConfigType,
+                Value = request.Value
             };
 
             await repository.InsertAsync(configuration, cancellationToken);
+
+            return;
         }
-        else
-        {
-            configuration.Value = command.Value;
-            await repository.UpdateAsync(configuration.Id, configuration, cancellationToken);
-        }
+
+        configuration.Value = request.Value;
+        await repository.UpdateAsync(configuration.Id, configuration, cancellationToken);
     }
 }

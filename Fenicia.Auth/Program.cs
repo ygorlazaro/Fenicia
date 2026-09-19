@@ -10,6 +10,8 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.Notification;
 using Fenicia.Auth.Domains.Notification.Interfaces;
+using Fenicia.Auth.Domains.NotificationHistory;
+using Fenicia.Auth.Domains.NotificationHistory.Interfaces;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Auth.Domains.RefreshToken;
@@ -24,15 +26,17 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.Interfaces;
+using Fenicia.Auth.Domains.Upload;
+using Fenicia.Auth.Domains.Upload.Interfaces;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
-using Fenicia.Common.API;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Common.DTOs.Auth.Upload;
 using Fenicia.Externals.Email;
 
 namespace Fenicia.Auth;
@@ -69,13 +73,14 @@ internal static class Program
                 builder.Services.AddSingleton<RegisterMapper>();
                 builder.Services.AddSingleton<RoleMapper>();
                 builder.Services.AddSingleton<SubscriptionMapper>();
-                builder.Services.AddSingleton<TokenMapper>();
                 builder.Services.AddSingleton<UserMapper>();
                 builder.Services.AddSingleton<UserRoleMapper>();
 
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
+                builder.Services.AddScoped<IUploadService, UploadService>();
+                builder.Services.AddScoped<IUploadRepository, UploadRepository>();
                 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
                 builder.Services.AddScoped<IUserRepository, UserRepository>();
                 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
@@ -102,6 +107,8 @@ internal static class Program
                 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
                 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
                 builder.Services.AddScoped<IOrderService, OrderService>();
+                builder.Services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
+                builder.Services.AddScoped<INotificationHistoryService, NotificationHistoryService>();
                 builder.Services.Configure<UploadOptions>(configuration.GetSection("Upload"));
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 

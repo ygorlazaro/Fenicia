@@ -30,7 +30,8 @@ public sealed class CustomerService(
     }
 
     public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(
-        GetAllCustomerQuery query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default)
     {
         var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);

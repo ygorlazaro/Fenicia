@@ -7,5 +7,5 @@ namespace Fenicia.Auth.Domains.Role;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
 public partial class RoleMapper
 {
-    internal partial GetAdminRoleResponse MapToGetAdminRoleResponse(RoleModel role);
+    internal partial RoleResponse MapToRoleResponse(RoleModel role);
 }

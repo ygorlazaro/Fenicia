@@ -2,6 +2,7 @@ using Fenicia.Common.API;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.DTOs.Auth.Upload;
 using Fenicia.Module.SocialNetwork.Domains.Attachment;
 using Fenicia.Module.SocialNetwork.Domains.Block;
 using Fenicia.Module.SocialNetwork.Domains.Comment;

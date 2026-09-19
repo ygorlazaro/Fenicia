@@ -12,32 +12,32 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.Order;
 
 public class OrderService(
+    OrderMapper mapper,
+    IRepository<OrderModel> repository,
     IModuleService moduleService,
-    IRepository<OrderModel> orderRepository,
     ISubscriptionService subscriptionService,
-    IUserRoleService userRoleService,
-    OrderMapper orderMapper) : IOrderService
+    IUserRoleService userRoleService) : IOrderService
 {
-    public async Task<CreateNewOrderResponse?> CreateAsync(
-        CreateNewOrderCommand command,
+    public async Task<OrderResponse?> CreateAsync(
+        OrderRequest request,
         CancellationToken cancellationToken = default)
     {
-        await ValidateUserAsync(command, cancellationToken);
+        await ValidateUserAsync(request, cancellationToken);
 
-        var modules = await PopulateModules(command.Modules, cancellationToken);
+        var modules = await PopulateModules(request.Modules, cancellationToken);
 
         if (modules.Count == 0)
         {
             throw new ItemNotExistsException(ExceptionMessages.ModulesNotFound);
         }
 
-        var order = PersistOrderAsync(command, modules);
-        await orderRepository.InsertAsync(order, cancellationToken);
+        var order = PersistOrderAsync(request, modules);
+        await repository.InsertAsync(order, cancellationToken);
 
-        LoadCreditsAsync(command.CompanyId, order);
+        LoadCreditsAsync(request.CompanyId, order);
         await subscriptionService.CreateSubscriptionAsync(order.Subscription!, cancellationToken);
 
-        return orderMapper.MapToCreateNewOrderResponse(order);
+        return mapper.MapToOrderResponse(order);
     }
 
     private static string GenerateOrderNumber()
@@ -70,7 +70,7 @@ public class OrderService(
         order.Subscription = subscription;
     }
 
-    private static OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
+    private static OrderModel PersistOrderAsync(OrderRequest request, List<ModuleModel> modules)
     {
         var totalAmount = modules.Sum(m => m.Price);
         var orderNumber = GenerateOrderNumber();
@@ -86,20 +86,20 @@ public class OrderService(
             OrderNumber = orderNumber,
             SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Approved,
-            UserId = command.UserId,
+            UserId = request.UserId,
             TotalAmount = totalAmount,
             Details = details,
-            CompanyId = command.CompanyId
+            CompanyId = request.CompanyId
         };
 
         return order;
     }
 
-    private async Task ValidateUserAsync(CreateNewOrderCommand command, CancellationToken cancellationToken = default)
+    private async Task ValidateUserAsync(OrderRequest request, CancellationToken cancellationToken = default)
     {
         var existingUser = await userRoleService.AnyIdAndCompanyAsync(
-            command.UserId,
-            command.CompanyId,
+            request.UserId,
+            request.CompanyId,
             cancellationToken);
 
         if (!existingUser)

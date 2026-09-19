@@ -12,8 +12,6 @@ public partial class SubscriptionMapper
     [MapProperty("Company.Cnpj", nameof(UserCompanyResponse.Cnpj))]
     public partial UserCompanyResponse MapToUserCompanyResponse(UserRoleModel userRole);
 
-    public partial UserModuleResponse MapToUserModuleResponse(ModuleModel module);
-
     [MapProperty("Company.Name", nameof(UserSubscriptionResponse.CompanyName))]
     public partial UserSubscriptionResponse MapToUserSubscriptionResponse(SubscriptionModel subscription);
 }

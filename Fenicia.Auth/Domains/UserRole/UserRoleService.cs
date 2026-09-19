@@ -15,7 +15,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMap
         return [.. userRoles.Select(userRoleMapper.MapToUserRoleResponse)];
     }
 
-    public async Task<List<GetUserCompaniesResponse>> GetUserCompaniesAsync(
+    public async Task<List<UserCompanyResponse>> GetUserCompaniesAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {

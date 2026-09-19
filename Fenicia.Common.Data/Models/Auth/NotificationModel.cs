@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("notifications", Schema = "auth")]
-public class NotificationModel : BaseCompanyModel
+public class NotificationModel : BaseModel
 {
     [Column("title")]
     [MaxLength(200)]
     public string Title { get; set; } = string.Empty;
 
     [Column("description")]
-    [MaxLength(200)]
+    [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
 
     [Column("date")]
@@ -21,6 +21,5 @@ public class NotificationModel : BaseCompanyModel
     [MaxLength(200)]
     public string? ImageUrl { get; set; }
 
-    [Column("read")]
-    public bool Read { get; set; } = false;
+    public List<NotificationHistoryModel> History { get; set; } = default!;
 }

@@ -24,11 +24,11 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(GenerateRefreshTokenResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RefreshTokenResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<GenerateRefreshTokenResponse>> PostAsync(
+    public async Task<ActionResult<RefreshTokenResponse>> PostAsync(
         CancellationToken cancellationToken = default)
     {
         try
@@ -48,7 +48,6 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     ///     Valida um refresh token pelo valor.
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da validação com dados do token</returns>
     /// <response code="200">Token válido</response>
     /// <response code="400">Refresh token inválido ou nulo</response>
@@ -56,13 +55,12 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     /// <response code="404">Token não encontrado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{token}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ValidateTokenResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RefreshTokenResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ValidateTokenResponse>> GetAsync(
-        [FromRoute] string token,
-        CancellationToken cancellationToken = default)
+    public async Task<ActionResult<RefreshTokenResponse>> GetAsync(
+        [FromRoute] string token)
     {
         try
         {
@@ -82,47 +80,6 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
         catch (UnauthorizedAccessException ex)
         {
             return Forbid(ex.Message);
-        }
-        catch (InvalidRequestException ex)
-        {
-            return BadRequest(new { ex.Message });
-        }
-    }
-
-    /// <summary>
-    ///     Invalida um refresh token.
-    /// </summary>
-    /// <param name="token">Valor do refresh token</param>
-    /// <param name="command">Comando com o refresh token a ser invalidado</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se invalidado com sucesso</returns>
-    /// <response code="204">Refresh token invalidado com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Token não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpPatch("{token}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<IActionResult> PatchAsync(
-        [FromRoute] string token,
-        [FromBody] UpdateRefreshTokenCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            await refreshTokenService.UpdateAsync(token, command.IsActive);
-
-            return NoContent();
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (ItemNotExistsException ex)
-        {
-            return NotFound(ex.Message);
         }
         catch (InvalidRequestException ex)
         {

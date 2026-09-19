@@ -6,7 +6,7 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public sealed class RefreshTokenService(IRefreshTokenRepository repository, RefreshTokenMapper refreshTokenMapper) : IRefreshTokenService
+public sealed class RefreshTokenService(RefreshTokenMapper mapper, IRefreshTokenRepository repository) : IRefreshTokenService
 {
     public async Task<string> GenerateAsync(Guid userId)
     {
@@ -20,12 +20,12 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository, Refr
 
         await repository.AddAsync(refreshToken);
 
-        var mapped = refreshTokenMapper.MapToGenerateRefreshTokenResponse(refreshToken);
+        var mapped = mapper.MapToRefreshTokenResponse(refreshToken);
 
         return mapped.Token;
     }
 
-    public async Task<ValidateTokenResponse?> GetAsync(string token)
+    public async Task<RefreshTokenResponse?> GetAsync(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -34,31 +34,9 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository, Refr
 
         var tokenModel = await repository.GetAsync(token);
 
-        return tokenModel is null ? null : refreshTokenMapper.MapToValidateTokenResponse(tokenModel);
+        return tokenModel is null ? null : mapper.MapToRefreshTokenResponse(tokenModel);
     }
 
-    public async Task<RefreshTokenModel> UpdateAsync(
-        string token,
-        bool isActive)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
-        }
-
-        var existing = await repository.GetAsync(token);
-
-        if (existing is null)
-        {
-            throw new ItemNotExistsException(ExceptionMessages.ItemNotFound);
-        }
-
-        existing.IsActive = isActive;
-
-        await repository.UpdateAsync(existing);
-
-        return existing;
-    }
 
     public async Task<bool> ValidateAsync(
         Guid userId,

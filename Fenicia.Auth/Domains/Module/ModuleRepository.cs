@@ -12,7 +12,12 @@ public class ModuleRepository(DbContext context) : Repository<ModuleModel>(conte
         IEnumerable<Guid> ids,
         CancellationToken cancellationToken = default)
     {
-        return DbSet.Where(m => ids.Contains(m.Id)).OrderBy(m => m.Type).ToListAsync(cancellationToken);
+        var query = from m in DbSet
+            where ids.Contains(m.Id)
+            orderby m.Type
+            select m;
+
+        return query.ToListAsync(cancellationToken);
     }
 
     public Task<ModuleModel?> GetByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)

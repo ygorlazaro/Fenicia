@@ -28,7 +28,7 @@ public class RegisterController(IRegisterService registerService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<RegisterResponse>> CreateNewUserAsync(
-        RegisterCommand request,
+        RegisterRequest request,
         CancellationToken cancellationToken = default)
     {
         try

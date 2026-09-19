@@ -7,6 +7,6 @@ namespace Fenicia.Auth.Domains.Order;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class OrderMapper
 {
-    [MapProperty(nameof(OrderModel.Id), nameof(CreateNewOrderResponse.OrderId))]
-    internal partial CreateNewOrderResponse MapToCreateNewOrderResponse(OrderModel order);
+    [MapProperty(nameof(OrderModel.Id), nameof(OrderResponse.OrderId))]
+    public partial OrderResponse MapToOrderResponse(OrderModel order);
 }

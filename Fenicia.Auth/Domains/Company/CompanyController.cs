@@ -33,14 +33,13 @@ public class CompanyController(ICompanyService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetCompaniesByUserResponse>>>> GetByLoggedUser(
+    public async Task<ActionResult<Pagination<List<CompanyByUserResponse>>>> GetByLoggedUser(
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
-
             var result = await service.GetCompaniesByUserAsync(userId, query.Page, query.PerPage, cancellationToken);
 
             return Ok(result);
@@ -78,7 +77,7 @@ public class CompanyController(ICompanyService service) : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PatchAsync(
         [FromRoute] Guid id,
-        [FromBody] UpdateCompanyRequest request,
+        [FromBody] CompanyRequest request,
         CancellationToken cancellationToken = default)
     {
         try

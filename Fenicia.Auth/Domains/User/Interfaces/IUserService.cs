@@ -1,34 +1,29 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.User;
-using Fenicia.Common.DTOs.Auth.UserRole;
+using UserCompanyResponse = Fenicia.Common.DTOs.Auth.UserRole.UserCompanyResponse;
 
 namespace Fenicia.Auth.Domains.User.Interfaces;
 
 public interface IUserService
 {
-    Task<Pagination<List<UserListItemResponse>>> GetAllAsync(
-        GetAllUsersQuery query,
+    Task<Pagination<List<UserResponse>>> GetAllAsync(
+        UserRequest query,
+        int page = 1,
+        int perPage = 10,
         CancellationToken cancellationToken = default);
 
-    Task<GetUserByIdResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<GetByEmailResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
 
-    Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken cancellationToken = default);
-
     Task<UserModel?> FirstByEmailOrDefaultAsync(string email, CancellationToken cancellationToken = default);
 
-    Task<UserModel> UpdatePasswordAsync(
-        Guid userId,
-        string plainPassword,
-        CancellationToken cancellationToken = default);
+    Task<UserResponse> GetForRefreshAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<GetUserForRefreshResponse> GetForRefreshAsync(Guid userId, CancellationToken cancellationToken = default);
-
-    Task<List<GetUserCompaniesResponse>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<List<UserCompanyResponse>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task EnsureCanAccessUserAsync(
         Guid loggedInUserId,
@@ -36,22 +31,14 @@ public interface IUserService
         Guid? companyId,
         CancellationToken cancellationToken = default);
 
-    Task<CreateUserResponse> CreateAsync(CreateUserCommand command, CancellationToken cancellationToken = default);
+    Task<UserResponse> CreateAsync(UserRequest request, CancellationToken cancellationToken = default);
 
-    Task<CreateNewUserResponse> CreateNewAsync(
-        CreateNewUserCommand command,
-        CancellationToken cancellationToken = default);
-
-    Task<UpdateUserResponse> UpdateAsync(UpdateUserCommand command, CancellationToken cancellationToken = default);
+    Task<UserResponse> UpdateAsync(UserRequest command, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<UpdateUserPasswordResponse> UpdatePasswordAsync(
-        Guid loggedInUserId,
-        UpdateUserPasswordCommand command,
-        CancellationToken cancellationToken = default);
-
-    Task<UpdatePasswordResponse> UpdateHashedPasswordAsync(
-        UpdatePasswordCommand command,
+    Task<UserModel> UpdatePasswordAsync(
+        Guid userId,
+        string plainPassword,
         CancellationToken cancellationToken = default);
 }
