@@ -61,6 +61,11 @@ public partial class DefaultContext : DbContext
             .WithOne(p => p.User)
             .HasForeignKey<ProfileModel>(p => p.UserId);
 
+        modelBuilder.Entity<UserModel>()
+            .HasOne(u => u.Person)
+            .WithOne()
+            .HasForeignKey<UserModel>(u => u.PersonId);
+
         modelBuilder.Entity<ProfileModel>()
             .HasIndex(p => p.UserId)
             .IsUnique();

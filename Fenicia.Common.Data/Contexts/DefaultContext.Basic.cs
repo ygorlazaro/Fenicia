@@ -26,8 +26,4 @@ public partial class DefaultContext
     public DbSet<OrderModel> BasicOrders { get; set; }
 
     public DbSet<OrderDetailModel> BasicOrderDetails { get; set; }
-
-    public DbSet<PersonModel> BasicPeople { get; set; }
-
-    public DbSet<PersonAddressModel> BasicPersonAddresses { get; set; }
 }

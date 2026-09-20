@@ -3,7 +3,6 @@ using Fenicia.Auth.Domains.Order.Interfaces;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.DTOs.Auth.Order;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
@@ -13,7 +12,7 @@ namespace Fenicia.Auth.Domains.Order;
 
 public class OrderService(
     OrderMapper mapper,
-    IRepository<OrderModel> repository,
+    IOrderRepository repository,
     IModuleService moduleService,
     ISubscriptionService subscriptionService,
     IUserRoleService userRoleService) : IOrderService

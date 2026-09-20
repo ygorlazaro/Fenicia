@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Data.Models.Auth;
 
-namespace Fenicia.Common.Data.Models.Basic;
+namespace Fenicia.Common.Data.Models.Auth;
 
-[Table("person_addresses", Schema = "basic")]
+[Table("person_addresses", Schema = "auth")]
 public sealed class PersonAddressModel : BaseCompanyModel
 {
     public Guid PersonId { get; init; }

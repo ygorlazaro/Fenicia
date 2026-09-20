@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.DataSource;
@@ -177,7 +178,7 @@ public sealed class EmployeeService(
                     command.Address.Country);
                 var createdAddress = await addressService.AddAsync(addressCommand, cancellationToken);
 
-                var newPersonAddress = new PersonAddressModel
+                var newPersonAddress = new Fenicia.Common.Data.Models.Auth.PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = employee.PersonId,
@@ -275,7 +276,7 @@ public sealed class EmployeeService(
     }
 
     private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(
-        IEnumerable<OrderModel> orders,
+        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
@@ -332,7 +333,7 @@ public sealed class EmployeeService(
     }
 
     private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
-        IEnumerable<OrderModel> orders,
+        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
@@ -353,7 +354,7 @@ public sealed class EmployeeService(
         return ordersByEmployee;
     }
 
-    private static List<EmployeeSalesResponse> GetSalesByEmployee(IEnumerable<OrderModel> orders)
+    private static List<EmployeeSalesResponse> GetSalesByEmployee(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders)
     {
         var ordersList = orders.Where(o => o.Employee != null).ToList();
 

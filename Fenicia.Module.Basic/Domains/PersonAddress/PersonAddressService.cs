@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Basic.PersonAddress;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 

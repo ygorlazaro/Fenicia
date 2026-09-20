@@ -5,8 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.NotificationHistory;
 
-public class NotificationHistoryRepository(DbContext context) : Repository<NotificationHistoryModel>(context), INotificationHistoryRepository
+#pragma warning disable IDE0290
+public class NotificationHistoryRepository : Repository<NotificationHistoryModel>, INotificationHistoryRepository
 {
+    public NotificationHistoryRepository(DbContext context) : base(context)
+    {
+    }
+#pragma warning restore IDE0290
+
     public async Task<bool> MaskReadStatusAsync(Guid notificationId, Guid userId, Guid companyId, bool readStatus,
         CancellationToken cancellationToken)
     {
@@ -24,7 +30,7 @@ public class NotificationHistoryRepository(DbContext context) : Repository<Notif
         }
 
         result.IsRead = readStatus;
-        context.Entry(result).State = EntityState.Modified;
+        Context.Entry(result).State = EntityState.Modified;
 
         await SaveChangesAsync(cancellationToken);
 

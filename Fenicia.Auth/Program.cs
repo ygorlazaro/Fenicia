@@ -63,8 +63,7 @@ internal static class Program
             .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
             .AddFeniciaDependencyInjection(() =>
             {
-                builder.Services.AddSingleton<CompanyMapper>();
-                builder.Services.AddSingleton<ConfigurationMapper>();
+
                 builder.Services.AddSingleton<ForgotPasswordMapper>();
                 builder.Services.AddSingleton<ModuleMapper>();
                 builder.Services.AddSingleton<NotificationMapper>();
@@ -81,7 +80,6 @@ internal static class Program
                 builder.Services.AddHttpContextAccessor();
                 builder.Services.AddScoped<IUploadService, UploadService>();
                 builder.Services.AddScoped<IUploadRepository, UploadRepository>();
-                builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
                 builder.Services.AddScoped<IUserRepository, UserRepository>();
                 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
                 builder.Services.AddScoped<IRoleRepository, RoleRepository>();

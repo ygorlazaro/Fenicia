@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.Customer;
@@ -174,7 +175,7 @@ public sealed class CustomerService(
                     command.Address.Country);
                 var createdAddress = await addressService.AddAsync(addressCommand, cancellationToken);
 
-                var newPersonAddress = new PersonAddressModel
+                var newPersonAddress = new Fenicia.Common.Data.Models.Auth.PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = customer.PersonId,

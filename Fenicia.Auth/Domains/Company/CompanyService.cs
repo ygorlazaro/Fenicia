@@ -9,7 +9,6 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.Company;
 
 public sealed class CompanyService(
-    CompanyMapper mapper,
     ICompanyRepository repository,
     IUserRoleService userRoleService) : ICompanyService
 {
@@ -28,7 +27,7 @@ public sealed class CompanyService(
         var total = await userRoleService.CountUserRolesAsync(userId, cancellationToken);
 
         var activeUserRoles = userRoles.Where(ur => ur.Company.IsActive).ToList();
-        var result = activeUserRoles.Select(mapper.MapToCompaniesByUserResponse);
+        var result = activeUserRoles.Select(MapToCompanyByUserResponse);
 
         return new Pagination<IEnumerable<CompanyByUserResponse>>(result, total, page, perPage);
     }
@@ -56,20 +55,34 @@ public sealed class CompanyService(
     {
         var company = await repository.GetByIdAsync(companyId, cancellationToken);
 
-        return company is null ? null : mapper.MapToCompanyResponse(company);
+        return company is null ? null : MapToCompanyResponse(company);
     }
 
     public async Task<CompanyResponse?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
     {
         var company = await repository.GetByCnpjAsync(cnpj, cancellationToken);
 
-        return company is null ? null : mapper.MapToCompanyResponse(company);
+        return company is null ? null : MapToCompanyResponse(company);
     }
 
     public async Task<CompanyResponse> InsertAsync(CompanyModel company, CancellationToken cancellationToken = default)
     {
         var result = await repository.InsertAsync(company, cancellationToken);
 
-        return mapper.MapToCompanyResponse(result);
+        return MapToCompanyResponse(result);
+    }
+
+    private static CompanyByUserResponse MapToCompanyByUserResponse(UserRoleModel userRole)
+    {
+        return new CompanyByUserResponse(
+            userRole.CompanyId,
+            userRole.Company.Name,
+            userRole.Company.Cnpj,
+            userRole.Role.Name);
+    }
+
+    private static CompanyResponse MapToCompanyResponse(CompanyModel company)
+    {
+        return new CompanyResponse(company.Id, company.Name, company.Cnpj);
     }
 }

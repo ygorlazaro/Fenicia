@@ -40,4 +40,8 @@ public partial class DefaultContext
     public DbSet<UploadModel> AuthUploads { get; set; }
 
     public DbSet<ProfileModel> AuthProfiles { get; set; }
+
+    public DbSet<PersonModel> AuthPeople { get; set; }
+
+    public DbSet<PersonAddressModel> AuthPersonAddresses { get; set; }
 }

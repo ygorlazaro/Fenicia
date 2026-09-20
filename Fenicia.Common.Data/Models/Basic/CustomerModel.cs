@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.Basic;
 

@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Auth.DbInitializer;
@@ -84,7 +84,7 @@ internal static partial class DbInitializer
 
     private static void SeedPeople(DefaultContext context)
     {
-        if (context.BasicPeople.Any())
+        if (context.AuthPeople.Any())
         {
             return;
         }
@@ -126,19 +126,19 @@ internal static partial class DbInitializer
                 Notes = notes
             };
 
-            context.BasicPeople.Add(person);
+            context.AuthPeople.Add(person);
         }
     }
 
     private static void SeedPersonAddresses(DefaultContext context)
     {
-        if (context.BasicPersonAddresses.Any())
+        if (context.AuthPersonAddresses.Any())
         {
             return;
         }
 
         var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-        var people = context.BasicPeople.ToList();
+        var people = context.AuthPeople.ToList();
         var addresses = context.AuthAddresses.ToList();
 
         if (!people.Any() || !addresses.Any())
@@ -161,7 +161,7 @@ internal static partial class DbInitializer
                 Updated = now.AddDays(-random.NextDouble() * 30)
             };
 
-            context.BasicPersonAddresses.Add(personAddress);
+            context.AuthPersonAddresses.Add(personAddress);
         }
 #pragma warning restore CA5394
     }

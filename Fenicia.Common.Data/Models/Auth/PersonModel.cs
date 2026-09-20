@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 
-namespace Fenicia.Common.Data.Models.Basic;
+namespace Fenicia.Common.Data.Models.Auth;
 
-[Table("people", Schema = "basic")]
+[Table("people", Schema = "auth")]
 public sealed class PersonModel : BaseCompanyModel
 {
     [Required]

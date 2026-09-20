@@ -23,6 +23,11 @@ public class UserModel : BaseModel
     [Column("name")]
     public string Name { get; set; } = string.Empty;
 
+    public Guid? PersonId { get; set; }
+
+    [ForeignKey(nameof(PersonId))]
+    public PersonModel? Person { get; set; }
+
     public List<UserRoleModel> UsersRoles { get; init; } = [];
 
     public List<OrderModel> Orders { get; init; } = [];

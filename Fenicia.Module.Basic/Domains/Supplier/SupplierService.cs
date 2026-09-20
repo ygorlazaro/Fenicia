@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.DataSource;
@@ -92,7 +93,7 @@ public sealed class SupplierService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var person = new PersonModel
+        var person = new Fenicia.Common.Data.Models.Auth.PersonModel
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -190,7 +191,7 @@ public sealed class SupplierService(
 
                 var addressResponse = await addressService.AddAsync(addressCommand, cancellationToken);
 
-                var newPersonAddress = new PersonAddressModel
+                var newPersonAddress = new Fenicia.Common.Data.Models.Auth.PersonAddressModel
                 {
                     Id = Guid.NewGuid(),
                     PersonId = supplier.PersonId,

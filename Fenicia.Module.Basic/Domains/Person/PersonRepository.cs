@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.Person.Interfaces;
 using Microsoft.EntityFrameworkCore;

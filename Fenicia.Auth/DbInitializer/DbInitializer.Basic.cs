@@ -245,7 +245,7 @@ internal static partial class DbInitializer
         }
 
         var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-        var people = context.BasicPeople.Take(30).ToList();
+        var people = context.AuthPeople.Take(30).ToList();
 
         if (!people.Any())
         {
@@ -278,7 +278,7 @@ internal static partial class DbInitializer
         }
 
         var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-        var people = context.BasicPeople.Skip(100).Take(50).ToList();
+        var people = context.AuthPeople.Skip(100).Take(50).ToList();
 
         if (people.Count < 50)
         {
@@ -310,7 +310,7 @@ internal static partial class DbInitializer
         }
 
         var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
-        var people = context.BasicPeople.Skip(150).Take(80).ToList();
+        var people = context.AuthPeople.Skip(150).Take(80).ToList();
         var positions = context.BasicPositions.ToList();
 
         if (!people.Any() || !positions.Any())
