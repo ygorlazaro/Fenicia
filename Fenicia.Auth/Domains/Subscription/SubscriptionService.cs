@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
@@ -9,8 +8,7 @@ using Fenicia.Common.DTOs.Auth.Subscription;
 namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionService(
-    SubscriptionMapper mapper,
-    ISubscriptionRepository subscriptionRepository,
+    ISubscriptionRepository repository,
     IUserService userService,
     IUserRoleService userRoleService) : ISubscriptionService
 {
@@ -26,18 +24,18 @@ public class SubscriptionService(
         }
 
         var userRoles = await userRoleService.GetUserRoleModelsByUserAsync(userId, cancellationToken);
-        var subscriptions = await subscriptionRepository.GetUserSubscriptionsAsync(userId, cancellationToken);
+        var subscriptions = await repository.GetUserSubscriptionsAsync(userId, cancellationToken);
 
-        var companies = userRoles.Select(mapper.MapToUserCompanyResponse).ToList();
+        var companies = userRoles.Select(MapToUserCompanyResponse).ToList();
 
         var subscriptionResponses = new List<UserSubscriptionResponse>();
 
         foreach (var subscription in subscriptions)
         {
-            var modules = await subscriptionRepository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
+            var modules = await repository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
             var moduleResponses = modules.Select(MapToModuleResponse).ToList();
 
-            var subscriptionResponse = mapper.MapToUserSubscriptionResponse(subscription);
+            var subscriptionResponse = MapToUserSubscriptionResponse(subscription);
             subscriptionResponse.Modules = moduleResponses;
 
             subscriptionResponses.Add(subscriptionResponse);
@@ -50,21 +48,40 @@ public class SubscriptionService(
         SubscriptionModel subscription,
         CancellationToken cancellationToken = default)
     {
-        await subscriptionRepository.InsertAsync(subscription, cancellationToken);
+        await repository.InsertAsync(subscription, cancellationToken);
     }
 
     public Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(
         Guid subscriptionId,
         CancellationToken cancellationToken = default)
     {
-        return subscriptionRepository.GetSubscriptionModulesAsync(subscriptionId, cancellationToken);
+        return repository.GetSubscriptionModulesAsync(subscriptionId, cancellationToken);
     }
 
     public Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        return subscriptionRepository.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
+        return repository.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
+    }
+
+    private static UserCompanyResponse MapToUserCompanyResponse(UserRoleModel userRole)
+    {
+        return new UserCompanyResponse(
+            userRole.Company.Id,
+            userRole.Company.Name,
+            userRole.Company.Cnpj);
+    }
+
+    private static UserSubscriptionResponse MapToUserSubscriptionResponse(SubscriptionModel subscription)
+    {
+        return new UserSubscriptionResponse(
+            subscription.Id,
+            subscription.CompanyId,
+            subscription.Company.Name,
+            subscription.Status,
+            subscription.StartDate,
+            subscription.EndDate);
     }
 
     private static ModuleResponse MapToModuleResponse(ModuleModel module)

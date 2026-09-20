@@ -64,7 +64,6 @@ internal static class Program
             .AddFeniciaDependencyInjection(() =>
             {
 
-                builder.Services.AddSingleton<SubscriptionMapper>();
                 builder.Services.AddSingleton<UserMapper>();
                 builder.Services.AddSingleton<UserRoleMapper>();
 
