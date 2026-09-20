@@ -46,7 +46,7 @@ public sealed class TokenService(
             var roles = user.UsersRoles.Select(ur => ur.Role.Name).ToList();
 
             var tokenResponse = new TokenResponse(user.Id, user.Name, user.Email, companyId, roles);
-            var refreshToken = await refreshTokenService.GenerateAsync(user.Id);
+            var refreshToken = await refreshTokenService.GenerateAsync(user.Id, cancellationToken);
             var stringToken = GenerateString(tokenResponse);
 
             tokenResponse.Token = stringToken;
