@@ -16,7 +16,11 @@ public interface IModuleService
         Guid userId,
         CancellationToken cancellationToken = default);
 
-    Task<List<ModuleModel>> GetModulesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
+    Task<List<ModuleModel>> GetModulesByIdsAsync(
+        IEnumerable<Guid> ids,
+        CancellationToken cancellationToken = default);
 
-    Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken = default);
+    Task<ModuleModel?> GetModuleByTypeAsync(
+        ModuleType type,
+        CancellationToken cancellationToken = default);
 }

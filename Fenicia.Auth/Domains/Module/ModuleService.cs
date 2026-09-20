@@ -9,7 +9,6 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Auth.Domains.Module;
 
 public class ModuleService(
-    ModuleMapper mapper,
     IModuleRepository repository,
     IUserRoleService userRoleService,
     ISubscriptionService subscriptionService) : IModuleService
@@ -22,7 +21,7 @@ public class ModuleService(
         var total = await repository.GetTotalActiveModulesAsync(cancellationToken);
 
         return new Pagination<List<ModuleResponse>>(
-            [.. modules.Select(mapper.MapToModuleResponse)],
+            [.. modules.Select(MapToModuleResponse)],
             total,
             query.Page,
             query.PerPage);
@@ -58,7 +57,7 @@ public class ModuleService(
 
         var modulesResult = await repository.GetByIdsAsync(moduleIds, cancellationToken);
 
-        return [.. modulesResult.Select(mapper.MapToModuleByUserResponse)];
+        return [.. modulesResult.Select(MapToModuleByUserResponse)];
     }
 
     public Task<List<ModuleModel>> GetModulesByIdsAsync(
@@ -71,5 +70,22 @@ public class ModuleService(
     public Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)
     {
         return repository.GetByTypeAsync(type, cancellationToken);
+    }
+
+    private static ModuleResponse MapToModuleResponse(ModuleModel module)
+    {
+        return new ModuleResponse(
+            module.Id,
+            module.Name,
+            module.Type,
+            module.Description,
+            module.IsActive,
+            module.SortOrder,
+            module.Price);
+    }
+
+    private static ModuleByUserResponse MapToModuleByUserResponse(ModuleModel module)
+    {
+        return new ModuleByUserResponse(module.Id, module.Name, module.Type);
     }
 }

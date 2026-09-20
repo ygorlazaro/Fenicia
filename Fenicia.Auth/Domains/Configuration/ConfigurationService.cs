@@ -7,8 +7,9 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-public class ConfigurationService(ConfigurationMapper mapper, IConfigurationRepository repository, IUserRoleService userRoleService)
-    : IConfigurationService
+public class ConfigurationService(
+    IConfigurationRepository repository,
+    IUserRoleService userRoleService) : IConfigurationService
 {
     public async Task<List<ConfigurationResponse>> GetAllAsync(
         Guid userId,
@@ -17,7 +18,7 @@ public class ConfigurationService(ConfigurationMapper mapper, IConfigurationRepo
     {
         var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, cancellationToken);
 
-        return [.. configurations.Select(mapper.MapToConfigurationResponse)];
+        return [.. configurations.Select(MapToConfigurationResponse)];
     }
 
     public async Task UpsertAsync(
@@ -55,5 +56,15 @@ public class ConfigurationService(ConfigurationMapper mapper, IConfigurationRepo
 
         configuration.Value = request.Value;
         await repository.UpdateAsync(configuration.Id, configuration, cancellationToken);
+    }
+
+    private static ConfigurationResponse MapToConfigurationResponse(ConfigurationModel configuration)
+    {
+        return new ConfigurationResponse(
+            configuration.Id,
+            configuration.UserId,
+            configuration.CompanyId,
+            configuration.ConfigType,
+            configuration.Value);
     }
 }

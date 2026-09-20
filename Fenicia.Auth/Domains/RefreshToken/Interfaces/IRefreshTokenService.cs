@@ -4,9 +4,9 @@ namespace Fenicia.Auth.Domains.RefreshToken.Interfaces;
 
 public interface IRefreshTokenService
 {
-    Task<string> GenerateAsync(Guid userId);
+    Task<string> GenerateAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<RefreshTokenResponse?> GetAsync(string token);
+    Task<RefreshTokenResponse?> GetAsync(string token, CancellationToken cancellationToken = default);
 
-    Task<bool> ValidateAsync(Guid userId, string refreshToken);
+    Task<bool> ValidateAsync(Guid userId, string refreshToken, CancellationToken cancellationToken = default);
 }

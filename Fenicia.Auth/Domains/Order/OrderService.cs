@@ -11,7 +11,6 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.Order;
 
 public class OrderService(
-    OrderMapper mapper,
     IOrderRepository repository,
     IModuleService moduleService,
     ISubscriptionService subscriptionService,
@@ -36,7 +35,7 @@ public class OrderService(
         LoadCreditsAsync(request.CompanyId, order);
         await subscriptionService.CreateSubscriptionAsync(order.Subscription!, cancellationToken);
 
-        return mapper.MapToOrderResponse(order);
+        return new OrderResponse(order.Id);
     }
 
     private static string GenerateOrderNumber()

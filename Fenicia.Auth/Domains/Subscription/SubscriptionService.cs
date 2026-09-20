@@ -3,13 +3,13 @@ using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.DTOs.Auth.Subscription;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionService(
     SubscriptionMapper mapper,
-    ModuleMapper moduleMapper,
     ISubscriptionRepository subscriptionRepository,
     IUserService userService,
     IUserRoleService userRoleService) : ISubscriptionService
@@ -35,7 +35,7 @@ public class SubscriptionService(
         foreach (var subscription in subscriptions)
         {
             var modules = await subscriptionRepository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
-            var moduleResponses = modules.Select(moduleMapper.ModuleResponse).ToList();
+            var moduleResponses = modules.Select(MapToModuleResponse).ToList();
 
             var subscriptionResponse = mapper.MapToUserSubscriptionResponse(subscription);
             subscriptionResponse.Modules = moduleResponses;
@@ -65,5 +65,17 @@ public class SubscriptionService(
         CancellationToken cancellationToken = default)
     {
         return subscriptionRepository.GetActiveSubscriptionsByCompanyAsync(companyId, cancellationToken);
+    }
+
+    private static ModuleResponse MapToModuleResponse(ModuleModel module)
+    {
+        return new ModuleResponse(
+            module.Id,
+            module.Name,
+            module.Type,
+            module.Description,
+            module.IsActive,
+            module.SortOrder,
+            module.Price);
     }
 }

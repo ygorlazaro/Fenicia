@@ -34,7 +34,7 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
         try
         {
             var userId = ClaimReader.UserId(User);
-            var response = await refreshTokenService.GenerateAsync(userId);
+            var response = await refreshTokenService.GenerateAsync(userId, cancellationToken);
 
             return new CreatedResult(string.Empty, response);
         }
@@ -60,14 +60,15 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RefreshTokenResponse>> GetAsync(
-        [FromRoute] string token)
+        [FromRoute] string token,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = ClaimReader.UserId(User);
 
-            var isValid = await refreshTokenService.ValidateAsync(userId, token);
-            var tokenData = await refreshTokenService.GetAsync(token);
+            var isValid = await refreshTokenService.ValidateAsync(userId, token, cancellationToken);
+            var tokenData = await refreshTokenService.GetAsync(token, cancellationToken);
 
             if (tokenData is null)
             {

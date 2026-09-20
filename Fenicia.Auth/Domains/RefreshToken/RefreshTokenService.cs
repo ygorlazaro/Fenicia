@@ -6,9 +6,9 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public sealed class RefreshTokenService(RefreshTokenMapper mapper, IRefreshTokenRepository repository) : IRefreshTokenService
+public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IRefreshTokenService
 {
-    public async Task<string> GenerateAsync(Guid userId)
+    public async Task<string> GenerateAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var randomNumber = new byte[32];
 
@@ -20,12 +20,10 @@ public sealed class RefreshTokenService(RefreshTokenMapper mapper, IRefreshToken
 
         await repository.AddAsync(refreshToken);
 
-        var mapped = mapper.MapToRefreshTokenResponse(refreshToken);
-
-        return mapped.Token;
+        return stringToken;
     }
 
-    public async Task<RefreshTokenResponse?> GetAsync(string token)
+    public async Task<RefreshTokenResponse?> GetAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -34,13 +32,13 @@ public sealed class RefreshTokenService(RefreshTokenMapper mapper, IRefreshToken
 
         var tokenModel = await repository.GetAsync(token);
 
-        return tokenModel is null ? null : mapper.MapToRefreshTokenResponse(tokenModel);
+        return tokenModel is null ? null : MapToRefreshTokenResponse(tokenModel);
     }
-
 
     public async Task<bool> ValidateAsync(
         Guid userId,
-        string refreshToken)
+        string refreshToken,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
@@ -50,5 +48,14 @@ public sealed class RefreshTokenService(RefreshTokenMapper mapper, IRefreshToken
         var token = await repository.GetAsync(refreshToken);
 
         return token != null && token.UserId == userId && token.IsActive && token.ExpirationDate > DateTime.UtcNow;
+    }
+
+    private static RefreshTokenResponse MapToRefreshTokenResponse(RefreshTokenModel token)
+    {
+        return new RefreshTokenResponse(
+            token.Token,
+            token.ExpirationDate,
+            token.UserId,
+            token.IsActive);
     }
 }

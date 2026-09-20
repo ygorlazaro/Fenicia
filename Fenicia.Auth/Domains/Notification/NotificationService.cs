@@ -7,7 +7,6 @@ using Fenicia.Common.DTOs.Auth.Notification;
 namespace Fenicia.Auth.Domains.Notification;
 
 public class NotificationService(
-    NotificationMapper mapper,
     INotificationRepository repository,
     INotificationHistoryService notificationHistoryService) : INotificationService
 {
@@ -20,7 +19,7 @@ public class NotificationService(
     {
         var notifications = (List<NotificationModel>)[.. await repository.GetAllAsync(companyId, userId, page, perPage, cancellationToken)];
         var total = await repository.CountAsync(cancellationToken);
-        var result = notifications.Select(mapper.MapNotificationResponse).ToList();
+        var result = notifications.Select(MapNotificationResponse).ToList();
 
         foreach (var notification in result)
         {
@@ -43,7 +42,7 @@ public class NotificationService(
             return null;
         }
 
-        var result = mapper.MapNotificationResponse(notification);
+        var result = MapNotificationResponse(notification);
         result.IsRead = await notificationHistoryService.IsReadAsync(id, cancellationToken);
 
         return result;
@@ -63,7 +62,7 @@ public class NotificationService(
 
         var created = await repository.InsertAsync(notification, cancellationToken);
 
-        return mapper.MapNotificationResponse(created);
+        return MapNotificationResponse(created);
     }
 
     public async Task<NotificationResponse?> UpdateAsync(
@@ -83,7 +82,7 @@ public class NotificationService(
 
         await repository.UpdateAsync(notification.Id, notification, cancellationToken);
 
-        return mapper.MapNotificationResponse(notification);
+        return MapNotificationResponse(notification);
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -99,5 +98,15 @@ public class NotificationService(
         await repository.UpdateAsync(notification.Id, notification, cancellationToken);
 
         return true;
+    }
+
+    private static NotificationResponse MapNotificationResponse(NotificationModel notification)
+    {
+        return new NotificationResponse(
+            notification.Id,
+            notification.Title,
+            notification.Description,
+            notification.Date,
+            notification.ImageUrl);
     }
 }

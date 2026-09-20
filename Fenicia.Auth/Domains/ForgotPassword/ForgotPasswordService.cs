@@ -1,5 +1,6 @@
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.ForgotPassword;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
@@ -7,7 +8,6 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public class ForgotPasswordService(
-    ForgotPasswordMapper mapper,
     IForgotPasswordRepository repository,
     IUserService userService) : IForgotPasswordService
 {
@@ -17,12 +17,7 @@ public class ForgotPasswordService(
                    throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
-        var forgotPasswordModel = mapper.MapToForgotPasswordModel(request);
-        forgotPasswordModel.UserId = user.Id;
-        forgotPasswordModel.Code = code;
-        forgotPasswordModel.IsActive = true;
-        forgotPasswordModel.ExpirationDate = DateTime.UtcNow.AddDays(1);
-
+        var forgotPasswordModel = MapToForgotPasswordModel(request, user.Id, code);
         await repository.InsertAsync(forgotPasswordModel, cancellationToken);
     }
 
@@ -36,5 +31,18 @@ public class ForgotPasswordService(
         currentCode.IsActive = false;
         await repository.UpdateAsync(currentCode.Id, currentCode, cancellationToken);
         await userService.UpdatePasswordAsync(user.Id, request.Password, cancellationToken);
+    }
+
+    private static ForgotPasswordModel MapToForgotPasswordModel(ForgotPasswordRequest request, Guid userId, string code)
+    {
+        return new ForgotPasswordModel
+        {
+            UserId = userId,
+            Code = code,
+            ExpirationDate = DateTime.UtcNow.AddDays(1),
+            IsActive = true,
+            IpAddress = request.IpAddress,
+            UserAgent = request.UserAgent
+        };
     }
 }

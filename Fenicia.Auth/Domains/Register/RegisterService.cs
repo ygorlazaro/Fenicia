@@ -5,7 +5,7 @@ using Fenicia.Common.DTOs.Auth.User;
 
 namespace Fenicia.Auth.Domains.Register;
 
-public class RegisterService(RegisterMapper mapper, IUserService userService) : IRegisterService
+public class RegisterService(IUserService userService) : IRegisterService
 {
     public async Task<RegisterResponse> CreateAsync(
         RegisterRequest request,
@@ -14,6 +14,15 @@ public class RegisterService(RegisterMapper mapper, IUserService userService) : 
         var command = new UserRequest(request.Email, request.Password, request.Name, request.Company);
         var user = await userService.CreateAsync(command, cancellationToken);
 
-        return mapper.MapToRegisterResponse(user);
+        return MapToRegisterResponse(user);
+    }
+
+    private static RegisterResponse MapToRegisterResponse(UserResponse user)
+    {
+        return new RegisterResponse(
+            user.Id,
+            user.Name,
+            user.Email,
+            new UserCompanyResponse(user.Company.Id, user.Company.Name, user.Company.Cnpj));
     }
 }
