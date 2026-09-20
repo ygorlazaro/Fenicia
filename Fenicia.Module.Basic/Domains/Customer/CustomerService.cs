@@ -7,7 +7,6 @@ using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Person;
 using Fenicia.Common.DTOs.Basic.PersonAddress;
 using Fenicia.Common.Exceptions;
-using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
@@ -17,16 +16,14 @@ using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 namespace Fenicia.Module.Basic.Domains.Customer;
 
 public sealed class CustomerService(
-    ICustomerRepository customerRepository,
+    ICustomerRepository repository,
     IPersonService personService,
     IAddressService addressService,
     IPersonAddressService personAddressService,
-    IOrderService orderService,
-    CustomerMapper customerMapper,
-    AddressMapper addressMapper) : ICustomerService
+    IOrderService orderService) : ICustomerService
 {
     public CustomerService()
-        : this(null!, null!, null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!)
     {
     }
 
@@ -35,25 +32,41 @@ public sealed class CustomerService(
         int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        var customers = await customerRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
-        var total = await customerRepository.CountAsync(cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(page, perPage, cancellationToken);
+        var total = await repository.CountAsync(cancellationToken);
 
         var response = customers.Select(c =>
         {
-            var mapped = customerMapper.MapToGetAllCustomerResponse(c);
-            mapped.Address = c.Person.PersonAddresses.FirstOrDefault()?.Address != null
-                ? addressMapper.MapToAddressResponse(c.Person.PersonAddresses.FirstOrDefault()!.Address)
-                : null;
-            return mapped;
+            var address = c.Person.PersonAddresses.FirstOrDefault()?.Address;
+            return new GetAllCustomerResponse(
+                c.Id,
+                c.PersonId,
+                c.Person.Name,
+                c.Person.Email,
+                c.Person.PhoneNumber,
+                c.Person.Document,
+                address != null
+                    ? new AddressResponse(
+                        address.Id,
+                        address.Street,
+                        address.Number,
+                        address.Complement,
+                        address.Neighborhood,
+                        address.ZipCode!,
+                        address.StateId,
+                        address.State?.Name,
+                        address.City,
+                        address.Country)
+                    : null);
         }).ToList();
 
-        return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
+        return new Pagination<List<GetAllCustomerResponse>>(response, total, page, perPage);
     }
 
     public async Task<List<GetAllCustomerForDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var customers = await customerRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
         return [.. customers.Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name))];
     }
@@ -62,19 +75,34 @@ public sealed class CustomerService(
         GetCustomerByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var customer = await customerRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var customer = await repository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
         if (customer is null)
         {
             return null;
         }
 
-        var mapped = customerMapper.MapToGetCustomerByIdResponse(customer);
-        mapped.Address = customer.Person.PersonAddresses.FirstOrDefault()?.Address != null
-            ? addressMapper.MapToAddressResponse(customer.Person.PersonAddresses.FirstOrDefault()!.Address)
-            : null;
-
-        return mapped;
+        var address = customer.Person.PersonAddresses.FirstOrDefault()?.Address;
+        return new GetCustomerByIdResponse(
+            customer.Id,
+            customer.PersonId,
+            customer.Person.Name,
+            customer.Person.Email,
+            customer.Person.PhoneNumber,
+            customer.Person.Document,
+            address != null
+                ? new AddressResponse(
+                    address.Id,
+                    address.Street,
+                    address.Number,
+                    address.Complement,
+                    address.Neighborhood,
+                    address.ZipCode!,
+                    address.StateId,
+                    address.State?.Name,
+                    address.City,
+                    address.Country)
+                : null);
     }
 
     public async Task<AddCustomerResponse> AddAsync(
@@ -115,7 +143,7 @@ public sealed class CustomerService(
             PersonId = personResponse.Id
         };
 
-        await customerRepository.InsertAsync(customer, cancellationToken);
+        await repository.InsertAsync(customer, cancellationToken);
 
         if (!addressId.HasValue)
         {
@@ -133,7 +161,7 @@ public sealed class CustomerService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var customer = await customerRepository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
+        var customer = await repository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
 
         if (customer is null)
         {
@@ -196,7 +224,7 @@ public sealed class CustomerService(
             null);
 
         await personService.UpdateAsync(customer.Person.Id, personCommand, companyId, cancellationToken);
-        var updated = await customerRepository.UpdateAsync(command.Id, customer, cancellationToken) ??
+        var updated = await repository.UpdateAsync(command.Id, customer, cancellationToken) ??
                       throw new ItemNotExistsException();
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
@@ -206,7 +234,7 @@ public sealed class CustomerService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await customerRepository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public async Task<CustomerInsightsResponse> GetInsightsAsync(
@@ -229,7 +257,7 @@ public sealed class CustomerService(
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return customerRepository.CountAsync(cancellationToken);
+        return repository.CountAsync(cancellationToken);
     }
 
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(
@@ -301,7 +329,7 @@ public sealed class CustomerService(
 
     private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken cancellationToken = default)
     {
-        var totalCustomers = await customerRepository.CountAsync(cancellationToken);
+        var totalCustomers = await repository.CountAsync(cancellationToken);
         var totalOrders = await orderService.GetTotalOrdersCountAsync(cancellationToken);
         var totalRevenue = await orderService.GetTotalRevenueAsync(cancellationToken);
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;

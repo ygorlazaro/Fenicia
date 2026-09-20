@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Block;
 
-public sealed class BlockService(IBlockRepository blockRepository, BlockMapper mapper)
+public sealed class BlockService(IBlockRepository repository)
 {
     public BlockService()
-        : this(null!, null!)
+        : this(null!)
     {
     }
 
@@ -17,7 +17,7 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await blockRepository.FindAsync(
+        var existing = await repository.FindAsync(
             b => b.ProfileId == profileId && b.BlockedProfileId == command.BlockedProfileId,
             cancellationToken);
 
@@ -26,14 +26,26 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
         {
             if (block.IsActive)
             {
-                return mapper.MapToAddBlockResponse(block);
+                return new AddBlockResponse(
+                    block.Id,
+                    block.ProfileId,
+                    block.BlockedProfileId,
+                    block.BlockDate,
+                    block.Reason,
+                    block.IsActive);
             }
 
             block.IsActive = true;
             block.BlockDate = DateTime.UtcNow;
             block.Reason = null;
-            await blockRepository.UpdateAsync(block.Id, block, cancellationToken);
-            return mapper.MapToAddBlockResponse(block);
+            await repository.UpdateAsync(block.Id, block, cancellationToken);
+            return new AddBlockResponse(
+                block.Id,
+                block.ProfileId,
+                block.BlockedProfileId,
+                block.BlockDate,
+                block.Reason,
+                block.IsActive);
         }
 
         var newBlock = new BlockModel
@@ -44,8 +56,14 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
             IsActive = true
         };
 
-        var created = await blockRepository.InsertAsync(newBlock, cancellationToken);
-        return mapper.MapToAddBlockResponse(created);
+        var created = await repository.InsertAsync(newBlock, cancellationToken);
+        return new AddBlockResponse(
+            created.Id,
+            created.ProfileId,
+            created.BlockedProfileId,
+            created.BlockDate,
+            created.Reason,
+            created.IsActive);
     }
 
     public async Task UnblockAsync(
@@ -53,7 +71,7 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await blockRepository.FindAsync(
+        var existing = await repository.FindAsync(
             b => b.ProfileId == profileId && b.BlockedProfileId == command.BlockedProfileId && b.IsActive,
             cancellationToken);
 
@@ -61,7 +79,7 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
         if (block is not null)
         {
             block.IsActive = false;
-            await blockRepository.UpdateAsync(block.Id, block, cancellationToken);
+            await repository.UpdateAsync(block.Id, block, cancellationToken);
         }
     }
 
@@ -71,12 +89,16 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
         int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = blockRepository.Query().Where(b => b.ProfileId == profileId && b.IsActive);
+        var baseQuery = repository.Query().Where(b => b.ProfileId == profileId && b.IsActive);
         var total = await baseQuery.CountAsync(cancellationToken);
         var blocks = await baseQuery.Skip((page - 1) * perPage).Take(perPage)
             .ToListAsync(cancellationToken);
 
-        var response = blocks.Select(mapper.MapToGetBlockedResponse).ToList();
+        var response = blocks.Select(b => new GetBlockedResponse(
+            b.Id,
+            b.BlockedProfileId,
+            b.BlockDate,
+            b.Reason)).ToList();
 
         return new Pagination<List<GetBlockedResponse>>(response, total, page, perPage);
     }
@@ -86,7 +108,7 @@ public sealed class BlockService(IBlockRepository blockRepository, BlockMapper m
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        return blockRepository.AnyAsync(
+        return repository.AnyAsync(
             b => b.ProfileId == profileId && b.BlockedProfileId == query.BlockedProfileId && b.IsActive,
             cancellationToken);
     }

@@ -12,11 +12,10 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 public sealed class DashboardService(
     IOrderService orderService,
     IProductService productService,
-    IEmployeeService employeeService,
-    DashboardMapper dashboardMapper) : IDashboardService
+    IEmployeeService employeeService) : IDashboardService
 {
     public DashboardService()
-        : this(null!, null!, null!, null!)
+        : this(null!, null!, null!)
     {
     }
 
@@ -32,14 +31,16 @@ public sealed class DashboardService(
         var topCategoriesByRevenue = await CalculateTopCategoriesByRevenueAsync(query.Days, cancellationToken);
         var topCategoriesByQuantity = await CalculateTopCategoriesByQuantityAsync(query.Days, cancellationToken);
 
-        return dashboardMapper.MapToFinancialDashboardResponse(
-            kpi,
-            revenueVsCost,
-            profitMarginTrend,
-            accountsReceivable,
-            dailySales,
-            topCategoriesByRevenue,
-            topCategoriesByQuantity);
+        return new FinancialDashboardResponse
+        {
+            Kpi = kpi,
+            RevenueVsCost = revenueVsCost,
+            ProfitMarginTrend = profitMarginTrend,
+            AccountsReceivable = accountsReceivable,
+            DailySales = dailySales,
+            TopCategoriesByRevenue = topCategoriesByRevenue,
+            TopCategoriesByQuantity = topCategoriesByQuantity
+        };
     }
 
     public Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default)

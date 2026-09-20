@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 
-public class ProjectAttachmentService(IRepository<AttachmentModel> repository, ProjectAttachmentMapper mapper) : IProjectAttachmentService
+public class ProjectAttachmentService(IRepository<AttachmentModel> repository) : IProjectAttachmentService
 {
     public async Task<List<GetAllProjectAttachmentResponse>> GetAllAsync(
         GetAllProjectAttachmentQuery query,
@@ -15,7 +15,14 @@ public class ProjectAttachmentService(IRepository<AttachmentModel> repository, P
         var baseQuery = repository.Query();
         var attachments = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. attachments.Select(mapper.MapToGetAllProjectAttachmentResponse)];
+        return [.. attachments.Select(a => new GetAllProjectAttachmentResponse(
+            a.Id,
+            a.TaskId,
+            a.FileName,
+            a.FileUrl,
+            a.FileSize,
+            a.UploadedBy,
+            a.CompanyId))];
     }
 
     public async Task<GetProjectAttachmentByIdResponse?> GetByIdAsync(
@@ -26,7 +33,14 @@ public class ProjectAttachmentService(IRepository<AttachmentModel> repository, P
 
         return projectAttachment is null
             ? null
-            : mapper.MapToGetProjectAttachmentByIdResponse(projectAttachment);
+            : new GetProjectAttachmentByIdResponse(
+                projectAttachment.Id,
+                projectAttachment.TaskId,
+                projectAttachment.FileName,
+                projectAttachment.FileUrl,
+                projectAttachment.FileSize,
+                projectAttachment.UploadedBy,
+                projectAttachment.CompanyId);
     }
 
     public async Task<AddProjectAttachmentResponse> AddAsync(
@@ -47,7 +61,14 @@ public class ProjectAttachmentService(IRepository<AttachmentModel> repository, P
         };
 
         var created = await repository.InsertAsync(projectAttachment, cancellationToken);
-        return mapper.MapToAddProjectAttachmentResponse(created);
+        return new AddProjectAttachmentResponse(
+            created.Id,
+            created.TaskId,
+            created.FileName,
+            created.FileUrl,
+            created.FileSize,
+            created.UploadedBy,
+            created.CompanyId);
     }
 
     public async Task<UpdateProjectAttachmentResponse?> UpdateAsync(
@@ -69,7 +90,14 @@ public class ProjectAttachmentService(IRepository<AttachmentModel> repository, P
         var updated = await repository.UpdateAsync(command.Id, projectAttachment, cancellationToken);
         return updated is null
             ? null
-            : mapper.MapToUpdateProjectAttachmentResponse(updated);
+            : new UpdateProjectAttachmentResponse(
+                updated.Id,
+                updated.TaskId,
+                updated.FileName,
+                updated.FileUrl,
+                updated.FileSize,
+                updated.UploadedBy,
+                updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectAttachmentCommand command, CancellationToken cancellationToken = default)

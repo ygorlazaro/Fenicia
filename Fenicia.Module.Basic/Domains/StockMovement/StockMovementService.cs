@@ -10,12 +10,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public sealed class StockMovementService(
-    IStockMovementRepository stockMovementRepository,
-    IProductRepository productRepository,
-    StockMovementMapper stockMovementMapper) : IStockMovementService
+    IStockMovementRepository repository,
+    IProductService productService) : IStockMovementService
 {
     public StockMovementService()
-        : this(null!, null!, null!)
+        : this(null!, null!)
     {
     }
 
@@ -26,7 +25,7 @@ public sealed class StockMovementService(
         var startDate = query.StartDate ?? DateTime.MinValue;
         var endDate = query.EndDate ?? DateTime.MaxValue;
 
-        var baseQuery = stockMovementRepository.Query()
+        var baseQuery = repository.Query()
             .Include(m => m.Product).ThenInclude(p => p.Category)
             .Include(m => m.Customer!).ThenInclude(c => c.Person)
             .Include(m => m.Supplier!).ThenInclude(s => s.Person)
@@ -47,7 +46,7 @@ public sealed class StockMovementService(
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        return [.. movements.Select(stockMovementMapper.MapToGetStockMovementResponse)];
+        return [.. movements.Select(MapToGetStockMovementResponse)];
     }
 
     public async Task<AddStockMovementResponse> AddAsync(
@@ -71,13 +70,13 @@ public sealed class StockMovementService(
             CompanyId = companyId
         };
 
-        await stockMovementRepository.InsertAsync(stockMovement, cancellationToken);
+        await repository.InsertAsync(stockMovement, cancellationToken);
 
-        var product = await productRepository.GetByIdAsync(command.ProductId, cancellationToken);
+        var product = await productService.GetByIdAsync(command.ProductId, cancellationToken);
 
         if (product is null)
         {
-            return stockMovementMapper.MapToAddStockMovementResponse(stockMovement);
+            return MapToAddStockMovementResponse(stockMovement);
         }
 
         var newQuantity = command.Type switch
@@ -89,9 +88,9 @@ public sealed class StockMovementService(
         };
 
         product.Quantity = newQuantity;
-        await productRepository.UpdateAsync(product.Id, product, cancellationToken);
+        await productService.UpdateAsync(product.Id, product, cancellationToken);
 
-        return stockMovementMapper.MapToAddStockMovementResponse(stockMovement);
+        return MapToAddStockMovementResponse(stockMovement);
     }
 
     public async Task<UpdateStockMovementResponse?> UpdateAsync(
@@ -99,7 +98,7 @@ public sealed class StockMovementService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var stockMovement = await stockMovementRepository.GetByIdAsync(command.Id, cancellationToken);
+        var stockMovement = await repository.GetByIdAsync(command.Id, cancellationToken);
 
         if (stockMovement is null)
         {
@@ -118,9 +117,9 @@ public sealed class StockMovementService(
         stockMovement.Reason = command.Reason;
         stockMovement.CompanyId = companyId;
 
-        await stockMovementRepository.UpdateAsync(stockMovement.Id, stockMovement, cancellationToken);
+        await repository.UpdateAsync(stockMovement.Id, stockMovement, cancellationToken);
 
-        return stockMovementMapper.MapToUpdateStockMovementResponse(stockMovement);
+        return MapToUpdateStockMovementResponse(stockMovement);
     }
 
     public Task<List<StockMovementModel>> GetRecentWithProductAsync(
@@ -129,7 +128,7 @@ public sealed class StockMovementService(
         CancellationToken cancellationToken = default)
     {
         var startDate = DateTime.UtcNow.AddDays(-days);
-        return stockMovementRepository.Query()
+        return repository.Query()
             .Include(m => m.Product)
             .Where(m => m.SupplierId.HasValue && m.Date >= startDate)
             .OrderByDescending(m => m.Date)
@@ -145,7 +144,7 @@ public sealed class StockMovementService(
         var endDate = DateTime.UtcNow;
 
         var movements =
-            await stockMovementRepository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
+            await repository.GetWithDetailsForDashboardAsync(startDate, endDate, cancellationToken);
         var movementList = movements.ToList();
 
         var history = GetStockMovementHistoryAsync(movementList);
@@ -167,7 +166,7 @@ public sealed class StockMovementService(
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
-        var result = await stockMovementRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
+        var result = await repository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         return [.. result];
     }
 
@@ -175,7 +174,7 @@ public sealed class StockMovementService(
         IEnumerable<Guid> productIds,
         CancellationToken cancellationToken = default)
     {
-        return stockMovementRepository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
+        return repository.GetLastMovementsByProductIdsAsync(productIds, cancellationToken);
     }
 
     private static List<TopMovedProductResponse> GetTopMovedProduct(
@@ -240,6 +239,73 @@ public sealed class StockMovementService(
         };
     }
 
+    private static GetStockMovementResponse MapToGetStockMovementResponse(StockMovementModel movement)
+    {
+        return new GetStockMovementResponse(
+            movement.Id,
+            movement.ProductId,
+            movement.Product.Name,
+            movement.Quantity,
+            movement.Date,
+            movement.Price,
+            movement.Type,
+            movement.CustomerId,
+            movement.Customer?.Person.Name,
+            movement.SupplierId,
+            movement.Supplier?.Person.Name,
+            movement.EmployeeId,
+            movement.Employee?.Person.Name,
+            movement.OrderId,
+            movement.Reason);
+    }
+
+    private static AddStockMovementResponse MapToAddStockMovementResponse(StockMovementModel movement)
+    {
+        return new AddStockMovementResponse(
+            movement.Id,
+            movement.ProductId,
+            movement.Quantity,
+            movement.Date,
+            movement.Price,
+            movement.Type,
+            movement.CustomerId,
+            movement.SupplierId,
+            movement.EmployeeId,
+            movement.OrderId,
+            movement.Reason);
+    }
+
+    private static UpdateStockMovementResponse MapToUpdateStockMovementResponse(StockMovementModel movement)
+    {
+        return new UpdateStockMovementResponse(
+            movement.Id,
+            movement.ProductId,
+            movement.Quantity,
+            movement.Date,
+            movement.Price,
+            movement.Type,
+            movement.CustomerId,
+            movement.SupplierId,
+            movement.EmployeeId,
+            movement.OrderId,
+            movement.Reason);
+    }
+
+    private static StockMovementHistoryResponse MapToStockMovementHistoryResponse(StockMovementModel movement)
+    {
+        return new StockMovementHistoryResponse(
+            movement.Id,
+            movement.ProductId,
+            movement.Product.Name,
+            movement.Quantity,
+            movement.Date!.Value,
+            movement.Price ?? 0,
+            movement.Type.ToString(),
+            movement.Reason,
+            movement.Customer?.Person.Name,
+            movement.Supplier?.Person.Name);
+    }
+
     private List<StockMovementHistoryResponse> GetStockMovementHistoryAsync(
         IEnumerable<StockMovementModel> movements)
     {
@@ -247,7 +313,7 @@ public sealed class StockMovementService(
 
         var request = movementList
             .OrderByDescending(m => m.Date)
-            .Select(stockMovementMapper.MapToStockMovementHistoryResponse);
+            .Select(MapToStockMovementHistoryResponse);
 
         return [.. request];
     }
@@ -260,7 +326,7 @@ public sealed class StockMovementService(
         var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId)
             .Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
-        var products = await productRepository.GetAllWithDetailsAsync(1, 10000, cancellationToken);
+        var products = await productService.GetAllWithDetailsAsync(1, 10000, cancellationToken);
         var productList = products.Where(p => p.Quantity > 0).ToList();
 
         var request = from p in productList

@@ -17,11 +17,10 @@ public sealed class InventoryService(
     IOrderDetailService orderDetailService,
     ICustomerService customerService,
     IEmployeeService employeeService,
-    ISupplierService supplierService,
-    InventoryMapper inventoryMapper) : IInventoryService
+    ISupplierService supplierService) : IInventoryService
 {
     public InventoryService()
-        : this(null!, null!, null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!, null!)
     {
     }
 
@@ -37,7 +36,14 @@ public sealed class InventoryService(
         var totalSalesPrice = await productService.GetTotalSalesPriceAsync(cancellationToken);
         var totalQuantity = await productService.GetTotalQuantityAsync(cancellationToken);
 
-        var inventoryDetailResponses = products.Select(inventoryMapper.MapToInventoryDetailResponse).ToList();
+        var inventoryDetailResponses = products.Select(p => new InventoryDetailResponse(
+            p.Id,
+            p.Name,
+            p.Quantity,
+            p.CostPrice,
+            p.SalesPrice,
+            p.CategoryId,
+            p.Category?.Name ?? string.Empty)).ToList();
 
         return new InventoryResponse
         {
@@ -65,7 +71,14 @@ public sealed class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(inventoryMapper.MapToInventoryDetailResponse)],
+            Items = [.. products.Select(p => new InventoryDetailResponse(
+                p.Id,
+                p.Name,
+                p.Quantity,
+                p.CostPrice,
+                p.SalesPrice,
+                p.CategoryId,
+                p.Category?.Name ?? string.Empty))],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -88,7 +101,14 @@ public sealed class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(inventoryMapper.MapToInventoryDetailResponse)],
+            Items = [.. products.Select(p => new InventoryDetailResponse(
+                p.Id,
+                p.Name,
+                p.Quantity,
+                p.CostPrice,
+                p.SalesPrice,
+                p.CategoryId,
+                p.Category?.Name ?? string.Empty))],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -118,7 +138,14 @@ public sealed class InventoryService(
 
         return new InventoryDashboardResponse
         {
-            LowStockItems = [.. filteredLowStock.Select(inventoryMapper.MapToInventoryDashboardItemResponse)],
+            LowStockItems = [.. filteredLowStock.Select(p => new InventoryDashboardItemResponse(
+                p.Id,
+                p.Name,
+                p.Quantity,
+                p.CostPrice,
+                p.SalesPrice,
+                p.CategoryId,
+                p.Category?.Name ?? string.Empty))],
             TotalCustomers = totalCustomers,
             TotalEmployees = totalEmployees,
             TotalCostValue = totalCostValue,

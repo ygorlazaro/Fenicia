@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Report;
 
-public class ReportService(ReportRepository repository, ReportMapper mapper)
+public class ReportService(ReportRepository repository)
 {
     public async Task<AddReportResponse> AddAsync(
         AddReportCommand command,
@@ -25,7 +25,15 @@ public class ReportService(ReportRepository repository, ReportMapper mapper)
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return mapper.MapToAddReportResponse(created);
+        return new AddReportResponse(
+            created.Id,
+            created.ReporterId,
+            created.TargetId,
+            created.TargetType,
+            created.Reason,
+            created.Description,
+            created.Status.ToString(),
+            created.ReportDate);
     }
 
     public async Task<UpdateReportResponse?> UpdateStatusAsync(
@@ -46,7 +54,9 @@ public class ReportService(ReportRepository repository, ReportMapper mapper)
 
         existing.Status = newStatus;
         var updated = await repository.UpdateAsync(command.Id, existing, cancellationToken);
-        return updated is null ? null : mapper.MapToUpdateReportResponse(updated);
+        return updated is null ? null : new UpdateReportResponse(
+            updated.Id,
+            updated.Status.ToString());
     }
 
     public async Task<List<GetAllReportResponse>> GetAllAsync(
@@ -56,7 +66,15 @@ public class ReportService(ReportRepository repository, ReportMapper mapper)
         var baseQuery = repository.Query();
         var reports = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. reports.Select(mapper.MapToGetAllReportResponse)];
+        return [.. reports.Select(r => new GetAllReportResponse(
+            r.Id,
+            r.ReporterId,
+            r.TargetId,
+            r.TargetType,
+            r.Reason,
+            r.Description,
+            r.Status.ToString(),
+            r.ReportDate))];
     }
 
     public async Task<GetReportByIdResponse?> GetByIdAsync(
@@ -66,6 +84,14 @@ public class ReportService(ReportRepository repository, ReportMapper mapper)
         var report = await repository.GetByIdAsync(query.Id, cancellationToken);
         return report is null
             ? null
-            : mapper.MapToGetReportByIdResponse(report);
+            : new GetReportByIdResponse(
+                report.Id,
+                report.ReporterId,
+                report.TargetId,
+                report.TargetType,
+                report.Reason,
+                report.Description,
+                report.Status.ToString(),
+                report.ReportDate);
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Sprint;
 
-public class SprintService(ISprintRepository repository, SprintMapper mapper) : ISprintService
+public class SprintService(ISprintRepository repository) : ISprintService
 {
     public async Task<List<GetAllSprintResponse>> GetAllAsync(GetAllSprintQuery query, CancellationToken cancellationToken = default)
     {
@@ -23,7 +23,15 @@ public class SprintService(ISprintRepository repository, SprintMapper mapper) : 
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        return [.. sprints.Select(mapper.MapToGetAllSprintResponse)];
+        return [.. sprints.Select(s => new GetAllSprintResponse(
+            s.Id,
+            s.ProjectId,
+            s.Name,
+            s.StartDate,
+            s.EndDate,
+            s.Description,
+            s.CreatedBy,
+            s.CompanyId))];
     }
 
     public async Task<GetSprintByIdResponse?> GetByIdAsync(GetSprintByIdQuery query, CancellationToken cancellationToken = default)
@@ -31,7 +39,15 @@ public class SprintService(ISprintRepository repository, SprintMapper mapper) : 
         var sprint = await repository.GetByIdAsync(query.Id, cancellationToken);
         return sprint is null
             ? null
-            : mapper.MapToGetSprintByIdResponse(sprint);
+            : new GetSprintByIdResponse(
+                sprint.Id,
+                sprint.ProjectId,
+                sprint.Name,
+                sprint.StartDate,
+                sprint.EndDate,
+                sprint.Description,
+                sprint.CreatedBy,
+                sprint.CompanyId);
     }
 
     public async Task<AddSprintResponse> AddAsync(AddSprintCommand command, Guid companyId, CancellationToken cancellationToken = default)
@@ -49,7 +65,15 @@ public class SprintService(ISprintRepository repository, SprintMapper mapper) : 
         };
 
         var created = await repository.InsertAsync(sprint, cancellationToken);
-        return mapper.MapToAddSprintResponse(created);
+        return new AddSprintResponse(
+            created.Id,
+            created.ProjectId,
+            created.Name,
+            created.StartDate,
+            created.EndDate,
+            created.Description,
+            created.CreatedBy,
+            created.CompanyId);
     }
 
     public async Task<UpdateSprintResponse?> UpdateAsync(UpdateSprintCommand command, Guid companyId, CancellationToken cancellationToken = default)
@@ -65,7 +89,15 @@ public class SprintService(ISprintRepository repository, SprintMapper mapper) : 
 
         var updated = await repository.UpdateAsync(command.Id, sprint, cancellationToken);
         return updated is not null
-            ? mapper.MapToUpdateSprintResponse(updated)
+            ? new UpdateSprintResponse(
+                updated.Id,
+                updated.ProjectId,
+                updated.Name,
+                updated.StartDate,
+                updated.EndDate,
+                updated.Description,
+                updated.CreatedBy,
+                updated.CompanyId)
             : null;
     }
 

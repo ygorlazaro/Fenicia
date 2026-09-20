@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Projects.Domains.Team;
 
 public class TeamService(
-    ITeamRepository teamRepository,
+    ITeamRepository repository,
     ITeamUserRepository teamUserRepository,
     IRepository<ProjectModel> projectRepository) : ITeamService
 {
@@ -17,7 +17,7 @@ public class TeamService(
         Guid projectId,
         CancellationToken cancellationToken = default)
     {
-        var teams = await teamRepository.Query()
+        var teams = await repository.Query()
             .Where(t => t.ProjectId == projectId)
             .OrderBy(t => t.Name)
             .ToListAsync(cancellationToken);
@@ -60,7 +60,7 @@ public class TeamService(
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        var team = await teamRepository.Query()
+        var team = await repository.Query()
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         if (team is null)
@@ -102,7 +102,7 @@ public class TeamService(
             CompanyId = companyId
         };
 
-        var created = await teamRepository.InsertAsync(model, cancellationToken);
+        var created = await repository.InsertAsync(model, cancellationToken);
         return new AddTeamResponse(
             created.Id,
             created.ProjectId,
@@ -118,7 +118,7 @@ public class TeamService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var team = await teamRepository.GetByIdAsync(command.Id, cancellationToken);
+        var team = await repository.GetByIdAsync(command.Id, cancellationToken);
         if (team is null)
         {
             return null;
@@ -129,7 +129,7 @@ public class TeamService(
         team.Color = string.IsNullOrWhiteSpace(command.Color) ? "#6366f1" : command.Color;
         team.CompanyId = companyId;
 
-        await teamRepository.UpdateAsync(command.Id, team, cancellationToken);
+        await repository.UpdateAsync(command.Id, team, cancellationToken);
         return new UpdateTeamResponse(
             team.Id,
             team.ProjectId,
@@ -148,7 +148,7 @@ public class TeamService(
             await teamUserRepository.DeleteAsync(m.Id, cancellationToken);
         }
 
-        await teamRepository.DeleteAsync(id, cancellationToken);
+        await repository.DeleteAsync(id, cancellationToken);
     }
 
     public async Task<AddTeamUserResponse> AddMemberAsync(
@@ -254,7 +254,7 @@ public class TeamService(
         Guid projectId,
         CancellationToken cancellationToken = default)
     {
-        var teamIds = await teamRepository.Query()
+        var teamIds = await repository.Query()
             .Where(t => t.ProjectId == projectId)
             .Select(t => t.Id)
             .ToListAsync(cancellationToken);
@@ -279,7 +279,7 @@ public class TeamService(
             return true;
         }
 
-        var teamIds = await teamRepository.Query()
+        var teamIds = await repository.Query()
             .Where(t => t.ProjectId == projectId)
             .Select(t => t.Id)
             .ToListAsync(cancellationToken);

@@ -7,7 +7,6 @@ using Fenicia.Common.DTOs.Basic.Employee;
 using Fenicia.Common.DTOs.Basic.Person;
 using Fenicia.Common.DTOs.Basic.PersonAddress;
 using Fenicia.Common.Exceptions;
-using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
@@ -17,16 +16,14 @@ using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 namespace Fenicia.Module.Basic.Domains.Employee;
 
 public sealed class EmployeeService(
-    IEmployeeRepository employeeRepository,
+    IEmployeeRepository repository,
     IPersonService personService,
     IAddressService addressService,
     IPersonAddressService personAddressService,
-    IOrderService orderService,
-    EmployeeMapper employeeMapper,
-    AddressMapper addressMapper) : IEmployeeService
+    IOrderService orderService) : IEmployeeService
 {
     public EmployeeService()
-        : this(null!, null!, null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!)
     {
     }
 
@@ -34,16 +31,34 @@ public sealed class EmployeeService(
         GetAllEmployeeQuery query,
         CancellationToken cancellationToken = default)
     {
-        var total = await employeeRepository.CountAsync(cancellationToken);
-        var employees = await employeeRepository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var total = await repository.CountAsync(cancellationToken);
+        var employees = await repository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
 
         var response = employees.Select(e =>
         {
-            var mapped = employeeMapper.MapToGetAllEmployeeResponse(e);
-            mapped.Address = e.Person.PersonAddresses.FirstOrDefault()?.Address != null
-                ? addressMapper.MapToAddressResponse(e.Person.PersonAddresses.FirstOrDefault()!.Address)
-                : null;
-            return mapped;
+            var address = e.Person.PersonAddresses.FirstOrDefault()?.Address;
+            return new GetAllEmployeeResponse(
+                e.Id,
+                e.PositionId,
+                e.PersonId,
+                e.Person.Name,
+                e.Person.Email,
+                e.Person.PhoneNumber,
+                e.Person.Document,
+                e.Position?.Name,
+                address != null
+                    ? new AddressResponse(
+                        address.Id,
+                        address.Street,
+                        address.Number,
+                        address.Complement,
+                        address.Neighborhood,
+                        address.ZipCode!,
+                        address.StateId,
+                        address.State?.Name,
+                        address.City,
+                        address.Country)
+                    : null);
         }).ToList();
 
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
@@ -52,7 +67,7 @@ public sealed class EmployeeService(
     public async Task<List<GetAllEmployeeForDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var employees = await employeeRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var employees = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
         return [.. employees.Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.Person.Name))];
     }
@@ -61,19 +76,35 @@ public sealed class EmployeeService(
         GetEmployeeByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var employee = await employeeRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var employee = await repository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
         if (employee is null)
         {
             return null;
         }
 
-        var mapped = employeeMapper.MapToGetEmployeeByIdResponse(employee);
-        mapped.Address = employee.Person.PersonAddresses.FirstOrDefault()?.Address != null
-            ? addressMapper.MapToAddressResponse(employee.Person.PersonAddresses.FirstOrDefault()!.Address)
-            : null;
-
-        return mapped;
+        var address = employee.Person.PersonAddresses.FirstOrDefault()?.Address;
+        return new GetEmployeeByIdResponse(
+            employee.Id,
+            employee.PositionId,
+            employee.PersonId,
+            employee.Person.Name,
+            employee.Person.Email,
+            employee.Person.PhoneNumber,
+            employee.Person.Document,
+            address != null
+                ? new AddressResponse(
+                    address.Id,
+                    address.Street,
+                    address.Number,
+                    address.Complement,
+                    address.Neighborhood,
+                    address.ZipCode!,
+                    address.StateId,
+                    address.State?.Name,
+                    address.City,
+                    address.Country)
+                : null);
     }
 
     public async Task<AddEmployeeResponse> AddAsync(
@@ -117,7 +148,7 @@ public sealed class EmployeeService(
             CompanyId = companyId
         };
 
-        var created = await employeeRepository.InsertAsync(employee, cancellationToken);
+        var created = await repository.InsertAsync(employee, cancellationToken);
 
         if (!addressId.HasValue)
         {
@@ -135,7 +166,7 @@ public sealed class EmployeeService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var employee = await employeeRepository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
+        var employee = await repository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
 
         if (employee is null)
         {
@@ -199,7 +230,7 @@ public sealed class EmployeeService(
             null);
 
         await personService.UpdateAsync(employee.Person.Id, personCommand, companyId, cancellationToken);
-        var updated = await employeeRepository.UpdateAsync(command.Id, employee, cancellationToken) ??
+        var updated = await repository.UpdateAsync(command.Id, employee, cancellationToken) ??
                       throw new ItemNotExistsException();
         return new UpdateEmployeeResponse(updated.Id, updated.PositionId, employee.PersonId);
     }
@@ -209,7 +240,7 @@ public sealed class EmployeeService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await employeeRepository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public async Task<EmployeePerformanceResponse> GetPerformanceAsync(
@@ -238,26 +269,26 @@ public sealed class EmployeeService(
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return employeeRepository.CountAsync(cancellationToken);
+        return repository.CountAsync(cancellationToken);
     }
 
     public Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken cancellationToken = default)
     {
-        return employeeRepository.GetAllEmployeesAsync(cancellationToken);
+        return repository.GetAllEmployeesAsync(cancellationToken);
     }
 
     public Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default)
     {
-        return employeeRepository.CountAsync(cancellationToken);
+        return repository.CountAsync(cancellationToken);
     }
 
     public async Task<Pagination<List<GetEmployeesByPositionIdResponse>>> GetByPositionIdAsync(
         GetEmployeesByPositionIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var total = await employeeRepository.CountAsync(e => e.PositionId == query.PositionId, cancellationToken);
+        var total = await repository.CountAsync(e => e.PositionId == query.PositionId, cancellationToken);
 
-        var employees = await employeeRepository.GetByPositionIdAsync(
+        var employees = await repository.GetByPositionIdAsync(
             query.PositionId,
             query.Page,
             query.PerPage,
@@ -265,11 +296,29 @@ public sealed class EmployeeService(
 
         var response = employees.Select(e =>
         {
-            var mapped = employeeMapper.MapToGetEmployeesByPositionIdResponse(e);
-            mapped.Address = e.Person.PersonAddresses.FirstOrDefault()?.Address != null
-                ? addressMapper.MapToAddressResponse(e.Person.PersonAddresses.FirstOrDefault()!.Address)
-                : null;
-            return mapped;
+            var address = e.Person.PersonAddresses.FirstOrDefault()?.Address;
+            return new GetEmployeesByPositionIdResponse(
+                e.Id,
+                e.PositionId,
+                e.PersonId,
+                e.Person.Name,
+                e.Person.Email,
+                e.Person.PhoneNumber,
+                e.Person.Document,
+                e.Position?.Name,
+                address != null
+                    ? new AddressResponse(
+                        address.Id,
+                        address.Street,
+                        address.Number,
+                        address.Complement,
+                        address.Neighborhood,
+                        address.ZipCode!,
+                        address.StateId,
+                        address.State?.Name,
+                        address.City,
+                        address.Country)
+                    : null);
         }).ToList();
 
         return new Pagination<List<GetEmployeesByPositionIdResponse>>(response, total, query.Page, query.PerPage);

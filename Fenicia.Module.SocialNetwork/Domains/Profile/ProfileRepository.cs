@@ -14,7 +14,7 @@ public class ProfileRepository(DefaultContext context) : Repository<ProfileModel
             .FirstOrDefaultAsync(p => p.UserId == userId && p.Deleted == null, cancellationToken);
     }
 
-    public override Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    protected override Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(p => p.Upload)

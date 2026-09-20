@@ -4,10 +4,10 @@ using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
 
-public sealed class PersonAddressService(IPersonAddressRepository personAddressRepository, PersonAddressMapper personAddressMapper) : IPersonAddressService
+public sealed class PersonAddressService(IPersonAddressRepository repository) : IPersonAddressService
 {
     public PersonAddressService()
-        : this(null!, null!)
+        : this(null!)
     {
     }
 
@@ -24,7 +24,7 @@ public sealed class PersonAddressService(IPersonAddressRepository personAddressR
             CompanyId = companyId
         };
 
-        var result = await personAddressRepository.InsertAsync(personAddress, cancellationToken);
-        return personAddressMapper.MapToGetPersonAddressResponse(result);
+        var result = await repository.InsertAsync(personAddress, cancellationToken);
+        return new GetPersonAddressResponse(result.Id, result.PersonId, result.AddressId, result.Person.Name);
     }
 }

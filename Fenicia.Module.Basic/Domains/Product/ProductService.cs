@@ -12,13 +12,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.Product;
 
 public sealed class ProductService(
-    IProductRepository productRepository,
+    IProductRepository repository,
     IOrderDetailService orderDetailService,
-    IStockMovementService stockMovementService,
-    ProductMapper productMapper) : IProductService
+    IStockMovementService stockMovementService) : IProductService
 {
     public ProductService()
-        : this(null!, null!, null!, null!)
+        : this(null!, null!, null!)
     {
     }
 
@@ -26,7 +25,7 @@ public sealed class ProductService(
         GetAllProductQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = productRepository.Query()
+        var baseQuery = repository.Query()
             .Include(p => p.Category)
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
 
@@ -39,7 +38,26 @@ public sealed class ProductService(
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = products.Select(productMapper.MapToGetAllProductResponse).ToList();
+        var response = products.Select(p => new GetAllProductResponse(
+            p.Id,
+            p.Name,
+            p.SKU,
+            p.Barcode,
+            p.Description,
+            p.CostPrice,
+            p.SalesPrice,
+            p.Quantity,
+            p.MinStockLevel,
+            p.MaxStockLevel,
+            p.ImageUrl,
+            p.Weight,
+            p.Dimensions,
+            p.UnitOfMeasure,
+            p.CategoryId,
+            p.Category?.Name ?? string.Empty,
+            p.SupplierId,
+            p.Supplier?.Person.Name,
+            p.IsActive)).ToList();
 
         return new Pagination<List<GetAllProductResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -47,7 +65,7 @@ public sealed class ProductService(
     public async Task<List<GetAllProductForDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var products = await productRepository.Query()
+        var products = await repository.Query()
             .OrderBy(p => p.Name)
             .Select(p => new GetAllProductForDataSourceResponse(p.Id, p.Name))
             .ToListAsync(cancellationToken);
@@ -58,7 +76,7 @@ public sealed class ProductService(
     public async Task<List<GetAllDashboardProductForDataSourceResponse>>
         GetAllDashboardForDataSourceAsync(CancellationToken cancellationToken = default)
     {
-        var products = await productRepository.Query()
+        var products = await repository.Query()
             .Include(p => p.Category)
             .OrderBy(p => p.Name)
             .Select(p => new GetAllDashboardProductForDataSourceResponse(
@@ -82,9 +100,28 @@ public sealed class ProductService(
         GetProductByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var product = await productRepository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var product = await repository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
 
-        return product is null ? null : productMapper.MapToGetProductByIdResponse(product);
+        return product is null ? null : new GetProductByIdResponse(
+            product.Id,
+            product.Name,
+            product.SKU,
+            product.Barcode,
+            product.Description,
+            product.CostPrice,
+            product.SalesPrice,
+            product.Quantity,
+            product.MinStockLevel,
+            product.MaxStockLevel,
+            product.ImageUrl,
+            product.Weight,
+            product.Dimensions,
+            product.UnitOfMeasure,
+            product.CategoryId,
+            product.Category?.Name ?? string.Empty,
+            product.SupplierId,
+            product.Supplier?.Person.Name,
+            product.IsActive);
     }
 
     public async Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(
@@ -93,9 +130,26 @@ public sealed class ProductService(
         int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        var products = await productRepository.GetByCategoryIdAsync(query.CategoryId, page, perPage, cancellationToken);
+        var products = await repository.GetByCategoryIdAsync(query.CategoryId, page, perPage, cancellationToken);
 
-        return [.. products.Select(productMapper.MapToGetProductsByCategoryIdResponse)];
+        return [.. products.Select(p => new GetProductsByCategoryIdResponse(
+            p.Id,
+            p.Name,
+            p.SKU,
+            p.Barcode,
+            p.Description,
+            p.CostPrice,
+            p.SalesPrice,
+            p.Quantity,
+            p.MinStockLevel,
+            p.MaxStockLevel,
+            p.ImageUrl,
+            p.Weight,
+            p.Dimensions,
+            p.UnitOfMeasure,
+            p.CategoryId,
+            p.Category?.Name ?? string.Empty,
+            p.IsActive))];
     }
 
     public async Task<AddProductResponse> AddAsync(
@@ -125,11 +179,30 @@ public sealed class ProductService(
             CompanyId = companyId
         };
 
-        await productRepository.InsertAsync(product, cancellationToken);
+        await repository.InsertAsync(product, cancellationToken);
 
-        var insertedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
+        var insertedProduct = await repository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
 
-        return productMapper.MapToAddProductResponse(insertedProduct!);
+        return new AddProductResponse(
+            insertedProduct!.Id,
+            insertedProduct.Name,
+            insertedProduct.SKU,
+            insertedProduct.Barcode,
+            insertedProduct.Description,
+            insertedProduct.CostPrice,
+            insertedProduct.SalesPrice,
+            insertedProduct.Quantity,
+            insertedProduct.MinStockLevel,
+            insertedProduct.MaxStockLevel,
+            insertedProduct.ImageUrl,
+            insertedProduct.Weight,
+            insertedProduct.Dimensions,
+            insertedProduct.UnitOfMeasure,
+            insertedProduct.CategoryId,
+            insertedProduct.Category?.Name ?? string.Empty,
+            insertedProduct.SupplierId,
+            insertedProduct.Supplier?.Person.Name,
+            insertedProduct.IsActive);
     }
 
     public async Task<UpdateProductResponse?> UpdateAsync(
@@ -137,7 +210,7 @@ public sealed class ProductService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var product = await productRepository.GetByIdAsync(command.Id, cancellationToken);
+        var product = await repository.GetByIdAsync(command.Id, cancellationToken);
 
         if (product is null)
         {
@@ -161,11 +234,30 @@ public sealed class ProductService(
         product.SupplierId = command.SupplierId;
         product.CompanyId = companyId;
 
-        await productRepository.UpdateAsync(product.Id, product, cancellationToken);
+        await repository.UpdateAsync(product.Id, product, cancellationToken);
 
-        var updatedProduct = await productRepository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
+        var updatedProduct = await repository.GetByIdWithDetailsAsync(product.Id, cancellationToken);
 
-        return productMapper.MapToUpdateProductResponse(updatedProduct!);
+        return new UpdateProductResponse(
+            updatedProduct!.Id,
+            updatedProduct.Name,
+            updatedProduct.SKU,
+            updatedProduct.Barcode,
+            updatedProduct.Description,
+            updatedProduct.CostPrice,
+            updatedProduct.SalesPrice,
+            updatedProduct.Quantity,
+            updatedProduct.MinStockLevel,
+            updatedProduct.MaxStockLevel,
+            updatedProduct.ImageUrl,
+            updatedProduct.Weight,
+            updatedProduct.Dimensions,
+            updatedProduct.UnitOfMeasure,
+            updatedProduct.CategoryId,
+            updatedProduct.Category?.Name ?? string.Empty,
+            updatedProduct.SupplierId,
+            updatedProduct.Supplier?.Person.Name,
+            updatedProduct.IsActive);
     }
 
     public async Task DeleteAsync(
@@ -173,7 +265,7 @@ public sealed class ProductService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await productRepository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public async Task<ProductPerformanceResponse> GetPerformanceAsync(
@@ -183,7 +275,7 @@ public sealed class ProductService(
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
         var endDate = DateTime.UtcNow;
 
-        var products = await productRepository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var products = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
         var productList = products.ToList();
 
         var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
@@ -208,24 +300,24 @@ public sealed class ProductService(
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.CountAsync(cancellationToken);
+        return repository.CountAsync(cancellationToken);
     }
 
     public Task<int> GetTotalProductsAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.CountAsync(cancellationToken);
+        return repository.CountAsync(cancellationToken);
     }
 
     public Task<List<ProductModel>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.Query()
+        return repository.Query()
             .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null)
             .ToListAsync(cancellationToken);
     }
 
     public Task<List<ProductModel>> GetAllForStatsAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.Query()
+        return repository.Query()
             .Where(p => p.SupplierId.HasValue)
             .ToListAsync(cancellationToken);
     }
@@ -234,7 +326,7 @@ public sealed class ProductService(
         GetAllProductQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = productRepository.Query()
+        var baseQuery = repository.Query()
             .Include(p => p.Category);
 
         return await baseQuery
@@ -246,17 +338,17 @@ public sealed class ProductService(
 
     public Task<decimal> GetTotalCostPriceAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalCostPriceAsync(cancellationToken);
+        return repository.GetTotalCostPriceAsync(cancellationToken);
     }
 
     public Task<decimal> GetTotalSalesPriceAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalSalesPriceAsync(cancellationToken);
+        return repository.GetTotalSalesPriceAsync(cancellationToken);
     }
 
     public Task<int> GetTotalQuantityAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalQuantityAsync(cancellationToken);
+        return repository.GetTotalQuantityAsync(cancellationToken);
     }
 
     public Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(
@@ -265,28 +357,28 @@ public sealed class ProductService(
         int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, cancellationToken);
+        return repository.GetByCategoryWithCategoryAsync(categoryId, page, perPage, cancellationToken);
     }
 
     public Task<decimal> GetTotalCostPriceByCategoryAsync(
         Guid categoryId,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalCostPriceByCategoryAsync(categoryId, cancellationToken);
+        return repository.GetTotalCostPriceByCategoryAsync(categoryId, cancellationToken);
     }
 
     public Task<decimal> GetTotalSalesPriceByCategoryAsync(
         Guid categoryId,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalSalesPriceByCategoryAsync(categoryId, cancellationToken);
+        return repository.GetTotalSalesPriceByCategoryAsync(categoryId, cancellationToken);
     }
 
     public Task<int> GetTotalQuantityByCategoryAsync(
         Guid categoryId,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalQuantityByCategoryAsync(categoryId, cancellationToken);
+        return repository.GetTotalQuantityByCategoryAsync(categoryId, cancellationToken);
     }
 
     public Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(
@@ -295,69 +387,69 @@ public sealed class ProductService(
         int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetByIdWithCategoryAsync(productId, page, perPage, cancellationToken);
+        return repository.GetByIdWithCategoryAsync(productId, page, perPage, cancellationToken);
     }
 
     public Task<decimal> GetTotalCostPriceByProductAsync(
         Guid productId,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalCostPriceByProductAsync(productId, cancellationToken);
+        return repository.GetTotalCostPriceByProductAsync(productId, cancellationToken);
     }
 
     public Task<decimal> GetTotalSalesPriceByProductAsync(
         Guid productId,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalSalesPriceByProductAsync(productId, cancellationToken);
+        return repository.GetTotalSalesPriceByProductAsync(productId, cancellationToken);
     }
 
     public Task<int> GetTotalQuantityByProductAsync(
         Guid productId,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalQuantityByProductAsync(productId, cancellationToken);
+        return repository.GetTotalQuantityByProductAsync(productId, cancellationToken);
     }
 
     public Task<List<ProductModel>> GetLowStockAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetLowStockAsync(cancellationToken);
+        return repository.GetLowStockAsync(cancellationToken);
     }
 
     public Task<decimal> GetTotalCostValueAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalCostValueAsync(cancellationToken);
+        return repository.GetTotalCostValueAsync(cancellationToken);
     }
 
     public Task<decimal> GetTotalSalesValueAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetTotalSalesValueAsync(cancellationToken);
+        return repository.GetTotalSalesValueAsync(cancellationToken);
     }
 
     public Task<List<ProductModel>> GetZeroMovementCandidatesAsync(
         IEnumerable<Guid> activeProductIds,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.GetZeroMovementCandidatesAsync(activeProductIds, cancellationToken);
+        return repository.GetZeroMovementCandidatesAsync(activeProductIds, cancellationToken);
     }
 
     public Task<int> CountAsync(
         Expression<Func<ProductModel, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return productRepository.CountAsync(predicate, cancellationToken);
+        return repository.CountAsync(predicate, cancellationToken);
     }
 
     public Task<List<(Guid CategoryId, string CategoryName, int Quantity, decimal? CostPrice)>>
         GetStockValueByCategoryAsync(CancellationToken cancellationToken = default)
     {
-        return productRepository.GetStockValueByCategoryAsync(cancellationToken);
+        return repository.GetStockValueByCategoryAsync(cancellationToken);
     }
 
     public Task<List<CategoryBreakdownResponse>> GetCategoryBreakdownAsync(
         CancellationToken cancellationToken = default)
     {
-        return productRepository.Query()
+        return repository.Query()
             .GroupBy(p => new { p.CategoryId, CategoryName = p.Category.Name })
             .Select(g => new CategoryBreakdownResponse(
                 g.Key.CategoryId,
@@ -499,7 +591,7 @@ public sealed class ProductService(
         }).OrderByDescending(x => x.TotalQuantitySold).Take(query.TopLimit).ToList();
 
         var productIds = salesStats.Select(s => s.ProductId).ToList();
-        var products = await productRepository.Query()
+        var products = await repository.Query()
             .Include(p => p.Category)
             .Where(p => productIds.Contains(p.Id))
             .Select(p => new { p.Id, ProductName = p.Name, CategoryName = p.Category.Name })
@@ -519,5 +611,23 @@ public sealed class ProductService(
         }).ToList();
 
         return bestSellingProducts;
+    }
+
+    public Task<ProductModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return repository.GetByIdAsync(id, cancellationToken);
+    }
+
+    public Task<ProductModel?> UpdateAsync(Guid id, ProductModel product, CancellationToken cancellationToken = default)
+    {
+        return repository.UpdateAsync(id, product, cancellationToken);
+    }
+
+    public Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(
+        int page = 1,
+        int perPage = 10,
+        CancellationToken cancellationToken = default)
+    {
+        return repository.GetAllWithDetailsAsync(page, perPage, cancellationToken);
     }
 }

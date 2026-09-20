@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
-public class CommentService(CommentRepository repository, FeedRepository feedRepository, CommentMapper mapper)
+public class CommentService(CommentRepository repository, FeedRepository feedRepository)
 {
     public async Task<List<GetAllCommentResponse>> GetAllByFeedAsync(
         GetAllCommentByFeedQuery query,
@@ -52,7 +52,14 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
         CancellationToken cancellationToken = default)
     {
         var comment = await repository.GetByIdAsync(query.Id, cancellationToken);
-        return comment is null ? null : mapper.MapToGetCommentByIdResponse(comment);
+        return comment is null ? null : new GetCommentByIdResponse(
+            comment.Id,
+            comment.ProfileId,
+            comment.FeedId,
+            comment.ParentCommentId,
+            comment.Text,
+            comment.CommentDate,
+            comment.UpdatedDate);
     }
 
     public async Task<AddCommentResponse> AddAsync(
@@ -74,7 +81,14 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
 
         var created = await repository.InsertAsync(model, cancellationToken);
         await IncrementFeedTotalCommentsAsync(command.FeedId, cancellationToken);
-        return mapper.MapToAddCommentResponse(created);
+        return new AddCommentResponse(
+            created.Id,
+            created.ProfileId,
+            created.FeedId,
+            created.ParentCommentId,
+            created.Text,
+            created.CommentDate,
+            created.CompanyId);
     }
 
     public async Task<UpdateCommentResponse?> UpdateAsync(
@@ -101,7 +115,15 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
         };
 
         var updated = await repository.UpdateAsync(command.Id, model, cancellationToken);
-        return updated is null ? null : mapper.MapToUpdateCommentResponse(updated);
+        return updated is null ? null : new UpdateCommentResponse(
+            updated.Id,
+            updated.ProfileId,
+            updated.FeedId,
+            updated.ParentCommentId,
+            updated.Text,
+            updated.CommentDate,
+            updated.UpdatedDate,
+            updated.CompanyId);
     }
 
     public async Task DeleteAsync(

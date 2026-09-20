@@ -47,23 +47,6 @@ internal static class Program
             .AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization()
             .AddFeniciaDependencyInjection(() =>
             {
-                builder.Services.AddSingleton<AddressMapper>();
-                builder.Services.AddSingleton<CustomerMapper>();
-                builder.Services.AddSingleton<DashboardMapper>();
-                builder.Services.AddSingleton<DataSourceMapper>();
-                builder.Services.AddSingleton<EmployeeMapper>();
-                builder.Services.AddSingleton<InventoryMapper>();
-                builder.Services.AddSingleton<OrderDetailMapper>();
-                builder.Services.AddSingleton<OrderMapper>();
-                builder.Services.AddSingleton<PersonMapper>();
-                builder.Services.AddSingleton<PersonAddressMapper>();
-                builder.Services.AddSingleton<PositionMapper>();
-                builder.Services.AddSingleton<ProductCategoryMapper>();
-                builder.Services.AddSingleton<ProductMapper>();
-                builder.Services.AddSingleton<StateMapper>();
-                builder.Services.AddSingleton<StockMovementMapper>();
-                builder.Services.AddSingleton<SupplierMapper>();
-
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
                 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();

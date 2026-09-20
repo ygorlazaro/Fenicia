@@ -16,11 +16,10 @@ public sealed class DataSourceService(
     IPositionService positionService,
     IProductCategoryService productCategoryService,
     IProductService productService,
-    ISupplierService supplierService,
-    DataSourceMapper dataSourceMapper) : IDataSourceService
+    ISupplierService supplierService) : IDataSourceService
 {
     public DataSourceService()
-        : this(null!, null!, null!, null!, null!, null!, null!)
+        : this(null!, null!, null!, null!, null!, null!)
     {
     }
 
@@ -47,17 +46,15 @@ public sealed class DataSourceService(
     {
         var positions = await positionService.GetAllAsync(new GetAllPositionQuery(1, int.MaxValue), cancellationToken);
 
-        return [.. positions.Data.Select(dataSourceMapper.MapToDataSourceResponse)];
+        return [.. positions.Data.Select(p => new GetAllPositionForDataSourceResponse(p.Id, p.Name))];
     }
 
     public async Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(
         CancellationToken cancellationToken = default)
     {
-        var categories = await productCategoryService.GetAllAsync(
-            new GetAllProductCategoryQuery(1, int.MaxValue),
-            cancellationToken);
+        var categories = await productCategoryService.GetAllAsync(1, int.MaxValue, cancellationToken);
 
-        return [.. categories.Data.Select(dataSourceMapper.MapToDataSourceResponse)];
+        return [.. categories.Data.Select(c => new GetAllProductCategoryForDataSourceResponse(c.Id, c.Name))];
     }
 
     public Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(

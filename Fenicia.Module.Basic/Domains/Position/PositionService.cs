@@ -5,10 +5,10 @@ using Fenicia.Module.Basic.Domains.Position.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-public sealed class PositionService(IPositionRepository positionRepository, PositionMapper positionMapper) : IPositionService
+public sealed class PositionService(IPositionRepository repository) : IPositionService
 {
     public PositionService()
-        : this(null!, null!)
+        : this(null!)
     {
     }
 
@@ -16,14 +16,14 @@ public sealed class PositionService(IPositionRepository positionRepository, Posi
         GetAllPositionQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = positionRepository.Query();
+        var baseQuery = repository.Query();
 
         var filteredQuery = baseQuery.ApplySearch(query.Query, "Name").ApplyFilters(query.Filters).ApplySort(query.Sort);
 
         var total = await filteredQuery.CountAsync(cancellationToken);
 
         var positions = await filteredQuery
-            .Select(p => positionMapper.MapToGetAllPositionResponse(p))
+            .Select(p => new GetAllPositionResponse(p.Id, p.Name))
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(cancellationToken);
@@ -35,9 +35,9 @@ public sealed class PositionService(IPositionRepository positionRepository, Posi
         GetPositionByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var position = await positionRepository.GetByIdAsync(query.Id, cancellationToken);
+        var position = await repository.GetByIdAsync(query.Id, cancellationToken);
 
-        return position is null ? null : positionMapper.MapToGetPositionByIdResponse(position);
+        return position is null ? null : new GetPositionByIdResponse(position.Id, position.Name);
     }
 
     public async Task<AddPositionResponse> AddAsync(
@@ -51,9 +51,9 @@ public sealed class PositionService(IPositionRepository positionRepository, Posi
             CompanyId = companyId
         };
 
-        await positionRepository.InsertAsync(position, cancellationToken);
+        await repository.InsertAsync(position, cancellationToken);
 
-        return positionMapper.MapToAddPositionResponse(position);
+        return new AddPositionResponse(position.Id, position.Name);
     }
 
     public async Task<UpdatePositionResponse?> UpdateAsync(
@@ -61,7 +61,7 @@ public sealed class PositionService(IPositionRepository positionRepository, Posi
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var position = await positionRepository.GetByIdAsync(command.Id, cancellationToken);
+        var position = await repository.GetByIdAsync(command.Id, cancellationToken);
 
         if (position is null)
         {
@@ -71,9 +71,9 @@ public sealed class PositionService(IPositionRepository positionRepository, Posi
         position.Name = command.Name;
         position.CompanyId = companyId;
 
-        await positionRepository.UpdateAsync(command.Id, position, cancellationToken);
+        await repository.UpdateAsync(command.Id, position, cancellationToken);
 
-        return positionMapper.MapToUpdatePositionResponse(position);
+        return new UpdatePositionResponse(position.Id, position.Name);
     }
 
     public async Task DeleteAsync(
@@ -81,6 +81,6 @@ public sealed class PositionService(IPositionRepository positionRepository, Posi
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await positionRepository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 }

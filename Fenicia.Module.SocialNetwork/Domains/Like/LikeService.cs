@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Like;
 
-public class LikeService(LikeRepository likeRepository, FeedRepository feedRepository, LikeMapper mapper)
+public class LikeService(LikeRepository likeRepository, FeedRepository feedRepository)
 {
     public async Task<AddLikeResponse> LikeAsync(
         LikeCommand command,
@@ -16,7 +16,12 @@ public class LikeService(LikeRepository likeRepository, FeedRepository feedRepos
         var existing = await likeRepository.GetByProfileAndFeedAsync(profileId, command.FeedId, cancellationToken);
         if (existing is not null)
         {
-            return mapper.MapToAddLikeResponse(existing);
+            return new AddLikeResponse(
+                existing.Id,
+                existing.ProfileId,
+                existing.FeedId,
+                existing.LikeDate,
+                existing.CompanyId);
         }
 
         var model = new LikeModel
@@ -29,7 +34,12 @@ public class LikeService(LikeRepository likeRepository, FeedRepository feedRepos
 
         var created = await likeRepository.InsertAsync(model, cancellationToken);
         await IncrementFeedTotalLikesAsync(command.FeedId, cancellationToken);
-        return mapper.MapToAddLikeResponse(created);
+        return new AddLikeResponse(
+            created.Id,
+            created.ProfileId,
+            created.FeedId,
+            created.LikeDate,
+            created.CompanyId);
     }
 
     public async Task UnlikeAsync(UnlikeCommand command, Guid profileId, CancellationToken cancellationToken = default)
@@ -49,7 +59,11 @@ public class LikeService(LikeRepository likeRepository, FeedRepository feedRepos
         var baseQuery = likeRepository.Query().Where(l => l.FeedId == query.FeedId).OrderByDescending(l => l.LikeDate);
         var likes = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. likes.Select(mapper.MapToGetLikesResponse)];
+        return [.. likes.Select(l => new GetLikesResponse(
+            l.Id,
+            l.ProfileId,
+            l.FeedId,
+            l.LikeDate))];
     }
 
     public async Task<bool> IsLikedAsync(
@@ -89,7 +103,19 @@ public class LikeService(LikeRepository likeRepository, FeedRepository feedRepos
             .. likes
                 .Where(l => feeds.ContainsKey(l.FeedId))
                 .OrderByDescending(l => likeDateByFeed[l.FeedId])
-                .Select(l => mapper.MapToGetLikedFeedsResponse(feeds[l.FeedId]))
+                .Select(l =>
+                {
+                    var feed = feeds[l.FeedId];
+                    return new GetLikedFeedsResponse(
+                        feed.Id,
+                        feed.Date,
+                        feed.Text,
+                        feed.ProfileId,
+                        feed.CompanyId,
+                        feed.TotalLikes,
+                        feed.TotalComments,
+                        feed.TotalShares);
+                })
         ];
     }
 

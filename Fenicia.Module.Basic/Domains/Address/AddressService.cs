@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Address;
 
-public sealed class AddressService(IAddressRepository addressRepository, AddressMapper addressMapper) : IAddressService
+public sealed class AddressService(IAddressRepository repository) : IAddressService
 {
-    public AddressService()
-        : this(null!, null!)
-    {
-    }
-
     public async Task<AddressResponse> AddAsync(
         AddressCommand command,
         CancellationToken cancellationToken = default)
@@ -29,11 +24,21 @@ public sealed class AddressService(IAddressRepository addressRepository, Address
             Country = command.Country
         };
 
-        await addressRepository.InsertAsync(address, cancellationToken);
+        await repository.InsertAsync(address, cancellationToken);
 
         var saved = await ReloadAsync(address.Id, cancellationToken);
 
-        return addressMapper.MapToAddressResponse(saved);
+        return new AddressResponse(
+            saved.Id,
+            saved.Street,
+            saved.Number,
+            saved.Complement,
+            saved.Neighborhood,
+            saved.ZipCode!,
+            saved.StateId,
+            saved.State?.Name,
+            saved.City,
+            saved.Country);
     }
 
     public async Task<AddressResponse?> UpdateAsync(
@@ -54,7 +59,7 @@ public sealed class AddressService(IAddressRepository addressRepository, Address
             Country = command.Country
         };
 
-        var updated = await addressRepository.UpdateAsync(id, address, cancellationToken);
+        var updated = await repository.UpdateAsync(id, address, cancellationToken);
 
         if (updated is null)
         {
@@ -63,12 +68,22 @@ public sealed class AddressService(IAddressRepository addressRepository, Address
 
         var reloaded = await ReloadAsync(id, cancellationToken);
 
-        return addressMapper.MapToAddressResponse(reloaded);
+        return new AddressResponse(
+            reloaded.Id,
+            reloaded.Street,
+            reloaded.Number,
+            reloaded.Complement,
+            reloaded.Neighborhood,
+            reloaded.ZipCode!,
+            reloaded.StateId,
+            reloaded.State?.Name,
+            reloaded.City,
+            reloaded.Country);
     }
 
     private async Task<AddressModel> ReloadAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await addressRepository.GetAllQuery()
+        return await repository.GetAllQuery()
             .Include(a => a.State)
             .FirstAsync(a => a.Id == id, cancellationToken);
     }

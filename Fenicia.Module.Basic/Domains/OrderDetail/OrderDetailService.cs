@@ -4,10 +4,10 @@ using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
-public sealed class OrderDetailService(IOrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper) : IOrderDetailService
+public sealed class OrderDetailService(IOrderDetailRepository repository) : IOrderDetailService
 {
     public OrderDetailService()
-        : this(null!, null!)
+        : this(null!)
     {
     }
 
@@ -15,23 +15,31 @@ public sealed class OrderDetailService(IOrderDetailRepository orderDetailReposit
         GetOrderDetailsByOrderIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var details = await orderDetailRepository.GetByOrderIdAsync(query.OrderId, cancellationToken);
+        var details = await repository.GetByOrderIdAsync(query.OrderId, cancellationToken);
 
-        return [.. details.Select(orderDetailMapper.MapToGetOrderDetailsByOrderIdResponse)];
+        return [.. details.Select(d => new GetOrderDetailsByOrderIdResponse(
+            d.Id,
+            d.OrderId,
+            d.ProductId,
+            d.Product.Name,
+            d.Price,
+            d.DiscountAmount,
+            d.Quantity,
+            d.Subtotal))];
     }
 
     public Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(
         IEnumerable<Guid> orderIds,
         CancellationToken cancellationToken = default)
     {
-        return orderDetailRepository.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
+        return repository.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
     }
 
     public Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(
         IEnumerable<Guid> orderIds,
         CancellationToken cancellationToken = default)
     {
-        return orderDetailRepository.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
+        return repository.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
     }
 
     public async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(
@@ -39,7 +47,7 @@ public sealed class OrderDetailService(IOrderDetailRepository orderDetailReposit
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
-        var result = await orderDetailRepository.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
+        var result = await repository.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
         return [.. result];
     }
 
@@ -47,7 +55,7 @@ public sealed class OrderDetailService(IOrderDetailRepository orderDetailReposit
         DateTime startDate,
         CancellationToken cancellationToken = default)
     {
-        var result = await orderDetailRepository.GetByDateRangeAsync(startDate, cancellationToken);
+        var result = await repository.GetByDateRangeAsync(startDate, cancellationToken);
         return [.. result];
     }
 }

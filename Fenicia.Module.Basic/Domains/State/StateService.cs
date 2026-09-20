@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State;
 
-public sealed class StateService(IStateRepository stateRepository, StateMapper stateMapper) : IStateService
+public sealed class StateService(IStateRepository repository) : IStateService
 {
     public StateService()
-        : this(null!, null!)
+        : this(null!)
     {
     }
 
@@ -15,12 +15,12 @@ public sealed class StateService(IStateRepository stateRepository, StateMapper s
         GetAllStateQuery query,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = stateRepository.Query();
+        var baseQuery = repository.Query();
 
         var states = await baseQuery
             .OrderBy(s => s.Uf)
             .ToListAsync(cancellationToken);
 
-        return [.. states.Select(stateMapper.MapToGetAllStateResponse)];
+        return [.. states.Select(s => new GetAllStateResponse(s.Id, s.Name, s.Uf))];
     }
 }

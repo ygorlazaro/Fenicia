@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
-public class ProjectStatusService(IProjectStatusRepository repository, ProjectStatusMapper mapper) : IProjectStatusService
+public class ProjectStatusService(IProjectStatusRepository repository) : IProjectStatusService
 {
     public async Task<List<GetAllProjectStatusResponse>> GetAllAsync(
         GetAllProjectStatusQuery query,
@@ -14,7 +14,14 @@ public class ProjectStatusService(IProjectStatusRepository repository, ProjectSt
         var baseQuery = repository.Query();
         var statuses = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. statuses.Select(mapper.MapToGetAllProjectStatusResponse)];
+        return [.. statuses.Select(s => new GetAllProjectStatusResponse(
+            s.Id,
+            s.ProjectId,
+            s.Name,
+            s.Color,
+            s.Order,
+            s.IsFinal,
+            s.CompanyId))];
     }
 
     public async Task<GetProjectStatusByIdResponse?> GetByIdAsync(
@@ -24,7 +31,14 @@ public class ProjectStatusService(IProjectStatusRepository repository, ProjectSt
         var status = await repository.GetByIdAsync(query.Id, cancellationToken);
         return status is null
             ? null
-            : mapper.MapToGetProjectStatusByIdResponse(status);
+            : new GetProjectStatusByIdResponse(
+                status.Id,
+                status.ProjectId,
+                status.Name,
+                status.Color,
+                status.Order,
+                status.IsFinal,
+                status.CompanyId);
     }
 
     public async Task<AddProjectStatusResponse> AddAsync(
@@ -44,7 +58,14 @@ public class ProjectStatusService(IProjectStatusRepository repository, ProjectSt
         };
 
         var created = await repository.InsertAsync(status, cancellationToken);
-        return mapper.MapToAddProjectStatusResponse(created);
+        return new AddProjectStatusResponse(
+            created.Id,
+            created.ProjectId,
+            created.Name,
+            created.Color,
+            created.Order,
+            created.IsFinal,
+            created.CompanyId);
     }
 
     public async Task<UpdateProjectStatusResponse?> UpdateAsync(
@@ -66,7 +87,14 @@ public class ProjectStatusService(IProjectStatusRepository repository, ProjectSt
         var updated = await repository.UpdateAsync(command.Id, status, cancellationToken);
         return updated is null
             ? null
-            : mapper.MapToUpdateProjectStatusResponse(updated);
+            : new UpdateProjectStatusResponse(
+                updated.Id,
+                updated.ProjectId,
+                updated.Name,
+                updated.Color,
+                updated.Order,
+                updated.IsFinal,
+                updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectStatusCommand command, CancellationToken cancellationToken = default)

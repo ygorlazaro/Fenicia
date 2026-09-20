@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
-public class ShareService(ShareRepository repository, FeedRepository feedRepository, ShareMapper mapper)
+public class ShareService(ShareRepository repository, FeedRepository feedRepository)
 {
     public async Task<AddShareResponse> ShareAsync(
         ShareCommand command,
@@ -62,7 +62,13 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
         var baseQuery = repository.Query().Where(s => s.OriginalFeedId == feedId);
         var shares = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. shares.Select(mapper.MapToGetSharesResponse)];
+        return [.. shares.Select(s => new GetSharesResponse(
+            s.Id,
+            s.OriginalFeedId,
+            s.Text,
+            s.CompanyId,
+            s.ProfileId,
+            s.ShareDate))];
     }
 
     private async Task IncrementFeedTotalSharesAsync(Guid feedId, CancellationToken cancellationToken)

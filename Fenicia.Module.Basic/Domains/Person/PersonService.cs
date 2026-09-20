@@ -4,10 +4,10 @@ using Fenicia.Module.Basic.Domains.Person.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Person;
 
-public sealed class PersonService(IPersonRepository personRepository, PersonMapper personMapper) : IPersonService
+public sealed class PersonService(IPersonRepository repository) : IPersonService
 {
     public PersonService()
-        : this(null!, null!)
+        : this(null!)
     {
     }
 
@@ -29,8 +29,16 @@ public sealed class PersonService(IPersonRepository personRepository, PersonMapp
             CompanyId = companyId
         };
 
-        var result = await personRepository.InsertAsync(person, cancellationToken);
-        return personMapper.MapToGetPersonByIdResponse(result);
+        var result = await repository.InsertAsync(person, cancellationToken);
+        return new GetPersonByIdResponse(
+            result.Id,
+            result.Name,
+            result.Document,
+            result.Email,
+            result.PhoneNumber,
+            result.DateOfBirth,
+            result.PhotoUrl,
+            result.Notes);
     }
 
     public async Task<GetPersonByIdResponse?> UpdateAsync(
@@ -39,7 +47,7 @@ public sealed class PersonService(IPersonRepository personRepository, PersonMapp
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var person = await personRepository.GetByIdAsync(id, cancellationToken);
+        var person = await repository.GetByIdAsync(id, cancellationToken);
         if (person is null)
         {
             return null;
@@ -50,7 +58,15 @@ public sealed class PersonService(IPersonRepository personRepository, PersonMapp
         person.Email = command.Email;
         person.PhoneNumber = command.PhoneNumber;
         person.CompanyId = companyId;
-        var result = await personRepository.UpdateAsync(id, person, cancellationToken);
-        return result is null ? null : personMapper.MapToGetPersonByIdResponse(result);
+        var result = await repository.UpdateAsync(id, person, cancellationToken);
+        return result is null ? null : new GetPersonByIdResponse(
+            result.Id,
+            result.Name,
+            result.Document,
+            result.Email,
+            result.PhoneNumber,
+            result.DateOfBirth,
+            result.PhotoUrl,
+            result.Notes);
     }
 }

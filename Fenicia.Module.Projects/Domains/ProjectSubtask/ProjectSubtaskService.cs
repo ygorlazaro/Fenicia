@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 
-public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository, ProjectSubtaskMapper mapper) : IProjectSubtaskService
+public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository) : IProjectSubtaskService
 {
     public async Task<List<GetAllProjectSubtaskResponse>> GetAllAsync(
         GetAllProjectSubtaskQuery query,
@@ -15,7 +15,14 @@ public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository, 
         var baseQuery = repository.Query();
         var subtasks = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
-        return [.. subtasks.Select(mapper.MapToGetAllProjectSubtaskResponse)];
+        return [.. subtasks.Select(s => new GetAllProjectSubtaskResponse(
+            s.Id,
+            s.TaskId,
+            s.Title,
+            s.IsCompleted,
+            s.Order,
+            s.CompletedAt,
+            s.CompanyId))];
     }
 
     public async Task<GetProjectSubtaskByIdResponse?> GetByIdAsync(
@@ -26,7 +33,14 @@ public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository, 
 
         return projectSubtask is null
             ? null
-            : mapper.MapToGetProjectSubtaskByIdResponse(projectSubtask);
+            : new GetProjectSubtaskByIdResponse(
+                projectSubtask.Id,
+                projectSubtask.TaskId,
+                projectSubtask.Title,
+                projectSubtask.IsCompleted,
+                projectSubtask.Order,
+                projectSubtask.CompletedAt,
+                projectSubtask.CompanyId);
     }
 
     public async Task<AddProjectSubtaskResponse> AddAsync(
@@ -46,7 +60,14 @@ public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository, 
         };
 
         var created = await repository.InsertAsync(projectSubtask, cancellationToken);
-        return mapper.MapToAddProjectSubtaskResponse(created);
+        return new AddProjectSubtaskResponse(
+            created.Id,
+            created.TaskId,
+            created.Title,
+            created.IsCompleted,
+            created.Order,
+            created.CompletedAt,
+            created.CompanyId);
     }
 
     public async Task<UpdateProjectSubtaskResponse?> UpdateAsync(
@@ -68,7 +89,14 @@ public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository, 
         var updated = await repository.UpdateAsync(command.Id, projectSubtask, cancellationToken);
         return updated is null
             ? null
-            : mapper.MapToUpdateProjectSubtaskResponse(updated);
+            : new UpdateProjectSubtaskResponse(
+                updated.Id,
+                updated.TaskId,
+                updated.Title,
+                updated.IsCompleted,
+                updated.Order,
+                updated.CompletedAt,
+                updated.CompanyId);
     }
 
     public async Task DeleteAsync(DeleteProjectSubtaskCommand command, CancellationToken cancellationToken = default)

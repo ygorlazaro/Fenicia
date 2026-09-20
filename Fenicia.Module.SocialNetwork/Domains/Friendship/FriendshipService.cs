@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
-public sealed class FriendshipService(IFriendshipRepository friendshipRepository, FriendshipMapper mapper)
+public sealed class FriendshipService(IFriendshipRepository repository)
 {
     public FriendshipService()
         : this(null!, null!)
@@ -26,7 +26,12 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         {
             if (friendship.IsActive)
             {
-                return mapper.MapToAddFriendshipResponse(friendship);
+                return new AddFriendshipResponse(
+                    friendship.Id,
+                    friendship.ProfileId,
+                    friendship.TargetProfileId,
+                    friendship.FollowDate,
+                    friendship.IsActive);
             }
 
             friendship.IsActive = true;
@@ -75,7 +80,10 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = friendships.Select(mapper.MapToGetFollowersResponse).ToList();
+        var response = friendships.Select(f => new GetFollowersResponse(
+            f.Id,
+            f.ProfileId,
+            f.FollowDate)).ToList();
 
         return new Pagination<List<GetFollowersResponse>>(response, total, query.Page, query.PerPage);
     }
@@ -91,7 +99,10 @@ public sealed class FriendshipService(IFriendshipRepository friendshipRepository
         var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        var response = friendships.Select(mapper.MapToGetFollowingResponse).ToList();
+        var response = friendships.Select(f => new GetFollowingResponse(
+            f.Id,
+            f.TargetProfileId,
+            f.FollowDate)).ToList();
 
         return new Pagination<List<GetFollowingResponse>>(response, total, query.Page, query.PerPage);
     }
