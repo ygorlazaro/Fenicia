@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.DTOs.Auth.Company;
 using Fenicia.Common.DTOs.Auth.Role;
 using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
@@ -15,7 +16,6 @@ using UserCompanyResponse = Fenicia.Common.DTOs.Auth.UserRole.UserCompanyRespons
 namespace Fenicia.Auth.Domains.User;
 
 public sealed class UserService(
-    UserMapper mapper,
     IUserRepository userRepository,
     IUserRoleService userRoleService,
     IRoleService roleService,
@@ -32,24 +32,22 @@ public sealed class UserService(
         var users = await userRepository.GetAllAsync(page, perPage, cancellationToken);
 
         return new Pagination<List<UserResponse>>(
-            [.. users.Select(mapper.MapToUserResponse)],
+            [.. users.Select(MapToUserResponse)],
             total,
             page,
             perPage);
     }
 
-    public async Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByIdAsync(userId, cancellationToken);
-
-        return user is null ? null : mapper.MapToUserResponse(user);
+        return userRepository.GetByIdAsync(userId, cancellationToken).ContinueWith(
+            task => task.Result is null ? null : MapToUserResponse(task.Result), cancellationToken);
     }
 
-    public async Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByEmailAsync(email, cancellationToken);
-
-        return user is null ? null : mapper.MapToUserResponse(user);
+        return userRepository.GetByEmailAsync(email, cancellationToken).ContinueWith(
+            task => task.Result is null ? null : MapToUserResponse(task.Result), cancellationToken);
     }
 
     public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
@@ -79,7 +77,7 @@ public sealed class UserService(
     {
         var user = await FirstByIdAsync(userId, cancellationToken);
 
-        return mapper.MapToUserResponse(user);
+        return MapToUserResponse(user);
     }
 
     public Task<List<UserCompanyResponse>> GetCompaniesAsync(
@@ -156,7 +154,7 @@ public sealed class UserService(
         await userRepository.InsertAsync(user, cancellationToken);
         await RelateRolesAsync(user.Id, request.Roles, cancellationToken);
 
-        return mapper.MapToUserResponse(user);
+        return MapToUserResponse(user);
     }
 
     public async Task<UserResponse> UpdateAsync(
@@ -172,7 +170,7 @@ public sealed class UserService(
         await ValidateCompanies(companies, cancellationToken);
         await RelateRolesAsync(command, user, cancellationToken);
 
-        return mapper.MapToUserResponse(user);
+        return MapToUserResponse(user);
     }
 
     public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -191,7 +189,7 @@ public sealed class UserService(
                    throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
         await userRepository.UpdateAsync(user.Id, user, cancellationToken);
 
-        return mapper.MapToUserResponse(user);
+        return MapToUserResponse(user);
     }
 
     private async Task AuthorizePasswordChangeAsync(
@@ -452,5 +450,14 @@ public sealed class UserService(
     {
         return await userRepository.GetByIdAsync(userId, cancellationToken) ??
                throw new InvalidRequestException(ExceptionMessages.UserNotFound);
+    }
+
+    private static UserResponse MapToUserResponse(UserModel user)
+    {
+        return new UserResponse(
+            user.Id,
+            user.Name,
+            user.Email,
+            new Fenicia.Common.DTOs.Auth.UserRole.CompanyResponse(Guid.Empty, string.Empty, string.Empty));
     }
 }

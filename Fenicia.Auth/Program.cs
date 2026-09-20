@@ -64,8 +64,7 @@ internal static class Program
             .AddFeniciaDependencyInjection(() =>
             {
 
-                builder.Services.AddSingleton<UserMapper>();
-                builder.Services.AddSingleton<UserRoleMapper>();
+
 
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();

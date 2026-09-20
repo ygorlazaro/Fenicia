@@ -4,24 +4,24 @@ using Fenicia.Common.DTOs.Auth.UserRole;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
-public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMapper userRoleMapper) : IUserRoleService
+public class UserRoleService(IUserRoleRepository repository) : IUserRoleService
 {
     public async Task<List<UserRoleResponse>> GetCompaniesByUserAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var userRoles = await userRoleRepository.GetCompaniesByUserAsync(userId, cancellationToken);
+        var userRoles = await repository.GetCompaniesByUserAsync(userId, cancellationToken);
 
-        return [.. userRoles.Select(userRoleMapper.MapToUserRoleResponse)];
+        return [.. userRoles.Select(MapToUserRoleResponse)];
     }
 
     public async Task<List<UserCompanyResponse>> GetUserCompaniesAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var userRoles = await userRoleRepository.GetUserCompaniesAsync(userId, cancellationToken);
+        var userRoles = await repository.GetUserCompaniesAsync(userId, cancellationToken);
 
-        return [.. userRoles.Select(userRoleMapper.MapToGetUserCompaniesResponse)];
+        return [.. userRoles.Select(MapToGetUserCompaniesResponse)];
     }
 
     public Task<List<UserRoleModel>> GetUserRolesAsync(
@@ -30,12 +30,12 @@ public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMap
         int perPage,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.GetUserRolesAsync(userId, page, perPage, cancellationToken);
+        return repository.GetUserRolesAsync(userId, page, perPage, cancellationToken);
     }
 
     public Task<int> CountUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.CountUserRolesAsync(userId, cancellationToken);
+        return repository.CountUserRolesAsync(userId, cancellationToken);
     }
 
     public Task<UserRoleModel?> GetUserRoleAsync(
@@ -43,12 +43,12 @@ public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMap
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.GetUserRoleAsync(userId, companyId, cancellationToken);
+        return repository.GetUserRoleAsync(userId, companyId, cancellationToken);
     }
 
     public Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.IsAdminAsync(userId, companyId, cancellationToken);
+        return repository.IsAdminAsync(userId, companyId, cancellationToken);
     }
 
     public Task<bool> AnyIdAndCompanyAsync(
@@ -56,7 +56,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMap
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.AnyIdAndCompanyAsync(userId, companyId, cancellationToken);
+        return repository.AnyIdAndCompanyAsync(userId, companyId, cancellationToken);
     }
 
     public Task<bool> HasRoleAsync(
@@ -65,35 +65,56 @@ public class UserRoleService(IUserRoleRepository userRoleRepository, UserRoleMap
         string role,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.HasRoleAsync(userId, companyId, role, cancellationToken);
+        return repository.HasRoleAsync(userId, companyId, role, cancellationToken);
     }
 
     public Task InsertRangeAsync(List<UserRoleModel> userRoles, CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.InsertRangeAsync(userRoles, cancellationToken);
+        return repository.InsertRangeAsync(userRoles, cancellationToken);
     }
 
     public Task<UserRoleModel> InsertAsync(UserRoleModel userRole, CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.InsertAsync(userRole, cancellationToken);
+        return repository.InsertAsync(userRole, cancellationToken);
     }
 
     public async Task DeleteAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
-        await userRoleRepository.DeleteAsync(roleId, cancellationToken);
+        await repository.DeleteAsync(roleId, cancellationToken);
     }
 
     public Task<List<UserRoleModel>> GetUserRolesByUserIdAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.GetUserRolesByIdAsync(userId, cancellationToken);
+        return repository.GetUserRolesByIdAsync(userId, cancellationToken);
     }
 
     public Task<List<UserRoleModel>> GetUserRoleModelsByUserAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        return userRoleRepository.GetCompaniesByUserAsync(userId, cancellationToken);
+        return repository.GetCompaniesByUserAsync(userId, cancellationToken);
+    }
+
+    private static UserRoleResponse MapToUserRoleResponse(UserRoleModel userRole)
+    {
+        return new UserRoleResponse(
+            userRole.Id,
+            userRole.Role.Name,
+            new CompanyResponse(
+                userRole.Company.Id,
+                userRole.Company.Name,
+                userRole.Company.Cnpj));
+    }
+
+    private static UserCompanyResponse MapToGetUserCompaniesResponse(UserRoleModel userRole)
+    {
+        return new UserCompanyResponse(
+            userRole.Company.Id,
+            userRole.Role.Name,
+            userRole.CompanyId,
+            userRole.Company.Name,
+            userRole.Company.Cnpj);
     }
 }
