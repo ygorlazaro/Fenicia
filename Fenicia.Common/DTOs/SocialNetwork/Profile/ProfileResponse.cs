@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Profile;
 
-public class UpdateProfileResponse()
+public class ProfileResponse()
 {
-    public UpdateProfileResponse(
+    public ProfileResponse(
         Guid id,
         Guid userId,
         string? userName,

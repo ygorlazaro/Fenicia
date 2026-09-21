@@ -4,44 +4,39 @@ using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 
-public sealed class ProfileService(IProfileRepository profileRepository) : IProfileService
+public sealed class ProfileService(IProfileRepository repository) : IProfileService
 {
-    public ProfileService()
-        : this(null!)
-    {
-    }
-
-    public async Task<GetProfileByIdResponse?> GetByIdAsync(
+    public async Task<ProfileResponse?> GetByIdAsync(
         GetProfileByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        var profile = await profileRepository.GetByIdAsync(query.Id, cancellationToken);
+        var profile = await repository.GetByIdAsync(query.Id, cancellationToken);
 
         return profile is null
             ? null
-            : MapToGetResponse(profile);
+            : MapToResponse(profile);
     }
 
-    public async Task<GetProfileByIdResponse?> GetByUserIdAsync(
+    public async Task<ProfileResponse?> GetByUserIdAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var profile = await profileRepository.GetByUserIdAsync(userId, cancellationToken);
+        var profile = await repository.GetByUserIdAsync(userId, cancellationToken);
 
         return profile is null
             ? null
-            : MapToGetResponse(profile);
+            : MapToResponse(profile);
     }
 
-    public async Task<AddProfileResponse> CreateAsync(
-        AddProfileCommand command,
+    public async Task<ProfileResponse> CreateAsync(
+        ProfileRequest command,
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await profileRepository.GetByUserIdAsync(userId, cancellationToken);
+        var existing = await repository.GetByUserIdAsync(userId, cancellationToken);
         if (existing is not null)
         {
-            return MapToAddResponse(existing);
+            return MapToResponse(existing);
         }
 
         var model = new ProfileModel
@@ -57,17 +52,17 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
             BirthDate = command.BirthDate
         };
 
-        var created = await profileRepository.InsertAsync(model, cancellationToken);
+        var created = await repository.InsertAsync(model, cancellationToken);
 
-        return MapToAddResponse(created);
+        return MapToResponse(created);
     }
 
-    public async Task<UpdateProfileResponse?> UpdateAsync(
-        UpdateProfileCommand command,
+    public async Task<ProfileResponse?> UpdateAsync(
+        ProfileRequest command,
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var profile = await profileRepository.GetByIdAsync(command.Id, cancellationToken);
+        var profile = await repository.GetByIdAsync(command.Id!.Value, cancellationToken);
 
         if (profile is null || profile.UserId != userId)
         {
@@ -82,41 +77,16 @@ public sealed class ProfileService(IProfileRepository profileRepository) : IProf
         profile.Phone = command.Phone;
         profile.BirthDate = command.BirthDate;
 
-        await profileRepository.UpdateAsync(command.Id, profile, cancellationToken);
+        await repository.UpdateAsync(command.Id.Value, profile, cancellationToken);
 
-        var reloaded = await profileRepository.GetByIdAsync(command.Id, cancellationToken);
+        var reloaded = await repository.GetByIdAsync(command.Id.Value, cancellationToken);
 
-        return new UpdateProfileResponse(
-            reloaded!.Id,
-            reloaded.UserId,
-            reloaded.UserName,
-            reloaded.Bio,
-            reloaded.Upload?.Url,
-            reloaded.UploadId,
-            reloaded.Website,
-            reloaded.Location,
-            reloaded.Phone,
-            reloaded.BirthDate);
+        return MapToResponse(reloaded!);
     }
 
-    private static GetProfileByIdResponse MapToGetResponse(ProfileModel profile)
+    private static ProfileResponse MapToResponse(ProfileModel profile)
     {
-        return new GetProfileByIdResponse(
-            profile.Id,
-            profile.UserId,
-            profile.UserName,
-            profile.Bio,
-            profile.Upload?.Url,
-            profile.UploadId,
-            profile.Website,
-            profile.Location,
-            profile.Phone,
-            profile.BirthDate);
-    }
-
-    private static AddProfileResponse MapToAddResponse(ProfileModel profile)
-    {
-        return new AddProfileResponse(
+        return new ProfileResponse(
             profile.Id,
             profile.UserId,
             profile.UserName,

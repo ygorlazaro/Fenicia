@@ -557,7 +557,7 @@ public class ProjectControllerTests : IDisposable
 - **Private fields**: use `_camelCase` (ex: `private readonly DefaultContext _db;`)
   - **Async methods**: always end with `Async` (ex: `GetAsync`)
   - **LINQ**: use LINQ query expression syntax whenever possible instead of lambda expressions
-  - **Mapping**: use Mapperly for transformation between entities and DTOs/responses
+  - **Mapping**: use manual mapping by calling DTO constructors (no Mapperly)
   - **Mandatory tests**: all new or refactored code must include corresponding unit tests
   - **Domain isolation**: a domain CANNOT access another domain's repository directly; use the corresponding domain's service
   - **XML comments**: not required

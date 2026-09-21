@@ -1,11 +1,13 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
+using Fenicia.Common.DTOs.SocialNetwork.Feed;
 using Fenicia.Common.DTOs.SocialNetwork.Share;
-using Fenicia.Module.SocialNetwork.Domains.Feed;
+using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
+using Fenicia.Module.SocialNetwork.Domains.Share.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
-public class ShareService(ShareRepository repository, FeedRepository feedRepository)
+public class ShareService(IShareRepository repository, IFeedService feedService) : IShareService
 {
     public async Task<AddShareResponse> ShareAsync(
         ShareCommand command,
@@ -13,7 +15,7 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        _ = await feedRepository.GetByIdAsync(command.OriginalFeedId, cancellationToken)
+        _ = await feedService.GetByIdAsync(new GetFeedByIdQuery(command.OriginalFeedId), cancellationToken)
             ?? throw new InvalidOperationException("Post original não encontrado.");
 
         var model = new ShareModel
@@ -40,9 +42,16 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
             TotalComments = 0,
             TotalShares = 0
         };
-        await feedRepository.InsertAsync(shareFeed, cancellationToken);
+        await feedService.AddAsync(new FeedRequest(
+            shareFeed.Id,
+            shareFeed.Date,
+            shareFeed.Text,
+            shareFeed.ProfileId,
+            shareFeed.OriginalFeedId),
+            companyId,
+            cancellationToken);
 
-        await IncrementFeedTotalSharesAsync(command.OriginalFeedId, cancellationToken);
+        await feedService.IncrementTotalSharesAsync(command.OriginalFeedId, cancellationToken);
 
         return new AddShareResponse(
             created.Id,
@@ -69,17 +78,5 @@ public class ShareService(ShareRepository repository, FeedRepository feedReposit
             s.CompanyId,
             s.ProfileId,
             s.ShareDate))];
-    }
-
-    private async Task IncrementFeedTotalSharesAsync(Guid feedId, CancellationToken cancellationToken)
-    {
-        var feed = await feedRepository.GetByIdAsync(feedId, cancellationToken);
-        if (feed is null)
-        {
-            return;
-        }
-
-        feed.TotalShares++;
-        await feedRepository.UpdateAsync(feedId, feed, cancellationToken);
     }
 }

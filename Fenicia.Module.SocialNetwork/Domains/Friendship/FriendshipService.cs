@@ -1,23 +1,19 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Friendship;
+using Fenicia.Module.SocialNetwork.Domains.Friendship.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
-public sealed class FriendshipService(IFriendshipRepository repository)
+public sealed class FriendshipService(IFriendshipRepository repository) : IFriendshipService
 {
-    public FriendshipService()
-        : this(null!, null!)
-    {
-    }
-
     public async Task<AddFriendshipResponse> FollowAsync(
         FollowCommand command,
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await friendshipRepository.FindAsync(
+        var existing = await repository.FindAsync(
             f => f.ProfileId == profileId && f.TargetProfileId == command.TargetProfileId,
             cancellationToken);
 
@@ -36,8 +32,13 @@ public sealed class FriendshipService(IFriendshipRepository repository)
 
             friendship.IsActive = true;
             friendship.FollowDate = DateTime.UtcNow;
-            await friendshipRepository.UpdateAsync(friendship.Id, friendship, cancellationToken);
-            return mapper.MapToAddFriendshipResponse(friendship);
+            await repository.UpdateAsync(friendship.Id, friendship, cancellationToken);
+            return new AddFriendshipResponse(
+                friendship.Id,
+                friendship.ProfileId,
+                friendship.TargetProfileId,
+                friendship.FollowDate,
+                friendship.IsActive);
         }
 
         var newFriendship = new FriendshipModel
@@ -48,8 +49,13 @@ public sealed class FriendshipService(IFriendshipRepository repository)
             IsActive = true
         };
 
-        var created = await friendshipRepository.InsertAsync(newFriendship, cancellationToken);
-        return mapper.MapToAddFriendshipResponse(created);
+        var created = await repository.InsertAsync(newFriendship, cancellationToken);
+        return new AddFriendshipResponse(
+            created.Id,
+            created.ProfileId,
+            created.TargetProfileId,
+            created.FollowDate,
+            created.IsActive);
     }
 
     public async Task UnfollowAsync(
@@ -57,7 +63,7 @@ public sealed class FriendshipService(IFriendshipRepository repository)
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var existing = await friendshipRepository.FindAsync(
+        var existing = await repository.FindAsync(
             f => f.ProfileId == profileId && f.TargetProfileId == command.TargetProfileId && f.IsActive,
             cancellationToken);
 
@@ -65,7 +71,7 @@ public sealed class FriendshipService(IFriendshipRepository repository)
         if (friendship is not null)
         {
             friendship.IsActive = false;
-            await friendshipRepository.UpdateAsync(friendship.Id, friendship, cancellationToken);
+            await repository.UpdateAsync(friendship.Id, friendship, cancellationToken);
         }
     }
 
@@ -74,7 +80,7 @@ public sealed class FriendshipService(IFriendshipRepository repository)
         Guid targetProfileId,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = friendshipRepository.Query().Where(f => f.TargetProfileId == targetProfileId && f.IsActive);
+        var baseQuery = repository.Query().Where(f => f.TargetProfileId == targetProfileId && f.IsActive);
         var total = await baseQuery.CountAsync(cancellationToken);
 
         var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
@@ -93,7 +99,7 @@ public sealed class FriendshipService(IFriendshipRepository repository)
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = friendshipRepository.Query().Where(f => f.ProfileId == profileId && f.IsActive);
+        var baseQuery = repository.Query().Where(f => f.ProfileId == profileId && f.IsActive);
         var total = await baseQuery.CountAsync(cancellationToken);
 
         var friendships = await baseQuery.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage)
@@ -112,7 +118,7 @@ public sealed class FriendshipService(IFriendshipRepository repository)
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
-        return friendshipRepository.AnyAsync(
+        return repository.AnyAsync(
             f => f.ProfileId == profileId && f.TargetProfileId == query.TargetProfileId && f.IsActive,
             cancellationToken);
     }

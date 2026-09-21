@@ -1,11 +1,12 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.SocialNetwork.Domains.Like.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Like;
 
-public class LikeRepository(DefaultContext context) : Repository<LikeModel>(context)
+public class LikeRepository(DefaultContext context) : Repository<LikeModel>(context), ILikeRepository
 {
     public Task<LikeModel?> GetByProfileAndFeedAsync(
         Guid profileId,

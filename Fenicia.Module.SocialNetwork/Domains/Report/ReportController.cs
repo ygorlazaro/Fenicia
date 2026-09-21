@@ -1,17 +1,22 @@
 using System.Net.Mime;
+using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.DTOs.SocialNetwork.Report;
+using Fenicia.Module.SocialNetwork.Domains.Report.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Report;
 
+/// <summary>
+///     Gerencia operações de denúncias.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ReportController(ReportService reportService) : ControllerBase
+public class ReportController(IReportService reportService) : ControllerBase
 {
     /// <summary>
     ///     Creates a new report.

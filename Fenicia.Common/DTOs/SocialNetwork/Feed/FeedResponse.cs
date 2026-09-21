@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Feed;
 
-public class GetAllFeedResponse()
+public class FeedResponse()
 {
-    public GetAllFeedResponse(
+    public FeedResponse(
         Guid id,
         DateTime date,
         string text,

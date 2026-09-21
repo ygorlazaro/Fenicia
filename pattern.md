@@ -28,5 +28,3 @@ These are the logics:
 - Try to unify as much as possible the DTOs. Ideally, a single CRUD should have only a <ClassName>Request.cs and <ClassName>Response.cs. This will help improve the maintainability of the codebase and make it easier for developers to understand how to use the DTOs without having to dig into their implementation details. It will also help ensure that the DTOs are consistent and follow a clear naming convention, making it easier to identify their purpose and functionality within the application.
 - If necessary, but only if necessary, we can create additional DTOs for specific use cases, but we should avoid creating unnecessary DTOs that could lead to confusion or complexity. Any additional DTOs should be clearly named and documented to ensure that their purpose and functionality are well-understood by other developers.
 - After all these cleaning, try to remove domain-related classes not used. Only related to the domain I will ask you to deal following all those rules. 
-
-Domain to work now: Auth.Company

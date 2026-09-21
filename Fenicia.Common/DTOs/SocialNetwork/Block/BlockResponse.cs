@@ -2,23 +2,30 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Block;
 
-public class GetBlockedResponse()
+public class BlockResponse()
 {
-    public GetBlockedResponse(
+    public BlockResponse(
         Guid id,
+        Guid profileId,
         Guid blockedProfileId,
         DateTime blockDate,
-        string? reason)
+        string? reason,
+        bool isActive)
         : this()
     {
         Id = id;
+        ProfileId = profileId;
         BlockedProfileId = blockedProfileId;
         BlockDate = blockDate;
         Reason = reason;
+        IsActive = isActive;
     }
 
     [Required]
     public Guid Id { get; init; }
+
+    [Required]
+    public Guid ProfileId { get; init; }
 
     [Required]
     public Guid BlockedProfileId { get; init; }
@@ -28,4 +35,6 @@ public class GetBlockedResponse()
 
     [MaxLength(200)]
     public string? Reason { get; init; }
+
+    public bool IsActive { get; init; }
 }

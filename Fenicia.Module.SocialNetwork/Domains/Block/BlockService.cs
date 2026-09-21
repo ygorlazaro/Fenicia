@@ -1,19 +1,15 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Block;
+using Fenicia.Module.SocialNetwork.Domains.Block.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Block;
 
-public sealed class BlockService(IBlockRepository repository)
+public sealed class BlockService(IBlockRepository repository) : IBlockService
 {
-    public BlockService()
-        : this(null!)
-    {
-    }
-
-    public async Task<AddBlockResponse> BlockAsync(
-        BlockCommand command,
+    public async Task<BlockResponse> BlockAsync(
+        BlockRequest command,
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
@@ -26,7 +22,7 @@ public sealed class BlockService(IBlockRepository repository)
         {
             if (block.IsActive)
             {
-                return new AddBlockResponse(
+                return new BlockResponse(
                     block.Id,
                     block.ProfileId,
                     block.BlockedProfileId,
@@ -39,7 +35,7 @@ public sealed class BlockService(IBlockRepository repository)
             block.BlockDate = DateTime.UtcNow;
             block.Reason = null;
             await repository.UpdateAsync(block.Id, block, cancellationToken);
-            return new AddBlockResponse(
+            return new BlockResponse(
                 block.Id,
                 block.ProfileId,
                 block.BlockedProfileId,
@@ -57,7 +53,7 @@ public sealed class BlockService(IBlockRepository repository)
         };
 
         var created = await repository.InsertAsync(newBlock, cancellationToken);
-        return new AddBlockResponse(
+        return new BlockResponse(
             created.Id,
             created.ProfileId,
             created.BlockedProfileId,
@@ -67,7 +63,7 @@ public sealed class BlockService(IBlockRepository repository)
     }
 
     public async Task UnblockAsync(
-        UnblockCommand command,
+        BlockRequest command,
         Guid profileId,
         CancellationToken cancellationToken = default)
     {
@@ -83,7 +79,7 @@ public sealed class BlockService(IBlockRepository repository)
         }
     }
 
-    public async Task<Pagination<List<GetBlockedResponse>>> GetBlockedAsync(
+    public async Task<Pagination<List<BlockResponse>>> GetBlockedAsync(
         Guid profileId,
         int page = 1,
         int perPage = 10,
@@ -94,13 +90,15 @@ public sealed class BlockService(IBlockRepository repository)
         var blocks = await baseQuery.Skip((page - 1) * perPage).Take(perPage)
             .ToListAsync(cancellationToken);
 
-        var response = blocks.Select(b => new GetBlockedResponse(
+        var response = blocks.Select(b => new BlockResponse(
             b.Id,
+            b.ProfileId,
             b.BlockedProfileId,
             b.BlockDate,
-            b.Reason)).ToList();
+            b.Reason,
+            b.IsActive)).ToList();
 
-        return new Pagination<List<GetBlockedResponse>>(response, total, page, perPage);
+        return new Pagination<List<BlockResponse>>(response, total, page, perPage);
     }
 
     public Task<bool> IsBlockedAsync(

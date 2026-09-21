@@ -2,9 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Profile;
 
-public class AddProfileCommand()
+public class ProfileRequest()
 {
-    public AddProfileCommand(
+    public ProfileRequest(
+        Guid? id,
         string? userName,
         string? bio,
         Guid? uploadId,
@@ -14,6 +15,7 @@ public class AddProfileCommand()
         DateTime? birthDate)
         : this()
     {
+        Id = id;
         UserName = userName;
         Bio = bio;
         UploadId = uploadId;
@@ -23,21 +25,23 @@ public class AddProfileCommand()
         BirthDate = birthDate;
     }
 
+    public Guid? Id { get; set; }
+
     [MaxLength(64)]
     public string? UserName { get; set; }
 
-    [MaxLength(160)]
+    [MaxLength(200)]
     public string? Bio { get; set; }
 
     public Guid? UploadId { get; set; }
 
-    [MaxLength(120)]
+    [MaxLength(200)]
     public string? Website { get; set; }
 
-    [MaxLength(64)]
+    [MaxLength(200)]
     public string? Location { get; set; }
 
-    [MaxLength(24)]
+    [MaxLength(200)]
     public string? Phone { get; set; }
 
     public DateTime? BirthDate { get; set; }

@@ -32,12 +32,12 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     /// <response code="500">Erro interno do servidor</response>
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o perfil</exception>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(GetProfileByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProfileByIdResponse>> GetByIdAsync(
+    public async Task<ActionResult<ProfileResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -61,11 +61,11 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     /// <response code="500">Erro interno do servidor</response>
     /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o perfil</exception>
     [HttpGet]
-    [ProducesResponseType(typeof(GetProfileByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProfileByIdResponse>> GetAsync(
+    public async Task<ActionResult<ProfileResponse>> GetAsync(
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -91,13 +91,13 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(AddProfileResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(AddProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProfileResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<AddProfileResponse>> PostAsync(
-        [FromBody] AddProfileCommand command,
+    public async Task<ActionResult<ProfileResponse>> PostAsync(
+        [FromBody] ProfileRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -107,17 +107,7 @@ public sealed class ProfileController(IProfileService profileService) : Controll
         var existing = await profileService.GetByUserIdAsync(userId, cancellationToken);
         if (existing is not null)
         {
-            return Ok(new AddProfileResponse(
-                existing.Id,
-                existing.UserId,
-                existing.UserName,
-                existing.Bio,
-                existing.ImageUrl,
-                existing.UploadId,
-                existing.Website,
-                existing.Location,
-                existing.Phone,
-                existing.BirthDate));
+            return Ok(existing);
         }
 
         var created = await profileService.CreateAsync(command, userId, cancellationToken);
@@ -137,31 +127,23 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="404">Perfil não encontrado</response>
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(typeof(UpdateProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProfileResponse>> PatchAsync(
-        [FromBody] UpdateProfileCommand command,
+    public async Task<ActionResult<ProfileResponse>> PatchAsync(
+        [FromBody] ProfileRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var updatedCommand = new UpdateProfileCommand(
-            id,
-            command.UserName,
-            command.Bio,
-            command.UploadId,
-            command.Website,
-            command.Location,
-            command.Phone,
-            command.BirthDate);
+        command.Id = id;
         var profile = await profileService.UpdateAsync(
-            updatedCommand,
+            command,
             ClaimReader.UserId(User),
             cancellationToken);
 

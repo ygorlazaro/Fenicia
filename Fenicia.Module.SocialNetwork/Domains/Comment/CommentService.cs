@@ -1,11 +1,12 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Comment;
-using Fenicia.Module.SocialNetwork.Domains.Feed;
+using Fenicia.Module.SocialNetwork.Domains.Comment.Interfaces;
+using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
-public class CommentService(CommentRepository repository, FeedRepository feedRepository)
+public class CommentService(ICommentRepository repository, IFeedService feedService) : ICommentService
 {
     public async Task<List<GetAllCommentResponse>> GetAllByFeedAsync(
         GetAllCommentByFeedQuery query,
@@ -80,7 +81,7 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        await IncrementFeedTotalCommentsAsync(command.FeedId, cancellationToken);
+        await feedService.IncrementTotalCommentsAsync(command.FeedId, cancellationToken);
         return new AddCommentResponse(
             created.Id,
             created.ProfileId,
@@ -138,7 +139,7 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
         }
 
         await repository.DeleteAsync(command.Id, cancellationToken);
-        await DecrementFeedTotalCommentsAsync(existing.FeedId, cancellationToken);
+        await feedService.DecrementTotalCommentsAsync(existing.FeedId, cancellationToken);
     }
 
     public async Task<List<GetRepliesResponse>> GetRepliesAsync(
@@ -164,29 +165,5 @@ public class CommentService(CommentRepository repository, FeedRepository feedRep
                 r.Likes?.Count ?? 0,
                 r.ProfileId == profileId))
         ];
-    }
-
-    private async Task IncrementFeedTotalCommentsAsync(Guid feedId, CancellationToken cancellationToken)
-    {
-        var feed = await feedRepository.GetByIdAsync(feedId, cancellationToken);
-        if (feed is null)
-        {
-            return;
-        }
-
-        feed.TotalComments++;
-        await feedRepository.UpdateAsync(feedId, feed, cancellationToken);
-    }
-
-    private async Task DecrementFeedTotalCommentsAsync(Guid feedId, CancellationToken cancellationToken)
-    {
-        var feed = await feedRepository.GetByIdAsync(feedId, cancellationToken);
-        if (feed is null)
-        {
-            return;
-        }
-
-        feed.TotalComments = Math.Max(0, feed.TotalComments - 1);
-        await feedRepository.UpdateAsync(feedId, feed, cancellationToken);
     }
 }

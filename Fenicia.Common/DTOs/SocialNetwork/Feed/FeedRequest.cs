@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Feed;
 
-public class AddFeedCommand()
+public class FeedRequest()
 {
-    public AddFeedCommand(
-        Guid id,
+    public FeedRequest(
+        Guid? id,
         DateTime date,
         string text,
         Guid profileId,
@@ -19,7 +19,7 @@ public class AddFeedCommand()
         OriginalFeedId = originalFeedId;
     }
 
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     [Required]
     public DateTime Date { get; set; }

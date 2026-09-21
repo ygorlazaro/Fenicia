@@ -1,10 +1,11 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Attachment;
+using Fenicia.Module.SocialNetwork.Domains.Attachment.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
-public class AttachmentService(AttachmentRepository repository)
+public class AttachmentService(IAttachmentRepository repository) : IAttachmentService
 {
     public async Task<AddAttachmentResponse> AddAsync(
         AddAttachmentCommand command,

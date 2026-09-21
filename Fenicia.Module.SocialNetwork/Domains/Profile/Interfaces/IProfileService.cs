@@ -4,11 +4,11 @@ namespace Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 
 public interface IProfileService
 {
-    Task<GetProfileByIdResponse?> GetByIdAsync(GetProfileByIdQuery query, CancellationToken cancellationToken = default);
+    Task<ProfileResponse?> GetByIdAsync(GetProfileByIdQuery query, CancellationToken cancellationToken = default);
 
-    Task<GetProfileByIdResponse?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<ProfileResponse?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<AddProfileResponse> CreateAsync(AddProfileCommand command, Guid userId, CancellationToken cancellationToken = default);
+    Task<ProfileResponse> CreateAsync(ProfileRequest command, Guid userId, CancellationToken cancellationToken = default);
 
-    Task<UpdateProfileResponse?> UpdateAsync(UpdateProfileCommand command, Guid userId, CancellationToken cancellationToken = default);
+    Task<ProfileResponse?> UpdateAsync(ProfileRequest command, Guid userId, CancellationToken cancellationToken = default);
 }

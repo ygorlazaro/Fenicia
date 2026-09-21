@@ -2,6 +2,7 @@ using System.Net.Mime;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.DTOs.SocialNetwork.Attachment;
+using Fenicia.Module.SocialNetwork.Domains.Attachment.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class AttachmentController(AttachmentService attachmentService, ICompanyContext companyContext) : ControllerBase
+public class AttachmentController(IAttachmentService attachmentService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
     ///     Creates a new attachment.

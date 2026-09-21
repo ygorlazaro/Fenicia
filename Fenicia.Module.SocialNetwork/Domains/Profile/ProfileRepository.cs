@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
@@ -14,7 +15,7 @@ public class ProfileRepository(DefaultContext context) : Repository<ProfileModel
             .FirstOrDefaultAsync(p => p.UserId == userId && p.Deleted == null, cancellationToken);
     }
 
-    protected override Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<ProfileModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(p => p.Upload)

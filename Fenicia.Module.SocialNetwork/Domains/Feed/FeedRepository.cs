@@ -1,13 +1,14 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
-public class FeedRepository(DefaultContext context) : Repository<FeedModel>(context)
+public class FeedRepository(DefaultContext context) : Repository<FeedModel>(context), IFeedRepository
 {
-    public new async Task<IEnumerable<FeedModel>> GetAllAsync(
+    public override async Task<IEnumerable<FeedModel>> GetAllAsync(
         int page = 1,
         int perPage = 10,
         CancellationToken cancellationToken = default)

@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.SocialNetwork.Block;
 
-public class BlockCommand()
+public class BlockRequest()
 {
-    public BlockCommand(Guid blockedProfileId)
+    public BlockRequest(Guid blockedProfileId)
         : this()
     {
         BlockedProfileId = blockedProfileId;

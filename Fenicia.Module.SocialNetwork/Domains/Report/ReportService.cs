@@ -1,11 +1,12 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Report;
 using Fenicia.Common.Enums.SocialNetwork;
+using Fenicia.Module.SocialNetwork.Domains.Report.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Report;
 
-public class ReportService(ReportRepository repository)
+public class ReportService(IReportRepository repository) : IReportService
 {
     public async Task<AddReportResponse> AddAsync(
         AddReportCommand command,
