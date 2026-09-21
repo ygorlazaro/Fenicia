@@ -14,4 +14,29 @@ public class TeamRepository(DefaultContext context) : Repository<TeamModel>(cont
             .Include(t => t.Members)
             .ThenInclude(m => m.User);
     }
+
+    public new Task<TeamModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return base.GetByIdAsync(id, cancellationToken);
+    }
+
+    public new Task<TeamModel> InsertAsync(TeamModel model, CancellationToken cancellationToken = default)
+    {
+        return base.InsertAsync(model, cancellationToken);
+    }
+
+    public new Task<TeamModel?> UpdateAsync(Guid id, TeamModel model, CancellationToken cancellationToken = default)
+    {
+        return base.UpdateAsync(id, model, cancellationToken);
+    }
+
+    public new Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return base.DeleteAsync(id, cancellationToken);
+    }
+
+    public new Task<IEnumerable<TeamModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    {
+        return base.GetAllAsync(page, perPage, cancellationToken);
+    }
 }

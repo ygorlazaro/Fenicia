@@ -13,13 +13,16 @@ public class TeamService(
     ITeamUserRepository teamUserRepository,
     IRepository<ProjectModel> projectRepository) : ITeamService
 {
-    public async Task<List<GetAllTeamResponse>> GetAllByProjectAsync(
+    public async Task<List<TeamResponse>> GetAllByProjectAsync(
         Guid projectId,
+        GetAllTeamQuery query,
         CancellationToken cancellationToken = default)
     {
         var teams = await repository.Query()
             .Where(t => t.ProjectId == projectId)
             .OrderBy(t => t.Name)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
         if (teams.Count == 0)
@@ -38,7 +41,7 @@ public class TeamService(
 
         return
         [
-            .. teams.Select(t => new GetAllTeamResponse(
+            .. teams.Select(t => new TeamResponse(
                 t.Id,
                 t.ProjectId,
                 t.Name,
@@ -56,7 +59,7 @@ public class TeamService(
         ];
     }
 
-    public async Task<GetTeamByIdResponse?> GetByIdAsync(
+    public async Task<TeamResponse?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
@@ -70,7 +73,7 @@ public class TeamService(
 
         var members = await teamUserRepository.GetByTeamAsync(id, cancellationToken);
 
-        return new GetTeamByIdResponse(
+        return new TeamResponse(
             team.Id,
             team.ProjectId,
             team.Name,
@@ -78,6 +81,7 @@ public class TeamService(
             team.Color,
             team.CreatedBy,
             team.CompanyId,
+            members.Count,
             [.. members.Select(m => new TeamMemberResponse(
                 m.UserId,
                 m.User.Name,
@@ -86,14 +90,14 @@ public class TeamService(
                 m.JoinedAt))]);
     }
 
-    public async Task<AddTeamResponse> AddAsync(
-        AddTeamCommand command,
+    public async Task<TeamResponse> AddAsync(
+        TeamRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
         var model = new TeamModel
         {
-            Id = command.Id,
+            Id = command.Id ?? Guid.NewGuid(),
             ProjectId = command.ProjectId,
             Name = command.Name,
             Description = command.Description,
@@ -103,7 +107,7 @@ public class TeamService(
         };
 
         var created = await repository.InsertAsync(model, cancellationToken);
-        return new AddTeamResponse(
+        return new TeamResponse(
             created.Id,
             created.ProjectId,
             created.Name,
@@ -113,12 +117,12 @@ public class TeamService(
             created.CompanyId);
     }
 
-    public async Task<UpdateTeamResponse?> UpdateAsync(
-        UpdateTeamCommand command,
+    public async Task<TeamResponse?> UpdateAsync(
+        TeamRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var team = await repository.GetByIdAsync(command.Id, cancellationToken);
+        var team = await repository.GetByIdAsync(command.Id!.Value, cancellationToken);
         if (team is null)
         {
             return null;
@@ -129,8 +133,8 @@ public class TeamService(
         team.Color = string.IsNullOrWhiteSpace(command.Color) ? "#6366f1" : command.Color;
         team.CompanyId = companyId;
 
-        await repository.UpdateAsync(command.Id, team, cancellationToken);
-        return new UpdateTeamResponse(
+        await repository.UpdateAsync(command.Id.Value, team, cancellationToken);
+        return new TeamResponse(
             team.Id,
             team.ProjectId,
             team.Name,
@@ -140,15 +144,15 @@ public class TeamService(
             team.CompanyId);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(DeleteTeamCommand command, CancellationToken cancellationToken = default)
     {
-        var members = await teamUserRepository.GetByTeamAsync(id, cancellationToken);
+        var members = await teamUserRepository.GetByTeamAsync(command.Id, cancellationToken);
         foreach (var m in members)
         {
             await teamUserRepository.DeleteAsync(m.Id, cancellationToken);
         }
 
-        await repository.DeleteAsync(id, cancellationToken);
+        await repository.DeleteAsync(command.Id, cancellationToken);
     }
 
     public async Task<AddTeamUserResponse> AddMemberAsync(
@@ -223,49 +227,6 @@ public class TeamService(
     {
         var membership = await teamUserRepository.GetByTeamAndUserAsync(teamId, userId, cancellationToken);
         return membership is not null && membership.Role == EnumTeamRole.Admin;
-    }
-
-    public async Task<bool> IsTeamMemberAsync(
-        Guid userId,
-        Guid teamId,
-        CancellationToken cancellationToken = default)
-    {
-        var membership = await teamUserRepository.GetByTeamAndUserAsync(teamId, userId, cancellationToken);
-        return membership is not null;
-    }
-
-    public async Task<List<TeamMemberResponse>> GetMembersAsync(
-        Guid teamId,
-        CancellationToken cancellationToken = default)
-    {
-        var members = await teamUserRepository.GetByTeamAsync(teamId, cancellationToken);
-        return
-        [
-            .. members.Select(m => new TeamMemberResponse(
-                m.UserId,
-                m.User.Name,
-                m.User.Email,
-                m.Role.ToString(),
-                m.JoinedAt))
-        ];
-    }
-
-    public async Task<bool> HasAnyAdminInProjectAsync(
-        Guid projectId,
-        CancellationToken cancellationToken = default)
-    {
-        var teamIds = await repository.Query()
-            .Where(t => t.ProjectId == projectId)
-            .Select(t => t.Id)
-            .ToListAsync(cancellationToken);
-
-        if (teamIds.Count == 0)
-        {
-            return false;
-        }
-
-        return await teamUserRepository.Query()
-            .AnyAsync(tu => teamIds.Contains(tu.TeamId) && tu.Role == EnumTeamRole.Admin, cancellationToken);
     }
 
     public async Task<bool> IsProjectAdminAsync(

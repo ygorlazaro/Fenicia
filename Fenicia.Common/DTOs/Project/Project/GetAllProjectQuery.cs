@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Fenicia.Common.DTOs.Project.Team;
+namespace Fenicia.Common.DTOs.Project.Project;
 
-public class GetAllTeamQuery()
+public class GetAllProjectQuery()
 {
-    public GetAllTeamQuery(int page = 1, int perPage = 10)
+    public GetAllProjectQuery(int page = 1, int perPage = 10)
         : this()
     {
         Page = page;

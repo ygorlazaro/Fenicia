@@ -1,8 +1,18 @@
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 
-internal interface IProjectCommentRepository : IRepository<ProjectCommentModel>
+public interface IProjectCommentRepository
 {
+    IQueryable<ProjectCommentModel> Query();
+
+    Task<ProjectCommentModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<ProjectCommentModel> InsertAsync(ProjectCommentModel model, CancellationToken cancellationToken = default);
+
+    Task<ProjectCommentModel?> UpdateAsync(Guid id, ProjectCommentModel model, CancellationToken cancellationToken = default);
+
+    Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<ProjectCommentModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
 }

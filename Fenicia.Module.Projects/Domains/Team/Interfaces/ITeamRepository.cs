@@ -1,9 +1,18 @@
 using Fenicia.Common.Data.Models.Project;
-using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Projects.Domains.Team.Interfaces;
 
-public interface ITeamRepository : IRepository<TeamModel>
+public interface ITeamRepository
 {
-    new IQueryable<TeamModel> Query();
+    IQueryable<TeamModel> Query();
+
+    Task<TeamModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<TeamModel> InsertAsync(TeamModel model, CancellationToken cancellationToken = default);
+
+    Task<TeamModel?> UpdateAsync(Guid id, TeamModel model, CancellationToken cancellationToken = default);
+
+    Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<TeamModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
 }

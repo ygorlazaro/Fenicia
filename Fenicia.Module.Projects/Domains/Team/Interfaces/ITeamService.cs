@@ -4,17 +4,15 @@ namespace Fenicia.Module.Projects.Domains.Team.Interfaces;
 
 public interface ITeamService
 {
-    Task<List<GetAllTeamResponse>> GetAllByProjectAsync(Guid projectId, CancellationToken cancellationToken = default);
+    Task<List<TeamResponse>> GetAllByProjectAsync(Guid projectId, GetAllTeamQuery query, CancellationToken cancellationToken = default);
 
-    Task<GetTeamByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<TeamResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<List<TeamMemberResponse>> GetMembersAsync(Guid teamId, CancellationToken cancellationToken = default);
+    Task<TeamResponse> AddAsync(TeamRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
-    Task<AddTeamResponse> AddAsync(AddTeamCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task<TeamResponse?> UpdateAsync(TeamRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
-    Task<UpdateTeamResponse?> UpdateAsync(UpdateTeamCommand command, Guid companyId, CancellationToken cancellationToken = default);
-
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeleteTeamCommand command, CancellationToken cancellationToken = default);
 
     Task<AddTeamUserResponse> AddMemberAsync(AddTeamUserCommand command, Guid companyId, CancellationToken cancellationToken = default);
 

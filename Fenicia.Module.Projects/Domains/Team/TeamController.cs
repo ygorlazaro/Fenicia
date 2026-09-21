@@ -1,6 +1,5 @@
 using System.Net.Mime;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.DTOs.Project.Team;
 using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Projects.Domains.Team;
 
+/// <summary>
+///     Gerencia operações de equipes.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -17,168 +19,147 @@ public class TeamController(
     ITeamService teamService,
     ICompanyContext companyContext) : ControllerBase
 {
+    /// <summary>
+    ///     Obtém todas as equipes de um projeto com paginação.
+    /// </summary>
+    /// <param name="projectId">ID do projeto</param>
+    /// <param name="query">Parâmetros de paginação</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de equipes</returns>
+    /// <response code="200">Lista de equipes</response>
+    /// <response code="400">Parâmetros inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("project/{projectId:guid}")]
-    [ProducesResponseType(typeof(List<GetAllTeamResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<GetAllTeamResponse>>> GetByProjectAsync(
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TeamResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<TeamResponse>>> GetByProjectAsync(
         [FromRoute] Guid projectId,
+        [FromQuery] GetAllTeamQuery query,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-        var teams = await teamService.GetAllByProjectAsync(projectId, cancellationToken);
+
+        var teams = await teamService.GetAllByProjectAsync(projectId, query, cancellationToken);
+
         return Ok(teams);
     }
 
+    /// <summary>
+    ///     Obtém uma equipe pelo ID.
+    /// </summary>
+    /// <param name="id">ID da equipe</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Equipe encontrada</returns>
+    /// <response code="200">Equipe encontrada</response>
+    /// <response code="400">ID inválido</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Equipe não encontrada</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(GetTeamByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TeamResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetTeamByIdResponse>> GetByIdAsync(
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<TeamResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
+
         var team = await teamService.GetByIdAsync(id, cancellationToken);
+
         return team is null ? NotFound() : Ok(team);
     }
 
-    [HttpGet("{id:guid}/members")]
-    [ProducesResponseType(typeof(List<TeamMemberResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<TeamMemberResponse>>> GetMembersAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken cancellationToken = default)
-    {
-        wide.UserId = ClaimReader.UserId(User).ToString();
-        var members = await teamService.GetMembersAsync(id, cancellationToken);
-        return Ok(members);
-    }
-
+    /// <summary>
+    ///     Cria uma nova equipe.
+    /// </summary>
+    /// <param name="command">Dados da equipe</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Equipe criada</returns>
+    /// <response code="201">Equipe criada com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
-    [ProducesResponseType(typeof(AddTeamResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TeamResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddTeamResponse>> PostAsync(
-        [FromBody] AddTeamCommand command,
+    public async Task<ActionResult<TeamResponse>> PostAsync(
+        [FromBody] TeamRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
+
         var team = await teamService.AddAsync(command, companyContext.CompanyId, cancellationToken);
+
         return new CreatedResult(string.Empty, team);
     }
 
+    /// <summary>
+    ///     Atualiza uma equipe existente.
+    /// </summary>
+    /// <param name="id">ID da equipe</param>
+    /// <param name="command">Dados atualizados da equipe</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Equipe atualizada</returns>
+    /// <response code="200">Equipe atualizada com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Equipe não encontrada</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(typeof(UpdateTeamResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TeamResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateTeamResponse>> PatchAsync(
-        [FromBody] UpdateTeamCommand command,
+    public async Task<ActionResult<TeamResponse>> PatchAsync(
         [FromRoute] Guid id,
+        [FromBody] TeamRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-            var updatedCommand = new UpdateTeamCommand(
-                id,
-                command.Name,
-                command.Description,
-                command.Color);
-            var team = await teamService.UpdateAsync(
-                updatedCommand,
-                companyContext.CompanyId,
-                cancellationToken);
+
+        command.Id = id;
+        var team = await teamService.UpdateAsync(command, companyContext.CompanyId, cancellationToken);
+
         return team is null ? NotFound() : Ok(team);
     }
 
+    /// <summary>
+    ///     Remove uma equipe.
+    /// </summary>
+    /// <param name="id">ID da equipe</param>
+    /// <param name="wide">Contexto de eventos wide</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Sem conteúdo</returns>
+    /// <response code="204">Equipe removida com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-        await teamService.DeleteAsync(id, cancellationToken);
+
+        await teamService.DeleteAsync(new DeleteTeamCommand(id), cancellationToken);
+
         return NoContent();
-    }
-
-    [HttpPost("members")]
-    [ProducesResponseType(typeof(AddTeamUserResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddTeamUserResponse>> AddMemberAsync(
-        [FromBody] AddTeamUserCommand command,
-        WideEventContext wide,
-        CancellationToken cancellationToken = default)
-    {
-        wide.UserId = ClaimReader.UserId(User).ToString();
-
-        var userId = ClaimReader.UserId(User);
-        var team = await teamService.GetByIdAsync(command.TeamId, cancellationToken);
-        if (team is null)
-        {
-            return NotFound();
-        }
-
-        if (command.UserId != userId && !await teamService.IsTeamAdminAsync(userId, command.TeamId, cancellationToken))
-        {
-            return Forbid();
-        }
-
-        var result = await teamService.AddMemberAsync(command, companyContext.CompanyId, cancellationToken);
-        return new CreatedResult(string.Empty, result);
-    }
-
-    [HttpDelete("{teamId:guid}/members/{userId:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult> RemoveMemberAsync(
-        [FromRoute] Guid teamId,
-        [FromRoute] Guid userId,
-        WideEventContext wide,
-        CancellationToken cancellationToken = default)
-    {
-        wide.UserId = ClaimReader.UserId(User).ToString();
-
-        var currentUser = ClaimReader.UserId(User);
-        if (userId != currentUser && !await teamService.IsTeamAdminAsync(currentUser, teamId, cancellationToken))
-        {
-            return Forbid();
-        }
-
-        await teamService.RemoveMemberAsync(new RemoveTeamUserCommand(teamId, userId), cancellationToken);
-        return NoContent();
-    }
-
-    [HttpPatch("{teamId:guid}/members/{userId:guid}/role")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult> UpdateMemberRoleAsync(
-        [FromBody] UpdateTeamUserRoleCommand command,
-        [FromRoute] Guid teamId,
-        [FromRoute] Guid userId,
-        WideEventContext wide,
-        CancellationToken cancellationToken = default)
-    {
-        wide.UserId = ClaimReader.UserId(User).ToString();
-
-        var currentUser = ClaimReader.UserId(User);
-        if (!await teamService.IsTeamAdminAsync(currentUser, teamId, cancellationToken))
-        {
-            return Forbid();
-        }
-
-            var updatedCommand = new UpdateTeamUserRoleCommand(
-                teamId,
-                userId,
-                command.Role);
-            var ok = await teamService.UpdateMemberRoleAsync(
-                updatedCommand,
-                cancellationToken);
-        return ok ? NoContent() : NotFound();
     }
 }
