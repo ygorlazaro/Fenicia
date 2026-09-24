@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Notification;
 
+/// <summary>
+/// Represents a controller for managing notifications.
+/// </summary>
+/// <param name="notificationService"></param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -16,30 +20,27 @@ namespace Fenicia.Auth.Domains.Notification;
 public class NotificationController(INotificationService notificationService) : ControllerBase
 {
     /// <summary>
-    ///     Obtém todas as notificações do usuário autenticado com paginação.
+    ///    Obtém todas as notificações para o usuário autenticado.
     /// </summary>
-    /// <param name="page">Número da página (padrão: 1)</param>
-    /// <param name="perPage">Quantidade de itens por página (padrão: 10)</param>
+    /// <param name="query">Parâmetros de paginação</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de notificações</returns>
-    /// <response code="200">Notificações encontradas</response>
+    /// <returns>Lista de notificações paginadas</returns>
+    /// <response code="200">Notificações retornadas com sucesso</response>
     /// <response code="401">Usuário não autenticado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<NotificationResponse>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<IEnumerable<NotificationResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<NotificationResponse>>>> GetAsync(
-        [FromQuery] int page = 1,
-        [FromQuery] int perPage = 10,
+    public async Task<ActionResult<Pagination<IEnumerable<NotificationResponse>>>> GetAsync(
+        [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var companyId = ClaimReader.CompanyId(User);
             var userId = ClaimReader.UserId(User);
-            var notifications = await notificationService.GetAllAsync(companyId, userId, page, perPage,
-                cancellationToken);
+            var notifications = await notificationService.GetAllAsync(companyId, userId, query, cancellationToken);
             return Ok(notifications);
         }
         catch (UnauthorizedAccessException ex)
@@ -116,7 +117,6 @@ public class NotificationController(INotificationService notificationService) : 
     /// </summary>
     /// <param name="request">Dados atualizados da notificação (título, descrição, data, imagem, lida)</param>
     /// <param name="id">ID da notificação</param>
-    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação atualizada</returns>
     /// <response code="200">Notificação atualizada com sucesso</response>
@@ -134,7 +134,6 @@ public class NotificationController(INotificationService notificationService) : 
     public async Task<ActionResult<NotificationResponse>> PatchAsync(
         [FromBody] NotificationRequest request,
         [FromRoute] Guid id,
-        [FromHeader] Headers headers,
         CancellationToken cancellationToken = default)
     {
         try
@@ -159,7 +158,6 @@ public class NotificationController(INotificationService notificationService) : 
     ///     Remove uma notificação (soft delete).
     /// </summary>
     /// <param name="id">ID da notificação</param>
-    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Sem conteúdo (204) se removida com sucesso</returns>
     /// <response code="204">Notificação removida com sucesso</response>
@@ -170,7 +168,6 @@ public class NotificationController(INotificationService notificationService) : 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,
-        [FromHeader] Headers headers,
         CancellationToken cancellationToken = default)
     {
         try
