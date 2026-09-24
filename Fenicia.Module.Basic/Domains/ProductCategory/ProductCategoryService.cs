@@ -6,11 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
+/// <summary>
+/// Service implementation for managing product categories.
+/// </summary>
+/// <param name="repository">The product category repository.</param>
 public sealed class ProductCategoryService(IProductCategoryRepository repository) : IProductCategoryService
 {
-    public async Task<Pagination<List<GetAllProductCategoryResponse>>> GetAllAsync(
-        int page = 1,
-        int perPage = 10,
+    /// <inheritdoc />
+    public async Task<Pagination<List<ProductCategoryResponse>>> GetAllAsync(
+        ProductCategoryQuery query,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query()
@@ -19,46 +23,49 @@ public sealed class ProductCategoryService(IProductCategoryRepository repository
         var total = await baseQuery.CountAsync(cancellationToken);
 
         var categories = await baseQuery
-            .Select(pc => new GetAllProductCategoryResponse(pc.Id, pc.Name))
-            .Skip(page * perPage)
-            .Take(perPage)
+            .Select(pc => new ProductCategoryResponse(pc.Id, pc.Name))
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
 
-        return new Pagination<List<GetAllProductCategoryResponse>>(categories, total, page, perPage);
+        return new Pagination<List<ProductCategoryResponse>>(categories, total, query);
     }
 
-    public async Task<GetProductCategoryByIdResponse?> GetByIdAsync(
-        GetProductCategoryByIdQuery query,
+    /// <inheritdoc />
+    public async Task<ProductCategoryResponse?> GetByIdAsync(
+        Guid id,
         CancellationToken cancellationToken = default)
     {
-        var category = await repository.GetByIdAsync(query.Id, cancellationToken);
+        var category = await repository.GetByIdAsync(id, cancellationToken);
 
-        return category is null ? null : new GetProductCategoryByIdResponse(category.Id, category.Name);
+        return category is null ? null : ProductCategoryMapper.MapToResponse(category);
     }
 
-    public async Task<AddProductCategoryResponse> AddAsync(
-        AddProductCategoryRequest command,
+    /// <inheritdoc />
+    public async Task<ProductCategoryResponse> AddAsync(
+        ProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
         var category = new ProductCategoryModel
         {
-            Id = command.Id,
             Name = command.Name,
             CompanyId = companyId
         };
 
         await repository.InsertAsync(category, cancellationToken);
 
-        return new AddProductCategoryResponse(category.Id, category.Name);
+        return ProductCategoryMapper.MapToResponse(category);
     }
 
-    public async Task<UpdateProductCategoryResponse?> UpdateAsync(
-        UpdateProductCategoryRequest command,
+    /// <inheritdoc />
+    public async Task<ProductCategoryResponse?> UpdateAsync(
+        Guid id,
+        ProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var category = await repository.GetByIdAsync(command.Id, cancellationToken);
+        var category = await repository.GetByIdAsync(id, cancellationToken);
 
         if (category is null)
         {
@@ -67,27 +74,29 @@ public sealed class ProductCategoryService(IProductCategoryRepository repository
 
         category.Name = command.Name;
 
-        await repository.UpdateAsync(command.Id, category, cancellationToken);
+        await repository.UpdateAsync(id, category, cancellationToken);
 
-        return new UpdateProductCategoryResponse(category.Id, category.Name);
+        return ProductCategoryMapper.MapToResponse(category);
     }
 
-    public Task<List<GetProductCategoryByIdResponse>> GetByIdsAsync(
+    /// <inheritdoc />
+    public Task<List<ProductCategoryResponse>> GetByIdsAsync(
         IEnumerable<Guid> ids,
         CancellationToken cancellationToken = default)
     {
         var idList = ids.ToList();
         return repository.Query()
             .Where(pc => idList.Contains(pc.Id))
-            .Select(pc => new GetProductCategoryByIdResponse(pc.Id, pc.Name))
+            .Select(pc => new ProductCategoryResponse(pc.Id, pc.Name))
             .ToListAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task DeleteAsync(
-        DeleteProductCategoryRequest command,
+        Guid id,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(id, cancellationToken);
     }
 }

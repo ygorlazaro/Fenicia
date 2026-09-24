@@ -9,6 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
+/// <summary>
+/// Controller responsible for handling product category-related operations.
+/// </summary>
+/// <param name="productCategoryService">The product category service.</param>
+/// <param name="companyContext">The company context.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -17,32 +22,30 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 public class ProductCategoryController(IProductCategoryService productCategoryService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
-    ///     Obtém uma lista paginada de categorias de produto.
+    /// Gets a paginated list of product categories.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="page">Número da página</param>
-    /// <param name="perPage">Itens por página</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de categorias</returns>
-    /// <response code="200">Lista de categorias retornada com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="query">The pagination and filter query.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Paginated list of product categories.</returns>
+    /// <response code="200">List of product categories returned successfully.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductCategoryResponse>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<ProductCategoryResponse>>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(
+    public async Task<ActionResult<Pagination<List<ProductCategoryResponse>>>> GetAsync(
         WideEventContext wide,
-        [FromQuery] int page = 1,
-        [FromQuery] int perPage = 10,
+        [FromQuery] ProductCategoryQuery query,
         CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var categories = await productCategoryService.GetAllAsync(page, perPage, cancellationToken);
+            var categories = await productCategoryService.GetAllAsync(query, cancellationToken);
 
             return Ok(categories);
         }
@@ -53,23 +56,23 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    ///     Obtém uma categoria de produto pelo ID.
+    /// Gets a product category by ID.
     /// </summary>
-    /// <param name="id">ID da categoria</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados da categoria</returns>
-    /// <response code="200">Categoria encontrada</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Categoria não encontrada</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Product category ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Product category data.</returns>
+    /// <response code="200">Product category found.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="404">Product category not found.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductCategoryByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync(
+    public async Task<ActionResult<ProductCategoryResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -78,9 +81,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var category = await productCategoryService.GetByIdAsync(
-                new GetProductCategoryByIdQuery(id),
-                cancellationToken);
+            var category = await productCategoryService.GetByIdAsync(id, cancellationToken);
 
             return category is null ? NotFound() : Ok(category);
         }
@@ -91,24 +92,24 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    ///     Cria uma nova categoria de produto.
+    /// Creates a new product category.
     /// </summary>
-    /// <param name="command">Dados da categoria a ser criada</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Categoria criada</returns>
-    /// <response code="201">Categoria criada com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="command">Product category data.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Created product category.</returns>
+    /// <response code="201">Product category created successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductCategoryResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProductCategoryResponse>> PostAsync(
-        [FromBody] AddProductCategoryRequest command,
+    public async Task<ActionResult<ProductCategoryResponse>> PostAsync(
+        [FromBody] ProductCategoryRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -116,9 +117,10 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var category = await productCategoryService.AddAsync(command, companyContext.CompanyId, cancellationToken);
+            var companyId = companyContext.CompanyId;
+            var category = await productCategoryService.AddAsync(command, companyId, cancellationToken);
 
-            return new CreatedResult(string.Empty, category);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = category.Id }, category);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -127,28 +129,28 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    ///     Atualiza uma categoria de produto existente.
+    /// Updates an existing product category.
     /// </summary>
-    /// <param name="command">Dados atualizados da categoria</param>
-    /// <param name="id">ID da categoria</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Categoria atualizada</returns>
-    /// <response code="200">Categoria atualizada com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Categoria não encontrada</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Product category ID.</param>
+    /// <param name="command">Updated product category data.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Updated product category.</returns>
+    /// <response code="200">Product category updated successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="404">Product category not found.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductCategoryResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync(
-        [FromBody] UpdateProductCategoryRequest command,
+    public async Task<ActionResult<ProductCategoryResponse>> PatchAsync(
         [FromRoute] Guid id,
+        [FromBody] ProductCategoryRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -156,10 +158,8 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var category = await productCategoryService.UpdateAsync(
-                new UpdateProductCategoryRequest(id, command.Name),
-                companyContext.CompanyId,
-                cancellationToken);
+            var companyId = companyContext.CompanyId;
+            var category = await productCategoryService.UpdateAsync(id, command, companyId, cancellationToken);
 
             return category is null ? NotFound() : Ok(category);
         }
@@ -170,15 +170,16 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     /// <summary>
-    ///     Remove uma categoria de produto (soft delete).
+    /// Deletes a product category (soft delete).
     /// </summary>
-    /// <param name="id">ID da categoria</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <response code="204">Categoria removida com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Acesso negado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Product category ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>No content.</returns>
+    /// <response code="204">Product category deleted successfully.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="403">Access denied.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -193,10 +194,8 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await productCategoryService.DeleteAsync(
-                new DeleteProductCategoryRequest(id),
-                companyContext.CompanyId,
-                cancellationToken);
+            var companyId = companyContext.CompanyId;
+            await productCategoryService.DeleteAsync(id, companyId, cancellationToken);
 
             return NoContent();
         }

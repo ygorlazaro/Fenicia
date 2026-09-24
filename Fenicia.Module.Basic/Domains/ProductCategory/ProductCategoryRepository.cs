@@ -5,5 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory;
 
+/// <summary>
+/// Repository implementation for managing product category data.
+/// </summary>
+/// <param name="context">The database context.</param>
 public class ProductCategoryRepository(DbContext context)
-    : Repository<ProductCategoryModel>(context), IProductCategoryRepository;
+    : Repository<ProductCategoryModel>(context), IProductCategoryRepository
+{
+}

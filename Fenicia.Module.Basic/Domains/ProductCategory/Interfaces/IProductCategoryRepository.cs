@@ -3,4 +3,9 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 
-public interface IProductCategoryRepository : IRepository<ProductCategoryModel>;
+/// <summary>
+/// Repository interface for managing product category data.
+/// </summary>
+public interface IProductCategoryRepository : IRepository<ProductCategoryModel>
+{
+}
