@@ -1,0 +1,64 @@
+using System.ComponentModel.DataAnnotations;
+using Fenicia.Common.DTOs.Auth.Address;
+
+namespace Fenicia.Common.DTOs.Basic.Customer;
+
+/// <summary>
+/// Request DTO for creating or updating a customer.
+/// </summary>
+public class CustomerRequest()
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CustomerRequest"/> class with the specified customer details.
+    /// </summary>
+    /// <param name="name">The customer name.</param>
+    /// <param name="email">The customer email (optional).</param>
+    /// <param name="document">The customer document (optional).</param>
+    /// <param name="phoneNumber">The customer phone number (optional).</param>
+    /// <param name="address">The customer address (optional).</param>
+    public CustomerRequest(
+        string name,
+        string? email,
+        string? document,
+        string? phoneNumber,
+        AddressRequest? address)
+        : this()
+    {
+        Name = name;
+        Email = email;
+        Document = document;
+        PhoneNumber = phoneNumber;
+        Address = address;
+    }
+
+    /// <summary>
+    /// Gets or sets the customer name.
+    /// </summary>
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the customer email.
+    /// </summary>
+    [MaxLength(50)]
+    [EmailAddress]
+    public string? Email { get; set; }
+
+    /// <summary>
+    /// Gets or sets the customer document.
+    /// </summary>
+    [MaxLength(14)]
+    public string? Document { get; set; }
+
+    /// <summary>
+    /// Gets or sets the customer phone number.
+    /// </summary>
+    [MaxLength(20)]
+    public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// Gets or sets the customer address.
+    /// </summary>
+    public AddressRequest? Address { get; set; }
+}

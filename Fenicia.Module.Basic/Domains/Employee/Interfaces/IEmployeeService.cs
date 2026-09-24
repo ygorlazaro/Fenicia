@@ -7,31 +7,32 @@ namespace Fenicia.Module.Basic.Domains.Employee.Interfaces;
 
 public interface IEmployeeService
 {
-    Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(
-        GetAllEmployeeQuery query,
+    Task<Pagination<List<EmployeeResponse>>> GetAllAsync(
+        EmployeeQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllEmployeeForDataSourceResponse>> GetAllForDataSourceAsync(
+    Task<List<EmployeeDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default);
 
-    Task<GetEmployeeByIdResponse?> GetByIdAsync(
-        GetEmployeeByIdQuery query,
+    Task<EmployeeResponse?> GetByIdAsync(
+        Guid id,
         CancellationToken cancellationToken = default);
 
-    Task<AddEmployeeResponse> AddAsync(
-        AddEmployeeRequest command,
+    Task<EmployeeResponse> AddAsync(
+        EmployeeRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task<UpdateEmployeeResponse?> UpdateAsync(
-        UpdateEmployeeRequest command,
+    Task<EmployeeResponse?> UpdateAsync(
+        Guid id,
+        EmployeeRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteEmployeeRequest command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<EmployeePerformanceResponse> GetPerformanceAsync(
-        GetEmployeePerformanceQuery query,
+        EmployeePerformanceQuery query,
         CancellationToken cancellationToken = default);
 
     Task<int> GetCountAsync(CancellationToken cancellationToken = default);
@@ -40,7 +41,7 @@ public interface IEmployeeService
 
     Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default);
 
-    Task<Pagination<List<GetEmployeesByPositionIdResponse>>> GetByPositionIdAsync(
-        GetEmployeesByPositionIdQuery query,
+    Task<Pagination<List<EmployeeResponse>>> GetByPositionIdAsync(
+        EmployeesByPositionIdQuery query,
         CancellationToken cancellationToken = default);
 }

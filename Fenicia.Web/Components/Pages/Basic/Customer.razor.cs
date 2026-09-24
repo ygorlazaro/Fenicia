@@ -23,11 +23,9 @@ public partial class Customer : ComponentBase
     private CustomerFormModel _edit = new();
 
     [Inject]
-
     private IHttpClientFactory HttpClientFactory { get; set; } = null!;
 
     [Inject]
-
     private ICompanyContextService CompanyContext { get; set; } = null!;
 
     protected override Task OnInitializedAsync()
@@ -55,21 +53,13 @@ public partial class Customer : ComponentBase
         }
 
         return new AddressRequest(
-
             model.Street!,
-
             model.Number!,
-
             model.Complement,
-
             model.Neighborhood,
-
             model.ZipCode!,
-
             model.StateId.Value,
-
             model.City!,
-
             model.Country);
     }
 
@@ -91,7 +81,6 @@ public partial class Customer : ComponentBase
             if (companyId.HasValue)
             {
                 client.DefaultRequestHeaders.Remove("CompanyId");
-
                 client.DefaultRequestHeaders.Add("CompanyId", companyId.Value.ToString());
             }
 
@@ -100,7 +89,6 @@ public partial class Customer : ComponentBase
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-
                 var items = JsonSerializer.Deserialize<List<StateResponse>>(body, _jsonOptions);
 
                 _states = items is null ? [] : [
@@ -135,66 +123,36 @@ public partial class Customer : ComponentBase
         _add = new CustomerFormModel();
     }
 
-    private void LoadForm(GetAllCustomerResponse? item)
+    private void LoadForm(CustomerResponse? item)
     {
         _edit = item is null
             ? new CustomerFormModel()
             : new CustomerFormModel
             {
                 Name = item.Name,
-
                 Email = item.Email,
-
                 PhoneNumber = item.PhoneNumber,
-
                 Document = item.Document,
-
                 Street = item.Address?.Street,
-
                 Number = item.Address?.Number,
-
                 Complement = item.Address?.Complement,
-
                 Neighborhood = item.Address?.Neighborhood,
-
                 ZipCode = item.Address?.ZipCode,
-
                 City = item.Address?.City,
-
                 StateId = item.Address is { StateId: var sid } && sid != Guid.Empty ? sid : null,
-
                 Country = item.Address?.Country
             };
     }
 
-    private object CreatePayload(CrudModalContext<GetAllCustomerResponse> ctx)
+    private object CreatePayload(CrudModalContext<CustomerResponse> ctx)
     {
         var model = ctx.IsAdd ? _add : _edit;
 
-        return ctx.IsAdd
-            ? new AddCustomerRequest(
-
-                model.Name ?? string.Empty,
-
-                model.Email,
-
-                model.Document,
-
-                model.PhoneNumber,
-
-                BuildAddress(model))
-            : new UpdateCustomerRequest(
-
-                ctx.Id,
-
-                model.Name ?? string.Empty,
-
-                model.Email,
-
-                model.Document,
-
-                model.PhoneNumber,
-
-                BuildAddress(model));
+        return new CustomerRequest(
+            model.Name ?? string.Empty,
+            model.Email,
+            model.Document,
+            model.PhoneNumber,
+            BuildAddress(model));
     }
 }

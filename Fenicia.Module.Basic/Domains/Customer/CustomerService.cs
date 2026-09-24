@@ -22,7 +22,7 @@ public sealed class CustomerService(
     IOrderService orderService) : ICustomerService
 {
 
-    public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(
+    public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
         int page = 1,
         int perPage = 10,
         CancellationToken cancellationToken = default)
@@ -33,7 +33,7 @@ public sealed class CustomerService(
         var response = customers.Select(c =>
         {
             var address = c.Person.PersonAddresses.FirstOrDefault()?.Address;
-            return new GetAllCustomerResponse(
+            return new CustomerResponse(
                 c.Id,
                 c.PersonId,
                 c.Person.Name,
@@ -55,22 +55,22 @@ public sealed class CustomerService(
                     : null);
         }).ToList();
 
-        return new Pagination<List<GetAllCustomerResponse>>(response, total, page, perPage);
+        return new Pagination<List<CustomerResponse>>(response, total, page, perPage);
     }
 
-    public async Task<List<GetAllCustomerForDataSourceResponse>> GetAllForDataSourceAsync(
+    public async Task<List<CustomerDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
         var customers = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
-        return [.. customers.Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name))];
+        return [.. customers.Select(c => new CustomerDataSourceResponse(c.Id, c.Person.Name))];
     }
 
-    public async Task<GetCustomerByIdResponse?> GetByIdAsync(
-        GetCustomerByIdQuery query,
+    public async Task<CustomerResponse?> GetByIdAsync(
+        Guid id,
         CancellationToken cancellationToken = default)
     {
-        var customer = await repository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var customer = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
 
         if (customer is null)
         {
@@ -78,7 +78,7 @@ public sealed class CustomerService(
         }
 
         var address = customer.Person.PersonAddresses.FirstOrDefault()?.Address;
-        return new GetCustomerByIdResponse(
+        return new CustomerResponse(
             customer.Id,
             customer.PersonId,
             customer.Person.Name,
@@ -100,8 +100,8 @@ public sealed class CustomerService(
                 : null);
     }
 
-    public async Task<AddCustomerResponse> AddAsync(
-        AddCustomerRequest command,
+    public async Task<CustomerResponse> AddAsync(
+        CustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -142,21 +142,22 @@ public sealed class CustomerService(
 
         if (!addressId.HasValue)
         {
-            return new AddCustomerResponse(customer.Id, personResponse.Id);
+            return new CustomerResponse(customer.Id, personResponse.Id, command.Name, command.Email, command.PhoneNumber, command.Document, null);
         }
 
         var personAddressCommand = new PersonAddressRequest(personResponse.Id, addressId.Value);
         await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
-        return new AddCustomerResponse(customer.Id, personResponse.Id);
+        return new CustomerResponse(customer.Id, personResponse.Id, command.Name, command.Email, command.PhoneNumber, command.Document, null);
     }
 
-    public async Task<UpdateCustomerResponse?> UpdateAsync(
-        UpdateCustomerRequest command,
+    public async Task<CustomerResponse?> UpdateAsync(
+        Guid id,
+        CustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var customer = await repository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
+        var customer = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
 
         if (customer is null)
         {
@@ -219,21 +220,21 @@ public sealed class CustomerService(
             null);
 
         await personService.UpdateAsync(customer.Person.Id, personCommand, companyId, cancellationToken);
-        var updated = await repository.UpdateAsync(command.Id, customer, cancellationToken) ??
+        var updated = await repository.UpdateAsync(id, customer, cancellationToken) ??
                       throw new ForbiddenException();
-        return new UpdateCustomerResponse(updated.Id, customer.PersonId);
+        return new CustomerResponse(updated.Id, customer.PersonId, command.Name, command.Email, command.PhoneNumber, command.Document, null);
     }
 
     public async Task DeleteAsync(
-        DeleteCustomerRequest command,
+        Guid id,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(id, cancellationToken);
     }
 
     public async Task<CustomerInsightsResponse> GetInsightsAsync(
-        GetCustomerInsightsQuery query,
+        CustomerInsightsRequest query,
         CancellationToken cancellationToken = default)
     {
         var summary = await GetSummaryAsync(cancellationToken);
@@ -256,7 +257,7 @@ public sealed class CustomerService(
     }
 
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(
-        GetCustomerInsightsQuery query,
+        CustomerInsightsRequest query,
         CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;

@@ -302,6 +302,64 @@ Fenicia.Common.Data.Models.Auth
 
 ---
 
+## 11. DTO Naming Conventions (Basic Module)
+
+**MANDATORY**: All DTOs in `Fenicia.Common.DTOs.Basic` must follow these naming conventions:
+
+### Request DTOs
+- **Unified naming**: Use `{Entity}Request` for both create and update operations
+  - ✓ `CustomerRequest` (replaces `AddCustomerRequest`, `UpdateCustomerRequest`)
+  - ✓ `EmployeeRequest` (replaces `AddEmployeeRequest`, `UpdateEmployeeRequest`)
+  - ✗ `AddCustomerRequest`, `UpdateCustomerRequest`, `CreateCustomerCommand`, `UpdateCustomerCommand`
+
+### Response DTOs
+- **Unified naming**: Use `{Entity}Response` for single item, list items, and create/update responses
+  - ✓ `CustomerResponse` (replaces `GetCustomerByIdResponse`, `GetAllCustomerResponse`, `AddCustomerResponse`, `UpdateCustomerResponse`)
+  - ✓ `EmployeeResponse` (replaces `GetEmployeeByIdResponse`, `GetAllEmployeeResponse`, `AddEmployeeResponse`, `UpdateEmployeeResponse`)
+  - ✗ `GetCustomerByIdResponse`, `GetAllCustomerResponse`, `AddCustomerResponse`, `UpdateCustomerResponse`
+
+### Query/Filter DTOs
+- **Rename rule**: All `*Query.cs` files must be renamed to `*Request.cs` (e.g., `CustomerInsightsQuery.cs` → `CustomerInsightsRequest.cs`)
+- Use `{Entity}Request` for specialized query/filter parameters
+  - ✓ `CustomerInsightsRequest`, `EmployeePerformanceRequest`, `ProductPerformanceRequest`
+  - ✗ `CustomerInsightsQuery`, `GetCustomerInsightsQuery`, `GetEmployeePerformanceQuery`
+- Use `{Entity}Query` for pagination/filtering parameters
+  - ✓ `CustomerQuery`, `EmployeeQuery`, `ProductQuery`
+  - ✗ `GetAllCustomerQuery`, `GetAllEmployeeQuery`
+
+### DataSource DTOs (Dropdowns/Lookups)
+- Use `{Entity}DataSourceResponse` for simplified lookup responses
+  - ✓ `CustomerDataSourceResponse`, `EmployeeDataSourceResponse`, `ProductDataSourceResponse`
+  - ✗ `GetAllCustomerForDataSourceResponse`, `GetAllEmployeeForDataSourceResponse`
+
+### Specialized Analytics/Insights DTOs
+- Keep descriptive names for complex analytics responses
+  - ✓ `CustomerInsightsResponse`, `EmployeePerformanceResponse`, `ProductPerformanceResponse`
+  - ✓ `CustomerSummaryResponse`, `CustomerOrderHistoryResponse`, `CustomerRiskAlertResponse`
+
+### Verb Removal Rules
+**FORBIDDEN**: Any DTO name containing these verbs:
+- `Add`, `Create`, `Insert`
+- `Update`, `Modify`, `Edit`, `Patch`
+- `Delete`, `Remove`, `Destroy`
+- `Get`, `Fetch`, `Retrieve`, `Find`
+- `ById`, `ByIdAsync` (when only ID is needed — use bare `Guid` parameter instead)
+
+### ID Parameter Convention
+- **FORBIDDEN**: `Get*ByIdQuery` or `Delete*Request` classes that only contain an `Id` property
+- **REQUIRED**: Use bare `Guid` parameter in service methods and controller actions
+  - ✓ `Task<CustomerResponse?> GetByIdAsync(Guid id, ...)`
+  - ✓ `Task DeleteAsync(Guid id, ...)`
+  - ✗ `Task<CustomerResponse?> GetByIdAsync(GetCustomerByIdQuery query, ...)`
+  - ✗ `Task DeleteAsync(DeleteCustomerRequest command, ...)`
+
+### DTO Unification Rules
+- **Request**: Single `{Entity}Request` class for both POST and PATCH/PUT
+- **Response**: Single `{Entity}Response` class for GET (single), GET (list), POST, PATCH/PUT
+- **DataSource**: Single `{Entity}DataSourceResponse` for dropdown/lookup scenarios
+
+---
+
 # Compliance Checklist for Code Review
 
 When reviewing code, verify:
@@ -316,3 +374,6 @@ When reviewing code, verify:
 - [ ] DTOs have validation attributes and XML docs
 - [ ] Controllers have XML docs and proper HTTP attributes
 - [ ] DI registrations use `AddScoped`
+- [ ] DTO names follow Basic module naming conventions (no verbs, unified request/response)
+- [ ] No `Get*ByIdQuery` or `Delete*Request` single-ID wrapper classes
+- [ ] DataSource DTOs use `{Entity}DataSourceResponse` naming

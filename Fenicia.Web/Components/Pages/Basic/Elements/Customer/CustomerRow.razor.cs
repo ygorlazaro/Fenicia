@@ -6,14 +6,11 @@ namespace Fenicia.Web.Components.Pages.Basic.Elements.Customer;
 public partial class CustomerRow : ComponentBase
 {
     [Parameter]
-
-    public GetAllCustomerResponse Item { get; set; } = null!;
-
-    [Parameter]
-
-    public EventCallback<GetAllCustomerResponse> OnEdit { get; set; }
+    public CustomerResponse Item { get; set; } = null!;
 
     [Parameter]
+    public EventCallback<CustomerResponse> OnEdit { get; set; }
 
-    public EventCallback<GetAllCustomerResponse> OnDelete { get; set; }
+    [Parameter]
+    public EventCallback<CustomerResponse> OnDelete { get; set; }
 }

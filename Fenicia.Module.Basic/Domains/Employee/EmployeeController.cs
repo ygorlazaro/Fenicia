@@ -17,25 +17,24 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 public class EmployeeController(IEmployeeService employeeService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
-    ///     Obtém a lista de funcionários.
+    /// Gets a paginated list of employees.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="page">Número da página (padrão: 1)</param>
-    /// <param name="perPage">Quantidade de registros por página (padrão: 10)</param>
-    /// <param name="query">Consulta avançada para filtros</param>
-    /// <param name="sort">Ordenação</param>
-    /// <param name="filters">Filtros</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de funcionários</returns>
-    /// <response code="200">Lista de funcionários retornada com sucesso</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os funcionários</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="page">Page number (default: 1).</param>
+    /// <param name="perPage">Items per page (default: 10).</param>
+    /// <param name="query">Search query (optional).</param>
+    /// <param name="sort">Sort field (optional).</param>
+    /// <param name="filters">Additional filters (optional).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Paginated list of employees.</returns>
+    /// <response code="200">List of employees returned successfully.</response>
+    /// <response code="401">User not authorized.</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<EmployeeResponse>>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllEmployeeResponse>>>> GetAsync(
+    public async Task<ActionResult<Pagination<List<EmployeeResponse>>>> GetAsync(
         WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
@@ -49,7 +48,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employees = await employeeService.GetAllAsync(
-                new GetAllEmployeeQuery(page, perPage, query, sort) { Filters = filters },
+                new EmployeeQuery(page, perPage, query, sort) { Filters = filters },
                 cancellationToken);
 
             return Ok(employees);
@@ -61,23 +60,22 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     }
 
     /// <summary>
-    ///     Obtém um funcionário pelo ID.
+    /// Gets an employee by ID.
     /// </summary>
-    /// <param name="id">ID do funcionário</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do funcionário</returns>
-    /// <response code="200">Funcionário encontrado</response>
-    /// <response code="404">Funcionário não encontrado</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o funcionário</exception>
+    /// <param name="id">Employee ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Employee details.</returns>
+    /// <response code="200">Employee found.</response>
+    /// <response code="404">Employee not found.</response>
+    /// <response code="401">User not authorized.</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetEmployeeByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetEmployeeByIdResponse>> GetByIdAsync(
+    public async Task<ActionResult<EmployeeResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -86,7 +84,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employee = await employeeService.GetByIdAsync(new GetEmployeeByIdQuery(id), cancellationToken);
+            var employee = await employeeService.GetByIdAsync(id, cancellationToken);
 
             return employee is null ? NotFound() : Ok(employee);
         }
@@ -97,24 +95,23 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     }
 
     /// <summary>
-    ///     Cria um novo funcionário.
+    /// Creates a new employee.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="command">Dados do funcionário</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Funcionário criado</returns>
-    /// <response code="201">Funcionário criado com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a criar funcionário</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="command">Employee data.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Created employee.</returns>
+    /// <response code="201">Employee created successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authorized.</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddEmployeeResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(EmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddEmployeeResponse>> PostAsync(
-        [FromBody] AddEmployeeRequest command,
+    public async Task<ActionResult<EmployeeResponse>> PostAsync(
+        [FromBody] EmployeeRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -133,27 +130,26 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     }
 
     /// <summary>
-    ///     Atualiza um funcionário existente.
+    /// Updates an existing employee.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="command">Dados atualizados do funcionário</param>
-    /// <param name="id">ID do funcionário</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Funcionário atualizado</returns>
-    /// <response code="200">Funcionário atualizado com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <response code="404">Funcionário não encontrado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a atualizar funcionário</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="command">Updated employee data.</param>
+    /// <param name="id">Employee ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Updated employee.</returns>
+    /// <response code="200">Employee updated successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authorized.</response>
+    /// <response code="404">Employee not found.</response>
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateEmployeeResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateEmployeeResponse>> PatchAsync(
-        [FromBody] UpdateEmployeeRequest command,
+    public async Task<ActionResult<EmployeeResponse>> PatchAsync(
+        [FromBody] EmployeeRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -161,9 +157,9 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
-            command.Id = id;
 
             var employee = await employeeService.UpdateAsync(
+                id,
                 command,
                 companyContext.CompanyId,
                 cancellationToken);
@@ -177,15 +173,14 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     }
 
     /// <summary>
-    ///     Remove um funcionário.
+    /// Deletes an employee.
     /// </summary>
-    /// <param name="id">ID do funcionário</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo</returns>
-    /// <response code="204">Funcionário removido com sucesso</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a remover funcionário</exception>
+    /// <param name="id">Employee ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>No content.</returns>
+    /// <response code="204">Employee deleted successfully.</response>
+    /// <response code="401">User not authorized.</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -201,7 +196,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             await employeeService.DeleteAsync(
-                new DeleteEmployeeRequest(id),
+                id,
                 companyContext.CompanyId,
                 cancellationToken);
 
@@ -214,16 +209,15 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     }
 
     /// <summary>
-    ///     Obtém o desempenho dos funcionários.
+    /// Gets employee performance data.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
-    /// <param name="topLimit">Limite de top performers (padrão: 10)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados de desempenho dos funcionários</returns>
-    /// <response code="200">Desempenho retornado com sucesso</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o desempenho</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="days">Period in days for analysis (default: 90).</param>
+    /// <param name="topLimit">Limit of top performers (default: 10).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Employee performance data.</returns>
+    /// <response code="200">Performance returned successfully.</response>
+    /// <response code="401">User not authorized.</response>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeePerformanceResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -240,7 +234,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var performance = await employeeService.GetPerformanceAsync(
-                new GetEmployeePerformanceQuery(days, topLimit),
+                new EmployeePerformanceQuery(days, topLimit),
                 cancellationToken);
 
             return Ok(performance);

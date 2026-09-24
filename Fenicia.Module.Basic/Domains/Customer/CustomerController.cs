@@ -3,16 +3,18 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.DTOs.Basic.Customer;
+using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
-/// <inheritdoc />
 /// <summary>
-///     Gerencia operações de clientes.
+/// Controller responsible for handling customer-related operations.
 /// </summary>
+/// <param name="customerService">The customer service.</param>
+/// <param name="companyContext">The company context.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -21,24 +23,23 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 public class CustomerController(ICustomerService customerService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
-    ///     Obtém uma lista paginada de clientes.
+    /// Gets a paginated list of customers.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="page">Número da página</param>
-    /// <param name="perPage">Itens por página</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de clientes</returns>
-    /// <response code="200">Lista de clientes retornada com sucesso</response>
-    /// <response code="400">ID inválido</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os clientes</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="page">Page number.</param>
+    /// <param name="perPage">Items per page.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Paginated list of customers.</returns>
+    /// <response code="200">List of customers returned successfully.</response>
+    /// <response code="400">Invalid ID.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(Pagination<List<GetAllCustomerResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Pagination<List<CustomerResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(
+    public async Task<ActionResult<Pagination<List<CustomerResponse>>>> GetAsync(
         WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
@@ -52,55 +53,54 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     }
 
     /// <summary>
-    ///     Obtém um cliente pelo ID.
+    /// Gets a customer by ID.
     /// </summary>
-    /// <param name="id">ID do cliente</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do cliente</returns>
-    /// <response code="200">Cliente encontrado</response>
-    /// <response code="400">ID inválido</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Cliente não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o cliente</exception>
+    /// <param name="id">Customer ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Customer details.</returns>
+    /// <response code="200">Customer found.</response>
+    /// <response code="400">Invalid ID.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="404">Customer not found.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(GetCustomerByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetCustomerByIdResponse>> GetByIdAsync(
+    public async Task<ActionResult<CustomerResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customer = await customerService.GetByIdAsync(new GetCustomerByIdQuery(id), cancellationToken);
+        var customer = await customerService.GetByIdAsync(id, cancellationToken);
 
         return customer is null ? NotFound() : Ok(customer);
     }
 
     /// <summary>
-    ///     Cria um novo cliente.
+    /// Creates a new customer.
     /// </summary>
-    /// <param name="command">Dados do cliente a ser criado</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Cliente criado</returns>
-    /// <response code="201">Cliente criado com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
+    /// <param name="command">Customer data to create.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Created customer.</returns>
+    /// <response code="201">Customer created successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authenticated.</response>
     [HttpPost]
     [Authorize(Roles = "Admin,God")]
-    [ProducesResponseType(typeof(AddCustomerResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddCustomerResponse>> PostAsync(
-        [FromBody] AddCustomerRequest command,
+    public async Task<ActionResult<CustomerResponse>> PostAsync(
+        [FromBody] CustomerRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -112,38 +112,34 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     }
 
     /// <summary>
-    ///     Atualiza um cliente existente.
+    /// Updates an existing customer.
     /// </summary>
-    /// <param name="command">Dados atualizados do cliente</param>
-    /// <param name="id">ID do cliente</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Cliente atualizado</returns>
-    /// <response code="200">Cliente atualizado com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Cliente não encontrado</response>
+    /// <param name="id">Customer ID.</param>
+    /// <param name="command">Updated customer data.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Updated customer.</returns>
+    /// <response code="200">Customer updated successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="404">Customer not found.</response>
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin,God")]
-    [ProducesResponseType(typeof(UpdateCustomerResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateCustomerResponse>> PatchAsync(
-        [FromBody] UpdateCustomerRequest command,
+    public async Task<ActionResult<CustomerResponse>> PatchAsync(
         [FromRoute] Guid id,
+        [FromBody] CustomerRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
-        command.Id = id;
 
-        var customer = await customerService.UpdateAsync(
-            command,
-            companyContext.CompanyId,
-            cancellationToken);
+        var customer = await customerService.UpdateAsync(id, command, companyContext.CompanyId, cancellationToken);
 
         return customer switch
         {
@@ -153,13 +149,13 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     }
 
     /// <summary>
-    ///     Remove um cliente (soft delete).
+    /// Deletes a customer (soft delete).
     /// </summary>
-    /// <param name="id">ID do cliente</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <response code="204">Cliente removido com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
+    /// <param name="id">Customer ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <response code="204">Customer deleted successfully.</response>
+    /// <response code="401">User not authenticated.</response>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -173,25 +169,24 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await customerService.DeleteAsync(new DeleteCustomerRequest(id), companyContext.CompanyId, cancellationToken);
+        await customerService.DeleteAsync(id, companyContext.CompanyId, cancellationToken);
 
         return NoContent();
     }
 
     /// <summary>
-    ///     Obtém insights agregados de clientes.
+    /// Gets aggregated customer insights.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="days">Período em dias para análise</param>
-    /// <param name="topLimit">Limite de registros no top</param>
-    /// <param name="riskThresholdDays">Limite de dias para considerar cliente em risco</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Insights de clientes</returns>
-    /// <response code="200">Insights retornados com sucesso</response>
-    /// <response code="400">Parâmetros inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar os insights</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="days">Period in days for analysis.</param>
+    /// <param name="topLimit">Limit of records in the top results.</param>
+    /// <param name="riskThresholdDays">Threshold in days to consider a customer at risk.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Customer insights.</returns>
+    /// <response code="200">Insights returned successfully.</response>
+    /// <response code="400">Invalid parameters.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("insights")]
     [ProducesResponseType(typeof(CustomerInsightsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -207,7 +202,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var insights = await customerService.GetInsightsAsync(
-            new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays),
+            new CustomerInsightsRequest(days, topLimit, riskThresholdDays),
             cancellationToken);
 
         return Ok(insights);

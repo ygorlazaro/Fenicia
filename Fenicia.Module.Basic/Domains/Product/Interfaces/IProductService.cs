@@ -9,41 +9,42 @@ namespace Fenicia.Module.Basic.Domains.Product.Interfaces;
 
 public interface IProductService
 {
-    Task<Pagination<List<GetAllProductResponse>>> GetAllAsync(
-        GetAllProductQuery query,
+    Task<Pagination<List<ProductResponse>>> GetAllAsync(
+        ProductQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllProductForDataSourceResponse>> GetAllForDataSourceAsync(
+    Task<List<ProductDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllDashboardProductForDataSourceResponse>>
+    Task<List<DashboardProductDataSourceResponse>>
         GetAllDashboardForDataSourceAsync(
             CancellationToken cancellationToken = default);
 
-    Task<GetProductByIdResponse?> GetByIdAsync(
-        GetProductByIdQuery query,
+    Task<ProductResponse?> GetByIdAsync(
+        Guid id,
         CancellationToken cancellationToken = default);
 
-    Task<List<GetProductsByCategoryIdResponse>> GetByCategoryIdAsync(
-        GetProductsByCategoryIdQuery query,
+    Task<Pagination<List<ProductResponse>>> GetByCategoryIdAsync(
+        ProductsByCategoryIdQuery query,
         int page = 1,
         int perPage = 10,
         CancellationToken cancellationToken = default);
 
-    Task<AddProductResponse> AddAsync(
-        AddProductRequest command,
+    Task<ProductResponse> AddAsync(
+        ProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task<UpdateProductResponse?> UpdateAsync(
-        UpdateProductRequest command,
+    Task<ProductResponse?> UpdateAsync(
+        Guid id,
+        ProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteProductRequest command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<ProductPerformanceResponse> GetPerformanceAsync(
-        GetProductPerformanceQuery query,
+        ProductPerformanceQuery query,
         CancellationToken cancellationToken = default);
 
     Task<int> GetCountAsync(CancellationToken cancellationToken = default);
@@ -55,7 +56,7 @@ public interface IProductService
     Task<List<ProductModel>> GetAllForStatsAsync(CancellationToken cancellationToken = default);
 
     Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(
-        GetAllProductQuery query,
+        ProductQuery query,
         CancellationToken cancellationToken = default);
 
     Task<decimal> GetTotalCostPriceAsync(CancellationToken cancellationToken = default);

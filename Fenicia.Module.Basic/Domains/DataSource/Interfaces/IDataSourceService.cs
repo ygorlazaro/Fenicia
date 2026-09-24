@@ -4,21 +4,21 @@ namespace Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 
 public interface IDataSourceService
 {
-    Task<List<GetAllCustomerForDataSourceResponse>> GetCustomersAsync(CancellationToken cancellationToken = default);
+    Task<List<CustomerDataSourceResponse>> GetCustomersAsync(CancellationToken cancellationToken = default);
 
-    Task<List<GetAllEmployeeForDataSourceResponse>> GetEmployeesAsync(CancellationToken cancellationToken = default);
+    Task<List<EmployeeDataSourceResponse>> GetEmployeesAsync(CancellationToken cancellationToken = default);
 
-    Task<List<GetAllPositionForDataSourceResponse>> GetPositionsAsync(CancellationToken cancellationToken = default);
+    Task<List<PositionDataSourceResponse>> GetPositionsAsync(CancellationToken cancellationToken = default);
 
-    Task<List<GetAllProductCategoryForDataSourceResponse>> GetProductCategoriesAsync(
+    Task<List<ProductCategoryDataSourceResponse>> GetProductCategoriesAsync(
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllProductForDataSourceResponse>> GetProductsAsync(
+    Task<List<ProductDataSourceResponse>> GetProductsAsync(
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllDashboardProductForDataSourceResponse>> GetDashboardProductsAsync(
+    Task<List<DashboardProductDataSourceResponse>> GetDashboardProductsAsync(
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllSupplierForDataSourceResponse>> GetSuppliersAsync(
+    Task<List<SupplierDataSourceResponse>> GetSuppliersAsync(
         CancellationToken cancellationToken = default);
 }
