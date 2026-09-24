@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Order;
 
+/// <summary>
+/// Controller for managing order operations.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -16,18 +19,18 @@ namespace Fenicia.Auth.Domains.Order;
 public class OrderController(IOrderService orderService) : ControllerBase
 {
     /// <summary>
-    ///     Cria um novo pedido com os módulos informados.
+    /// Creates a new order with the specified modules.
     /// </summary>
-    /// <param name="request">Comando com lista de IDs de módulos</param>
-    /// <param name="companyId"></param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do pedido criado</returns>
-    /// <response code="201">Pedido criado com sucesso</response>
-    /// <response code="400">Requisição inválida (ex: módulos não encontrados)</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não associado à empresa</response>
-    /// <response code="404">Empresa ou módulos não encontrados</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">Command with list of module IDs</param>
+    /// <param name="companyId">Company ID from header</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created order data</returns>
+    /// <response code="201">Order created successfully</response>
+    /// <response code="400">Invalid request (e.g., modules not found)</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User not associated with the company</response>
+    /// <response code="404">Company or modules not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

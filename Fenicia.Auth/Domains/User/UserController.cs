@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.DTOs.Auth.User;
@@ -11,24 +12,27 @@ using UserCompanyResponse = Fenicia.Common.DTOs.Auth.UserRole.UserCompanyRespons
 
 namespace Fenicia.Auth.Domains.User;
 
+/// <summary>
+/// Controller for managing user-related operations.
+/// </summary>
 [Authorize]
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class UserController(IUserService userService, IModuleService moduleService) : ControllerBase
+public class UserController(IUserService userService, IModuleService moduleService, IUserRoleService userRoleService) : ControllerBase
 {
     /// <summary>
-    ///     Obtém os módulos de um usuário para uma empresa.
+    /// Gets modules for a specific user and company.
     /// </summary>
-    /// <param name="id">ID do usuário</param>
-    /// <param name="headers">Cabeçalhos da requisição (inclui CompanyId)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de módulos do usuário na empresa</returns>
-    /// <response code="200">Módulos encontrados</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não tem permissão para acessar módulos desta empresa</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">ID of the user</param>
+    /// <param name="headers">Request headers (includes CompanyId)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of modules for the user in the company</returns>
+    /// <response code="200">Modules found</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User does not have permission to access modules for this company</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("{id:guid}/module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleByUserResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -56,15 +60,15 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    ///     Obtém as empresas associadas a um usuário.
+    /// Gets companies associated with a user.
     /// </summary>
-    /// <param name="id">ID do usuário</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de empresas do usuário</returns>
-    /// <response code="200">Empresas encontradas</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não tem permissão para acessar empresas deste usuário</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">ID of the user</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of companies for the user</returns>
+    /// <response code="200">Companies found</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User does not have permission to access companies for this user</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("{id:guid}/company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserCompanyResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -79,7 +83,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
 
             await userService.EnsureCanAccessUserAsync(loggedInUserId, id, null, cancellationToken);
 
-            var response = await userService.GetCompaniesAsync(id, cancellationToken);
+            var response = await userRoleService.GetUserCompaniesAsync(id, cancellationToken);
 
             return Ok(response);
         }
@@ -90,17 +94,15 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    ///     Obtém todos os usuários com paginação.
+    /// Gets all users with pagination.
     /// </summary>
-    /// <param name="page">Número da página (padrão: 1)</param>
-    /// <param name="pageSize">Quantidade de itens por página (padrão: 10)</param>
-    /// <param name="query">Filtros avançados. Example: <c>name[*]alpha</c></param>
-    /// <param name="sort">Ordenação. Example: <c>name</c></param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de usuários</returns>
-    /// <response code="200">Lista de usuários retornada com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="page">Page number (default: 1)</param>
+    /// <param name="pageSize">Items per page (default: 10)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Paginated list of users</returns>
+    /// <response code="200">List of users returned successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,8 +110,6 @@ public class UserController(IUserService userService, IModuleService moduleServi
     public async Task<IActionResult> GetAsync(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? query = null,
-        [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
         var result = await userService.GetAllAsync(new UserRequest(), page, pageSize, cancellationToken);
@@ -118,15 +118,15 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    ///     Obtém um usuário pelo ID.
+    /// Gets a user by ID.
     /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do usuário</returns>
-    /// <response code="200">Usuário encontrado</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Usuário não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="userId">User ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>User data</returns>
+    /// <response code="200">User found</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">User not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -144,15 +144,15 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    ///     Cria um novo usuário.
+    /// Creates a new user.
     /// </summary>
-    /// <param name="request">Dados do usuário (e-mail, senha, nome, roles)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do usuário criado</returns>
-    /// <response code="201">Usuário criado com sucesso</response>
-    /// <response code="400">E-mail já existe ou dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">User data (email, password, name, roles)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created user data</returns>
+    /// <response code="201">User created successfully</response>
+    /// <response code="400">Email already exists or invalid data</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -176,17 +176,17 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    ///     Atualiza um usuário existente.
+    /// Updates an existing user.
     /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="request">Dados atualizados do usuário (nome, e-mail, roles por empresa)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do usuário atualizado</returns>
-    /// <response code="200">Usuário atualizado com sucesso</response>
-    /// <response code="400">E-mail já existe ou dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Usuário não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="userId">User ID</param>
+    /// <param name="request">Updated user data (name, email, roles by company)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Updated user data</returns>
+    /// <response code="200">User updated successfully</response>
+    /// <response code="400">Email already exists or invalid data</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">User not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpPatch("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -213,15 +213,15 @@ public class UserController(IUserService userService, IModuleService moduleServi
     }
 
     /// <summary>
-    ///     Remove um usuário (soft delete).
+    /// Removes a user (soft delete).
     /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se removido com sucesso</returns>
-    /// <response code="204">Usuário removido com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Usuário não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="userId">User ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>No content (204) if removed successfully</returns>
+    /// <response code="204">User removed successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">User not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpDelete("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

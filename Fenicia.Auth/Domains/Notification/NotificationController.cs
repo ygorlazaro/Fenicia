@@ -20,14 +20,14 @@ namespace Fenicia.Auth.Domains.Notification;
 public class NotificationController(INotificationService notificationService) : ControllerBase
 {
     /// <summary>
-    ///    Obtém todas as notificações para o usuário autenticado.
+    /// Gets all notifications for the authenticated user.
     /// </summary>
-    /// <param name="query">Parâmetros de paginação</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de notificações paginadas</returns>
-    /// <response code="200">Notificações retornadas com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="query">Pagination parameters</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Paginated list of notifications</returns>
+    /// <response code="200">Notifications returned successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<IEnumerable<NotificationResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -50,15 +50,15 @@ public class NotificationController(INotificationService notificationService) : 
     }
 
     /// <summary>
-    ///     Obtém uma notificação específica pelo ID.
+    /// Gets a specific notification by ID.
     /// </summary>
-    /// <param name="id">ID da notificação</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados da notificação</returns>
-    /// <response code="200">Notificação encontrada</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Notificação não encontrada</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Notification ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Notification data</returns>
+    /// <response code="200">Notification found</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">Notification not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -82,15 +82,15 @@ public class NotificationController(INotificationService notificationService) : 
     }
 
     /// <summary>
-    ///     Cria uma nova notificação.
+    /// Creates a new notification.
     /// </summary>
-    /// <param name="request">Dados da notificação (título, descrição, data, imagem)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados da notificação criada</returns>
-    /// <response code="201">Notificação criada com sucesso</response>
-    /// <response code="400">Requisição inválida</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">Notification data (title, description, date, image)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created notification data</returns>
+    /// <response code="201">Notification created successfully</response>
+    /// <response code="400">Invalid request</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(NotificationResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -113,17 +113,17 @@ public class NotificationController(INotificationService notificationService) : 
     }
 
     /// <summary>
-    ///     Atualiza uma notificação existente.
+    /// Updates an existing notification.
     /// </summary>
-    /// <param name="request">Dados atualizados da notificação (título, descrição, data, imagem, lida)</param>
-    /// <param name="id">ID da notificação</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados da notificação atualizada</returns>
-    /// <response code="200">Notificação atualizada com sucesso</response>
-    /// <response code="400">Requisição inválida</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Notificação não encontrada</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">Updated notification data (title, description, date, image, read)</param>
+    /// <param name="id">Notification ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Updated notification data</returns>
+    /// <response code="200">Notification updated successfully</response>
+    /// <response code="400">Invalid request</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">Notification not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -155,14 +155,14 @@ public class NotificationController(INotificationService notificationService) : 
     }
 
     /// <summary>
-    ///     Remove uma notificação (soft delete).
+    /// Removes a notification (soft delete).
     /// </summary>
-    /// <param name="id">ID da notificação</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se removida com sucesso</returns>
-    /// <response code="204">Notificação removida com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Notification ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>No content (204) if removed successfully</returns>
+    /// <response code="204">Notification removed successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

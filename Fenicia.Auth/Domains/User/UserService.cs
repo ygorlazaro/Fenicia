@@ -8,12 +8,20 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Role;
 using Fenicia.Common.DTOs.Auth.User;
+using Fenicia.Common.DTOs.Auth.UserRole;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
-using UserCompanyResponse = Fenicia.Common.DTOs.Auth.UserRole.UserCompanyResponse;
 
 namespace Fenicia.Auth.Domains.User;
 
+/// <summary>
+/// Service implementation for managing users in the authentication domain.
+/// </summary>
+/// <param name="userRepository">The user repository.</param>
+/// <param name="userRoleService">The user role service.</param>
+/// <param name="roleService">The role service.</param>
+/// <param name="companyService">The company service.</param>
+/// <param name="securityService">The security service.</param>
 public sealed class UserService(
     IUserRepository userRepository,
     IUserRoleService userRoleService,
@@ -21,6 +29,14 @@ public sealed class UserService(
     ICompanyService companyService,
     ISecurityService securityService) : IUserService
 {
+    /// <summary>
+    /// Gets a paginated list of all users based on the provided query parameters.
+    /// </summary>
+    /// <param name="query">The query parameters.</param>
+    /// <param name="page">The page number.</param>
+    /// <param name="perPage">The number of items per page.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with paginated user responses.</returns>
     public async Task<Pagination<List<UserResponse>>> GetAllAsync(
         UserRequest query,
         int page = 1,
@@ -31,42 +47,75 @@ public sealed class UserService(
         var users = await userRepository.GetAllAsync(page, perPage, cancellationToken);
 
         return new Pagination<List<UserResponse>>(
-            [.. users.Select(MapToUserResponse)],
+            [.. users.Select(UserMapper.MapToUserResponse)],
             total,
             page,
             perPage);
     }
 
-    public Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Gets a user by their unique identifier.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the user response if found.</returns>
+    public async Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return userRepository.GetByIdAsync(userId, cancellationToken).ContinueWith(
-            task => task.Result is null ? null : MapToUserResponse(task.Result), cancellationToken);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken);
+        return user is null ? null : UserMapper.MapToUserResponse(user);
     }
 
-    public Task<UserModel?> FirstByEmailOrDefaultAsync(
+    /// <summary>
+    /// Gets a user by email address, or default if not found.
+    /// </summary>
+    /// <param name="email">The email address to search for.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the user response if found.</returns>
+    public async Task<UserResponse?> FirstByEmailOrDefaultAsync(
         string email,
         CancellationToken cancellationToken = default)
     {
-        return userRepository.GetByEmailAsync(email, cancellationToken);
+        var user = await userRepository.GetByEmailAsync(email, cancellationToken);
+        return user is null ? null : UserMapper.MapToUserResponse(user);
     }
 
-    public async Task<UserModel> UpdatePasswordAsync(
+    /// <summary>
+    /// Gets a user model by email address, or default if not found (for authentication).
+    /// </summary>
+    /// <param name="email">The email address to search for.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the user model if found.</returns>
+    public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await userRepository.GetByEmailAsync(email, cancellationToken);
+    }
+
+    /// <summary>
+    /// Updates a user's password.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="plainPassword">The new plain password.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the updated user response.</returns>
+    public async Task<UserResponse> UpdatePasswordAsync(
         Guid userId,
         string plainPassword,
         CancellationToken cancellationToken = default)
     {
         var user = await FirstByIdAsync(userId, cancellationToken);
         user.Password = securityService.Hash(plainPassword);
-        return user;
+        await userRepository.UpdateAsync(user.Id, user, cancellationToken);
+        return UserMapper.MapToUserResponse(user);
     }
 
-    public Task<List<UserCompanyResponse>> GetCompaniesAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
-    {
-        return userRoleService.GetUserCompaniesAsync(userId, cancellationToken);
-    }
-
+    /// <summary>
+    /// Ensures the logged-in user can access the requested user's data.
+    /// </summary>
+    /// <param name="loggedInUserId">The ID of the logged-in user.</param>
+    /// <param name="requestedUserId">The ID of the requested user.</param>
+    /// <param name="companyId">The optional company ID for access validation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task EnsureCanAccessUserAsync(
         Guid loggedInUserId,
         Guid requestedUserId,
@@ -112,6 +161,12 @@ public sealed class UserService(
         throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
     }
 
+    /// <summary>
+    /// Creates a new user.
+    /// </summary>
+    /// <param name="request">The user request data.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the created user response.</returns>
     public async Task<UserResponse> CreateAsync(UserRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -134,9 +189,15 @@ public sealed class UserService(
         await userRepository.InsertAsync(user, cancellationToken);
         await RelateRolesAsync(user.Id, request.Roles, cancellationToken);
 
-        return MapToUserResponse(user);
+        return UserMapper.MapToUserResponse(user);
     }
 
+    /// <summary>
+    /// Updates an existing user.
+    /// </summary>
+    /// <param name="request">The user request data with updated information.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the updated user response.</returns>
     public async Task<UserResponse> UpdateAsync(
         UserRequest request,
         CancellationToken cancellationToken = default)
@@ -150,9 +211,15 @@ public sealed class UserService(
         await ValidateCompanies(companies, cancellationToken);
         await RelateRolesAsync(request, user, cancellationToken);
 
-        return MapToUserResponse(user);
+        return UserMapper.MapToUserResponse(user);
     }
 
+    /// <summary>
+    /// Deletes a user (soft delete).
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user to delete.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await FirstByIdAsync(userId, cancellationToken);
@@ -291,14 +358,5 @@ public sealed class UserService(
     {
         return await userRepository.GetByIdAsync(userId, cancellationToken) ??
                throw new BadRequestException(ExceptionMessages.UserNotFound);
-    }
-
-    private static UserResponse MapToUserResponse(UserModel user)
-    {
-        return new UserResponse(
-            user.Id,
-            user.Name,
-            user.Email,
-            new Fenicia.Common.DTOs.Auth.UserRole.CompanyResponse(Guid.Empty, string.Empty, string.Empty));
     }
 }

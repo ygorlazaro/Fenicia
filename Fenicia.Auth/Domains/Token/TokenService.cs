@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.RefreshToken.Interfaces;
 using Fenicia.Auth.Domains.Security.Interfaces;
 using Fenicia.Auth.Domains.Token.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.DTOs.Auth.Token;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
@@ -19,12 +20,14 @@ namespace Fenicia.Auth.Domains.Token;
 /// <param name="configuration">The application configuration.</param>
 /// <param name="loginAttemptService">The login attempt service.</param>
 /// <param name="userService">The user service.</param>
+/// <param name="userRoleService">The user role service.</param>
 /// <param name="securityService">The security service.</param>
 /// <param name="refreshTokenService">The refresh token service.</param>
 public sealed class TokenService(
     IConfiguration configuration,
     ILoginAttemptService loginAttemptService,
     IUserService userService,
+    IUserRoleService userRoleService,
     ISecurityService securityService,
     IRefreshTokenService refreshTokenService) : ITokenService
 {
@@ -41,7 +44,7 @@ public sealed class TokenService(
         CancellationToken cancellationToken = default)
     {
         var attempts = ValidateAttempts(request);
-        var user = await userService.FirstByEmailOrDefaultAsync(request.Email, cancellationToken);
+        var user = await userService.GetByEmailAsync(request.Email, cancellationToken);
 
         if (user is null)
         {
@@ -57,7 +60,7 @@ public sealed class TokenService(
         {
             loginAttemptService.Reset(request.Email);
 
-            var companies = await userService.GetCompaniesAsync(user.Id, cancellationToken);
+            var companies = await userRoleService.GetUserCompaniesAsync(user.Id, cancellationToken);
             var companyId = companies.Count == 1 ? companies[0].CompanyId : Guid.Empty;
             var roles = user.UsersRoles.Select(ur => ur.Role.Name).ToList();
 

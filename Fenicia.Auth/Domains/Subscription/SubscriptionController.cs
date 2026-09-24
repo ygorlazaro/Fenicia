@@ -18,14 +18,14 @@ namespace Fenicia.Auth.Domains.Subscription;
 public class SubscriptionController(ISubscriptionService subscriptionService) : ControllerBase
 {
     /// <summary>
-    ///     Obtém o perfil do usuário autenticado com empresas e assinaturas.
+    /// Gets the authenticated user's profile with companies and subscriptions.
     /// </summary>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Perfil do usuário com empresas e assinaturas</returns>
-    /// <response code="200">Perfil encontrado</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Usuário não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>User profile with companies and subscriptions</returns>
+    /// <response code="200">Profile found</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">User not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet]
     [ProducesResponseType(typeof(SubscriptionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Register;
 
+/// <summary>
+/// Controller for managing user registration operations.
+/// </summary>
 [AllowAnonymous]
 [Route("[controller]")]
 [ApiController]
@@ -14,14 +17,14 @@ namespace Fenicia.Auth.Domains.Register;
 public class RegisterController(IRegisterService registerService) : ControllerBase
 {
     /// <summary>
-    ///     Cria um novo usuário com sua empresa inicial.
+    /// Creates a new user with their initial company.
     /// </summary>
-    /// <param name="request">Dados do usuário (e-mail, senha, nome, empresa)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do usuário e empresa criados</returns>
-    /// <response code="201">Usuário criado com sucesso</response>
-    /// <response code="400">E-mail já existe, empresa já existe ou dados inválidos</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">User data (email, password, name, company)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created user and company data</returns>
+    /// <response code="201">User created successfully</response>
+    /// <response code="400">Email already exists, company already exists, or invalid data</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

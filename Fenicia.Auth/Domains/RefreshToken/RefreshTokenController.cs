@@ -20,13 +20,13 @@ namespace Fenicia.Auth.Domains.RefreshToken;
 public class RefreshTokenController(IRefreshTokenService refreshTokenService) : ControllerBase
 {
     /// <summary>
-    ///     Gera um novo refresh token para o usuário autenticado.
+    /// Generates a new refresh token for the authenticated user.
     /// </summary>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Token de atualização gerado</returns>
-    /// <response code="201">Refresh token gerado com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Generated refresh token</returns>
+    /// <response code="201">Refresh token generated successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RefreshTokenResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -49,16 +49,16 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     }
 
     /// <summary>
-    ///     Valida um refresh token pelo valor.
+    /// Validates a refresh token by its value.
     /// </summary>
-    /// <param name="token">Valor do refresh token</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Resultado da validação com dados do token</returns>
-    /// <response code="200">Token válido</response>
-    /// <response code="400">Refresh token inválido ou nulo</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Token não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="token">Refresh token value</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Validation result with token data</returns>
+    /// <response code="200">Token is valid</response>
+    /// <response code="400">Refresh token is invalid or null</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">Token not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("{token}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RefreshTokenResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

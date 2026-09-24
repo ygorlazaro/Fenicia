@@ -18,15 +18,15 @@ namespace Fenicia.Auth.Domains.Token;
 public class TokenController(ITokenService tokenService) : ControllerBase
 {
     /// <summary>
-    ///     Gera um token JWT para o usuário (login).
+    /// Generates a JWT token for the user (login).
     /// </summary>
-    /// <param name="request">Query com e-mail e senha</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Token JWT e refresh token</returns>
-    /// <response code="201">Token gerado com sucesso</response>
-    /// <response code="400">E-mail ou senha inválidos, senha vazia ou muitas tentativas</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">Request with email and password</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>JWT token and refresh token</returns>
+    /// <response code="201">Token generated successfully</response>
+    /// <response code="400">Invalid email or password, empty password, or too many attempts</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
