@@ -35,6 +35,12 @@ public sealed class InsightService(
         };
     }
 
+    /// <summary>
+    /// Gets customers at risk of churning based on the specified request.
+    /// </summary>
+    /// <param name="request">The customer insights request containing risk threshold.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of customer risk alert responses.</returns>
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(
         CustomerInsightsRequest request,
         CancellationToken cancellationToken = default)
@@ -63,6 +69,12 @@ public sealed class InsightService(
         return response;
     }
 
+    /// <summary>
+    /// Gets recent orders up to the specified limit.
+    /// </summary>
+    /// <param name="topLimit">The maximum number of orders to return.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of customer recent orders responses.</returns>
     private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(
         int topLimit,
         CancellationToken cancellationToken = default)
@@ -81,6 +93,12 @@ public sealed class InsightService(
         return response;
     }
 
+    /// <summary>
+    /// Gets top customers by order history up to the specified limit.
+    /// </summary>
+    /// <param name="topLimit">The maximum number of customers to return.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of customer order history responses.</returns>
     private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(
         int topLimit,
         CancellationToken cancellationToken = default)
@@ -102,6 +120,11 @@ public sealed class InsightService(
         return response;
     }
 
+    /// <summary>
+    /// Gets the customer summary metrics.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The customer summary response.</returns>
     private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken cancellationToken = default)
     {
         var totalCustomers = await customerRepository.CountAsync(cancellationToken);

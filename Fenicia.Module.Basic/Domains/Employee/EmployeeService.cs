@@ -48,7 +48,7 @@ public sealed class EmployeeService(
     {
         var employees = await repository.GetAllEmployeesAsync(cancellationToken);
 
-        return employees.Select(EmployeeMapper.MapToDataSourceResponse).ToList();
+        return [.. employees.Select(EmployeeMapper.MapToDataSourceResponse)];
     }
 
     /// <inheritdoc />

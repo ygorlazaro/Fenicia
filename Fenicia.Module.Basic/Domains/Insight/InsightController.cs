@@ -23,9 +23,7 @@ public class InsightController(IInsightService insightService) : ControllerBase
     /// Gets aggregated customer insights.
     /// </summary>
     /// <param name="wide">Wide event context.</param>
-    /// <param name="days">Period in days for analysis (default: 90).</param>
-    /// <param name="topLimit">Limit of records in the top results (default: 10).</param>
-    /// <param name="riskThresholdDays">Threshold in days to consider a customer at risk (default: 60).</param>
+    /// <param name="request">The customer insights request containing filter parameters.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Customer insights.</returns>
     /// <response code="200">Insights returned successfully.</response>
@@ -39,16 +37,12 @@ public class InsightController(IInsightService insightService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CustomerInsightsResponse>> GetCustomerInsightsAsync(
         WideEventContext wide,
-        [FromQuery] int days = 90,
-        [FromQuery] int topLimit = 10,
-        [FromQuery] int riskThresholdDays = 60,
+        [FromQuery] CustomerInsightsRequest request,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var insights = await insightService.GetCustomerInsightsAsync(
-            new CustomerInsightsRequest(days, topLimit, riskThresholdDays),
-            cancellationToken);
+        var insights = await insightService.GetCustomerInsightsAsync(request, cancellationToken);
 
         return Ok(insights);
     }
