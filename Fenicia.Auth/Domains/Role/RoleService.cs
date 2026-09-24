@@ -13,40 +13,41 @@ public class RoleService(IRoleRepository repository) : IRoleService
     /// <summary>
     /// Retrieves a role entity by its name.
     /// </summary>
-    /// <param name="roleName"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="roleName">The name of the role to retrieve.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The role response or null if not found.</returns>
     public async Task<RoleResponse?> GetRoleAsync(string roleName, CancellationToken cancellationToken = default)
     {
         var role = await repository.GetByNameAsync(roleName, cancellationToken);
 
-        return role is null ? null : MapToRoleResponse(role);
+        return role is null ? null : RoleMapper.MapToRoleResponse(role);
     }
 
     /// <summary>
     /// Retrieves a role entity by its ID.
     /// </summary>
-    /// <param name="roleId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="roleId">The ID of the role to retrieve.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The role response or null if not found.</returns>
     public async Task<RoleResponse?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
         var role = await repository.GetByIdAsync(roleId, cancellationToken);
 
-        return role is null ? null : MapToRoleResponse(role);
+        return role is null ? null : RoleMapper.MapToRoleResponse(role);
     }
 
+    /// <summary>
+    /// Retrieves a list of role entities by their IDs.
+    /// </summary>
+    /// <param name="roleIds">The list of role IDs to retrieve.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A list of role responses.</returns>
     public async Task<List<RoleResponse>> GetRolesByIdsAsync(
         List<Guid> roleIds,
         CancellationToken cancellationToken = default)
     {
         var roles = await repository.GetRolesByIdAsync(roleIds, cancellationToken);
 
-        return [.. roles.Select(MapToRoleResponse)];
-    }
-
-    private static RoleResponse MapToRoleResponse(RoleModel role)
-    {
-        return new RoleResponse(role.Id, role.Name);
+        return [.. roles.Select(RoleMapper.MapToRoleResponse)];
     }
 }
