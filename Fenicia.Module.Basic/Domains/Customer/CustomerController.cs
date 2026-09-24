@@ -26,8 +26,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// Gets a paginated list of customers.
     /// </summary>
     /// <param name="wide">Wide event context.</param>
-    /// <param name="page">Page number.</param>
-    /// <param name="perPage">Items per page.</param>
+    /// <param name="query">Pagination query parameters.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Paginated list of customers.</returns>
     /// <response code="200">List of customers returned successfully.</response>
@@ -41,13 +40,12 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<CustomerResponse>>>> GetAsync(
         WideEventContext wide,
-        [FromQuery] int page = 1,
-        [FromQuery] int perPage = 10,
+        [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customers = await customerService.GetAllAsync(page, perPage, cancellationToken);
+        var customers = await customerService.GetAllAsync(query, cancellationToken);
 
         return Ok(customers);
     }
@@ -85,7 +83,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// <summary>
     /// Creates a new customer.
     /// </summary>
-    /// <param name="command">Customer data to create.</param>
+    /// <param name="request">Customer data to create.</param>
     /// <param name="wide">Wide event context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Created customer.</returns>
@@ -100,13 +98,13 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CustomerResponse>> PostAsync(
-        [FromBody] CustomerRequest command,
+        [FromBody] CustomerRequest request,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customer = await customerService.AddAsync(command, companyContext.CompanyId, cancellationToken);
+        var customer = await customerService.AddAsync(request, companyContext.CompanyId, cancellationToken);
 
         return new CreatedResult(string.Empty, customer);
     }
@@ -115,7 +113,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     /// Updates an existing customer.
     /// </summary>
     /// <param name="id">Customer ID.</param>
-    /// <param name="command">Updated customer data.</param>
+    /// <param name="request">Updated customer data.</param>
     /// <param name="wide">Wide event context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Updated customer.</returns>
@@ -133,13 +131,13 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CustomerResponse>> PatchAsync(
         [FromRoute] Guid id,
-        [FromBody] CustomerRequest command,
+        [FromBody] CustomerRequest request,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        var customer = await customerService.UpdateAsync(id, command, companyContext.CompanyId, cancellationToken);
+        var customer = await customerService.UpdateAsync(id, request, companyContext.CompanyId, cancellationToken);
 
         return customer switch
         {
@@ -172,39 +170,5 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
         await customerService.DeleteAsync(id, companyContext.CompanyId, cancellationToken);
 
         return NoContent();
-    }
-
-    /// <summary>
-    /// Gets aggregated customer insights.
-    /// </summary>
-    /// <param name="wide">Wide event context.</param>
-    /// <param name="days">Period in days for analysis.</param>
-    /// <param name="topLimit">Limit of records in the top results.</param>
-    /// <param name="riskThresholdDays">Threshold in days to consider a customer at risk.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Customer insights.</returns>
-    /// <response code="200">Insights returned successfully.</response>
-    /// <response code="400">Invalid parameters.</response>
-    /// <response code="401">User not authenticated.</response>
-    /// <response code="500">Internal server error.</response>
-    [HttpGet("insights")]
-    [ProducesResponseType(typeof(CustomerInsightsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(
-        WideEventContext wide,
-        [FromQuery] int days = 90,
-        [FromQuery] int topLimit = 10,
-        [FromQuery] int riskThresholdDays = 60,
-        CancellationToken cancellationToken = default)
-    {
-        wide.UserId = ClaimReader.UserId(User).ToString();
-
-        var insights = await customerService.GetInsightsAsync(
-            new CustomerInsightsRequest(days, topLimit, riskThresholdDays),
-            cancellationToken);
-
-        return Ok(insights);
     }
 }

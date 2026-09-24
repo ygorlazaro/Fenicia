@@ -149,6 +149,7 @@ public partial class Customer : ComponentBase
         var model = ctx.IsAdd ? _add : _edit;
 
         return new CustomerRequest(
+            ctx.IsAdd ? Guid.NewGuid() : ctx.Id,
             model.Name ?? string.Empty,
             model.Email,
             model.Document,

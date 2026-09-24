@@ -12,6 +12,8 @@ using Fenicia.Module.Basic.Domains.DataSource;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
+using Fenicia.Module.Basic.Domains.Insight;
+using Fenicia.Module.Basic.Domains.Insight.Interfaces;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 using Fenicia.Module.Basic.Domains.Order;
@@ -67,6 +69,7 @@ internal static class Program
                 builder.Services.AddScoped<IOrderService, OrderService>();
                 builder.Services.AddScoped<ICustomerService, CustomerService>();
                 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+                builder.Services.AddScoped<IInsightService, InsightService>();
                 builder.Services.AddScoped<IInventoryService, InventoryService>();
                 builder.Services.AddScoped<IDataSourceService, DataSourceService>();
                 builder.Services.AddScoped<IDashboardService, DashboardService>();

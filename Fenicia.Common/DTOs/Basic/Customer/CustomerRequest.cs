@@ -11,12 +11,14 @@ public class CustomerRequest()
     /// <summary>
     /// Initializes a new instance of the <see cref="CustomerRequest"/> class with the specified customer details.
     /// </summary>
+    /// <param name="id">The unique identifier of the customer.</param>
     /// <param name="name">The customer name.</param>
     /// <param name="email">The customer email (optional).</param>
     /// <param name="document">The customer document (optional).</param>
     /// <param name="phoneNumber">The customer phone number (optional).</param>
     /// <param name="address">The customer address (optional).</param>
     public CustomerRequest(
+        Guid id,
         string name,
         string? email,
         string? document,
@@ -24,12 +26,19 @@ public class CustomerRequest()
         AddressRequest? address)
         : this()
     {
+        Id = id;
         Name = name;
         Email = email;
         Document = document;
         PhoneNumber = phoneNumber;
         Address = address;
     }
+
+    /// <summary>
+    /// Gets or sets the unique identifier of the customer.
+    /// </summary>
+    [Required]
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Gets or sets the customer name.

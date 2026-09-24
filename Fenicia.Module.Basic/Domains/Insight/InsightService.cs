@@ -1,0 +1,121 @@
+using Fenicia.Common;
+using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Customer;
+using Fenicia.Module.Basic.Domains.Insight.Interfaces;
+using Fenicia.Module.Basic.Domains.Order.Interfaces;
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
+
+namespace Fenicia.Module.Basic.Domains.Insight;
+
+/// <summary>
+/// Service implementation for managing insights.
+/// </summary>
+/// <param name="orderService">The order service.</param>
+/// <param name="customerRepository">The customer repository.</param>
+public sealed class InsightService(
+    IOrderService orderService,
+    ICustomerRepository customerRepository) : IInsightService
+{
+    /// <inheritdoc />
+    public async Task<CustomerInsightsResponse> GetCustomerInsightsAsync(
+        CustomerInsightsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var summary = await GetSummaryAsync(cancellationToken);
+        var topCustomers = await GetTopCustomersAsync(request.TopLimit, cancellationToken);
+        var recentOrders = await GetRecentOrdersAsync(request.TopLimit, cancellationToken);
+        var atRiskCustomers = await GetAtRiskCustomersAsync(request, cancellationToken);
+
+        return new CustomerInsightsResponse
+        {
+            Summary = summary,
+            TopCustomers = topCustomers,
+            RecentOrders = recentOrders,
+            AtRiskCustomers = atRiskCustomers
+        };
+    }
+
+    private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(
+        CustomerInsightsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var orders = await orderService.GetAtRiskOrdersAsync(cancellationToken);
+
+        var response = orders.GroupBy(o => o.CustomerId).Select(g =>
+            {
+                var lastOrder = g.Max(o => o.SaleDate);
+                var daysSince = (now - lastOrder).Days;
+                var riskLevel = daysSince >= request.RiskThresholdDays * 2 ? "High" :
+                    daysSince >= request.RiskThresholdDays ? "Medium" : "Low";
+
+                return new CustomerRiskAlertResponse(
+                    g.Key,
+                    g.First().Customer.Person.Name,
+                    g.Count(),
+                    lastOrder,
+                    daysSince,
+                    g.Sum(o => o.TotalAmount),
+                    riskLevel);
+            }).Where(c => c.DaysSinceLastOrder >= request.RiskThresholdDays).OrderByDescending(c => c.DaysSinceLastOrder)
+            .ToList();
+
+        return response;
+    }
+
+    private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(
+        int topLimit,
+        CancellationToken cancellationToken = default)
+    {
+        var orders = await orderService.GetRecentOrdersAsync(topLimit, cancellationToken);
+
+        var response = orders.Take(topLimit).Select(o => new CustomerRecentOrdersResponse(
+            o.Id,
+            o.CustomerId,
+            o.Customer.Person.Name,
+            o.TotalAmount,
+            o.SaleDate,
+            o.Status.ToString(),
+            o.Details.Sum(d => (int)d.Quantity))).ToList();
+
+        return response;
+    }
+
+    private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(
+        int topLimit,
+        CancellationToken cancellationToken = default)
+    {
+        var orders = await orderService.GetTopCustomerOrdersAsync(cancellationToken);
+
+        var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g =>
+                new CustomerOrderHistoryResponse(
+                    g.Key.CustomerId,
+                    g.Key.CustomerName,
+                    g.Count(),
+                    g.Sum(o => o.TotalAmount),
+                    g.Sum(o => o.Details.Sum(d => (int)d.Quantity)),
+                    g.Min(o => o.SaleDate),
+                    g.Max(o => o.SaleDate),
+                    g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent)
+            .Take(topLimit).ToList();
+
+        return response;
+    }
+
+    private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken cancellationToken = default)
+    {
+        var totalCustomers = await customerRepository.CountAsync(cancellationToken);
+        var totalOrders = await orderService.GetTotalOrdersCountAsync(cancellationToken);
+        var totalRevenue = await orderService.GetTotalRevenueAsync(cancellationToken);
+        var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+        var summary = new CustomerSummaryResponse
+        {
+            TotalCustomers = totalCustomers,
+            TotalOrders = totalOrders,
+            TotalRevenue = totalRevenue,
+            AverageOrderValue = averageOrderValue
+        };
+        return summary;
+    }
+}

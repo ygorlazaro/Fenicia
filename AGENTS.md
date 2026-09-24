@@ -301,7 +301,30 @@ Fenicia.Common.Data.Models.Auth
 ```
 
 ---
-
+ 
+## Pagination Convention
+ 
+**MANDATORY**: All services with pagination must use `PaginationQuery` record instead of separate `page` and `perPage` parameters.
+ 
+```csharp
+// ✓ Correct - Using PaginationQuery
+public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
+    PaginationQuery query,
+    CancellationToken cancellationToken = default)
+ 
+// ✗ Wrong - Separate parameters
+public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
+    int page = 1,
+    int perPage = 10,
+    CancellationToken cancellationToken = default)
+```
+ 
+- `PaginationQuery` is a record in `Fenicia.Common` with `Page` (default 1) and `PerPage` (default 10)
+- Controller passes `PaginationQuery` from query parameters
+- `Pagination<T>` constructor accepts `PaginationQuery` directly
+ 
+---
+ 
 ## 11. DTO Naming Conventions (Basic Module)
 
 **MANDATORY**: All DTOs in `Fenicia.Common.DTOs.Basic` must follow these naming conventions:
