@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
+/// <summary>
+/// Controller responsible for handling dashboard-related operations.
+/// </summary>
+/// <param name="dashboardService">The dashboard service.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -15,15 +19,16 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
     /// <summary>
-    ///     Obtém o dashboard financeiro com KPIs, receita vs custo, margem de lucro, contas a receber e vendas diárias.
+    /// Gets the financial dashboard with KPIs, revenue vs cost, profit margin, accounts receivable and daily sales.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="days">Quantidade de dias para análise (padrão: 90)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dashboard financeiro completo</returns>
-    /// <response code="200">Dashboard financeiro retornado com sucesso</response>
-    /// <response code="401">Usuário não autorizado</response>
-    /// <exception cref="UnauthorizedAccessException">Usuário não autorizado a acessar o dashboard</exception>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="request">The financial dashboard request containing filter parameters.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The financial dashboard response.</returns>
+    /// <response code="200">Financial dashboard returned successfully.</response>
+    /// <response code="400">Invalid request parameters.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("financial")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -31,16 +36,14 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(
         WideEventContext wide,
-        [FromQuery] int days = 90,
+        [FromQuery] FinancialDashboardRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await dashboardService.GetFinancialDashboardAsync(
-                new GetFinancialDashboardQuery(days),
-                cancellationToken);
+            var dashboard = await dashboardService.GetFinancialDashboardAsync(request, cancellationToken);
 
             return Ok(dashboard);
         }

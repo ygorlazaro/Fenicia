@@ -9,51 +9,59 @@ using Fenicia.Module.Basic.Domains.Product.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
+/// <summary>
+/// Service implementation for managing dashboard data.
+/// </summary>
+/// <param name="orderService">The order service.</param>
+/// <param name="productService">The product service.</param>
+/// <param name="employeeService">The employee service.</param>
 public sealed class DashboardService(
     IOrderService orderService,
     IProductService productService,
     IEmployeeService employeeService) : IDashboardService
 {
-
+    /// <inheritdoc />
     public async Task<FinancialDashboardResponse> GetFinancialDashboardAsync(
-        GetFinancialDashboardQuery query,
+        FinancialDashboardRequest request,
         CancellationToken cancellationToken = default)
     {
-        var kpi = await CalculateKpiSummaryAsync(query.Days, cancellationToken);
-        var revenueVsCost = await CalculateRevenueVsCostAsync(query.Days, cancellationToken);
-        var profitMarginTrend = await CalculateProfitMarginTrendAsync(query.Days, cancellationToken);
-        var accountsReceivable = await CalculateAccountsReceivableAsync(query.Days, cancellationToken);
+        var kpi = await CalculateKpiSummaryAsync(request.Days, cancellationToken);
+        var revenueVsCost = await CalculateRevenueVsCostAsync(request.Days, cancellationToken);
+        var profitMarginTrend = await CalculateProfitMarginTrendAsync(request.Days, cancellationToken);
+        var accountsReceivable = await CalculateAccountsReceivableAsync(request.Days, cancellationToken);
         var dailySales = await CalculateDailySalesSummaryAsync(cancellationToken);
-        var topCategoriesByRevenue = await CalculateTopCategoriesByRevenueAsync(query.Days, cancellationToken);
-        var topCategoriesByQuantity = await CalculateTopCategoriesByQuantityAsync(query.Days, cancellationToken);
+        var topCategoriesByRevenue = await CalculateTopCategoriesByRevenueAsync(request.Days, cancellationToken);
+        var topCategoriesByQuantity = await CalculateTopCategoriesByQuantityAsync(request.Days, cancellationToken);
 
-        return new FinancialDashboardResponse
-        {
-            Kpi = kpi,
-            RevenueVsCost = revenueVsCost,
-            ProfitMarginTrend = profitMarginTrend,
-            AccountsReceivable = accountsReceivable,
-            DailySales = dailySales,
-            TopCategoriesByRevenue = topCategoriesByRevenue,
-            TopCategoriesByQuantity = topCategoriesByQuantity
-        };
+        return DashboardMapper.MapToFinancialDashboardResponse(
+            kpi,
+            revenueVsCost,
+            profitMarginTrend,
+            accountsReceivable,
+            dailySales,
+            topCategoriesByRevenue,
+            topCategoriesByQuantity);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetTotalCostAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTotalProductsAsync(CancellationToken cancellationToken = default)
     {
         return productService.GetTotalProductsAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default)
     {
         return employeeService.GetTotalEmployeesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<OrderModel>> GetRecentOrdersAsync(
         int topLimit,
         CancellationToken cancellationToken = default)
@@ -61,16 +69,19 @@ public sealed class DashboardService(
         return orderService.GetRecentOrdersAsync(topLimit, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetTopCustomerOrdersAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetAtRiskOrdersAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
         DateTime startDate,
         DateTime endDate,
@@ -79,11 +90,17 @@ public sealed class DashboardService(
         return orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken cancellationToken = default)
     {
         return employeeService.GetAllEmployeesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Gets the week number for the specified date.
+    /// </summary>
+    /// <param name="date">The date to get the week number for.</param>
+    /// <returns>The week number.</returns>
     private static int GetWeekNumber(DateTime date)
     {
         var culture = CultureInfo.CurrentCulture;
@@ -93,6 +110,12 @@ public sealed class DashboardService(
         return calendar.GetWeekOfYear(date, weekRule, firstDay);
     }
 
+    /// <summary>
+    /// Builds a top categories list with an "Others" aggregation.
+    /// </summary>
+    /// <param name="categories">The list of categories ordered by value.</param>
+    /// <param name="topCount">The number of top categories to keep.</param>
+    /// <returns>A list with top categories and an aggregated "Others" category if needed.</returns>
     private static List<CategoryBreakdownResponse> BuildTopWithOthers(
         List<CategoryBreakdownResponse> categories,
         int topCount)
@@ -124,6 +147,12 @@ public sealed class DashboardService(
         return top;
     }
 
+    /// <summary>
+    /// Calculates the top categories by revenue for the specified period.
+    /// </summary>
+    /// <param name="days">The number of days to look back.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of category breakdown responses ordered by revenue.</returns>
     private async Task<List<CategoryBreakdownResponse>> CalculateTopCategoriesByRevenueAsync(
         int days,
         CancellationToken cancellationToken = default)
@@ -149,6 +178,12 @@ public sealed class DashboardService(
         return BuildTopWithOthers(categoryRevenue, 5);
     }
 
+    /// <summary>
+    /// Calculates the top categories by quantity for the specified period.
+    /// </summary>
+    /// <param name="days">The number of days to look back.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of category breakdown responses ordered by quantity.</returns>
     private async Task<List<CategoryBreakdownResponse>> CalculateTopCategoriesByQuantityAsync(
         int days,
         CancellationToken cancellationToken = default)
@@ -174,6 +209,11 @@ public sealed class DashboardService(
         return BuildTopWithOthers(categoryQuantity, 5);
     }
 
+    /// <summary>
+    /// Calculates the daily sales summary.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The daily sales summary response.</returns>
     private async Task<DailySalesSummaryResponse> CalculateDailySalesSummaryAsync(
         CancellationToken cancellationToken = default)
     {
@@ -196,6 +236,12 @@ public sealed class DashboardService(
         return dailySales;
     }
 
+    /// <summary>
+    /// Calculates the accounts receivable for the specified period.
+    /// </summary>
+    /// <param name="days">The number of days to look back.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The accounts receivable response.</returns>
     private async Task<AccountsReceivableResponse> CalculateAccountsReceivableAsync(
         int days,
         CancellationToken cancellationToken = default)
@@ -216,6 +262,12 @@ public sealed class DashboardService(
         return accountsReceivable;
     }
 
+    /// <summary>
+    /// Calculates the profit margin trend for the specified period.
+    /// </summary>
+    /// <param name="days">The number of days to look back.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of profit margin trend responses.</returns>
     private async Task<List<ProfitMarginTrendResponse>> CalculateProfitMarginTrendAsync(
         int days,
         CancellationToken cancellationToken = default)
@@ -259,6 +311,12 @@ public sealed class DashboardService(
         return response;
     }
 
+    /// <summary>
+    /// Calculates the revenue vs cost comparison for the specified period.
+    /// </summary>
+    /// <param name="days">The number of days to look back.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of revenue vs cost responses.</returns>
     private async Task<List<RevenueVsCostResponse>> CalculateRevenueVsCostAsync(
         int days,
         CancellationToken cancellationToken = default)
@@ -312,6 +370,12 @@ public sealed class DashboardService(
         return response;
     }
 
+    /// <summary>
+    /// Calculates the KPI summary for the specified period.
+    /// </summary>
+    /// <param name="days">The number of days to look back.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The KPI summary response.</returns>
     private async Task<KpiSummaryResponse> CalculateKpiSummaryAsync(
         int days,
         CancellationToken cancellationToken = default)
