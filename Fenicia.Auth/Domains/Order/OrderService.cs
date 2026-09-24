@@ -26,7 +26,7 @@ public class OrderService(
 
         if (modules.Count == 0)
         {
-            throw new ItemNotExistsException(ExceptionMessages.ModulesNotFound);
+            throw new ForbiddenException(ExceptionMessages.ModulesNotFound);
         }
 
         var order = PersistOrderAsync(request, modules);
@@ -57,7 +57,7 @@ public class OrderService(
 
         var subscription = new SubscriptionModel
         {
-            Status = SubscriptionStatus.Active,
+            Status = EnumSubscriptionStatus.Active,
             CompanyId = companyId,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddMonths(1),
@@ -83,7 +83,7 @@ public class OrderService(
         {
             OrderNumber = orderNumber,
             SaleDate = DateTime.UtcNow,
-            Status = OrderStatus.Approved,
+            Status = EnumOrderStatus.Approved,
             UserId = request.UserId,
             TotalAmount = totalAmount,
             Details = details,
@@ -114,12 +114,12 @@ public class OrderService(
         {
             var modules = await GetModulesToOrderAsync(request.Distinct(), cancellationToken);
 
-            if (modules.Any(m => m.Type == ModuleType.Basic))
+            if (modules.Any(m => m.Type == EnumModuleType.Basic))
             {
                 return modules;
             }
 
-            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
+            var basicModule = await GetModuleByTypeAsync(EnumModuleType.Basic, cancellationToken);
 
             return basicModule switch
             {
@@ -127,11 +127,11 @@ public class OrderService(
                 _ => [basicModule, .. modules]
             };
         }
-        catch (InvalidRequestException)
+        catch (BadRequestException)
         {
             return [];
         }
-        catch (ItemNotExistsException)
+        catch (ForbiddenException)
         {
             return [];
         }
@@ -145,7 +145,7 @@ public class OrderService(
     }
 
     private Task<ModuleModel?> GetModuleByTypeAsync(
-        ModuleType moduleType,
+        EnumModuleType moduleType,
         CancellationToken cancellationToken = default)
     {
         return moduleService.GetModuleByTypeAsync(moduleType, cancellationToken);

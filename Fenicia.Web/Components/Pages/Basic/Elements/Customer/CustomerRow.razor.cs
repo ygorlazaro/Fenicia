@@ -7,7 +7,7 @@ public partial class CustomerRow : ComponentBase
 {
     [Parameter]
 
-    public GetAllCustomerResponse Item { get; set; } = default!;
+    public GetAllCustomerResponse Item { get; set; } = null!;
 
     [Parameter]
 

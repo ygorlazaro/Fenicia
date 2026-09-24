@@ -21,6 +21,6 @@ public interface IModuleService
         CancellationToken cancellationToken = default);
 
     Task<ModuleModel?> GetModuleByTypeAsync(
-        ModuleType type,
+        EnumModuleType type,
         CancellationToken cancellationToken = default);
 }

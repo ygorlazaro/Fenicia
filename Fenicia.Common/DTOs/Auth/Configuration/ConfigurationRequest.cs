@@ -5,7 +5,7 @@ namespace Fenicia.Common.DTOs.Auth.Configuration;
 
 public class ConfigurationRequest()
 {
-    public ConfigurationRequest(Guid userId, ConfigType configType, string value)
+    public ConfigurationRequest(Guid userId, EnumConfigType configType, string value)
         : this()
     {
         UserId = userId;
@@ -17,8 +17,8 @@ public class ConfigurationRequest()
     public Guid UserId { get; set; }
 
     [Required]
-    [EnumDataType(typeof(ConfigType))]
-    public ConfigType ConfigType { get; set; }
+    [EnumDataType(typeof(EnumConfigType))]
+    public EnumConfigType ConfigType { get; set; }
 
     [Required]
     [MaxLength(200)]

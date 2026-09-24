@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.ProductCategory;
 
-public class AddProductCategoryCommand()
+public class AddProductCategoryRequest()
 {
-    public AddProductCategoryCommand(Guid id, string name)
+    public AddProductCategoryRequest(Guid id, string name)
         : this()
     {
         Id = id;

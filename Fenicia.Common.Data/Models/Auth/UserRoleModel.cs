@@ -19,11 +19,11 @@ public class UserRoleModel : BaseModel
     public Guid CompanyId { get; init; }
 
     [ForeignKey(nameof(RoleId))]
-    public RoleModel Role { get; init; } = default!;
+    public RoleModel Role { get; init; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     [ForeignKey(nameof(CompanyId))]
-    public CompanyModel Company { get; init; } = default!;
+    public CompanyModel Company { get; init; } = null!;
 }

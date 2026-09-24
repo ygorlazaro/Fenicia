@@ -30,19 +30,19 @@
                             <MudText Typo="Typo.body2" Color="Color.Default">@PageSubtitle</MudText>
                         </div>
                         @if (!string.IsNullOrEmpty(AddButtonHref))
-                    {
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
-                                   Href="@AddButtonHref">
-                            @AddButtonLabel
-                        </MudButton>
-                    }
-                    else
-                    {
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
-                                   OnClick="OpenAddModal">
-                            @AddButtonLabel
-                        </MudButton>
-                    }
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                                       Href="@AddButtonHref">
+                                @AddButtonLabel
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                                       OnClick="OpenAddModal">
+                                @AddButtonLabel
+                            </MudButton>
+                        }
                     </MudStack>
 
                     <MudTextField Value="_searchText" ValueChanged="@((string? v) => OnSearchChanged(v))" Label="Pesquisar"
@@ -51,8 +51,7 @@
                                   Class="mb-4" />
 
                     <MudTable @ref="_table" T="TItem" FixedHeader="true" Height="400px" Striped="true" Hover="true"
-                                 Dense="true" Loading="_isLoading" ServerData="ServerReload"
-                              Sortable="true">
+                              Dense="true" Loading="_isLoading" ServerData="ServerReload" Sortable="true">
                         <HeaderContent>
                             @HeaderContent
                         </HeaderContent>
@@ -60,9 +59,8 @@
                             @RowTemplate(new CrudRowContext<TItem>(context, this))
                         </RowTemplate>
                         <PagerContent>
-                            <MudTablePager PageSizeOptions="[10, 20, 50, 100]"
-                                           RowsPerPageString="Itens por página:" InfoFormat="{first_item}-{last_item} de {all_items}"
-                                           AllItemsText="Todos" />
+                            <MudTablePager PageSizeOptions="[10, 20, 50, 100]" RowsPerPageString="Itens por página:"
+                                           InfoFormat="{first_item}-{last_item} de {all_items}" AllItemsText="Todos" />
                         </PagerContent>
                     </MudTable>
                 </MudPaper>
@@ -162,7 +160,7 @@
     private bool _autoOpenEditHandled;
     private string? _searchText;
 
-    private MudTable<TItem> _table = default!;
+    private MudTable<TItem> _table = null!;
     private string? _querySort;
     private bool _isApplyingQueryParams;
     private bool _urlSyncInitialized;

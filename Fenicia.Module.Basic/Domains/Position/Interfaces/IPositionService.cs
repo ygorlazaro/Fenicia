@@ -14,14 +14,14 @@ public interface IPositionService
         CancellationToken cancellationToken = default);
 
     Task<AddPositionResponse> AddAsync(
-        AddPositionCommand command,
+        AddPositionRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdatePositionResponse?> UpdateAsync(
-        UpdatePositionCommand command,
+        UpdatePositionRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeletePositionCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeletePositionRequest command, Guid companyId, CancellationToken cancellationToken = default);
 }

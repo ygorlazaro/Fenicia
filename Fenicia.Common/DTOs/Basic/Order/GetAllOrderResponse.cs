@@ -16,7 +16,7 @@ public class GetAllOrderResponse() : ICrudItem
         int totalQuantity,
         DateTime saleDate,
         string status,
-        PaymentMethod paymentMethod,
+        EnumPaymentMethod paymentMethod,
         int totalItems,
         Guid? employeeId = null,
         string? employeeName = null)
@@ -72,7 +72,7 @@ public class GetAllOrderResponse() : ICrudItem
     public string Status { get; set; } = string.Empty;
 
     [Required]
-    public PaymentMethod PaymentMethod { get; set; }
+    public EnumPaymentMethod PaymentMethod { get; set; }
 
     public int TotalItems { get; set; }
 

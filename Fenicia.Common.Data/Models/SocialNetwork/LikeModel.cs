@@ -17,10 +17,10 @@ public class LikeModel : BaseCompanyModel
     public Guid? CommentId { get; init; }
 
     [ForeignKey(nameof(ProfileId))]
-    public ProfileModel Profile { get; init; } = default!;
+    public ProfileModel Profile { get; init; } = null!;
 
     [ForeignKey(nameof(FeedId))]
-    public FeedModel Feed { get; init; } = default!;
+    public FeedModel Feed { get; init; } = null!;
 
     [ForeignKey(nameof(CommentId))]
     public CommentModel? Comment { get; init; }

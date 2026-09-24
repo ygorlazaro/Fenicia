@@ -6,7 +6,7 @@ namespace Fenicia.Common.DTOs.Auth.User;
 
 public class UserRequest()
 {
-    public UserRequest(string email, string password, string name,  CompanyRequest company, List<RoleRequest>? roles = null)
+    public UserRequest(string email, string password, string name, CompanyRequest company, List<RoleRequest>? roles = null)
         : this()
     {
         Email = email;
@@ -33,5 +33,5 @@ public class UserRequest()
 
     public Guid Id { get; set; }
 
-    public CompanyRequest Company { get; set; } = default!;
+    public CompanyRequest Company { get; set; } = null!;
 }

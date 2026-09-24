@@ -4,20 +4,12 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .vs
-/Docker/data
-
-
-#Ignore vscode AI rules
+riderModule.iml
 .github/instructions/codacy.instructions.md
 Fenicia.Auth.Tests/TestResults/*
 /**/node_modules/
 
 # Environment variables (keep secrets out of git)
-Src/Front/.env
-Src/Front/.env.local
-Src/Front/.env.production
-Src/Front/.env.local
-Docker/.env
 Fenicia.Module.Basic.Tests/TestResults/*
 .idea/
-Src/APIs/Fenicia.Auth/uploads/
+Fenicia.Auth/uploads/

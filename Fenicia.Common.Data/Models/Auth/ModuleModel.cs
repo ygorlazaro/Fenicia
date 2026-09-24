@@ -22,8 +22,8 @@ public class ModuleModel : BaseModel
 
     [Required]
     [Column("type")]
-    [EnumDataType(typeof(ModuleType))]
-    public ModuleType Type { get; init; }
+    [EnumDataType(typeof(EnumModuleType))]
+    public EnumModuleType Type { get; init; }
 
     [Column("description")]
     [MaxLength(500)]

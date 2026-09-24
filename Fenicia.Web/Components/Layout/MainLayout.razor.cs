@@ -120,19 +120,19 @@ public partial class MainLayout : IDisposable
 
     [Inject]
 
-    public ICompanyContextService CompanyContext { get; set; } = default!;
+    public ICompanyContextService CompanyContext { get; set; } = null!;
 
     [Inject]
 
-    public IUserProfileNotifier UserProfileNotifier { get; set; } = default!;
+    public IUserProfileNotifier UserProfileNotifier { get; set; } = null!;
 
     [Inject]
 
-    public ILoadingService LoadingService { get; set; } = default!;
+    public ILoadingService LoadingService { get; set; } = null!;
 
     [Inject]
 
-    public ICompanySelectionState CompanyState { get; set; } = default!;
+    public ICompanySelectionState CompanyState { get; set; } = null!;
 
     [Parameter]
 

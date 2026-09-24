@@ -24,10 +24,10 @@ public sealed class SubscriptionCreditModel : BaseModel
     public Guid? OrderDetailId { get; init; }
 
     [ForeignKey(nameof(ModuleId))]
-    public ModuleModel Module { get; init; } = default!;
+    public ModuleModel Module { get; init; } = null!;
 
     [ForeignKey(nameof(SubscriptionId))]
-    public SubscriptionModel Subscription { get; init; } = default!;
+    public SubscriptionModel Subscription { get; init; } = null!;
 
     [ForeignKey(nameof(OrderDetailId))]
     public OrderDetailModel? Order { get; init; }

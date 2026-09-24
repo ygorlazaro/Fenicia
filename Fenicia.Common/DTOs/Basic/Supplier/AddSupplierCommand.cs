@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Supplier;
 
-public class AddSupplierCommand()
+public class AddSupplierRequest()
 {
-    public AddSupplierCommand(
+    public AddSupplierRequest(
         Guid id,
         string name,
         string? email,

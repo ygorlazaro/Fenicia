@@ -11,7 +11,7 @@ public class GetStockMovementQuery
     public GetStockMovementQuery(
         DateTime? startDate,
         DateTime? endDate,
-        StockMovementType? type = null,
+        EnumStockMovementType? type = null,
         int page = 1,
         int perPage = 10,
         string? query = null)
@@ -28,7 +28,7 @@ public class GetStockMovementQuery
 
     public DateTime? EndDate { get; set; }
 
-    public StockMovementType? Type { get; set; }
+    public EnumStockMovementType? Type { get; set; }
 
     public int Page { get; set; } = 1;
 

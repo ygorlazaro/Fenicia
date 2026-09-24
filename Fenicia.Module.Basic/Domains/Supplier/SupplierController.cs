@@ -114,7 +114,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddSupplierResponse>> PostAsync(
-        [FromBody] AddSupplierCommand command,
+        [FromBody] AddSupplierRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -154,7 +154,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateSupplierResponse>> PatchAsync(
-        [FromBody] UpdateSupplierCommand command,
+        [FromBody] UpdateSupplierRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -164,7 +164,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var updatedCommand = new UpdateSupplierCommand(
+            var updatedCommand = new UpdateSupplierRequest(
                 id,
                 command.Name,
                 command.Email,
@@ -205,7 +205,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            await supplierService.DeleteAsync(new DeleteSupplierCommand(id), companyId, cancellationToken);
+            await supplierService.DeleteAsync(new DeleteSupplierRequest(id), companyId, cancellationToken);
 
             return NoContent();
         }

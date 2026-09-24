@@ -83,7 +83,7 @@ public class NotificationController(INotificationService notificationService) : 
     /// <summary>
     ///     Cria uma nova notificação.
     /// </summary>
-    /// <param name="command">Dados da notificação (título, descrição, data, imagem)</param>
+    /// <param name="request">Dados da notificação (título, descrição, data, imagem)</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Dados da notificação criada</returns>
     /// <response code="201">Notificação criada com sucesso</response>
@@ -97,12 +97,12 @@ public class NotificationController(INotificationService notificationService) : 
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<NotificationResponse>> PostAsync(
-        [FromBody] NotificationRequest command,
+        [FromBody] NotificationRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var notification = await notificationService.AddAsync(command, cancellationToken);
+            var notification = await notificationService.AddAsync(request, cancellationToken);
             return new CreatedResult(string.Empty, notification);
         }
         catch (UnauthorizedAccessException ex)

@@ -2,7 +2,7 @@
 
 @code {
     [Parameter]
-    public GetOrderByIdResponse Order { get; set; } = default!;
+    public GetOrderByIdResponse Order { get; set; } = null!;
 
     public string StatusColor(string status) => "Info";
 
@@ -14,8 +14,7 @@
     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3 flex-wrap">
         <div>
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
-                               Color="Color.Default"
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default"
                                OnClick="@(() => NavigationManager.NavigateTo("/basic/order"))" />
                 <div>
                     <MudText Typo="Typo.h5">Pedido @Order.OrderNumber</MudText>
@@ -26,15 +25,10 @@
             </MudStack>
         </div>
         <MudStack Row="true" Spacing="2">
-            <MudChip T="string"
-                     Color="Color.Info"
-                     Variant="Variant.Filled"
-                     Size="Size.Medium">
+            <MudChip T="string" Color="Color.Info" Variant="Variant.Filled" Size="Size.Medium">
                 @Order.Status
             </MudChip>
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Default"
-                       StartIcon="@Icons.Material.Filled.Print"
+            <MudButton Variant="Variant.Outlined" Color="Color.Default" StartIcon="@Icons.Material.Filled.Print"
                        OnClick="@OnPrint">
                 Imprimir
             </MudButton>

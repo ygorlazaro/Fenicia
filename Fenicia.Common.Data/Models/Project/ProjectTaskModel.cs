@@ -41,13 +41,13 @@ public sealed class ProjectTaskModel : BaseCompanyModel
     public List<TaskAssigneeModel> Assignees { get; init; } = [];
 
     [ForeignKey(nameof(StatusId))]
-    public ProjectStatusModel StatusModel { get; init; } = default!;
+    public ProjectStatusModel StatusModel { get; init; } = null!;
 
     [ForeignKey(nameof(CreatedBy))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     [ForeignKey(nameof(ProjectId))]
-    public ProjectModel ProjectModel { get; init; } = default!;
+    public ProjectModel ProjectModel { get; init; } = null!;
 
     [ForeignKey(nameof(SprintId))]
     public SprintModel? SprintModel { get; init; }

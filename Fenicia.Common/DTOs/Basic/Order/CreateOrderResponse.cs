@@ -15,8 +15,8 @@ public class CreateOrderResponse()
         decimal discountAmount,
         int totalQuantity,
         DateTime saleDate,
-        OrderStatus status,
-        PaymentMethod paymentMethod,
+        EnumOrderStatus status,
+        EnumPaymentMethod paymentMethod,
         string? notes = null,
         Guid? employeeId = null)
         : this()
@@ -61,10 +61,10 @@ public class CreateOrderResponse()
     public DateTime SaleDate { get; set; }
 
     [Required]
-    public OrderStatus Status { get; set; }
+    public EnumOrderStatus Status { get; set; }
 
     [Required]
-    public PaymentMethod PaymentMethod { get; set; }
+    public EnumPaymentMethod PaymentMethod { get; set; }
 
     [MaxLength(1000)]
     public string? Notes { get; set; }

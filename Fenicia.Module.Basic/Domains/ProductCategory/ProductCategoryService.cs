@@ -37,7 +37,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository repository
     }
 
     public async Task<AddProductCategoryResponse> AddAsync(
-        AddProductCategoryCommand command,
+        AddProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -54,7 +54,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository repository
     }
 
     public async Task<UpdateProductCategoryResponse?> UpdateAsync(
-        UpdateProductCategoryCommand command,
+        UpdateProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -84,7 +84,7 @@ public sealed class ProductCategoryService(IProductCategoryRepository repository
     }
 
     public async Task DeleteAsync(
-        DeleteProductCategoryCommand command,
+        DeleteProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {

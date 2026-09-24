@@ -7,20 +7,40 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
+/// <summary>
+/// Service class for managing configuration settings for users and companies.
+/// </summary>
+/// <param name="repository">The configuration repository.</param>
+/// <param name="userRoleService">The user role service.</param>
 public class ConfigurationService(
     IConfigurationRepository repository,
     IUserRoleService userRoleService) : IConfigurationService
 {
-    public async Task<List<ConfigurationResponse>> GetAllAsync(
+    /// <summary>
+    /// Retrieves all configuration settings for a specific user and company.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="companyId">The company ID.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The list of configuration responses.</returns>
+    public async Task<IEnumerable<ConfigurationResponse>> GetAllAsync(
         Guid userId,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
         var configurations = await repository.GetByUserAndCompanyAsync(userId, companyId, cancellationToken);
 
-        return [.. configurations.Select(MapToConfigurationResponse)];
+        return [.. configurations.Select(ConfigurationMapper.MapToConfigurationResponse)];
     }
 
+    /// <summary>
+    /// Upserts a configuration setting for a specific user and company. If the configuration exists, it updates the value; otherwise, it creates a new configuration.
+    /// </summary>
+    /// <param name="request">The configuration request.</param>
+    /// <param name="companyId">The company ID.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="PermissionDeniedException"></exception>
     public async Task UpsertAsync(
         ConfigurationRequest request,
         Guid companyId,
@@ -56,15 +76,5 @@ public class ConfigurationService(
 
         configuration.Value = request.Value;
         await repository.UpdateAsync(configuration.Id, configuration, cancellationToken);
-    }
-
-    private static ConfigurationResponse MapToConfigurationResponse(ConfigurationModel configuration)
-    {
-        return new ConfigurationResponse(
-            configuration.Id,
-            configuration.UserId,
-            configuration.CompanyId,
-            configuration.ConfigType,
-            configuration.Value);
     }
 }

@@ -35,7 +35,7 @@ public class UploadController(IUploadService service, IOptions<UploadOptions> op
             var response = await service.UploadFileAsync(file, uploadOptions, contentRootPath, cancellationToken);
             return Ok(response);
         }
-        catch (InvalidRequestException ex)
+        catch (BadRequestException ex)
         {
             return BadRequest(ex.Message);
         }

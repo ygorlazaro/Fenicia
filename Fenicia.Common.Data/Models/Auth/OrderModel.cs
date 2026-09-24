@@ -37,12 +37,12 @@ public sealed class OrderModel : BaseModel
     public DateTime SaleDate { get; init; }
 
     [Required]
-    [EnumDataType(typeof(OrderStatus))]
-    public OrderStatus Status { get; init; }
+    [EnumDataType(typeof(EnumOrderStatus))]
+    public EnumOrderStatus Status { get; init; }
 
     [Column("payment_method")]
-    [EnumDataType(typeof(PaymentMethod))]
-    public PaymentMethod PaymentMethod { get; init; }
+    [EnumDataType(typeof(EnumPaymentMethod))]
+    public EnumPaymentMethod PaymentMethod { get; init; }
 
     [Column("notes")]
     [MaxLength(1000)]
@@ -53,8 +53,8 @@ public sealed class OrderModel : BaseModel
     public ICollection<OrderDetailModel> Details { get; init; } = [];
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     [ForeignKey(nameof(CompanyId))]
-    public CompanyModel Company { get; init; } = default!;
+    public CompanyModel Company { get; init; } = null!;
 }

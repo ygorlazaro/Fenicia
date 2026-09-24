@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
+/// <summary>
+/// Controller responsible for handling forgot password operations, including initiating password reset requests and resetting user passwords.
+/// </summary>
+/// <param name="forgotPasswordService"></param>
 [ApiController]
 [AllowAnonymous]
 [Route("[controller]")]
@@ -15,50 +19,48 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 public class ForgotPasswordController(IForgotPasswordService forgotPasswordService) : ControllerBase
 {
     /// <summary>
-    ///     Inicia o fluxo de recuperação de senha enviando um código para o e-mail informado.
+    ///   Initiates a forgot password request for a user. This endpoint generates a unique code and sends it to the user's registered email address, allowing them to reset their password.
     /// </summary>
-    /// <param name="reset">Comando com o e-mail do usuário</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (201) se o código foi gerado com sucesso</returns>
-    /// <response code="201">Código de recuperação gerado e enviado</response>
-    /// <response code="400">E-mail não encontrado ou inválido</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">The forgot password request.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> PostAsync(
-        [FromBody] ForgotPasswordRequest reset,
+        [FromBody] ForgotPasswordRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
+            var userId = ClaimReader.UserId(User);
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
-            var userId = ClaimReader.UserId(User);
 
-            var command = new ForgotPasswordRequest(reset.Email, userId, ipAddress, userAgent);
+            request.IpAddress = ipAddress;
+            request.UserAgent = userAgent;
+            request.UserId = userId;
 
-            await forgotPasswordService.AddAsync(command, cancellationToken);
+            await forgotPasswordService.AddAsync(request, cancellationToken);
 
             return Created();
         }
-        catch (ItemNotExistsException ex)
+        catch (ForbiddenException ex)
         {
             return BadRequest(ex.Message);
         }
     }
 
+
     /// <summary>
-    ///     Redefine a senha do usuário usando o código de recuperação.
+    ///   Resets the password for a user based on the provided reset password request. This endpoint validates the reset code and updates the user's password if the code is valid and has not expired.
     /// </summary>
-    /// <param name="request">Comando com e-mail, nova senha e código de recuperação</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se a senha foi redefinida com sucesso</returns>
-    /// <response code="204">Senha redefinida com sucesso</response>
-    /// <response code="400">Código inválido, e-mail não encontrado ou senha inválida</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="request">The reset password request.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="ForbiddenException"></exception>
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -74,11 +76,7 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
 
             return NoContent();
         }
-        catch (ItemNotExistsException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (InvalidDataException ex)
+        catch (ForbiddenException ex)
         {
             return BadRequest(ex.Message);
         }

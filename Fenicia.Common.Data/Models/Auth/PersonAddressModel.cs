@@ -10,8 +10,8 @@ public sealed class PersonAddressModel : BaseCompanyModel
     public Guid AddressId { get; init; }
 
     [ForeignKey(nameof(PersonId))]
-    public PersonModel Person { get; init; } = default!;
+    public PersonModel Person { get; init; } = null!;
 
     [ForeignKey(nameof(AddressId))]
-    public AddressModel Address { get; init; } = default!;
+    public AddressModel Address { get; init; } = null!;
 }

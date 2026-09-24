@@ -11,7 +11,7 @@ public class UpdateStockMovementResponse()
         double quantity,
         DateTime? date,
         decimal? price,
-        StockMovementType type,
+        EnumStockMovementType type,
         Guid? customerId,
         Guid? supplierId,
         Guid? employeeId,
@@ -46,7 +46,7 @@ public class UpdateStockMovementResponse()
     public decimal? Price { get; set; }
 
     [Required]
-    public StockMovementType Type { get; set; }
+    public EnumStockMovementType Type { get; set; }
 
     public Guid? CustomerId { get; set; }
 

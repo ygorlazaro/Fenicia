@@ -10,12 +10,12 @@ public interface IStockMovementService
         CancellationToken cancellationToken = default);
 
     Task<AddStockMovementResponse> AddAsync(
-        AddStockMovementCommand command,
+        AddStockMovementRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdateStockMovementResponse?> UpdateAsync(
-        UpdateStockMovementCommand command,
+        UpdateStockMovementRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 

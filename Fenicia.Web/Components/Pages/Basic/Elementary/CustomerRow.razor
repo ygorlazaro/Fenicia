@@ -1,15 +1,8 @@
-
 <MudTd DataLabel="Ações" Style="text-align: left; min-width: 120px; width: 120px">
-    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                   Color="Color.Info"
-                   Size="Size.Small"
-                   OnClick="@(() => OnEdit.InvokeAsync(Item))"
-                   AriaLabel="Editar" />
-    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                   Color="Color.Error"
-                   Size="Size.Small"
-                   OnClick="@(() => OnDelete.InvokeAsync(Item))"
-                   AriaLabel="Excluir" />
+    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
+                   OnClick="@(() => OnEdit.InvokeAsync(Item))" AriaLabel="Editar" />
+    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                   OnClick="@(() => OnDelete.InvokeAsync(Item))" AriaLabel="Excluir" />
 </MudTd>
 <MudTd DataLabel="Nome">@Item.Name</MudTd>
 <MudTd DataLabel="Email">@(string.IsNullOrEmpty(Item.Email) ? "—" : Item.Email)</MudTd>
@@ -19,7 +12,7 @@
 <MudTd DataLabel="Estado">@(string.IsNullOrEmpty(Item.Address?.StateName) ? "—" : Item.Address.StateName)</MudTd>
 
 @code {
-    [Parameter] public GetAllCustomerResponse Item { get; set; } = default!;
+    [Parameter] public GetAllCustomerResponse Item { get; set; } = null!;
     [Parameter] public EventCallback<GetAllCustomerResponse> OnEdit { get; set; }
     [Parameter] public EventCallback<GetAllCustomerResponse> OnDelete { get; set; }
 }

@@ -114,7 +114,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddPositionResponse>> PostAsync(
-        [FromBody] AddPositionCommand command,
+        [FromBody] AddPositionRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -154,7 +154,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdatePositionResponse>> PatchAsync(
-        [FromBody] UpdatePositionCommand command,
+        [FromBody] UpdatePositionRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -164,7 +164,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var updatedCommand = new UpdatePositionCommand(id, command.Name);
+            var updatedCommand = new UpdatePositionRequest(id, command.Name);
             var position = await positionService.UpdateAsync(updatedCommand, companyId, cancellationToken);
 
             return position is null ? NotFound() : Ok(position);
@@ -200,7 +200,7 @@ public class PositionController(IPositionService positionService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            await positionService.DeleteAsync(new DeletePositionCommand(id), companyId, cancellationToken);
+            await positionService.DeleteAsync(new DeletePositionRequest(id), companyId, cancellationToken);
 
             return NoContent();
         }

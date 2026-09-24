@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.DTOs.Basic.PersonAddress;
+using Fenicia.Common.DTOs.Auth.PersonAddress;
 using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.PersonAddress;
@@ -11,8 +11,8 @@ public sealed class PersonAddressService(IPersonAddressRepository repository) : 
     {
     }
 
-    public async Task<GetPersonAddressResponse> InsertAsync(
-        AddPersonAddressCommand command,
+    public async Task<PersonAddressResponse> InsertAsync(
+        PersonAddressRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -25,6 +25,6 @@ public sealed class PersonAddressService(IPersonAddressRepository repository) : 
         };
 
         var result = await repository.InsertAsync(personAddress, cancellationToken);
-        return new GetPersonAddressResponse(result.Id, result.PersonId, result.AddressId, result.Person.Name);
+        return new PersonAddressResponse(result.Id, result.PersonId, result.AddressId, result.Person.Name);
     }
 }

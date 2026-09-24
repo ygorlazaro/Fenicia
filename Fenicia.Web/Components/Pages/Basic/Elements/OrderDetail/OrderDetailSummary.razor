@@ -2,9 +2,9 @@
 
 @code {
     [Parameter]
-    public GetOrderByIdResponse Order { get; set; } = default!;
+    public GetOrderByIdResponse Order { get; set; } = null!;
 
-    public string PaymentLabel(PaymentMethod payment) => string.Empty;
+    public string PaymentLabel(EnumPaymentMethod payment) => string.Empty;
 }
 
 <MudPaper Elevation="2" Class="pa-4 invoice-section">

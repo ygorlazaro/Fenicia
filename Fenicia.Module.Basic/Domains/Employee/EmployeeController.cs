@@ -114,7 +114,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddEmployeeResponse>> PostAsync(
-        [FromBody] AddEmployeeCommand command,
+        [FromBody] AddEmployeeRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -153,7 +153,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateEmployeeResponse>> PatchAsync(
-        [FromBody] UpdateEmployeeCommand command,
+        [FromBody] UpdateEmployeeRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -201,7 +201,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             await employeeService.DeleteAsync(
-                new DeleteEmployeeCommand(id),
+                new DeleteEmployeeRequest(id),
                 companyContext.CompanyId,
                 cancellationToken);
 

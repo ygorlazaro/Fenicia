@@ -58,12 +58,21 @@ public class UserRoleRepository(DbContext context) : Repository<UserRoleModel>(c
             .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, cancellationToken);
     }
 
-    public Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsAdminAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default)
     {
-        return DbSet
+        var isAdmin = await DbSet
             .AnyAsync(
                 ur => ur.UserId == userId && ur.CompanyId == companyId && ur.Role.Name == "Admin",
                 cancellationToken);
+
+        if (isAdmin)
+        {
+            return true;
+        }
+
+        var isGod = await HasRoleAsync(userId, companyId, "God", cancellationToken);
+
+        return isGod;
     }
 
     public Task<bool> AnyIdAndCompanyAsync(
@@ -88,8 +97,8 @@ public class UserRoleRepository(DbContext context) : Repository<UserRoleModel>(c
     public Task<List<UserRoleModel>> GetUserRolesByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         var query = from ur in DbSet
-            where ur.UserId == userId
-            select ur;
+                    where ur.UserId == userId
+                    select ur;
 
         return query
             .Include(x => x.Role)

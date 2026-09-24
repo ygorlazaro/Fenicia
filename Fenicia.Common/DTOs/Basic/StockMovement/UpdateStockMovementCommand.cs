@@ -3,14 +3,14 @@ using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.DTOs.Basic.StockMovement;
 
-public class UpdateStockMovementCommand()
+public class UpdateStockMovementRequest()
 {
-    public UpdateStockMovementCommand(
+    public UpdateStockMovementRequest(
         Guid id,
         double quantity,
         DateTime? date,
         decimal? price,
-        StockMovementType type,
+        EnumStockMovementType type,
         Guid productId,
         Guid? customerId,
         Guid? supplierId,
@@ -44,7 +44,7 @@ public class UpdateStockMovementCommand()
     public decimal? Price { get; set; }
 
     [Required]
-    public StockMovementType Type { get; set; }
+    public EnumStockMovementType Type { get; set; }
 
     [Required]
     public Guid ProductId { get; set; }

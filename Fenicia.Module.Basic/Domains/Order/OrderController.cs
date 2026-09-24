@@ -147,7 +147,7 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateOrderResponse>> PostAsync(
-        [FromBody] CreateOrderCommand command,
+        [FromBody] CreateOrderRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -195,7 +195,7 @@ public class OrderController(IOrderService orderService, ICompanyContext company
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await orderService.DeleteAsync(new DeleteOrderCommand(id), companyContext.CompanyId, cancellationToken);
+            await orderService.DeleteAsync(new DeleteOrderRequest(id), companyContext.CompanyId, cancellationToken);
 
             return NoContent();
         }

@@ -34,5 +34,5 @@ public sealed class ForgotPasswordModel : BaseModel
     public string? UserAgent { get; init; }
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 }

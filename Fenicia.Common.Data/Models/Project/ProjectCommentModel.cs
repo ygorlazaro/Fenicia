@@ -15,10 +15,10 @@ public sealed class ProjectCommentModel : BaseCompanyModel
     public string Content { get; set; } = string.Empty;
 
     [ForeignKey(nameof(TaskId))]
-    public ProjectTaskModel TaskModel { get; init; } = default!;
+    public ProjectTaskModel TaskModel { get; init; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     public Guid AuthorId { get; init; }
 }

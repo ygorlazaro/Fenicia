@@ -6,7 +6,6 @@ using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.DTOs.Auth.Company;
 using Fenicia.Common.DTOs.Auth.Role;
 using Fenicia.Common.DTOs.Auth.User;
 using Fenicia.Common.Exceptions;
@@ -44,17 +43,6 @@ public sealed class UserService(
             task => task.Result is null ? null : MapToUserResponse(task.Result), cancellationToken);
     }
 
-    public Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        return userRepository.GetByEmailAsync(email, cancellationToken).ContinueWith(
-            task => task.Result is null ? null : MapToUserResponse(task.Result), cancellationToken);
-    }
-
-    public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        return userRepository.ExistsByEmailAsync(email, cancellationToken);
-    }
-
     public Task<UserModel?> FirstByEmailOrDefaultAsync(
         string email,
         CancellationToken cancellationToken = default)
@@ -70,14 +58,6 @@ public sealed class UserService(
         var user = await FirstByIdAsync(userId, cancellationToken);
         user.Password = securityService.Hash(plainPassword);
         return user;
-    }
-
-    public async Task<UserResponse> GetForRefreshAsync(Guid userId,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await FirstByIdAsync(userId, cancellationToken);
-
-        return MapToUserResponse(user);
     }
 
     public Task<List<UserCompanyResponse>> GetCompaniesAsync(
@@ -139,7 +119,7 @@ public sealed class UserService(
 
         if (userExists)
         {
-            throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
+            throw new BadRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
         var hashedPassword = securityService.Hash(request.Password);
@@ -158,17 +138,17 @@ public sealed class UserService(
     }
 
     public async Task<UserResponse> UpdateAsync(
-        UserRequest command,
+        UserRequest request,
         CancellationToken cancellationToken = default)
     {
-        var user = await FirstByIdAsync(command.Id, cancellationToken);
+        var user = await FirstByIdAsync(request.Id, cancellationToken);
 
-        await ValidateFields(user, command, cancellationToken);
+        await ValidateFields(user, request, cancellationToken);
 
-        var companies = command.Roles?.Select(c => c.CompanyId) ?? [];
+        var companies = request.Roles?.Select(c => c.CompanyId) ?? [];
 
         await ValidateCompanies(companies, cancellationToken);
-        await RelateRolesAsync(command, user, cancellationToken);
+        await RelateRolesAsync(request, user, cancellationToken);
 
         return MapToUserResponse(user);
     }
@@ -181,85 +161,12 @@ public sealed class UserService(
         await userRepository.UpdateAsync(user.Id, user, cancellationToken);
     }
 
-    public async Task<UserResponse> UpdateHashedPasswordAsync(
-        UserPasswordRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await UpdatePasswordAsync(request.UserId, request.NewPassword, cancellationToken) ??
-                   throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
-        await userRepository.UpdateAsync(user.Id, user, cancellationToken);
-
-        return MapToUserResponse(user);
-    }
-
-    private async Task AuthorizePasswordChangeAsync(
-        Guid loggedInUserId,
-        Guid targetUserId,
-        UserModel loggedInUser,
-        UserModel targetUser,
-        UserPasswordRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        if (loggedInUserId == targetUserId)
-        {
-            if (string.IsNullOrEmpty(request.CurrentPassword))
-            {
-                throw new InvalidRequestException("Senha atual é obrigatória.");
-            }
-
-            if (!securityService.Verify(request.CurrentPassword, loggedInUser.Password))
-            {
-                throw new InvalidRequestException("Senha atual incorreta.");
-            }
-
-            return;
-        }
-
-        var loggedInUserRoles = await userRoleService.GetUserRolesByUserIdAsync(loggedInUserId, cancellationToken);
-        var isGod = loggedInUserRoles.Any(r => r.Role.Name.Equals("God", StringComparison.OrdinalIgnoreCase));
-        var isAdmin = loggedInUserRoles.Any(r => r.Role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase));
-
-        if (isGod)
-        {
-            return;
-        }
-
-        if (!isAdmin)
-        {
-            throw new UnauthorizedAccessException(ExceptionMessages.Unauthorized);
-        }
-
-        await AuthorizeAdminPasswordChangeAsync(targetUser, loggedInUserRoles, cancellationToken);
-    }
-
-    private async Task AuthorizeAdminPasswordChangeAsync(
-        UserModel targetUser,
-        IEnumerable<UserRoleModel> loggedInUserRoles,
-        CancellationToken cancellationToken = default)
-    {
-        var targetUserRoles = await userRoleService.GetUserRolesByUserIdAsync(targetUser.Id, cancellationToken);
-        var isTargetUser = targetUserRoles.Any(r => r.Role.Name.Equals("User", StringComparison.OrdinalIgnoreCase));
-
-        if (!isTargetUser)
-        {
-            throw new InvalidRequestException("Admin só pode alterar senha de usuários.");
-        }
-
-        var loggedInCompanyIds = loggedInUserRoles.Select(r => r.CompanyId).ToHashSet();
-        var targetCompanyIds = targetUserRoles.Select(r => r.CompanyId).ToHashSet();
-
-        if (!loggedInCompanyIds.Overlaps(targetCompanyIds))
-        {
-            throw new InvalidRequestException("Usuário não pertence à mesma empresa.");
-        }
-    }
-
     private async Task RelateRolesAsync(
         Guid userId,
-        List<RoleRequest>? command,
+        List<RoleRequest>? request,
         CancellationToken cancellationToken = default)
     {
-        var roles = command ?? [];
+        var roles = request ?? [];
         await ValidateCompanies(roles.Select(r => r.CompanyId), cancellationToken);
         await ValidateRoles(roles.Select(r => r.RoleId), cancellationToken);
 
@@ -280,7 +187,7 @@ public sealed class UserService(
         foreach (var companyId in distinct)
         {
             _ = await companyService.GetByIdAsync(companyId, cancellationToken) ??
-                throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
+                throw new BadRequestException(ExceptionMessages.CompanyNotFoundMessage);
         }
     }
 
@@ -291,82 +198,16 @@ public sealed class UserService(
         foreach (var roleId in distinct)
         {
             _ = await roleService.GetByIdAsync(roleId, cancellationToken) ??
-                throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
-        }
-    }
-
-    private async Task<(UserModel User, CompanyModel Company)> PersistAsync(
-        UserRequest command,
-        CancellationToken cancellationToken = default)
-    {
-        var existingUser = await userRepository.ExistsByEmailAsync(command.Email, cancellationToken);
-
-        if (existingUser)
-        {
-            throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
-        }
-
-        var existingCompany = await companyService.GetByCnpjAsync(command.Company.Cnpj, cancellationToken);
-
-        if (existingCompany is not null)
-        {
-            throw new InvalidRequestException(ExceptionMessages.CompanyExists);
-        }
-
-        var hashedPassword = securityService.Hash(command.Password);
-        var user = new UserModel
-        {
-            Email = command.Email,
-            Password = hashedPassword,
-            Name = command.Name
-        };
-
-        await userRepository.InsertAsync(user, cancellationToken);
-
-        var company = new CompanyModel
-        {
-            Name = command.Company.Name,
-            Cnpj = command.Company.Cnpj
-        };
-
-        await companyService.InsertAsync(company, cancellationToken);
-
-        var adminRole = await roleService.GetRoleAsync("Admin", cancellationToken) ??
-                        throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
-        var userRole = new UserRoleModel
-        {
-            UserId = user.Id,
-            CompanyId = company.Id,
-            RoleId = adminRole.Id
-        };
-
-        await userRoleService.InsertAsync(userRole, cancellationToken);
-
-        return (user, company);
-    }
-
-    private async Task ValidateAsync(UserRequest request, CancellationToken cancellationToken = default)
-    {
-        var isExistingUser = await userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
-        var isExistingCompany = await companyService.GetByCnpjAsync(request.Company.Cnpj, cancellationToken);
-
-        if (isExistingUser)
-        {
-            throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
-        }
-
-        if (isExistingCompany is not null)
-        {
-            throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundWithCNPJ);
+                throw new BadRequestException(ExceptionMessages.RoleNotFound);
         }
     }
 
     private async Task RelateRolesAsync(
-        UserRequest command,
+        UserRequest request,
         BaseModel user,
         CancellationToken cancellationToken = default)
     {
-        var requestedRoles = command.Roles ?? [];
+        var requestedRoles = request.Roles ?? [];
 
         if (requestedRoles.Count == 0)
         {
@@ -388,7 +229,7 @@ public sealed class UserService(
         {
             var missingRoles = requestedRoleIds.Except(validRoleIds.Select(r => r.Id));
 
-            throw new InvalidRequestException($"Role(s) not found: {string.Join(", ", missingRoles)}");
+            throw new BadRequestException($"Role(s) not found: {string.Join(", ", missingRoles)}");
         }
 
         var requestedSet = requestedRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
@@ -423,33 +264,33 @@ public sealed class UserService(
 
     private async Task ValidateFields(
         UserModel user,
-        UserRequest command,
+        UserRequest request,
         CancellationToken cancellationToken = default)
     {
-        user.Name = string.IsNullOrWhiteSpace(command.Name) switch
+        user.Name = string.IsNullOrWhiteSpace(request.Name) switch
         {
-            false => command.Name,
+            false => request.Name,
             _ => user.Name
         };
 
-        if (string.IsNullOrWhiteSpace(command.Email))
+        if (string.IsNullOrWhiteSpace(request.Email))
         {
             return;
         }
 
-        var emailExists = await userRepository.ExistsByEmailAsync(command.Email, cancellationToken);
+        var emailExists = await userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
 
         user.Email = emailExists switch
         {
-            true => throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists),
-            _ => command.Email
+            true => throw new BadRequestException(ExceptionMessages.EmailAlreadyExists),
+            _ => request.Email
         };
     }
 
     private async Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await userRepository.GetByIdAsync(userId, cancellationToken) ??
-               throw new InvalidRequestException(ExceptionMessages.UserNotFound);
+               throw new BadRequestException(ExceptionMessages.UserNotFound);
     }
 
     private static UserResponse MapToUserResponse(UserModel user)

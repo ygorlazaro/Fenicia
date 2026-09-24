@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -40,7 +40,7 @@ public sealed class AddressModel : BaseModel
     [MaxLength(50)]
     public string? Country { get; set; }
 
-    public AddressType AddressType { get; init; } = AddressType.Both;
+    public EnumAddressType AddressType { get; init; } = EnumAddressType.Both;
 
     public double? Latitude { get; init; }
 
@@ -52,5 +52,5 @@ public sealed class AddressModel : BaseModel
     public string? Observation { get; init; }
 
     [ForeignKey(nameof(StateId))]
-    public StateModel State { get; set; } = default!;
+    public StateModel State { get; set; } = null!;
 }

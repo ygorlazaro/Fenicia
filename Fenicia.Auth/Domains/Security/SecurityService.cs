@@ -10,7 +10,7 @@ public class SecurityService : ISecurityService
     {
         if (string.IsNullOrEmpty(original))
         {
-            throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
+            throw new BadRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
         }
 
         var hashed = BCrypt.Net.BCrypt.HashPassword(original, BCrypt.Net.BCrypt.GenerateSalt(12));

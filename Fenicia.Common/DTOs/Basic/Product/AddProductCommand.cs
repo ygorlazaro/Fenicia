@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Product;
 
-public class AddProductCommand()
+public class AddProductRequest()
 {
-    public AddProductCommand(
+    public AddProductRequest(
         Guid id,
         string name,
         string? sku = null,

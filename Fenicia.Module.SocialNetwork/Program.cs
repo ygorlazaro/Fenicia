@@ -1,9 +1,9 @@
 using Fenicia.Common.API;
+using Fenicia.Common.DTOs.Auth.Upload;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.CommonDTOs.Auth.Upload;
 using Fenicia.Module.SocialNetwork.Domains.Attachment;
 using Fenicia.Module.SocialNetwork.Domains.Attachment.Interfaces;
 using Fenicia.Module.SocialNetwork.Domains.Block;
@@ -38,43 +38,43 @@ public class Program
             {
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
-                
+
                 // Profile
                 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
                 builder.Services.AddScoped<IProfileService, ProfileService>();
-                
+
                 // Feed
                 builder.Services.AddScoped<IFeedRepository, FeedRepository>();
                 builder.Services.AddScoped<IFeedService, FeedService>();
-                
+
                 // Like
                 builder.Services.AddScoped<ILikeRepository, LikeRepository>();
                 builder.Services.AddScoped<ILikeService, LikeService>();
-                
+
                 // Comment
                 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
                 builder.Services.AddScoped<ICommentService, CommentService>();
-                
+
                 // Attachment
                 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
                 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
-                
+
                 // Share
                 builder.Services.AddScoped<IShareRepository, ShareRepository>();
                 builder.Services.AddScoped<IShareService, ShareService>();
-                
+
                 // Report
                 builder.Services.AddScoped<IReportRepository, ReportRepository>();
                 builder.Services.AddScoped<IReportService, ReportService>();
-                
+
                 // Block
                 builder.Services.AddScoped<IBlockRepository, BlockRepository>();
                 builder.Services.AddScoped<IBlockService, BlockService>();
-                
+
                 // Friendship
                 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
                 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
-                
+
                 builder.Services.Configure<UploadOptions>(configuration.GetSection("Upload"));
             }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 

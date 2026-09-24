@@ -12,7 +12,7 @@ public class GetStockMovementResponse()
         double quantity,
         DateTime? date,
         decimal? price,
-        StockMovementType type,
+        EnumStockMovementType type,
         Guid? customerId,
         string? customerName,
         Guid? supplierId,
@@ -59,7 +59,7 @@ public class GetStockMovementResponse()
     public decimal? Price { get; set; }
 
     [Required]
-    public StockMovementType Type { get; set; }
+    public EnumStockMovementType Type { get; set; }
 
     public Guid? CustomerId { get; set; }
 

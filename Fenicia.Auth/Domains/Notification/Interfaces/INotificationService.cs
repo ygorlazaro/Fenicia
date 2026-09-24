@@ -15,7 +15,7 @@ public interface INotificationService
     Task<NotificationResponse?> GetByIdAsync(Guid id, Guid companyId, Guid userId, CancellationToken cancellationToken = default);
 
     Task<NotificationResponse> AddAsync(
-        NotificationRequest command,
+        NotificationRequest request,
         CancellationToken cancellationToken = default);
 
     Task<NotificationResponse?> UpdateAsync(

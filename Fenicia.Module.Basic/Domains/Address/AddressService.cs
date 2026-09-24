@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.DTOs.Basic.Address;
+using Fenicia.Common.DTOs.Auth.Address;
 using Fenicia.Module.Basic.Domains.Address.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +8,7 @@ namespace Fenicia.Module.Basic.Domains.Address;
 public sealed class AddressService(IAddressRepository repository) : IAddressService
 {
     public async Task<AddressResponse> AddAsync(
-        AddressCommand command,
+        AddressRequest command,
         CancellationToken cancellationToken = default)
     {
         var address = new AddressModel
@@ -43,7 +43,7 @@ public sealed class AddressService(IAddressRepository repository) : IAddressServ
 
     public async Task<AddressResponse?> UpdateAsync(
         Guid id,
-        AddressCommand command,
+        AddressRequest command,
         CancellationToken cancellationToken = default)
     {
         var address = new AddressModel

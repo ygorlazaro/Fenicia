@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Position;
 
-public class UpdatePositionCommand()
+public class UpdatePositionRequest()
 {
-    public UpdatePositionCommand(Guid id, string name)
+    public UpdatePositionRequest(Guid id, string name)
         : this()
     {
         Id = id;

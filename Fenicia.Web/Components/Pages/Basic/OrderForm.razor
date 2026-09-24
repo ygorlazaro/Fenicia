@@ -19,50 +19,32 @@
     {
         <MudGrid Spacing="3">
             <MudItem xs="12">
-                <OrderFormHeader Loading="isLoading"
-                                 HasCartItems="cart.Any()"
-                                 OnRefresh="LoadAllAsync"
+                <OrderFormHeader Loading="isLoading" HasCartItems="cart.Any()" OnRefresh="LoadAllAsync"
                                  OnClearCart="ClearCart" />
             </MudItem>
 
             <MudItem xs="12" md="7" lg="8">
-                <OrderFormProductSearch Products="products"
-                                        Search="@search"
-                                        Loading="isLoading"
-                                        OnSearchKeyDown="OnSearchKeyDown"
-                                        OnProductClick="AddToCart" />
+                <OrderFormProductSearch Products="products" Search="@search" Loading="isLoading"
+                                        OnSearchKeyDown="OnSearchKeyDown" OnProductClick="AddToCart" />
             </MudItem>
 
             <MudItem xs="12" md="5" lg="4">
-                <OrderFormCart Cart="cart"
-                               CartCustomerId="cartCustomerId"
-                               CartEmployeeId="cartEmployeeId"
-                               CartPaymentMethod="CartPaymentMethod"
-                               CartStatus="CartStatus"
-                               CartDiscount="cartDiscount"
-                               CartNotes="_cartNotes"
-                               Customers="customers"
-                               Employees="employees"
-                               RecentOrders="recentOrders"
-                               IsSubmitting="isSubmitting"
-                                OnRemove="RemoveFromCart"
-                                OnUpdateQty="@((payload) => UpdateQty(payload.ProductId, payload.Qty))"
-                                OnIncrease="IncreaseQty"
-                                OnDecrease="DecreaseQty"
-                                OnFinalize="FinalizeSaleAsync" />
+                <OrderFormCart Cart="cart" CartCustomerId="cartCustomerId" CartEmployeeId="cartEmployeeId"
+                               CartPaymentMethod="CartPaymentMethod" CartStatus="CartStatus" CartDiscount="cartDiscount"
+                               CartNotes="_cartNotes" Customers="customers" Employees="employees" RecentOrders="recentOrders"
+                               IsSubmitting="isSubmitting" OnRemove="RemoveFromCart"
+                               OnUpdateQty="@((payload) => UpdateQty(payload.ProductId, payload.Qty))" OnIncrease="IncreaseQty"
+                               OnDecrease="DecreaseQty" OnFinalize="FinalizeSaleAsync" />
             </MudItem>
         </MudGrid>
 
-        <OrderFormSuccessDialog Visible="showSuccessDialog"
-                                LastOrderNumber="_lastOrderNumber"
-                                LastOrderTotal="lastOrderTotal"
-                                LastOrderId="lastOrderId"
-                                OnStartNewSale="StartNewSale" />
+        <OrderFormSuccessDialog Visible="showSuccessDialog" LastOrderNumber="_lastOrderNumber"
+                                LastOrderTotal="lastOrderTotal" LastOrderId="lastOrderId" OnStartNewSale="StartNewSale" />
     }
 </MainLayout>
 
 @code {
-    #pragma warning disable CS0169, CS0649
+#pragma warning disable CS0169, CS0649
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -85,8 +67,8 @@
 
     private Guid cartCustomerId;
     private Guid? cartEmployeeId;
-    private const PaymentMethod CartPaymentMethod = PaymentMethod.Cash;
-    private const OrderStatus CartStatus = OrderStatus.Approved;
+    private const EnumPaymentMethod CartPaymentMethod = EnumPaymentMethod.Cash;
+    private const EnumOrderStatus CartStatus = EnumOrderStatus.Approved;
     private decimal cartDiscount;
     private string? cartNotes;
 

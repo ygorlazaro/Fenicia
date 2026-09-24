@@ -18,10 +18,10 @@ public class ShareModel : BaseCompanyModel
     public string? Text { get; init; }
 
     [ForeignKey(nameof(ProfileId))]
-    public ProfileModel Profile { get; init; } = default!;
+    public ProfileModel Profile { get; init; } = null!;
 
     [ForeignKey(nameof(OriginalFeedId))]
-    public FeedModel OriginalFeed { get; init; } = default!;
+    public FeedModel OriginalFeed { get; init; } = null!;
 
     public DateTime ShareDate { get; init; } = DateTime.UtcNow;
 }

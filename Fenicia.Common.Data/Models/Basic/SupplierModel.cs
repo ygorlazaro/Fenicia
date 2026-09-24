@@ -12,7 +12,7 @@ public sealed class SupplierModel : BaseCompanyModel
 
     public Guid PersonId { get; init; } = Guid.Empty;
 
-    public PersonModel Person { get; init; } = default!;
+    public PersonModel Person { get; init; } = null!;
 
     public List<ProductModel> Products { get; init; } = [];
 

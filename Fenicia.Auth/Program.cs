@@ -35,7 +35,6 @@ using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Repositories;
 using Fenicia.Common.DTOs.Auth.Upload;
 using Fenicia.Externals.Email;
 

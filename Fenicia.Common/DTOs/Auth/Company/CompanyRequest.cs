@@ -11,6 +11,8 @@ public class CompanyRequest()
         Cnpj = cnpj;
     }
 
+    public Guid Id { get; set; }
+
     [Required]
     [MaxLength(50)]
     public string Name { get; set; } = string.Empty;
@@ -18,4 +20,5 @@ public class CompanyRequest()
     [Required]
     [MaxLength(14)]
     public string Cnpj { get; set; } = string.Empty;
+
 }

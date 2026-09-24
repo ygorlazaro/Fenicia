@@ -28,10 +28,10 @@ public class OrderDetailModel : BaseCompanyModel
     public decimal Subtotal { get; init; }
 
     [ForeignKey(nameof(OrderId))]
-    public OrderModel Order { get; init; } = default!;
+    public OrderModel Order { get; init; } = null!;
 
     [ForeignKey(nameof(ProductId))]
-    public ProductModel Product { get; init; } = default!;
+    public ProductModel Product { get; init; } = null!;
 
     [Column("quantity")]
     [Range(0.01, double.MaxValue)]

@@ -20,8 +20,8 @@ public sealed class TeamUserModel : BaseCompanyModel
     public DateTime JoinedAt { get; init; } = DateTime.UtcNow;
 
     [ForeignKey(nameof(TeamId))]
-    public TeamModel Team { get; init; } = default!;
+    public TeamModel Team { get; init; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 }

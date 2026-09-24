@@ -49,15 +49,15 @@ public class NotificationService(
     }
 
     public async Task<NotificationResponse> AddAsync(
-        NotificationRequest command,
+        NotificationRequest request,
         CancellationToken cancellationToken = default)
     {
         var notification = new NotificationModel
         {
-            Title = command.Title,
-            Description = command.Description,
+            Title = request.Title,
+            Description = request.Description,
             Date = DateTime.UtcNow,
-            ImageUrl = command.ImageUrl
+            ImageUrl = request.ImageUrl
         };
 
         var created = await repository.InsertAsync(notification, cancellationToken);

@@ -10,7 +10,7 @@ public class UserSubscriptionResponse()
         Guid id,
         Guid companyId,
         string companyName,
-        SubscriptionStatus status,
+        EnumSubscriptionStatus status,
         DateTime startDate,
         DateTime? endDate)
         : this()
@@ -34,7 +34,7 @@ public class UserSubscriptionResponse()
     public string CompanyName { get; set; } = string.Empty;
 
     [Required]
-    public SubscriptionStatus Status { get; set; }
+    public EnumSubscriptionStatus Status { get; set; }
 
     [Required]
     public DateTime StartDate { get; set; }

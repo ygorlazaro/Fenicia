@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Company;
 
+/// <summary>
+/// Controller responsible for handling company-related operations, including retrieving companies associated with the authenticated user and updating company information.
+/// </summary>
+/// <param name="service">The company service.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -17,23 +21,18 @@ namespace Fenicia.Auth.Domains.Company;
 public class CompanyController(ICompanyService service) : ControllerBase
 {
     /// <summary>
-    ///     Obtém as empresas associadas ao usuário autenticado com paginação.
+    ///    Retrieves a paginated list of companies associated with the currently authenticated user.
     /// </summary>
-    /// <param name="query">Parâmetros de paginação (página e quantidade por página)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de empresas do usuário</returns>
-    /// <response code="200">Empresas encontradas para o usuário</response>
-    /// <response code="400">Requisição inválida (ex: perPage menor ou igual a zero)</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não associado a empresas ativas</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="query">The pagination query parameters.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The paginated list of companies.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<CompanyByUserResponse>>>> GetByLoggedUser(
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser(
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
@@ -44,29 +43,19 @@ public class CompanyController(ICompanyService service) : ControllerBase
 
             return Ok(result);
         }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (InvalidRequestException ex)
+        catch (BadRequestException ex)
         {
             return BadRequest(ex.Message);
         }
     }
 
     /// <summary>
-    ///     Atualiza o nome de uma empresa existente.
+    /// Updates the name of an existing company, ensuring that the user has administrative privileges for that company.
     /// </summary>
-    /// <param name="id">ID da empresa</param>
-    /// <param name="request">Dados de atualização da empresa (nome)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se atualizado com sucesso</returns>
-    /// <response code="204">Empresa atualizada com sucesso</response>
-    /// <response code="400">Requisição inválida</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não tem permissão de Admin para atualizar esta empresa</response>
-    /// <response code="404">Empresa não encontrada</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">The ID of the company to update.</param>
+    /// <param name="request">The request containing the updated company name.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>No content if the update is successful.</returns>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -88,11 +77,7 @@ public class CompanyController(ICompanyService service) : ControllerBase
 
             return NoContent();
         }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (ItemNotExistsException ex)
+        catch (ForbiddenException ex)
         {
             return NotFound(ex.Message);
         }

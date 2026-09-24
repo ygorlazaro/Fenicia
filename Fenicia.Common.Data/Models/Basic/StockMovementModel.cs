@@ -19,13 +19,13 @@ public class StockMovementModel : BaseCompanyModel
     public decimal? Price { get; set; }
 
     [Required]
-    public StockMovementType Type { get; set; }
+    public EnumStockMovementType Type { get; set; }
 
     [MaxLength(255)]
     public string? Reason { get; set; }
 
     [ForeignKey(nameof(ProductId))]
-    public ProductModel Product { get; init; } = default!;
+    public ProductModel Product { get; init; } = null!;
 
     public Guid? CustomerId { get; set; }
 

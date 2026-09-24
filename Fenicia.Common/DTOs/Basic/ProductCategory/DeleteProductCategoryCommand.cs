@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.ProductCategory;
 
-public class DeleteProductCategoryCommand()
+public class DeleteProductCategoryRequest()
 {
-    public DeleteProductCategoryCommand(Guid id)
+    public DeleteProductCategoryRequest(Guid id)
         : this()
     {
         Id = id;

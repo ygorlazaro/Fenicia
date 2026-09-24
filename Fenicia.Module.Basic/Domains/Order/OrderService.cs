@@ -117,7 +117,7 @@ public sealed class OrderService(
     }
 
     public async Task<CreateOrderResponse> CreateAsync(
-        CreateOrderCommand command,
+        CreateOrderRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -168,14 +168,14 @@ public sealed class OrderService(
             Id = Guid.NewGuid(),
             Date = DateTime.UtcNow,
             ProductId = detail.ProductId,
-            Type = StockMovementType.Out,
+            Type = EnumStockMovementType.Out,
             CustomerId = created.CustomerId,
             EmployeeId = created.EmployeeId,
             OrderId = created.Id,
             Quantity = detail.Quantity,
             Price = detail.Price,
             Reason = $"Sale order {created.Id}"
-        }).Select(stockMovement => new AddStockMovementCommand(
+        }).Select(stockMovement => new AddStockMovementRequest(
             stockMovement.Id,
             stockMovement.Quantity,
             stockMovement.Date,
@@ -207,7 +207,7 @@ public sealed class OrderService(
     }
 
     public async Task DeleteAsync(
-        DeleteOrderCommand command,
+        DeleteOrderRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -436,7 +436,7 @@ public sealed class OrderService(
         CancellationToken cancellationToken = default)
     {
         var cancelled = orders
-            .Where(o => o.Status == OrderStatus.Cancelled)
+            .Where(o => o.Status == EnumOrderStatus.Cancelled)
             .Select(o => new { o.Id, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.SaleDate })
             .ToList();
 

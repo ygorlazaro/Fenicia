@@ -10,7 +10,7 @@ public interface IModuleRepository : IRepository<ModuleModel>
         IEnumerable<Guid> ids,
         CancellationToken cancellationToken = default);
 
-    Task<ModuleModel?> GetByTypeAsync(ModuleType type, CancellationToken cancellationToken = default);
+    Task<ModuleModel?> GetByTypeAsync(EnumModuleType type, CancellationToken cancellationToken = default);
 
     Task<List<ModuleModel>> GetActiveModulesAsync(CancellationToken cancellationToken = default);
 

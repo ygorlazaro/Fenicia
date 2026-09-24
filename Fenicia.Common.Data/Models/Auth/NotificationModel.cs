@@ -21,5 +21,5 @@ public class NotificationModel : BaseModel
     [MaxLength(200)]
     public string? ImageUrl { get; set; }
 
-    public List<NotificationHistoryModel> History { get; set; } = default!;
+    public List<NotificationHistoryModel> History { get; set; } = null!;
 }

@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public class DeleteOrderCommand()
+public class DeleteOrderRequest()
 {
-    public DeleteOrderCommand(Guid id)
+    public DeleteOrderRequest(Guid id)
         : this()
     {
         Id = id;

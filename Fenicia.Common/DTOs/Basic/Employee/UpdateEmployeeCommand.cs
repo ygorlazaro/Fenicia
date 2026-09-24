@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
-public class UpdateEmployeeCommand()
+public class UpdateEmployeeRequest()
 {
-    public UpdateEmployeeCommand(
+    public UpdateEmployeeRequest(
         Guid id,
         Guid positionId,
         string name,

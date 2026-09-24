@@ -9,17 +9,17 @@ public class OrderStatusEnumTests
     [Fact]
     public void OrderStatus_ShouldHaveExpectedValues()
     {
-        var values = Enum.GetValues<OrderStatus>();
+        var values = Enum.GetValues<EnumOrderStatus>();
 
-        values.Should().Contain(OrderStatus.Pending);
-        values.Should().Contain(OrderStatus.Approved);
-        values.Should().Contain(OrderStatus.Cancelled);
+        values.Should().Contain(EnumOrderStatus.Pending);
+        values.Should().Contain(EnumOrderStatus.Approved);
+        values.Should().Contain(EnumOrderStatus.Cancelled);
     }
 
     [Fact]
     public void OrderStatus_ShouldHaveCorrectCount()
     {
-        var values = Enum.GetValues<OrderStatus>();
+        var values = Enum.GetValues<EnumOrderStatus>();
 
         values.Length.Should().Be(3);
     }
@@ -27,16 +27,16 @@ public class OrderStatusEnumTests
     [Fact]
     public void OrderStatus_ShouldHaveDescriptionAttributes()
     {
-        var pendingDescription = GetEnumDescription(OrderStatus.Pending);
-        var approvedDescription = GetEnumDescription(OrderStatus.Approved);
-        var cancelledDescription = GetEnumDescription(OrderStatus.Cancelled);
+        var pendingDescription = GetEnumDescription(EnumOrderStatus.Pending);
+        var approvedDescription = GetEnumDescription(EnumOrderStatus.Approved);
+        var cancelledDescription = GetEnumDescription(EnumOrderStatus.Cancelled);
 
         pendingDescription.Should().Be("Order is pending approval");
         approvedDescription.Should().Be("Order has been approved");
         cancelledDescription.Should().Be("Order has been cancelled");
     }
 
-    private static string GetEnumDescription(OrderStatus value)
+    private static string GetEnumDescription(EnumOrderStatus value)
     {
         var field = value.GetType().GetField(value.ToString())!;
         var attribute =

@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Auth.DbInitializer;
 
@@ -54,7 +53,7 @@ internal static partial class DbInitializer
                 StateId = state.Id,
                 City = cities[cityIndex],
                 Country = "Brasil",
-                AddressType = (AddressType)(i % 3 + 1),
+                AddressType = (EnumAddressType)(i % 3 + 1),
                 Latitude = -23.55 + (random.NextDouble() - 0.5) * 0.5,
                 Longitude = -46.63 + (random.NextDouble() - 0.5) * 0.5,
                 IsDefault = i % 10 == 0,

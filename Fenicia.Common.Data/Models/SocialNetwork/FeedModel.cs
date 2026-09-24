@@ -19,12 +19,12 @@ public class FeedModel : BaseCompanyModel
     public Guid ProfileId { get; init; }
 
     [ForeignKey(nameof(ProfileId))]
-    public ProfileModel Profile { get; init; } = default!;
+    public ProfileModel Profile { get; init; } = null!;
 
     public Guid? OriginalFeedId { get; init; }
 
     [ForeignKey(nameof(OriginalFeedId))]
-    public FeedModel? OriginalFeed { get; init; } = default!;
+    public FeedModel? OriginalFeed { get; init; } = null!;
 
     public int TotalLikes { get; set; }
 

@@ -8,7 +8,7 @@ public class MovementFormModel
 
     public Guid ProductId { get; set; }
 
-    public StockMovementType Type { get; set; }
+    public EnumStockMovementType Type { get; set; }
 
     public double Quantity { get; set; }
 

@@ -50,7 +50,7 @@ public class TokenController(ITokenService tokenService) : ControllerBase
                     Status = StatusCodes.Status400BadRequest
                 });
         }
-        catch (InvalidRequestException ex)
+        catch (BadRequestException ex)
         {
             return BadRequest(
                 new ProblemDetails

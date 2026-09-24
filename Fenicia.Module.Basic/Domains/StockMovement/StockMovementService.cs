@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Basic;
@@ -32,7 +33,7 @@ public sealed class StockMovementService(
             .Include(m => m.Employee!).ThenInclude(e => e.Person)
             .Where(m => m.Date >= startDate && m.Date <= endDate);
 
-        if (query.Type is { } type && type != StockMovementType.None)
+        if (query.Type is { } type && type != EnumStockMovementType.None)
         {
             baseQuery = baseQuery.Where(m => m.Type == type);
         }
@@ -50,7 +51,7 @@ public sealed class StockMovementService(
     }
 
     public async Task<AddStockMovementResponse> AddAsync(
-        AddStockMovementCommand command,
+        AddStockMovementRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -81,9 +82,9 @@ public sealed class StockMovementService(
 
         var newQuantity = command.Type switch
         {
-            StockMovementType.In => product.Quantity + command.Quantity,
-            StockMovementType.Out => product.Quantity - command.Quantity,
-            StockMovementType.None => throw new ItemNotExistsException(),
+            EnumStockMovementType.In => product.Quantity + command.Quantity,
+            EnumStockMovementType.Out => product.Quantity - command.Quantity,
+            EnumStockMovementType.None => throw new ForbiddenException(),
             _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
         };
 
@@ -94,7 +95,7 @@ public sealed class StockMovementService(
     }
 
     public async Task<UpdateStockMovementResponse?> UpdateAsync(
-        UpdateStockMovementCommand command,
+        UpdateStockMovementRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -209,10 +210,10 @@ public sealed class StockMovementService(
             {
                 g.Key.Year,
                 g.Key.Month,
-                TotalIn = g.Where(x => x.Type == StockMovementType.In).Sum(x => x.Quantity),
-                TotalOut = g.Where(x => x.Type == StockMovementType.Out).Sum(x => x.Quantity),
-                TotalInValue = g.Where(x => x.Type == StockMovementType.In).Sum(x => x.Price ?? 0),
-                TotalOutValue = g.Where(x => x.Type == StockMovementType.Out).Sum(x => x.Price ?? 0)
+                TotalIn = g.Where(x => x.Type == EnumStockMovementType.In).Sum(x => x.Quantity),
+                TotalOut = g.Where(x => x.Type == EnumStockMovementType.Out).Sum(x => x.Quantity),
+                TotalInValue = g.Where(x => x.Type == EnumStockMovementType.In).Sum(x => x.Price ?? 0),
+                TotalOutValue = g.Where(x => x.Type == EnumStockMovementType.Out).Sum(x => x.Price ?? 0)
             });
 
         var data = query.ToList();
@@ -323,7 +324,7 @@ public sealed class StockMovementService(
         IEnumerable<StockMovementModel> movements,
         CancellationToken cancellationToken = default)
     {
-        var productOutMovements = movements.Where(m => m.Type == StockMovementType.Out).GroupBy(m => m.ProductId)
+        var productOutMovements = movements.Where(m => m.Type == EnumStockMovementType.Out).GroupBy(m => m.ProductId)
             .Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
         var products = await productService.GetAllWithDetailsAsync(1, 10000, cancellationToken);

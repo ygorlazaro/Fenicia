@@ -15,10 +15,10 @@ public class BlockModel : BaseModel
     public Guid BlockedProfileId { get; init; }
 
     [ForeignKey(nameof(ProfileId))]
-    public ProfileModel Profile { get; init; } = default!;
+    public ProfileModel Profile { get; init; } = null!;
 
     [ForeignKey(nameof(BlockedProfileId))]
-    public ProfileModel BlockedProfile { get; init; } = default!;
+    public ProfileModel BlockedProfile { get; init; } = null!;
 
     [MaxLength(256)]
     public string? Reason { get; set; }

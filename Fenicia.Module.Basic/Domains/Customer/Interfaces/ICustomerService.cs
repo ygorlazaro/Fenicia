@@ -19,16 +19,16 @@ public interface ICustomerService
         CancellationToken cancellationToken = default);
 
     Task<AddCustomerResponse> AddAsync(
-        AddCustomerCommand command,
+        AddCustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdateCustomerResponse?> UpdateAsync(
-        UpdateCustomerCommand command,
+        UpdateCustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteCustomerCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeleteCustomerRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<CustomerInsightsResponse> GetInsightsAsync(
         GetCustomerInsightsQuery query,

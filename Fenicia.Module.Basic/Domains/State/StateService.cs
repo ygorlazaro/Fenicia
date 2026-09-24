@@ -1,4 +1,4 @@
-using Fenicia.Common.DTOs.Basic.State;
+using Fenicia.Common.DTOs.Auth.State;
 using Fenicia.Module.Basic.Domains.State.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +12,7 @@ public sealed class StateService(IStateRepository repository) : IStateService
     }
 
     public async Task<List<GetAllStateResponse>> GetAllAsync(
-        GetAllStateQuery query,
+        StateRequest query,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query();

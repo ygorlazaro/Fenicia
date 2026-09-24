@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Fenicia.Common.DTOs.Basic.Address;
+using Fenicia.Common.DTOs.Auth.Address;
 
 namespace Fenicia.Common.DTOs.Basic.Customer;
 

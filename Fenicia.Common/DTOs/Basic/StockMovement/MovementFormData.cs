@@ -11,7 +11,7 @@ public class MovementFormData
     public MovementFormData(
         Guid? id,
         Guid productId,
-        StockMovementType type,
+        EnumStockMovementType type,
         double quantity,
         decimal price,
         DateTime? date,
@@ -36,7 +36,7 @@ public class MovementFormData
 
     public Guid ProductId { get; set; }
 
-    public StockMovementType Type { get; set; }
+    public EnumStockMovementType Type { get; set; }
 
     public double Quantity { get; set; }
 

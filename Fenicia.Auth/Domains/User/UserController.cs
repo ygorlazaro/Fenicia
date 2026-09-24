@@ -169,7 +169,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
 
             return Created(string.Empty, result);
         }
-        catch (InvalidRequestException ex)
+        catch (BadRequestException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -206,7 +206,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
 
             return Ok(result);
         }
-        catch (InvalidRequestException)
+        catch (BadRequestException)
         {
             return NotFound();
         }
@@ -234,7 +234,7 @@ public class UserController(IUserService userService, IModuleService moduleServi
             await userService.DeleteAsync(userId, cancellationToken);
             return NoContent();
         }
-        catch (InvalidRequestException)
+        catch (BadRequestException)
         {
             return NotFound();
         }

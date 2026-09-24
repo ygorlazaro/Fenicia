@@ -191,25 +191,25 @@ public class OrderRepository(DbContext context) : Repository<OrderModel>(context
     public Task<decimal> GetPendingAmountAsync(CancellationToken cancellationToken = default)
     {
         return DbSet
-            .Where(o => o.Status == OrderStatus.Pending)
+            .Where(o => o.Status == EnumOrderStatus.Pending)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
     public Task<int> GetPendingOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return DbSet.CountAsync(o => o.Status == OrderStatus.Pending, cancellationToken);
+        return DbSet.CountAsync(o => o.Status == EnumOrderStatus.Pending, cancellationToken);
     }
 
     public Task<decimal> GetApprovedAmountAsync(CancellationToken cancellationToken = default)
     {
         return DbSet
-            .Where(o => o.Status == OrderStatus.Approved)
+            .Where(o => o.Status == EnumOrderStatus.Approved)
             .SumAsync(o => o.TotalAmount, cancellationToken);
     }
 
     public Task<int> GetApprovedOrdersCountAsync(CancellationToken cancellationToken = default)
     {
-        return DbSet.CountAsync(o => o.Status == OrderStatus.Approved, cancellationToken);
+        return DbSet.CountAsync(o => o.Status == EnumOrderStatus.Approved, cancellationToken);
     }
 
     public Task<List<OrderModel>> GetRecentOrdersAsync(

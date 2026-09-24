@@ -7,12 +7,19 @@ internal static partial class DbInitializer
 {
     private static void SeedRoles(DefaultContext context)
     {
-        if (!context.AuthRoles.Any())
+        if (context.AuthRoles.Any())
         {
-            context.AuthRoles.AddRange(
-                new RoleModel { Name = "God" },
-                new RoleModel { Name = "Admin" },
-                new RoleModel { Name = "User" });
+            return;
+        }
+
+        var roles = new[] { "God", "Admin", "User" };
+
+        foreach (var role in roles)
+        {
+            if (!context.AuthRoles.Any(r => r.Name == role))
+            {
+                context.AuthRoles.Add(new RoleModel { Name = role });
+            }
         }
     }
 

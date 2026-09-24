@@ -24,10 +24,10 @@ public sealed class TeamModel : BaseCompanyModel
     public Guid CreatedBy { get; init; }
 
     [ForeignKey(nameof(CreatedBy))]
-    public UserModel Creator { get; init; } = default!;
+    public UserModel Creator { get; init; } = null!;
 
     [ForeignKey(nameof(ProjectId))]
-    public ProjectModel Project { get; init; } = default!;
+    public ProjectModel Project { get; init; } = null!;
 
     public List<TeamUserModel> Members { get; init; } = [];
 }

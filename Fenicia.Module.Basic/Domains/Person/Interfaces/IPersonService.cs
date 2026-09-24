@@ -1,14 +1,14 @@
-using Fenicia.Common.DTOs.Basic.Person;
+using Fenicia.Common.DTOs.Auth.Person;
 
 namespace Fenicia.Module.Basic.Domains.Person.Interfaces;
 
 public interface IPersonService
 {
-    Task<GetPersonByIdResponse> InsertAsync(UpsertPersonCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task<PersonResponse> InsertAsync(PersonRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
-    Task<GetPersonByIdResponse?> UpdateAsync(
+    Task<PersonResponse?> UpdateAsync(
         Guid id,
-        UpsertPersonCommand command,
+        PersonRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 }

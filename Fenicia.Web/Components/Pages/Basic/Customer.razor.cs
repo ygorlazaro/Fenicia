@@ -1,11 +1,11 @@
-using Fenicia.Common.DTOs.Basic.Address;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using Fenicia.Common.DTOs.Auth.Address;
+using Fenicia.Common.DTOs.Auth.State;
 using Fenicia.Common.DTOs.Basic.Customer;
-using Fenicia.Common.DTOs.Basic.State;
 using Fenicia.Web.Components.Shared;
 using Fenicia.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
-using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace Fenicia.Web.Components.Pages.Basic;
 
@@ -24,11 +24,11 @@ public partial class Customer : ComponentBase
 
     [Inject]
 
-    private IHttpClientFactory HttpClientFactory { get; set; } = default!;
+    private IHttpClientFactory HttpClientFactory { get; set; } = null!;
 
     [Inject]
 
-    private ICompanyContextService CompanyContext { get; set; } = default!;
+    private ICompanyContextService CompanyContext { get; set; } = null!;
 
     protected override Task OnInitializedAsync()
     {
@@ -43,7 +43,7 @@ public partial class Customer : ComponentBase
         }
     }
 
-    private static AddressCommand? BuildAddress(CustomerFormModel model)
+    private static AddressRequest? BuildAddress(CustomerFormModel model)
     {
         if (string.IsNullOrWhiteSpace(model.Street)
             || string.IsNullOrWhiteSpace(model.Number)
@@ -54,7 +54,7 @@ public partial class Customer : ComponentBase
             return null;
         }
 
-        return new AddressCommand(
+        return new AddressRequest(
 
             model.Street!,
 
@@ -101,7 +101,7 @@ public partial class Customer : ComponentBase
             {
                 var body = await response.Content.ReadAsStringAsync();
 
-                var items = JsonSerializer.Deserialize<List<GetAllStateResponse>>(body, _jsonOptions);
+                var items = JsonSerializer.Deserialize<List<StateResponse>>(body, _jsonOptions);
 
                 _states = items is null ? [] : [
                     .. items.Select(s => new StateOption
@@ -172,7 +172,7 @@ public partial class Customer : ComponentBase
         var model = ctx.IsAdd ? _add : _edit;
 
         return ctx.IsAdd
-            ? new AddCustomerCommand(
+            ? new AddCustomerRequest(
 
                 model.Name ?? string.Empty,
 
@@ -183,7 +183,7 @@ public partial class Customer : ComponentBase
                 model.PhoneNumber,
 
                 BuildAddress(model))
-            : new UpdateCustomerCommand(
+            : new UpdateCustomerRequest(
 
                 ctx.Id,
 

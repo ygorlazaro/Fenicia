@@ -7,8 +7,8 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class InventoryKpiCards
 {
     [Parameter]
-[EditorRequired]
-public DashboardData Dashboard { get; set; } = default!;
+    [EditorRequired]
+    public DashboardData Dashboard { get; set; } = null!;
 
     [Parameter]
     public Color ProfitColor { get; set; } = Color.Success;

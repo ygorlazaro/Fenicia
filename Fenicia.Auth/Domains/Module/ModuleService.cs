@@ -67,7 +67,7 @@ public class ModuleService(
         return repository.GetByIdsAsync(ids, cancellationToken);
     }
 
-    public Task<ModuleModel?> GetModuleByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)
+    public Task<ModuleModel?> GetModuleByTypeAsync(EnumModuleType type, CancellationToken cancellationToken = default)
     {
         return repository.GetByTypeAsync(type, cancellationToken);
     }

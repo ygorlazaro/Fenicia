@@ -7,24 +7,24 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class OrderDetailSummary
 {
     [Parameter]
-[EditorRequired]
-public GetOrderByIdResponse Order { get; set; } = default!;
+    [EditorRequired]
+    public GetOrderByIdResponse Order { get; set; } = null!;
 
-    private static string PaymentLabel(PaymentMethod method)
+    private static string PaymentLabel(EnumPaymentMethod method)
     {
         return method switch
         {
-            PaymentMethod.Cash => "Dinheiro",
+            EnumPaymentMethod.Cash => "Dinheiro",
 
-            PaymentMethod.CreditCard => "Cartão de Crédito",
+            EnumPaymentMethod.CreditCard => "Cartão de Crédito",
 
-            PaymentMethod.DebitCard => "Cartão de Débito",
+            EnumPaymentMethod.DebitCard => "Cartão de Débito",
 
-            PaymentMethod.Pix => "PIX",
+            EnumPaymentMethod.Pix => "PIX",
 
-            PaymentMethod.Boleto => "Boleto",
+            EnumPaymentMethod.Boleto => "Boleto",
 
-            PaymentMethod.BankTransfer => "Transferência",
+            EnumPaymentMethod.BankTransfer => "Transferência",
 
             _ => method.ToString()
         };

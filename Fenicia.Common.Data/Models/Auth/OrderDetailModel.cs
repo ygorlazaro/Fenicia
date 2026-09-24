@@ -28,10 +28,10 @@ public class OrderDetailModel : BaseModel
     public decimal Subtotal { get; init; }
 
     [ForeignKey(nameof(OrderId))]
-    public OrderModel Order { get; init; } = default!;
+    public OrderModel Order { get; init; } = null!;
 
     [ForeignKey(nameof(ModuleId))]
-    public ModuleModel Module { get; init; } = default!;
+    public ModuleModel Module { get; init; } = null!;
 
     public SubscriptionCreditModel? SubscriptionCredit { get; init; }
 }

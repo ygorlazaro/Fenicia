@@ -11,8 +11,8 @@ public class RegisterService(IUserService userService) : IRegisterService
         RegisterRequest request,
         CancellationToken cancellationToken = default)
     {
-        var command = new UserRequest(request.Email, request.Password, request.Name, request.Company);
-        var user = await userService.CreateAsync(command, cancellationToken);
+        var registerRequest = new UserRequest(request.Email, request.Password, request.Name, request.Company);
+        var user = await userService.CreateAsync(registerRequest, cancellationToken);
 
         return MapToRegisterResponse(user);
     }

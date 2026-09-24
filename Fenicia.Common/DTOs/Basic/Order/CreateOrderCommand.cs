@@ -4,15 +4,15 @@ using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public class CreateOrderCommand()
+public class CreateOrderRequest()
 {
-    public CreateOrderCommand(
+    public CreateOrderRequest(
         Guid userId,
         Guid customerId,
         DateTime saleDate,
-        OrderStatus status,
-        List<OrderDetailCommand> details,
-        PaymentMethod paymentMethod,
+        EnumOrderStatus status,
+        List<OrderDetailRequest> details,
+        EnumPaymentMethod paymentMethod,
         Guid? employeeId = null,
         string? notes = null,
         decimal discountAmount = 0)
@@ -39,12 +39,12 @@ public class CreateOrderCommand()
     public DateTime SaleDate { get; set; }
 
     [Required]
-    public OrderStatus Status { get; set; }
+    public EnumOrderStatus Status { get; set; }
 
-    public List<OrderDetailCommand> Details { get; set; } = [];
+    public List<OrderDetailRequest> Details { get; set; } = [];
 
     [Required]
-    public PaymentMethod PaymentMethod { get; set; }
+    public EnumPaymentMethod PaymentMethod { get; set; }
 
     public Guid? EmployeeId { get; set; }
 

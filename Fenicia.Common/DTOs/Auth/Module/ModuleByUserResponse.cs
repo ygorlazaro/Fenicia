@@ -5,7 +5,7 @@ namespace Fenicia.Common.DTOs.Auth.Module;
 
 public class ModuleByUserResponse()
 {
-    public ModuleByUserResponse(Guid id, string name, ModuleType type)
+    public ModuleByUserResponse(Guid id, string name, EnumModuleType type)
         : this()
     {
         Id = id;
@@ -22,6 +22,6 @@ public class ModuleByUserResponse()
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [EnumDataType(typeof(ModuleType))]
-    public ModuleType Type { get; set; }
+    [EnumDataType(typeof(EnumModuleType))]
+    public EnumModuleType Type { get; set; }
 }

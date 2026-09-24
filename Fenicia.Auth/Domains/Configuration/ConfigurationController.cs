@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
+/// <summary>
+/// Controller responsible for managing user configurations for companies. Provides endpoints to retrieve and upsert configurations.
+/// </summary>
+/// <param name="configurationService">The configuration service.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -15,15 +19,11 @@ namespace Fenicia.Auth.Domains.Configuration;
 public class ConfigurationController(IConfigurationService configurationService) : ControllerBase
 {
     /// <summary>
-    ///     Obtém todas as configurações de um usuário para uma empresa.
+    ///    Retrieves all configurations for the authenticated user within a specified company.
     /// </summary>
-    /// <param name="companyId">ID da empresa</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de configurações do usuário para a empresa</returns>
-    /// <response code="200">Configurações encontradas</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não tem permissão para acessar configurações desta empresa</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="companyId">The company ID.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The list of configuration responses.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -48,17 +48,12 @@ public class ConfigurationController(IConfigurationService configurationService)
     }
 
     /// <summary>
-    ///     Cria ou atualiza uma configuração (upsert) para o usuário autenticado.
+    ///   Upserts a configuration for the authenticated user within a specified company. If the configuration already exists, it will be updated; otherwise, a new configuration will be created.
     /// </summary>
-    /// <param name="companyId">ID da empresa</param>
-    /// <param name="request">Dados da configuração (tipo, valor)</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Sem conteúdo (204) se criada/atualizada com sucesso</returns>
-    /// <response code="204">Configuração criada ou atualizada com sucesso</response>
-    /// <response code="400">Requisição inválida</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Usuário não tem permissão para esta empresa</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="companyId">The company ID.</param>
+    /// <param name="request">The configuration request.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -108,7 +108,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProductCategoryResponse>> PostAsync(
-        [FromBody] AddProductCategoryCommand command,
+        [FromBody] AddProductCategoryRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -147,7 +147,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync(
-        [FromBody] UpdateProductCategoryCommand command,
+        [FromBody] UpdateProductCategoryRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -157,7 +157,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var category = await productCategoryService.UpdateAsync(
-                new UpdateProductCategoryCommand(id, command.Name),
+                new UpdateProductCategoryRequest(id, command.Name),
                 companyContext.CompanyId,
                 cancellationToken);
 
@@ -194,7 +194,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             await productCategoryService.DeleteAsync(
-                new DeleteProductCategoryCommand(id),
+                new DeleteProductCategoryRequest(id),
                 companyContext.CompanyId,
                 cancellationToken);
 

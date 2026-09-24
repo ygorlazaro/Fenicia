@@ -9,7 +9,7 @@ public class ProfileModel : BaseModel
     [Required]
     public Guid UserId { get; init; }
 
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     [MaxLength(64)]
     public string? UserName { get; set; }

@@ -211,10 +211,10 @@ public sealed class DashboardService(
 
         var accountsReceivable = new AccountsReceivableResponse
         {
-            TotalPending = orderList.Where(o => o.Status == OrderStatus.Pending).Sum(o => o.TotalAmount),
-            PendingOrdersCount = orderList.Count(o => o.Status == OrderStatus.Pending),
-            TotalApproved = orderList.Where(o => o.Status == OrderStatus.Approved).Sum(o => o.TotalAmount),
-            ApprovedOrdersCount = orderList.Count(o => o.Status == OrderStatus.Approved)
+            TotalPending = orderList.Where(o => o.Status == EnumOrderStatus.Pending).Sum(o => o.TotalAmount),
+            PendingOrdersCount = orderList.Count(o => o.Status == EnumOrderStatus.Pending),
+            TotalApproved = orderList.Where(o => o.Status == EnumOrderStatus.Approved).Sum(o => o.TotalAmount),
+            ApprovedOrdersCount = orderList.Count(o => o.Status == EnumOrderStatus.Approved)
         };
 
         return accountsReceivable;

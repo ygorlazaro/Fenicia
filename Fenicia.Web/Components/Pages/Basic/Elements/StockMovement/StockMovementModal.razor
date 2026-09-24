@@ -7,7 +7,8 @@
     <DialogContent>
         <MudGrid Spacing="2">
             <MudItem xs="12" sm="8">
-                <MudSelect T="Guid" @bind-Value="Model.ProductId" Label="Produto" Variant="Variant.Outlined" Required="true" RequiredError="Selecione um produto!">
+                <MudSelect T="Guid" @bind-Value="Model.ProductId" Label="Produto" Variant="Variant.Outlined"
+                           Required="true" RequiredError="Selecione um produto!">
                     @foreach (var p in Products)
                     {
                         <MudSelectItem T="Guid" Value="@p.Id">@p.Name</MudSelectItem>
@@ -15,24 +16,28 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudSelect T="StockMovementType" @bind-Value="Model.Type" Label="Tipo" Variant="Variant.Outlined" Required="true">
-                    <MudSelectItem T="StockMovementType" Value="StockMovementType.In">Entrada</MudSelectItem>
-                    <MudSelectItem T="StockMovementType" Value="StockMovementType.Out">Saída</MudSelectItem>
+                <MudSelect T="EnumStockMovementType" @bind-Value="Model.Type" Label="Tipo" Variant="Variant.Outlined"
+                           Required="true">
+                    <MudSelectItem T="EnumStockMovementType" Value="EnumStockMovementType.In">Entrada</MudSelectItem>
+                    <MudSelectItem T="EnumStockMovementType" Value="EnumStockMovementType.Out">Saída</MudSelectItem>
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="double" @bind-Value="Model.Quantity" Label="Quantidade" Variant="Variant.Outlined" Min="0" Required="true" RequiredError="Quantidade é obrigatória!" />
+                <MudNumericField T="double" @bind-Value="Model.Quantity" Label="Quantidade" Variant="Variant.Outlined"
+                                 Min="0" Required="true" RequiredError="Quantidade é obrigatória!" />
             </MudItem>
             <MudItem xs="12" sm="4">
-                <MudNumericField T="decimal" @bind-Value="Model.Price" Label="Preço unitário" Variant="Variant.Outlined" Min="0" />
+                <MudNumericField T="decimal" @bind-Value="Model.Price" Label="Preço unitário" Variant="Variant.Outlined"
+                                 Min="0" />
             </MudItem>
             <MudItem xs="12" sm="4">
                 <MudDatePicker @bind-Date="Model.Date" Label="Data" Variant="Variant.Outlined" />
             </MudItem>
-            @if (Model.Type == StockMovementType.In)
+            @if (Model.Type == EnumStockMovementType.In)
             {
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" @bind-Value="Model.SupplierId" Label="Fornecedor" Variant="Variant.Outlined" Clearable="true">
+                    <MudSelect T="Guid?" @bind-Value="Model.SupplierId" Label="Fornecedor" Variant="Variant.Outlined"
+                               Clearable="true">
                         @foreach (var s in Suppliers)
                         {
                             <MudSelectItem T="Guid?" Value="@s.Id">@s.Name</MudSelectItem>
@@ -43,7 +48,8 @@
             else
             {
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" @bind-Value="Model.CustomerId" Label="Cliente" Variant="Variant.Outlined" Clearable="true">
+                    <MudSelect T="Guid?" @bind-Value="Model.CustomerId" Label="Cliente" Variant="Variant.Outlined"
+                               Clearable="true">
                         @foreach (var c in Customers)
                         {
                             <MudSelectItem T="Guid?" Value="@c.Id">@c.Name</MudSelectItem>
@@ -52,7 +58,8 @@
                 </MudItem>
             }
             <MudItem xs="12" sm="6">
-                <MudSelect T="Guid?" @bind-Value="Model.EmployeeId" Label="Funcionário" Variant="Variant.Outlined" Clearable="true">
+                <MudSelect T="Guid?" @bind-Value="Model.EmployeeId" Label="Funcionário" Variant="Variant.Outlined"
+                           Clearable="true">
                     @foreach (var e in Employees)
                     {
                         <MudSelectItem T="Guid?" Value="@e.Id">@e.Name</MudSelectItem>

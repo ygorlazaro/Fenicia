@@ -6,7 +6,7 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class SupplierRow
 {
     [Parameter]
-    public GetAllSupplierResponse Item { get; set; } = default!;
+    public GetAllSupplierResponse Item { get; set; } = null!;
 
     [Parameter]
     public EventCallback<GetAllSupplierResponse> OnEdit { get; set; }

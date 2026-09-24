@@ -29,7 +29,7 @@ public class ReportModel : BaseModel
     public EnumReportStatus Status { get; set; } = EnumReportStatus.Pending;
 
     [ForeignKey(nameof(ReporterId))]
-    public UserModel Reporter { get; init; } = default!;
+    public UserModel Reporter { get; init; } = null!;
 
     public DateTime ReportDate { get; init; } = DateTime.UtcNow;
 }

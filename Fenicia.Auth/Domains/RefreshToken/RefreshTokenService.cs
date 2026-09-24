@@ -42,7 +42,7 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IR
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
+            throw new BadRequestException(ExceptionMessages.InvalidRefreshToken);
         }
 
         var token = await repository.GetAsync(refreshToken);

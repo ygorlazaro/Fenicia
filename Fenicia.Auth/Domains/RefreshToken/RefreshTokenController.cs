@@ -82,7 +82,7 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
         {
             return Forbid(ex.Message);
         }
-        catch (InvalidRequestException ex)
+        catch (BadRequestException ex)
         {
             return BadRequest(new { ex.Message });
         }

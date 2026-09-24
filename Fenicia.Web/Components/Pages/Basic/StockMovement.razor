@@ -12,15 +12,9 @@
         <MudPaper Class="pa-6">
             <StockMovementHeader OnNewMovement="OpenAddModal" />
 
-            <StockMovementFilters SearchText="searchText"
-                                  SearchTextChanged="OnSearchTextChanged"
-                                  StartDate="startDate"
-                                  StartDateChanged="OnStartDateChanged"
-                                  EndDate="endDate"
-                                  EndDateChanged="OnEndDateChanged"
-                                  TypeFilter="typeFilter"
-                                  TypeFilterChanged="OnTypeFilterChanged"
-                                  Loading="loading"
+            <StockMovementFilters SearchText="searchText" SearchTextChanged="OnSearchTextChanged" StartDate="startDate"
+                                  StartDateChanged="OnStartDateChanged" EndDate="endDate" EndDateChanged="OnEndDateChanged"
+                                  TypeFilter="typeFilter" TypeFilterChanged="OnTypeFilterChanged" Loading="loading"
                                   OnFilter="LoadMovementsAsync" />
 
             <StockMovementKpiCards Kpi="kpi" />
@@ -30,17 +24,9 @@
     </MudContainer>
 </MainLayout>
 
-<StockMovementModal Visible="modalOpen"
-                    VisibleChanged="OnModalVisibleChanged"
-                    Model="form"
-                    IsEdit="isEdit"
-                    IsSubmitting="modalLoading"
-                    Products="products"
-                    Customers="customers"
-                    Suppliers="suppliers"
-                    Employees="employees"
-                    OnClose="CloseModal"
-                    OnSubmit="SubmitAsync" />
+<StockMovementModal Visible="modalOpen" VisibleChanged="OnModalVisibleChanged" Model="form" IsEdit="isEdit"
+                    IsSubmitting="modalLoading" Products="products" Customers="customers" Suppliers="suppliers" Employees="employees"
+                    OnClose="CloseModal" OnSubmit="SubmitAsync" />
 
 @code {
 
@@ -166,11 +152,11 @@
         return client;
     }
 
-    private static StockMovementType MapType(TypeFilter filter) => filter switch
+    private static EnumStockMovementType MapType(TypeFilter filter) => filter switch
     {
-        TypeFilter.In => StockMovementType.In,
-        TypeFilter.Out => StockMovementType.Out,
-        _ => StockMovementType.None
+        TypeFilter.In => EnumStockMovementType.In,
+        TypeFilter.Out => EnumStockMovementType.Out,
+        _ => EnumStockMovementType.None
     };
 
     private void ComputeKpi()
@@ -178,13 +164,13 @@
         kpi = new StockMovementKpi();
         foreach (var m in movements)
         {
-            if (m.Type == StockMovementType.In)
+            if (m.Type == EnumStockMovementType.In)
             {
                 kpi.TotalInQuantity += m.Quantity;
                 kpi.TotalInEvents++;
                 kpi.TotalInValue += (m.Price ?? 0) * (decimal)m.Quantity;
             }
-            else if (m.Type == StockMovementType.Out)
+            else if (m.Type == EnumStockMovementType.Out)
             {
                 kpi.TotalOutQuantity += m.Quantity;
                 kpi.TotalOutEvents++;
@@ -201,7 +187,7 @@
             return;
         }
         isEdit = false;
-        form = new MovementFormModel { Date = DateTime.Now, Type = StockMovementType.In };
+        form = new MovementFormModel { Date = DateTime.Now, Type = EnumStockMovementType.In };
         modalOpen = true;
     }
 
@@ -246,8 +232,8 @@
                     Price = (decimal?)form.Price,
                     Type = form.Type,
                     ProductId = form.ProductId,
-                    CustomerId = form.Type == StockMovementType.Out ? form.CustomerId : null,
-                    SupplierId = form.Type == StockMovementType.In ? form.SupplierId : null,
+                    CustomerId = form.Type == EnumStockMovementType.Out ? form.CustomerId : null,
+                    SupplierId = form.Type == EnumStockMovementType.In ? form.SupplierId : null,
                     EmployeeId = form.EmployeeId,
                     OrderId = (Guid?)null,
                     Reason = form.Reason
@@ -260,8 +246,8 @@
                     Price = form.Price,
                     Type = form.Type,
                     ProductId = form.ProductId,
-                    CustomerId = form.Type == StockMovementType.Out ? form.CustomerId : null,
-                    SupplierId = form.Type == StockMovementType.In ? form.SupplierId : null,
+                    CustomerId = form.Type == EnumStockMovementType.Out ? form.CustomerId : null,
+                    SupplierId = form.Type == EnumStockMovementType.In ? form.SupplierId : null,
                     EmployeeId = form.EmployeeId,
                     OrderId = (Guid?)null,
                     Reason = form.Reason

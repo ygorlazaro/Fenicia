@@ -20,7 +20,7 @@ public class AttachmentModel : BaseCompanyModel
     public Guid CommentId { get; init; }
 
     [ForeignKey(nameof(CommentId))]
-    public CommentModel Comment { get; init; } = default!;
+    public CommentModel Comment { get; init; } = null!;
 
     public DateTime UploadDate { get; init; } = DateTime.UtcNow;
 }

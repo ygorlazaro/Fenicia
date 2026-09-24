@@ -6,7 +6,7 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class ProductRow
 {
     [Parameter]
-    public GetAllProductResponse Item { get; set; } = default!;
+    public GetAllProductResponse Item { get; set; } = null!;
 
     [Parameter]
     public EventCallback<GetAllProductResponse> OnEdit { get; set; }

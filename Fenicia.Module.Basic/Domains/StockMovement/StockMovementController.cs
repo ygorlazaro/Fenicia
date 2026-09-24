@@ -40,7 +40,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
         WideEventContext wide,
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate,
-        [FromQuery] StockMovementType? type,
+        [FromQuery] EnumStockMovementType? type,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
@@ -80,7 +80,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddStockMovementResponse>> PostAsync(
-        [FromBody] AddStockMovementCommand command,
+        [FromBody] AddStockMovementRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -124,7 +124,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync(
         [FromRoute] Guid id,
-        [FromBody] UpdateStockMovementCommand command,
+        [FromBody] UpdateStockMovementRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -133,7 +133,7 @@ public class StockMovementController(IStockMovementService stockMovementService,
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var updatedCommand = new UpdateStockMovementCommand(
+            var updatedCommand = new UpdateStockMovementRequest(
                 id,
                 command.Quantity,
                 command.Date,

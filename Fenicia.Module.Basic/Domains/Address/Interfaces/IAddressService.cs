@@ -1,10 +1,10 @@
-using Fenicia.Common.DTOs.Basic.Address;
+using Fenicia.Common.DTOs.Auth.Address;
 
 namespace Fenicia.Module.Basic.Domains.Address.Interfaces;
 
 public interface IAddressService
 {
-    Task<AddressResponse> AddAsync(AddressCommand command, CancellationToken cancellationToken = default);
+    Task<AddressResponse> AddAsync(AddressRequest command, CancellationToken cancellationToken = default);
 
-    Task<AddressResponse?> UpdateAsync(Guid id, AddressCommand command, CancellationToken cancellationToken = default);
+    Task<AddressResponse?> UpdateAsync(Guid id, AddressRequest command, CancellationToken cancellationToken = default);
 }

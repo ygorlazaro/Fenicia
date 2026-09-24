@@ -100,7 +100,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddCustomerResponse>> PostAsync(
-        [FromBody] AddCustomerCommand command,
+        [FromBody] AddCustomerRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -132,7 +132,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateCustomerResponse>> PatchAsync(
-        [FromBody] UpdateCustomerCommand command,
+        [FromBody] UpdateCustomerRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -173,7 +173,7 @@ public class CustomerController(ICustomerService customerService, ICompanyContex
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-        await customerService.DeleteAsync(new DeleteCustomerCommand(id), companyContext.CompanyId, cancellationToken);
+        await customerService.DeleteAsync(new DeleteCustomerRequest(id), companyContext.CompanyId, cancellationToken);
 
         return NoContent();
     }

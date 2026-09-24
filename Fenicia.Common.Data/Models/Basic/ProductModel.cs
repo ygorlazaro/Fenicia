@@ -51,7 +51,7 @@ public class ProductModel : BaseCompanyModel
     public Guid CategoryId { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
-    public ProductCategoryModel Category { get; init; } = default!;
+    public ProductCategoryModel Category { get; init; } = null!;
 
     public Guid? SupplierId { get; set; }
 

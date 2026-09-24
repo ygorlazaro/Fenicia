@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
@@ -153,7 +154,7 @@ public sealed class ProductService(
     }
 
     public async Task<AddProductResponse> AddAsync(
-        AddProductCommand command,
+        AddProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -206,7 +207,7 @@ public sealed class ProductService(
     }
 
     public async Task<UpdateProductResponse?> UpdateAsync(
-        UpdateProductCommand command,
+        UpdateProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -261,7 +262,7 @@ public sealed class ProductService(
     }
 
     public async Task DeleteAsync(
-        DeleteProductCommand command,
+        DeleteProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {

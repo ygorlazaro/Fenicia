@@ -9,7 +9,7 @@ public class InvalidRequestExceptionTests
     [Fact]
     public void Constructor_WithNoMessage_ShouldUseDefaultMessage()
     {
-        var exception = new InvalidRequestException();
+        var exception = new BadRequestException();
 
         exception.Message.Should().Be(ExceptionMessages.InvalidRequest);
     }
@@ -18,7 +18,7 @@ public class InvalidRequestExceptionTests
     public void Constructor_WithCustomMessage_ShouldUseCustomMessage()
     {
         const string customMessage = "Custom invalid request message";
-        var exception = new InvalidRequestException(customMessage);
+        var exception = new BadRequestException(customMessage);
 
         exception.Message.Should().Be(customMessage);
     }

@@ -8,7 +8,7 @@ namespace Fenicia.Common.Data.Models.Auth;
 public sealed class SubscriptionModel : BaseModel
 {
     [Required]
-    public SubscriptionStatus Status { get; init; }
+    public EnumSubscriptionStatus Status { get; init; }
 
     [Required]
     public Guid CompanyId { get; init; }
@@ -22,7 +22,7 @@ public sealed class SubscriptionModel : BaseModel
     public Guid? OrderId { get; init; }
 
     [ForeignKey(nameof(CompanyId))]
-    public CompanyModel Company { get; init; } = default!;
+    public CompanyModel Company { get; init; } = null!;
 
     [ForeignKey(nameof(OrderId))]
     public OrderModel? Order { get; init; }

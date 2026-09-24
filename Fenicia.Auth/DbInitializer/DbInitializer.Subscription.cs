@@ -39,8 +39,8 @@ internal static partial class DbInitializer
                 DiscountAmount = Math.Round((decimal)(random.NextDouble() * 500), 2),
                 TotalQuantity = random.Next(1, 11),
                 SaleDate = saleDate,
-                Status = (OrderStatus)(i % 3),
-                PaymentMethod = (PaymentMethod)(i % 6),
+                Status = (EnumOrderStatus)(i % 3),
+                PaymentMethod = (EnumPaymentMethod)(i % 6),
                 Notes = i % 5 == 0 ? $"Pedido módulo {i}" : null,
                 Created = now.AddDays(-random.NextDouble() * 365),
                 Updated = now.AddDays(-random.NextDouble() * 30)
@@ -114,7 +114,7 @@ internal static partial class DbInitializer
 
             var subscription = new SubscriptionModel
             {
-                Status = i % 4 == 0 ? SubscriptionStatus.Inactive : SubscriptionStatus.Active,
+                Status = i % 4 == 0 ? EnumSubscriptionStatus.Inactive : EnumSubscriptionStatus.Active,
                 CompanyId = companyId,
                 StartDate = startDate,
                 EndDate = endDate,
@@ -187,8 +187,8 @@ internal static partial class DbInitializer
 
         for (var i = 1; i <= 100; i++)
         {
-            var configType = (ConfigType)(i % 2);
-            var value = configType == ConfigType.Language ? "pt-BR" : "America/Sao_Paulo";
+            var configType = (EnumConfigType)(i % 2);
+            var value = configType == EnumConfigType.General ? "pt-BR" : "America/Sao_Paulo";
 
             var configuration = new ConfigurationModel
             {
@@ -211,7 +211,6 @@ internal static partial class DbInitializer
             return;
         }
 
-        var companyId = context.AuthCompanies.Select(x => x.Id).FirstOrDefault();
         var random = new Random();
         var now = DateTime.UtcNow;
 
@@ -221,12 +220,10 @@ internal static partial class DbInitializer
 
             var notification = new NotificationModel
             {
-                CompanyId = companyId,
                 Title = $"Notificação {i}",
                 Description = $"Descrição da notificação {i}",
                 Date = date,
                 ImageUrl = i % 3 == 0 ? $"https://picsum.photos/seed/notif-{i}/100/100" : null,
-                Read = i % 3 == 0,
                 Created = now.AddDays(-random.NextDouble() * 365),
                 Updated = now.AddDays(-random.NextDouble() * 30)
             };

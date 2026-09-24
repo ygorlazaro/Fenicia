@@ -7,8 +7,8 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class OrderDetailHeader
 {
     [Parameter]
-[EditorRequired]
-public GetOrderByIdResponse Order { get; set; } = default!;
+    [EditorRequired]
+    public GetOrderByIdResponse Order { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnPrint { get; set; }

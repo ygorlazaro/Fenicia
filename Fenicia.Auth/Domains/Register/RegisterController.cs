@@ -37,7 +37,7 @@ public class RegisterController(IRegisterService registerService) : ControllerBa
 
             return Created(string.Empty, userResponse);
         }
-        catch (InvalidRequestException ex)
+        catch (BadRequestException ex)
         {
             return BadRequest(ex.Message);
         }

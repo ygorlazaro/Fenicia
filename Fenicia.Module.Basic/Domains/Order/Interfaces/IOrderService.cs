@@ -18,11 +18,11 @@ public interface IOrderService
         CancellationToken cancellationToken = default);
 
     Task<CreateOrderResponse> CreateAsync(
-        CreateOrderCommand command,
+        CreateOrderRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteOrderCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeleteOrderRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<OrderAnalyticsResponse> GetAnalyticsAsync(
         GetOrderAnalyticsQuery query,

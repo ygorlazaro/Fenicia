@@ -15,12 +15,12 @@ public interface IProductCategoryService
         CancellationToken cancellationToken = default);
 
     Task<AddProductCategoryResponse> AddAsync(
-        AddProductCategoryCommand command,
+        AddProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdateProductCategoryResponse?> UpdateAsync(
-        UpdateProductCategoryCommand command,
+        UpdateProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
@@ -29,7 +29,7 @@ public interface IProductCategoryService
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(
-        DeleteProductCategoryCommand command,
+        DeleteProductCategoryRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 }

@@ -26,5 +26,5 @@ public class RegisterResponse()
     public string Email { get; set; } = string.Empty;
 
     [Required]
-    public UserCompanyResponse Company { get; set; } = default!;
+    public UserCompanyResponse Company { get; set; } = null!;
 }

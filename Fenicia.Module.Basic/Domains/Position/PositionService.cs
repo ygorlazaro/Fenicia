@@ -1,7 +1,9 @@
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Position;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
@@ -41,7 +43,7 @@ public sealed class PositionService(IPositionRepository repository) : IPositionS
     }
 
     public async Task<AddPositionResponse> AddAsync(
-        AddPositionCommand command,
+        AddPositionRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -57,7 +59,7 @@ public sealed class PositionService(IPositionRepository repository) : IPositionS
     }
 
     public async Task<UpdatePositionResponse?> UpdateAsync(
-        UpdatePositionCommand command,
+        UpdatePositionRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -77,7 +79,7 @@ public sealed class PositionService(IPositionRepository repository) : IPositionS
     }
 
     public async Task DeleteAsync(
-        DeletePositionCommand command,
+        DeletePositionRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {

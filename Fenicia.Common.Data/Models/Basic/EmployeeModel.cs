@@ -11,9 +11,9 @@ public class EmployeeModel : BaseCompanyModel
     public Guid PositionId { get; set; }
 
     [ForeignKey(nameof(PositionId))]
-    public PositionModel Position { get; init; } = default!;
+    public PositionModel Position { get; init; } = null!;
 
     public Guid PersonId { get; init; }
 
-    public PersonModel Person { get; init; } = default!;
+    public PersonModel Person { get; init; } = null!;
 }

@@ -31,16 +31,16 @@ public interface IProductService
         CancellationToken cancellationToken = default);
 
     Task<AddProductResponse> AddAsync(
-        AddProductCommand command,
+        AddProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdateProductResponse?> UpdateAsync(
-        UpdateProductCommand command,
+        UpdateProductRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteProductCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeleteProductRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<ProductPerformanceResponse> GetPerformanceAsync(
         GetProductPerformanceQuery query,

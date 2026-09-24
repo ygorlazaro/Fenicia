@@ -123,12 +123,12 @@ public sealed class TokenService(
     {
         if (string.IsNullOrWhiteSpace(request.Password))
         {
-            throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
+            throw new BadRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
         }
 
         if (string.IsNullOrWhiteSpace(request.Email))
         {
-            throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
+            throw new BadRequestException(ExceptionMessages.InvalidRequest);
         }
 
         var attempts = loginAttemptService.GetAttempts(request.Email);

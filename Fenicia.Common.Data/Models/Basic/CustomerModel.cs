@@ -12,5 +12,5 @@ public class CustomerModel : BaseCompanyModel
 
     public Guid PersonId { get; init; }
 
-    public PersonModel Person { get; init; } = default!;
+    public PersonModel Person { get; init; } = null!;
 }

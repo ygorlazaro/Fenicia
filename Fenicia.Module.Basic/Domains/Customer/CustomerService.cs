@@ -1,5 +1,4 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Address;
 using Fenicia.Common.DTOs.Basic.Customer;
@@ -106,11 +105,11 @@ public sealed class CustomerService(
     }
 
     public async Task<AddCustomerResponse> AddAsync(
-        AddCustomerCommand command,
+        AddCustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var personCommand = new UpsertPersonCommand(
+        var personCommand = new UpsertPersonRequest(
             command.Name,
             command.Document,
             command.Email,
@@ -123,7 +122,7 @@ public sealed class CustomerService(
 
         if (command.Address != null)
         {
-            var addressCommand = new AddressCommand(
+            var addressCommand = new AddressRequest(
                 command.Address.Street,
                 command.Address.Number,
                 command.Address.Complement,
@@ -150,14 +149,14 @@ public sealed class CustomerService(
             return new AddCustomerResponse(customer.Id, personResponse.Id);
         }
 
-        var personAddressCommand = new AddPersonAddressCommand(personResponse.Id, addressId.Value);
+        var personAddressCommand = new AddPersonAddressRequest(personResponse.Id, addressId.Value);
         await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
         return new AddCustomerResponse(customer.Id, personResponse.Id);
     }
 
     public async Task<UpdateCustomerResponse?> UpdateAsync(
-        UpdateCustomerCommand command,
+        UpdateCustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -179,7 +178,7 @@ public sealed class CustomerService(
 
             if (existingPersonAddress?.Address != null)
             {
-                var addressCommand = new AddressCommand(
+                var addressCommand = new AddressRequest(
                     command.Address.Street,
                     command.Address.Number,
                     command.Address.Complement,
@@ -192,7 +191,7 @@ public sealed class CustomerService(
             }
             else
             {
-                var addressCommand = new AddressCommand(
+                var addressCommand = new AddressRequest(
                     command.Address.Street,
                     command.Address.Number,
                     command.Address.Complement,
@@ -209,12 +208,12 @@ public sealed class CustomerService(
                     PersonId = customer.PersonId,
                     AddressId = createdAddress.Id
                 };
-                var personAddressCommand = new AddPersonAddressCommand(newPersonAddress.PersonId, newPersonAddress.AddressId);
+                var personAddressCommand = new AddPersonAddressRequest(newPersonAddress.PersonId, newPersonAddress.AddressId);
                 await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
             }
         }
 
-        var personCommand = new UpsertPersonCommand(
+        var personCommand = new UpsertPersonRequest(
             customer.Person.Name,
             customer.Person.Document,
             customer.Person.Email,
@@ -225,12 +224,12 @@ public sealed class CustomerService(
 
         await personService.UpdateAsync(customer.Person.Id, personCommand, companyId, cancellationToken);
         var updated = await repository.UpdateAsync(command.Id, customer, cancellationToken) ??
-                      throw new ItemNotExistsException();
+                      throw new ForbiddenException();
         return new UpdateCustomerResponse(updated.Id, customer.PersonId);
     }
 
     public async Task DeleteAsync(
-        DeleteCustomerCommand command,
+        DeleteCustomerRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {

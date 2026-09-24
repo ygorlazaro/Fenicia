@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.DTOs.Basic.Person;
+using Fenicia.Common.DTOs.Auth.Person;
 using Fenicia.Module.Basic.Domains.Person.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Person;
@@ -11,8 +11,8 @@ public sealed class PersonService(IPersonRepository repository) : IPersonService
     {
     }
 
-    public async Task<GetPersonByIdResponse> InsertAsync(
-        UpsertPersonCommand command,
+    public async Task<PersonResponse> InsertAsync(
+        PersonRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -30,7 +30,7 @@ public sealed class PersonService(IPersonRepository repository) : IPersonService
         };
 
         var result = await repository.InsertAsync(person, cancellationToken);
-        return new GetPersonByIdResponse(
+        return new PersonResponse(
             result.Id,
             result.Name,
             result.Document,
@@ -41,9 +41,9 @@ public sealed class PersonService(IPersonRepository repository) : IPersonService
             result.Notes);
     }
 
-    public async Task<GetPersonByIdResponse?> UpdateAsync(
+    public async Task<PersonResponse?> UpdateAsync(
         Guid id,
-        UpsertPersonCommand command,
+        PersonRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -59,7 +59,7 @@ public sealed class PersonService(IPersonRepository repository) : IPersonService
         person.PhoneNumber = command.PhoneNumber;
         person.CompanyId = companyId;
         var result = await repository.UpdateAsync(id, person, cancellationToken);
-        return result is null ? null : new GetPersonByIdResponse(
+        return result is null ? null : new PersonResponse(
             result.Id,
             result.Name,
             result.Document,

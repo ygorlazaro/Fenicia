@@ -9,7 +9,7 @@ public class ItemNotExistsExceptionTests
     [Fact]
     public void Constructor_WithNoMessage_ShouldUseDefaultMessage()
     {
-        var exception = new ItemNotExistsException();
+        var exception = new ForbiddenException();
 
         exception.Message.Should().Be(ExceptionMessages.ItemNotExists);
     }
@@ -18,7 +18,7 @@ public class ItemNotExistsExceptionTests
     public void Constructor_WithCustomMessage_ShouldUseCustomMessage()
     {
         const string customMessage = "Custom item not found message";
-        var exception = new ItemNotExistsException(customMessage);
+        var exception = new ForbiddenException(customMessage);
 
         exception.Message.Should().Be(customMessage);
     }

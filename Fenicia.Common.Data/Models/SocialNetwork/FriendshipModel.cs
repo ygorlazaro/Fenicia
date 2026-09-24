@@ -15,10 +15,10 @@ public class FriendshipModel : BaseModel
     public Guid TargetProfileId { get; init; }
 
     [ForeignKey(nameof(ProfileId))]
-    public ProfileModel Profile { get; init; } = default!;
+    public ProfileModel Profile { get; init; } = null!;
 
     [ForeignKey(nameof(TargetProfileId))]
-    public ProfileModel TargetProfile { get; init; } = default!;
+    public ProfileModel TargetProfile { get; init; } = null!;
 
     public DateTime FollowDate { get; set; } = DateTime.UtcNow;
 

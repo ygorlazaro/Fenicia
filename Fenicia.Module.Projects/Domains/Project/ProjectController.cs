@@ -5,7 +5,6 @@ using Fenicia.Common.DTOs.Project.Project;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Domains.Project;
 

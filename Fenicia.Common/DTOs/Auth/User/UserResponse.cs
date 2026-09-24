@@ -25,5 +25,5 @@ public class UserResponse()
     [MaxLength(200)]
     public string Email { get; set; } = string.Empty;
 
-    public CompanyResponse Company { get; set; } = default!;
+    public CompanyResponse Company { get; set; } = null!;
 }

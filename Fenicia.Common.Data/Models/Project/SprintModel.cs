@@ -22,10 +22,10 @@ public sealed class SprintModel : BaseCompanyModel
     public Guid CreatedBy { get; init; } = Guid.Empty;
 
     [ForeignKey(nameof(ProjectId))]
-    public ProjectModel ProjectModel { get; init; } = default!;
+    public ProjectModel ProjectModel { get; init; } = null!;
 
     [ForeignKey(nameof(CreatedBy))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     public List<ProjectTaskModel> Tasks { get; init; } = [];
 }

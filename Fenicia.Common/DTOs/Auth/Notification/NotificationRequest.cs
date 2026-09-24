@@ -35,6 +35,4 @@ public class NotificationRequest()
 
     [MaxLength(200)]
     public string? ImageUrl { get; set; }
-
-    public bool? IsRead { get; set; }
 }

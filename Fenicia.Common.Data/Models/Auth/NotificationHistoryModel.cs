@@ -16,7 +16,7 @@ public class NotificationHistoryModel : BaseCompanyModel
 
     public virtual UserModel? User { get; set; }
 
-    public virtual CompanyModel Company { get; set; } = default!;
+    public virtual CompanyModel Company { get; set; } = null!;
 
-    public virtual NotificationModel Notification { get; set; } = default!;
+    public virtual NotificationModel Notification { get; set; } = null!;
 }

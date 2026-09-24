@@ -6,5 +6,5 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class OrderRow
 {
     [Parameter]
-    public GetAllOrderResponse Item { get; set; } = default!;
+    public GetAllOrderResponse Item { get; set; } = null!;
 }

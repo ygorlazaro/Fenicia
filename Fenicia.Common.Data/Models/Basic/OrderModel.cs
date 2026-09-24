@@ -37,12 +37,12 @@ public class OrderModel : BaseCompanyModel
     public DateTime SaleDate { get; init; }
 
     [Required]
-    [EnumDataType(typeof(OrderStatus))]
-    public OrderStatus Status { get; init; }
+    [EnumDataType(typeof(EnumOrderStatus))]
+    public EnumOrderStatus Status { get; init; }
 
     [Column("payment_method")]
-    [EnumDataType(typeof(PaymentMethod))]
-    public PaymentMethod PaymentMethod { get; init; }
+    [EnumDataType(typeof(EnumPaymentMethod))]
+    public EnumPaymentMethod PaymentMethod { get; init; }
 
     [Column("notes")]
     [MaxLength(1000)]
@@ -51,7 +51,7 @@ public class OrderModel : BaseCompanyModel
     public List<OrderDetailModel> Details { get; init; } = [];
 
     [ForeignKey(nameof(CustomerId))]
-    public CustomerModel Customer { get; init; } = default!;
+    public CustomerModel Customer { get; init; } = null!;
 
     public Guid? EmployeeId { get; init; }
 

@@ -21,10 +21,10 @@ public class CommentModel : BaseCompanyModel
     public string Text { get; init; } = string.Empty;
 
     [ForeignKey(nameof(ProfileId))]
-    public ProfileModel Profile { get; init; } = default!;
+    public ProfileModel Profile { get; init; } = null!;
 
     [ForeignKey(nameof(FeedId))]
-    public FeedModel Feed { get; init; } = default!;
+    public FeedModel Feed { get; init; } = null!;
 
     [ForeignKey(nameof(ParentCommentId))]
     public CommentModel? ParentComment { get; init; }

@@ -6,8 +6,8 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class PositionRow
 {
     [Parameter]
-    public GetAllPositionResponse Item { get; set; } = default!;
+    public GetAllPositionResponse Item { get; set; } = null!;
 
     [Parameter]
-    public Fenicia.Web.Components.Shared.CrudPage<GetAllPositionResponse> Page { get; set; } = default!;
+    public Fenicia.Web.Components.Shared.CrudPage<GetAllPositionResponse> Page { get; set; } = null!;
 }

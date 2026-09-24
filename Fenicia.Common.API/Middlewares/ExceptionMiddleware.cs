@@ -57,8 +57,8 @@ public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyCo
         return ex switch
         {
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
-            InvalidRequestException => (StatusCodes.Status400BadRequest, "InvalidRequest"),
-            ItemNotExistsException => (StatusCodes.Status404NotFound, "ItemNotFound"),
+            BadRequestException => (StatusCodes.Status400BadRequest, "InvalidRequest"),
+            ForbiddenException => (StatusCodes.Status404NotFound, "ItemNotFound"),
             PermissionDeniedException => (StatusCodes.Status403Forbidden, "PermissionDenied"),
             InvalidDataException => (StatusCodes.Status400BadRequest, "InvalidData"),
             NotSavedException => (StatusCodes.Status500InternalServerError, "NotSaved"),

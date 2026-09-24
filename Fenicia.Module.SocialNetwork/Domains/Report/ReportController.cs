@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.DTOs.SocialNetwork.Report;
 using Fenicia.Module.SocialNetwork.Domains.Report.Interfaces;

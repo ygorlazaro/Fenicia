@@ -12,10 +12,10 @@
     public Guid? CartEmployeeId { get; set; }
 
     [Parameter]
-    public PaymentMethod CartPaymentMethod { get; set; }
+    public EnumPaymentMethod CartPaymentMethod { get; set; }
 
     [Parameter]
-    public OrderStatus CartStatus { get; set; }
+    public EnumOrderStatus CartStatus { get; set; }
 
     [Parameter]
     public decimal CartDiscount { get; set; }
@@ -71,13 +71,8 @@
 
     <MudGrid Spacing="2">
         <MudItem xs="12">
-            <MudSelect T="Guid"
-                       Value="@CartCustomerId"
-                       ValueChanged="@((Guid v) => CartCustomerId = v)"
-                       Label="Cliente"
-                       Variant="Variant.Outlined"
-                       Required="true"
-                       RequiredError="Selecione um cliente">
+            <MudSelect T="Guid" Value="@CartCustomerId" ValueChanged="@((Guid v) => CartCustomerId = v)" Label="Cliente"
+                       Variant="Variant.Outlined" Required="true" RequiredError="Selecione um cliente">
                 @foreach (var c in Customers)
                 {
                     <MudSelectItem T="Guid" Value="@c.Id">@c.Name</MudSelectItem>
@@ -85,12 +80,8 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect T="Guid?"
-                       Value="@CartEmployeeId"
-                       ValueChanged="@((Guid? v) => CartEmployeeId = v)"
-                       Label="Vendedor"
-                       Variant="Variant.Outlined"
-                       Clearable="true">
+            <MudSelect T="Guid?" Value="@CartEmployeeId" ValueChanged="@((Guid? v) => CartEmployeeId = v)"
+                       Label="Vendedor" Variant="Variant.Outlined" Clearable="true">
                 @foreach (var e in Employees)
                 {
                     <MudSelectItem T="Guid?" Value="@e.Id">@e.Name</MudSelectItem>
@@ -98,32 +89,30 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect T="PaymentMethod"
-                       Value="@CartPaymentMethod"
-                       ValueChanged="@((PaymentMethod v) => CartPaymentMethod = v)"
-                       Label="Pagamento"
-                       Variant="Variant.Outlined"
-                       Required="true">
-                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Cash">Dinheiro</MudSelectItem>
-                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.CreditCard">Cartão de Crédito</MudSelectItem>
-                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.DebitCard">Cartão de Débito</MudSelectItem>
-                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Pix">PIX</MudSelectItem>
-                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.Boleto">Boleto</MudSelectItem>
-                <MudSelectItem T="PaymentMethod" Value="PaymentMethod.BankTransfer">Transferência</MudSelectItem>
+            <MudSelect T="EnumPaymentMethod" Value="@CartPaymentMethod"
+                       ValueChanged="@((EnumPaymentMethod v) => CartPaymentMethod = v)" Label="Pagamento"
+                       Variant="Variant.Outlined" Required="true">
+                <MudSelectItem T="EnumPaymentMethod" Value="EnumPaymentMethod.Cash">Dinheiro</MudSelectItem>
+                <MudSelectItem T="EnumPaymentMethod" Value="EnumPaymentMethod.CreditCard">Cartão de Crédito
+                </MudSelectItem>
+                <MudSelectItem T="EnumPaymentMethod" Value="EnumPaymentMethod.DebitCard">Cartão de Débito
+                </MudSelectItem>
+                <MudSelectItem T="EnumPaymentMethod" Value="EnumPaymentMethod.Pix">PIX</MudSelectItem>
+                <MudSelectItem T="EnumPaymentMethod" Value="EnumPaymentMethod.Boleto">Boleto</MudSelectItem>
+                <MudSelectItem T="EnumPaymentMethod" Value="EnumPaymentMethod.BankTransfer">Transferência
+                </MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect T="OrderStatus"
-                       Value="@CartStatus"
-                       ValueChanged="@((OrderStatus v) => CartStatus = v)"
-                       Label="Status"
-                       Variant="Variant.Outlined">
-                <MudSelectItem T="OrderStatus" Value="OrderStatus.Approved">Aprovado</MudSelectItem>
-                <MudSelectItem T="OrderStatus" Value="OrderStatus.Pending">Pendente</MudSelectItem>
+            <MudSelect T="EnumOrderStatus" Value="@CartStatus" ValueChanged="@((EnumOrderStatus v) => CartStatus = v)"
+                       Label="Status" Variant="Variant.Outlined">
+                <MudSelectItem T="EnumOrderStatus" Value="EnumOrderStatus.Approved">Aprovado</MudSelectItem>
+                <MudSelectItem T="EnumOrderStatus" Value="EnumOrderStatus.Pending">Pendente</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudNumericField T="decimal" @bind-Value="CartDiscount" Label="Desconto (R$)" Variant="Variant.Outlined" Min="0" />
+            <MudNumericField T="decimal" @bind-Value="CartDiscount" Label="Desconto (R$)" Variant="Variant.Outlined"
+                             Min="0" />
         </MudItem>
         <MudItem xs="12">
             <MudTextField @bind-Value="CartNotes" Label="Observações" Variant="Variant.Outlined" Lines="2" />
@@ -147,27 +136,17 @@
                     <MudStack Spacing="1">
                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                             <MudText Typo="Typo.subtitle2" Class="pdv-cart-item-name">@item.Name</MudText>
-                            <MudIconButton Icon="@Icons.Material.Filled.Close"
-                                           Size="Size.Small"
-                                           Color="Color.Error"
+                            <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" Color="Color.Error"
                                            OnClick="@(() => OnRemove.InvokeAsync(item.ProductId))" />
                         </MudStack>
                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                <MudIconButton Icon="@Icons.Material.Filled.Remove"
-                                               Size="Size.Small"
-                                               Color="Color.Default"
+                                <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default"
                                                OnClick="@(() => OnDecrease.InvokeAsync(item.ProductId))" />
-                                <MudNumericField T="double"
-                                                 Value="@item.Quantity"
-                                                  ValueChanged="@(v => OnUpdateQty.InvokeAsync(new OrderFormCartUpdatePayload(item.ProductId, v)))"
-                                                  Variant="Variant.Outlined"
-                                                  Margin="Margin.Dense"
-                                                  Min="0.01"
-                                                  Style="width:90px" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                               Size="Size.Small"
-                                               Color="Color.Default"
+                                <MudNumericField T="double" Value="@item.Quantity"
+                                                 ValueChanged="@(v => OnUpdateQty.InvokeAsync(new OrderFormCartUpdatePayload(item.ProductId, v)))"
+                                                 Variant="Variant.Outlined" Margin="Margin.Dense" Min="0.01" Style="width:90px" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Default"
                                                OnClick="@(() => OnIncrease.InvokeAsync(item.ProductId))" />
                             </MudStack>
                             <MudStack Spacing="0" AlignItems="AlignItems.End">
@@ -207,13 +186,8 @@
         </MudStack>
     </MudStack>
 
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Success"
-               FullWidth="true"
-               Size="Size.Large"
-               StartIcon="@Icons.Material.Filled.PointOfSale"
-               OnClick="@OnFinalize"
-               Disabled="!CanFinalize || IsSubmitting"
+    <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" Size="Size.Large"
+               StartIcon="@Icons.Material.Filled.PointOfSale" OnClick="@OnFinalize" Disabled="!CanFinalize || IsSubmitting"
                Class="mt-4">
         @if (IsSubmitting)
         {
@@ -257,25 +231,23 @@
                             <MudLink Href="@($"/basic/customer?edit={o.CustomerId}")" Underline="Underline.Hover">
                                 <MudText Typo="Typo.caption" Color="Color.Default">@o.CustomerName</MudText>
                             </MudLink>
-                            <MudText Typo="Typo.caption" Color="Color.Default">@o.TotalQuantity.ToString("0.##") itens · @o.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Default">@o.TotalQuantity.ToString("0.##") itens ·
+                                @o.SaleDate.ToString("dd/MM/yyyy HH:mm")</MudText>
+                            </MudStack>
+                            <MudStack Spacing="0" AlignItems="AlignItems.End">
+                                <MudChip T="string" Size="Size.Small" Color="@(o.Status switch
+                                         {
+                                             "Approved" => Color.Success,
+                                             "Cancelled" => Color.Error,
+                                             _ => Color.Warning
+                                         })" Variant="Variant.Filled">
+                                    @o.Status
+                                </MudChip>
+                                <MudText Typo="Typo.subtitle2" Color="Color.Primary">@Money.Format(o.TotalAmount)</MudText>
+                            </MudStack>
                         </MudStack>
-                        <MudStack Spacing="0" AlignItems="AlignItems.End">
-                            <MudChip T="string"
-                                     Size="Size.Small"
-                                     Color="@(o.Status switch
-                                     {
-                                         "Approved" => Color.Success,
-                                         "Cancelled" => Color.Error,
-                                         _ => Color.Warning
-                                     })"
-                                     Variant="Variant.Filled">
-                                @o.Status
-                            </MudChip>
-                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">@Money.Format(o.TotalAmount)</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudPaper>
-            }
-        </div>
-    }
-</MudPaper>
+                    </MudPaper>
+                }
+            </div>
+        }
+    </MudPaper>

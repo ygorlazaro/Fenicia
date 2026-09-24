@@ -13,14 +13,14 @@ public class ModuleRepository(DbContext context) : Repository<ModuleModel>(conte
         CancellationToken cancellationToken = default)
     {
         var query = from m in DbSet
-            where ids.Contains(m.Id)
-            orderby m.Type
-            select m;
+                    where ids.Contains(m.Id)
+                    orderby m.Type
+                    select m;
 
         return query.ToListAsync(cancellationToken);
     }
 
-    public Task<ModuleModel?> GetByTypeAsync(ModuleType type, CancellationToken cancellationToken = default)
+    public Task<ModuleModel?> GetByTypeAsync(EnumModuleType type, CancellationToken cancellationToken = default)
     {
         return DbSet.FirstOrDefaultAsync(m => m.Type == type, cancellationToken);
     }
@@ -42,9 +42,9 @@ public class ModuleRepository(DbContext context) : Repository<ModuleModel>(conte
     private IOrderedQueryable<ModuleModel> CommonPublicQuery()
     {
         return from m in DbSet
-            where m.IsActive
-                  && m.Type > ModuleType.Basic
-            orderby m.SortOrder
-            select m;
+               where m.IsActive
+                     && m.Type > EnumModuleType.Basic
+               orderby m.SortOrder
+               select m;
     }
 }

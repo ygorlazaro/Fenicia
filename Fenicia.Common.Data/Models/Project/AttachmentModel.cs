@@ -20,10 +20,10 @@ public sealed class AttachmentModel : BaseCompanyModel
     public Guid UploadedBy { get; init; } = Guid.Empty;
 
     [ForeignKey(nameof(TaskId))]
-    public ProjectTaskModel TaskModel { get; init; } = default!;
+    public ProjectTaskModel TaskModel { get; init; } = null!;
 
     [ForeignKey(nameof(UploadedBy))]
-    public UserModel User { get; init; } = default!;
+    public UserModel User { get; init; } = null!;
 
     [MaxLength(50)]
     public string? ContentType { get; init; }

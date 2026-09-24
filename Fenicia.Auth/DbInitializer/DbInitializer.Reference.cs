@@ -77,7 +77,7 @@ internal static partial class DbInitializer
 
         var sortOrder = 1;
 
-        var modules = Enum.GetValues<ModuleType>()
+        var modules = Enum.GetValues<EnumModuleType>()
             .Select(moduleType => new ModuleModel
             {
                 Name = moduleType.ToString(),

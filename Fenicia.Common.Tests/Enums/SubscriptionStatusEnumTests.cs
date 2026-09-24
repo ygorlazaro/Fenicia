@@ -8,16 +8,16 @@ public class SubscriptionStatusEnumTests
     [Fact]
     public void SubscriptionStatus_ShouldHaveExpectedValues()
     {
-        var values = Enum.GetValues<SubscriptionStatus>();
+        var values = Enum.GetValues<EnumSubscriptionStatus>();
 
-        values.Should().Contain(SubscriptionStatus.Inactive);
-        values.Should().Contain(SubscriptionStatus.Active);
+        values.Should().Contain(EnumSubscriptionStatus.Inactive);
+        values.Should().Contain(EnumSubscriptionStatus.Active);
     }
 
     [Fact]
     public void SubscriptionStatus_ShouldHaveCorrectCount()
     {
-        var values = Enum.GetValues<SubscriptionStatus>();
+        var values = Enum.GetValues<EnumSubscriptionStatus>();
 
         values.Length.Should().Be(2);
     }

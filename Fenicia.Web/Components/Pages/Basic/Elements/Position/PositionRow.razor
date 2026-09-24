@@ -1,6 +1,6 @@
 @code {
     [Parameter]
-    public GetAllPositionResponse Item { get; set; } = default!;
+    public GetAllPositionResponse Item { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnEdit { get; set; }
@@ -10,16 +10,13 @@
 }
 
 <MudTd DataLabel="Ações" Class="position-actions-cell">
-    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                   Color="Color.Info"
-                   Size="Size.Small"
+    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
                    OnClick="@(() => OnEdit.InvokeAsync(Item))" />
-    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                   Color="Color.Error"
-                   Size="Size.Small"
+    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                    OnClick="@(() => OnDelete.InvokeAsync(Item))" />
 </MudTd>
 <MudTd DataLabel="Nome">@Item.Name</MudTd>
 <MudTd DataLabel="Funcionários" Class="position-link-cell">
-    <MudLink Href="@($"/basic/employee?filters%5BPositionId%5D={Item.Id}")" Typo="Typo.body2" Underline="Underline.Always">Ver funcionários</MudLink>
+    <MudLink Href="@($"/basic/employee?filters%5BPositionId%5D={Item.Id}")" Typo="Typo.body2"
+             Underline="Underline.Always">Ver funcionários</MudLink>
 </MudTd>

@@ -18,7 +18,7 @@ public class SubscriptionRepository(DbContext context)
         return DbSet
             .Include(s => s.Company)
             .Where(s => s.Company.UsersRoles.Any(ur => ur.UserId == userId))
-            .Where(s => s.Status == SubscriptionStatus.Active && now >= s.StartDate && now <= s.EndDate)
+            .Where(s => s.Status == EnumSubscriptionStatus.Active && now >= s.StartDate && now <= s.EndDate)
             .Distinct()
             .ToListAsync(cancellationToken);
     }
@@ -43,11 +43,11 @@ public class SubscriptionRepository(DbContext context)
         var now = DateTime.UtcNow;
 
         var query = from s in DbSet
-            where s.CompanyId == companyId
-                  && s.Status == SubscriptionStatus.Active
-                  && now >= s.StartDate
-                  && now <= s.EndDate
-            select s;
+                    where s.CompanyId == companyId
+                          && s.Status == EnumSubscriptionStatus.Active
+                          && now >= s.StartDate
+                          && now <= s.EndDate
+                    select s;
 
         return query.ToListAsync(cancellationToken);
     }

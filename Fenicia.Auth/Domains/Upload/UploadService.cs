@@ -14,7 +14,7 @@ public class UploadService(IUploadRepository repository) : IUploadService
 
         if (file.Length > maxSize)
         {
-            throw new InvalidRequestException($"Arquivo excede o tamanho máximo de {maxSize / 1024 / 1024}MB.");
+            throw new BadRequestException($"Arquivo excede o tamanho máximo de {maxSize / 1024 / 1024}MB.");
         }
 
         var uploadRoot = uploadOptions.Directory;

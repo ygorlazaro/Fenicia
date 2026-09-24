@@ -114,7 +114,7 @@ public class ProductController(IProductService productService, ICompanyContext c
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProductResponse>> PostAsync(
-        [FromBody] AddProductCommand command,
+        [FromBody] AddProductRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -154,7 +154,7 @@ public class ProductController(IProductService productService, ICompanyContext c
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProductResponse>> PatchAsync(
-        [FromBody] UpdateProductCommand command,
+        [FromBody] UpdateProductRequest command,
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -164,7 +164,7 @@ public class ProductController(IProductService productService, ICompanyContext c
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            var updatedCommand = new UpdateProductCommand(
+            var updatedCommand = new UpdateProductRequest(
                 id,
                 command.Name,
                 command.SKU,
@@ -214,7 +214,7 @@ public class ProductController(IProductService productService, ICompanyContext c
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            await productService.DeleteAsync(new DeleteProductCommand(id), companyId, cancellationToken);
+            await productService.DeleteAsync(new DeleteProductRequest(id), companyId, cancellationToken);
 
             return NoContent();
         }

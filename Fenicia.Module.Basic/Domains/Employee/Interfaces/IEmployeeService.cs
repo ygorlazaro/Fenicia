@@ -19,16 +19,16 @@ public interface IEmployeeService
         CancellationToken cancellationToken = default);
 
     Task<AddEmployeeResponse> AddAsync(
-        AddEmployeeCommand command,
+        AddEmployeeRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdateEmployeeResponse?> UpdateAsync(
-        UpdateEmployeeCommand command,
+        UpdateEmployeeRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteEmployeeCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeleteEmployeeRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<EmployeePerformanceResponse> GetPerformanceAsync(
         GetEmployeePerformanceQuery query,

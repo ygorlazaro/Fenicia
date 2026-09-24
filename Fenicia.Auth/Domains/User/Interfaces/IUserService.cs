@@ -15,13 +15,7 @@ public interface IUserService
 
     Task<UserResponse?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
-
-    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
-
     Task<UserModel?> FirstByEmailOrDefaultAsync(string email, CancellationToken cancellationToken = default);
-
-    Task<UserResponse> GetForRefreshAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task<List<UserCompanyResponse>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken = default);
 
@@ -33,7 +27,7 @@ public interface IUserService
 
     Task<UserResponse> CreateAsync(UserRequest request, CancellationToken cancellationToken = default);
 
-    Task<UserResponse> UpdateAsync(UserRequest command, CancellationToken cancellationToken = default);
+    Task<UserResponse> UpdateAsync(UserRequest request, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default);
 

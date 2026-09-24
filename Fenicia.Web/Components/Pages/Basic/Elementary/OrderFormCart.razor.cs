@@ -9,21 +9,21 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class OrderFormCart
 {
     [Parameter]
-[EditorRequired]
-public List<OrderFormCartItem> Cart { get; set; } = [];
+    [EditorRequired]
+    public List<OrderFormCartItem> Cart { get; set; } = [];
 
     [Parameter]
-[EditorRequired]
-public Guid CartCustomerId { get; set; }
+    [EditorRequired]
+    public Guid CartCustomerId { get; set; }
 
     [Parameter]
     public Guid? CartEmployeeId { get; set; }
 
     [Parameter]
-    public PaymentMethod CartPaymentMethod { get; set; } = PaymentMethod.Cash;
+    public EnumPaymentMethod CartPaymentMethod { get; set; } = EnumPaymentMethod.Cash;
 
     [Parameter]
-    public OrderStatus CartStatus { get; set; } = OrderStatus.Approved;
+    public EnumOrderStatus CartStatus { get; set; } = EnumOrderStatus.Approved;
 
     [Parameter]
     public decimal CartDiscount { get; set; }
@@ -32,16 +32,16 @@ public Guid CartCustomerId { get; set; }
     public string? CartNotes { get; set; }
 
     [Parameter]
-[EditorRequired]
-public List<OrderFormCustomerOption> Customers { get; set; } = [];
+    [EditorRequired]
+    public List<OrderFormCustomerOption> Customers { get; set; } = [];
 
     [Parameter]
-[EditorRequired]
-public List<OrderFormEmployeeOption> Employees { get; set; } = [];
+    [EditorRequired]
+    public List<OrderFormEmployeeOption> Employees { get; set; } = [];
 
     [Parameter]
-[EditorRequired]
-public List<GetAllOrderResponse>? RecentOrders { get; set; }
+    [EditorRequired]
+    public List<GetAllOrderResponse>? RecentOrders { get; set; }
 
     [Parameter]
     public bool IsSubmitting { get; set; }

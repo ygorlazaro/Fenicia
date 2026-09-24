@@ -1,8 +1,8 @@
-using Fenicia.Common.DTOs.Basic.State;
+using Fenicia.Common.DTOs.Auth.State;
 
 namespace Fenicia.Module.Basic.Domains.State.Interfaces;
 
 public interface IStateService
 {
-    Task<List<GetAllStateResponse>> GetAllAsync(GetAllStateQuery query, CancellationToken cancellationToken = default);
+    Task<List<GetAllStateResponse>> GetAllAsync(StateRequest query, CancellationToken cancellationToken = default);
 }

@@ -19,16 +19,16 @@ public interface ISupplierService
         CancellationToken cancellationToken = default);
 
     Task<AddSupplierResponse> AddAsync(
-        AddSupplierCommand command,
+        AddSupplierRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task<UpdateSupplierResponse?> UpdateAsync(
-        UpdateSupplierCommand command,
+        UpdateSupplierRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(DeleteSupplierCommand command, Guid companyId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(DeleteSupplierRequest command, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<SupplierPerformanceResponse> GetPerformanceAsync(
         GetSupplierPerformanceQuery query,

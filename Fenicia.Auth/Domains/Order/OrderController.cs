@@ -44,8 +44,8 @@ public class OrderController(IOrderService orderService) : ControllerBase
         try
         {
             var userId = ClaimReader.UserId(User);
-            var command = new OrderRequest(userId, companyId, request.Modules);
-            var order = await orderService.CreateAsync(command, cancellationToken);
+            request.UserId = userId;
+            var order = await orderService.CreateAsync(request, cancellationToken);
 
             return order switch
             {
@@ -61,7 +61,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
         {
             return Forbid();
         }
-        catch (ItemNotExistsException ex)
+        catch (ForbiddenException ex)
         {
             return NotFound(new { ex.Message });
         }

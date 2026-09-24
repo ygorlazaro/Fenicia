@@ -8,7 +8,7 @@ public class ModuleResponse()
     public ModuleResponse(
         Guid id,
         string name,
-        ModuleType type,
+        EnumModuleType type,
         string? description,
         bool isActive,
         int sortOrder,
@@ -33,8 +33,8 @@ public class ModuleResponse()
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [EnumDataType(typeof(ModuleType))]
-    public ModuleType Type { get; set; }
+    [EnumDataType(typeof(EnumModuleType))]
+    public EnumModuleType Type { get; set; }
 
     [MaxLength(500)]
     public string? Description { get; set; }
