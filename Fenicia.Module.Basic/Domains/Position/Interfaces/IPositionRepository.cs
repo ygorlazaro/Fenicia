@@ -3,4 +3,9 @@ using Fenicia.Common.Data.Repositories;
 
 namespace Fenicia.Module.Basic.Domains.Position.Interfaces;
 
-public interface IPositionRepository : IRepository<PositionModel>;
+/// <summary>
+/// Repository interface for managing position data.
+/// </summary>
+public interface IPositionRepository : IRepository<PositionModel>
+{
+}

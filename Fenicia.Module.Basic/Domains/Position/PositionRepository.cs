@@ -5,4 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
-public class PositionRepository(DbContext context) : Repository<PositionModel>(context), IPositionRepository;
+/// <summary>
+/// Repository implementation for managing position data.
+/// </summary>
+/// <param name="context">The database context.</param>
+public class PositionRepository(DbContext context)
+    : Repository<PositionModel>(context), IPositionRepository
+{
+}
