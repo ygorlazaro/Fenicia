@@ -1,16 +1,22 @@
+using Fenicia.Auth.Domains.Person.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Person;
-using Fenicia.Module.Basic.Domains.Person.Interfaces;
 
-namespace Fenicia.Module.Basic.Domains.Person;
+namespace Fenicia.Auth.Domains.Person;
 
+/// <summary>
+/// Service responsible for managing person-related operations.
+/// </summary>
+/// <param name="repository">The repository for managing person data.</param>
 public sealed class PersonService(IPersonRepository repository) : IPersonService
 {
-    public PersonService()
-        : this(null!)
-    {
-    }
-
+    /// <summary>
+    /// Inserts a new person.
+    /// </summary>
+    /// <param name="command">The person request containing the person details.</param>
+    /// <param name="companyId">The unique identifier of the company.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The created person response.</returns>
     public async Task<PersonResponse> InsertAsync(
         PersonRequest command,
         Guid companyId,
@@ -41,6 +47,14 @@ public sealed class PersonService(IPersonRepository repository) : IPersonService
             result.Notes);
     }
 
+    /// <summary>
+    /// Updates an existing person.
+    /// </summary>
+    /// <param name="id">The unique identifier of the person to update.</param>
+    /// <param name="command">The person request containing the updated person details.</param>
+    /// <param name="companyId">The unique identifier of the company.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The updated person response, or null if not found.</returns>
     public async Task<PersonResponse?> UpdateAsync(
         Guid id,
         PersonRequest command,

@@ -1,11 +1,13 @@
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Auth.Address;
+using Fenicia.Common.DTOs.Auth.PersonAddress;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Supplier;
-using Fenicia.Module.Basic.Domains.Address.Interfaces;
-using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
+using Fenicia.Auth.Domains.Address.Interfaces;
+using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
@@ -163,7 +165,7 @@ public sealed class SupplierService(
             return new AddSupplierResponse(supplier.Id, supplier.Cnpj);
         }
 
-        var personAddressCommand = new AddPersonAddressRequest(person.Id, addressId.Value);
+        var personAddressCommand = new PersonAddressRequest(person.Id, addressId.Value);
         await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
         return new AddSupplierResponse(supplier.Id, supplier.Cnpj);
@@ -224,7 +226,7 @@ public sealed class SupplierService(
                     AddressId = addressResponse.Id,
                     CompanyId = companyId
                 };
-                var personAddressCommand = new AddPersonAddressRequest(newPersonAddress.PersonId, newPersonAddress.AddressId);
+                var personAddressCommand = new PersonAddressRequest(newPersonAddress.PersonId, newPersonAddress.AddressId);
                 await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
             }
         }

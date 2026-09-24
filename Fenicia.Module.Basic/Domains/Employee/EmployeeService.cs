@@ -1,13 +1,16 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Auth.Address;
+using Fenicia.Common.DTOs.Auth.Person;
+using Fenicia.Common.DTOs.Auth.PersonAddress;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Employee;
 using Fenicia.Common.Exceptions;
-using Fenicia.Module.Basic.Domains.Address.Interfaces;
+using Fenicia.Auth.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
-using Fenicia.Module.Basic.Domains.Person.Interfaces;
-using Fenicia.Module.Basic.Domains.PersonAddress.Interfaces;
+using Fenicia.Auth.Domains.Person.Interfaces;
+using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
@@ -108,7 +111,7 @@ public sealed class EmployeeService(
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var personCommand = new UpsertPersonRequest(
+        var personCommand = new PersonRequest(
             command.Name,
             command.Document,
             command.Email,
@@ -151,7 +154,7 @@ public sealed class EmployeeService(
             return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
         }
 
-        var personAddressCommand = new AddPersonAddressRequest(personResponse.Id, addressId.Value);
+        var personAddressCommand = new PersonAddressRequest(personResponse.Id, addressId.Value);
         await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
         return new AddEmployeeResponse(created.Id, created.PositionId, created.PersonId);
@@ -211,12 +214,12 @@ public sealed class EmployeeService(
                     PersonId = employee.PersonId,
                     AddressId = createdAddress.Id
                 };
-                var personAddressCommand = new AddPersonAddressRequest(newPersonAddress.PersonId, newPersonAddress.AddressId);
+                var personAddressCommand = new PersonAddressRequest(newPersonAddress.PersonId, newPersonAddress.AddressId);
                 await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
             }
         }
 
-        var personCommand = new UpsertPersonRequest(
+        var personCommand = new PersonRequest(
             employee.Person.Name,
             employee.Person.Document,
             employee.Person.Email,

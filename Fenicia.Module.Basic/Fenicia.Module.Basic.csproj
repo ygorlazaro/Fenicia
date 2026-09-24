@@ -24,6 +24,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Fenicia.Common.API\Fenicia.Common.API.csproj"/>
         <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj"/>
+        <ProjectReference Include="..\Fenicia.Auth\Fenicia.Auth.csproj"/>
 
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
