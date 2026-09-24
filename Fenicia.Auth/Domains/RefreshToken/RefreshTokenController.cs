@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
+/// <summary>
+/// Controller responsible for handling refresh token operations, including generating new refresh tokens and validating existing ones. It provides endpoints for authenticated users to manage their refresh tokens securely.
+/// </summary>
+/// <param name="refreshTokenService"></param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -48,6 +52,7 @@ public class RefreshTokenController(IRefreshTokenService refreshTokenService) : 
     ///     Valida um refresh token pelo valor.
     /// </summary>
     /// <param name="token">Valor do refresh token</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da validação com dados do token</returns>
     /// <response code="200">Token válido</response>
     /// <response code="400">Refresh token inválido ou nulo</response>
