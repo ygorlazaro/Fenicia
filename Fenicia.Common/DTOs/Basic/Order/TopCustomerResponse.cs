@@ -2,33 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public class TopCustomerResponse()
-{
-    public TopCustomerResponse(
-        Guid customerId,
-        string customerName,
-        int orderCount,
-        decimal totalSpent,
-        int totalItems)
-        : this()
-    {
-        CustomerId = customerId;
-        CustomerName = customerName;
-        OrderCount = orderCount;
-        TotalSpent = totalSpent;
-        TotalItems = totalItems;
-    }
-
-    [Required]
-    public Guid CustomerId { get; set; }
-
-    [Required]
-    [MaxLength(200)]
-    public string CustomerName { get; set; } = string.Empty;
-
-    public int OrderCount { get; set; }
-
-    public decimal TotalSpent { get; set; }
-
-    public int TotalItems { get; set; }
-}
+/// <summary>
+/// Response DTO containing top customer data.
+/// </summary>
+/// <param name="customerId">The unique identifier of the customer.</param>
+/// <param name="customerName">The name of the customer.</param>
+/// <param name="orderCount">The number of orders.</param>
+/// <param name="totalSpent">The total amount spent.</param>
+/// <param name="totalItems">The total number of items.</param>
+public record TopCustomerResponse(
+    [Required] Guid CustomerId,
+    [Required] [MaxLength(200)] string CustomerName,
+    int OrderCount,
+    decimal TotalSpent,
+    int TotalItems);

@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.DTOs.Basic.StockMovement;
@@ -11,14 +12,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
+/// <summary>
+/// Service implementation for managing orders.
+/// </summary>
+/// <param name="repository">The order repository.</param>
+/// <param name="orderDetailService">The order detail service.</param>
+/// <param name="stockMovementService">The stock movement service.</param>
 public sealed class OrderService(
     IOrderRepository repository,
     IOrderDetailService orderDetailService,
     IStockMovementService stockMovementService) : IOrderService
 {
-
-    public async Task<Pagination<List<GetAllOrderResponse>>> GetAllAsync(
-        GetAllOrderQuery query,
+    /// <inheritdoc />
+    public async Task<Pagination<List<OrderResponse>>> GetAllAsync(
+        OrderQuery query,
         CancellationToken cancellationToken = default)
     {
         var baseQuery = repository.Query()
@@ -56,64 +63,55 @@ public sealed class OrderService(
 
         var response = orders
             .OrderByDescending(o => o.SaleDate)
-            .Select(o => new GetAllOrderResponse(
-                o.Id,
-                o.OrderNumber,
-                o.UserId,
-                o.CustomerId,
-                o.CustomerName,
-                o.TotalAmount,
-                o.DiscountAmount,
-                o.TotalQuantity,
-                o.SaleDate,
-                o.Status.ToString(),
-                o.PaymentMethod,
-                detailCounts.TryGetValue(o.Id, out var count) ? count : 0,
-                o.EmployeeId,
-                o.EmployeeName))
+            .Select(o => OrderMapper.MapToListResponse(
+                new Fenicia.Common.Data.Models.Basic.OrderModel
+                {
+                    Id = o.Id,
+                    OrderNumber = o.OrderNumber,
+                    UserId = o.UserId,
+                    CustomerId = o.CustomerId,
+                    Customer = new CustomerModel { Person = new PersonModel { Name = o.CustomerName } },
+                    TotalAmount = o.TotalAmount,
+                    DiscountAmount = o.DiscountAmount,
+                    TotalQuantity = o.TotalQuantity,
+                    SaleDate = o.SaleDate,
+                    Status = o.Status,
+                    PaymentMethod = o.PaymentMethod,
+                    EmployeeId = o.EmployeeId,
+                    Employee = o.EmployeeId.HasValue ? new EmployeeModel { Person = new PersonModel { Name = o.EmployeeName } } : null
+                },
+                detailCounts.TryGetValue(o.Id, out var count) ? count : 0))
             .ToList();
 
-        return new Pagination<List<GetAllOrderResponse>>(response, total, query.Page, query.PerPage);
+        return new Pagination<List<OrderResponse>>(response, total, query);
     }
 
-    public async Task<GetOrderByIdResponse?> GetByIdAsync(
-        GetOrderByIdQuery query,
+    /// <inheritdoc />
+    public async Task<OrderResponse?> GetByIdAsync(
+        Guid id,
         CancellationToken cancellationToken = default)
     {
-        var order = await repository.GetByIdWithDetailsAsync(query.Id, cancellationToken);
+        var order = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
 
         if (order is null)
         {
             return null;
         }
 
-        return new GetOrderByIdResponse(
-            order.Id,
-            order.OrderNumber,
-            order.UserId,
-            order.CustomerId,
-            order.Customer.Person.Name,
-            order.TotalAmount,
-            order.DiscountAmount,
-            order.TotalQuantity,
-            order.SaleDate,
-            order.Status.ToString(),
-            order.PaymentMethod,
-            order.Notes,
-            order.EmployeeId,
-            order.Employee?.Person.Name);
+        return OrderMapper.MapToResponse(order);
     }
 
-    public Task<List<Fenicia.Common.DTOs.Basic.OrderDetail.GetOrderDetailsByOrderIdResponse>>
-        GetDetailsByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public Task<List<OrderDetailResponse>> GetDetailsByOrderIdAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default)
     {
-        return orderDetailService.GetByOrderIdAsync(
-            new Fenicia.Common.DTOs.Basic.OrderDetail.GetOrderDetailsByOrderIdQuery(orderId),
-            cancellationToken);
+        return orderDetailService.GetByOrderIdAsync(orderId, cancellationToken);
     }
 
-    public async Task<CreateOrderResponse> CreateAsync(
-        CreateOrderRequest command,
+    /// <inheritdoc />
+    public async Task<OrderResponse> CreateAsync(
+        OrderRequest command,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
@@ -122,7 +120,7 @@ public sealed class OrderService(
         var details = command.Details.Select(d =>
         {
             var subtotal = d.Price * (decimal)d.Quantity - d.DiscountAmount;
-            return new OrderDetailModel
+            return new Fenicia.Common.Data.Models.Basic.OrderDetailModel
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
@@ -139,7 +137,7 @@ public sealed class OrderService(
         var totalAmount = details.Sum(d => d.Subtotal);
         var orderNumber = GenerateOrderNumber();
 
-        var order = new OrderModel
+        var order = new Fenicia.Common.Data.Models.Basic.OrderModel
         {
             Id = orderId,
             OrderNumber = orderNumber,
@@ -187,34 +185,24 @@ public sealed class OrderService(
             await stockMovementService.AddAsync(movementCommand, companyId, cancellationToken);
         }
 
-        return new CreateOrderResponse(
-            created.Id,
-            created.OrderNumber,
-            created.UserId,
-            created.CustomerId,
-            created.TotalAmount,
-            created.DiscountAmount,
-            created.TotalQuantity,
-            created.SaleDate,
-            created.Status,
-            created.PaymentMethod,
-            created.Notes,
-            created.EmployeeId);
+        return OrderMapper.MapToResponse(created);
     }
 
+    /// <inheritdoc />
     public async Task DeleteAsync(
-        DeleteOrderRequest command,
+        Guid id,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(id, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<OrderAnalyticsResponse> GetAnalyticsAsync(
-        GetOrderAnalyticsQuery query,
+        OrderAnalyticsRequest request,
         CancellationToken cancellationToken = default)
     {
-        var startDate = DateTime.UtcNow.AddDays(-query.Days);
+        var startDate = DateTime.UtcNow.AddDays(-request.Days);
         var endDate = DateTime.UtcNow;
 
         var response = await repository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
@@ -222,7 +210,7 @@ public sealed class OrderService(
 
         var ordersByStatus = GetOrdersByStatus(orders);
         var salesTrend = await GetSalesTrendAsync(orders, cancellationToken);
-        var topCustomers = await GetTopCustomerAsync(query, orders, cancellationToken);
+        var topCustomers = await GetTopCustomerAsync(request, orders, cancellationToken);
         var averageOrderValue = GetAverageOrderValue(orders);
         var cancelledOrders = await GetCancelledOrderAsync(orders, cancellationToken);
 
@@ -236,14 +224,17 @@ public sealed class OrderService(
         };
     }
 
-    public Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(
+    /// <inheritdoc />
+    public async Task<IEnumerable<OrderResponse>> GetAnalyticsOrdersAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        var orders = await repository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
+        return orders.Select(o => OrderMapper.MapToResponse(o));
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetTotalRevenueAsync(
         DateTime startDate,
         DateTime endDate,
@@ -252,6 +243,7 @@ public sealed class OrderService(
         return repository.GetTotalRevenueAsync(startDate, endDate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetTotalCostAsync(
         DateTime startDate,
         DateTime endDate,
@@ -260,6 +252,7 @@ public sealed class OrderService(
         return repository.GetTotalCostAsync(startDate, endDate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTotalOrdersCountAsync(
         DateTime startDate,
         DateTime endDate,
@@ -268,6 +261,7 @@ public sealed class OrderService(
         return repository.GetTotalOrdersCountAsync(startDate, endDate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<DateTime>> GetOrderDatesAsync(
         DateTime startDate,
         DateTime endDate,
@@ -276,112 +270,141 @@ public sealed class OrderService(
         return repository.GetOrderDatesAsync(startDate, endDate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetTotalRevenueAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetTotalCostAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTotalOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetTotalOrdersCountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<DateTime>> GetOrderDatesAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetOrderDatesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetOrderWeeksAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetTodayRevenueAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetTodayRevenueAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTodayOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetTodayOrdersCountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetWeekRevenueAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetWeekRevenueAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetWeekOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetWeekOrdersCountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetMonthRevenueAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetMonthRevenueAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetMonthOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetMonthOrdersCountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetLastMonthRevenueAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetLastMonthRevenueAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetPendingAmountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetPendingAmountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetPendingOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetPendingOrdersCountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<decimal> GetApprovedAmountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetApprovedAmountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetApprovedOrdersCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetApprovedOrdersCountAsync(cancellationToken);
     }
 
-    public Task<List<OrderModel>> GetRecentOrdersAsync(
+    /// <inheritdoc />
+    public async Task<List<OrderResponse>> GetRecentOrdersAsync(
         int topLimit,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetRecentOrdersAsync(topLimit, cancellationToken);
+        var orders = await repository.GetRecentOrdersAsync(topLimit, cancellationToken);
+        return [.. orders.Select(o => OrderMapper.MapToResponse(o))];
     }
 
-    public Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<List<OrderResponse>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
     {
-        return repository.GetTopCustomerOrdersAsync(cancellationToken);
+        var orders = await repository.GetTopCustomerOrdersAsync(cancellationToken);
+        return [.. orders.Select(o => OrderMapper.MapToResponse(o))];
     }
 
-    public Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<List<OrderResponse>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
     {
-        return repository.GetAtRiskOrdersAsync(cancellationToken);
+        var orders = await repository.GetAtRiskOrdersAsync(cancellationToken);
+        return [.. orders.Select(o => OrderMapper.MapToResponse(o))];
     }
 
-    public Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
+    /// <inheritdoc />
+    public async Task<List<OrderResponse>> GetEmployeePerformanceOrdersAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
+        var orders = await repository.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
+        return [.. orders.Select(o => OrderMapper.MapToResponse(o))];
     }
 
-    private static List<OrderStatusCountResponse> GetOrdersByStatus(IEnumerable<OrderModel> orders)
+    /// <summary>
+    /// Gets orders grouped by status.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <returns>A list of order status count responses.</returns>
+    private static List<OrderStatusCountResponse> GetOrdersByStatus(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders)
     {
         var groups = orders
             .GroupBy(o => o.Status)
@@ -396,6 +419,11 @@ public sealed class OrderService(
         ];
     }
 
+    /// <summary>
+    /// Calculates the median of a list of decimal values.
+    /// </summary>
+    /// <param name="values">The values.</param>
+    /// <returns>The median value.</returns>
     private static decimal CalculateMedian(List<decimal> values)
     {
         var count = values.Count;
@@ -408,27 +436,39 @@ public sealed class OrderService(
         return count % 2 == 0 ? (values[mid - 1] + values[mid]) / 2 : values[mid];
     }
 
+    /// <summary>
+    /// Generates a unique order number.
+    /// </summary>
+    /// <returns>The generated order number.</returns>
     private static string GenerateOrderNumber()
     {
         return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
     }
 
-    private static AverageOrderValueResponse GetAverageOrderValue(IEnumerable<OrderModel> orders)
+    /// <summary>
+    /// Gets the average order value metrics.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <returns>The average order value response.</returns>
+    private static AverageOrderValueResponse GetAverageOrderValue(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders)
     {
         var orderValues = orders.Select(o => o.TotalAmount).OrderBy(v => v).ToList();
-        var averageOrderValue = new AverageOrderValueResponse
-        {
-            TotalOrders = orderValues.Count,
-            AverageValue = orderValues.Count > 0 ? orderValues.Average() : 0,
-            MedianValue = orderValues.Count > 0 ? CalculateMedian(orderValues) : 0,
-            MinValue = orderValues.Count > 0 ? orderValues.Min() : 0,
-            MaxValue = orderValues.Count > 0 ? orderValues.Max() : 0
-        };
-        return averageOrderValue;
+        return new AverageOrderValueResponse(
+            orderValues.Count > 0 ? orderValues.Average() : 0,
+            orderValues.Count,
+            orderValues.Count > 0 ? CalculateMedian(orderValues) : 0,
+            orderValues.Count > 0 ? orderValues.Min() : 0,
+            orderValues.Count > 0 ? orderValues.Max() : 0);
     }
 
+    /// <summary>
+    /// Gets cancelled orders.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of cancelled order responses.</returns>
     private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(
-        IEnumerable<OrderModel> orders,
+        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         CancellationToken cancellationToken = default)
     {
         var cancelled = orders
@@ -455,9 +495,16 @@ public sealed class OrderService(
         ];
     }
 
+    /// <summary>
+    /// Gets top customers.
+    /// </summary>
+    /// <param name="request">The analytics request.</param>
+    /// <param name="orders">The orders.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of top customer responses.</returns>
     private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(
-        GetOrderAnalyticsQuery query,
-        IEnumerable<OrderModel> orders,
+        OrderAnalyticsRequest request,
+        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         CancellationToken cancellationToken = default)
     {
         var raw = orders
@@ -477,14 +524,20 @@ public sealed class OrderService(
                 g.Sum(o => o.TotalAmount),
                 g.Sum(o => (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0))))
             .OrderByDescending(c => c.TotalSpent)
-            .Take(query.TopCustomersLimit)
+            .Take(request.TopCustomersLimit)
             .ToList();
 
         return topCustomers;
     }
 
+    /// <summary>
+    /// Gets the sales trend.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of sales trend responses.</returns>
     private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(
-        IEnumerable<OrderModel> orders,
+        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         CancellationToken cancellationToken = default)
     {
         var orderData = orders

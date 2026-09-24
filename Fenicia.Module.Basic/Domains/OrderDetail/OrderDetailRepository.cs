@@ -5,9 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
+/// <summary>
+/// Repository implementation for managing order detail data.
+/// </summary>
+/// <param name="context">The database context.</param>
 public class OrderDetailRepository(DbContext context)
     : Repository<OrderDetailModel>(context), IOrderDetailRepository
 {
+    /// <inheritdoc />
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderIdAsync(
         Guid orderId,
         CancellationToken cancellationToken = default)
@@ -18,6 +23,7 @@ public class OrderDetailRepository(DbContext context)
             .ToListAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(
         IEnumerable<Guid> orderIds,
         CancellationToken cancellationToken = default)
@@ -30,6 +36,7 @@ public class OrderDetailRepository(DbContext context)
             .ToDictionaryAsync(k => k.OrderId, v => v.Count, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(
         IEnumerable<Guid> orderIds,
         CancellationToken cancellationToken = default)
@@ -42,6 +49,7 @@ public class OrderDetailRepository(DbContext context)
             .ToDictionaryAsync(k => k.OrderId, v => v.Qty, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<OrderDetailModel>> GetByOrderDateRangeAsync(
         DateTime startDate,
         DateTime endDate,
@@ -53,6 +61,7 @@ public class OrderDetailRepository(DbContext context)
             .ToListAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<OrderDetailModel>> GetByDateRangeAsync(
         DateTime startDate,
         CancellationToken cancellationToken = default)

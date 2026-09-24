@@ -3,13 +3,17 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.DTOs.Basic.Order;
-using Fenicia.Common.DTOs.Basic.OrderDetail;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
+/// <summary>
+/// Controller responsible for handling order-related operations.
+/// </summary>
+/// <param name="orderService">The order service.</param>
+/// <param name="companyContext">The company context.</param>
 [ApiController]
 [Route("[controller]")]
 [Authorize]
@@ -18,38 +22,29 @@ namespace Fenicia.Module.Basic.Domains.Order;
 public class OrderController(IOrderService orderService, ICompanyContext companyContext) : ControllerBase
 {
     /// <summary>
-    ///     Obtém uma lista paginada de pedidos.
+    /// Gets a paginated list of orders.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="page">Número da página</param>
-    /// <param name="perPage">Itens por página</param>
-    /// <param name="query">Filtros avançados. Example: <c>customerName[*]alpha</c></param>
-    /// <param name="sort">Ordenação. Example: <c>-saleDate</c></param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de pedidos</returns>
-    /// <response code="200">Lista de pedidos retornada com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="query">The pagination and filter query.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Paginated list of orders.</returns>
+    /// <response code="200">List of orders returned successfully.</response>
+    /// <response code="401">User not authenticated.</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllOrderResponse>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<OrderResponse>>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(
+    public async Task<ActionResult<Pagination<List<OrderResponse>>>> GetAsync(
         WideEventContext wide,
-        [FromQuery] int page = 1,
-        [FromQuery] int perPage = 10,
-        [FromQuery] string? query = null,
-        [FromQuery] string? sort = null,
+        [FromQuery] OrderQuery query,
         CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var orders = await orderService.GetAllAsync(
-                new GetAllOrderQuery(page, perPage, query, sort),
-                cancellationToken);
+            var orders = await orderService.GetAllAsync(query, cancellationToken);
 
             return Ok(orders);
         }
@@ -60,23 +55,22 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     }
 
     /// <summary>
-    ///     Obtém um pedido pelo ID.
+    /// Gets an order by ID.
     /// </summary>
-    /// <param name="id">ID do pedido</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados do pedido</returns>
-    /// <response code="200">Pedido encontrado</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="404">Pedido não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Order ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Order details.</returns>
+    /// <response code="200">Order found.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="404">Order not found.</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetOrderByIdResponse>> GetByIdAsync(
+    public async Task<ActionResult<OrderResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -85,7 +79,7 @@ public class OrderController(IOrderService orderService, ICompanyContext company
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var order = await orderService.GetByIdAsync(new GetOrderByIdQuery(id), cancellationToken);
+            var order = await orderService.GetByIdAsync(id, cancellationToken);
 
             return order is null ? NotFound() : Ok(order);
         }
@@ -96,21 +90,20 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     }
 
     /// <summary>
-    ///     Obtém os itens de um pedido pelo ID do pedido.
+    /// Gets order details by order ID.
     /// </summary>
-    /// <param name="id">ID do pedido</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Itens do pedido</returns>
-    /// <response code="200">Itens retornados com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Order ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Order details.</returns>
+    /// <response code="200">Details returned successfully.</response>
+    /// <response code="401">User not authenticated.</response>
     [HttpGet("{id:guid}/orderdetail")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetOrderDetailsByOrderIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<OrderDetailResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetOrderDetailsByOrderIdResponse>>> GetOrderDetailsAsync(
+    public async Task<ActionResult<List<OrderDetailResponse>>> GetOrderDetailsAsync(
         [FromRoute] Guid id,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
@@ -130,24 +123,23 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     }
 
     /// <summary>
-    ///     Cria um novo pedido.
+    /// Creates a new order.
     /// </summary>
-    /// <param name="command">Dados do pedido a ser criado</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Pedido criado</returns>
-    /// <response code="201">Pedido criado com sucesso</response>
-    /// <response code="400">Dados inválidos</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="command">Order data.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Created order.</returns>
+    /// <response code="201">Order created successfully.</response>
+    /// <response code="400">Invalid data.</response>
+    /// <response code="401">User not authenticated.</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateOrderResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CreateOrderResponse>> PostAsync(
-        [FromBody] CreateOrderRequest command,
+    public async Task<ActionResult<OrderResponse>> PostAsync(
+        [FromBody] OrderRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -162,7 +154,7 @@ public class OrderController(IOrderService orderService, ICompanyContext company
                 companyContext.CompanyId,
                 cancellationToken);
 
-            return new CreatedResult(string.Empty, order);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = order.Id }, order);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -171,15 +163,15 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     }
 
     /// <summary>
-    ///     Remove um pedido (soft delete).
+    /// Deletes an order (soft delete).
     /// </summary>
-    /// <param name="id">ID do pedido</param>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <response code="204">Pedido removido com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="403">Acesso negado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="id">Order ID.</param>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>No content.</returns>
+    /// <response code="204">Order deleted successfully.</response>
+    /// <response code="401">User not authenticated.</response>
+    /// <response code="403">Access denied.</response>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin,God")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -195,7 +187,10 @@ public class OrderController(IOrderService orderService, ICompanyContext company
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await orderService.DeleteAsync(new DeleteOrderRequest(id), companyContext.CompanyId, cancellationToken);
+            await orderService.DeleteAsync(
+                id,
+                companyContext.CompanyId,
+                cancellationToken);
 
             return NoContent();
         }
@@ -206,16 +201,14 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     }
 
     /// <summary>
-    ///     Obtém uma lista paginada de pedidos.
+    /// Gets order analytics.
     /// </summary>
-    /// <param name="wide">Contexto de eventos wide</param>
-    /// <param name="days">Período em dias</param>
-    /// <param name="topCustomersLimit">Limite de clientes top</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Análise de pedidos</returns>
-    /// <response code="200">Lista de pedidos retornada com sucesso</response>
-    /// <response code="401">Usuário não autenticado</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="request">The analytics request parameters.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Order analytics.</returns>
+    /// <response code="200">Analytics returned successfully.</response>
+    /// <response code="401">User not authenticated.</response>
     [HttpGet("analytics")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderAnalyticsResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -223,17 +216,14 @@ public class OrderController(IOrderService orderService, ICompanyContext company
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<OrderAnalyticsResponse>> GetAnalyticsAsync(
         WideEventContext wide,
-        [FromQuery] int days = 90,
-        [FromQuery] int topCustomersLimit = 10,
+        [FromQuery] OrderAnalyticsRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var analytics = await orderService.GetAnalyticsAsync(
-                new GetOrderAnalyticsQuery(days, topCustomersLimit),
-                cancellationToken);
+            var analytics = await orderService.GetAnalyticsAsync(request, cancellationToken);
 
             return Ok(analytics);
         }

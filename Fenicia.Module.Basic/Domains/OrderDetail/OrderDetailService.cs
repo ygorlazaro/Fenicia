@@ -1,33 +1,25 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.DTOs.Basic.OrderDetail;
+using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 
+/// <summary>
+/// Service implementation for managing order details.
+/// </summary>
+/// <param name="repository">The order detail repository.</param>
 public sealed class OrderDetailService(IOrderDetailRepository repository) : IOrderDetailService
 {
-    public OrderDetailService()
-        : this(null!)
-    {
-    }
-
-    public async Task<List<GetOrderDetailsByOrderIdResponse>> GetByOrderIdAsync(
-        GetOrderDetailsByOrderIdQuery query,
+    /// <inheritdoc />
+    public async Task<List<OrderDetailResponse>> GetByOrderIdAsync(
+        Guid orderId,
         CancellationToken cancellationToken = default)
     {
-        var details = await repository.GetByOrderIdAsync(query.OrderId, cancellationToken);
-
-        return [.. details.Select(d => new GetOrderDetailsByOrderIdResponse(
-            d.Id,
-            d.OrderId,
-            d.ProductId,
-            d.Product.Name,
-            d.Price,
-            d.DiscountAmount,
-            d.Quantity,
-            d.Subtotal))];
+        var details = await repository.GetByOrderIdAsync(orderId, cancellationToken);
+        return OrderDetailMapper.MapToResponseList(details);
     }
 
+    /// <inheritdoc />
     public Task<Dictionary<Guid, int>> GetDetailCountsByOrderIdsAsync(
         IEnumerable<Guid> orderIds,
         CancellationToken cancellationToken = default)
@@ -35,6 +27,7 @@ public sealed class OrderDetailService(IOrderDetailRepository repository) : IOrd
         return repository.GetDetailCountsByOrderIdsAsync(orderIds, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<Dictionary<Guid, double>> GetQuantitySumsByOrderIdsAsync(
         IEnumerable<Guid> orderIds,
         CancellationToken cancellationToken = default)
@@ -42,20 +35,22 @@ public sealed class OrderDetailService(IOrderDetailRepository repository) : IOrd
         return repository.GetQuantitySumsByOrderIdsAsync(orderIds, cancellationToken);
     }
 
-    public async Task<List<OrderDetailModel>> GetByOrderDateRangeAsync(
+    /// <inheritdoc />
+    public async Task<List<OrderDetailResponse>> GetByOrderDateRangeAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
         var result = await repository.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
-        return [.. result];
+        return OrderDetailMapper.MapToResponseList(result);
     }
 
-    public async Task<List<OrderDetailModel>> GetByDateRangeAsync(
+    /// <inheritdoc />
+    public async Task<List<OrderDetailResponse>> GetByDateRangeAsync(
         DateTime startDate,
         CancellationToken cancellationToken = default)
     {
         var result = await repository.GetByDateRangeAsync(startDate, cancellationToken);
-        return [.. result];
+        return OrderDetailMapper.MapToResponseList(result);
     }
 }

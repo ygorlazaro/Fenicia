@@ -1,14 +1,11 @@
 namespace Fenicia.Common.DTOs.Basic.Order;
 
-public class AverageOrderValueResponse
-{
-    public decimal AverageValue { get; set; }
-
-    public int TotalOrders { get; set; }
-
-    public decimal MedianValue { get; set; }
-
-    public decimal MinValue { get; set; }
-
-    public decimal MaxValue { get; set; }
-}
+/// <summary>
+/// Response DTO containing average order value metrics.
+/// </summary>
+public record AverageOrderValueResponse(
+    decimal AverageValue,
+    int TotalOrders,
+    decimal MedianValue,
+    decimal MinValue,
+    decimal MaxValue);
