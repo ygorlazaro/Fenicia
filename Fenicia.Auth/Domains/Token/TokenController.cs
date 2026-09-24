@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Token;
 
+/// <summary>
+/// Controller for managing authentication token operations.
+/// </summary>
 [Authorize]
 [Route("[controller]")]
 [ApiController]

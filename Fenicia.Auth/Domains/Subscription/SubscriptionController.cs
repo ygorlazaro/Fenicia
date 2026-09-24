@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
+/// <summary>
+/// Controller for managing subscription-related operations.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]

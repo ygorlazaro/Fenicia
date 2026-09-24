@@ -13,6 +13,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
+/// <summary>
+/// Service implementation for generating and managing JWT authentication tokens.
+/// </summary>
+/// <param name="configuration">The application configuration.</param>
+/// <param name="loginAttemptService">The login attempt service.</param>
+/// <param name="userService">The user service.</param>
+/// <param name="securityService">The security service.</param>
+/// <param name="refreshTokenService">The refresh token service.</param>
 public sealed class TokenService(
     IConfiguration configuration,
     ILoginAttemptService loginAttemptService,
@@ -20,6 +28,14 @@ public sealed class TokenService(
     ISecurityService securityService,
     IRefreshTokenService refreshTokenService) : ITokenService
 {
+    /// <summary>
+    /// Generates a JWT token for the user based on the provided credentials.
+    /// </summary>
+    /// <param name="request">The token request containing email and password.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the token response.</returns>
+    /// <exception cref="PermissionDeniedException">Thrown when credentials are invalid or too many attempts.</exception>
+    /// <exception cref="BadRequestException">Thrown when email or password is empty.</exception>
     public async Task<TokenResponse> GenerateAsync(
         TokenRequest request,
         CancellationToken cancellationToken = default)
@@ -61,6 +77,11 @@ public sealed class TokenService(
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
     }
 
+    /// <summary>
+    /// Generates a JWT token string from a token response.
+    /// </summary>
+    /// <param name="user">The token response containing user information.</param>
+    /// <returns>The generated JWT token string.</returns>
     public string GenerateString(TokenResponse user)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
@@ -79,6 +100,11 @@ public sealed class TokenService(
         return finalToken;
     }
 
+    /// <summary>
+    /// Generates the claims for the JWT token based on user information.
+    /// </summary>
+    /// <param name="user">The token response containing user information.</param>
+    /// <returns>A list of claims for the JWT token.</returns>
     private static List<Claim> GenerateClaims(TokenResponse user)
     {
         var authClaims = new List<Claim>
@@ -119,6 +145,13 @@ public sealed class TokenService(
         return authClaims;
     }
 
+    /// <summary>
+    /// Validates the login attempts for the given request.
+    /// </summary>
+    /// <param name="request">The token request containing email and password.</param>
+    /// <returns>The number of login attempts.</returns>
+    /// <exception cref="BadRequestException">Thrown when email or password is empty.</exception>
+    /// <exception cref="PermissionDeniedException">Thrown when there are too many login attempts.</exception>
     private int ValidateAttempts(TokenRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Password))
