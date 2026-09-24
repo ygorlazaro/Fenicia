@@ -31,4 +31,18 @@ public static class ModuleMapper
     {
         return new ModuleByUserResponse(module.Id, module.Name, module.Type);
     }
+
+    public static ModuleModel MapToModuleModel(ModuleResponse source)
+    {
+        return new ModuleModel
+        {
+            Id = source.Id,
+            Name = source.Name,
+            Type = source.Type,
+            Description = source.Description,
+            IsActive = source.IsActive,
+            SortOrder = source.SortOrder,
+            Price = source.Price ?? 0
+        };
+    }
 }

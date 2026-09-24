@@ -95,6 +95,7 @@ internal static class Program
                 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
                 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
                 builder.Services.AddScoped<IOrderService, OrderService>();
+                builder.Services.AddScoped<IOrderRepository, OrderRepository>();
                 builder.Services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
                 builder.Services.AddScoped<INotificationHistoryService, NotificationHistoryService>();
                 builder.Services.Configure<UploadOptions>(configuration.GetSection("Upload"));
