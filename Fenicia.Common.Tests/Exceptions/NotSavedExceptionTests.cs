@@ -1,5 +1,3 @@
-using AwesomeAssertions;
-using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 namespace Fenicia.Common.Tests.Exceptions;

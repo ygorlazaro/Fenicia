@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Module;
 
+/// <summary>
+/// Controller for managing module-related operations.
+/// </summary>
+/// <param name="service"></param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -15,18 +19,16 @@ namespace Fenicia.Auth.Domains.Module;
 public class ModuleController(IModuleService service) : ControllerBase
 {
     /// <summary>
-    ///     Obtém todos os módulos ativos com paginação (endpoint anônimo).
+    ///   Retrieves a paginated list of all active modules.
     /// </summary>
-    /// <param name="query">Parâmetros de paginação, filtro e ordenação</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista paginada de módulos</returns>
-    /// <response code="200">Lista de módulos retornada com sucesso</response>
-    /// <response code="500">Erro interno do servidor</response>
+    /// <param name="query">The pagination query.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The paginated list of modules.</returns>
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<ModuleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<ModuleResponse>>> GetAllModulesAsync(
+    public async Task<ActionResult<IEnumerable<ModuleResponse>>> GetAllModulesAsync(
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken = default)
     {

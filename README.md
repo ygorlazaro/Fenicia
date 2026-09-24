@@ -57,7 +57,7 @@ Fenicia.sln
 - **Authentication**: Centralized JWT with `company_id` claim
 - **Frontend**: React + TypeScript + Vite
 - **Containerization**: Docker + Docker Compose
-- **Observability**: Serilog, Seq, HealthChecks
+- **Observability**: Serilog, HealthChecks
 - **CI/CD**: GitHub Actions
 
 ---

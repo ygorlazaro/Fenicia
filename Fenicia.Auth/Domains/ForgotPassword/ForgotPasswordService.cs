@@ -1,6 +1,5 @@
 using Fenicia.Auth.Domains.ForgotPassword.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.ForgotPassword;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
