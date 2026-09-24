@@ -2,14 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Auth.UserRole;
 
-public class CompanyResponse()
+public class CompanyResponse
 {
-    public CompanyResponse(Guid id, string name, string cnpj)
-        : this()
+    public CompanyResponse()
+    {
+    }
+
+    public CompanyResponse(Guid id, string name, string cnpj, bool isActive = true)
     {
         Id = id;
         Name = name;
         Cnpj = cnpj;
+        IsActive = isActive;
     }
 
     [Required]
@@ -22,4 +26,6 @@ public class CompanyResponse()
     [Required]
     [MaxLength(200)]
     public string Cnpj { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; } = true;
 }

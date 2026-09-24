@@ -33,8 +33,8 @@ public interface IUserRoleService
     /// <param name="page">The page number.</param>
     /// <param name="perPage">The number of items per page.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation with a list of user role models.</returns>
-    Task<List<UserRoleModel>> GetUserRolesAsync(
+    /// <returns>A task representing the asynchronous operation with a list of user role responses.</returns>
+    Task<List<UserRoleResponse>> GetUserRolesAsync(
         Guid userId,
         int page,
         int perPage,
@@ -54,8 +54,8 @@ public interface IUserRoleService
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="companyId">The unique identifier of the company.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation with the user role model if found.</returns>
-    Task<UserRoleModel?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default);
+    /// <returns>A task representing the asynchronous operation with the user role response if found.</returns>
+    Task<UserRoleResponse?> GetUserRoleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if a user is an admin for a specific company.
@@ -98,7 +98,7 @@ public interface IUserRoleService
     /// </summary>
     /// <param name="userRole">The user role to insert.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation with the inserted user role.</returns>
+    /// <returns>A task representing the asynchronous operation with the inserted user role model.</returns>
     Task<UserRoleModel> InsertAsync(UserRoleModel userRole, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -110,7 +110,7 @@ public interface IUserRoleService
     Task DeleteAsync(Guid roleId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all roles for a user by user ID.
+    /// Gets all roles for a user by user ID (returns models for internal use).
     /// </summary>
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -118,7 +118,7 @@ public interface IUserRoleService
     Task<List<UserRoleModel>> GetUserRolesByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all role models for a user by user ID.
+    /// Gets all role models for a user by user ID (for internal use).
     /// </summary>
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
