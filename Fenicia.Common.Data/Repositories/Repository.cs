@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Repositories;
 
-public abstract class Repository<T>(DbContext context)
+public abstract class Repository<T>(DbContext context) : IRepository<T>
     where T : BaseModel
 {
     protected DbSet<T> DbSet { get; } = context.Set<T>();
     protected DbContext Context => context;
 
-    protected virtual async Task<IEnumerable<T>> GetAllAsync(
+    public virtual async Task<IEnumerable<T>> GetAllAsync(
         int page = 1,
         int perPage = 10,
         CancellationToken cancellationToken = default)
@@ -20,17 +20,17 @@ public abstract class Repository<T>(DbContext context)
             .ToListAsync(cancellationToken);
     }
 
-    protected virtual IQueryable<T> GetAllQuery()
+    public virtual IQueryable<T> GetAllQuery()
     {
         return DbSet.AsNoTracking().AsQueryable();
     }
 
-    protected virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    protected virtual async Task<T> InsertAsync(T model, CancellationToken cancellationToken = default)
+    public virtual async Task<T> InsertAsync(T model, CancellationToken cancellationToken = default)
     {
         model.Created = DateTime.UtcNow;
         await DbSet.AddAsync(model, cancellationToken);
@@ -38,7 +38,7 @@ public abstract class Repository<T>(DbContext context)
         return model;
     }
 
-    protected virtual async Task<T?> UpdateAsync(Guid id, T model, CancellationToken cancellationToken = default)
+    public virtual async Task<T?> UpdateAsync(Guid id, T model, CancellationToken cancellationToken = default)
     {
         var existing = await GetByIdAsync(id, cancellationToken);
         if (existing is null)
@@ -54,7 +54,7 @@ public abstract class Repository<T>(DbContext context)
         return existing;
     }
 
-    protected virtual async Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await GetByIdAsync(id, cancellationToken);
         if (entity is null)
@@ -67,7 +67,7 @@ public abstract class Repository<T>(DbContext context)
         return await SaveChangesAsync(cancellationToken);
     }
 
-    protected virtual async Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    public virtual async Task<int> DeleteAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
         var entities = await DbSet.Where(e => ids.Contains(e.Id)).ToListAsync(cancellationToken);
         if (entities.Count == 0)
@@ -84,7 +84,7 @@ public abstract class Repository<T>(DbContext context)
         return await SaveChangesAsync(cancellationToken);
     }
 
-    protected virtual async Task InsertRangeAsync(IEnumerable<T> models, CancellationToken cancellationToken = default)
+    public virtual async Task InsertRangeAsync(IEnumerable<T> models, CancellationToken cancellationToken = default)
     {
         var baseModels = models as T[] ?? [];
         foreach (var model in baseModels)
@@ -96,34 +96,34 @@ public abstract class Repository<T>(DbContext context)
         await SaveChangesAsync(cancellationToken);
     }
 
-    protected virtual async Task<IEnumerable<T>> FindAsync(
+    public virtual async Task<IEnumerable<T>> FindAsync(
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
         return await DbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
-    protected virtual Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    public virtual Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
         return DbSet.AnyAsync(predicate, cancellationToken);
     }
 
-    protected virtual Task<int> CountAsync(CancellationToken cancellationToken = default)
+    public virtual Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
         return DbSet.CountAsync(cancellationToken);
     }
 
-    protected virtual Task<int> CountAsync(
+    public virtual Task<int> CountAsync(
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
         return DbSet.CountAsync(predicate, cancellationToken);
     }
 
-    protected virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return context.SaveChangesAsync(cancellationToken);
     }
 
-    protected virtual IQueryable<T> Query() => DbSet;
+    public virtual IQueryable<T> Query() => DbSet;
 }

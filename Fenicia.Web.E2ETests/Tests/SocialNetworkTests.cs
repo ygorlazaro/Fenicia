@@ -9,7 +9,7 @@ namespace Fenicia.Web.E2ETests.Tests;
 [Collection("BrowserTests")]
 public class SocialNetworkTests(BrowserFixture fixture) : BasicTestBase(fixture)
 {
-    private const string SocialApiBaseUrl = "http://localhost:5026";
+    private const string _socialApiBaseUrl = "http://localhost:5026";
 
     [Fact]
     public async Task Social_Feed_ShouldLoad()
@@ -101,7 +101,7 @@ public class SocialNetworkTests(BrowserFixture fixture) : BasicTestBase(fixture)
         }
 
         using var client = new HttpClient();
-        client.BaseAddress = new Uri(SocialApiBaseUrl);
+        client.BaseAddress = new Uri(_socialApiBaseUrl);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         client.DefaultRequestHeaders.Add("CompanyId", companyId);
 

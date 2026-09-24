@@ -39,10 +39,8 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProfileResponse>> GetByIdAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profile = await profileService.GetByIdAsync(new GetProfileByIdQuery(id), cancellationToken);
 
@@ -66,7 +64,6 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProfileResponse>> GetAsync(
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         var userId = ClaimReader.UserId(User);
@@ -98,7 +95,6 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProfileResponse>> PostAsync(
         [FromBody] ProfileRequest command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
         var userId = ClaimReader.UserId(User);
@@ -136,10 +132,8 @@ public sealed class ProfileController(IProfileService profileService) : Controll
     public async Task<ActionResult<ProfileResponse>> PatchAsync(
         [FromBody] ProfileRequest command,
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         command.Id = id;
         var profile = await profileService.UpdateAsync(

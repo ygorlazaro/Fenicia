@@ -38,10 +38,8 @@ public class FriendshipController(IFriendshipService friendshipService, IProfile
 [Consumes(MediaTypeNames.Application.Json)]
 public async Task<ActionResult<AddFriendshipResponse>> FollowAsync(
     [FromBody] FollowCommand command,
-    WideEventContext wide,
     CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var friendship = await friendshipService.FollowAsync(command, profileId, cancellationToken);
@@ -65,10 +63,8 @@ public async Task<ActionResult<AddFriendshipResponse>> FollowAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult> UnfollowAsync(
         [FromRoute] Guid targetProfileId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         await friendshipService.UnfollowAsync(
@@ -101,14 +97,12 @@ public async Task<ActionResult> UnfollowAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollowersAsync(
         [FromRoute] Guid targetProfileId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await friendshipService.GetFollowersAsync(
             new GetFollowersQuery(page, perPage, query, sort),
@@ -140,14 +134,12 @@ public async Task<ActionResult<Pagination<List<GetFollowersResponse>>>> GetFollo
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollowingAsync(
         [FromRoute] Guid profileId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await friendshipService.GetFollowingAsync(
             new GetFollowingQuery(page, perPage, query, sort),
@@ -177,10 +169,8 @@ public async Task<ActionResult<Pagination<List<GetFollowingResponse>>>> GetFollo
 public async Task<ActionResult<bool>> IsFollowingAsync(
         [FromRoute] Guid profileId,
         [FromRoute] Guid targetProfileId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await friendshipService.IsFollowingAsync(
             new IsFollowingQuery(targetProfileId),

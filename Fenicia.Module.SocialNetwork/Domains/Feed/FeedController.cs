@@ -40,14 +40,12 @@ public class FeedController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<FeedResponse>>> GetAsync(
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await feedService.GetAllAsync(new GetAllFeedQuery(page, perPage, query, sort), cancellationToken);
 
@@ -72,10 +70,8 @@ public class FeedController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<FeedResponse>> GetByIdAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await feedService.GetByIdAsync(new GetFeedByIdQuery(id), cancellationToken);
 
@@ -100,12 +96,10 @@ public class FeedController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<FeedResponse>>> GetByProfileIdAsync(
         [FromRoute] Guid profileId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 20,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await feedService.GetByProfileIdAsync(
             new GetFeedsByProfileQuery(page, perPage, profileId),
@@ -131,10 +125,8 @@ public class FeedController(
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<FeedResponse>> PostAsync(
         [FromBody] FeedRequest command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         command.ProfileId = profileId;
@@ -167,10 +159,8 @@ public class FeedController(
     public async Task<ActionResult<FeedResponse>> PatchAsync(
         [FromBody] FeedRequest command,
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         command.Id = id;
         var result = await feedService.UpdateAsync(
@@ -195,10 +185,8 @@ public class FeedController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         await feedService.DeleteAsync(new DeleteFeedCommand(id), cancellationToken);
 

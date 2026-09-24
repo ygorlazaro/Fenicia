@@ -43,14 +43,12 @@ public class CommentController(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<List<GetAllCommentResponse>>> GetByFeedAsync(
         [FromRoute] Guid feedId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var result = await commentService.GetAllByFeedAsync(
@@ -80,10 +78,8 @@ public async Task<ActionResult<List<GetAllCommentResponse>>> GetByFeedAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<GetCommentByIdResponse>> GetByIdAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await commentService.GetByIdAsync(new GetCommentByIdQuery(id), cancellationToken);
 
@@ -107,10 +103,8 @@ public async Task<ActionResult<GetCommentByIdResponse>> GetByIdAsync(
 [Consumes(MediaTypeNames.Application.Json)]
 public async Task<ActionResult<AddCommentResponse>> PostAsync(
         [FromBody] AddCommentCommand command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var addCommand = new AddCommentCommand(
@@ -149,10 +143,8 @@ public async Task<ActionResult<AddCommentResponse>> PostAsync(
 public async Task<ActionResult<UpdateCommentResponse>> PatchAsync(
         [FromBody] UpdateCommentCommand command,
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var updatedCommand = new UpdateCommentCommand(id, command.Text);
@@ -178,10 +170,8 @@ public async Task<ActionResult<UpdateCommentResponse>> PatchAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult> DeleteAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         await commentService.DeleteAsync(new DeleteCommentCommand(id), profileId, cancellationToken);
@@ -209,14 +199,12 @@ public async Task<ActionResult> DeleteAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<List<GetRepliesResponse>>> GetRepliesAsync(
         [FromRoute] Guid parentCommentId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var result = await commentService.GetRepliesAsync(

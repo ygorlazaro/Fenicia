@@ -60,10 +60,8 @@ public class ReportController(IReportService reportService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddReportResponse>> PostAsync(
         [FromBody] AddReportCommand command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var report = await reportService.AddAsync(command, ClaimReader.UserId(User), cancellationToken);
 
@@ -112,10 +110,8 @@ public class ReportController(IReportService reportService) : ControllerBase
     public async Task<ActionResult<UpdateReportResponse>> PatchStatusAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateReportStatusCommand command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var updatedCommand = new UpdateReportStatusCommand(id, command.Status);
         var result = await reportService.UpdateStatusAsync(updatedCommand, cancellationToken);
@@ -160,14 +156,12 @@ public class ReportController(IReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllReportResponse>>> GetAllAsync(
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var reports = await reportService.GetAllAsync(
             new GetAllReportQuery(page, perPage, query, sort),
@@ -210,10 +204,8 @@ public class ReportController(IReportService reportService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetReportByIdResponse>> GetByIdAsync(
         [FromRoute] Guid id,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var report = await reportService.GetByIdAsync(new GetReportByIdQuery(id), cancellationToken);
 

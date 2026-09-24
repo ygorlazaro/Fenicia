@@ -41,10 +41,8 @@ public class LikeController(
 [Consumes(MediaTypeNames.Application.Json)]
 public async Task<ActionResult<AddLikeResponse>> PostAsync(
         [FromBody] LikeCommand command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var result = await likeService.LikeAsync(
@@ -71,10 +69,8 @@ public async Task<ActionResult<AddLikeResponse>> PostAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult> UnlikeAsync(
         [FromRoute] Guid feedId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         await likeService.UnlikeAsync(new UnlikeCommand(feedId), profileId, cancellationToken);
@@ -102,14 +98,12 @@ public async Task<ActionResult> UnlikeAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<List<GetLikesResponse>>> GetLikesByFeedAsync(
         [FromRoute] Guid feedId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         [FromQuery] string? query = null,
         [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await likeService.GetLikesByFeedAsync(
             new GetLikesByFeedQuery(page, perPage, feedId, query, sort),
@@ -136,10 +130,8 @@ public async Task<ActionResult<List<GetLikesResponse>>> GetLikesByFeedAsync(
 public async Task<ActionResult<bool>> IsLikedAsync(
         [FromRoute] Guid profileId,
         [FromRoute] Guid feedId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await likeService.IsLikedAsync(new IsLikedQuery(), profileId, feedId, cancellationToken);
 
@@ -164,12 +156,10 @@ public async Task<ActionResult<bool>> IsLikedAsync(
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<ActionResult<List<GetLikedFeedsResponse>>> GetLikedFeedsByProfileAsync(
         [FromRoute] Guid profileId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await likeService.GetLikedFeedsByProfileAsync(
             new GetLikedFeedsByProfileQuery(page, perPage, profileId),

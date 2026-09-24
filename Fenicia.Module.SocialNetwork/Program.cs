@@ -1,8 +1,9 @@
 using Fenicia.Common.API;
+using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.DTOs.Auth.Upload;
+using Fenicia.CommonDTOs.Auth.Upload;
 using Fenicia.Module.SocialNetwork.Domains.Attachment;
 using Fenicia.Module.SocialNetwork.Domains.Attachment.Interfaces;
 using Fenicia.Module.SocialNetwork.Domains.Block;
@@ -21,6 +22,7 @@ using Fenicia.Module.SocialNetwork.Domains.Report;
 using Fenicia.Module.SocialNetwork.Domains.Report.Interfaces;
 using Fenicia.Module.SocialNetwork.Domains.Share;
 using Fenicia.Module.SocialNetwork.Domains.Share.Interfaces;
+using Serilog;
 
 namespace Fenicia.Module.SocialNetwork;
 
@@ -83,6 +85,12 @@ public class Program
         {
             return;
         }
+
+        app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<WideEventMiddleware>();
+        app.UseResponseCompression();
+        app.UseSerilogRequestLogging();
 
         app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
         app.UseAuthentication();

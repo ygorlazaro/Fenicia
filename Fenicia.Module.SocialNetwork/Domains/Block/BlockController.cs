@@ -38,10 +38,8 @@ public class BlockController(IBlockService blockService, IProfileService profile
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<BlockResponse>> BlockAsync(
         [FromBody] BlockRequest command,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         var block = await blockService.BlockAsync(command, profileId, cancellationToken);
@@ -65,10 +63,8 @@ public class BlockController(IBlockService blockService, IProfileService profile
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> UnblockAsync(
         [FromRoute] Guid blockedProfileId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var profileId = await GetCurrentProfileIdAsync(cancellationToken);
         await blockService.UnblockAsync(new BlockRequest(blockedProfileId), profileId, cancellationToken);
@@ -96,12 +92,10 @@ public class BlockController(IBlockService blockService, IProfileService profile
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<BlockResponse>>>> GetBlockedAsync(
         [FromRoute] Guid profileId,
-        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await blockService.GetBlockedAsync(profileId, page, perPage, cancellationToken);
 
@@ -128,10 +122,8 @@ public class BlockController(IBlockService blockService, IProfileService profile
     public async Task<ActionResult<bool>> IsBlockedAsync(
         [FromRoute] Guid profileId,
         [FromRoute] Guid blockedProfileId,
-        WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var result = await blockService.IsBlockedAsync(new IsBlockedQuery(blockedProfileId), profileId, cancellationToken);
 
