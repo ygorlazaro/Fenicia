@@ -8,6 +8,9 @@ using Microsoft.Extensions.Options;
 
 namespace Fenicia.Auth.Domains.Upload;
 
+/// <summary>
+/// Controller for managing file upload operations.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("upload")]
@@ -15,6 +18,15 @@ namespace Fenicia.Auth.Domains.Upload;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class UploadController(IUploadService service, IOptions<UploadOptions> options, IWebHostEnvironment env) : ControllerBase
 {
+    /// <summary>
+    /// Uploads a file.
+    /// </summary>
+    /// <param name="file">The file to upload.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The upload file response.</returns>
+    /// <response code="200">File uploaded successfully</response>
+    /// <response code="400">Invalid file or file exceeds maximum size</response>
+    /// <response code="401">User not authenticated</response>
     [HttpPost]
     [ProducesResponseType(typeof(UploadFileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
