@@ -17,6 +17,7 @@ public static class OrderDetailMapper
     {
         return new OrderDetailResponse(
             detail.Id,
+            detail.OrderId,
             detail.ProductId,
             detail.Product.Name,
             detail.Price,
