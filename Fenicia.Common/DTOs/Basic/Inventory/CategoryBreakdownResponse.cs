@@ -2,33 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public class CategoryBreakdownResponse()
-{
-    public CategoryBreakdownResponse(
-        Guid categoryId,
-        string categoryName,
-        decimal totalCostValue,
-        decimal totalSalesValue,
-        double totalQuantity)
-        : this()
-    {
-        CategoryId = categoryId;
-        CategoryName = categoryName;
-        TotalCostValue = totalCostValue;
-        TotalSalesValue = totalSalesValue;
-        TotalQuantity = totalQuantity;
-    }
-
-    [Required]
-    public Guid CategoryId { get; set; }
-
-    [Required]
-    [MaxLength(200)]
-    public string CategoryName { get; set; } = string.Empty;
-
-    public decimal TotalCostValue { get; set; }
-
-    public decimal TotalSalesValue { get; set; }
-
-    public double TotalQuantity { get; set; }
-}
+/// <summary>
+/// Response DTO containing category breakdown data.
+/// </summary>
+/// <param name="categoryId">The unique identifier of the category.</param>
+/// <param name="categoryName">The name of the category.</param>
+/// <param name="totalCostValue">The total cost value.</param>
+/// <param name="totalSalesValue">The total sales value.</param>
+/// <param name="totalQuantity">The total quantity.</param>
+public record CategoryBreakdownResponse(
+    [Required] Guid CategoryId,
+    [Required] [MaxLength(200)] string CategoryName,
+    decimal TotalCostValue,
+    decimal TotalSalesValue,
+    double TotalQuantity);

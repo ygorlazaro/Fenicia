@@ -2,53 +2,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public class ZeroMovementProductResponse()
-{
-    public ZeroMovementProductResponse(
-        Guid productId,
-        string productName,
-        Guid categoryId,
-        string categoryName,
-        string? supplierName,
-        double currentStock,
-        decimal stockValue,
-        DateTime? lastMovementDate,
-        int daysWithoutMovement)
-        : this()
-    {
-        ProductId = productId;
-        ProductName = productName;
-        CategoryId = categoryId;
-        CategoryName = categoryName;
-        SupplierName = supplierName;
-        CurrentStock = currentStock;
-        StockValue = stockValue;
-        LastMovementDate = lastMovementDate;
-        DaysWithoutMovement = daysWithoutMovement;
-    }
-
-    [Required]
-    public Guid ProductId { get; set; }
-
-    [Required]
-    [MaxLength(200)]
-    public string ProductName { get; set; } = string.Empty;
-
-    [Required]
-    public Guid CategoryId { get; set; }
-
-    [Required]
-    [MaxLength(200)]
-    public string CategoryName { get; set; } = string.Empty;
-
-    [MaxLength(200)]
-    public string? SupplierName { get; set; }
-
-    public double CurrentStock { get; set; }
-
-    public decimal StockValue { get; set; }
-
-    public DateTime? LastMovementDate { get; set; }
-
-    public int DaysWithoutMovement { get; set; }
-}
+/// <summary>
+/// Response DTO containing zero movement product data.
+/// </summary>
+/// <param name="productId">The unique identifier of the product.</param>
+/// <param name="productName">The name of the product.</param>
+/// <param name="categoryId">The unique identifier of the category.</param>
+/// <param name="categoryName">The name of the category.</param>
+/// <param name="supplierName">The name of the supplier (optional).</param>
+/// <param name="currentStock">The current stock quantity.</param>
+/// <param name="stockValue">The stock value.</param>
+/// <param name="lastMovementDate">The date of the last movement (optional).</param>
+/// <param name="daysWithoutMovement">The number of days without movement.</param>
+public record ZeroMovementProductResponse(
+    [Required] Guid ProductId,
+    [Required] [MaxLength(200)] string ProductName,
+    [Required] Guid CategoryId,
+    [Required] [MaxLength(200)] string CategoryName,
+    [MaxLength(200)] string? SupplierName,
+    double CurrentStock,
+    decimal StockValue,
+    DateTime? LastMovementDate,
+    int DaysWithoutMovement);

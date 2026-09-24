@@ -2,33 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.DTOs.Basic.Inventory;
 
-public class SupplierBreakdownResponse()
-{
-    public SupplierBreakdownResponse(
-        Guid supplierId,
-        string supplierName,
-        decimal totalCostValue,
-        decimal totalSalesValue,
-        double totalQuantity)
-        : this()
-    {
-        SupplierId = supplierId;
-        SupplierName = supplierName;
-        TotalCostValue = totalCostValue;
-        TotalSalesValue = totalSalesValue;
-        TotalQuantity = totalQuantity;
-    }
-
-    [Required]
-    public Guid SupplierId { get; set; }
-
-    [Required]
-    [MaxLength(200)]
-    public string SupplierName { get; set; } = string.Empty;
-
-    public decimal TotalCostValue { get; set; }
-
-    public decimal TotalSalesValue { get; set; }
-
-    public double TotalQuantity { get; set; }
-}
+/// <summary>
+/// Response DTO containing supplier breakdown data.
+/// </summary>
+/// <param name="supplierId">The unique identifier of the supplier.</param>
+/// <param name="supplierName">The name of the supplier.</param>
+/// <param name="totalCostValue">The total cost value.</param>
+/// <param name="totalSalesValue">The total sales value.</param>
+/// <param name="totalQuantity">The total quantity.</param>
+public record SupplierBreakdownResponse(
+    [Required] Guid SupplierId,
+    [Required] [MaxLength(200)] string SupplierName,
+    decimal TotalCostValue,
+    decimal TotalSalesValue,
+    double TotalQuantity);

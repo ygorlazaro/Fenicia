@@ -11,6 +11,15 @@ using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
+/// <summary>
+/// Service implementation for managing inventory.
+/// </summary>
+/// <param name="productService">The product service.</param>
+/// <param name="stockMovementService">The stock movement service.</param>
+/// <param name="orderDetailService">The order detail service.</param>
+/// <param name="customerService">The customer service.</param>
+/// <param name="employeeService">The employee service.</param>
+/// <param name="supplierService">The supplier service.</param>
 public sealed class InventoryService(
     IProductService productService,
     IStockMovementService stockMovementService,
@@ -19,27 +28,20 @@ public sealed class InventoryService(
     IEmployeeService employeeService,
     ISupplierService supplierService) : IInventoryService
 {
-
+    /// <inheritdoc />
     public async Task<InventoryResponse> GetAsync(
-        GetInventoryQuery query,
+        InventoryRequest request,
         CancellationToken cancellationToken = default)
     {
         var products = await productService.GetAllWithCategoryAsync(
-            new GetAllProductQuery(query.Page, query.PerPage, query.Query, query.Sort) { Filters = query.Filters },
+            new ProductQuery(request.Page, request.PerPage, request.Query, request.Sort) { Filters = request.Filters },
             cancellationToken);
 
         var totalCostPrice = await productService.GetTotalCostPriceAsync(cancellationToken);
         var totalSalesPrice = await productService.GetTotalSalesPriceAsync(cancellationToken);
         var totalQuantity = await productService.GetTotalQuantityAsync(cancellationToken);
 
-        var inventoryDetailResponses = products.Select(p => new InventoryDetailResponse(
-            p.Id,
-            p.Name,
-            p.Quantity,
-            p.CostPrice,
-            p.SalesPrice,
-            p.CategoryId,
-            p.Category?.Name ?? string.Empty)).ToList();
+        var inventoryDetailResponses = products.Select(InventoryMapper.MapToDetailResponse).ToList();
 
         return new InventoryResponse
         {
@@ -50,73 +52,62 @@ public sealed class InventoryService(
         };
     }
 
+    /// <inheritdoc />
     public async Task<InventoryResponse> GetByCategoryAsync(
-        GetInventoryByCategoryQuery query,
+        InventoryByCategoryRequest request,
         CancellationToken cancellationToken = default)
     {
         var products = await productService.GetByCategoryWithCategoryAsync(
-            query.CategoryId,
-            query.Page,
-            query.PerPage,
+            request.CategoryId,
+            request.Page,
+            request.PerPage,
             cancellationToken);
 
-        var totalCostPrice = await productService.GetTotalCostPriceByCategoryAsync(query.CategoryId, cancellationToken);
+        var totalCostPrice = await productService.GetTotalCostPriceByCategoryAsync(request.CategoryId, cancellationToken);
         var totalSalesPrice =
-            await productService.GetTotalSalesPriceByCategoryAsync(query.CategoryId, cancellationToken);
-        var totalQuantity = await productService.GetTotalQuantityByCategoryAsync(query.CategoryId, cancellationToken);
+            await productService.GetTotalSalesPriceByCategoryAsync(request.CategoryId, cancellationToken);
+        var totalQuantity = await productService.GetTotalQuantityByCategoryAsync(request.CategoryId, cancellationToken);
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(p => new InventoryDetailResponse(
-                p.Id,
-                p.Name,
-                p.Quantity,
-                p.CostPrice,
-                p.SalesPrice,
-                p.CategoryId,
-                p.Category?.Name ?? string.Empty))],
+            Items = [.. products.Select(InventoryMapper.MapToDetailResponse)],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
         };
     }
 
+    /// <inheritdoc />
     public async Task<InventoryResponse> GetByProductAsync(
-        GetInventoryByProductQuery query,
+        InventoryByProductRequest request,
         CancellationToken cancellationToken = default)
     {
         var products = await productService.GetByIdWithCategoryAsync(
-            query.ProductId,
-            query.Page,
-            query.PerPage,
+            request.ProductId,
+            request.Page,
+            request.PerPage,
             cancellationToken);
 
-        var totalCostPrice = await productService.GetTotalCostPriceByProductAsync(query.ProductId, cancellationToken);
-        var totalSalesPrice = await productService.GetTotalSalesPriceByProductAsync(query.ProductId, cancellationToken);
-        var totalQuantity = await productService.GetTotalQuantityByProductAsync(query.ProductId, cancellationToken);
+        var totalCostPrice = await productService.GetTotalCostPriceByProductAsync(request.ProductId, cancellationToken);
+        var totalSalesPrice = await productService.GetTotalSalesPriceByProductAsync(request.ProductId, cancellationToken);
+        var totalQuantity = await productService.GetTotalQuantityByProductAsync(request.ProductId, cancellationToken);
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(p => new InventoryDetailResponse(
-                p.Id,
-                p.Name,
-                p.Quantity,
-                p.CostPrice,
-                p.SalesPrice,
-                p.CategoryId,
-                p.Category?.Name ?? string.Empty))],
+            Items = [.. products.Select(InventoryMapper.MapToDetailResponse)],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
         };
     }
 
+    /// <inheritdoc />
     public async Task<InventoryDashboardResponse> GetDashboardAsync(
-        GetInventoryDashboardQuery query,
+        InventoryDashboardRequest request,
         CancellationToken cancellationToken = default)
     {
         var endDate = DateTime.UtcNow;
-        var startDate = endDate.AddDays(-query.Days);
+        var startDate = endDate.AddDays(-request.Days);
 
         var lowStockItems = await productService.GetLowStockAsync(cancellationToken);
         var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
@@ -134,14 +125,7 @@ public sealed class InventoryService(
 
         return new InventoryDashboardResponse
         {
-            LowStockItems = [.. filteredLowStock.Select(p => new InventoryDashboardItemResponse(
-                p.Id,
-                p.Name,
-                p.Quantity,
-                p.CostPrice,
-                p.SalesPrice,
-                p.CategoryId,
-                p.Category?.Name ?? string.Empty))],
+            LowStockItems = [.. filteredLowStock.Select(InventoryMapper.MapToDetailResponse)],
             TotalCustomers = totalCustomers,
             TotalEmployees = totalEmployees,
             TotalCostValue = totalCostValue,
@@ -153,16 +137,17 @@ public sealed class InventoryService(
         };
     }
 
+    /// <inheritdoc />
     public async Task<InventoryHealthResponse> GetHealthAsync(
-        GetInventoryHealthQuery query,
+        InventoryHealthRequest request,
         CancellationToken cancellationToken = default)
     {
         var stockMovements = await stockMovementService.GetByDateRangeAsync(
-            DateTime.UtcNow.AddDays(-query.ZeroMovementDays),
+            DateTime.UtcNow.AddDays(-request.ZeroMovementDays),
             DateTime.MaxValue,
             cancellationToken);
         var orderDetails = await orderDetailService.GetByDateRangeAsync(
-            DateTime.UtcNow.AddDays(-query.ZeroMovementDays),
+            DateTime.UtcNow.AddDays(-request.ZeroMovementDays),
             cancellationToken);
 
         var (activeProductIds, zeroMovementProducts) = await GetActiveProductIdsAsync(
@@ -184,6 +169,11 @@ public sealed class InventoryService(
         };
     }
 
+    /// <summary>
+    /// Gets stock value by category from zero movement products.
+    /// </summary>
+    /// <param name="zeroMovementProducts">The zero movement products.</param>
+    /// <returns>A tuple containing stock value by category list and total stock value.</returns>
     private static (List<StockValueByCategoryResponse> StockValueByCategories, decimal TotalStockValue)
         GetStockValueByCategoryFromZeroMovement(IEnumerable<ZeroMovementProductResponse> zeroMovementProducts)
     {
@@ -210,6 +200,13 @@ public sealed class InventoryService(
         ], totalStockValue);
     }
 
+    /// <summary>
+    /// Gets active product IDs from stock movements and order details.
+    /// </summary>
+    /// <param name="stockMovements">The stock movements.</param>
+    /// <param name="orderDetails">The order details.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A tuple containing active product IDs and zero movement products.</returns>
     private async Task<(IEnumerable<Guid> ActiveProductIds, List<ZeroMovementProductResponse> ZeroMovementProducts)>
         GetActiveProductIdsAsync(
             IEnumerable<StockMovementModel> stockMovements,
@@ -255,6 +252,14 @@ public sealed class InventoryService(
         return (activeProductIds, zeroMovementProducts);
     }
 
+    /// <summary>
+    /// Gets the inventory health summary.
+    /// </summary>
+    /// <param name="activeProductIds">The active product IDs.</param>
+    /// <param name="zeroMovementProducts">The zero movement products.</param>
+    /// <param name="totalStockValue">The total stock value.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The inventory health summary response.</returns>
     private async Task<InventoryHealthSummaryResponse> GetInventoryHealthSummaryAsync(
         IEnumerable<Guid> activeProductIds,
         IEnumerable<ZeroMovementProductResponse> zeroMovementProducts,
