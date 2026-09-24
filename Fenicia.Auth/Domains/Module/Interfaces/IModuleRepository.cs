@@ -40,4 +40,14 @@ public interface IModuleRepository : IRepository<ModuleModel>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task<int> GetTotalActiveModulesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all modules for a specific subscription.
+    /// </summary>
+    /// <param name="subscriptionId">The unique identifier of the subscription.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of modules.</returns>
+    Task<List<ModuleModel>> GetSubscriptionModulesAsync(
+        Guid subscriptionId,
+        CancellationToken cancellationToken = default);
 }

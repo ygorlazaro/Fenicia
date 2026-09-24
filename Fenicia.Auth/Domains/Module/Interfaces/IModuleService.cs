@@ -50,4 +50,14 @@ public interface IModuleService
     Task<ModuleResponse?> GetModuleByTypeAsync(
         EnumModuleType type,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all active modules for a specific subscription.
+    /// </summary>
+    /// <param name="subscriptionId">The unique identifier of the subscription.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of module responses.</returns>
+    Task<IEnumerable<ModuleResponse>> GetActiveModulesForSubscriptionAsync(
+        Guid subscriptionId,
+        CancellationToken cancellationToken = default);
 }

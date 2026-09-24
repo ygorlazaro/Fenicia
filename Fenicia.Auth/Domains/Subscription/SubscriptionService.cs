@@ -1,17 +1,32 @@
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.DTOs.Auth.Subscription;
+using Fenicia.Common.DTOs.Auth.UserRole;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
+/// <summary>
+/// Service implementation for managing subscriptions in the authentication domain.
+/// </summary>
+/// <param name="repository">The subscription repository.</param>
+/// <param name="userService">The user service.</param>
+/// <param name="userRoleService">The user role service.</param>
+/// <param name="moduleService">The module service.</param>
 public class SubscriptionService(
     ISubscriptionRepository repository,
     IUserService userService,
-    IUserRoleService userRoleService) : ISubscriptionService
+    IUserRoleService userRoleService,
+    IModuleService moduleService) : ISubscriptionService
 {
+    /// <summary>
+    /// Gets the user profile with companies and subscriptions.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with the user profile.</returns>
     public async Task<SubscriptionResponse?> GetUserProfileAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
@@ -32,11 +47,10 @@ public class SubscriptionService(
 
         foreach (var subscription in subscriptions)
         {
-            var modules = await repository.GetSubscriptionModulesAsync(subscription.Id, cancellationToken);
-            var moduleResponses = modules.Select(MapToModuleResponse).ToList();
+            var modules = await moduleService.GetActiveModulesForSubscriptionAsync(subscription.Id, cancellationToken);
 
             var subscriptionResponse = MapToUserSubscriptionResponse(subscription);
-            subscriptionResponse.Modules = moduleResponses;
+            subscriptionResponse.Modules = [.. modules];
 
             subscriptionResponses.Add(subscriptionResponse);
         }
@@ -44,6 +58,12 @@ public class SubscriptionService(
         return new SubscriptionResponse(user.Id, user.Name, user.Email, companies, subscriptionResponses);
     }
 
+    /// <summary>
+    /// Creates a new subscription.
+    /// </summary>
+    /// <param name="subscription">The subscription model to create.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateSubscriptionAsync(
         SubscriptionModel subscription,
         CancellationToken cancellationToken = default)
@@ -51,13 +71,12 @@ public class SubscriptionService(
         await repository.InsertAsync(subscription, cancellationToken);
     }
 
-    public Task<List<ModuleModel>> GetActiveModulesForSubscriptionAsync(
-        Guid subscriptionId,
-        CancellationToken cancellationToken = default)
-    {
-        return repository.GetSubscriptionModulesAsync(subscriptionId, cancellationToken);
-    }
-
+    /// <summary>
+    /// Gets all active subscriptions for a specific company.
+    /// </summary>
+    /// <param name="companyId">The unique identifier of the company.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of subscriptions.</returns>
     public Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(
         Guid companyId,
         CancellationToken cancellationToken = default)
@@ -68,7 +87,9 @@ public class SubscriptionService(
     private static UserCompanyResponse MapToUserCompanyResponse(UserRoleModel userRole)
     {
         return new UserCompanyResponse(
-            userRole.Company.Id,
+            userRole.Id,
+            userRole.Role.Name,
+            userRole.CompanyId,
             userRole.Company.Name,
             userRole.Company.Cnpj);
     }
@@ -82,17 +103,5 @@ public class SubscriptionService(
             subscription.Status,
             subscription.StartDate,
             subscription.EndDate);
-    }
-
-    private static ModuleResponse MapToModuleResponse(ModuleModel module)
-    {
-        return new ModuleResponse(
-            module.Id,
-            module.Name,
-            module.Type,
-            module.Description,
-            module.IsActive,
-            module.SortOrder,
-            module.Price);
     }
 }

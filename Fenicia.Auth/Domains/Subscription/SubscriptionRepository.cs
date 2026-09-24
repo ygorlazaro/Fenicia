@@ -6,9 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
+/// <summary>
+/// Repository implementation for managing subscriptions in the authentication domain.
+/// </summary>
+/// <param name="context">The database context.</param>
 public class SubscriptionRepository(DbContext context)
     : Repository<SubscriptionModel>(context), ISubscriptionRepository
 {
+    /// <summary>
+    /// Gets all subscriptions for a specific user.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of subscriptions.</returns>
     public Task<List<SubscriptionModel>> GetUserSubscriptionsAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
@@ -23,21 +33,12 @@ public class SubscriptionRepository(DbContext context)
             .ToListAsync(cancellationToken);
     }
 
-    public Task<List<ModuleModel>> GetSubscriptionModulesAsync(
-        Guid subscriptionId,
-        CancellationToken cancellationToken = default)
-    {
-        var now = DateTime.UtcNow;
-
-        return DbSet
-            .Where(s => s.Id == subscriptionId)
-            .SelectMany(s => s.Credits)
-            .Where(sc => sc.IsActive && now >= sc.StartDate && now <= sc.EndDate)
-            .Select(sc => sc.Module)
-            .Distinct()
-            .ToListAsync(cancellationToken);
-    }
-
+    /// <summary>
+    /// Gets all active subscriptions for a specific company.
+    /// </summary>
+    /// <param name="companyId">The unique identifier of the company.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of subscriptions.</returns>
     public Task<List<SubscriptionModel>> GetActiveSubscriptionsByCompanyAsync(Guid companyId, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;

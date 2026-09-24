@@ -60,6 +60,27 @@ public class ModuleRepository(DbContext context) : Repository<ModuleModel>(conte
     }
 
     /// <summary>
+    /// Gets all modules for a specific subscription.
+    /// </summary>
+    /// <param name="subscriptionId">The unique identifier of the subscription.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of modules.</returns>
+    public Task<List<ModuleModel>> GetSubscriptionModulesAsync(
+        Guid subscriptionId,
+        CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+
+        return DbSet
+            .Where(m => m.SubscriptionCredits.Any(sc => sc.SubscriptionId == subscriptionId
+                                                     && sc.IsActive
+                                                     && now >= sc.StartDate
+                                                     && now <= sc.EndDate))
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Gets a queryable collection of active modules that are not of the basic type, ordered by their sort order. This method is used internally to build queries for retrieving active modules.
     /// </summary>
     /// <returns>A queryable collection of active modules.</returns>

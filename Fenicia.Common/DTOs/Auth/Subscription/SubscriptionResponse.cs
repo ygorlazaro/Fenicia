@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common.DTOs.Auth.UserRole;
 
 namespace Fenicia.Common.DTOs.Auth.Subscription;
 

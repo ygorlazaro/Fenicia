@@ -65,7 +65,7 @@ public class ModuleService(
         foreach (var subscription in companySubscriptions)
         {
             var modules =
-                await subscriptionService.GetActiveModulesForSubscriptionAsync(subscription.Id, cancellationToken);
+                await GetActiveModulesForSubscriptionAsync(subscription.Id, cancellationToken);
 
             foreach (var module in modules)
             {
@@ -103,5 +103,19 @@ public class ModuleService(
     {
         var module = await repository.GetByTypeAsync(type, cancellationToken);
         return module != null ? ModuleMapper.MapToModuleResponse(module) : null;
+    }
+
+    /// <summary>
+    /// Gets all active modules for a specific subscription.
+    /// </summary>
+    /// <param name="subscriptionId">The unique identifier of the subscription.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation with a list of module responses.</returns>
+    public async Task<IEnumerable<ModuleResponse>> GetActiveModulesForSubscriptionAsync(
+        Guid subscriptionId,
+        CancellationToken cancellationToken = default)
+    {
+        var modules = await repository.GetSubscriptionModulesAsync(subscriptionId, cancellationToken);
+        return modules.Select(ModuleMapper.MapToModuleResponse);
     }
 }
