@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;
 
+/// <summary>
+/// Controller responsible for handling data source operations (dropdowns, lookups).
+/// </summary>
+/// <param name="dataSourceService">The data source service.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]

@@ -9,6 +9,15 @@ using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;
 
+/// <summary>
+/// Service implementation for managing data source operations (dropdowns, lookups).
+/// </summary>
+/// <param name="customerService">The customer service.</param>
+/// <param name="employeeService">The employee service.</param>
+/// <param name="positionService">The position service.</param>
+/// <param name="productCategoryService">The product category service.</param>
+/// <param name="productService">The product service.</param>
+/// <param name="supplierService">The supplier service.</param>
 public sealed class DataSourceService(
     ICustomerService customerService,
     IEmployeeService employeeService,
@@ -17,25 +26,28 @@ public sealed class DataSourceService(
     IProductService productService,
     ISupplierService supplierService) : IDataSourceService
 {
-
+    /// <inheritdoc />
     public Task<List<DashboardProductDataSourceResponse>> GetDashboardProductsAsync(
         CancellationToken cancellationToken = default)
     {
         return productService.GetAllDashboardForDataSourceAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<CustomerDataSourceResponse>> GetCustomersAsync(
         CancellationToken cancellationToken = default)
     {
         return customerService.GetAllForDataSourceAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<EmployeeDataSourceResponse>> GetEmployeesAsync(
         CancellationToken cancellationToken = default)
     {
         return employeeService.GetAllForDataSourceAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<List<PositionDataSourceResponse>> GetPositionsAsync(
         CancellationToken cancellationToken = default)
     {
@@ -44,6 +56,7 @@ public sealed class DataSourceService(
         return [.. positions.Data.Select(p => new PositionDataSourceResponse(p.Id, p.Name))];
     }
 
+    /// <inheritdoc />
     public async Task<List<ProductCategoryDataSourceResponse>> GetProductCategoriesAsync(
         CancellationToken cancellationToken = default)
     {
@@ -52,12 +65,14 @@ public sealed class DataSourceService(
         return [.. categories.Data.Select(c => new ProductCategoryDataSourceResponse(c.Id, c.Name))];
     }
 
+    /// <inheritdoc />
     public Task<List<ProductDataSourceResponse>> GetProductsAsync(
         CancellationToken cancellationToken = default)
     {
         return productService.GetAllForDataSourceAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<SupplierDataSourceResponse>> GetSuppliersAsync(
         CancellationToken cancellationToken = default)
     {
