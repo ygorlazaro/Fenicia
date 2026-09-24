@@ -1,3 +1,5 @@
+using Fenicia.Auth.Domains.LoginAttempt.Interfaces;
+
 namespace Fenicia.Auth.Domains.LoginAttempt.Interfaces;
 
 /// <summary>
@@ -16,8 +18,9 @@ public interface ILoginAttemptService
     /// Increments the number of login attempts for a specific email address.
     /// </summary>
     /// <param name="email">The email address.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task IncrementAsync(string email);
+    Task IncrementAsync(string email, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resets the number of login attempts for a specific email address.

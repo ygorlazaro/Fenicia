@@ -48,7 +48,7 @@ public sealed class TokenService(
 
         if (user is null)
         {
-            await loginAttemptService.IncrementAsync(request.Email);
+            await loginAttemptService.IncrementAsync(request.Email, cancellationToken);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
@@ -74,7 +74,7 @@ public sealed class TokenService(
             return tokenResponse;
         }
 
-        await loginAttemptService.IncrementAsync(request.Email);
+        await loginAttemptService.IncrementAsync(request.Email, cancellationToken);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);

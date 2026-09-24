@@ -21,10 +21,6 @@ public sealed class CustomerService(
     IPersonAddressService personAddressService,
     IOrderService orderService) : ICustomerService
 {
-    public CustomerService()
-        : this(null!, null!, null!, null!, null!)
-    {
-    }
 
     public async Task<Pagination<List<GetAllCustomerResponse>>> GetAllAsync(
         int page = 1,

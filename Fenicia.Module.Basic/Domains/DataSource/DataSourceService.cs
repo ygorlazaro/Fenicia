@@ -18,10 +18,6 @@ public sealed class DataSourceService(
     IProductService productService,
     ISupplierService supplierService) : IDataSourceService
 {
-    public DataSourceService()
-        : this(null!, null!, null!, null!, null!, null!)
-    {
-    }
 
     public Task<List<GetAllDashboardProductForDataSourceResponse>> GetDashboardProductsAsync(
         CancellationToken cancellationToken = default)

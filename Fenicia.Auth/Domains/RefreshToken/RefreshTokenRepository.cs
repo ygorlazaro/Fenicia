@@ -24,8 +24,9 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
     /// Adds a new refresh token to the Redis repository, serializing the token model to JSON and storing it with an expiration date, ensuring that the token is available for retrieval until it expires.
     /// </summary>
     /// <param name="token">The refresh token model to add.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public async Task AddAsync(RefreshTokenModel token)
+    public async Task AddAsync(RefreshTokenModel token, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(token);
 
@@ -39,8 +40,9 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
     /// Retrieves a refresh token from the Redis repository based on the provided token string. If the token is found, it is deserialized from JSON back into a RefreshTokenModel object; if not found or if an error occurs during retrieval or deserialization, null is returned.
     /// </summary>
     /// <param name="token">The refresh token string to retrieve.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The refresh token model if found; otherwise, null.</returns>
-    public async Task<RefreshTokenModel?> GetAsync(string token)
+    public async Task<RefreshTokenModel?> GetAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -68,8 +70,9 @@ public class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshToke
     /// Updates an existing refresh token in the Redis repository, serializing the token model to JSON and storing it with an expiration date, ensuring that the token is available for retrieval until it expires.
     /// </summary>
     /// <param name="token">The refresh token model to update.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public async Task UpdateAsync(RefreshTokenModel token)
+    public async Task UpdateAsync(RefreshTokenModel token, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(token);
 

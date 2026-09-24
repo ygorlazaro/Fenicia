@@ -14,10 +14,6 @@ public sealed class StockMovementService(
     IStockMovementRepository repository,
     IProductService productService) : IStockMovementService
 {
-    public StockMovementService()
-        : this(null!, null!)
-    {
-    }
 
     public async Task<List<GetStockMovementResponse>> GetAsync(
         GetStockMovementQuery query,

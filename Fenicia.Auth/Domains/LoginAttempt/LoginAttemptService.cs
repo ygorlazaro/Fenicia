@@ -7,7 +7,7 @@ namespace Fenicia.Auth.Domains.LoginAttempt;
 /// Represents a service for managing login attempts.
 /// </summary>
 /// <param name="redis">The Redis connection multiplexer.</param>
-public class LoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptService
+public sealed class LoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptService
 {
     /// <summary>
     /// The expiration time for login attempts in minutes.
@@ -41,8 +41,9 @@ public class LoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptSe
     /// Increments the number of login attempts for a specific email address.
     /// </summary>
     /// <param name="email">The email address.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public async Task IncrementAsync(string email)
+    public async Task IncrementAsync(string email, CancellationToken cancellationToken = default)
     {
         var key = GetKey(email);
         var current = _redisDb.StringGet(key);

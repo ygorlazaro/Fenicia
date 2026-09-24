@@ -8,7 +8,7 @@ namespace Fenicia.Auth.Domains.UserRole;
 /// Service implementation for managing user roles in the authentication domain.
 /// </summary>
 /// <param name="repository">The user role repository.</param>
-public class UserRoleService(IUserRoleRepository repository) : IUserRoleService
+public sealed class UserRoleService(IUserRoleRepository repository) : IUserRoleService
 {
     /// <summary>
     /// Gets companies associated with a user including their role.

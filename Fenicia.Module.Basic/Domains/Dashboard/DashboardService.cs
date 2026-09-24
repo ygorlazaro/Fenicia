@@ -14,10 +14,6 @@ public sealed class DashboardService(
     IProductService productService,
     IEmployeeService employeeService) : IDashboardService
 {
-    public DashboardService()
-        : this(null!, null!, null!)
-    {
-    }
 
     public async Task<FinancialDashboardResponse> GetFinancialDashboardAsync(
         GetFinancialDashboardQuery query,

@@ -19,10 +19,6 @@ public sealed class InventoryService(
     IEmployeeService employeeService,
     ISupplierService supplierService) : IInventoryService
 {
-    public InventoryService()
-        : this(null!, null!, null!, null!, null!, null!)
-    {
-    }
 
     public async Task<InventoryResponse> GetAsync(
         GetInventoryQuery query,

@@ -28,7 +28,7 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IR
         var stringToken = Convert.ToBase64String(randomNumber);
         var refreshToken = new RefreshTokenModel(stringToken, DateTime.UtcNow.AddDays(7), userId);
 
-        await repository.AddAsync(refreshToken);
+        await repository.AddAsync(refreshToken, cancellationToken);
 
         return stringToken;
     }
@@ -46,7 +46,7 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IR
             return null;
         }
 
-        var tokenModel = await repository.GetAsync(token);
+        var tokenModel = await repository.GetAsync(token, cancellationToken);
 
         return tokenModel is null ? null : RefreshTokenMapper.MapToRefreshTokenResponse(tokenModel);
     }
@@ -68,7 +68,7 @@ public sealed class RefreshTokenService(IRefreshTokenRepository repository) : IR
             throw new BadRequestException(ExceptionMessages.InvalidRefreshToken);
         }
 
-        var token = await repository.GetAsync(refreshToken);
+        var token = await repository.GetAsync(refreshToken, cancellationToken);
 
         return token != null && token.UserId == userId && token.IsActive && token.ExpirationDate > DateTime.UtcNow;
     }

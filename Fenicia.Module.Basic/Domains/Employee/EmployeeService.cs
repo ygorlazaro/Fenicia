@@ -21,10 +21,6 @@ public sealed class EmployeeService(
     IPersonAddressService personAddressService,
     IOrderService orderService) : IEmployeeService
 {
-    public EmployeeService()
-        : this(null!, null!, null!, null!, null!)
-    {
-    }
 
     public async Task<Pagination<List<GetAllEmployeeResponse>>> GetAllAsync(
         GetAllEmployeeQuery query,

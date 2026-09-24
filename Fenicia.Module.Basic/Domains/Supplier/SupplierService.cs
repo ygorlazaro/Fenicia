@@ -22,10 +22,6 @@ public sealed class SupplierService(
     IAddressService addressService,
     IPersonAddressService personAddressService) : ISupplierService
 {
-    public SupplierService()
-        : this(null!, null!, null!, null!, null!)
-    {
-    }
 
     public async Task<Pagination<List<GetAllSupplierResponse>>> GetAllAsync(
         GetAllSupplierQuery query,

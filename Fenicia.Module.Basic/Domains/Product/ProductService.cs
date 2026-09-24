@@ -17,10 +17,6 @@ public sealed class ProductService(
     IOrderDetailService orderDetailService,
     IStockMovementService stockMovementService) : IProductService
 {
-    public ProductService()
-        : this(null!, null!, null!)
-    {
-    }
 
     public async Task<Pagination<List<GetAllProductResponse>>> GetAllAsync(
         GetAllProductQuery query,

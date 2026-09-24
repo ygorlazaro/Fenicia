@@ -18,10 +18,10 @@ public class NotificationHistoryRepository(DbContext context) : Repository<Notif
     /// <param name="userId">The ID of the user.</param>
     /// <param name="companyId">The ID of the company.</param>
     /// <param name="readStatus">The read status to be set (true for read, false for unread).</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A boolean indicating whether the operation was successful.</returns>
     public async Task<bool> MaskReadStatusAsync(Guid notificationId, Guid userId, Guid companyId, bool readStatus,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         var query = from nh in DbSet
                     where nh.NotificationId == notificationId
@@ -48,9 +48,9 @@ public class NotificationHistoryRepository(DbContext context) : Repository<Notif
     /// Checks if a notification has been read by a specific user.
     /// </summary>
     /// <param name="notificationId">The ID of the notification.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A boolean indicating whether the notification has been read.</returns>
-    public Task<bool> IsReadAsync(Guid notificationId, CancellationToken cancellationToken)
+    public Task<bool> IsReadAsync(Guid notificationId, CancellationToken cancellationToken = default)
     {
         return DbSet.AnyAsync(nh => nh.Id == notificationId && nh.IsRead, cancellationToken);
     }

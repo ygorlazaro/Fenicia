@@ -13,7 +13,7 @@ namespace Fenicia.Auth.Domains.Module;
 /// <param name="repository">The module repository.</param>
 /// <param name="userRoleService">The user role service.</param>
 /// <param name="subscriptionService">The subscription service.</param>
-public class ModuleService(
+public sealed class ModuleService(
     IModuleRepository repository,
     IUserRoleService userRoleService,
     ISubscriptionService subscriptionService) : IModuleService
