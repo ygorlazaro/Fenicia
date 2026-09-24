@@ -6,7 +6,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Interfaces;
 public interface IPositionService
 {
     Task<Pagination<List<GetAllPositionResponse>>> GetAllAsync(
-        GetAllPositionQuery query,
+        PaginationQuery query,
         CancellationToken cancellationToken = default);
 
     Task<GetPositionByIdResponse?> GetByIdAsync(

@@ -1,48 +1,27 @@
+using Fenicia.Common;
+
 namespace Fenicia.Common.DTOs.Basic.Employee;
 
 /// <summary>
 /// Query DTO for retrieving employees with pagination and filtering.
 /// </summary>
-public class EmployeeQuery()
+/// <param name="page">The page number (default: 1).</param>
+/// <param name="perPage">The number of items per page (default: 10).</param>
+/// <param name="query">The search query (optional).</param>
+/// <param name="sort">The sort field (optional).</param>
+/// <param name="filters">Additional filters (optional).</param>
+public record EmployeeQuery(
+    int Page = 1,
+    int PerPage = 10,
+    string? Query = null,
+    string? Sort = null,
+    Dictionary<string, string>? Filters = null) : PaginationQuery(Page, PerPage)
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EmployeeQuery"/> class with the specified parameters.
+    /// Initializes a new instance of the <see cref="EmployeeQuery"/> class with default values.
     /// </summary>
-    /// <param name="page">The page number (default: 1).</param>
-    /// <param name="perPage">The number of items per page (default: 10).</param>
-    /// <param name="query">The search query (optional).</param>
-    /// <param name="sort">The sort field (optional).</param>
-    public EmployeeQuery(int page = 1, int perPage = 10, string? query = null, string? sort = null)
-        : this()
+    public EmployeeQuery()
+        : this(1, 10, null, null, null)
     {
-        Page = page;
-        PerPage = perPage;
-        Query = query;
-        Sort = sort;
     }
-
-    /// <summary>
-    /// Gets or sets the page number.
-    /// </summary>
-    public int Page { get; set; }
-
-    /// <summary>
-    /// Gets or sets the number of items per page.
-    /// </summary>
-    public int PerPage { get; set; }
-
-    /// <summary>
-    /// Gets or sets the search query.
-    /// </summary>
-    public string? Query { get; set; }
-
-    /// <summary>
-    /// Gets or sets the sort field.
-    /// </summary>
-    public string? Sort { get; set; }
-
-    /// <summary>
-    /// Gets or sets additional filters.
-    /// </summary>
-    public Dictionary<string, string>? Filters { get; set; } = [];
 }

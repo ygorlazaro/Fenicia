@@ -1,3 +1,4 @@
+using Fenicia.Common;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
@@ -51,7 +52,7 @@ public sealed class DataSourceService(
     public async Task<List<PositionDataSourceResponse>> GetPositionsAsync(
         CancellationToken cancellationToken = default)
     {
-        var positions = await positionService.GetAllAsync(1, int.MaxValue, cancellationToken);
+        var positions = await positionService.GetAllAsync(new PaginationQuery(1, int.MaxValue), cancellationToken);
 
         return [.. positions.Data.Select(p => new PositionDataSourceResponse(p.Id, p.Name))];
     }

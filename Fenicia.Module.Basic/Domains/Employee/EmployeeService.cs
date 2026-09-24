@@ -14,6 +14,14 @@ using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
+/// <summary>
+/// Service implementation for managing employees.
+/// </summary>
+/// <param name="repository">The employee repository.</param>
+/// <param name="personService">The person service.</param>
+/// <param name="addressService">The address service.</param>
+/// <param name="personAddressService">The person address service.</param>
+/// <param name="orderService">The order service.</param>
 public sealed class EmployeeService(
     IEmployeeRepository repository,
     IPersonService personService,
@@ -21,7 +29,7 @@ public sealed class EmployeeService(
     IPersonAddressService personAddressService,
     IOrderService orderService) : IEmployeeService
 {
-
+    /// <inheritdoc />
     public async Task<Pagination<List<EmployeeResponse>>> GetAllAsync(
         EmployeeQuery query,
         CancellationToken cancellationToken = default)
@@ -29,44 +37,21 @@ public sealed class EmployeeService(
         var total = await repository.CountAsync(cancellationToken);
         var employees = await repository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
 
-        var response = employees.Select(e =>
-        {
-            var address = e.Person.PersonAddresses.FirstOrDefault()?.Address;
-            return new EmployeeResponse(
-                e.Id,
-                e.PositionId,
-                e.PersonId,
-                e.Person.Name,
-                e.Person.Email,
-                e.Person.PhoneNumber,
-                e.Person.Document,
-                e.Position?.Name,
-                address != null
-                    ? new AddressResponse(
-                        address.Id,
-                        address.Street,
-                        address.Number,
-                        address.Complement,
-                        address.Neighborhood,
-                        address.ZipCode!,
-                        address.StateId,
-                        address.State?.Name,
-                        address.City,
-                        address.Country)
-                    : null);
-        }).ToList();
+        var response = employees.Select(EmployeeMapper.MapToResponse).ToList();
 
-        return new Pagination<List<EmployeeResponse>>(response, total, query.Page, query.PerPage);
+        return new Pagination<List<EmployeeResponse>>(response, total, query);
     }
 
+    /// <inheritdoc />
     public async Task<List<EmployeeDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var employees = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var employees = await repository.GetAllEmployeesAsync(cancellationToken);
 
-        return [.. employees.Select(e => new EmployeeDataSourceResponse(e.Id, e.Person.Name))];
+        return employees.Select(EmployeeMapper.MapToDataSourceResponse).ToList();
     }
 
+    /// <inheritdoc />
     public async Task<EmployeeResponse?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -78,31 +63,10 @@ public sealed class EmployeeService(
             return null;
         }
 
-        var address = employee.Person.PersonAddresses.FirstOrDefault()?.Address;
-        return new EmployeeResponse(
-            employee.Id,
-            employee.PositionId,
-            employee.PersonId,
-            employee.Person.Name,
-            employee.Person.Email,
-            employee.Person.PhoneNumber,
-            employee.Person.Document,
-            employee.Position?.Name,
-            address != null
-                ? new AddressResponse(
-                    address.Id,
-                    address.Street,
-                    address.Number,
-                    address.Complement,
-                    address.Neighborhood,
-                    address.ZipCode!,
-                    address.StateId,
-                    address.State?.Name,
-                    address.City,
-                    address.Country)
-                : null);
+        return EmployeeMapper.MapToResponse(employee);
     }
 
+    /// <inheritdoc />
     public async Task<EmployeeResponse> AddAsync(
         EmployeeRequest command,
         Guid companyId,
@@ -136,27 +100,20 @@ public sealed class EmployeeService(
 
         var personResponse = await personService.InsertAsync(personCommand, companyId, cancellationToken);
 
-        var employee = new EmployeeModel
-        {
-            Id = command.Id,
-            PositionId = command.PositionId,
-            PersonId = personResponse.Id,
-            CompanyId = companyId
-        };
+        var employee = EmployeeMapper.MapToModel(command, companyId, personResponse.Id);
 
         var created = await repository.InsertAsync(employee, cancellationToken);
 
-        if (!addressId.HasValue)
+        if (addressId.HasValue)
         {
-            return new EmployeeResponse(created.Id, created.PositionId, created.PersonId, command.Name, command.Email, command.PhoneNumber, command.Document, null, null);
+            var personAddressCommand = new PersonAddressRequest(personResponse.Id, addressId.Value);
+            await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
         }
 
-        var personAddressCommand = new PersonAddressRequest(personResponse.Id, addressId.Value);
-        await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
-
-        return new EmployeeResponse(created.Id, created.PositionId, created.PersonId, command.Name, command.Email, command.PhoneNumber, command.Document, null, null);
+        return EmployeeMapper.MapToResponse(created);
     }
 
+    /// <inheritdoc />
     public async Task<EmployeeResponse?> UpdateAsync(
         Guid id,
         EmployeeRequest command,
@@ -229,9 +186,11 @@ public sealed class EmployeeService(
         await personService.UpdateAsync(employee.Person.Id, personCommand, companyId, cancellationToken);
         var updated = await repository.UpdateAsync(id, employee, cancellationToken) ??
                       throw new ForbiddenException();
-        return new EmployeeResponse(updated.Id, updated.PositionId, employee.PersonId, command.Name, command.Email, command.PhoneNumber, command.Document, updated.Position?.Name, null);
+
+        return EmployeeMapper.MapToResponse(updated);
     }
 
+    /// <inheritdoc />
     public async Task DeleteAsync(
         Guid id,
         Guid companyId,
@@ -240,12 +199,13 @@ public sealed class EmployeeService(
         await repository.DeleteAsync(id, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<EmployeePerformanceResponse> GetPerformanceAsync(
-        EmployeePerformanceQuery query,
+        EmployeePerformanceRequest request,
         CancellationToken cancellationToken = default)
     {
         var endDate = DateTime.UtcNow;
-        var startDate = endDate.AddDays(-query.Days);
+        var startDate = endDate.AddDays(-request.Days);
 
         var orders = await orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
         var employees = await GetAllEmployeesAsync(cancellationToken);
@@ -253,7 +213,7 @@ public sealed class EmployeeService(
         var summary = GetEmployeePerformanceSummary(orders, employees);
         var salesByEmployee = GetSalesByEmployee(orders);
         var ordersByEmployee = GetOrdersByEmployee(orders, employees);
-        var topPerformers = GetTopPerformer(query, salesByEmployee, summary);
+        var topPerformers = GetTopPerformer(request, salesByEmployee, summary);
 
         return new EmployeePerformanceResponse
         {
@@ -264,23 +224,27 @@ public sealed class EmployeeService(
         };
     }
 
+    /// <inheritdoc />
     public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.CountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetAllEmployeesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default)
     {
         return repository.CountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<Pagination<List<EmployeeResponse>>> GetByPositionIdAsync(
-        EmployeesByPositionIdQuery query,
+        EmployeesByPositionIdRequest query,
         CancellationToken cancellationToken = default)
     {
         var total = await repository.CountAsync(e => e.PositionId == query.PositionId, cancellationToken);
@@ -291,36 +255,17 @@ public sealed class EmployeeService(
             query.PerPage,
             cancellationToken);
 
-        var response = employees.Select(e =>
-        {
-            var address = e.Person.PersonAddresses.FirstOrDefault()?.Address;
-            return new EmployeeResponse(
-                e.Id,
-                e.PositionId,
-                e.PersonId,
-                e.Person.Name,
-                e.Person.Email,
-                e.Person.PhoneNumber,
-                e.Person.Document,
-                e.Position?.Name,
-                address != null
-                    ? new AddressResponse(
-                        address.Id,
-                        address.Street,
-                        address.Number,
-                        address.Complement,
-                        address.Neighborhood,
-                        address.ZipCode!,
-                        address.StateId,
-                        address.State?.Name,
-                        address.City,
-                        address.Country)
-                    : null);
-        }).ToList();
+        var response = employees.Select(EmployeeMapper.MapToResponse).ToList();
 
-        return new Pagination<List<EmployeeResponse>>(response, total, query.Page, query.PerPage);
+        return new Pagination<List<EmployeeResponse>>(response, total, query);
     }
 
+    /// <summary>
+    /// Calculates the employee performance summary.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <param name="employees">The employees.</param>
+    /// <returns>The performance summary response.</returns>
     private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(
         IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         IEnumerable<EmployeeModel> employees)
@@ -346,12 +291,19 @@ public sealed class EmployeeService(
         return summary;
     }
 
+    /// <summary>
+    /// Gets the top performers.
+    /// </summary>
+    /// <param name="request">The performance request.</param>
+    /// <param name="salesByEmployee">The sales by employee.</param>
+    /// <param name="summary">The performance summary.</param>
+    /// <returns>A list of top performer responses.</returns>
     private static List<TopPerformerResponse> GetTopPerformer(
-        EmployeePerformanceQuery query,
+        EmployeePerformanceRequest request,
         IEnumerable<EmployeeSalesResponse> salesByEmployee,
         EmployeePerformanceSummaryResponse summary)
     {
-        var topPerformers = salesByEmployee.Take(query.TopLimit).Select(e =>
+        var topPerformers = salesByEmployee.Take(request.TopLimit).Select(e =>
         {
             var performanceLevel = "Standard";
             if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
@@ -378,6 +330,12 @@ public sealed class EmployeeService(
         return topPerformers;
     }
 
+    /// <summary>
+    /// Gets orders by employee.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <param name="employees">The employees.</param>
+    /// <returns>A list of employee order count responses.</returns>
     private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
         IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
         IEnumerable<EmployeeModel> employees)
@@ -400,6 +358,11 @@ public sealed class EmployeeService(
         return ordersByEmployee;
     }
 
+    /// <summary>
+    /// Gets sales by employee.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <returns>A list of employee sales responses.</returns>
     private static List<EmployeeSalesResponse> GetSalesByEmployee(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders)
     {
         var ordersList = orders.Where(o => o.Employee != null).ToList();

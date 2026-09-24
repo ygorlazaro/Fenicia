@@ -9,6 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
+/// <summary>
+/// Controller responsible for handling employee-related operations.
+/// </summary>
+/// <param name="employeeService">The employee service.</param>
+/// <param name="companyContext">The company context.</param>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -20,11 +25,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     /// Gets a paginated list of employees.
     /// </summary>
     /// <param name="wide">Wide event context.</param>
-    /// <param name="page">Page number (default: 1).</param>
-    /// <param name="perPage">Items per page (default: 10).</param>
-    /// <param name="query">Search query (optional).</param>
-    /// <param name="sort">Sort field (optional).</param>
-    /// <param name="filters">Additional filters (optional).</param>
+    /// <param name="query">The pagination and filter query.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Paginated list of employees.</returns>
     /// <response code="200">List of employees returned successfully.</response>
@@ -36,20 +37,14 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<EmployeeResponse>>>> GetAsync(
         WideEventContext wide,
-        [FromQuery] int page = 1,
-        [FromQuery] int perPage = 10,
-        [FromQuery] string? query = null,
-        [FromQuery] string? sort = null,
-        [FromQuery] Dictionary<string, string>? filters = null,
+        [FromQuery] EmployeeQuery query,
         CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await employeeService.GetAllAsync(
-                new EmployeeQuery(page, perPage, query, sort) { Filters = filters },
-                cancellationToken);
+            var employees = await employeeService.GetAllAsync(query, cancellationToken);
 
             return Ok(employees);
         }
@@ -97,8 +92,8 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     /// <summary>
     /// Creates a new employee.
     /// </summary>
-    /// <param name="wide">Wide event context.</param>
     /// <param name="command">Employee data.</param>
+    /// <param name="wide">Wide event context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Created employee.</returns>
     /// <response code="201">Employee created successfully.</response>
@@ -121,7 +116,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
 
             var employee = await employeeService.AddAsync(command, companyContext.CompanyId, cancellationToken);
 
-            return new CreatedResult(string.Empty, employee);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = employee.Id }, employee);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -132,9 +127,9 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     /// <summary>
     /// Updates an existing employee.
     /// </summary>
-    /// <param name="wide">Wide event context.</param>
-    /// <param name="command">Updated employee data.</param>
     /// <param name="id">Employee ID.</param>
+    /// <param name="command">Updated employee data.</param>
+    /// <param name="wide">Wide event context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Updated employee.</returns>
     /// <response code="200">Employee updated successfully.</response>
@@ -149,8 +144,8 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<EmployeeResponse>> PatchAsync(
-        [FromBody] EmployeeRequest command,
         [FromRoute] Guid id,
+        [FromBody] EmployeeRequest command,
         WideEventContext wide,
         CancellationToken cancellationToken = default)
     {
@@ -212,8 +207,7 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     /// Gets employee performance data.
     /// </summary>
     /// <param name="wide">Wide event context.</param>
-    /// <param name="days">Period in days for analysis (default: 90).</param>
-    /// <param name="topLimit">Limit of top performers (default: 10).</param>
+    /// <param name="request">The performance request parameters.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Employee performance data.</returns>
     /// <response code="200">Performance returned successfully.</response>
@@ -225,19 +219,52 @@ public class EmployeeController(IEmployeeService employeeService, ICompanyContex
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<EmployeePerformanceResponse>> GetPerformanceAsync(
         WideEventContext wide,
-        [FromQuery] int days = 90,
-        [FromQuery] int topLimit = 10,
+        [FromQuery] EmployeePerformanceRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await employeeService.GetPerformanceAsync(
-                new EmployeePerformanceQuery(days, topLimit),
-                cancellationToken);
+            var performance = await employeeService.GetPerformanceAsync(request, cancellationToken);
 
             return Ok(performance);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Gets employees by position ID.
+    /// </summary>
+    /// <param name="wide">Wide event context.</param>
+    /// <param name="positionId"></param>
+    /// <param name="query">The query containing position ID and pagination.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Paginated list of employees.</returns>
+    /// <response code="200">Employees returned successfully.</response>
+    /// <response code="401">User not authorized.</response>
+    [HttpGet("position/{positionId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<EmployeeResponse>>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Pagination<List<EmployeeResponse>>>> GetByPositionIdAsync(
+        WideEventContext wide,
+        [FromRoute] Guid positionId,
+        [FromQuery] EmployeesByPositionIdRequest query,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            wide.UserId = ClaimReader.UserId(User).ToString();
+
+            var request = query with { PositionId = positionId };
+            var employees = await employeeService.GetByPositionIdAsync(request, cancellationToken);
+
+            return Ok(employees);
         }
         catch (UnauthorizedAccessException ex)
         {
