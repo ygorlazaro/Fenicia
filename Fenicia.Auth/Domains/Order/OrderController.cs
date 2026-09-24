@@ -41,7 +41,6 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(
         OrderRequest request,
-        [FromHeader(Name = "CompanyId")] Guid companyId,
         CancellationToken cancellationToken = default)
     {
         try
