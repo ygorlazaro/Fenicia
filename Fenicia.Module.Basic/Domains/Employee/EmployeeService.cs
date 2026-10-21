@@ -238,14 +238,14 @@ public sealed class EmployeeService(
             .ToList();
     }
 
-    private static List<EmployeeOrdersResponse> GetOrdersByEmployee(
+    private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
         List<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders,
         List<EmployeeModel> employees)
     {
         return orders
             .GroupBy(o => o.EmployeeId)
             .Where(g => g.Key.HasValue)
-            .Select(g => new EmployeeOrdersResponse(
+            .Select(g => new EmployeeOrderCountResponse(
                 g.Key.Value,
                 g.First().EmployeeName ?? string.Empty,
                 g.Count()))
