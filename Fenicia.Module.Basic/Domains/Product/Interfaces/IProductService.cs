@@ -210,4 +210,18 @@ public interface IProductService
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A list of category breakdown responses.</returns>
     Task<List<CategoryBreakdownResponse>> GetCategoryBreakdownAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all products with stats for supplier statistics.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of product responses.</returns>
+    Task<List<ProductResponse>> GetAllForStatsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all products with supplier details.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A list of product responses.</returns>
+    Task<List<ProductResponse>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default);
 }

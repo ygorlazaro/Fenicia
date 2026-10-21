@@ -205,7 +205,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var companyId = companyContext.CompanyId;
-            await supplierService.DeleteAsync(new DeleteSupplierRequest(id), companyId, cancellationToken);
+            await supplierService.DeleteAsync(id, companyId, cancellationToken);
 
             return NoContent();
         }

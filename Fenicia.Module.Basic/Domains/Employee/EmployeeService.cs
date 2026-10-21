@@ -329,8 +329,8 @@ public sealed class EmployeeService(
     /// <param name="employees">The employees.</param>
     /// <returns>The performance summary response.</returns>
     private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(
-        IEnumerable<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders,
-        IEnumerable<EmployeeModel> employees)
+        List<OrderResponse> orders,
+        List<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
 
@@ -351,44 +351,5 @@ public sealed class EmployeeService(
             AverageOrdersPerEmployee = employeesWithOrders > 0 ? (decimal)totalOrders / employeesWithOrders : 0
         };
         return summary;
-    }
-
-    /// <summary>
-    /// Gets the top performers.
-    /// </summary>
-    /// <param name="request">The performance request.</param>
-    /// <param name="salesByEmployee">The sales by employee.</param>
-    /// <param name="summary">The performance summary.</param>
-    /// <returns>A list of top performer responses.</returns>
-    private static List<TopPerformerResponse> GetTopPerformer(
-        EmployeePerformanceRequest request,
-        List<EmployeeSalesResponse> salesByEmployee,
-        EmployeePerformanceSummaryResponse summary)
-    {
-        var topPerformers = salesByEmployee.Take(request.TopLimit).Select(e =>
-        {
-            var performanceLevel = "Standard";
-            if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
-            {
-                performanceLevel = "Excellent";
-            }
-            else if (e.TotalSales >= summary.AverageSalesPerEmployee * 1.5M)
-            {
-                performanceLevel = "Very Good";
-            }
-            else if (e.TotalSales >= summary.AverageSalesPerEmployee)
-            {
-                performanceLevel = "Good";
-            }
-
-            return new TopPerformerResponse(
-                e.EmployeeId,
-                e.EmployeeName,
-                e.PositionName,
-                e.TotalSales,
-                e.TotalOrders,
-                performanceLevel);
-        }).ToList();
-        return topPerformers;
     }
 }
