@@ -52,7 +52,7 @@ public sealed class DataSourceService(
     public async Task<List<PositionDataSourceResponse>> GetPositionsAsync(
         CancellationToken cancellationToken = default)
     {
-        var positions = await positionService.GetAllAsync(new PaginationQuery(1, int.MaxValue), cancellationToken);
+        var positions = await positionService.GetAllAsync(new PositionQuery(1, int.MaxValue), cancellationToken);
 
         return [.. positions.Data.Select(p => new PositionDataSourceResponse(p.Id, p.Name))];
     }
@@ -61,7 +61,7 @@ public sealed class DataSourceService(
     public async Task<List<ProductCategoryDataSourceResponse>> GetProductCategoriesAsync(
         CancellationToken cancellationToken = default)
     {
-        var categories = await productCategoryService.GetAllAsync(1, int.MaxValue, cancellationToken);
+        var categories = await productCategoryService.GetAllAsync(new ProductCategoryQuery(1, int.MaxValue), cancellationToken);
 
         return [.. categories.Data.Select(c => new ProductCategoryDataSourceResponse(c.Id, c.Name))];
     }

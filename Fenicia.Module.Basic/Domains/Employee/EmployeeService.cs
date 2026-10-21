@@ -207,7 +207,13 @@ public sealed class EmployeeService(
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-request.Days);
 
-        var orders = await orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
+        var orderModels = await orderService.GetEmployeePerformanceOrdersAsync(startDate, endDate, cancellationToken);
+        var orders = orderModels.Select(o => new Fenicia.Common.Data.Models.Basic.OrderModel
+        {
+            Id = o.Id,
+            TotalAmount = o.TotalAmount,
+            EmployeeId = o.EmployeeId
+        }).ToList();
         var employees = await GetAllEmployeesAsync(cancellationToken);
 
         var summary = GetEmployeePerformanceSummary(orders, employees);
@@ -267,7 +273,7 @@ public sealed class EmployeeService(
     /// <param name="employees">The employees.</param>
     /// <returns>The performance summary response.</returns>
     private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(
-        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
+        IEnumerable<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders,
         IEnumerable<EmployeeModel> employees)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
