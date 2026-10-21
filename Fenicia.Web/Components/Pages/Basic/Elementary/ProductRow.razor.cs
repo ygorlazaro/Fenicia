@@ -6,11 +6,11 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class ProductRow
 {
     [Parameter]
-    public GetAllProductResponse Item { get; set; } = null!;
+    public ProductResponse Item { get; set; } = null!;
 
     [Parameter]
-    public EventCallback<GetAllProductResponse> OnEdit { get; set; }
+    public EventCallback<ProductResponse> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<GetAllProductResponse> OnDelete { get; set; }
+    public EventCallback<ProductResponse> OnDelete { get; set; }
 }

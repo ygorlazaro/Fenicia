@@ -5,7 +5,7 @@
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage TItem="GetAllProductResponse"
+<CrudPage TItem="ProductResponse"
           PageTitle="Produtos"
           PageSubtitle="Gerencie o catálogo de produtos da sua empresa"
           EntityNamePlural="produtos"
@@ -92,7 +92,7 @@
 
     private void ResetForm() => add = new ProductFormModel();
 
-    private void LoadForm(GetAllProductResponse item)
+    private void LoadForm(ProductResponse item)
     {
         edit = item is null
             ? new ProductFormModel()
@@ -116,7 +116,7 @@
             };
     }
 
-    private object CreatePayload(CrudModalContext<GetAllProductResponse> ctx)
+    private object CreatePayload(CrudModalContext<ProductResponse> ctx)
     {
         var model = ctx.IsAdd ? add : edit;
         return new

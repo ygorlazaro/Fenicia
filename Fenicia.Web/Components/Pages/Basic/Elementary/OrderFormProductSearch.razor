@@ -13,7 +13,7 @@
         <MudItem xs="12" sm="2">
             <MudStack Row="true" Justify="Justify.FlexEnd">
                 <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined">
-                    @((FilteredProducts as IList<GetAllProductResponse> ?? [.. FilteredProducts]).Count + " produto(s)")
+                    @((FilteredProducts as IList<ProductResponse> ?? [.. FilteredProducts]).Count + " produto(s)")
                 </MudChip>
             </MudStack>
         </MudItem>

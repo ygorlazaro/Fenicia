@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage TItem="GetAllOrderResponse"
+<CrudPage TItem="OrderResponse"
           PageTitle="Pedidos"
           PageSubtitle="Gerencie os pedidos da sua empresa"
           EntityNamePlural="pedidos"
@@ -27,5 +27,5 @@
 </CrudPage>
 
 @code {
-    private static string FormatForDelete(GetAllOrderResponse item) => item.OrderNumber;
+    private static string FormatForDelete(OrderResponse item) => item.OrderNumber;
 }

@@ -8,7 +8,7 @@ public partial class OrderDetailHeader
 {
     [Parameter]
     [EditorRequired]
-    public GetOrderByIdResponse Order { get; set; } = null!;
+    public OrderDetailResponse Order { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnPrint { get; set; }

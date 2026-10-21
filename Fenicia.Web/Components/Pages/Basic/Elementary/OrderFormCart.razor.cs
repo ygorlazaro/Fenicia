@@ -41,7 +41,7 @@ public partial class OrderFormCart
 
     [Parameter]
     [EditorRequired]
-    public List<GetAllOrderResponse>? RecentOrders { get; set; }
+    public List<OrderResponse>? RecentOrders { get; set; }
 
     [Parameter]
     public bool IsSubmitting { get; set; }

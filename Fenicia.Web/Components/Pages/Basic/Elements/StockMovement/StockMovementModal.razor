@@ -97,7 +97,7 @@
     public MovementFormModel Model { get; set; } = new();
 
     [Parameter]
-    public List<GetAllProductResponse> Products { get; set; } = new();
+    public List<ProductResponse> Products { get; set; } = new();
 
     [Parameter]
     public List<GetAllSupplierResponse> Suppliers { get; set; } = new();
@@ -106,7 +106,7 @@
     public List<GetAllCustomerResponse> Customers { get; set; } = new();
 
     [Parameter]
-    public List<GetAllEmployeeResponse> Employees { get; set; } = new();
+    public List<EmployeeResponse> Employees { get; set; } = new();
 
     [Parameter]
     public EventCallback OnClose { get; set; }

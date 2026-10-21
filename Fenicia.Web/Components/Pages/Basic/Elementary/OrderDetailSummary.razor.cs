@@ -8,7 +8,7 @@ public partial class OrderDetailSummary
 {
     [Parameter]
     [EditorRequired]
-    public GetOrderByIdResponse Order { get; set; } = null!;
+    public OrderDetailResponse Order { get; set; } = null!;
 
     private static string PaymentLabel(EnumPaymentMethod method)
     {

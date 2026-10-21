@@ -69,7 +69,7 @@
 
     private bool isLoggedIn;
     private bool isLoading = true;
-    private GetOrderByIdResponse? order;
+    private OrderDetailResponse? order;
     private List<OrderDetailResponse> details = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -139,7 +139,7 @@
             if (orderTask.Result.IsSuccessStatusCode)
             {
                 var body = await orderTask.Result.Content.ReadAsStringAsync();
-                order = JsonSerializer.Deserialize<GetOrderByIdResponse>(body, JsonOptions);
+                order = JsonSerializer.Deserialize<OrderDetailResponse>(body, JsonOptions);
             }
 
             if (detailsTask.Result.IsSuccessStatusCode)

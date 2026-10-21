@@ -8,7 +8,7 @@ public partial class OrderFormProductSearch
 {
     [Parameter]
 [EditorRequired]
-public IEnumerable<GetAllProductResponse> Products { get; set; } = [];
+public IEnumerable<ProductResponse> Products { get; set; } = [];
 
     [Parameter]
     public string Search { get; set; } = string.Empty;
@@ -23,9 +23,9 @@ public IEnumerable<GetAllProductResponse> Products { get; set; } = [];
     public EventCallback<KeyboardEventArgs> OnSearchKeyDown { get; set; }
 
     [Parameter]
-    public EventCallback<GetAllProductResponse> OnProductClick { get; set; }
+    public EventCallback<ProductResponse> OnProductClick { get; set; }
 
-    private IEnumerable<GetAllProductResponse> FilteredProducts
+    private IEnumerable<ProductResponse> FilteredProducts
     {
         get
         {

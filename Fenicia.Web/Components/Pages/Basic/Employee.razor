@@ -5,7 +5,7 @@
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage TItem="GetAllEmployeeResponse"
+<CrudPage TItem="EmployeeResponse"
           PageTitle="Funcionários"
           PageSubtitle="Gerencie os funcionários da sua empresa"
           EntityNamePlural="funcionários"
@@ -105,7 +105,7 @@
         add = new EmployeeFormModel();
     }
 
-    private void LoadForm(GetAllEmployeeResponse? item)
+    private void LoadForm(EmployeeResponse? item)
     {
         edit = item is null
             ? new EmployeeFormModel()
@@ -127,7 +127,7 @@
             };
     }
 
-    private object CreatePayload(CrudModalContext<GetAllEmployeeResponse> ctx)
+    private object CreatePayload(CrudModalContext<EmployeeResponse> ctx)
     {
         var model = ctx.IsAdd ? add : edit;
         return new

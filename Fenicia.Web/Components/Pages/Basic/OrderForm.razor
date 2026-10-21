@@ -58,10 +58,10 @@
 
     private string search = string.Empty;
 
-    private List<GetAllProductResponse> products = [];
+    private List<ProductResponse> products = [];
     private List<OrderFormCustomerOption> customers = [];
     private List<OrderFormEmployeeOption> employees = [];
-    private List<GetAllOrderResponse>? recentOrders;
+    private List<OrderResponse>? recentOrders;
 
     private readonly List<OrderFormCartItem> cart = [];
 
@@ -133,7 +133,7 @@
             if (productsResponse.IsSuccessStatusCode)
             {
                 var body = await productsResponse.Content.ReadAsStringAsync();
-                products = JsonSerializer.Deserialize<List<GetAllProductResponse>>(body, JsonOptions) ?? [];
+                products = JsonSerializer.Deserialize<List<ProductResponse>>(body, JsonOptions) ?? [];
             }
             else
             {
@@ -159,7 +159,7 @@
             if (recentOrdersResponse.IsSuccessStatusCode)
             {
                 var body = await recentOrdersResponse.Content.ReadAsStringAsync();
-                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
+                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<OrderResponse>>(body, JsonOptions);
                 recentOrders = paginated?.Data ?? [];
             }
         }
@@ -182,7 +182,7 @@
         }
     }
 
-    private void AddToCart(GetAllProductResponse product)
+    private void AddToCart(ProductResponse product)
     {
         if (product.Quantity <= 0)
         {
@@ -332,7 +332,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
-                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<GetAllOrderResponse>>(body, JsonOptions);
+                var paginated = JsonSerializer.Deserialize<OrderFormPaginationWrapper<OrderResponse>>(body, JsonOptions);
                 recentOrders = paginated?.Data ?? [];
                 await InvokeAsync(StateHasChanged);
             }

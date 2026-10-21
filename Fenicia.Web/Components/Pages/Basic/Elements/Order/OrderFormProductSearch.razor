@@ -4,13 +4,13 @@
     public string Search { get; set; } = string.Empty;
 
     [Parameter]
-    public List<GetAllProductResponse> FilteredProducts { get; set; } = new();
+    public List<ProductResponse> FilteredProducts { get; set; } = new();
 
     [Parameter]
     public bool Loading { get; set; }
 
     [Parameter]
-    public EventCallback<GetAllProductResponse> OnProductClick { get; set; }
+    public EventCallback<ProductResponse> OnProductClick { get; set; }
 
     [Parameter]
     public EventCallback<KeyboardEventArgs> OnSearchKeyDown { get; set; }
@@ -30,7 +30,7 @@ using Fenicia.Common.DTOs.Basic.Product;
         <MudItem xs="12" sm="2">
             <MudStack Row="true" Justify="Justify.FlexEnd">
                 <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined">
-                    @((FilteredProducts as IList<GetAllProductResponse> ?? [.. FilteredProducts]).Count + " produto(s)")
+                    @((FilteredProducts as IList<ProductResponse> ?? [.. FilteredProducts]).Count + " produto(s)")
                 </MudChip>
             </MudStack>
         </MudItem>
