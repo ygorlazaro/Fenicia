@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Domains.Register;
 /// <summary>
 /// Mapper class for mapping between RegisterRequest and RegisterResponse.
 /// </summary>
-public static RegisterMapper
+public static class RegisterMapper
 {
     /// <summary>
     /// Maps a RegisterRequest to a RegisterResponse.
