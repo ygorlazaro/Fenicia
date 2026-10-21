@@ -315,7 +315,7 @@ Fenicia.Module.{Module}.Domains.{Domain}
 
 ---
 
-## Pagination Convention
+## 11. Pagination Convention
 
 **MANDATORY**: All services with pagination must use `PaginationQuery` record instead of separate `page` and `perPage` parameters.
 
@@ -338,7 +338,7 @@ public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
 
 ---
 
-## 11. DTO Naming Conventions (Basic Module)
+## 12. DTO Naming Conventions (Basic Module)
 
 **MANDATORY**: All DTOs in `Fenicia.Common.DTOs.Basic` must follow these naming conventions:
 
@@ -396,6 +396,62 @@ public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
 
 ---
 
+## 13. Fenicia.Auth Project Domains
+
+The `Fenicia.Auth` project contains **21 domains**, all under `Fenicia.Auth.Domains.{Domain}`. Each domain follows the standard structure:
+
+```text
+Fenicia.Auth.Domains.{Domain}
+├── Interfaces/
+│   ├── I{Domain}Repository.cs
+│   └── I{Domain}Service.cs
+├── {Domain}Repository.cs
+├── {Domain}Service.cs
+├── {Domain}Mapper.cs (if needed — e.g., User, Role, Module, Order)
+├── {Domain}Controller.cs (if needed — e.g., User, Role, Module, Order, Notification, Upload, Token, Subscription, RefreshToken, ForgotPassword, Configuration, Company, Person, State, Address)
+└── {Domain}Model.cs (if needed — e.g., RefreshToken)
+```
+
+### Complete Domain List
+
+| # | Domain | Repository | Service | Mapper | Controller | Model |
+|---|--------|-----------|---------|--------|-----------|-------|
+| 1 | `Address` | ✅ | ✅ | — | ✅ | — |
+| 2 | `Company` | ✅ | ✅ | ✅ | ✅ | — |
+| 3 | `Configuration` | ✅ | ✅ | ✅ | ✅ | — |
+| 4 | `ForgotPassword` | ✅ | ✅ | ✅ | ✅ | — |
+| 5 | `LoginAttempt` | — | ✅ | — | — | — |
+| 6 | `Module` | ✅ | ✅ | ✅ | ✅ | — |
+| 7 | `Notification` | ✅ | ✅ | ✅ | ✅ | — |
+| 8 | `NotificationHistory` | ✅ | ✅ | — | — | — |
+| 9 | `Order` | ✅ | ✅ | ✅ | ✅ | — |
+| 10 | `Person` | ✅ | ✅ | — | ✅ | — |
+| 11 | `PersonAddress` | ✅ | ✅ | — | — | — |
+| 12 | `RefreshToken` | ✅ | ✅ | ✅ | ✅ | ✅ (`RefreshTokenModel`) |
+| 13 | `Register` | — | ✅ | ✅ | ✅ | — |
+| 14 | `Role` | ✅ | ✅ | ✅ | ✅ | — |
+| 15 | `Security` | — | ✅ | — | — | — |
+| 16 | `State` | ✅ | ✅ | — | — | — |
+| 17 | `Subscription` | ✅ | ✅ | — | ✅ | — |
+| 18 | `Token` | — | ✅ | — | ✅ | — |
+| 19 | `Upload` | ✅ | ✅ | ✅ | ✅ | — |
+| 20 | `User` | ✅ | ✅ | ✅ | ✅ | — |
+| 21 | `UserRole` | ✅ | ✅ | ✅ | — | — |
+
+### Notes
+
+- **`LoginAttempt`**: Only has a Service — no separate Repository or Controller (handled via `DbInitializer` and `Security` logic)
+- **`NotificationHistory`**: Only has Repository and Service — no Controller or Mapper
+- **`PersonAddress`**: Only has Repository and Service — no Controller or Mapper
+- **`Person`**: Has a Controller but no separate Mapper (maps inline)
+- **`State`**: Only has Repository and Service — no Controller or Mapper
+- **`Security`**: Only has a Service — no Repository, Controller, or Mapper
+- **`Token`**: Only has Controller and Service — no Repository or Mapper
+- **`Register`**: Only has Controller and Service — no Repository or Mapper
+- **`Role`**: Has Mapper and Controller — central to auth (user roles + permissions)
+
+---
+
 # Compliance Checklist for Code Review
 
 When reviewing code, verify:
@@ -420,6 +476,7 @@ When reviewing code, verify:
 - **Frontend**: Blazor Server (`Fenicia.Web`), not React/Vite
 - **Hosting**: .NET Aspire (`Fenicia.Aspire`) — AppHost project has no source files (generated)
 - **Modules**: 11 feature modules (`Basic`, `POS`, `HR`, `Accounting`, `Projects`, `Contracts`, `Ecommerce`, `SocialNetwork`, `CustomerSupport`, `PerformanceEvaluation`, `Plus`)
+- **Auth domains**: 21 domains in `Fenicia.Auth` (`Address`, `Company`, `Configuration`, `ForgotPassword`, `LoginAttempt`, `Module`, `Notification`, `NotificationHistory`, `Order`, `Person`, `PersonAddress`, `RefreshToken`, `Register`, `Role`, `Security`, `State`, `Subscription`, `Token`, `Upload`, `User`, `UserRole`)
 - **Database**: PostgreSQL, schema-level multi-tenancy with `CompanyId` row filtering
 - **Auth**: JWT with `company_id` claim; `Company-Id` HTTP header fallback
 - **Stack**: .NET 10, EF Core, Serilog, MudBlazor, Aspire
