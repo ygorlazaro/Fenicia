@@ -88,7 +88,7 @@ public sealed class InsightService(
             o.TotalAmount,
             o.SaleDate,
             o.Status.ToString(),
-            o.TotalItems))).ToList();
+            o.TotalItems)).ToList();
 
         return response;
     }
@@ -111,7 +111,7 @@ public sealed class InsightService(
                     g.Key.CustomerName,
                     g.Count(),
                     g.Sum(o => o.TotalAmount),
-                    g.Sum(o => o.TotalItems)),
+                    g.Sum(o => o.TotalItems),
                     g.Min(o => o.SaleDate),
                     g.Max(o => o.SaleDate),
                     g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent)
