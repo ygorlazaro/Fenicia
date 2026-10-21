@@ -2,12 +2,6 @@ using Fenicia.Common;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Supplier;
-using SupplierResponse = Fenicia.Common.DTOs.Basic.Supplier.GetAllSupplierResponse;
-using SupplierRequest = Fenicia.Common.DTOs.Basic.Supplier.AddSupplierCommand;
-using SupplierQuery = Fenicia.Common.DTOs.Basic.Supplier.GetAllSupplierQuery;
-using SupplierPerformanceQuery = Fenicia.Common.DTOs.Basic.Supplier.GetSupplierPerformanceQuery;
-using GetAllSupplierForDataSourceResponse = Fenicia.Common.DTOs.Basic.DataSource.SupplierDataSourceResponse;
-
 /// <summary>
 /// Fenicia.Module.Basic/Domains/Supplier/Interfaces/ISupplierService.cs implementation.
 /// </summary>
@@ -16,32 +10,32 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 public interface ISupplierService
 {
-    Task<Pagination<List<SupplierResponse>>> GetAllAsync(
-        SupplierQuery query,
+    Task<Pagination<List<GetAllSupplierResponse>>> GetAllAsync(
+        GetAllSupplierQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<List<SupplierDataSourceResponse>> GetAllForDataSourceAsync(
+    Task<List<GetAllSupplierForDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default);
 
-    Task<SupplierResponse?> GetByIdAsync(
-        Guid id,
+    Task<GetSupplierByIdResponse?> GetByIdAsync(
+        GetSupplierByIdQuery id,
         CancellationToken cancellationToken = default);
 
-    Task<SupplierResponse> AddAsync(
-        SupplierRequest command,
+    Task<GetAllSupplierResponse> AddAsync(
+        AddSupplierCommand command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task<SupplierResponse?> UpdateAsync(
+    Task<GetSupplierByIdResponse?> UpdateAsync(
         Guid id,
-        SupplierRequest command,
+        UpdateSupplierCommand command,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default);
 
     Task<SupplierPerformanceResponse> GetPerformanceAsync(
-        SupplierPerformanceQuery query,
+        GetSupplierPerformanceQuery query,
         CancellationToken cancellationToken = default);
 
     Task<int> GetCountAsync(CancellationToken cancellationToken = default);
@@ -59,7 +53,7 @@ public interface ISupplierService
 
     Task<List<SupplierBreakdownResponse>> GetSupplierBreakdownAsync(CancellationToken cancellationToken = default);
 
-    Task<List<SupplierResponse>> GetByIdsAsync(
+    Task<List<GetAllSupplierResponse>> GetByIdsAsync(
         IEnumerable<Guid> ids,
         CancellationToken cancellationToken = default);
 }
