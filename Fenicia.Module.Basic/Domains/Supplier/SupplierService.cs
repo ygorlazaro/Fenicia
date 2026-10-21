@@ -237,11 +237,11 @@ public sealed class SupplierService(
     }
 
     public async Task DeleteAsync(
-        DeleteSupplierRequest command,
+        Guid id,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync(command.Id, cancellationToken);
+        await repository.DeleteAsync(id, cancellationToken);
     }
 
     public async Task<SupplierPerformanceResponse> GetPerformanceAsync(
@@ -375,7 +375,7 @@ public sealed class SupplierService(
         ];
     }
 
-    public async Task<List<GetSupplierByIdResponse>> GetByIdsAsync(
+    public async Task<List<GetAllSupplierResponse>> GetByIdsAsync(
         IEnumerable<Guid> ids,
         CancellationToken cancellationToken = default)
     {
@@ -393,7 +393,7 @@ public sealed class SupplierService(
             .. suppliers.Select(s =>
             {
                 var address = s.Person.PersonAddresses.FirstOrDefault()?.Address;
-                return new GetSupplierByIdResponse(
+                return new GetAllSupplierResponse(
                     s.Id,
                     s.PersonId,
                     s.Person.Name,
