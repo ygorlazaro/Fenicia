@@ -15,6 +15,14 @@ using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 
+/// <summary>
+/// Service implementation for managing employees.
+/// </summary>
+/// <param name="repository">The employee repository.</param>
+/// <param name="personService">The person service.</param>
+/// <param name="addressService">The address service.</param>
+/// <param name="personAddressService">The person address service.</param>
+/// <param name="orderService">The order service.</param>
 public sealed class EmployeeService(
     IEmployeeRepository repository,
     IPersonService personService,
@@ -22,6 +30,7 @@ public sealed class EmployeeService(
     IPersonAddressService personAddressService,
     IOrderService orderService) : IEmployeeService
 {
+    /// <inheritdoc />
     public async Task<Pagination<List<EmployeeResponse>>> GetAllAsync(
         EmployeeQuery query,
         CancellationToken cancellationToken = default)
@@ -34,6 +43,7 @@ public sealed class EmployeeService(
         return new Pagination<List<EmployeeResponse>>(response, total, query);
     }
 
+    /// <inheritdoc />
     public async Task<List<EmployeeDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
@@ -42,6 +52,7 @@ public sealed class EmployeeService(
         return [.. employees.Select(EmployeeMapper.MapToDataSourceResponse)];
     }
 
+    /// <inheritdoc />
     public async Task<EmployeeResponse?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -56,6 +67,7 @@ public sealed class EmployeeService(
         return EmployeeMapper.MapToResponse(employee);
     }
 
+    /// <inheritdoc />
     public async Task<EmployeeResponse> AddAsync(
         EmployeeRequest command,
         Guid companyId,
@@ -102,6 +114,7 @@ public sealed class EmployeeService(
         return EmployeeMapper.MapToResponse(created);
     }
 
+    /// <inheritdoc />
     public async Task<EmployeeResponse?> UpdateAsync(
         Guid id,
         EmployeeRequest command,
@@ -178,6 +191,7 @@ public sealed class EmployeeService(
         return EmployeeMapper.MapToResponse(updated);
     }
 
+    /// <inheritdoc />
     public async Task DeleteAsync(
         Guid id,
         Guid companyId,
@@ -186,6 +200,7 @@ public sealed class EmployeeService(
         await repository.DeleteAsync(id, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<EmployeePerformanceResponse> GetPerformanceAsync(
         EmployeePerformanceRequest request,
         CancellationToken cancellationToken = default)
@@ -288,21 +303,25 @@ public sealed class EmployeeService(
         return topPerformers;
     }
 
+    /// <inheritdoc />
     public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
         return repository.CountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<List<EmployeeModel>> GetAllEmployeesAsync(CancellationToken cancellationToken = default)
     {
         return repository.GetAllEmployeesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<int> GetTotalEmployeesAsync(CancellationToken cancellationToken = default)
     {
         return repository.CountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<Pagination<List<EmployeeResponse>>> GetByPositionIdAsync(
         EmployeesByPositionIdRequest query,
         CancellationToken cancellationToken = default)
@@ -320,6 +339,12 @@ public sealed class EmployeeService(
         return new Pagination<List<EmployeeResponse>>(response, total, query);
     }
 
+    /// <summary>
+    /// Calculates the employee performance summary.
+    /// </summary>
+    /// <param name="orders">The orders.</param>
+    /// <param name="employees">The employees.</param>
+    /// <returns>The performance summary response.</returns>
     private static EmployeePerformanceSummaryResponse GetEmployeePerformanceSummary(
         List<OrderResponse> orders,
         List<EmployeeModel> employees)
