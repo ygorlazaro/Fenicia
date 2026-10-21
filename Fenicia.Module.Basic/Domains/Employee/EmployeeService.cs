@@ -362,7 +362,7 @@ public sealed class EmployeeService(
     /// <returns>A list of top performer responses.</returns>
     private static List<TopPerformerResponse> GetTopPerformer(
         EmployeePerformanceRequest request,
-        IEnumerable<EmployeeSalesResponse> salesByEmployee,
+        List<EmployeeSalesResponse> salesByEmployee,
         EmployeePerformanceSummaryResponse summary)
     {
         var topPerformers = salesByEmployee.Take(request.TopLimit).Select(e =>
@@ -390,63 +390,5 @@ public sealed class EmployeeService(
                 performanceLevel);
         }).ToList();
         return topPerformers;
-    }
-
-    /// <summary>
-    /// Gets orders by employee.
-    /// </summary>
-    /// <param name="orders">The orders.</param>
-    /// <param name="employees">The employees.</param>
-    /// <returns>A list of employee order count responses.</returns>
-    private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
-        IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders,
-        IEnumerable<EmployeeModel> employees)
-    {
-        var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
-
-        var ordersByEmployee = ordersList.GroupBy(o => o.EmployeeId!.Value).Select(g =>
-        {
-            var employee = employees.First(e => e.Id == g.Key);
-            return new EmployeeOrderCountResponse(
-                g.Key,
-                employee.Person.Name,
-                employee.Position.Name,
-                g.Count(),
-                g.Sum(o => o.TotalAmount),
-                g.Min(o => o.SaleDate),
-                g.Max(o => o.SaleDate));
-        }).OrderByDescending(e => e.OrderCount).ToList();
-
-        return ordersByEmployee;
-    }
-
-    /// <summary>
-    /// Gets sales by employee.
-    /// </summary>
-    /// <param name="orders">The orders.</param>
-    /// <returns>A list of employee sales responses.</returns>
-    private static List<EmployeeSalesResponse> GetSalesByEmployee(IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel> orders)
-    {
-        var ordersList = orders.Where(o => o.Employee != null).ToList();
-
-        var data = ordersList.GroupBy(o => o.Employee!.Id).Select(g =>
-        {
-            var employee = g.First().Employee!;
-            return new EmployeeSalesResponse(
-                employee.Id,
-                employee.Person.Name,
-                employee.Position.Name,
-                g.Sum(o => o.TotalAmount),
-                g.Count(),
-                g.Sum(o => o.TotalAmount),
-                0);
-        }).ToList();
-
-        for (var i = 0; i < data.Count; i++)
-        {
-            data[i].Rank = i + 1;
-        }
-
-        return data;
     }
 }
