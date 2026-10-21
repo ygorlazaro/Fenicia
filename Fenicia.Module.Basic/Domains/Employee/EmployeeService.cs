@@ -224,6 +224,67 @@ public sealed class EmployeeService(
         };
     }
 
+    private static List<EmployeeSalesResponse> GetSalesByEmployee(
+        List<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders)
+    {
+        return orders
+            .GroupBy(o => o.EmployeeId)
+            .Where(g => g.Key.HasValue)
+            .Select(g => new EmployeeSalesResponse(
+                g.Key.Value,
+                g.First().EmployeeName ?? string.Empty,
+                g.Sum(o => o.TotalAmount),
+                g.Count()))
+            .ToList();
+    }
+
+    private static List<EmployeeOrdersResponse> GetOrdersByEmployee(
+        List<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders,
+        List<EmployeeModel> employees)
+    {
+        return orders
+            .GroupBy(o => o.EmployeeId)
+            .Where(g => g.Key.HasValue)
+            .Select(g => new EmployeeOrdersResponse(
+                g.Key.Value,
+                g.First().EmployeeName ?? string.Empty,
+                g.Count()))
+            .ToList();
+    }
+
+    private static List<TopPerformerResponse> GetTopPerformer(
+        EmployeePerformanceRequest request,
+        List<EmployeeSalesResponse> salesByEmployee,
+        EmployeePerformanceSummaryResponse summary)
+    {
+        var topPerformers = salesByEmployee.Take(request.TopLimit).Select(e =>
+        {
+            var performanceLevel = "Standard";
+            if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
+            {
+                performanceLevel = "Excellent";
+            }
+            else if (e.TotalSales >= summary.AverageSalesPerEmployee * 1.5M)
+            {
+                performanceLevel = "Very Good";
+            }
+            else if (e.TotalSales >= summary.AverageSalesPerEmployee)
+            {
+                performanceLevel = "Good";
+            }
+
+            return new TopPerformerResponse(
+                e.EmployeeId,
+                e.EmployeeName,
+                e.PositionName,
+                e.TotalSales,
+                e.TotalOrders,
+                performanceLevel);
+        }).ToList();
+
+        return topPerformers;
+    }
+
     /// <inheritdoc />
     public Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
