@@ -21,8 +21,8 @@ public static class NotificationHistoryMapper
             history.Id,
             string.Empty,
             string.Empty,
-            System.Linq.Enumerable.Empty<UserCompanyResponse>(),
-            System.Linq.Enumerable.Empty<UserSubscriptionResponse>());
+            DateTime.UtcNow,
+            null);
     }
 
     /// <summary>
