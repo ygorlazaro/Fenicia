@@ -242,15 +242,17 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public Task<List<ProductModel>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ProductResponse>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default)
     {
-        return repository.GetAllWithSupplierAsync(cancellationToken);
+        var products = await repository.GetAllWithSupplierAsync(cancellationToken);
+        return products.Select(ProductMapper.MapToResponse).ToList();
     }
 
     /// <inheritdoc />
-    public Task<List<ProductModel>> GetAllForStatsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ProductResponse>> GetAllForStatsAsync(CancellationToken cancellationToken = default)
     {
-        return repository.GetAllForStatsAsync(cancellationToken);
+        var products = await repository.GetAllForStatsAsync(cancellationToken);
+        return products.Select(ProductMapper.MapToResponse).ToList();
     }
 
     /// <inheritdoc />

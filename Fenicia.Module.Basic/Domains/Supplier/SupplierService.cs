@@ -309,12 +309,6 @@ public sealed class SupplierService(
         ];
     }
 
-    public Task<List<SupplierProductCountResponse>> GetProductStatsAsync(
-        CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<List<SupplierStockMovementResponse>> GetRecentStockMovementsAsync(
         int days,
         int topLimit,
