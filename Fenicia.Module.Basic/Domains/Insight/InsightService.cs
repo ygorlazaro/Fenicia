@@ -57,7 +57,7 @@ public sealed class InsightService(
 
                 return new CustomerRiskAlertResponse(
                     g.Key,
-                    g.First().Customer.Person.Name,
+                    g.First().CustomerName,
                     g.Count(),
                     lastOrder,
                     daysSince,

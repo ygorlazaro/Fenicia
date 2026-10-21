@@ -17,21 +17,20 @@ public static class StockMovementMapper
     {
         return new GetStockMovementResponse(
             movement.Id,
-            movement.Date,
-            movement.Type,
-            movement.Quantity,
-            movement.Price,
             movement.ProductId,
-            movement.CustomerId,
-            movement.SupplierId,
-            movement.EmployeeId,
-            movement.OrderId,
-            movement.Reason,
             movement.Product?.Name ?? string.Empty,
-            movement.Product?.Category?.Name ?? string.Empty,
+            movement.Quantity,
+            movement.Date,
+            movement.Price,
+            movement.Type,
+            movement.CustomerId,
             movement.Customer?.Person?.Name ?? string.Empty,
+            movement.SupplierId,
             movement.Supplier?.Person?.Name ?? string.Empty,
-            movement.Employee?.Person?.Name ?? string.Empty);
+            movement.EmployeeId,
+            movement.Employee?.Person?.Name ?? string.Empty,
+            movement.OrderId,
+            movement.Reason);
     }
 
     /// <summary>

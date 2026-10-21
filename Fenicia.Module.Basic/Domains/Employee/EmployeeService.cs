@@ -226,24 +226,19 @@ public sealed class EmployeeService(
     }
 
     private static List<EmployeeSalesResponse> GetSalesByEmployee(
-        List<OrderResponse> orders,
-        List<EmployeeModel> employees)
+        List<OrderResponse> orders)
     {
         return orders
             .GroupBy(o => o.EmployeeId)
             .Where(g => g.Key.HasValue)
-            .Select(g =>
-            {
-                var employee = employees.FirstOrDefault(e => e.Id == g.Key.Value);
-                return new EmployeeSalesResponse(
-                    g.Key.Value,
-                    employee?.Person.Name ?? string.Empty,
-                    employee?.Position.Name ?? string.Empty,
-                    g.Sum(o => o.TotalAmount),
-                    g.Count(),
-                    g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
-                    0);
-            })
+            .Select(g => new EmployeeSalesResponse(
+                g.Key.Value,
+                g.First().EmployeeName ?? string.Empty,
+                g.First().PositionName ?? string.Empty,
+                g.Sum(o => o.TotalAmount),
+                g.Count(),
+                g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
+                0))
             .ToList();
     }
 
