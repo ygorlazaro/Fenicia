@@ -223,11 +223,13 @@ public sealed class EmployeeService(
                 return new EmployeeSalesResponse(
                     g.Key.Value,
                     employee?.Person.Name ?? string.Empty,
-                    employee?.Position.Name ?? string.Empty,
+                    employee?.Position?.Name ?? string.Empty,
                     g.Sum(o => o.TotalAmount),
                     g.Count(),
                     g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
-                    0);
+                    0));
+            })
+            .ToList();
             })
             .ToList();
     }
