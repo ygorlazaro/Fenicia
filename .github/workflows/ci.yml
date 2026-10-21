@@ -2,36 +2,20 @@ name: CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ develop ]
+    branches: [ master, develop ]
 
 jobs:
-  build-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.x
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-      - run: cd Src/Front && npm ci
-      - run: cd Src/Front && npm run type-check
-      - run: cd Src/Front && npm run lint
-      - run: cd Src/Front && npm run build
-
   build:
-    needs: build-web
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: dotnet restore Fenicia.sln
-      - run: dotnet build Fenicia.sln --configuration Release --no-restore
+      - run: dotnet restore Fenicia.slnx
+      - run: dotnet build Fenicia.slnx --configuration Release --no-restore
 
   test:
     needs: build
@@ -41,8 +25,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: dotnet restore Fenicia.sln
-      - run: dotnet test Fenicia.sln --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
+      - run: dotnet restore Fenicia.slnx
+      - run: dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-all
