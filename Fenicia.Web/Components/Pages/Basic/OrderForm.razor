@@ -401,7 +401,7 @@
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            var created = JsonSerializer.Deserialize<CreateOrderResponse>(json, JsonOptions);
+            var created = JsonSerializer.Deserialize<OrderResponse>(json, JsonOptions);
             if (created is not null)
             {
                 lastOrderId = created.Id;

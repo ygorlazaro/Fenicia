@@ -2,7 +2,7 @@
 
 @code {
 [Parameter]
-    public List<InventoryDashboardResponse> Items { get; set; } = new();
+    public List<InventoryDetailResponse> Items { get; set; } = new();
 }
 <MudPaper Class="pa-4 mb-4" Elevation="2">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-2">
@@ -19,7 +19,7 @@
     }
     else
     {
-        <MudTable T="InventoryDashboardResponse" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
+        <MudTable T="InventoryDetailResponse" Items="@Items" Dense="true" Hover="true" Bordered="false" Elevation="0">
             <HeaderContent>
                 <MudTh>Produto</MudTh>
                 <MudTh>Categoria</MudTh>
