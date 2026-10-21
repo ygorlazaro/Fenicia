@@ -1,10 +1,10 @@
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.DTOs.Auth.NotificationHistory;
+using Fenicia.Common.DTOs.Auth.Notification;
 
 namespace Fenicia.Auth.Domains.NotificationHistory;
 
 /// <summary>
-/// Mapper class for mapping between NotificationHistoryModel and NotificationHistoryResponse/NotificationHistoryRequest.
+/// Mapper class for mapping between NotificationHistoryModel and NotificationResponse/NotificationRequest.
 /// </summary>
 public static class NotificationHistoryMapper
 {
@@ -13,9 +13,9 @@ public static class NotificationHistoryMapper
     /// </summary>
     /// <param name="history">The notification history model.</param>
     /// <returns>The notification history response.</returns>
-    public static NotificationHistoryResponse MapToNotificationHistoryResponse(NotificationHistoryModel history)
+    public static NotificationResponse MapToNotificationHistoryResponse(NotificationHistoryModel history)
     {
-        return new NotificationHistoryResponse(
+        return new NotificationResponse(
             history.Id,
             history.UserId,
             history.CompanyId,
@@ -29,7 +29,7 @@ public static class NotificationHistoryMapper
     /// </summary>
     /// <param name="request">The notification history request.</param>
     /// <returns>The notification history model.</returns>
-    public static NotificationHistoryModel MapToNotificationHistoryModel(NotificationHistoryRequest request)
+    public static NotificationHistoryModel MapToNotificationHistoryModel(NotificationRequest request)
     {
         return new NotificationHistoryModel
         {

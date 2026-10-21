@@ -1,8 +1,8 @@
-@using Fenicia.Common.DTOs.Basic.Order.OrderDetailResponse
+@using Fenicia.Common.DTOs.Basic.Order
 
 @code {
     [Parameter]
-    public List<GetOrderDetailsByOrderIdResponse> Items { get; set; } = new();
+    public List<OrderDetailResponse> Items { get; set; } = new();
 }
 
 <MudPaper Elevation="2" Class="pa-4 invoice-section">
