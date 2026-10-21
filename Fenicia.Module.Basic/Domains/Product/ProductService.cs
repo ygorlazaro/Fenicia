@@ -256,11 +256,12 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<ProductModel>> GetAllWithCategoryAsync(
+    public async Task<List<ProductResponse>> GetAllWithCategoryAsync(
         ProductQuery query,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetAllWithCategoryAsync(query, cancellationToken);
+        var products = await repository.GetAllWithCategoryAsync(query, cancellationToken);
+        return products.Select(ProductMapper.MapToResponse).ToList();
     }
 
     /// <inheritdoc />
@@ -282,12 +283,13 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<ProductModel>> GetByCategoryWithCategoryAsync(
+    public async Task<List<ProductResponse>> GetByCategoryWithCategoryAsync(
         Guid categoryId,
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetByCategoryWithCategoryAsync(categoryId, query, cancellationToken);
+        var products = await repository.GetByCategoryWithCategoryAsync(categoryId, query, cancellationToken);
+        return products.Select(ProductMapper.MapToResponse).ToList();
     }
 
     /// <inheritdoc />
@@ -315,12 +317,13 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<ProductModel>> GetByIdWithCategoryAsync(
+    public async Task<List<ProductResponse>> GetByIdWithCategoryAsync(
         Guid productId,
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetByIdWithCategoryAsync(productId, query, cancellationToken);
+        var products = await repository.GetByIdWithCategoryAsync(productId, query, cancellationToken);
+        return products.Select(ProductMapper.MapToResponse).ToList();
     }
 
     /// <inheritdoc />
@@ -408,11 +411,12 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<ProductModel>> GetAllWithDetailsAsync(
+    public async Task<List<ProductResponse>> GetAllWithDetailsAsync(
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        return repository.GetAllWithDetailsAsync(query, cancellationToken);
+        var products = await repository.GetAllWithDetailsAsync(query, cancellationToken);
+        return products.Select(ProductMapper.MapToResponse).ToList();
     }
 
     private static string ClassifyMargin(double margin)
