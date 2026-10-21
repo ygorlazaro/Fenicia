@@ -172,7 +172,7 @@ public class SupplierController(ISupplierService supplierService, ICompanyContex
                 command.PhoneNumber,
                 command.Cnpj,
                 command.Address);
-            var supplier = await supplierService.UpdateAsync(updatedCommand, companyId, cancellationToken);
+            var supplier = await supplierService.UpdateAsync(id, updatedCommand, companyId, cancellationToken);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }
