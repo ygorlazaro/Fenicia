@@ -1,5 +1,6 @@
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
+using FluentAssertions;
 
 namespace Fenicia.Common.Tests.Exceptions;
 
