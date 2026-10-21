@@ -1,5 +1,7 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Notification;
+using Fenicia.Common.DTOs.Auth.UserRole;
+using Fenicia.Common.DTOs.Auth.Subscription;
 
 namespace Fenicia.Auth.Domains.NotificationHistory;
 
@@ -19,8 +21,8 @@ public static class NotificationHistoryMapper
             history.Id,
             string.Empty,
             string.Empty,
-            [],
-            []);
+            System.Linq.Enumerable.Empty<UserCompanyResponse>(),
+            System.Linq.Enumerable.Empty<UserSubscriptionResponse>());
     }
 
     /// <summary>
