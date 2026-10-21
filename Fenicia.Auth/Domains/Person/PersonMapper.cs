@@ -35,7 +35,7 @@ public static class PersonMapper
     {
         return new PersonModel
         {
-            Id = request.Id,
+            Id = Guid.NewGuid(),
             Name = request.Name,
             Document = request.Document,
             Email = request.Email,

@@ -27,9 +27,10 @@ public static class StateMapper
     {
         return new StateModel
         {
-            Id = request.Id,
-            Name = request.Name,
-            Uf = request.Uf
+            Id = Guid.NewGuid(),
+            Name = string.Empty,
+            Uf = string.Empty,
+            CompanyId = Guid.Empty
         };
     }
 }

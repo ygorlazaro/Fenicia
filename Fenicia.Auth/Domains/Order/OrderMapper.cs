@@ -30,7 +30,13 @@ public static class OrderMapper
             Id = request.UserId,
             UserId = request.UserId,
             CompanyId = request.CompanyId,
-            Modules = request.Modules
+            OrderNumber = string.Empty,
+            TotalAmount = 0,
+            DiscountAmount = 0,
+            TotalQuantity = 0,
+            SaleDate = DateTime.UtcNow,
+            Status = Fenicia.Common.Enums.Basic.EnumOrderStatus.Pending,
+            PaymentMethod = Fenicia.Common.Enums.Basic.EnumPaymentMethod.CreditCard
         };
     }
 }

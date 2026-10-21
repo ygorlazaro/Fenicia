@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Subscription;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
