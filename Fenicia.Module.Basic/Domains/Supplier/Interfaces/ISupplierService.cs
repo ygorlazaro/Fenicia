@@ -2,6 +2,11 @@ using Fenicia.Common;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Supplier;
+using SupplierResponse = Fenicia.Common.DTOs.Basic.Supplier.GetAllSupplierResponse;
+using SupplierRequest = Fenicia.Common.DTOs.Basic.Supplier.AddSupplierCommand;
+using SupplierQuery = Fenicia.Common.DTOs.Basic.Supplier.GetAllSupplierQuery;
+using SupplierPerformanceQuery = Fenicia.Common.DTOs.Basic.Supplier.GetSupplierPerformanceQuery;
+using GetAllSupplierForDataSourceResponse = Fenicia.Common.DTOs.Basic.DataSource.SupplierDataSourceResponse;
 
 /// <summary>
 /// Fenicia.Module.Basic/Domains/Supplier/Interfaces/ISupplierService.cs implementation.
