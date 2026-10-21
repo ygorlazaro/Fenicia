@@ -4,40 +4,37 @@ using Fenicia.Common.DTOs.Auth.Notification;
 namespace Fenicia.Auth.Domains.NotificationHistory;
 
 /// <summary>
-/// Mapper class for mapping between NotificationHistoryModel and NotificationResponse/NotificationRequest.
+/// Mapper class for mapping between NotificationHistoryModel and NotificationResponse.
 /// </summary>
 public static class NotificationHistoryMapper
 {
     /// <summary>
-    /// Maps a NotificationHistoryModel to a NotificationHistoryResponse.
+    /// Maps a NotificationHistoryModel to a NotificationResponse.
     /// </summary>
     /// <param name="history">The notification history model.</param>
-    /// <returns>The notification history response.</returns>
+    /// <returns>The notification response.</returns>
     public static NotificationResponse MapToNotificationHistoryResponse(NotificationHistoryModel history)
     {
         return new NotificationResponse(
             history.Id,
-            history.UserId,
-            history.CompanyId,
-            history.NotificationId,
-            history.ReadAt,
-            history.CreatedAt);
+            string.Empty,
+            string.Empty,
+            [],
+            []);
     }
 
     /// <summary>
-    /// Maps a NotificationHistoryRequest to a NotificationHistoryModel.
+    /// Maps a NotificationRequest to a NotificationHistoryModel.
     /// </summary>
-    /// <param name="request">The notification history request.</param>
+    /// <param name="request">The notification request.</param>
     /// <returns>The notification history model.</returns>
     public static NotificationHistoryModel MapToNotificationHistoryModel(NotificationRequest request)
     {
         return new NotificationHistoryModel
         {
-            Id = request.UserId,
-            UserId = request.UserId,
-            CompanyId = request.CompanyId,
-            NotificationId = request.NotificationId,
-            IsRead = request.IsRead
+            Id = Guid.NewGuid(),
+            NotificationId = Guid.Empty,
+            IsRead = false
         };
     }
 }

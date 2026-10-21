@@ -21,7 +21,7 @@ public static class AddressMapper
             address.Number,
             address.Complement,
             address.Neighborhood,
-            address.ZipCode,
+            address.ZipCode ?? string.Empty,
             address.StateId,
             address.State?.Name,
             address.City,

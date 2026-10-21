@@ -22,7 +22,8 @@ public static class PersonMapper
             person.Email,
             person.PhoneNumber,
             person.DateOfBirth,
-            person.PhotoUrl);
+            person.PhotoUrl,
+            null);
     }
 
     /// <summary>
