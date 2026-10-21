@@ -23,6 +23,7 @@ public static class AddressMapper
             address.Neighborhood,
             address.ZipCode,
             address.StateId,
+            address.State?.Name,
             address.City,
             address.Country);
     }
@@ -36,7 +37,7 @@ public static class AddressMapper
     {
         return new AddressModel
         {
-            Id = request.Id,
+            Id = Guid.NewGuid(),
             Street = request.Street,
             Number = request.Number,
             Complement = request.Complement,
@@ -45,7 +46,7 @@ public static class AddressMapper
             StateId = request.StateId,
             City = request.City,
             Country = request.Country,
-            IsActive = true
+            IsDefault = true
         };
     }
 }

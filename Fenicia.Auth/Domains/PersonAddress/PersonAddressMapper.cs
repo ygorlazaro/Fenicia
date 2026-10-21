@@ -19,7 +19,7 @@ public static class PersonAddressMapper
             pa.Id,
             pa.PersonId,
             pa.AddressId,
-            pa.PersonName);
+            pa.Person.Name);
     }
 
     /// <summary>

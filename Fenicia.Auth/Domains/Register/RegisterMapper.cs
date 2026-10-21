@@ -15,16 +15,12 @@ public static class RegisterMapper
     /// <param name="user">The created user model.</param>
     /// <param name="company">The created company model.</param>
     /// <returns>The registration response.</returns>
-    public static RegisterResponse MapToRegisterResponse(RegisterRequest request, UserModel user, CompanyModel company)
+    public static RegisterResponse MapToRegisterResponse(UserModel user)
     {
         return new RegisterResponse(
             user.Id,
             user.Name,
             user.Email,
-            new UserCompanyResponse(
-                user.Id,
-                company.Id,
-                company.Name,
-                company.Cnpj));
+            null);
     }
 }

@@ -6,6 +6,7 @@
 @inject IAuthStateService AuthState
 @inject ICompanyContextService CompanyContext
 @using Fenicia.Web.Components.Pages.Basic.Elementary
+@using Fenicia.Common.DTOs.Basic.Order
 
 <PageTitle>Pedido @(order?.OrderNumber ?? "...") - Fenicia</PageTitle>
 
@@ -70,7 +71,7 @@
     private bool isLoggedIn;
     private bool isLoading = true;
     private OrderResponse? order;
-    private List<OrderResponse> details = [];
+    private List<OrderDetailResponse> details = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -145,7 +146,7 @@
             if (detailsTask.Result.IsSuccessStatusCode)
             {
                 var body = await detailsTask.Result.Content.ReadAsStringAsync();
-                details = JsonSerializer.Deserialize<List<OrderResponse>>(body, JsonOptions) ?? [];
+                details = JsonSerializer.Deserialize<List<OrderDetailResponse>>(body, JsonOptions) ?? [];
             }
         }
         catch (Exception ex)
