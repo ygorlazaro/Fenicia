@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Fenicia.Common.DTOs.Basic.State;
+using Fenicia.Common.DTOs.Auth.State;
 using Fenicia.Web.Services;
 using Fenicia.Web.Services.Interfaces;
 
@@ -13,7 +13,7 @@ public class CustomerProvider(IHttpClientFactory httpClientFactory, ICompanyCont
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<List<GetAllStateResponse>> GetStatesAsync(CancellationToken ct = default)
+    public async Task<List<StateResponse>> GetStatesAsync(CancellationToken ct = default)
     {
         var client = await BuildBasicClientAsync();
         var response = await client.GetAsync("state", ct);
@@ -24,6 +24,6 @@ public class CustomerProvider(IHttpClientFactory httpClientFactory, ICompanyCont
             throw new CrudApiException($"Falha ao carregar estados: {(int)response.StatusCode} {response.StatusCode} - {body}", response.StatusCode);
         }
 
-        return JsonSerializer.Deserialize<List<GetAllStateResponse>>(body, _jsonOptions) ?? [];
+        return JsonSerializer.Deserialize<List<StateResponse>>(body, _jsonOptions) ?? [];
     }
 }
