@@ -3,6 +3,10 @@ using Fenicia.Common.DTOs.Project.Sprint;
 using Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Sprint/SprintService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Sprint;
 
 public class SprintService(ISprintRepository repository) : ISprintService

@@ -1,6 +1,10 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/Supplier/Interfaces/ISupplierRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 public interface ISupplierRepository : IRepository<SupplierModel>

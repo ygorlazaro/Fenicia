@@ -4,6 +4,10 @@ using Fenicia.Common.DTOs.Project.ProjectAttachment;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectAttachment/ProjectAttachmentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment;
 
 public class ProjectAttachmentService(IRepository<AttachmentModel> repository) : IProjectAttachmentService

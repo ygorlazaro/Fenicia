@@ -2,6 +2,10 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.SocialNetwork.Profile;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Profile/ProfileService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 
 public sealed class ProfileService(IProfileRepository repository) : IProfileService

@@ -5,6 +5,10 @@ using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Fenicia.Module.SocialNetwork.Domains.Like.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Like/LikeService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Like;
 
 public class LikeService(ILikeRepository repository, IFeedService feedService) : ILikeService

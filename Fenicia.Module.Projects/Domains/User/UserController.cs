@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/User/UserController.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.User;
 
 [Authorize]

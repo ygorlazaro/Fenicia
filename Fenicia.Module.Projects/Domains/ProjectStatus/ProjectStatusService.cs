@@ -3,6 +3,10 @@ using Fenicia.Common.DTOs.Project.ProjectStatus;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectStatus/ProjectStatusService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 
 public class ProjectStatusService(IProjectStatusRepository repository) : IProjectStatusService

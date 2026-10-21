@@ -1,6 +1,10 @@
 using Fenicia.Common;
 using Fenicia.Common.DTOs.SocialNetwork.Friendship;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Friendship/Interfaces/IFriendshipService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship.Interfaces;
 
 public interface IFriendshipService

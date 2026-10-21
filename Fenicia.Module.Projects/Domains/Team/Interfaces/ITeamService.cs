@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.Team;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Team/Interfaces/ITeamService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Team.Interfaces;
 
 public interface ITeamService

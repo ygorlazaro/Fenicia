@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/Customer/CustomerRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.Customer;
 
 public class CustomerRepository(DbContext context) : Repository<CustomerModel>(context), ICustomerRepository

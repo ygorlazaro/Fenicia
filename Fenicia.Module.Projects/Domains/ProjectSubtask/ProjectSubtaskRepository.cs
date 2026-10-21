@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectSubtask/ProjectSubtaskRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 
 public class ProjectSubtaskRepository(DbContext context)

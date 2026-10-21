@@ -1,5 +1,9 @@
 using Fenicia.Common.Data.Models.Project;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Sprint/Interfaces/ISprintRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 
 public interface ISprintRepository

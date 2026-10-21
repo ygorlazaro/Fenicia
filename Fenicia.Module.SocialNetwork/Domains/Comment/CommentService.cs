@@ -4,6 +4,10 @@ using Fenicia.Module.SocialNetwork.Domains.Comment.Interfaces;
 using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Comment/CommentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Comment;
 
 public class CommentService(ICommentRepository repository, IFeedService feedService) : ICommentService

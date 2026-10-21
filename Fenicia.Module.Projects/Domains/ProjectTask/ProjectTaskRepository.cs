@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectTask/ProjectTaskRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
 public class ProjectTaskRepository(DbContext context) : Repository<ProjectTaskModel>(context), IProjectTaskRepository

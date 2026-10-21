@@ -8,6 +8,10 @@ using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/StockMovement/StockMovementService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public sealed class StockMovementService(

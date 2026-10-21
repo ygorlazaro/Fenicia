@@ -6,6 +6,10 @@ using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Fenicia.Module.Projects.Domains.TeamUser.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Team/TeamService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Team;
 
 public class TeamService(

@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Like;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Like/Interfaces/ILikeService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Like.Interfaces;
 
 public interface ILikeService

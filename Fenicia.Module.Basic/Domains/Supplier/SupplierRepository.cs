@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/Supplier/SupplierRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierRepository(DbContext context) : Repository<SupplierModel>(context), ISupplierRepository

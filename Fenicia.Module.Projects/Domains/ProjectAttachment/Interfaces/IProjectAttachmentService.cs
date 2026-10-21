@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.ProjectAttachment;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectAttachment/Interfaces/IProjectAttachmentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 
 public interface IProjectAttachmentService

@@ -4,6 +4,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Team/TeamRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Team;
 
 public class TeamRepository(DefaultContext context) : Repository<TeamModel>(context), ITeamRepository

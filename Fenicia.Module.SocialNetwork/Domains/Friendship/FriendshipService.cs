@@ -4,6 +4,10 @@ using Fenicia.Common.DTOs.SocialNetwork.Friendship;
 using Fenicia.Module.SocialNetwork.Domains.Friendship.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Friendship/FriendshipService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
 public sealed class FriendshipService(IFriendshipRepository repository) : IFriendshipService

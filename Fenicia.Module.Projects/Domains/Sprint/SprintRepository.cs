@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Sprint/SprintRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Sprint;
 
 public class SprintRepository(DbContext context) : Repository<SprintModel>(context), ISprintRepository

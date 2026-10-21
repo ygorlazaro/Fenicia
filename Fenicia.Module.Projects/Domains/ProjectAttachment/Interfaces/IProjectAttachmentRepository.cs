@@ -1,5 +1,9 @@
 using Fenicia.Common.Data.Models.Project;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectAttachment/Interfaces/IProjectAttachmentRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.Interfaces;
 
 public interface IProjectAttachmentRepository

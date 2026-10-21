@@ -2,6 +2,10 @@ using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Feed;
 using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Feed/FeedService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public class FeedService(IFeedRepository repository) : IFeedService

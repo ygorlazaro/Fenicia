@@ -4,6 +4,10 @@ using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/Order/OrderRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderRepository(DbContext context) : Repository<OrderModel>(context), IOrderRepository

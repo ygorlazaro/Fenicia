@@ -5,6 +5,10 @@ using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectTaskAssignee/ProjectTaskAssigneeService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
 public class ProjectTaskAssigneeService(IRepository<TaskAssigneeModel> repository) : IProjectTaskAssigneeService

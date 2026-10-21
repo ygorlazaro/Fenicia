@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.ProjectComment;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectComment/Interfaces/IProjectCommentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 
 public interface IProjectCommentService

@@ -3,6 +3,10 @@ using Fenicia.Common.DTOs.SocialNetwork.Attachment;
 using Fenicia.Module.SocialNetwork.Domains.Attachment.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Attachment/AttachmentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Attachment;
 
 public class AttachmentService(IAttachmentRepository repository) : IAttachmentService

@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Attachment;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Attachment/Interfaces/IAttachmentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Attachment.Interfaces;
 
 public interface IAttachmentService

@@ -3,6 +3,10 @@ using Fenicia.Common.DTOs.Project.Project;
 using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Project/ProjectService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Project;
 
 public class ProjectService(IProjectRepository repository) : IProjectService

@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Comment;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Comment/Interfaces/ICommentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Comment.Interfaces;
 
 public interface ICommentService

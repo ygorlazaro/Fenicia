@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.Project.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Project/ProjectRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Project;
 
 public class ProjectRepository(DbContext context) : Repository<ProjectModel>(context), IProjectRepository

@@ -4,6 +4,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Profile/ProfileRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Profile;
 
 public class ProfileRepository(DefaultContext context) : Repository<ProfileModel>(context), IProfileRepository

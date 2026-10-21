@@ -4,6 +4,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.SocialNetwork.Domains.Like.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Like/LikeRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Like;
 
 public class LikeRepository(DefaultContext context) : Repository<LikeModel>(context), ILikeRepository

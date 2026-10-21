@@ -5,6 +5,10 @@ using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Fenicia.Module.SocialNetwork.Domains.Share.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Share/ShareService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Share;
 
 public class ShareService(IShareRepository repository, IFeedService feedService) : IShareService

@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.ProjectStatus;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectStatus/Interfaces/IProjectStatusService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 
 public interface IProjectStatusService

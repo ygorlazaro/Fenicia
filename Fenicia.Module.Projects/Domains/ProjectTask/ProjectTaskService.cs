@@ -4,6 +4,10 @@ using Fenicia.Common.Enums.Project;
 using Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectTask/ProjectTaskService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectTask;
 
 public class ProjectTaskService(IProjectTaskRepository repository) : IProjectTaskService

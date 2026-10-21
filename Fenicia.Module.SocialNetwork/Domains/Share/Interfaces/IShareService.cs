@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Share;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Share/Interfaces/IShareService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Share.Interfaces;
 
 public interface IShareService

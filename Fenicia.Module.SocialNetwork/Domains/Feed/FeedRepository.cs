@@ -4,6 +4,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Feed/FeedRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public class FeedRepository(DefaultContext context) : Repository<FeedModel>(context), IFeedRepository

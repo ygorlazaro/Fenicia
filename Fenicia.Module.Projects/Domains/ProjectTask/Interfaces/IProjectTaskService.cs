@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.ProjectTask;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectTask/Interfaces/IProjectTaskService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectTask.Interfaces;
 
 public interface IProjectTaskService

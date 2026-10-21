@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.SocialNetwork.Domains.Friendship.Interfaces;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Friendship/FriendshipRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Friendship;
 
 public class FriendshipRepository(DefaultContext context) : Repository<FriendshipModel>(context), IFriendshipRepository

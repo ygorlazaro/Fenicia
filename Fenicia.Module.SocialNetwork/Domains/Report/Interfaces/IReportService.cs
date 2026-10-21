@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Report;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Report/Interfaces/IReportService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Report.Interfaces;
 
 public interface IReportService

@@ -4,6 +4,10 @@ using Fenicia.Common.DTOs.Project.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectComment/ProjectCommentService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectComment;
 
 public class ProjectCommentService(IRepository<ProjectCommentModel> repository) : IProjectCommentService

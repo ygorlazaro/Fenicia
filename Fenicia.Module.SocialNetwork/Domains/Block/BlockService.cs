@@ -4,6 +4,10 @@ using Fenicia.Common.DTOs.SocialNetwork.Block;
 using Fenicia.Module.SocialNetwork.Domains.Block.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Block/BlockService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Block;
 
 public sealed class BlockService(IBlockRepository repository) : IBlockService

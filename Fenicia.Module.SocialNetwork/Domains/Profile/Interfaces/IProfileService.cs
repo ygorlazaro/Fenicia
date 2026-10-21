@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Profile;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Profile/Interfaces/IProfileService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Profile.Interfaces;
 
 public interface IProfileService

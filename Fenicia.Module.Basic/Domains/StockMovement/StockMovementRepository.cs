@@ -3,6 +3,10 @@ using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/StockMovement/StockMovementRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public class StockMovementRepository(DbContext context)

@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.Sprint;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/Sprint/Interfaces/ISprintService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.Sprint.Interfaces;
 
 public interface ISprintService

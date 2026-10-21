@@ -4,6 +4,10 @@ using Fenicia.Common.Enums.SocialNetwork;
 using Fenicia.Module.SocialNetwork.Domains.Report.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Report/ReportService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Report;
 
 public class ReportService(IReportRepository repository) : IReportService

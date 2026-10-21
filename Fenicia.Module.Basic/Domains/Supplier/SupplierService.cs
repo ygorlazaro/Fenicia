@@ -13,6 +13,10 @@ using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Basic/Domains/Supplier/SupplierService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public sealed class SupplierService(

@@ -1,5 +1,9 @@
 using Fenicia.Common.Data.Models.Project;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/TeamUser/Interfaces/ITeamUserRepository.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.TeamUser.Interfaces;
 
 public interface ITeamUserRepository

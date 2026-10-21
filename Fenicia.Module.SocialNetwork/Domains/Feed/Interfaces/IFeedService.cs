@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.SocialNetwork.Feed;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Feed/Interfaces/IFeedService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 
 public interface IFeedService

@@ -1,5 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/User/UserSummaryResponse.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.User;
 
 public class UserSummaryResponse()

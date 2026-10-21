@@ -1,5 +1,9 @@
 using Fenicia.Common.DTOs.Project.ProjectTaskAssignee;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectTaskAssignee/Interfaces/IProjectTaskAssigneeService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 
 public interface IProjectTaskAssigneeService

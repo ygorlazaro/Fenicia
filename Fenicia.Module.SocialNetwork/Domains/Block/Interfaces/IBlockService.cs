@@ -1,6 +1,10 @@
 using Fenicia.Common;
 using Fenicia.Common.DTOs.SocialNetwork.Block;
 
+/// <summary>
+/// Fenicia.Module.SocialNetwork/Domains/Block/Interfaces/IBlockService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.SocialNetwork.Domains.Block.Interfaces;
 
 public interface IBlockService

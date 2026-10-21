@@ -4,6 +4,10 @@ using Fenicia.Common.DTOs.Project.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Fenicia.Module.Projects/Domains/ProjectSubtask/ProjectSubtaskService.cs implementation.
+/// </summary>
+
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask;
 
 public class ProjectSubtaskService(IRepository<ProjectSubtaskModel> repository) : IProjectSubtaskService
