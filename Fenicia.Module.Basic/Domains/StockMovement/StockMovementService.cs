@@ -327,7 +327,7 @@ public sealed class StockMovementService(
         var productOutMovements = movements.Where(m => m.Type == EnumStockMovementType.Out).GroupBy(m => m.ProductId)
             .Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
-        var products = await productService.GetAllWithDetailsAsync(1, 10000, cancellationToken);
+        var products = await productService.GetAllWithDetailsAsync(new PaginationQuery(1, 10000), cancellationToken);
         var productList = products.Where(p => p.Quantity > 0).ToList();
 
         var request = from p in productList
