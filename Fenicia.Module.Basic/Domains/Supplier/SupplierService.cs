@@ -74,12 +74,12 @@ public sealed class SupplierService(
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
     }
 
-    public async Task<List<GetAllSupplierForDataSourceResponse>> GetAllForDataSourceAsync(
+    public async Task<List<SupplierDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
         var suppliers = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
 
-        return [.. suppliers.Select(s => new GetAllSupplierForDataSourceResponse(s.Id, s.Person.Name))];
+        return [.. suppliers.Select(s => new SupplierDataSourceResponse(s.Id, s.Person.Name))];
     }
 
     public async Task<GetSupplierByIdResponse?> GetByIdAsync(

@@ -14,21 +14,21 @@ public interface ISupplierService
         GetAllSupplierQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<List<GetAllSupplierForDataSourceResponse>> GetAllForDataSourceAsync(
+    Task<List<SupplierDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default);
 
     Task<GetSupplierByIdResponse?> GetByIdAsync(
-        GetSupplierByIdQuery id,
+        GetSupplierByIdQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<GetAllSupplierResponse> AddAsync(
-        AddSupplierCommand command,
+    Task<AddSupplierResponse> AddAsync(
+        AddSupplierRequest request,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
-    Task<GetSupplierByIdResponse?> UpdateAsync(
+    Task<UpdateSupplierResponse?> UpdateAsync(
         Guid id,
-        UpdateSupplierCommand command,
+        UpdateSupplierRequest request,
         Guid companyId,
         CancellationToken cancellationToken = default);
 
