@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common;
 
 namespace Fenicia.Common.DTOs.Basic.Product;
 
@@ -43,4 +44,4 @@ public record ProductResponse(
     [Required] [MaxLength(50)] string CategoryName,
     Guid? SupplierId,
     [MaxLength(50)] string? SupplierName,
-    [Required] bool IsActive);
+    [Required] bool IsActive) : ICrudItem;

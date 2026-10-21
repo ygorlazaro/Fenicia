@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common;
 using Fenicia.Common.DTOs.Auth.Address;
 
 namespace Fenicia.Common.DTOs.Basic.Employee;
@@ -24,7 +25,7 @@ public record EmployeeResponse(
     [MaxLength(20)] string? PhoneNumber,
     [MaxLength(14)] string? Document,
     [MaxLength(200)] string? PositionName,
-    AddressResponse? Address)
+    AddressResponse? Address) : ICrudItem
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EmployeeResponse"/> class with default values.

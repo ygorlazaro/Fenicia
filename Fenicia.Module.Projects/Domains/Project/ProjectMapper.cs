@@ -42,8 +42,8 @@ public static class ProjectMapper
             project.EndDate,
             project.Owner,
             project.CompanyId,
-            project.Statuses.Select(s => new ProjectStatusResponse(s.Id, s.Name, s.Color, s.Order, s.IsFinal)),
+            project.Statuses.Select(s => new ProjectStatusResponse(s.Id, s.Name, s.Color, s.Order, s.IsFinal)).ToList(),
             project.Tasks.Select(t => new ProjectTaskResponse(
-                t.Id, t.Title, t.Description, t.Priority.ToString(), t.Type.ToString(), t.EstimatePoints, t.DueDate)));
+                t.Id, t.Title, t.Description, t.Priority.ToString(), t.Type.ToString(), t.EstimatePoints, t.DueDate)).ToList());
     }
 }

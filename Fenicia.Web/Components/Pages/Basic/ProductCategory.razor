@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @using Fenicia.Web.Components.Pages.Basic.Elementary
 
-<CrudPage TItem="GetAllProductCategoryResponse"
+<CrudPage TItem="ProductCategoryResponse"
           PageTitle="Categorias de Produtos"
           PageSubtitle="Gerencie suas categorias de produtos"
           EntityNamePlural="categorias de produtos"
@@ -40,9 +40,9 @@
 
     private void ResetAddName() => addName = string.Empty;
 
-    private void LoadEditName(GetAllProductCategoryResponse item) => editName = item?.Name ?? string.Empty;
+    private void LoadEditName(ProductCategoryResponse item) => editName = item?.Name ?? string.Empty;
 
-    private object CreatePayload(CrudModalContext<GetAllProductCategoryResponse> ctx)
+    private object CreatePayload(CrudModalContext<ProductCategoryResponse> ctx)
     {
         var name = ctx.IsAdd ? addName : editName;
         return new

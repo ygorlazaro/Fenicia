@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common;
 
 namespace Fenicia.Common.DTOs.Basic.ProductCategory;
 
@@ -9,4 +10,4 @@ namespace Fenicia.Common.DTOs.Basic.ProductCategory;
 /// <param name="name">The category name.</param>
 public record ProductCategoryResponse(
     [Required] Guid Id,
-    [Required] [MaxLength(50)] string Name);
+    [Required] [MaxLength(50)] string Name) : ICrudItem;

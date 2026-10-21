@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common;
 
 namespace Fenicia.Common.DTOs.Basic.Position;
 
@@ -9,4 +10,4 @@ namespace Fenicia.Common.DTOs.Basic.Position;
 /// <param name="name">The position name.</param>
 public record PositionResponse(
     [Required] Guid Id,
-    [Required] [MaxLength(50)] string Name);
+    [Required] [MaxLength(50)] string Name) : ICrudItem;

@@ -6,8 +6,8 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class ProductCategoryRow
 {
     [Parameter]
-    public GetAllProductCategoryResponse Item { get; set; } = null!;
+    public ProductCategoryResponse Item { get; set; } = null!;
 
     [Parameter]
-    public Fenicia.Web.Components.Shared.CrudPage<GetAllProductCategoryResponse> Page { get; set; } = null!;
+    public Fenicia.Web.Components.Shared.CrudPage<ProductCategoryResponse> Page { get; set; } = null!;
 }
