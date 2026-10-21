@@ -172,50 +172,51 @@ public sealed class SupplierService(
     }
 
     public async Task<UpdateSupplierResponse?> UpdateAsync(
-        UpdateSupplierRequest command,
+        Guid id,
+        UpdateSupplierRequest request,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
-        var supplier = await repository.GetByIdWithDetailsAsync(command.Id, cancellationToken);
+        var supplier = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
 
         if (supplier is null)
         {
             return null;
         }
 
-        supplier.Cnpj = command.Cnpj;
+        supplier.Cnpj = request.Cnpj;
         supplier.CompanyId = companyId;
-        supplier.Person.Name = command.Name;
-        supplier.Person.Email = command.Email;
-        supplier.Person.Document = command.Document;
-        supplier.Person.PhoneNumber = command.PhoneNumber ?? string.Empty;
+        supplier.Person.Name = request.Name;
+        supplier.Person.Email = request.Email;
+        supplier.Person.Document = request.Document;
+        supplier.Person.PhoneNumber = request.PhoneNumber ?? string.Empty;
         supplier.Person.CompanyId = companyId;
 
-        if (command.Address != null)
+        if (request.Address != null)
         {
             var existingPersonAddress = supplier.Person.PersonAddresses.FirstOrDefault();
 
             if (existingPersonAddress?.Address != null)
             {
-                existingPersonAddress.Address.Street = command.Address.Street;
-                existingPersonAddress.Address.Number = command.Address.Number;
-                existingPersonAddress.Address.Complement = command.Address.Complement;
-                existingPersonAddress.Address.Neighborhood = command.Address.Neighborhood;
-                existingPersonAddress.Address.ZipCode = command.Address.ZipCode;
-                existingPersonAddress.Address.City = command.Address.City;
-                existingPersonAddress.Address.Country = command.Address.Country;
+                existingPersonAddress.Address.Street = request.Address.Street;
+                existingPersonAddress.Address.Number = request.Address.Number;
+                existingPersonAddress.Address.Complement = request.Address.Complement;
+                existingPersonAddress.Address.Neighborhood = request.Address.Neighborhood;
+                existingPersonAddress.Address.ZipCode = request.Address.ZipCode;
+                existingPersonAddress.Address.City = request.Address.City;
+                existingPersonAddress.Address.Country = request.Address.Country;
             }
             else
             {
                 var addressCommand = new AddressRequest(
-                    command.Address.Street,
-                    command.Address.Number,
-                    command.Address.Complement,
-                    command.Address.Neighborhood,
-                    command.Address.ZipCode,
-                    command.Address.StateId,
-                    command.Address.City,
-                    command.Address.Country);
+                    request.Address.Street,
+                    request.Address.Number,
+                    request.Address.Complement,
+                    request.Address.Neighborhood,
+                    request.Address.ZipCode,
+                    request.Address.StateId,
+                    request.Address.City,
+                    request.Address.Country);
 
                 var addressResponse = await addressService.AddAsync(addressCommand, cancellationToken);
 
