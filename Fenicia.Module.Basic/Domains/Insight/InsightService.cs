@@ -84,11 +84,11 @@ public sealed class InsightService(
         var response = orders.Take(topLimit).Select(o => new CustomerRecentOrdersResponse(
             o.Id,
             o.CustomerId,
-            o.Customer.Person.Name,
+            o.CustomerName,
             o.TotalAmount,
             o.SaleDate,
             o.Status.ToString(),
-            o.Details.Sum(d => (int)d.Quantity))).ToList();
+            o.TotalItems))).ToList();
 
         return response;
     }
@@ -105,13 +105,13 @@ public sealed class InsightService(
     {
         var orders = await orderService.GetTopCustomerOrdersAsync(cancellationToken);
 
-        var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g =>
+        var response = orders.GroupBy(o => new { o.CustomerId, CustomerName = o.CustomerName }).Select(g =>
                 new CustomerOrderHistoryResponse(
                     g.Key.CustomerId,
                     g.Key.CustomerName,
                     g.Count(),
                     g.Sum(o => o.TotalAmount),
-                    g.Sum(o => o.Details.Sum(d => (int)d.Quantity)),
+                    g.Sum(o => o.TotalItems)),
                     g.Min(o => o.SaleDate),
                     g.Max(o => o.SaleDate),
                     g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0)).OrderByDescending(e => e.TotalSpent)
