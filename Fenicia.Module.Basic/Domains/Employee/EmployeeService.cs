@@ -5,6 +5,7 @@ using Fenicia.Common.DTOs.Auth.Person;
 using Fenicia.Common.DTOs.Auth.PersonAddress;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Employee;
+using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.Exceptions;
 using Fenicia.Auth.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
@@ -225,7 +226,7 @@ public sealed class EmployeeService(
     }
 
     private static List<EmployeeSalesResponse> GetSalesByEmployee(
-        List<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders)
+        List<OrderResponse> orders)
     {
         return orders
             .GroupBy(o => o.EmployeeId)
@@ -239,7 +240,7 @@ public sealed class EmployeeService(
     }
 
     private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
-        List<Fenicia.Common.DTOs.Basic.Order.OrderResponse> orders,
+        List<OrderResponse> orders,
         List<EmployeeModel> employees)
     {
         return orders
