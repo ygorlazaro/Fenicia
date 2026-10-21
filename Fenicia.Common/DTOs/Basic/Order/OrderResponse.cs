@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
@@ -21,7 +22,7 @@ public record OrderResponse(
     [MaxLength(1000)] string? Notes,
     Guid? EmployeeId,
     string? EmployeeName,
-    int TotalItems)
+    int TotalItems) : ICrudItem
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="OrderResponse"/> class with default values.
