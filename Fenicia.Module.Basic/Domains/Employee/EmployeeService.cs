@@ -212,7 +212,7 @@ public sealed class EmployeeService(
         var employees = await GetAllEmployeesAsync(cancellationToken);
 
         var summary = GetEmployeePerformanceSummary(orders, employees);
-        var salesByEmployee = GetSalesByEmployee(orders);
+        var salesByEmployee = GetSalesByEmployee(orders, employees);
         var ordersByEmployee = GetOrdersByEmployee(orders, employees);
         var topPerformers = GetTopPerformer(request, salesByEmployee, summary);
 
@@ -226,19 +226,24 @@ public sealed class EmployeeService(
     }
 
     private static List<EmployeeSalesResponse> GetSalesByEmployee(
-        List<OrderResponse> orders)
+        List<OrderResponse> orders,
+        List<EmployeeModel> employees)
     {
         return orders
             .GroupBy(o => o.EmployeeId)
             .Where(g => g.Key.HasValue)
-            .Select(g => new EmployeeSalesResponse(
-                g.Key.Value,
-                g.First().EmployeeName ?? string.Empty,
-                string.Empty,
-                g.Sum(o => o.TotalAmount),
-                g.Count(),
-                g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
-                0))
+            .Select(g =>
+            {
+                var employee = employees.FirstOrDefault(e => e.Id == g.Key.Value);
+                return new EmployeeSalesResponse(
+                    g.Key.Value,
+                    employee?.Person.Name ?? string.Empty,
+                    employee?.Position.Name ?? string.Empty,
+                    g.Sum(o => o.TotalAmount),
+                    g.Count(),
+                    g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
+                    0));
+            })
             .ToList();
     }
 
@@ -256,7 +261,7 @@ public sealed class EmployeeService(
                 return new EmployeeOrderCountResponse(
                     g.Key.Value,
                     employee?.Person.Name ?? string.Empty,
-                    string.Empty,
+                    employee?.Position.Name ?? string.Empty,
                     orderList.Count,
                     orderList.Sum(o => o.TotalAmount),
                     orderList.Min(o => o.SaleDate),
@@ -289,7 +294,7 @@ public sealed class EmployeeService(
             return new TopPerformerResponse(
                 e.EmployeeId,
                 e.EmployeeName,
-                string.Empty,
+                e.PositionName,
                 e.TotalSales,
                 e.TotalOrders,
                 performanceLevel);
