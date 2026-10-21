@@ -16,11 +16,11 @@ public static class SubscriptionMapper
     public static SubscriptionResponse MapToSubscriptionResponse(SubscriptionModel subscription)
     {
         return new SubscriptionResponse(
-            subscription.UserId,
-            subscription.CompanyId,
-            subscription.StartDate,
-            subscription.EndDate,
-            subscription.Status);
+            subscription.Id,
+            string.Empty,
+            string.Empty,
+            [],
+            []);
     }
 
     /// <summary>
@@ -32,10 +32,10 @@ public static class SubscriptionMapper
     {
         return new SubscriptionModel
         {
-            UserId = response.UserId,
+            Id = response.Id,
             CompanyId = response.CompanyId,
             StartDate = response.StartDate,
-            EndDate = response.EndDate,
+            EndDate = response.EndDate ?? DateTime.MaxValue,
             Status = response.Status
         };
     }
@@ -49,12 +49,10 @@ public static class SubscriptionMapper
     {
         return new UserSubscriptionResponse(
             credit.Id,
-            credit.CompanyId,
-            credit.CompanyName,
-            credit.Status,
+            credit.SubscriptionId,
+            string.Empty,
+            EnumSubscriptionStatus.Active,
             credit.StartDate,
-            credit.EndDate,
-            credit.CreditsUsed,
-            credit.CreditsTotal);
+            credit.EndDate);
     }
 }
