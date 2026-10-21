@@ -234,7 +234,7 @@ public sealed class EmployeeService(
             .Select(g => new EmployeeSalesResponse(
                 g.Key.Value,
                 g.First().EmployeeName ?? string.Empty,
-                g.First().PositionName ?? string.Empty,
+                string.Empty,
                 g.Sum(o => o.TotalAmount),
                 g.Count(),
                 g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
@@ -256,7 +256,7 @@ public sealed class EmployeeService(
                 return new EmployeeOrderCountResponse(
                     g.Key.Value,
                     employee?.Person.Name ?? string.Empty,
-                    employee?.Position.Name ?? string.Empty,
+                    string.Empty,
                     orderList.Count,
                     orderList.Sum(o => o.TotalAmount),
                     orderList.Min(o => o.SaleDate),
@@ -289,7 +289,7 @@ public sealed class EmployeeService(
             return new TopPerformerResponse(
                 e.EmployeeId,
                 e.EmployeeName,
-                e.PositionName,
+                string.Empty,
                 e.TotalSales,
                 e.TotalOrders,
                 performanceLevel);
