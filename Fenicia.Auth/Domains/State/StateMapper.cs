@@ -29,8 +29,7 @@ public static class StateMapper
         {
             Id = Guid.NewGuid(),
             Name = string.Empty,
-            Uf = string.Empty,
-            CompanyId = Guid.Empty
+            Uf = string.Empty
         };
     }
 }

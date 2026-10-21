@@ -35,7 +35,7 @@ public static class OrderMapper
             DiscountAmount = 0,
             TotalQuantity = 0,
             SaleDate = DateTime.UtcNow,
-            Status = Fenicia.Common.Enums.Basic.EnumOrderStatus.Pending,
+            Status = Fenicia.Common.Enums.Auth.EnumOrderStatus.Pending,
             PaymentMethod = Fenicia.Common.Enums.Basic.EnumPaymentMethod.CreditCard
         };
     }

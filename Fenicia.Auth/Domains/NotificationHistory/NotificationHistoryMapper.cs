@@ -33,7 +33,7 @@ public static class NotificationHistoryMapper
         return new NotificationHistoryModel
         {
             Id = Guid.NewGuid(),
-            NotificationId = Guid.Empty,
+            NotificationId = Guid.NewGuid(),
             IsRead = false
         };
     }
