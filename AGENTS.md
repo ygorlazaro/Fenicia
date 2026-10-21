@@ -23,6 +23,7 @@ A scan that is still running is NOT a pass — re-run it; only a terminal
 # Fenicia Code Patterns & Standards
 
 This document defines mandatory patterns and conventions for all code in this repository.
+The project is a .NET 10 monorepo (folder `fenicia`, all lowercase). All C# code must follow these rules.
 
 ## 1. XML Documentation (MANDATORY)
 
@@ -104,6 +105,7 @@ public class AddressRepository(DbContext context) : Repository<AddressModel>(con
 - Implement in `{Domain}Repository` class
 - Inject `DbContext` via primary constructor
 - Return domain models (not DTOs)
+- Repository methods must be `protected` in the base `Repository<T>` class — only inheritors should access them
 
 ## 4. Service Pattern
 
@@ -134,7 +136,7 @@ public sealed class AddressService(IAddressRepository repository) : IAddressServ
 - All async methods accept `CancellationToken = default`
 - Implementation is `sealed`
 - Uses primary constructor for DI
-- Maps domain models → DTOs in service (or via Mapper)
+- Maps domain models → DTOs in service (manual mapping via `{Entity}Mapper` static class, no Mapperly)
 
 ## 5. Mapper Pattern (Static Classes)
 
@@ -178,6 +180,7 @@ public static class AddressMapper
 - Methods: `MapTo{Dto}Response`, `MapTo{Entity}Model`
 - XML docs on every method
 - No instance state
+- **Remove Mapperly**: use manual mapper by calling DTO constructors instead
 
 ## 6. DTO Pattern (Records/Classes with Primary Constructors)
 
@@ -263,8 +266,9 @@ builder.Services.AddScoped<IAddressService, AddressService>();
 ```
 
 - Use `AddScoped` for repositories and services
-- Register in the appropriate `Program.cs` (Auth vs Module.Basic)
+- Register in the appropriate `Program.cs` (Auth vs Module)
 - Match interface → implementation
+- All dependencies registered at Program.cs level for DI
 
 ## 9. Cancellation Token Convention
 
@@ -282,7 +286,7 @@ public async Task<AddressResponse> AddAsync(AddressRequest command)
 
 ## 10. Namespace Structure
 
-```
+```text
 Fenicia.Auth.Domains.{Domain}
 ├── Interfaces/
 │   ├── I{Domain}Repository.cs
@@ -292,39 +296,48 @@ Fenicia.Auth.Domains.{Domain}
 ├── {Domain}Mapper.cs (if needed)
 └── {Domain}Controller.cs (if needed)
 
-Fenicia.Common.DTOs.Auth.{Domain}
+Fenicia.Common.DTOs.Basic.{Domain}
 ├── {Domain}Request.cs
 └── {Domain}Response.cs
 
-Fenicia.Common.Data.Models.Auth
+Fenicia.Common.Data.Models.Basic
 └── {Domain}Model.cs
+
+Fenicia.Module.{Module}.Domains.{Domain}
+├── Interfaces/
+│   ├── I{Domain}Repository.cs
+│   └── I{Domain}Service.cs
+├── {Domain}Repository.cs
+├── {Domain}Service.cs
+├── {Domain}Controller.cs (if needed)
+└── {Domain}Mapper.cs (if needed)
 ```
 
 ---
- 
+
 ## Pagination Convention
- 
+
 **MANDATORY**: All services with pagination must use `PaginationQuery` record instead of separate `page` and `perPage` parameters.
- 
+
 ```csharp
 // ✓ Correct - Using PaginationQuery
 public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
     PaginationQuery query,
     CancellationToken cancellationToken = default)
- 
+
 // ✗ Wrong - Separate parameters
 public async Task<Pagination<List<CustomerResponse>>> GetAllAsync(
     int page = 1,
     int perPage = 10,
     CancellationToken cancellationToken = default)
 ```
- 
+
 - `PaginationQuery` is a record in `Fenicia.Common` with `Page` (default 1) and `PerPage` (default 10)
 - Controller passes `PaginationQuery` from query parameters
 - `Pagination<T>` constructor accepts `PaginationQuery` directly
- 
+
 ---
- 
+
 ## 11. DTO Naming Conventions (Basic Module)
 
 **MANDATORY**: All DTOs in `Fenicia.Common.DTOs.Basic` must follow these naming conventions:
@@ -393,10 +406,20 @@ When reviewing code, verify:
 - [ ] All async methods have `CancellationToken = default`
 - [ ] Services return DTOs, not domain models
 - [ ] Repositories extend `IRepository<T>`
-- [ ] Mappers are static classes with `MapTo*` methods
+- [ ] Mappers are static classes with `MapTo*` methods (no Mapperly)
 - [ ] DTOs have validation attributes and XML docs
 - [ ] Controllers have XML docs and proper HTTP attributes
 - [ ] DI registrations use `AddScoped`
 - [ ] DTO names follow Basic module naming conventions (no verbs, unified request/response)
 - [ ] No `Get*ByIdQuery` or `Delete*Request` single-ID wrapper classes
 - [ ] DataSource DTOs use `{Entity}DataSourceResponse` naming
+
+## Project-Specific Notes
+
+- **Project name**: `fenicia` (lowercase). The capitalized `Fenicia` directory was a stale Seq logging data volume — removed.
+- **Frontend**: Blazor Server (`Fenicia.Web`), not React/Vite
+- **Hosting**: .NET Aspire (`Fenicia.Aspire`) — AppHost project has no source files (generated)
+- **Modules**: 11 feature modules (`Basic`, `POS`, `HR`, `Accounting`, `Projects`, `Contracts`, `Ecommerce`, `SocialNetwork`, `CustomerSupport`, `PerformanceEvaluation`, `Plus`)
+- **Database**: PostgreSQL, schema-level multi-tenancy with `CompanyId` row filtering
+- **Auth**: JWT with `company_id` claim; `Company-Id` HTTP header fallback
+- **Stack**: .NET 10, EF Core, Serilog, MudBlazor, Aspire

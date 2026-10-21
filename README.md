@@ -18,7 +18,8 @@ Fenicia is a modular, multi-tenant SaaS platform for administrative ERP, client 
 
 - **Auth Service**: Central login, JWT, permissions, `companyId`, and active modules
 - **Independent Modules**: Each is a REST microservice (Basic, POS, HR, Accounting, Projects, etc.) sharing a single PostgreSQL database per environment, with row-level tenant isolation via `CompanyId`
-- **Frontend**: React + TypeScript + Vite (`Src/Front`)
+- **Frontend**: Blazor Server (C# + MudBlazor) — `Fenicia.Web`
+- **Hosting**: .NET Aspire AppHost (`Fenicia.Aspire`) orchestrates all services for local development
 
 ![Macro Architecture](docs/architecture-diagram.svg)
 
@@ -26,55 +27,62 @@ Fenicia is a modular, multi-tenant SaaS platform for administrative ERP, client 
 
 ## 🗂️ Project Organization
 
-```
+```text
 Fenicia.sln
-├── Fenicia.Auth/                    # Authentication & authorization service
-├── Fenicia.Common.API/              # Shared API infrastructure (auth, rate limiting, CORS, logging)
-├── Fenicia.Common.Data/             # Shared data layer (company context, base models, repositories)
-├── Fenicia.Common/                  # Shared domain logic
-├── Fenicia.Module.Basic/            # Core ERP module (products, orders, inventory, etc.)
-├── Fenicia.Module.POS/              # Point of Sale module
-├── Fenicia.Module.HR/               # Human Resources module
-├── Fenicia.Module.Accounting/       # Accounting module
-├── Fenicia.Module.Projects/         # Project management module
-├── Fenicia.Module.Contracts/        # Contracts module
-├── Fenicia.Module.Ecommerce/        # E-commerce integration module
-├── Fenicia.Module.SocialNetwork/    # Social network features module
-├── Fenicia.Module.CustomerSupport/  # Customer support module
-├── Fenicia.Module.PerformanceEvaluation/ # Performance evaluation module
-├── Fenicia.Module.Plus/             # Additional features module
-├── Src/Front/                     # Frontend (React + TypeScript + Vite)
-└── Docker/                          # Dockerfiles and docker-compose for all services
+├── Fenicia.Auth/                        # Authentication & authorization service (JWT + company_id)
+├── Fenicia.Aspire/                      # .NET Aspire AppHost — local orchestration (no source files, generated)
+├── Fenicia.Common/                      # Shared domain logic (DTOs, exceptions, attributes, enums)
+├── Fenicia.Common.API/                  # Shared API infrastructure (auth, rate limiting, CORS, logging, module loader)
+├── Fenicia.Common.Data/                 # Shared data layer (EF Core context, repositories, base models, multi-tenancy)
+├── Fenicia.Common.Tests/                # Unit tests
+├── Fenicia.Externals.Email/             # External email provider (Brevo)
+├── Fenicia.Module.Accounting/           # Accounting module
+├── Fenicia.Module.Basic/                # Core ERP module (products, orders, inventory, customers, suppliers, etc.)
+├── Fenicia.Module.Contracts/            # Contracts module
+├── Fenicia.Module.CustomerSupport/      # Customer support module
+├── Fenicia.Module.Ecommerce/            # E-commerce integration module
+├── Fenicia.Module.HR/                   # Human Resources module
+├── Fenicia.Module.POS/                  # Point of Sale module
+├── Fenicia.Module.PerformanceEvaluation/# Performance evaluation module
+├── Fenicia.Module.Plus/                 # Additional features module
+├── Fenicia.Module.Projects/             # Project management module
+├── Fenicia.Module.SocialNetwork/        # Social network features module
+├── Fenicia.Web/                         # Blazor Server frontend (MudBlazor components)
+└── Fenicia.Web.E2ETests/                # End-to-end tests
 ```
+
+> **Note**: This repository is the lowercase-named `fenicia` folder (monorepo). The capitalized `Fenicia` directory was a stale Seq logging data volume and has been removed.
 
 ---
 
 ## 🛠️ Technical Stack
 
-- **Backend**: .NET 10 Web API
-- **Database**: PostgreSQL
+- **Backend**: .NET 10 Web API (ASP.NET Core)
+- **Database**: PostgreSQL (single shared database per environment, schema + `CompanyId` row-level isolation)
 - **ORM**: EF Core with global query filters for multi-tenancy
 - **Authentication**: Centralized JWT with `company_id` claim
-- **Frontend**: React + TypeScript + Vite
-- **Containerization**: Docker + Docker Compose
-- **Observability**: Serilog, HealthChecks
+- **Frontend**: Blazor Server (C# + Razor + MudBlazor)
+- **Hosting / Orchestration**: .NET Aspire (AppHost)
+- **Observability**: Serilog (Seq-backed in Docker), HealthChecks, OpenTelemetry
 - **CI/CD**: GitHub Actions
 
 ---
 
 ## 📦 Modules
 
-- **Basic**: Clients, suppliers, employees, roles, products, categories, stock, purchases, sales, inventory
-- **SocialNetwork**: Followers, feed, uploads, reports, events
-- **Projects**: Projects, tasks, subtasks, sprints
-- **PerformanceEvaluation**: Employee evaluations, analytics
-- **Accounting**: Payables/receivables, cash, transfers, recurring payments
-- **HR**: Candidates, recruitment, tests, notifications
-- **POS**: Point of sale, transactions, receipts
-- **Contracts**: Contracts, clauses, versions, signatures
-- **Ecommerce**: Online sales, tracking, notifications
-- **CustomerSupport**: Tickets, FAQ
-- **Plus**: Services, documents, CMS, landing pages
+| Module | Purpose |
+|---|---|
+| **Basic** | Clients, suppliers, employees, roles, products, categories, stock, purchases, sales, inventory |
+| **SocialNetwork** | Followers, feed, uploads, reports, events |
+| **Projects** | Projects, tasks, subtasks, sprints |
+| **PerformanceEvaluation** | Employee evaluations, analytics |
+| **Accounting** | Payables/receivables, cash, transfers, recurring payments |
+| **HR** | Candidates, recruitment, tests, notifications |
+| **POS** | Point of sale, transactions, receipts |
+| **Contracts** | Contracts, clauses, versions, signatures |
+| **Ecommerce** | Online sales, tracking, notifications |
+| **CustomerSupport** | Tickets, FAQ |
+| **Plus** | Services, documents, CMS, landing pages |
 
 ---
 
@@ -86,6 +94,7 @@ Fenicia.sln
 - Authorization middleware validates whether the requested module is enabled for the user's company.
 - Short-lived JWT access tokens with refresh tokens stored in Redis.
 - Rate limiting per client/IP.
+- Security scanning via **Arko** (MCP-based). See `AGENTS.md` for the mandatory scan loop.
 
 ---
 
@@ -94,24 +103,28 @@ Fenicia.sln
 ### Prerequisites
 
 - .NET 10 SDK
-- Docker & Docker Compose
 - PostgreSQL 16+ (or use Docker)
+- Aspire workload / `dotnet-aspire` CLI (for local orchestration)
 
-### Running with Docker
+### Running with Aspire (recommended)
 
-From the repo root:
+From the repo root (`fenicia` folder):
 
 ```bash
-docker compose -f Docker/docker-compose.yml up --build
+dotnet run --project Fenicia.Aspire/Fenicia.Aspire.AppHost
 ```
 
----
+This will orchestrate all services (Auth, Basic, Web, modules, etc.) with a single dashboard.
 
-## 📈 Scalability
+### Running individual services
 
-- Each module can be scaled horizontally and independently.
-- Critical modules (Auth, Basic, POS) can have more replicas.
-- Single shared database per environment with row-level tenant isolation avoids lock/contention while keeping operational overhead low.
+Each module/service has a `Program.cs` and can be run standalone:
+
+```bash
+dotnet run --project Fenicia.Module.Basic/Fenicia.Module.Basic.csproj
+```
+
+Then open the Blazor frontend (`Fenicia.Web`) or call the API directly.
 
 ---
 
