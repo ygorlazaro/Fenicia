@@ -105,7 +105,7 @@ public class AddressRepository(DbContext context) : Repository<AddressModel>(con
 - Implement in `{Domain}Repository` class
 - Inject `DbContext` via primary constructor
 - Return domain models (not DTOs)
-- Repository methods must be `protected` in the base `Repository<T>` class — only inheritors should access them
+- Repository methods must be `public` in the base `Repository<T>` class to satisfy the `IRepository<T>` public interface contract
 
 ## 4. Service Pattern
 

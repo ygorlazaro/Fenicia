@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectTaskAssignee/Interfaces/IProjectTaskAssigneeRepository.cs implementation.
@@ -18,5 +19,5 @@ public interface IProjectTaskAssigneeRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 }

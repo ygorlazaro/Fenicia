@@ -19,8 +19,7 @@ public interface IUserService
     /// <returns>A task representing the asynchronous operation with paginated user responses.</returns>
     Task<Pagination<List<UserResponse>>> GetAllAsync(
         UserRequest query,
-        int page = 1,
-        int perPage = 10,
+        PaginationQuery pagination,
         CancellationToken cancellationToken = default);
 
     /// <summary>

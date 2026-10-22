@@ -1,3 +1,4 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.DTOs.SocialNetwork.Feed;
 using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
@@ -14,7 +15,7 @@ public class FeedService(IFeedRepository repository) : IFeedService
         GetAllFeedQuery query,
         CancellationToken cancellationToken = default)
     {
-        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var feeds = await repository.GetAllAsync(new PaginationQuery(query.Page, query.PerPage), cancellationToken);
         return [.. feeds.Select(f => new FeedResponse(
             f.Id,
             f.Date,
@@ -33,7 +34,8 @@ public class FeedService(IFeedRepository repository) : IFeedService
         GetFeedsByProfileQuery query,
         CancellationToken cancellationToken = default)
     {
-        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var pagination = new PaginationQuery(query.Page, query.PerPage);
+        var feeds = await repository.GetAllAsync(pagination, cancellationToken);
         var filtered = feeds.Where(f => f.ProfileId == query.ProfileId).ToList();
         return [.. filtered.Select(f => new FeedResponse(
             f.Id,

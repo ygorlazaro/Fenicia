@@ -39,7 +39,7 @@ public class CompanyController(ICompanyService service) : ControllerBase
         try
         {
             var userId = ClaimReader.UserId(User);
-            var result = await service.GetCompaniesByUserAsync(userId, query.Page, query.PerPage, cancellationToken);
+            var result = await service.GetCompaniesByUserAsync(userId, query, cancellationToken);
 
             return Ok(result);
         }

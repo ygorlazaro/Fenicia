@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/Sprint/Interfaces/ISprintRepository.cs implementation.
@@ -18,5 +19,5 @@ public interface ISprintRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<SprintModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SprintModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Common;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
 using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Module;
@@ -108,11 +109,10 @@ public class UserController(IUserService userService, IModuleService moduleServi
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAsync(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10,
+        [FromQuery] PaginationQuery pagination,
         CancellationToken cancellationToken = default)
     {
-        var result = await userService.GetAllAsync(new UserRequest(), page, pageSize, cancellationToken);
+        var result = await userService.GetAllAsync(new UserRequest(), pagination, cancellationToken);
 
         return Ok(result);
     }

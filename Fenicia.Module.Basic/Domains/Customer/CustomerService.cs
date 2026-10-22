@@ -105,13 +105,13 @@ public sealed class CustomerService(
 
         if (!addressId.HasValue)
         {
-            return new CustomerResponse(customer.Id, personResponse.Id, request.Name, request.Email, request.PhoneNumber, request.Document, null);
+            return CustomerMapper.MapToCustomerResponse(customer);
         }
 
         var personAddressCommand = new PersonAddressRequest(personResponse.Id, addressId.Value);
         await personAddressService.InsertAsync(personAddressCommand, companyId, cancellationToken);
 
-        return new CustomerResponse(customer.Id, personResponse.Id, request.Name, request.Email, request.PhoneNumber, request.Document, null);
+        return CustomerMapper.MapToCustomerResponse(customer);
     }
 
     /// <inheritdoc />
@@ -186,7 +186,7 @@ public sealed class CustomerService(
         await personService.UpdateAsync(customer.Person.Id, personCommand, companyId, cancellationToken);
         var updated = await repository.UpdateAsync(id, customer, cancellationToken) ??
                       throw new ForbiddenException();
-        return new CustomerResponse(updated.Id, customer.PersonId, request.Name, request.Email, request.PhoneNumber, request.Document, null);
+        return CustomerMapper.MapToCustomerResponse(updated);
     }
 
     /// <inheritdoc />

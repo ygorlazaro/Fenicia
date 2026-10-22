@@ -1,8 +1,5 @@
 using Fenicia.Common.DTOs.Project.Project;
-
-/// <summary>
-/// Fenicia.Module.Projects/Domains/Project/Interfaces/IProjectService.cs implementation.
-/// </summary>
+using Fenicia.Common;
 
 namespace Fenicia.Module.Projects.Domains.Project.Interfaces;
 

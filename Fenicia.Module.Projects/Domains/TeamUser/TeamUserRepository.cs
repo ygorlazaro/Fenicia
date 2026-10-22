@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.TeamUser.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/TeamUser/TeamUserRepository.cs implementation.
@@ -12,14 +13,14 @@ namespace Fenicia.Module.Projects.Domains.TeamUser;
 
 public class TeamUserRepository(DefaultContext context) : Repository<TeamUserModel>(context), ITeamUserRepository
 {
-    public new IQueryable<TeamUserModel> Query()
+    public override IQueryable<TeamUserModel> Query()
     {
         return DbSet
             .Include(tu => tu.User)
             .Include(tu => tu.Team);
     }
 
-    public new Task<TeamUserModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<TeamUserModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.GetByIdAsync(id, cancellationToken);
     }
@@ -47,23 +48,23 @@ public class TeamUserRepository(DefaultContext context) : Repository<TeamUserMod
             .ToListAsync(cancellationToken);
     }
 
-    public new Task<TeamUserModel> InsertAsync(TeamUserModel model, CancellationToken cancellationToken = default)
+    public override Task<TeamUserModel> InsertAsync(TeamUserModel model, CancellationToken cancellationToken = default)
     {
         return base.InsertAsync(model, cancellationToken);
     }
 
-    public new Task<TeamUserModel?> UpdateAsync(Guid id, TeamUserModel model, CancellationToken cancellationToken = default)
+    public override Task<TeamUserModel?> UpdateAsync(Guid id, TeamUserModel model, CancellationToken cancellationToken = default)
     {
         return base.UpdateAsync(id, model, cancellationToken);
     }
 
-    public new Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<TeamUserModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public override Task<IEnumerable<TeamUserModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

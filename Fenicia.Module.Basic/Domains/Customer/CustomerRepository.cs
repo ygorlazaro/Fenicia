@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
@@ -18,8 +19,7 @@ public class CustomerRepository(DbContext context) : Repository<CustomerModel>(c
     }
 
     public async Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(
-        int page = 1,
-        int perPage = 10,
+        PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
         return await DbSet
@@ -27,8 +27,8 @@ public class CustomerRepository(DbContext context) : Repository<CustomerModel>(c
             .Include(c => c.Person.PersonAddresses)
             .ThenInclude(pa => pa.Address)
             .ThenInclude(a => a.State)
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
     }
 }
