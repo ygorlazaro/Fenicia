@@ -10,13 +10,12 @@ public abstract class Repository<T>(DbContext context) : IRepository<T>
     protected DbContext Context => context;
 
     public virtual async Task<IEnumerable<T>> GetAllAsync(
-        int page = 1,
-        int perPage = 10,
+        PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
     }
 

@@ -38,17 +38,7 @@ public sealed class AddressService(IAddressRepository repository) : IAddressServ
 
         var saved = await ReloadAsync(address.Id, cancellationToken);
 
-        return new AddressResponse(
-            saved.Id,
-            saved.Street,
-            saved.Number,
-            saved.Complement,
-            saved.Neighborhood,
-            saved.ZipCode!,
-            saved.StateId,
-            saved.State?.Name,
-            saved.City,
-            saved.Country);
+        return AddressMapper.MapToAddressResponse(saved);
     }
 
     /// <summary>
@@ -85,17 +75,7 @@ public sealed class AddressService(IAddressRepository repository) : IAddressServ
 
         var reloaded = await ReloadAsync(id, cancellationToken);
 
-        return new AddressResponse(
-            reloaded.Id,
-            reloaded.Street,
-            reloaded.Number,
-            reloaded.Complement,
-            reloaded.Neighborhood,
-            reloaded.ZipCode!,
-            reloaded.StateId,
-            reloaded.State?.Name,
-            reloaded.City,
-            reloaded.Country);
+        return AddressMapper.MapToAddressResponse(reloaded);
     }
 
     private async Task<AddressModel> ReloadAsync(Guid id, CancellationToken cancellationToken)

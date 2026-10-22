@@ -39,18 +39,17 @@ public sealed class UserService(
     /// <returns>A task representing the asynchronous operation with paginated user responses.</returns>
     public async Task<Pagination<List<UserResponse>>> GetAllAsync(
         UserRequest query,
-        int page = 1,
-        int perPage = 10,
+        PaginationQuery pagination,
         CancellationToken cancellationToken = default)
     {
         var total = await userRepository.CountAsync(cancellationToken);
-        var users = await userRepository.GetAllAsync(page, perPage, cancellationToken);
+        var users = await userRepository.GetAllAsync(pagination, cancellationToken);
 
         return new Pagination<List<UserResponse>>(
             [.. users.Select(UserMapper.MapToUserResponse)],
             total,
-            page,
-            perPage);
+            pagination.Page,
+            pagination.PerPage);
     }
 
     /// <summary>

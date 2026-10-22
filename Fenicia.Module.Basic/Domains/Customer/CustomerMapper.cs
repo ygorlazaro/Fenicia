@@ -66,30 +66,7 @@ public static class CustomerMapper
         int total,
         PaginationQuery query)
     {
-        var response = customers.Select(c =>
-        {
-            var address = c.Person?.PersonAddresses?.FirstOrDefault()?.Address;
-            return new CustomerResponse(
-                c.Id,
-                c.PersonId,
-                c.Person?.Name ?? string.Empty,
-                c.Person?.Email,
-                c.Person?.PhoneNumber,
-                c.Person?.Document,
-                address != null
-                    ? new AddressResponse(
-                        address.Id,
-                        address.Street,
-                        address.Number,
-                        address.Complement,
-                        address.Neighborhood,
-                        address.ZipCode!,
-                        address.StateId,
-                        address.State?.Name,
-                        address.City,
-                        address.Country)
-                    : null);
-        }).ToList();
+        var response = customers.Select(MapToCustomerResponse).ToList();
 
         return new Pagination<List<CustomerResponse>>(response, total, query);
     }

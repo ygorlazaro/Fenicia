@@ -28,22 +28,21 @@ public sealed class CompanyService(
     /// </summary>
     public async Task<Pagination<IEnumerable<CompanyResponse>>> GetCompaniesByUserAsync(
         Guid userId,
-        int page,
-        int perPage,
+        PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        if (perPage <= 0)
+        if (query.PerPage <= 0)
         {
             throw new BadRequestException(ExceptionMessages.UserNotAssociatedWithActiveCompanies);
         }
 
-        var userRoles = await userRoleService.GetUserRolesAsync(userId, page, perPage, cancellationToken);
+        var userRoles = await userRoleService.GetUserRolesAsync(userId, query.Page, query.PerPage, cancellationToken);
         var total = await userRoleService.CountUserRolesAsync(userId, cancellationToken);
 
         var activeUserRoles = userRoles.Where(ur => ur.Company.IsActive).ToList();
         var result = activeUserRoles.Select(CompanyMapper.MapToCompanyByUserResponse);
 
-        return new Pagination<IEnumerable<CompanyResponse>>(result, total, page, perPage);
+        return new Pagination<IEnumerable<CompanyResponse>>(result, total, query.Page, query.PerPage);
     }
 
     /// <summary>

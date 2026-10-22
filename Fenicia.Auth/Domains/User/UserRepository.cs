@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.User.Interfaces;
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -12,21 +13,21 @@ namespace Fenicia.Auth.Domains.User;
 public class UserRepository(DbContext context) : Repository<UserModel>(context), IUserRepository
 {
     /// <summary>
-    /// Gets all users with pagination, ordered by name.
+    /// Gets all users with query, ordered by name.
     /// </summary>
     /// <param name="page">The page number.</param>
     /// <param name="perPage">The number of items per page.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation with the list of users.</returns>
-    public override async Task<IEnumerable<UserModel>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<UserModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        var query = from u in DbSet
+        var orderedQuery = from u in DbSet
             orderby u.Name
             select u;
 
-        return await query
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
+        return await orderedQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
     }
 

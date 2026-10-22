@@ -18,8 +18,7 @@ public interface ICompanyService
     /// <returns>The paginated list of companies.</returns>
     Task<Pagination<IEnumerable<CompanyResponse>>> GetCompaniesByUserAsync(
         Guid userId,
-        int page,
-        int perPage,
+        PaginationQuery query,
         CancellationToken cancellationToken = default);
 
     /// <summary>
