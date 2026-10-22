@@ -39,6 +39,6 @@ public class SprintRepository(DbContext context) : Repository<SprintModel>(conte
 
     public override Task<IEnumerable<SprintModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

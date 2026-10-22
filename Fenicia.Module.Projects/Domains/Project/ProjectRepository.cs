@@ -22,7 +22,7 @@ public class ProjectRepository(DbContext context) : Repository<ProjectModel>(con
         return base.GetByIdAsync(id, cancellationToken);
     }
 
-    public override Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<ProjectModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(p => p.Statuses)

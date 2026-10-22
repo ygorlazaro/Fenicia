@@ -1,3 +1,4 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.DTOs.Project.Project;
 using Fenicia.Common.Enums.Project;
@@ -15,7 +16,7 @@ public class ProjectService(IProjectRepository repository) : IProjectService
         GetAllProjectQuery query,
         CancellationToken cancellationToken = default)
     {
-        var projects = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var projects = await repository.GetAllAsync(new PaginationQuery(query.Page, query.PerPage), cancellationToken);
         return [.. projects.Select(p => new ProjectResponse(
             p.Id,
             p.Title,

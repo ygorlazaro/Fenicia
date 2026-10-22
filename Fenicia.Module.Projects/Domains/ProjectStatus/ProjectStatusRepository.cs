@@ -23,7 +23,7 @@ public class ProjectStatusRepository(DbContext context)
         return base.GetByIdAsync(id, cancellationToken);
     }
 
-    public override Task<ProjectStatusModel?> GetByIdAndCompanyAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default)
+    public Task<ProjectStatusModel?> GetByIdAndCompanyAsync(Guid id, Guid companyId, CancellationToken cancellationToken = default)
     {
         return DbSet.FirstOrDefaultAsync(e => e.Id == id && e.CompanyId == companyId, cancellationToken);
     }
@@ -45,7 +45,7 @@ public class ProjectStatusRepository(DbContext context)
 
     public override Task<IEnumerable<ProjectStatusModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 
     public async Task<IEnumerable<ProjectStatusModel>> GetAllByCompanyAsync(
@@ -56,8 +56,8 @@ public class ProjectStatusRepository(DbContext context)
     {
         return await DbSet
             .Where(e => e.CompanyId == companyId)
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
+            .Skip((page - 1) * perPage)
+            .Take(perPage)
             .ToListAsync(cancellationToken);
     }
 }

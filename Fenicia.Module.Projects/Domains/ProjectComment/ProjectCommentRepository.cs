@@ -39,6 +39,6 @@ public class ProjectCommentRepository(DbContext context) : Repository<ProjectCom
 
     public override Task<IEnumerable<ProjectCommentModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

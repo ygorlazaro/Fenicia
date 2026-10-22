@@ -25,14 +25,14 @@ public class TeamUserRepository(DefaultContext context) : Repository<TeamUserMod
         return base.GetByIdAsync(id, cancellationToken);
     }
 
-    public override Task<TeamUserModel?> GetByTeamAndUserAsync(Guid teamId, Guid userId, CancellationToken cancellationToken = default)
+    public Task<TeamUserModel?> GetByTeamAndUserAsync(Guid teamId, Guid userId, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(tu => tu.User)
             .FirstOrDefaultAsync(tu => tu.TeamId == teamId && tu.UserId == userId, cancellationToken);
     }
 
-    public override Task<List<TeamUserModel>> GetByTeamAsync(Guid teamId, CancellationToken cancellationToken = default)
+    public Task<List<TeamUserModel>> GetByTeamAsync(Guid teamId, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(tu => tu.User)
@@ -40,7 +40,7 @@ public class TeamUserRepository(DefaultContext context) : Repository<TeamUserMod
             .ToListAsync(cancellationToken);
     }
 
-    public override Task<List<TeamUserModel>> GetByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<List<TeamUserModel>> GetByUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(tu => tu.Team)
@@ -65,6 +65,6 @@ public class TeamUserRepository(DefaultContext context) : Repository<TeamUserMod
 
     public override Task<IEnumerable<TeamUserModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

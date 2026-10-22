@@ -42,6 +42,6 @@ public class TeamRepository(DefaultContext context) : Repository<TeamModel>(cont
 
     public override Task<IEnumerable<TeamModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

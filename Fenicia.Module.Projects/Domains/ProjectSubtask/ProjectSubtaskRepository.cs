@@ -40,6 +40,6 @@ public class ProjectSubtaskRepository(DbContext context)
 
     public override Task<IEnumerable<ProjectSubtaskModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

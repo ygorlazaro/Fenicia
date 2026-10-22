@@ -39,6 +39,6 @@ public class ProjectTaskAssigneeRepository(DbContext context) : Repository<TaskA
 
     public override Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

@@ -22,7 +22,7 @@ public class ProjectTaskRepository(DbContext context) : Repository<ProjectTaskMo
         return base.GetByIdAsync(id, cancellationToken);
     }
 
-    public override Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<ProjectTaskModel?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return DbSet
             .Include(pt => pt.Attachments)
@@ -51,6 +51,6 @@ public class ProjectTaskRepository(DbContext context) : Repository<ProjectTaskMo
 
     public override Task<IEnumerable<ProjectTaskModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

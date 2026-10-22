@@ -39,6 +39,6 @@ public class ProjectAttachmentRepository(DbContext context) : Repository<Attachm
 
     public override Task<IEnumerable<AttachmentModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }
