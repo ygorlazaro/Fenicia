@@ -26,6 +26,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet restore Fenicia.slnx
+      - run: dotnet build Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj --configuration Release --no-restore
       - run: pwsh Fenicia.Web.E2ETests/bin/Debug/net10.0/playwright.ps1 install --with-deps
       - run: dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
