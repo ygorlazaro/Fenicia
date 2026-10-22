@@ -225,13 +225,12 @@ public sealed class OrderService(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<OrderResponse>> GetAnalyticsOrdersAsync(
+    public async Task<IEnumerable<Fenicia.Common.Data.Models.Basic.OrderModel>> GetAnalyticsOrdersAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
-        var orders = await repository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
-        return orders.Select(o => OrderMapper.MapToResponse(o));
+        return await repository.GetAnalyticsOrdersAsync(startDate, endDate, cancellationToken);
     }
 
     /// <inheritdoc />

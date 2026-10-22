@@ -2,9 +2,6 @@ using Fenicia.Common;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Supplier;
-/// <summary>
-/// Fenicia.Module.Basic/Domains/Supplier/Interfaces/ISupplierService.cs implementation.
-/// </summary>
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 

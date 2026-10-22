@@ -214,45 +214,43 @@ public sealed class EmployeeService(
         List<OrderResponse> orders,
         List<EmployeeModel> employees)
     {
-        return orders
+        return [.. orders
             .GroupBy(o => o.EmployeeId)
             .Where(g => g.Key.HasValue)
             .Select(g =>
             {
-                var employee = employees.FirstOrDefault(e => e.Id == g.Key.Value);
+                var employee = employees.FirstOrDefault(e => e.Id == g.Key!.Value);
                 return new EmployeeSalesResponse(
-                    g.Key.Value,
+                    g.Key!.Value,
                     employee?.Person.Name ?? string.Empty,
                     employee?.Position.Name ?? string.Empty,
                     g.Sum(o => o.TotalAmount),
                     g.Count(),
-                    g.Count() > 0 ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
+                    g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0,
                     0);
-            })
-            .ToList();
+            })];
     }
 
     private static List<EmployeeOrderCountResponse> GetOrdersByEmployee(
         List<OrderResponse> orders,
         List<EmployeeModel> employees)
     {
-        return orders
+        return [.. orders
             .GroupBy(o => o.EmployeeId)
             .Where(g => g.Key.HasValue)
             .Select(g =>
             {
-                var employee = employees.FirstOrDefault(e => e.Id == g.Key.Value);
+                var employee = employees.FirstOrDefault(e => e.Id == g.Key!.Value);
                 var orderList = g.ToList();
                 return new EmployeeOrderCountResponse(
-                    g.Key.Value,
+                    g.Key!.Value,
                     employee?.Person.Name ?? string.Empty,
                     employee?.Position.Name ?? string.Empty,
                     orderList.Count,
                     orderList.Sum(o => o.TotalAmount),
                     orderList.Min(o => o.SaleDate),
                     orderList.Max(o => o.SaleDate));
-            })
-            .ToList();
+            })];
     }
 
     private static List<TopPerformerResponse> GetTopPerformer(
