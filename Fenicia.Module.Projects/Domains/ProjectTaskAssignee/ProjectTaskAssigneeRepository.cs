@@ -36,7 +36,7 @@ public class ProjectTaskAssigneeRepository(DbContext context) : Repository<TaskA
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public new Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }

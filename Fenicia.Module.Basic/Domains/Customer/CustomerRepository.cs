@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Basic/Domains/Customer/CustomerRepository.cs implementation.

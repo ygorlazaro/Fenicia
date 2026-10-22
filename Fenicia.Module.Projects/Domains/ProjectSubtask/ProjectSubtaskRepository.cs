@@ -37,7 +37,7 @@ public class ProjectSubtaskRepository(DbContext context)
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<ProjectSubtaskModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public new Task<IEnumerable<ProjectSubtaskModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }

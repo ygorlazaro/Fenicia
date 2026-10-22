@@ -36,7 +36,7 @@ public class ProjectAttachmentRepository(DbContext context) : Repository<Attachm
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<AttachmentModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public new Task<IEnumerable<AttachmentModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }

@@ -42,7 +42,7 @@ public class ProjectStatusRepository(DbContext context)
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<ProjectStatusModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public new Task<IEnumerable<ProjectStatusModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }
@@ -55,8 +55,8 @@ public class ProjectStatusRepository(DbContext context)
     {
         return await DbSet
             .Where(e => e.CompanyId == companyId)
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
     }
 }

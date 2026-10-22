@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/Project/Interfaces/IProjectRepository.cs implementation.
@@ -20,5 +21,5 @@ public interface IProjectRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProjectModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProjectModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 }

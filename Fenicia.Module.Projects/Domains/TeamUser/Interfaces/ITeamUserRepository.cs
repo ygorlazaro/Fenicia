@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/TeamUser/Interfaces/ITeamUserRepository.cs implementation.
@@ -24,5 +25,5 @@ public interface ITeamUserRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<TeamUserModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TeamUserModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 }

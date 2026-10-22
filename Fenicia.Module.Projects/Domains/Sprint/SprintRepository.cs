@@ -36,7 +36,7 @@ public class SprintRepository(DbContext context) : Repository<SprintModel>(conte
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<SprintModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public new Task<IEnumerable<SprintModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }
