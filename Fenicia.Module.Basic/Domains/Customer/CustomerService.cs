@@ -42,7 +42,7 @@ public sealed class CustomerService(
     public async Task<List<CustomerDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var customers = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(new PaginationQuery(1, int.MaxValue), cancellationToken);
 
         return [.. customers.Select(c => new CustomerDataSourceResponse(c.Id, c.Person.Name))];
     }
