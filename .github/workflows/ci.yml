@@ -29,16 +29,21 @@ jobs:
       - run: dotnet build Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj --configuration Release --no-restore
       - run: pwsh Fenicia.Web.E2ETests/bin/Release/net10.0/playwright.ps1 install --with-deps
       - run: sudo apt-get update && sudo apt-get install -y xvfb curl
-      - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --urls "http://localhost:5104" &
+      - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --urls "http://0.0.0.0:5104" &
       - run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:5104/ > /dev/null 2>&1; then
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5104/ > /dev/null 2>&1 || curl -sf http://localhost:5104/login > /dev/null 2>&1; then
               echo "Servidor web está respondendo na porta 5104"
               break
             fi
-            echo "Aguardando servidor web iniciar... ($i/30)"
+            echo "Aguardando servidor web iniciar... ($i/60)"
             sleep 2
           done
+          # Verificar se o servidor realmente iniciou
+          if ! curl -sf http://localhost:5104/ > /dev/null 2>&1 && ! curl -sf http://localhost:5104/login > /dev/null 2>&1; then
+            echo "ERRO: Servidor web não iniciou após 120 segundos"
+            exit 1
+          fi
       - run: xvfb-run dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
         with:
