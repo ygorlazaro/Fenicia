@@ -12,32 +12,32 @@ namespace Fenicia.Module.Projects.Domains.Sprint;
 
 public class SprintRepository(DbContext context) : Repository<SprintModel>(context), ISprintRepository
 {
-    public IQueryable<SprintModel> Query()
+    public override IQueryable<SprintModel> Query()
     {
         return base.Query();
     }
 
-    public Task<SprintModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<SprintModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.GetByIdAsync(id, cancellationToken);
     }
 
-    public Task<SprintModel> InsertAsync(SprintModel model, CancellationToken cancellationToken = default)
+    public override Task<SprintModel> InsertAsync(SprintModel model, CancellationToken cancellationToken = default)
     {
         return base.InsertAsync(model, cancellationToken);
     }
 
-    public Task<SprintModel?> UpdateAsync(Guid id, SprintModel model, CancellationToken cancellationToken = default)
+    public override Task<SprintModel?> UpdateAsync(Guid id, SprintModel model, CancellationToken cancellationToken = default)
     {
         return base.UpdateAsync(id, model, cancellationToken);
     }
 
-    public Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public Task<IEnumerable<SprintModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public override Task<IEnumerable<SprintModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }
