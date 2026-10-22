@@ -28,7 +28,8 @@ jobs:
       - run: dotnet restore Fenicia.slnx
       - run: dotnet build Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj --configuration Release --no-restore
       - run: pwsh Fenicia.Web.E2ETests/bin/Release/net10.0/playwright.ps1 install --with-deps
-      - run: dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
+      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - run: xvfb-run dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-all
