@@ -14,7 +14,7 @@ public class FeedService(IFeedRepository repository) : IFeedService
         GetAllFeedQuery query,
         CancellationToken cancellationToken = default)
     {
-        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var feeds = await repository.GetAllAsync(query, cancellationToken);
         return [.. feeds.Select(f => new FeedResponse(
             f.Id,
             f.Date,
@@ -33,7 +33,7 @@ public class FeedService(IFeedRepository repository) : IFeedService
         GetFeedsByProfileQuery query,
         CancellationToken cancellationToken = default)
     {
-        var feeds = await repository.GetAllAsync(query.Page, query.PerPage, cancellationToken);
+        var feeds = await repository.GetAllAsync(query, cancellationToken);
         var filtered = feeds.Where(f => f.ProfileId == query.ProfileId).ToList();
         return [.. filtered.Select(f => new FeedResponse(
             f.Id,

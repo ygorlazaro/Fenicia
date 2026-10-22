@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectStatus/ProjectStatusRepository.cs implementation.
@@ -12,12 +13,12 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 public class ProjectStatusRepository(DbContext context)
     : Repository<ProjectStatusModel>(context), IProjectStatusRepository
 {
-    public new IQueryable<ProjectStatusModel> Query()
+    public IQueryable<ProjectStatusModel> Query()
     {
         return base.Query();
     }
 
-    public new Task<ProjectStatusModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<ProjectStatusModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.GetByIdAsync(id, cancellationToken);
     }
@@ -27,22 +28,22 @@ public class ProjectStatusRepository(DbContext context)
         return DbSet.FirstOrDefaultAsync(e => e.Id == id && e.CompanyId == companyId, cancellationToken);
     }
 
-    public new Task<ProjectStatusModel> InsertAsync(ProjectStatusModel model, CancellationToken cancellationToken = default)
+    public Task<ProjectStatusModel> InsertAsync(ProjectStatusModel model, CancellationToken cancellationToken = default)
     {
         return base.InsertAsync(model, cancellationToken);
     }
 
-    public new Task<ProjectStatusModel?> UpdateAsync(Guid id, ProjectStatusModel model, CancellationToken cancellationToken = default)
+    public Task<ProjectStatusModel?> UpdateAsync(Guid id, ProjectStatusModel model, CancellationToken cancellationToken = default)
     {
         return base.UpdateAsync(id, model, cancellationToken);
     }
 
-    public new Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<ProjectStatusModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public Task<IEnumerable<ProjectStatusModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return base.GetAllAsync(page, perPage, cancellationToken);
     }

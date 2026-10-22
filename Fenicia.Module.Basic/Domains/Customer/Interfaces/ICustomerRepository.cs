@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Basic/Domains/Customer/Interfaces/ICustomerRepository.cs implementation.
@@ -12,7 +13,6 @@ public interface ICustomerRepository : IRepository<CustomerModel>
     Task<CustomerModel?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<CustomerModel>> GetAllWithDetailsAsync(
-        int page = 1,
-        int perPage = 10,
+        PaginationQuery query,
         CancellationToken cancellationToken = default);
 }
