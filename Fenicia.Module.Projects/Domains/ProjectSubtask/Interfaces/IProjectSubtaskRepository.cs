@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectSubtask/Interfaces/IProjectSubtaskRepository.cs implementation.
@@ -18,5 +19,5 @@ public interface IProjectSubtaskRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProjectSubtaskModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProjectSubtaskModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 }

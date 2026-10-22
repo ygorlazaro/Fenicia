@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectAttachment/Interfaces/IProjectAttachmentRepository.cs implementation.
@@ -18,5 +19,5 @@ public interface IProjectAttachmentRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<AttachmentModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AttachmentModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 }

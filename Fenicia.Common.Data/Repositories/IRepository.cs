@@ -5,7 +5,7 @@ namespace Fenicia.Common.Data.Repositories;
 public interface IRepository<T>
     where T : BaseModel
 {
-    Task<IEnumerable<T>> GetAllAsync(int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 
     IQueryable<T> GetAllQuery();
 

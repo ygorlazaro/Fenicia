@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.SocialNetwork/Domains/Feed/FeedRepository.cs implementation.
@@ -13,16 +14,15 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 public class FeedRepository(DefaultContext context) : Repository<FeedModel>(context), IFeedRepository
 {
     public override async Task<IEnumerable<FeedModel>> GetAllAsync(
-        int page = 1,
-        int perPage = 10,
+        PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(f => f.Profile)
             .ThenInclude(p => p.Upload)
             .OrderByDescending(f => f.Date)
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
             .ToListAsync(cancellationToken);
     }
 

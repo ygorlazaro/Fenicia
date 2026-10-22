@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectTaskAssignee/ProjectTaskAssigneeRepository.cs implementation.
@@ -11,33 +12,33 @@ namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 
 public class ProjectTaskAssigneeRepository(DbContext context) : Repository<TaskAssigneeModel>(context), IProjectTaskAssigneeRepository
 {
-    public new IQueryable<TaskAssigneeModel> Query()
+    public override IQueryable<TaskAssigneeModel> Query()
     {
         return base.Query();
     }
 
-    public new Task<TaskAssigneeModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<TaskAssigneeModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.GetByIdAsync(id, cancellationToken);
     }
 
-    public new Task<TaskAssigneeModel> InsertAsync(TaskAssigneeModel model, CancellationToken cancellationToken = default)
+    public override Task<TaskAssigneeModel> InsertAsync(TaskAssigneeModel model, CancellationToken cancellationToken = default)
     {
         return base.InsertAsync(model, cancellationToken);
     }
 
-    public new Task<TaskAssigneeModel?> UpdateAsync(Guid id, TaskAssigneeModel model, CancellationToken cancellationToken = default)
+    public override Task<TaskAssigneeModel?> UpdateAsync(Guid id, TaskAssigneeModel model, CancellationToken cancellationToken = default)
     {
         return base.UpdateAsync(id, model, cancellationToken);
     }
 
-    public new Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public override Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.DeleteAsync(id, cancellationToken);
     }
 
-    public new Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default)
+    public override Task<IEnumerable<TaskAssigneeModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return base.GetAllAsync(page, perPage, cancellationToken);
+        return base.GetAllAsync(query, cancellationToken);
     }
 }

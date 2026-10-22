@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Models.Project;
+using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectStatus/Interfaces/IProjectStatusRepository.cs implementation.
@@ -20,7 +21,7 @@ public interface IProjectStatusRepository
 
     Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ProjectStatusModel>> GetAllAsync(int page, int perPage, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ProjectStatusModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<ProjectStatusModel>> GetAllByCompanyAsync(Guid companyId, int page = 1, int perPage = 10, CancellationToken cancellationToken = default);
 }
