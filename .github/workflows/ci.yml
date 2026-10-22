@@ -28,11 +28,11 @@ jobs:
       - run: dotnet restore Fenicia.slnx
       - run: dotnet build Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj --configuration Release --no-restore
       - run: pwsh Fenicia.Web.E2ETests/bin/Release/net10.0/playwright.ps1 install --with-deps
-      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - run: sudo apt-get update && sudo apt-get install -y xvfb curl
       - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --urls "http://localhost:5104" &
       - run: |
-          for i in {1..30}; do
-            if curl -s -o /dev/null -w "%{http_code}" http://localhost:5104/ | grep -q "200\|302\|401"; then
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5104/ > /dev/null 2>&1; then
               echo "Servidor web está respondendo na porta 5104"
               break
             fi
