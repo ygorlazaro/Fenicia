@@ -1,7 +1,7 @@
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Notification;
-using Fenicia.Common.DTOs.Auth.UserRole;
 using Fenicia.Common.DTOs.Auth.Subscription;
+using Fenicia.Common.DTOs.Auth.UserRole;
 
 namespace Fenicia.Auth.Domains.NotificationHistory;
 

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Fenicia.Common.DTOs.Basic.Product;
 
 namespace Fenicia.Common.DTOs.Basic.Order;
 
@@ -13,12 +14,14 @@ namespace Fenicia.Common.DTOs.Basic.Order;
 /// <param name="discountAmount">The discount amount.</param>
 /// <param name="quantity">The quantity ordered.</param>
 /// <param name="subtotal">The subtotal (price * quantity - discount).</param>
+/// <param name="product">The product details.</param>
 public record OrderDetailResponse(
     [Required] Guid Id,
     [Required] Guid OrderId,
     [Required] Guid ProductId,
-    [Required] [MaxLength(200)] string ProductName,
+    [Required][MaxLength(200)] string ProductName,
     [Range(0.01, double.MaxValue)] decimal Price,
     [Range(0, double.MaxValue)] decimal DiscountAmount,
     [Range(0.01, double.MaxValue)] double Quantity,
-    [Range(0, double.MaxValue)] decimal Subtotal);
+    [Range(0, double.MaxValue)] decimal Subtotal,
+    ProductResponse? Product = null);

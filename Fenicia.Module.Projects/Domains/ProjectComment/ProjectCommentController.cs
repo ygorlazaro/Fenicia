@@ -163,11 +163,11 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var updatedCommand = new UpdateProjectCommentCommand(id, command.Content);
-            var projectComment = await projectCommentService.UpdateAsync(
-                updatedCommand,
-                companyContext.CompanyId,
-                cancellationToken);
+        var updatedCommand = new UpdateProjectCommentCommand(id, command.Content);
+        var projectComment = await projectCommentService.UpdateAsync(
+            updatedCommand,
+            companyContext.CompanyId,
+            cancellationToken);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }

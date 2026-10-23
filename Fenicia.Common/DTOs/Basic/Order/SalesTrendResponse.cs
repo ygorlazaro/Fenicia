@@ -11,7 +11,7 @@ namespace Fenicia.Common.DTOs.Basic.Order;
 /// <param name="totalValue">The total value of orders.</param>
 /// <param name="totalItems">The total number of items.</param>
 public record SalesTrendResponse(
-    [Required] [MaxLength(200)] string Period,
+    [Required][MaxLength(200)] string Period,
     [Required] DateTime Date,
     int OrderCount,
     decimal TotalValue,

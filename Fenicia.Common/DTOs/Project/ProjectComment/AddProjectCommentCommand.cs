@@ -8,7 +8,7 @@ public class AddProjectCommentCommand()
         [Required] Guid id,
         [Required] Guid taskId,
         [Required] Guid userId,
-        [Required] [MaxLength(4096)] string content,
+        [Required][MaxLength(4096)] string content,
         string? userName = null)
         : this()
     {

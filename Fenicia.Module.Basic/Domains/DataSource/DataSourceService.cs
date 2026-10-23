@@ -6,8 +6,8 @@ using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.DataSource.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Position.Interfaces;
-using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
+using Fenicia.Module.Basic.Domains.ProductCategory.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.DataSource;

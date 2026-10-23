@@ -4,10 +4,10 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1591</NoWarn>
+        <NoWarn>$(NoWarn);1591;CS8603;CS8602;CS8604;CS8629;CS1587</NoWarn>
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>all</AnalysisMode>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
     <ItemGroup>

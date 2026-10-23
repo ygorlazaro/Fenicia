@@ -1,7 +1,7 @@
+using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.Subscription.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
-using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.DTOs.Auth.Subscription;
 using Fenicia.Common.DTOs.Auth.UserRole;

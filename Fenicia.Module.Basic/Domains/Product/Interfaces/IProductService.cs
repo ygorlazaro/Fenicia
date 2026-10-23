@@ -224,4 +224,74 @@ public interface IProductService
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A list of product responses.</returns>
     Task<List<ProductResponse>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all products with category details.
+    /// </summary>
+    /// <param name="query">The pagination query.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A paginated list of product responses.</returns>
+    Task<Pagination<List<ProductResponse>>> GetAllWithCategoryAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets products by category with category details.
+    /// </summary>
+    /// <param name="request">The category query request.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A paginated list of product responses.</returns>
+    Task<Pagination<List<ProductResponse>>> GetByCategoryWithCategoryAsync(
+        ProductsByCategoryIdRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a product by ID with category details.
+    /// </summary>
+    /// <param name="id">The product ID.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The product response if found, or null.</returns>
+    Task<ProductResponse?> GetByIdWithCategoryAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets low stock products.
+    /// </summary>
+    /// <param name="query">The pagination query.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A paginated list of product responses.</returns>
+    Task<Pagination<List<ProductResponse>>> GetLowStockAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets zero movement candidate products.
+    /// </summary>
+    /// <param name="query">The pagination query.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A paginated list of product responses.</returns>
+    Task<Pagination<List<ProductResponse>>> GetZeroMovementCandidatesAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all products with details.
+    /// </summary>
+    /// <param name="query">The pagination query.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A paginated list of product responses.</returns>
+    Task<Pagination<List<ProductResponse>>> GetAllWithDetailsAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Counts products matching a predicate.
+    /// </summary>
+    /// <param name="predicate">The predicate to filter products.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>The count of matching products.</returns>
+    Task<int> CountAsync(
+        Expression<Func<ProductModel, bool>> predicate,
+        CancellationToken cancellationToken = default);
 }

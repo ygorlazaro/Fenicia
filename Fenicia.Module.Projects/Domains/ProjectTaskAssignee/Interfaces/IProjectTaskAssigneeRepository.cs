@@ -1,5 +1,5 @@
-using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common;
+using Fenicia.Common.Data.Models.Project;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/ProjectTaskAssignee/Interfaces/IProjectTaskAssigneeRepository.cs implementation.

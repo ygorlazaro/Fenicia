@@ -7,7 +7,7 @@ public class GetProjectSubtaskByIdResponse()
     public GetProjectSubtaskByIdResponse(
         [Required] Guid id,
         [Required] Guid taskId,
-        [Required] [MaxLength(200)] string title,
+        [Required][MaxLength(200)] string title,
         bool isCompleted,
         int order,
         DateTime? completedAt,

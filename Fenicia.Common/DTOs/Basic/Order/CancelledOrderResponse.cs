@@ -13,7 +13,7 @@ namespace Fenicia.Common.DTOs.Basic.Order;
 /// <param name="cancelledReason">The reason for cancellation (optional).</param>
 public record CancelledOrderResponse(
     [Required] Guid OrderId,
-    [Required] [MaxLength(200)] string CustomerName,
+    [Required][MaxLength(200)] string CustomerName,
     [Range(0, double.MaxValue)] decimal TotalAmount,
     [Required] DateTime SaleDate,
     int TotalItems,

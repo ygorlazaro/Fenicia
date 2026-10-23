@@ -1,3 +1,5 @@
+using Fenicia.Auth.Domains.Address.Interfaces;
+using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
@@ -6,8 +8,6 @@ using Fenicia.Common.DTOs.Auth.PersonAddress;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Supplier;
-using Fenicia.Auth.Domains.Address.Interfaces;
-using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
@@ -117,33 +117,33 @@ public sealed class SupplierService(
     }
 
     public async Task<AddSupplierResponse> AddAsync(
-        AddSupplierRequest command,
+        AddSupplierRequest request,
         Guid companyId,
         CancellationToken cancellationToken = default)
     {
         var person = new Fenicia.Common.Data.Models.Auth.PersonModel
         {
             Id = Guid.NewGuid(),
-            Name = command.Name,
-            Email = command.Email,
-            Document = command.Document,
-            PhoneNumber = command.PhoneNumber,
+            Name = request.Name,
+            Email = request.Email,
+            Document = request.Document,
+            PhoneNumber = request.PhoneNumber,
             CompanyId = companyId
         };
 
         Guid? addressId = null;
 
-        if (command.Address != null)
+        if (request.Address != null)
         {
             var addressCommand = new AddressRequest(
-                command.Address.Street,
-                command.Address.Number,
-                command.Address.Complement,
-                command.Address.Neighborhood,
-                command.Address.ZipCode,
-                command.Address.StateId,
-                command.Address.City,
-                command.Address.Country);
+                request.Address.Street,
+                request.Address.Number,
+                request.Address.Complement,
+                request.Address.Neighborhood,
+                request.Address.ZipCode,
+                request.Address.StateId,
+                request.Address.City,
+                request.Address.Country);
 
             var addressResponse = await addressService.AddAsync(addressCommand, cancellationToken);
             addressId = addressResponse.Id;
@@ -151,10 +151,10 @@ public sealed class SupplierService(
 
         var supplier = new SupplierModel
         {
-            Id = command.Id,
+            Id = request.Id,
             Person = person,
             PersonId = person.Id,
-            Cnpj = command.Cnpj,
+            Cnpj = request.Cnpj,
             CompanyId = companyId
         };
 
@@ -347,7 +347,7 @@ public sealed class SupplierService(
                     [
                         .. g.Select(p => new ProductSupplierPriceResponse(
                             p.SupplierId!.Value,
-                            p.Supplier!.Person.Name,
+                            p.SupplierName ?? string.Empty,
                             p.CostPrice ?? 0,
                             p.SalesPrice,
                             p.SalesPrice > 0 ? (p.SalesPrice - (p.CostPrice ?? 0)) / p.SalesPrice * 100 : 0))
@@ -365,7 +365,7 @@ public sealed class SupplierService(
         return
         [
             .. productList
-                .GroupBy(p => new { SupplierId = p.SupplierId!.Value, SupplierName = p.Supplier!.Person.Name })
+                .GroupBy(p => new { SupplierId = p.SupplierId!.Value, SupplierName = p.SupplierName ?? string.Empty })
                 .Select(g => new SupplierBreakdownResponse(
                     g.Key.SupplierId,
                     g.Key.SupplierName,

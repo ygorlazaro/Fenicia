@@ -7,11 +7,11 @@ public class AddProjectAttachmentCommand()
     public AddProjectAttachmentCommand(
         [Required] Guid id,
         [Required] Guid taskId,
-        [Required] [MaxLength(200)] string fileName,
-        [Required] [MaxLength(200)] string fileUrl,
+        [Required][MaxLength(200)] string fileName,
+        [Required][MaxLength(200)] string fileUrl,
         long fileSize,
         [Required] Guid uploadedBy,
-        [Required] [MaxLength(200)] string contentType)
+        [Required][MaxLength(200)] string contentType)
         : this()
     {
         Id = id;

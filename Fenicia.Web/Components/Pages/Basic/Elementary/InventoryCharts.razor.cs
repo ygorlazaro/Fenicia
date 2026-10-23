@@ -6,14 +6,14 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class InventoryCharts
 {
     [Parameter]
-[EditorRequired]
-public List<ChartSeries<double>> Series { get; set; } = [];
+    [EditorRequired]
+    public List<ChartSeries<double>> Series { get; set; } = [];
 
     [Parameter]
-[EditorRequired]
-public string[] Labels { get; set; } = [];
+    [EditorRequired]
+    public string[] Labels { get; set; } = [];
 
     [Parameter]
-[EditorRequired]
-public BarChartOptions Options { get; set; } = new();
+    [EditorRequired]
+    public BarChartOptions Options { get; set; } = new();
 }

@@ -12,7 +12,7 @@ namespace Fenicia.Common.DTOs.Basic.Inventory;
 /// <param name="totalQuantity">The total quantity.</param>
 public record SupplierBreakdownResponse(
     [Required] Guid SupplierId,
-    [Required] [MaxLength(200)] string SupplierName,
+    [Required][MaxLength(200)] string SupplierName,
     decimal TotalCostValue,
     decimal TotalSalesValue,
     double TotalQuantity);

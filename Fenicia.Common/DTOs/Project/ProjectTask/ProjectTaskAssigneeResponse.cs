@@ -7,8 +7,8 @@ public class ProjectTaskAssigneeResponse()
     public ProjectTaskAssigneeResponse(
         [Required] Guid id,
         [Required] Guid userId,
-        [Required] [MaxLength(200)] string userName,
-        [Required] [MaxLength(200)] string userEmail)
+        [Required][MaxLength(200)] string userName,
+        [Required][MaxLength(200)] string userEmail)
         : this()
     {
         Id = id;

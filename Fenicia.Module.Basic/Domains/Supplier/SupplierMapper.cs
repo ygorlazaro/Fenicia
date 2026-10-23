@@ -1,6 +1,6 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.DTOs.Basic.Supplier;
 using Fenicia.Common.DTOs.Auth.Address;
+using Fenicia.Common.DTOs.Basic.Supplier;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 

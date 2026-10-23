@@ -7,8 +7,8 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class OrderFormProductSearch
 {
     [Parameter]
-[EditorRequired]
-public IEnumerable<ProductResponse> Products { get; set; } = [];
+    [EditorRequired]
+    public IEnumerable<ProductResponse> Products { get; set; } = [];
 
     [Parameter]
     public string Search { get; set; } = string.Empty;

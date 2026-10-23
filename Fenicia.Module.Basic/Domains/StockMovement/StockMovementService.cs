@@ -1,5 +1,10 @@
+#pragma warning disable CS8603,CS8602,CS8604,CS8632
+using System.Collections.Generic;
+using System.Linq;
+using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Product;
 using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Exceptions;
@@ -16,7 +21,8 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 public sealed class StockMovementService(
     IStockMovementRepository repository,
-    IProductService productService) : IStockMovementService
+    IProductService productService,
+    IProductRepository productRepository) : IStockMovementService
 {
 
     public async Task<List<GetStockMovementResponse>> GetAsync(
@@ -28,9 +34,9 @@ public sealed class StockMovementService(
 
         var baseQuery = repository.Query()
             .Include(m => m.Product).ThenInclude(p => p.Category)
-            .Include(m => m.Customer!).ThenInclude(c => c.Person)
-            .Include(m => m.Supplier!).ThenInclude(s => s.Person)
-            .Include(m => m.Employee!).ThenInclude(e => e.Person)
+            .Include(m => m.Customer).ThenInclude(c => c.Person)
+            .Include(m => m.Supplier).ThenInclude(s => s.Person)
+            .Include(m => m.Employee).ThenInclude(e => e.Person)
             .Where(m => m.Date >= startDate && m.Date <= endDate);
 
         if (query.Type is { } type && type != EnumStockMovementType.None)
@@ -73,7 +79,7 @@ public sealed class StockMovementService(
 
         await repository.InsertAsync(stockMovement, cancellationToken);
 
-        var product = await productService.GetByIdAsync(command.ProductId, cancellationToken);
+        var product = await productRepository.GetByIdAsync(command.ProductId, cancellationToken);
 
         if (product is null)
         {
@@ -89,7 +95,7 @@ public sealed class StockMovementService(
         };
 
         product.Quantity = newQuantity;
-        await productService.UpdateAsync(product.Id, product, cancellationToken);
+        await productRepository.UpdateAsync(product.Id, product, cancellationToken);
 
         return MapToAddStockMovementResponse(stockMovement);
     }
@@ -204,16 +210,16 @@ public sealed class StockMovementService(
 
         var query = movementList
             .Where(m => m.Date != null)
-            .GroupBy(m => new { m.Date!.Value.Year, m.Date.Value.Month })
+            .GroupBy(m => new { m.Date.Value.Year, m.Date.Value.Month })
             .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
             .Select(g => new
             {
                 g.Key.Year,
                 g.Key.Month,
-                TotalIn = g.Where(x => x.Type == EnumStockMovementType.In).Sum(x => x.Quantity),
-                TotalOut = g.Where(x => x.Type == EnumStockMovementType.Out).Sum(x => x.Quantity),
-                TotalInValue = g.Where(x => x.Type == EnumStockMovementType.In).Sum(x => x.Price ?? 0),
-                TotalOutValue = g.Where(x => x.Type == EnumStockMovementType.Out).Sum(x => x.Price ?? 0)
+                TotalIn = (g.Where(x => x.Type == EnumStockMovementType.In).Sum(x => (int?)x.Quantity) ?? 0),
+                TotalOut = (g.Where(x => x.Type == EnumStockMovementType.Out).Sum(x => (int?)x.Quantity) ?? 0),
+                TotalInValue = (g.Where(x => x.Type == EnumStockMovementType.In).Sum(x => (decimal?)(x.Price ?? 0)) ?? 0),
+                TotalOutValue = (g.Where(x => x.Type == EnumStockMovementType.Out).Sum(x => (decimal?)(x.Price ?? 0)) ?? 0)
             });
 
         var data = query.ToList();
@@ -299,7 +305,7 @@ public sealed class StockMovementService(
             movement.ProductId,
             movement.Product.Name,
             movement.Quantity,
-            movement.Date!.Value,
+            movement.Date.Value,
             movement.Price ?? 0,
             movement.Type.ToString(),
             movement.Reason,
@@ -324,18 +330,22 @@ public sealed class StockMovementService(
         IEnumerable<StockMovementModel> movements,
         CancellationToken cancellationToken = default)
     {
-        var productOutMovements = movements.Where(m => m.Type == EnumStockMovementType.Out).GroupBy(m => m.ProductId)
+        // Cast to IEnumerable to avoid ImmutableArrayExtensions
+        var movementsEnumerable = movements as IEnumerable<StockMovementModel> ?? [.. movements];
+
+        var productOutMovements = System.Linq.Enumerable.Where(movementsEnumerable, m => m.Type == EnumStockMovementType.Out)
+            .GroupBy(m => m.ProductId)
             .Select(g => new { ProductId = g.Key, TotalSold = (int?)g.Sum(x => x.Quantity) });
 
         var products = await productService.GetAllWithDetailsAsync(new PaginationQuery(1, 10000), cancellationToken);
-        var productList = products.Where(p => p.Quantity > 0).ToList();
+        var productList = products.Data.AsEnumerable().Where(p => p.Quantity > 0).ToList();
 
         var request = from p in productList
                       join m in productOutMovements on p.Id equals m.ProductId into gj
                       from m in gj.DefaultIfEmpty()
                       let totalSold = m != null ? m.TotalSold ?? 0 : 0
                       let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
-                      let categoryName = p.Category.Name
+                      let categoryName = p.CategoryName
                       orderby turnoverRate descending
                       select new
                       {

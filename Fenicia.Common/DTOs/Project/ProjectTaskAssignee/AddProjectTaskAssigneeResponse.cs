@@ -8,7 +8,7 @@ public class AddProjectTaskAssigneeResponse()
         [Required] Guid id,
         [Required] Guid taskId,
         [Required] Guid userId,
-        [Required] [MaxLength(200)] string role,
+        [Required][MaxLength(200)] string role,
         [Required] DateTime assignedAt,
         [Required] Guid companyId)
         : this()

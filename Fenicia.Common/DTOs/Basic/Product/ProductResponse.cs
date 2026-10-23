@@ -27,7 +27,7 @@ namespace Fenicia.Common.DTOs.Basic.Product;
 /// <param name="isActive">Whether the product is active.</param>
 public record ProductResponse(
     [Required] Guid Id,
-    [Required] [MaxLength(50)] string Name,
+    [Required][MaxLength(50)] string Name,
     [MaxLength(50)] string? SKU,
     [MaxLength(50)] string? Barcode,
     [MaxLength(1000)] string? Description,
@@ -41,7 +41,10 @@ public record ProductResponse(
     [MaxLength(50)] string? Dimensions,
     [MaxLength(20)] string? UnitOfMeasure,
     [Required] Guid CategoryId,
-    [Required] [MaxLength(50)] string CategoryName,
+    [Required][MaxLength(50)] string CategoryName,
     Guid? SupplierId,
     [MaxLength(50)] string? SupplierName,
-    [Required] bool IsActive) : ICrudItem;
+    [Required] bool IsActive) : ICrudItem
+{
+    public (Guid Id, string Name) Category => (CategoryId, CategoryName);
+}

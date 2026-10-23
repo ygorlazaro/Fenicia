@@ -6,10 +6,10 @@ public class ProjectTaskResponse()
 {
     public ProjectTaskResponse(
         [Required] Guid id,
-        [Required] [MaxLength(200)] string title,
+        [Required][MaxLength(200)] string title,
         [MaxLength(200)] string? description,
-        [Required] [MaxLength(200)] string priority,
-        [Required] [MaxLength(200)] string type,
+        [Required][MaxLength(200)] string priority,
+        [Required][MaxLength(200)] string type,
         int? estimatePoints,
         DateTime? dueDate)
         : this()

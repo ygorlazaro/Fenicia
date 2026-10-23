@@ -6,8 +6,8 @@ public class TeamMemberResponse()
 {
     public TeamMemberResponse(
         [Required] Guid userId,
-        [Required] [MaxLength(64)] string userName,
-        [Required] [MaxLength(48)] string email,
+        [Required][MaxLength(64)] string userName,
+        [Required][MaxLength(48)] string email,
         [Required] string role,
         [Required] DateTime joinedAt)
         : this()

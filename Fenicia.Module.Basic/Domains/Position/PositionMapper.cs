@@ -1,5 +1,5 @@
-using Fenicia.Common.DTOs.Basic.Position;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Position;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 

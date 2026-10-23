@@ -1,8 +1,8 @@
 using System.Net.Mime;
 using Fenicia.Auth.Domains.Module.Interfaces;
 using Fenicia.Auth.Domains.User.Interfaces;
-using Fenicia.Common;
 using Fenicia.Auth.Domains.UserRole.Interfaces;
+using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.DTOs.Auth.Module;
 using Fenicia.Common.DTOs.Auth.User;

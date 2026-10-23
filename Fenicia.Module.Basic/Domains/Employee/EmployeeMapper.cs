@@ -1,7 +1,7 @@
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Auth.Address;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.DTOs.Basic.Employee;
-using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 

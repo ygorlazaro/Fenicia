@@ -245,23 +245,35 @@ public sealed class ProductService(
     public async Task<List<ProductResponse>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default)
     {
         var products = await repository.GetAllWithSupplierAsync(cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
     public async Task<List<ProductResponse>> GetAllForStatsAsync(CancellationToken cancellationToken = default)
     {
         var products = await repository.GetAllForStatsAsync(cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
-    public async Task<List<ProductResponse>> GetAllWithCategoryAsync(
-        ProductQuery query,
+    public async Task<Pagination<List<ProductResponse>>> GetAllWithCategoryAsync(
+        PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        var products = await repository.GetAllWithCategoryAsync(query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        var baseQuery = repository.Query()
+            .Include(p => p.Category)
+            .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
+
+        var total = await baseQuery.CountAsync(cancellationToken);
+
+        var products = await baseQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+
+        var response = products.Select(ProductMapper.MapToResponse).ToList();
+
+        return new Pagination<List<ProductResponse>>(response, total, query);
     }
 
     /// <inheritdoc />
@@ -283,13 +295,26 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public async Task<List<ProductResponse>> GetByCategoryWithCategoryAsync(
-        Guid categoryId,
-        PaginationQuery query,
+    public async Task<Pagination<List<ProductResponse>>> GetByCategoryWithCategoryAsync(
+        ProductsByCategoryIdRequest request,
         CancellationToken cancellationToken = default)
     {
-        var products = await repository.GetByCategoryWithCategoryAsync(categoryId, query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        var baseQuery = repository.Query()
+            .Where(p => p.CategoryId == request.CategoryId)
+            .Include(p => p.Category);
+
+        var filteredQuery = baseQuery.ApplySearch(request.Query, "Name").ApplyFilters(request.Filters).ApplySort(request.Sort);
+
+        var total = await filteredQuery.CountAsync(cancellationToken);
+
+        var products = await filteredQuery
+            .Skip((request.Page - 1) * request.PerPage)
+            .Take(request.PerPage)
+            .ToListAsync(cancellationToken);
+
+        var response = products.Select(ProductMapper.MapToResponse).ToList();
+
+        return new Pagination<List<ProductResponse>>(response, total, request);
     }
 
     /// <inheritdoc />
@@ -323,7 +348,7 @@ public sealed class ProductService(
         CancellationToken cancellationToken = default)
     {
         var products = await repository.GetByIdWithCategoryAsync(productId, query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
@@ -411,12 +436,75 @@ public sealed class ProductService(
     }
 
     /// <inheritdoc />
-    public async Task<List<ProductResponse>> GetAllWithDetailsAsync(
+    public async Task<Pagination<List<ProductResponse>>> GetAllWithDetailsAsync(
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        var products = await repository.GetAllWithDetailsAsync(query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        var baseQuery = repository.Query()
+            .Include(p => p.Category)
+            .Include(p => p.Supplier).ThenInclude(s => s != null ? s.Person : null);
+
+        var total = await baseQuery.CountAsync(cancellationToken);
+
+        var products = await baseQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+
+        var response = products.Select(ProductMapper.MapToResponse).ToList();
+
+        return new Pagination<List<ProductResponse>>(response, total, query);
+    }
+
+    /// <inheritdoc />
+    public async Task<ProductResponse?> GetByIdWithCategoryAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var product = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
+        return product is null ? null : ProductMapper.MapToResponse(product);
+    }
+
+    /// <inheritdoc />
+    public async Task<Pagination<List<ProductResponse>>> GetLowStockAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = repository.Query()
+            .Include(p => p.Category)
+            .Where(p => p.Quantity <= (p.MinStockLevel ?? 0));
+
+        var total = await baseQuery.CountAsync(cancellationToken);
+
+        var products = await baseQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+
+        var response = products.Select(ProductMapper.MapToResponse).ToList();
+
+        return new Pagination<List<ProductResponse>>(response, total, query);
+    }
+
+    /// <inheritdoc />
+    public async Task<Pagination<List<ProductResponse>>> GetZeroMovementCandidatesAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = repository.Query()
+            .Include(p => p.Category)
+            .Where(p => p.Quantity > 0);
+
+        var total = await baseQuery.CountAsync(cancellationToken);
+
+        var products = await baseQuery
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(cancellationToken);
+
+        var response = products.Select(ProductMapper.MapToResponse).ToList();
+
+        return new Pagination<List<ProductResponse>>(response, total, query);
     }
 
     private static string ClassifyMargin(double margin)

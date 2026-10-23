@@ -1,5 +1,5 @@
-using Fenicia.Common.DTOs.Basic.Product;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Product;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 

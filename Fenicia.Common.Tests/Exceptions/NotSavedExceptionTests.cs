@@ -1,6 +1,6 @@
+using AwesomeAssertions;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
-using AwesomeAssertions;
 
 namespace Fenicia.Common.Tests.Exceptions;
 

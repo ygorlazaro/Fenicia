@@ -7,8 +7,8 @@ public class UpdateProjectAttachmentResponse()
     public UpdateProjectAttachmentResponse(
         [Required] Guid id,
         [Required] Guid taskId,
-        [Required] [MaxLength(200)] string fileName,
-        [Required] [MaxLength(200)] string fileUrl,
+        [Required][MaxLength(200)] string fileName,
+        [Required][MaxLength(200)] string fileUrl,
         long fileSize,
         [Required] Guid uploadedBy,
         [Required] Guid companyId)

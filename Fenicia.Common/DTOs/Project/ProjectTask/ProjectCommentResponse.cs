@@ -6,7 +6,7 @@ public class ProjectCommentResponse()
 {
     public ProjectCommentResponse(
         [Required] Guid id,
-        [Required] [MaxLength(200)] string content,
+        [Required][MaxLength(200)] string content,
         [Required] Guid authorId)
         : this()
     {

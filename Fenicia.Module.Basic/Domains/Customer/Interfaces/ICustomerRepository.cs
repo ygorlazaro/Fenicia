@@ -1,6 +1,6 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
-using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Basic/Domains/Customer/Interfaces/ICustomerRepository.cs implementation.

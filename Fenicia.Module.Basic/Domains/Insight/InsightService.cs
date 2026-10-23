@@ -1,9 +1,9 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Customer;
+using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Insight.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
-using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Insight;
 

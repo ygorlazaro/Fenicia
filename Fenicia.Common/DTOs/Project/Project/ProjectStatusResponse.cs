@@ -6,8 +6,8 @@ public class ProjectStatusResponse()
 {
     public ProjectStatusResponse(
         [Required] Guid id,
-        [Required] [MaxLength(200)] string name,
-        [Required] [MaxLength(200)] string color,
+        [Required][MaxLength(200)] string name,
+        [Required][MaxLength(200)] string color,
         int order,
         bool isFinal)
         : this()

@@ -12,7 +12,7 @@ namespace Fenicia.Common.DTOs.Basic.Inventory;
 /// <param name="percentage">The percentage of total stock value.</param>
 public class StockValueByCategoryResponse(
     [Required] Guid CategoryId,
-    [Required] [MaxLength(200)] string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
     int ProductCount,
     decimal TotalStockValue,
     double Percentage)

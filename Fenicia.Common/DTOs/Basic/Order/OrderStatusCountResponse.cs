@@ -9,6 +9,6 @@ namespace Fenicia.Common.DTOs.Basic.Order;
 /// <param name="count">The count of orders with this status.</param>
 /// <param name="totalValue">The total value of orders with this status.</param>
 public record OrderStatusCountResponse(
-    [Required] [MaxLength(200)] string Status,
+    [Required][MaxLength(200)] string Status,
     int Count,
     [Range(0, double.MaxValue)] decimal TotalValue);

@@ -12,7 +12,7 @@ namespace Fenicia.Common.DTOs.Basic.Order;
 /// <param name="totalItems">The total number of items.</param>
 public record TopCustomerResponse(
     [Required] Guid CustomerId,
-    [Required] [MaxLength(200)] string CustomerName,
+    [Required][MaxLength(200)] string CustomerName,
     int OrderCount,
     decimal TotalSpent,
     int TotalItems);

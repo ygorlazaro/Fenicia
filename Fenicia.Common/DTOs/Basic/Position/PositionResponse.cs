@@ -10,4 +10,4 @@ namespace Fenicia.Common.DTOs.Basic.Position;
 /// <param name="name">The position name.</param>
 public record PositionResponse(
     [Required] Guid Id,
-    [Required] [MaxLength(50)] string Name) : ICrudItem;
+    [Required][MaxLength(50)] string Name) : ICrudItem;

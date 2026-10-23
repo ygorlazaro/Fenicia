@@ -9,7 +9,7 @@ public class GetProjectCommentByIdResponse()
         [Required] Guid taskId,
         [Required] Guid userId,
         [Required] string userName,
-        [Required] [MaxLength(4096)] string content,
+        [Required][MaxLength(4096)] string content,
         DateTime created,
         [Required] Guid companyId)
         : this()

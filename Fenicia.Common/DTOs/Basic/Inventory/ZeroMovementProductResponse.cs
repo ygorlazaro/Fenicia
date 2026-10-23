@@ -16,9 +16,9 @@ namespace Fenicia.Common.DTOs.Basic.Inventory;
 /// <param name="daysWithoutMovement">The number of days without movement.</param>
 public record ZeroMovementProductResponse(
     [Required] Guid ProductId,
-    [Required] [MaxLength(200)] string ProductName,
+    [Required][MaxLength(200)] string ProductName,
     [Required] Guid CategoryId,
-    [Required] [MaxLength(200)] string CategoryName,
+    [Required][MaxLength(200)] string CategoryName,
     [MaxLength(200)] string? SupplierName,
     double CurrentStock,
     decimal StockValue,

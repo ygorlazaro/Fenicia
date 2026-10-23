@@ -14,9 +14,9 @@ namespace Fenicia.Common.DTOs.Basic.Inventory;
 /// <param name="categoryName">The name of the category.</param>
 public record InventoryDetailResponse(
     [Required] Guid Id,
-    [Required] [MaxLength(200)] string Name,
+    [Required][MaxLength(200)] string Name,
     double Quantity,
     decimal? CostPrice,
     [Required] decimal SalesPrice,
     [Required] Guid CategoryId,
-    [Required] [MaxLength(200)] string CategoryName);
+    [Required][MaxLength(200)] string CategoryName);

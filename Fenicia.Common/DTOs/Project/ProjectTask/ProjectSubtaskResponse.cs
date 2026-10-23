@@ -6,7 +6,7 @@ public class ProjectSubtaskResponse()
 {
     public ProjectSubtaskResponse(
         [Required] Guid id,
-        [Required] [MaxLength(200)] string title,
+        [Required][MaxLength(200)] string title,
         bool isCompleted,
         int order,
         DateTime? dueDate)

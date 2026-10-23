@@ -6,8 +6,8 @@ public class ProjectAttachmentResponse()
 {
     public ProjectAttachmentResponse(
         [Required] Guid id,
-        [Required] [MaxLength(200)] string fileName,
-        [Required] [MaxLength(200)] string contentType,
+        [Required][MaxLength(200)] string fileName,
+        [Required][MaxLength(200)] string contentType,
         long size)
         : this()
     {

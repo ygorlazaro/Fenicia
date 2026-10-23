@@ -1,5 +1,6 @@
-using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.Product;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
@@ -23,5 +24,22 @@ public static class InventoryMapper
             product.SalesPrice,
             product.CategoryId,
             product.Category?.Name ?? string.Empty);
+    }
+
+    /// <summary>
+    /// Maps a ProductResponse to an InventoryDetailResponse.
+    /// </summary>
+    /// <param name="product">The product response.</param>
+    /// <returns>The inventory detail response.</returns>
+    public static InventoryDetailResponse MapToDetailResponse(ProductResponse product)
+    {
+        return new InventoryDetailResponse(
+            product.Id,
+            product.Name,
+            product.Quantity,
+            product.CostPrice,
+            product.SalesPrice,
+            product.CategoryId,
+            product.CategoryName);
     }
 }

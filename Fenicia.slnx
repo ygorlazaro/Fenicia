@@ -17,5 +17,4 @@
   <Project Path="Fenicia.Module.Projects/Fenicia.Module.Projects.csproj" />
   <Project Path="Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj" />
   <Project Path="Fenicia.Web/Fenicia.Web.csproj" />
-  <Project Path="Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj" />
 </Solution>

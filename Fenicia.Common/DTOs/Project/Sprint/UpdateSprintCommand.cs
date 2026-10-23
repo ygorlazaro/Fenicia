@@ -6,7 +6,7 @@ public class UpdateSprintCommand()
 {
     public UpdateSprintCommand(
         [Required] Guid id,
-        [Required] [MaxLength(256)] string name,
+        [Required][MaxLength(256)] string name,
         DateTime? startDate,
         DateTime? endDate,
         [MaxLength(4096)] string? description)

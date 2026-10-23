@@ -1,3 +1,8 @@
+#pragma warning disable CS8603,CS8602,CS8604,CS8632
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Inventory;
 using Fenicia.Common.DTOs.Basic.Product;
@@ -41,7 +46,7 @@ public sealed class InventoryService(
         var totalSalesPrice = await productService.GetTotalSalesPriceAsync(cancellationToken);
         var totalQuantity = await productService.GetTotalQuantityAsync(cancellationToken);
 
-        var inventoryDetailResponses = products.Select(InventoryMapper.MapToDetailResponse).ToList();
+        var inventoryDetailResponses = products.Data.Select(p => InventoryMapper.MapToDetailResponse(p)).ToList();
 
         return new InventoryResponse
         {
@@ -58,9 +63,12 @@ public sealed class InventoryService(
         CancellationToken cancellationToken = default)
     {
         var products = await productService.GetByCategoryWithCategoryAsync(
-            request.CategoryId,
-            request.Page,
-            request.PerPage,
+            new ProductsByCategoryIdRequest
+            (
+                request.CategoryId,
+                request.Page,
+                request.PerPage
+            ),
             cancellationToken);
 
         var totalCostPrice = await productService.GetTotalCostPriceByCategoryAsync(request.CategoryId, cancellationToken);
@@ -70,7 +78,7 @@ public sealed class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(InventoryMapper.MapToDetailResponse)],
+            Items = [.. products.Data.Select(p => InventoryMapper.MapToDetailResponse(p))],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -82,11 +90,12 @@ public sealed class InventoryService(
         InventoryByProductRequest request,
         CancellationToken cancellationToken = default)
     {
-        var products = await productService.GetByIdWithCategoryAsync(
+        var product = await productService.GetByIdWithCategoryAsync(
             request.ProductId,
-            request.Page,
-            request.PerPage,
             cancellationToken);
+        var products = product != null
+            ? new[] { product }
+            : Enumerable.Empty<ProductResponse>();
 
         var totalCostPrice = await productService.GetTotalCostPriceByProductAsync(request.ProductId, cancellationToken);
         var totalSalesPrice = await productService.GetTotalSalesPriceByProductAsync(request.ProductId, cancellationToken);
@@ -94,7 +103,7 @@ public sealed class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(InventoryMapper.MapToDetailResponse)],
+            Items = [.. products.Select(p => InventoryMapper.MapToDetailResponse(p))],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -109,10 +118,10 @@ public sealed class InventoryService(
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-request.Days);
 
-        var lowStockItems = await productService.GetLowStockAsync(cancellationToken);
+        var lowStockItems = await productService.GetLowStockAsync(new PaginationQuery(), cancellationToken);
         var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(startDate, endDate, cancellationToken);
         var soldProductIds = orderDetails.Select(d => d.ProductId).Distinct().ToHashSet();
-        var filteredLowStock = lowStockItems.Where(p => soldProductIds.Contains(p.Id)).Take(10).ToList();
+        var filteredLowStock = lowStockItems.Data.AsEnumerable().Where(p => soldProductIds.Contains(p.Id)).Take(10).ToList();
 
         var totalCustomers = await customerService.GetCountAsync(cancellationToken);
         var totalEmployees = await employeeService.GetTotalEmployeesAsync(cancellationToken);
@@ -125,7 +134,7 @@ public sealed class InventoryService(
 
         return new InventoryDashboardResponse
         {
-            LowStockItems = [.. filteredLowStock.Select(InventoryMapper.MapToDetailResponse)],
+            LowStockItems = [.. filteredLowStock.Select(p => InventoryMapper.MapToDetailResponse(p))],
             TotalCustomers = totalCustomers,
             TotalEmployees = totalEmployees,
             TotalCostValue = totalCostValue,
@@ -146,15 +155,32 @@ public sealed class InventoryService(
             DateTime.UtcNow.AddDays(-request.ZeroMovementDays),
             DateTime.MaxValue,
             cancellationToken);
-        var orderDetails = await orderDetailService.GetByDateRangeAsync(
+        var orderDetails = await orderDetailService.GetByOrderDateRangeAsync(
             DateTime.UtcNow.AddDays(-request.ZeroMovementDays),
+            DateTime.MaxValue,
             cancellationToken);
 
-        var (activeProductIds, zeroMovementProducts) = await GetActiveProductIdsAsync(
+        // Map OrderDetailResponse to OrderDetailModel for the method
+        var orderDetailModels = orderDetails.Select(od => new OrderDetailModel
+        {
+            Id = od.Id,
+            OrderId = od.OrderId,
+            ProductId = od.ProductId,
+            Price = od.Price,
+            Quantity = od.Quantity,
+            DiscountAmount = od.DiscountAmount,
+            Subtotal = od.Subtotal
+        });
+
+        var result = await GetActiveProductIdsAsync(
             stockMovements,
-            orderDetails,
+            orderDetailModels,
             cancellationToken);
-        var (stockValueByCategory, totalStockValue) = GetStockValueByCategoryFromZeroMovement(zeroMovementProducts);
+        var activeProductIds = result.ActiveProductIds!;
+        var zeroMovementProducts = result.ZeroMovementProducts!;
+        var tuple = GetStockValueByCategoryFromZeroMovement(zeroMovementProducts);
+        var stockValueByCategory = tuple.StockValueByCategories!;
+        var totalStockValue = tuple.TotalStockValue;
         var summary = await GetInventoryHealthSummaryAsync(
             activeProductIds,
             zeroMovementProducts,
@@ -191,10 +217,9 @@ public sealed class InventoryService(
 
         return (
         [
-            .. grouped.Select(delegate(StockValueByCategoryResponse s)
+            .. grouped.Select(s =>
             {
                 s.TotalStockValue = totalStockValue > 0 ? s.TotalStockValue / totalStockValue * 100 : 0;
-
                 return s;
             })
         ], totalStockValue);
@@ -218,16 +243,16 @@ public sealed class InventoryService(
         var activeProductIds = movementProductIds.Union(orderProductIds).ToHashSet();
 
         var candidateProducts =
-            await productService.GetZeroMovementCandidatesAsync(activeProductIds, cancellationToken);
+            await productService.GetZeroMovementCandidatesAsync(new PaginationQuery(1, activeProductIds.Count), cancellationToken);
 
-        var candidateIds = candidateProducts.Select(p => p.Id).ToList();
+        var candidateIds = candidateProducts.Data.Select(p => p.Id).ToList();
         var lastMovements =
             await stockMovementService.GetLastMovementsByProductIdsAsync(candidateIds, cancellationToken);
 
         var now = DateTime.UtcNow;
         var ancient = now.AddYears(-100);
 
-        var zeroMovementProducts = candidateProducts
+        var zeroMovementProducts = candidateProducts.Data
             .Select(p =>
             {
                 var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
@@ -236,9 +261,9 @@ public sealed class InventoryService(
                 return new ZeroMovementProductResponse(
                     p.Id,
                     p.Name,
-                    p.Category.Id,
-                    p.Category.Name,
-                    p.Supplier?.Person.Name,
+                    p.CategoryId,
+                    p.CategoryName,
+                    p.SupplierName,
                     p.Quantity,
                     stockValue,
                     lastDate ?? ancient,

@@ -10,8 +10,8 @@ public class UserSummaryResponse()
 {
     public UserSummaryResponse(
         [Required] Guid id,
-        [Required] [MaxLength(48)] string name,
-        [Required] [MaxLength(48)] string email)
+        [Required][MaxLength(48)] string name,
+        [Required][MaxLength(48)] string email)
         : this()
     {
         Id = id;

@@ -1,3 +1,6 @@
+using Fenicia.Auth.Domains.Address.Interfaces;
+using Fenicia.Auth.Domains.Person.Interfaces;
+using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Auth.Address;
@@ -6,11 +9,8 @@ using Fenicia.Common.DTOs.Auth.PersonAddress;
 using Fenicia.Common.DTOs.Basic.Customer;
 using Fenicia.Common.DTOs.Basic.DataSource;
 using Fenicia.Common.Exceptions;
-using Fenicia.Auth.Domains.Address.Interfaces;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Order.Interfaces;
-using Fenicia.Auth.Domains.Person.Interfaces;
-using Fenicia.Auth.Domains.PersonAddress.Interfaces;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
@@ -32,7 +32,7 @@ public sealed class CustomerService(
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        var customers = await repository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(query, cancellationToken);
         var total = await repository.CountAsync(cancellationToken);
 
         return CustomerMapper.MapToPaginatedCustomerResponse(customers, total, query);
@@ -42,7 +42,7 @@ public sealed class CustomerService(
     public async Task<List<CustomerDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var customers = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(new PaginationQuery(), cancellationToken);
 
         return [.. customers.Select(c => new CustomerDataSourceResponse(c.Id, c.Person.Name))];
     }

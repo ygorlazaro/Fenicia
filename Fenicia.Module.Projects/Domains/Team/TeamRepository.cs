@@ -1,9 +1,9 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Project;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.Projects.Domains.Team.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.Projects/Domains/Team/TeamRepository.cs implementation.

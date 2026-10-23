@@ -1,9 +1,9 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Repositories;
 using Fenicia.Module.SocialNetwork.Domains.Feed.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Fenicia.Common;
 
 /// <summary>
 /// Fenicia.Module.SocialNetwork/Domains/Feed/FeedRepository.cs implementation.

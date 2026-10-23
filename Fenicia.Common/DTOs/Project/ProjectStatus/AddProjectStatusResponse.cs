@@ -7,8 +7,8 @@ public class AddProjectStatusResponse()
     public AddProjectStatusResponse(
         [Required] Guid id,
         [Required] Guid projectId,
-        [Required] [MaxLength(200)] string name,
-        [Required] [MaxLength(200)] string color,
+        [Required][MaxLength(200)] string name,
+        [Required][MaxLength(200)] string color,
         int order,
         bool isFinal,
         [Required] Guid companyId)

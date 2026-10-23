@@ -1,6 +1,7 @@
 using System.Globalization;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Dashboard;
+using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
@@ -62,7 +63,7 @@ public sealed class DashboardService(
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetRecentOrdersAsync(
+    public Task<List<OrderResponse>> GetRecentOrdersAsync(
         int topLimit,
         CancellationToken cancellationToken = default)
     {
@@ -70,19 +71,19 @@ public sealed class DashboardService(
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
+    public Task<List<OrderResponse>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetTopCustomerOrdersAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
+    public Task<List<OrderResponse>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetAtRiskOrdersAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
+    public Task<List<OrderResponse>> GetEmployeePerformanceOrdersAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default)
@@ -253,10 +254,10 @@ public sealed class DashboardService(
 
         var accountsReceivable = new AccountsReceivableResponse
         {
-            TotalPending = orderList.Where(o => o.Status == EnumOrderStatus.Pending).Sum(o => o.TotalAmount),
-            PendingOrdersCount = orderList.Count(o => o.Status == EnumOrderStatus.Pending),
-            TotalApproved = orderList.Where(o => o.Status == EnumOrderStatus.Approved).Sum(o => o.TotalAmount),
-            ApprovedOrdersCount = orderList.Count(o => o.Status == EnumOrderStatus.Approved)
+            TotalPending = orderList.Where(o => o.Status == EnumOrderStatus.Pending.ToString()).Sum(o => o.TotalAmount),
+            PendingOrdersCount = orderList.Count(o => o.Status == EnumOrderStatus.Pending.ToString()),
+            TotalApproved = orderList.Where(o => o.Status == EnumOrderStatus.Approved.ToString()).Sum(o => o.TotalAmount),
+            ApprovedOrdersCount = orderList.Count(o => o.Status == EnumOrderStatus.Approved.ToString())
         };
 
         return accountsReceivable;

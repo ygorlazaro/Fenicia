@@ -6,7 +6,7 @@ public class UpdateTeamCommand()
 {
     public UpdateTeamCommand(
         [Required] Guid id,
-        [Required] [MaxLength(128)] string name,
+        [Required][MaxLength(128)] string name,
         [MaxLength(2000)] string? description,
         [MaxLength(30)] string color)
         : this()

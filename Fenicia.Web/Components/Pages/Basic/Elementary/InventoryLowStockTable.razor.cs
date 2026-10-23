@@ -6,6 +6,6 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class InventoryLowStockTable
 {
     [Parameter]
-[EditorRequired]
-public List<LowStockItem> Items { get; set; } = [];
+    [EditorRequired]
+    public List<LowStockItem> Items { get; set; } = [];
 }

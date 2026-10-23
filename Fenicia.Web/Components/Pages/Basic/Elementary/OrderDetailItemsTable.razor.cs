@@ -6,6 +6,6 @@ namespace Fenicia.Web.Components.Pages.Basic.Elementary;
 public partial class OrderDetailItemsTable
 {
     [Parameter]
-[EditorRequired]
-public List<OrderDetailResponse> Items { get; set; } = [];
+    [EditorRequired]
+    public List<OrderDetailResponse> Items { get; set; } = [];
 }

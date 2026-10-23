@@ -22,8 +22,8 @@ public class UserRepository(DbContext context) : Repository<UserModel>(context),
     public override async Task<IEnumerable<UserModel>> GetAllAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         var orderedQuery = from u in DbSet
-            orderby u.Name
-            select u;
+                           orderby u.Name
+                           select u;
 
         return await orderedQuery
             .Skip((query.Page - 1) * query.PerPage)

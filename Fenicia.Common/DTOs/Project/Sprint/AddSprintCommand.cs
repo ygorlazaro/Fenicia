@@ -7,7 +7,7 @@ public class AddSprintCommand()
     public AddSprintCommand(
         [Required] Guid id,
         [Required] Guid projectId,
-        [Required] [MaxLength(256)] string name,
+        [Required][MaxLength(256)] string name,
         DateTime? startDate,
         DateTime? endDate,
         [MaxLength(4096)] string? description,

@@ -4,7 +4,7 @@ namespace Fenicia.Common.DTOs.Project.ProjectComment;
 
 public class UpdateProjectCommentCommand()
 {
-    public UpdateProjectCommentCommand([Required] Guid id, [Required] [MaxLength(200)] string content)
+    public UpdateProjectCommentCommand([Required] Guid id, [Required][MaxLength(200)] string content)
         : this()
     {
         Id = id;

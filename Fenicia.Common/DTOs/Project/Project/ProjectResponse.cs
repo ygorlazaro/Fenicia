@@ -6,9 +6,9 @@ public class ProjectResponse()
 {
     public ProjectResponse(
         [Required] Guid id,
-        [Required] [MaxLength(200)] string title,
+        [Required][MaxLength(200)] string title,
         [MaxLength(200)] string? description,
-        [Required] [MaxLength(200)] string status,
+        [Required][MaxLength(200)] string status,
         DateTime? startDate,
         DateTime? endDate,
         [Required] Guid owner,
