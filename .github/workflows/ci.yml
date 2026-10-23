@@ -30,7 +30,7 @@ jobs:
       - run: pwsh Fenicia.Web.E2ETests/bin/Release/net10.0/playwright.ps1 install --with-deps
       - run: sudo apt-get update && sudo apt-get install -y xvfb curl
       - run: dotnet build Fenicia.Web/Fenicia.Web.csproj --configuration Release --no-restore
-      - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --no-restore --urls "http://0.0.0.0:5104" &
+      - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --urls "http://0.0.0.0:5104" &
       - run: |
           for i in $(seq 1 60); do
             if curl -sf http://localhost:5104/ > /dev/null 2>&1 || curl -sf http://localhost:5104/login > /dev/null 2>&1; then
@@ -40,13 +40,19 @@ jobs:
             echo "Aguardando servidor web iniciar... ($i/60)"
             sleep 2
           done
-          # Verificar se o servidor realmente iniciou
+      - run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5104/ > /dev/null 2>&1 || curl -sf http://localhost:5104/login > /dev/null 2>&1; then
+              echo "Servidor web está pronto para receber requisições"
+              break
+            fi
+            echo "Esperando servidor web ficar disponível... ($i/30)"
+            sleep 2
+          done
           if ! curl -sf http://localhost:5104/ > /dev/null 2>&1 && ! curl -sf http://localhost:5104/login > /dev/null 2>&1; then
-            echo "ERRO: Servidor web não iniciou após 120 segundos"
+            echo "ERRO: Servidor web não está respondendo após 120 segundos"
             exit 1
           fi
-      - run: sleep 5
-      - run: sleep 5
       - run: xvfb-run dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
         with:
