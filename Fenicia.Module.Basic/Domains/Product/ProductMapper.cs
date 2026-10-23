@@ -46,4 +46,33 @@ public static class ProductMapper
     {
         return [.. products.Select(MapToResponse)];
     }
+
+    /// <summary>
+    /// Maps a ProductResponse to a ProductModel.
+    /// </summary>
+    /// <param name="response">The product response.</param>
+    /// <returns>The product model.</returns>
+    public static ProductModel MapToModel(ProductResponse response)
+    {
+        return new ProductModel
+        {
+            Id = response.Id,
+            Name = response.Name,
+            SKU = response.SKU,
+            Barcode = response.Barcode,
+            Description = response.Description,
+            CostPrice = response.CostPrice,
+            SalesPrice = response.SalesPrice,
+            Quantity = response.Quantity,
+            MinStockLevel = response.MinStockLevel,
+            MaxStockLevel = response.MaxStockLevel,
+            ImageUrl = response.ImageUrl,
+            Weight = response.Weight,
+            Dimensions = response.Dimensions,
+            UnitOfMeasure = response.UnitOfMeasure,
+            CategoryId = response.CategoryId,
+            SupplierId = response.SupplierId,
+            IsActive = response.IsActive
+        };
+    }
 }

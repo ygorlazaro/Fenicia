@@ -1,10 +1,6 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.StockMovement;
 
-/// <summary>
-/// Fenicia.Module.Basic/Domains/StockMovement/Interfaces/IStockMovementService.cs implementation.
-/// </summary>
-
 namespace Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 
 public interface IStockMovementService

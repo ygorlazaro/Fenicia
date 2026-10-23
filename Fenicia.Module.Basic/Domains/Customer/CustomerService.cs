@@ -32,7 +32,7 @@ public sealed class CustomerService(
         PaginationQuery query,
         CancellationToken cancellationToken = default)
     {
-        var customers = await repository.GetAllWithDetailsAsync(query.Page, query.PerPage, cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(query, cancellationToken);
         var total = await repository.CountAsync(cancellationToken);
 
         return CustomerMapper.MapToPaginatedCustomerResponse(customers, total, query);
@@ -42,7 +42,7 @@ public sealed class CustomerService(
     public async Task<List<CustomerDataSourceResponse>> GetAllForDataSourceAsync(
         CancellationToken cancellationToken = default)
     {
-        var customers = await repository.GetAllWithDetailsAsync(cancellationToken: cancellationToken);
+        var customers = await repository.GetAllWithDetailsAsync(new PaginationQuery(1, int.MaxValue), cancellationToken);
 
         return [.. customers.Select(c => new CustomerDataSourceResponse(c.Id, c.Person.Name))];
     }

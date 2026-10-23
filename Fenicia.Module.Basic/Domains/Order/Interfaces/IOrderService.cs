@@ -76,8 +76,8 @@ public interface IOrderService
     /// <param name="startDate">The start date.</param>
     /// <param name="endDate">The end date.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
-    /// <returns>A collection of order responses.</returns>
-    Task<IEnumerable<OrderResponse>> GetAnalyticsOrdersAsync(
+    /// <returns>A collection of order models.</returns>
+    Task<IEnumerable<OrderModel>> GetAnalyticsOrdersAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default);

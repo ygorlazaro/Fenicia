@@ -1,6 +1,7 @@
 using System.Globalization;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Dashboard;
+using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Dashboard.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
@@ -62,7 +63,7 @@ public sealed class DashboardService(
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetRecentOrdersAsync(
+    public Task<List<OrderResponse>> GetRecentOrdersAsync(
         int topLimit,
         CancellationToken cancellationToken = default)
     {
@@ -70,19 +71,19 @@ public sealed class DashboardService(
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
+    public Task<List<OrderResponse>> GetTopCustomerOrdersAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetTopCustomerOrdersAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
+    public Task<List<OrderResponse>> GetAtRiskOrdersAsync(CancellationToken cancellationToken = default)
     {
         return orderService.GetAtRiskOrdersAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public Task<List<OrderModel>> GetEmployeePerformanceOrdersAsync(
+    public Task<List<OrderResponse>> GetEmployeePerformanceOrdersAsync(
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default)

@@ -1,10 +1,6 @@
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Repositories;
 
-/// <summary>
-/// Fenicia.Module.Basic/Domains/StockMovement/Interfaces/IStockMovementRepository.cs implementation.
-/// </summary>
-
 namespace Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 
 public interface IStockMovementRepository : IRepository<StockMovementModel>

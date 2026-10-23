@@ -1,5 +1,7 @@
+using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.DTOs.Basic.Product;
 using Fenicia.Common.DTOs.Basic.StockMovement;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Exceptions;
@@ -7,10 +9,6 @@ using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
-/// <summary>
-/// Fenicia.Module.Basic/Domains/StockMovement/StockMovementService.cs implementation.
-/// </summary>
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
@@ -88,8 +86,25 @@ public sealed class StockMovementService(
             _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
         };
 
-        product.Quantity = newQuantity;
-        await productService.UpdateAsync(product.Id, product, cancellationToken);
+        var productRequest = new ProductRequest(
+            product.Id,
+            product.Name,
+            product.SKU,
+            product.Barcode,
+            product.Description,
+            product.CostPrice,
+            product.SalesPrice,
+            newQuantity,
+            product.MinStockLevel,
+            product.MaxStockLevel,
+            product.ImageUrl,
+            product.Weight,
+            product.Dimensions,
+            product.UnitOfMeasure,
+            product.CategoryId,
+            product.SupplierId);
+
+        await productService.UpdateAsync(product.Id, productRequest, companyId, cancellationToken);
 
         return MapToAddStockMovementResponse(stockMovement);
     }
@@ -335,7 +350,7 @@ public sealed class StockMovementService(
                       from m in gj.DefaultIfEmpty()
                       let totalSold = m != null ? m.TotalSold ?? 0 : 0
                       let turnoverRate = p.Quantity > 0 ? totalSold / p.Quantity : 0
-                      let categoryName = p.Category.Name
+                      let categoryName = p.CategoryName
                       orderby turnoverRate descending
                       select new
                       {

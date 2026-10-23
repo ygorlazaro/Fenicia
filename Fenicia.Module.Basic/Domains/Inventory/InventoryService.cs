@@ -1,10 +1,13 @@
+using Fenicia.Common;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.DTOs.Basic.Inventory;
+using Fenicia.Common.DTOs.Basic.Order;
 using Fenicia.Common.DTOs.Basic.Product;
 using Fenicia.Module.Basic.Domains.Customer.Interfaces;
 using Fenicia.Module.Basic.Domains.Employee.Interfaces;
 using Fenicia.Module.Basic.Domains.Inventory.Interfaces;
 using Fenicia.Module.Basic.Domains.OrderDetail.Interfaces;
+using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.Interfaces;
 using Fenicia.Module.Basic.Domains.StockMovement.Interfaces;
 using Fenicia.Module.Basic.Domains.Supplier.Interfaces;
@@ -41,7 +44,7 @@ public sealed class InventoryService(
         var totalSalesPrice = await productService.GetTotalSalesPriceAsync(cancellationToken);
         var totalQuantity = await productService.GetTotalQuantityAsync(cancellationToken);
 
-        var inventoryDetailResponses = products.Select(InventoryMapper.MapToDetailResponse).ToList();
+        var inventoryDetailResponses = products.Select(p => InventoryMapper.MapToDetailResponse(ProductMapper.MapToModel(p))).ToList();
 
         return new InventoryResponse
         {
@@ -59,8 +62,7 @@ public sealed class InventoryService(
     {
         var products = await productService.GetByCategoryWithCategoryAsync(
             request.CategoryId,
-            request.Page,
-            request.PerPage,
+            new PaginationQuery(request.Page, request.PerPage),
             cancellationToken);
 
         var totalCostPrice = await productService.GetTotalCostPriceByCategoryAsync(request.CategoryId, cancellationToken);
@@ -70,7 +72,7 @@ public sealed class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(InventoryMapper.MapToDetailResponse)],
+            Items = [.. products.Select(p => InventoryMapper.MapToDetailResponse(ProductMapper.MapToModel(p)))],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -84,8 +86,7 @@ public sealed class InventoryService(
     {
         var products = await productService.GetByIdWithCategoryAsync(
             request.ProductId,
-            request.Page,
-            request.PerPage,
+            new PaginationQuery(request.Page, request.PerPage),
             cancellationToken);
 
         var totalCostPrice = await productService.GetTotalCostPriceByProductAsync(request.ProductId, cancellationToken);
@@ -94,7 +95,7 @@ public sealed class InventoryService(
 
         return new InventoryResponse
         {
-            Items = [.. products.Select(InventoryMapper.MapToDetailResponse)],
+            Items = [.. products.Select(p => InventoryMapper.MapToDetailResponse(ProductMapper.MapToModel(p)))],
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity
@@ -210,7 +211,7 @@ public sealed class InventoryService(
     private async Task<(IEnumerable<Guid> ActiveProductIds, List<ZeroMovementProductResponse> ZeroMovementProducts)>
         GetActiveProductIdsAsync(
             IEnumerable<StockMovementModel> stockMovements,
-            IEnumerable<OrderDetailModel> orderDetails,
+            IEnumerable<OrderDetailResponse> orderDetails,
             CancellationToken cancellationToken = default)
     {
         var movementProductIds = stockMovements.Select(m => m.ProductId).Distinct().ToList();
@@ -266,14 +267,13 @@ public sealed class InventoryService(
         decimal totalStockValue,
         CancellationToken cancellationToken = default)
     {
-        var totalProducts = await productService.CountAsync(p => p.Quantity > 0, cancellationToken);
+        var totalProducts = await productService.GetCountAsync(cancellationToken);
         var totalZeroMovementProducts = zeroMovementProducts.Count();
 
         var zeroMovementPercentage = totalProducts > 0 ? (decimal)totalZeroMovementProducts / totalProducts * 100 : 0;
 
-        var healthyProducts = await productService.CountAsync(
-            p => p.Quantity > 0 && activeProductIds.Contains(p.Id),
-            cancellationToken);
+        var allProducts = await productService.GetAllWithDetailsAsync(new PaginationQuery(1, int.MaxValue), cancellationToken);
+        var healthyProducts = allProducts.Count(p => p.Quantity > 0 && activeProductIds.Contains(p.Id));
 
         var summary = new InventoryHealthSummaryResponse
         {

@@ -245,14 +245,14 @@ public sealed class ProductService(
     public async Task<List<ProductResponse>> GetAllWithSupplierAsync(CancellationToken cancellationToken = default)
     {
         var products = await repository.GetAllWithSupplierAsync(cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
     public async Task<List<ProductResponse>> GetAllForStatsAsync(CancellationToken cancellationToken = default)
     {
         var products = await repository.GetAllForStatsAsync(cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
@@ -261,7 +261,27 @@ public sealed class ProductService(
         CancellationToken cancellationToken = default)
     {
         var products = await repository.GetAllWithCategoryAsync(query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(p => new ProductResponse(
+            p.Id,
+            p.Name,
+            p.SKU,
+            p.Barcode,
+            p.Description,
+            p.CostPrice,
+            p.SalesPrice,
+            p.Quantity,
+            p.MinStockLevel,
+            p.MaxStockLevel,
+            p.ImageUrl,
+            p.Weight,
+            p.Dimensions,
+            p.UnitOfMeasure,
+            p.CategoryId,
+            p.Category?.Name ?? string.Empty,
+            p.SupplierId,
+            p.Supplier?.Person.Name ?? string.Empty,
+            p.IsActive
+        )).ToList()];
     }
 
     /// <inheritdoc />
@@ -289,7 +309,7 @@ public sealed class ProductService(
         CancellationToken cancellationToken = default)
     {
         var products = await repository.GetByCategoryWithCategoryAsync(categoryId, query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
@@ -323,7 +343,7 @@ public sealed class ProductService(
         CancellationToken cancellationToken = default)
     {
         var products = await repository.GetByIdWithCategoryAsync(productId, query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     /// <inheritdoc />
@@ -416,7 +436,7 @@ public sealed class ProductService(
         CancellationToken cancellationToken = default)
     {
         var products = await repository.GetAllWithDetailsAsync(query, cancellationToken);
-        return products.Select(ProductMapper.MapToResponse).ToList();
+        return [.. products.Select(ProductMapper.MapToResponse)];
     }
 
     private static string ClassifyMargin(double margin)
