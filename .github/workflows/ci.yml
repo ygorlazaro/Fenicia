@@ -29,7 +29,8 @@ jobs:
       - run: dotnet build Fenicia.Web.E2ETests/Fenicia.Web.E2ETests.csproj --configuration Release --no-restore
       - run: pwsh Fenicia.Web.E2ETests/bin/Release/net10.0/playwright.ps1 install --with-deps
       - run: sudo apt-get update && sudo apt-get install -y xvfb curl
-      - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --urls "http://0.0.0.0:5104" &
+      - run: dotnet build Fenicia.Web/Fenicia.Web.csproj --configuration Release --no-restore
+      - run: dotnet run --project Fenicia.Web/Fenicia.Web.csproj --configuration Release --no-restore --urls "http://0.0.0.0:5104" &
       - run: |
           for i in $(seq 1 60); do
             if curl -sf http://localhost:5104/ > /dev/null 2>&1 || curl -sf http://localhost:5104/login > /dev/null 2>&1; then
@@ -44,6 +45,7 @@ jobs:
             echo "ERRO: Servidor web não iniciou após 120 segundos"
             exit 1
           fi
+      - run: sleep 5
       - run: sleep 5
       - run: xvfb-run dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
