@@ -44,6 +44,7 @@ jobs:
             echo "ERRO: Servidor web não iniciou após 120 segundos"
             exit 1
           fi
+      - run: sleep 5
       - run: xvfb-run dotnet test Fenicia.slnx --configuration Release --collect:"XPlat Code Coverage;Format=Cobertura" --results-directory /tmp/coverage-all
       - uses: actions/upload-artifact@v4
         with:
